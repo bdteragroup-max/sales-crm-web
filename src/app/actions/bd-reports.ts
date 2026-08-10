@@ -10,10 +10,12 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
 
     // RBAC Enforcement
     const isExecutive = ['SUPER_ADMIN', 'ผู้จัดการ'].includes(currentUser.role) || currentUser.role?.toLowerCase().includes('mgr') || currentUser.role?.toLowerCase().includes('manager');
-    const isBDLead = currentUser.role === 'Business Development';
+    const isBDLead = ['Business Development'].includes(currentUser.role);
+    const isBDIntern = currentUser.role === 'BD Intern';
+    const isBD = isBDLead || isBDIntern;
     
     let effectiveUserId = targetUserId || currentUser.id;
-    if (!isExecutive && !isBDLead) {
+    if (!isExecutive && !isBD) {
       if (targetUserId && targetUserId !== currentUser.id) {
         return { success: false, error: 'Unauthorized to view other users\' reports' };
       }
@@ -194,7 +196,7 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
 
     const now = new Date();
     const isExecutive = ['SUPER_ADMIN', 'ผู้จัดการ'].includes(currentUser.role) || currentUser.role?.toLowerCase().includes('mgr') || currentUser.role?.toLowerCase().includes('manager');
-    const isBD = currentUser.role === 'Business Development';
+    const isBD = ['Business Development', 'BD Intern'].includes(currentUser.role);
 
     if (!isExecutive && !isBD) {
       return { success: false, error: 'Unauthorized' };
@@ -217,7 +219,7 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
     const users = await prisma.user.findMany({
       where: { 
         OR: [
-          { role: 'Business Development' },
+          { role: { in: ['Business Development', 'BD Intern'] } },
           { id: { in: ownerIds } }
         ]
       },
@@ -359,7 +361,7 @@ export async function getBDTeamMembers() {
     const members = await prisma.user.findMany({
       where: { 
         OR: [
-          { role: { in: ['Business Development', 'SUPER_ADMIN', 'ผู้จัดการ'] } },
+          { role: { in: ['Business Development', 'BD Intern', 'SUPER_ADMIN', 'ผู้จัดการ'] } },
           { role: { contains: 'MGR' } },
           { id: { in: ownerIds } }
         ]

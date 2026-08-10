@@ -140,7 +140,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
             <p className="text-gray-500 text-sm mt-1">ติดตามผลการดำเนินงานและปัญหาที่ติดขัด</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 mt-4 md:mt-0">
+          <div className="flex flex-col lg:flex-row flex-wrap lg:flex-nowrap items-start lg:items-center gap-3 mt-4 md:mt-0">
             {/* Date Picker UI */}
             <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg p-1">
               <select 
@@ -167,20 +167,20 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
             </div>
             
             {canViewTeam && (
-              <>
+              <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200">
                 <button 
                   onClick={() => setViewMode('TEAM')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${viewMode === 'TEAM' ? 'bg-red-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${viewMode === 'TEAM' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                 >
                   ภาพรวมของทีม
                 </button>
                 <button 
                   onClick={() => setViewMode('INDIVIDUAL')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${viewMode === 'INDIVIDUAL' ? 'bg-red-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${viewMode === 'INDIVIDUAL' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                 >
                   รายงานส่วนบุคคล
                 </button>
-              </>
+              </div>
             )}
             
             {viewMode === 'INDIVIDUAL' && canViewTeam && (

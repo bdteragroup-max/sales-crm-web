@@ -22,6 +22,8 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
   const [savingEdit, setSavingEdit] = useState(false);
   
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [showOnlyBD, setShowOnlyBD] = useState(true);
 
   // Add Task Modal State
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -555,8 +557,33 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">สมาชิกในทีม (Team Members)</label>
                   <p className="text-xs text-gray-500 mb-2">เลือกผู้ที่มีส่วนร่วมหรือรับผิดชอบในโครงการนี้ (นอกเหนือจาก Project Lead)</p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-2 mb-2 items-start sm:items-center">
+                    <input 
+                      type="text" 
+                      placeholder="ค้นหารายชื่อ..." 
+                      className="border border-gray-300 rounded-md p-1.5 text-sm w-full sm:w-64 outline-none focus:ring-1 focus:ring-red-500"
+                      value={memberSearch}
+                      onChange={e => setMemberSearch(e.target.value)}
+                    />
+                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={showOnlyBD} 
+                        onChange={e => setShowOnlyBD(e.target.checked)} 
+                        className="rounded text-red-600 focus:ring-red-500 cursor-pointer"
+                      />
+                      แสดงเฉพาะแผนก BD
+                    </label>
+                  </div>
+
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto p-2 border border-gray-200 rounded-lg">
-                    {allUsers.map(u => (
+                    {allUsers.filter(u => {
+                      const matchesSearch = u.fullName.toLowerCase().includes(memberSearch.toLowerCase());
+                      const isBDRole = ['Business Development', 'BD Intern'].includes(u.role);
+                      const matchesBD = showOnlyBD ? isBDRole : true;
+                      return matchesSearch && matchesBD;
+                    }).map(u => (
                       <label key={u.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-1 rounded">
                         <input 
                           type="checkbox"
