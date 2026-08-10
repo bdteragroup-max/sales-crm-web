@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getAssignedLeads } from "@/app/actions/marketing"
 import SalesLeadsClient from "./SalesLeadsClient"
 import { redirect } from "next/navigation"

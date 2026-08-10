@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React, { Suspense } from 'react';
 import CustomerRequirementClient from './CustomerRequirementClient';
 import { getUser } from '@/app/lib/dal';

@@ -152,6 +152,14 @@ const productionNav = [
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];
 
+const bdNav = [
+  { icon: LayoutDashboard, label: 'BD Dashboard', href: '/bd/dashboard' },
+  { icon: FileText, label: 'BD Intake', href: '/bd/intake' },
+  { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/bd/kanban' },
+  { icon: TrendingUp, label: 'รายงานพัฒนาธุรกิจ (Reports)', href: '/bd/reports' },
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+];
+
 export default function SidebarClient(props: SidebarProps) {
   let nav = repNav;
   const roleStr = (props.userRole || '').toLowerCase();
@@ -163,7 +171,7 @@ export default function SidebarClient(props: SidebarProps) {
   // Combine all navs for Super Admin, ensuring no duplicates by href
   const allNavs = [
     ...executiveNav, ...managerNav, ...repNav, ...serviceNav, ...technicianNav,
-    ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...productionNav
+    ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...productionNav, ...bdNav
   ];
   const superAdminNav = Array.from(new Map(allNavs.map(item => [item.href, item])).values());
 
@@ -202,6 +210,8 @@ export default function SidebarClient(props: SidebarProps) {
     nav = purchasingNav;
   } else if (['warehouse', 'คลังสินค้า', 'store', 'สโตร์'].some(r => roleStr.includes(r))) {
     nav = storeNav;
+  } else if (['business development', 'bd', 'พัฒนาธุรกิจ'].some(r => roleStr.includes(r))) {
+    nav = bdNav;
   } else if (['admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
     // Note: If admin needs procurement links, we can assign them purchasingNav or managerNav
     // But currently admin is grouped here. Let's give admin the purchasingNav as well, 

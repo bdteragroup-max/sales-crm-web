@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { getUserCoins, getCoinTransactions } from '@/app/actions/coins';
 import Image from 'next/image';

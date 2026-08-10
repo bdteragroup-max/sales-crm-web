@@ -653,6 +653,36 @@ export type ProductionTimeLog = $Result.DefaultSelection<Prisma.$ProductionTimeL
  * 
  */
 export type ProductionStep = $Result.DefaultSelection<Prisma.$ProductionStepPayload>
+/**
+ * Model BDWorkType
+ * 
+ */
+export type BDWorkType = $Result.DefaultSelection<Prisma.$BDWorkTypePayload>
+/**
+ * Model BDProject
+ * 
+ */
+export type BDProject = $Result.DefaultSelection<Prisma.$BDProjectPayload>
+/**
+ * Model BDWorkflowTemplate
+ * 
+ */
+export type BDWorkflowTemplate = $Result.DefaultSelection<Prisma.$BDWorkflowTemplatePayload>
+/**
+ * Model BDWorkflowStepTemplate
+ * 
+ */
+export type BDWorkflowStepTemplate = $Result.DefaultSelection<Prisma.$BDWorkflowStepTemplatePayload>
+/**
+ * Model BDTask
+ * 
+ */
+export type BDTask = $Result.DefaultSelection<Prisma.$BDTaskPayload>
+/**
+ * Model BDActivity
+ * 
+ */
+export type BDActivity = $Result.DefaultSelection<Prisma.$BDActivityPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -2054,6 +2084,66 @@ export class PrismaClient<
     * ```
     */
   get productionStep(): Prisma.ProductionStepDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bDWorkType`: Exposes CRUD operations for the **BDWorkType** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BDWorkTypes
+    * const bDWorkTypes = await prisma.bDWorkType.findMany()
+    * ```
+    */
+  get bDWorkType(): Prisma.BDWorkTypeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bDProject`: Exposes CRUD operations for the **BDProject** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BDProjects
+    * const bDProjects = await prisma.bDProject.findMany()
+    * ```
+    */
+  get bDProject(): Prisma.BDProjectDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bDWorkflowTemplate`: Exposes CRUD operations for the **BDWorkflowTemplate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BDWorkflowTemplates
+    * const bDWorkflowTemplates = await prisma.bDWorkflowTemplate.findMany()
+    * ```
+    */
+  get bDWorkflowTemplate(): Prisma.BDWorkflowTemplateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bDWorkflowStepTemplate`: Exposes CRUD operations for the **BDWorkflowStepTemplate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BDWorkflowStepTemplates
+    * const bDWorkflowStepTemplates = await prisma.bDWorkflowStepTemplate.findMany()
+    * ```
+    */
+  get bDWorkflowStepTemplate(): Prisma.BDWorkflowStepTemplateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bDTask`: Exposes CRUD operations for the **BDTask** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BDTasks
+    * const bDTasks = await prisma.bDTask.findMany()
+    * ```
+    */
+  get bDTask(): Prisma.BDTaskDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.bDActivity`: Exposes CRUD operations for the **BDActivity** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BDActivities
+    * const bDActivities = await prisma.bDActivity.findMany()
+    * ```
+    */
+  get bDActivity(): Prisma.BDActivityDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2615,7 +2705,13 @@ export namespace Prisma {
     TechnicianTask: 'TechnicianTask',
     ProductionAssignment: 'ProductionAssignment',
     ProductionTimeLog: 'ProductionTimeLog',
-    ProductionStep: 'ProductionStep'
+    ProductionStep: 'ProductionStep',
+    BDWorkType: 'BDWorkType',
+    BDProject: 'BDProject',
+    BDWorkflowTemplate: 'BDWorkflowTemplate',
+    BDWorkflowStepTemplate: 'BDWorkflowStepTemplate',
+    BDTask: 'BDTask',
+    BDActivity: 'BDActivity'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2631,7 +2727,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog" | "cabinetAssemblyJob" | "assemblyTimeLog" | "cabinetQCReport" | "cabinetFATReport" | "technicianTask" | "productionAssignment" | "productionTimeLog" | "productionStep"
+      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog" | "cabinetAssemblyJob" | "assemblyTimeLog" | "cabinetQCReport" | "cabinetFATReport" | "technicianTask" | "productionAssignment" | "productionTimeLog" | "productionStep" | "bDWorkType" | "bDProject" | "bDWorkflowTemplate" | "bDWorkflowStepTemplate" | "bDTask" | "bDActivity"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -12107,6 +12203,450 @@ export namespace Prisma {
           }
         }
       }
+      BDWorkType: {
+        payload: Prisma.$BDWorkTypePayload<ExtArgs>
+        fields: Prisma.BDWorkTypeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BDWorkTypeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BDWorkTypeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>
+          }
+          findFirst: {
+            args: Prisma.BDWorkTypeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BDWorkTypeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>
+          }
+          findMany: {
+            args: Prisma.BDWorkTypeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>[]
+          }
+          create: {
+            args: Prisma.BDWorkTypeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>
+          }
+          createMany: {
+            args: Prisma.BDWorkTypeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BDWorkTypeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>[]
+          }
+          delete: {
+            args: Prisma.BDWorkTypeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>
+          }
+          update: {
+            args: Prisma.BDWorkTypeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>
+          }
+          deleteMany: {
+            args: Prisma.BDWorkTypeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BDWorkTypeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BDWorkTypeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>[]
+          }
+          upsert: {
+            args: Prisma.BDWorkTypeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkTypePayload>
+          }
+          aggregate: {
+            args: Prisma.BDWorkTypeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBDWorkType>
+          }
+          groupBy: {
+            args: Prisma.BDWorkTypeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BDWorkTypeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BDWorkTypeCountArgs<ExtArgs>
+            result: $Utils.Optional<BDWorkTypeCountAggregateOutputType> | number
+          }
+        }
+      }
+      BDProject: {
+        payload: Prisma.$BDProjectPayload<ExtArgs>
+        fields: Prisma.BDProjectFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BDProjectFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BDProjectFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>
+          }
+          findFirst: {
+            args: Prisma.BDProjectFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BDProjectFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>
+          }
+          findMany: {
+            args: Prisma.BDProjectFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>[]
+          }
+          create: {
+            args: Prisma.BDProjectCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>
+          }
+          createMany: {
+            args: Prisma.BDProjectCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BDProjectCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>[]
+          }
+          delete: {
+            args: Prisma.BDProjectDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>
+          }
+          update: {
+            args: Prisma.BDProjectUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>
+          }
+          deleteMany: {
+            args: Prisma.BDProjectDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BDProjectUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BDProjectUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>[]
+          }
+          upsert: {
+            args: Prisma.BDProjectUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDProjectPayload>
+          }
+          aggregate: {
+            args: Prisma.BDProjectAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBDProject>
+          }
+          groupBy: {
+            args: Prisma.BDProjectGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BDProjectGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BDProjectCountArgs<ExtArgs>
+            result: $Utils.Optional<BDProjectCountAggregateOutputType> | number
+          }
+        }
+      }
+      BDWorkflowTemplate: {
+        payload: Prisma.$BDWorkflowTemplatePayload<ExtArgs>
+        fields: Prisma.BDWorkflowTemplateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BDWorkflowTemplateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BDWorkflowTemplateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>
+          }
+          findFirst: {
+            args: Prisma.BDWorkflowTemplateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BDWorkflowTemplateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>
+          }
+          findMany: {
+            args: Prisma.BDWorkflowTemplateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>[]
+          }
+          create: {
+            args: Prisma.BDWorkflowTemplateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>
+          }
+          createMany: {
+            args: Prisma.BDWorkflowTemplateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BDWorkflowTemplateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>[]
+          }
+          delete: {
+            args: Prisma.BDWorkflowTemplateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>
+          }
+          update: {
+            args: Prisma.BDWorkflowTemplateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>
+          }
+          deleteMany: {
+            args: Prisma.BDWorkflowTemplateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BDWorkflowTemplateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BDWorkflowTemplateUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>[]
+          }
+          upsert: {
+            args: Prisma.BDWorkflowTemplateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowTemplatePayload>
+          }
+          aggregate: {
+            args: Prisma.BDWorkflowTemplateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBDWorkflowTemplate>
+          }
+          groupBy: {
+            args: Prisma.BDWorkflowTemplateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BDWorkflowTemplateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BDWorkflowTemplateCountArgs<ExtArgs>
+            result: $Utils.Optional<BDWorkflowTemplateCountAggregateOutputType> | number
+          }
+        }
+      }
+      BDWorkflowStepTemplate: {
+        payload: Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>
+        fields: Prisma.BDWorkflowStepTemplateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BDWorkflowStepTemplateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BDWorkflowStepTemplateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>
+          }
+          findFirst: {
+            args: Prisma.BDWorkflowStepTemplateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BDWorkflowStepTemplateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>
+          }
+          findMany: {
+            args: Prisma.BDWorkflowStepTemplateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>[]
+          }
+          create: {
+            args: Prisma.BDWorkflowStepTemplateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>
+          }
+          createMany: {
+            args: Prisma.BDWorkflowStepTemplateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BDWorkflowStepTemplateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>[]
+          }
+          delete: {
+            args: Prisma.BDWorkflowStepTemplateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>
+          }
+          update: {
+            args: Prisma.BDWorkflowStepTemplateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>
+          }
+          deleteMany: {
+            args: Prisma.BDWorkflowStepTemplateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BDWorkflowStepTemplateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BDWorkflowStepTemplateUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>[]
+          }
+          upsert: {
+            args: Prisma.BDWorkflowStepTemplateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDWorkflowStepTemplatePayload>
+          }
+          aggregate: {
+            args: Prisma.BDWorkflowStepTemplateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBDWorkflowStepTemplate>
+          }
+          groupBy: {
+            args: Prisma.BDWorkflowStepTemplateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BDWorkflowStepTemplateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BDWorkflowStepTemplateCountArgs<ExtArgs>
+            result: $Utils.Optional<BDWorkflowStepTemplateCountAggregateOutputType> | number
+          }
+        }
+      }
+      BDTask: {
+        payload: Prisma.$BDTaskPayload<ExtArgs>
+        fields: Prisma.BDTaskFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BDTaskFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BDTaskFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>
+          }
+          findFirst: {
+            args: Prisma.BDTaskFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BDTaskFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>
+          }
+          findMany: {
+            args: Prisma.BDTaskFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>[]
+          }
+          create: {
+            args: Prisma.BDTaskCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>
+          }
+          createMany: {
+            args: Prisma.BDTaskCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BDTaskCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>[]
+          }
+          delete: {
+            args: Prisma.BDTaskDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>
+          }
+          update: {
+            args: Prisma.BDTaskUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>
+          }
+          deleteMany: {
+            args: Prisma.BDTaskDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BDTaskUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BDTaskUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>[]
+          }
+          upsert: {
+            args: Prisma.BDTaskUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDTaskPayload>
+          }
+          aggregate: {
+            args: Prisma.BDTaskAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBDTask>
+          }
+          groupBy: {
+            args: Prisma.BDTaskGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BDTaskGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BDTaskCountArgs<ExtArgs>
+            result: $Utils.Optional<BDTaskCountAggregateOutputType> | number
+          }
+        }
+      }
+      BDActivity: {
+        payload: Prisma.$BDActivityPayload<ExtArgs>
+        fields: Prisma.BDActivityFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BDActivityFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BDActivityFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>
+          }
+          findFirst: {
+            args: Prisma.BDActivityFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BDActivityFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>
+          }
+          findMany: {
+            args: Prisma.BDActivityFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>[]
+          }
+          create: {
+            args: Prisma.BDActivityCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>
+          }
+          createMany: {
+            args: Prisma.BDActivityCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BDActivityCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>[]
+          }
+          delete: {
+            args: Prisma.BDActivityDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>
+          }
+          update: {
+            args: Prisma.BDActivityUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>
+          }
+          deleteMany: {
+            args: Prisma.BDActivityDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BDActivityUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BDActivityUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>[]
+          }
+          upsert: {
+            args: Prisma.BDActivityUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BDActivityPayload>
+          }
+          aggregate: {
+            args: Prisma.BDActivityAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBDActivity>
+          }
+          groupBy: {
+            args: Prisma.BDActivityGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BDActivityGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BDActivityCountArgs<ExtArgs>
+            result: $Utils.Optional<BDActivityCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -12343,6 +12883,12 @@ export namespace Prisma {
     productionAssignment?: ProductionAssignmentOmit
     productionTimeLog?: ProductionTimeLogOmit
     productionStep?: ProductionStepOmit
+    bDWorkType?: BDWorkTypeOmit
+    bDProject?: BDProjectOmit
+    bDWorkflowTemplate?: BDWorkflowTemplateOmit
+    bDWorkflowStepTemplate?: BDWorkflowStepTemplateOmit
+    bDTask?: BDTaskOmit
+    bDActivity?: BDActivityOmit
   }
 
   /* Types for Logging */
@@ -12423,6 +12969,10 @@ export namespace Prisma {
    */
 
   export type UserCountOutputType = {
+    bdActivities: number
+    bdOwnedProjects: number
+    bdRequests: number
+    bdAssignedTasks: number
     cabinetAssemblyJobs: number
     assignedCompanies: number
     companyInteractions: number
@@ -12457,6 +13007,10 @@ export namespace Prisma {
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bdActivities?: boolean | UserCountOutputTypeCountBdActivitiesArgs
+    bdOwnedProjects?: boolean | UserCountOutputTypeCountBdOwnedProjectsArgs
+    bdRequests?: boolean | UserCountOutputTypeCountBdRequestsArgs
+    bdAssignedTasks?: boolean | UserCountOutputTypeCountBdAssignedTasksArgs
     cabinetAssemblyJobs?: boolean | UserCountOutputTypeCountCabinetAssemblyJobsArgs
     assignedCompanies?: boolean | UserCountOutputTypeCountAssignedCompaniesArgs
     companyInteractions?: boolean | UserCountOutputTypeCountCompanyInteractionsArgs
@@ -12499,6 +13053,34 @@ export namespace Prisma {
      * Select specific fields to fetch from the UserCountOutputType
      */
     select?: UserCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBdActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDActivityWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBdOwnedProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDProjectWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBdRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDProjectWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBdAssignedTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDTaskWhereInput
   }
 
   /**
@@ -14506,6 +15088,126 @@ export namespace Prisma {
 
 
   /**
+   * Count Type BDWorkTypeCountOutputType
+   */
+
+  export type BDWorkTypeCountOutputType = {
+    projects: number
+  }
+
+  export type BDWorkTypeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    projects?: boolean | BDWorkTypeCountOutputTypeCountProjectsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BDWorkTypeCountOutputType without action
+   */
+  export type BDWorkTypeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkTypeCountOutputType
+     */
+    select?: BDWorkTypeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BDWorkTypeCountOutputType without action
+   */
+  export type BDWorkTypeCountOutputTypeCountProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDProjectWhereInput
+  }
+
+
+  /**
+   * Count Type BDProjectCountOutputType
+   */
+
+  export type BDProjectCountOutputType = {
+    activities: number
+    subProjects: number
+    tasks: number
+  }
+
+  export type BDProjectCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activities?: boolean | BDProjectCountOutputTypeCountActivitiesArgs
+    subProjects?: boolean | BDProjectCountOutputTypeCountSubProjectsArgs
+    tasks?: boolean | BDProjectCountOutputTypeCountTasksArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BDProjectCountOutputType without action
+   */
+  export type BDProjectCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProjectCountOutputType
+     */
+    select?: BDProjectCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BDProjectCountOutputType without action
+   */
+  export type BDProjectCountOutputTypeCountActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDActivityWhereInput
+  }
+
+  /**
+   * BDProjectCountOutputType without action
+   */
+  export type BDProjectCountOutputTypeCountSubProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDProjectWhereInput
+  }
+
+  /**
+   * BDProjectCountOutputType without action
+   */
+  export type BDProjectCountOutputTypeCountTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDTaskWhereInput
+  }
+
+
+  /**
+   * Count Type BDWorkflowTemplateCountOutputType
+   */
+
+  export type BDWorkflowTemplateCountOutputType = {
+    workTypes: number
+    steps: number
+  }
+
+  export type BDWorkflowTemplateCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workTypes?: boolean | BDWorkflowTemplateCountOutputTypeCountWorkTypesArgs
+    steps?: boolean | BDWorkflowTemplateCountOutputTypeCountStepsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BDWorkflowTemplateCountOutputType without action
+   */
+  export type BDWorkflowTemplateCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplateCountOutputType
+     */
+    select?: BDWorkflowTemplateCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BDWorkflowTemplateCountOutputType without action
+   */
+  export type BDWorkflowTemplateCountOutputTypeCountWorkTypesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDWorkTypeWhereInput
+  }
+
+  /**
+   * BDWorkflowTemplateCountOutputType without action
+   */
+  export type BDWorkflowTemplateCountOutputTypeCountStepsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDWorkflowStepTemplateWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -14737,6 +15439,10 @@ export namespace Prisma {
     otpCode?: boolean
     otpExpiresAt?: boolean
     isActive?: boolean
+    bdActivities?: boolean | User$bdActivitiesArgs<ExtArgs>
+    bdOwnedProjects?: boolean | User$bdOwnedProjectsArgs<ExtArgs>
+    bdRequests?: boolean | User$bdRequestsArgs<ExtArgs>
+    bdAssignedTasks?: boolean | User$bdAssignedTasksArgs<ExtArgs>
     cabinetAssemblyJobs?: boolean | User$cabinetAssemblyJobsArgs<ExtArgs>
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
     companyInteractions?: boolean | User$companyInteractionsArgs<ExtArgs>
@@ -14822,6 +15528,10 @@ export namespace Prisma {
 
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employeeId" | "email" | "fullName" | "phoneNumber" | "role" | "position" | "password" | "createdAt" | "updatedAt" | "otpCode" | "otpExpiresAt" | "isActive", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bdActivities?: boolean | User$bdActivitiesArgs<ExtArgs>
+    bdOwnedProjects?: boolean | User$bdOwnedProjectsArgs<ExtArgs>
+    bdRequests?: boolean | User$bdRequestsArgs<ExtArgs>
+    bdAssignedTasks?: boolean | User$bdAssignedTasksArgs<ExtArgs>
     cabinetAssemblyJobs?: boolean | User$cabinetAssemblyJobsArgs<ExtArgs>
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
     companyInteractions?: boolean | User$companyInteractionsArgs<ExtArgs>
@@ -14862,6 +15572,10 @@ export namespace Prisma {
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
+      bdActivities: Prisma.$BDActivityPayload<ExtArgs>[]
+      bdOwnedProjects: Prisma.$BDProjectPayload<ExtArgs>[]
+      bdRequests: Prisma.$BDProjectPayload<ExtArgs>[]
+      bdAssignedTasks: Prisma.$BDTaskPayload<ExtArgs>[]
       cabinetAssemblyJobs: Prisma.$CabinetAssemblyJobPayload<ExtArgs>[]
       assignedCompanies: Prisma.$CompanyPayload<ExtArgs>[]
       companyInteractions: Prisma.$CompanyInteractionPayload<ExtArgs>[]
@@ -15303,6 +16017,10 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    bdActivities<T extends User$bdActivitiesArgs<ExtArgs> = {}>(args?: Subset<T, User$bdActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bdOwnedProjects<T extends User$bdOwnedProjectsArgs<ExtArgs> = {}>(args?: Subset<T, User$bdOwnedProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bdRequests<T extends User$bdRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$bdRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bdAssignedTasks<T extends User$bdAssignedTasksArgs<ExtArgs> = {}>(args?: Subset<T, User$bdAssignedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     cabinetAssemblyJobs<T extends User$cabinetAssemblyJobsArgs<ExtArgs> = {}>(args?: Subset<T, User$cabinetAssemblyJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CabinetAssemblyJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedCompanies<T extends User$assignedCompaniesArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedCompaniesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     companyInteractions<T extends User$companyInteractionsArgs<ExtArgs> = {}>(args?: Subset<T, User$companyInteractionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -15767,6 +16485,102 @@ export namespace Prisma {
      * Limit how many Users to delete.
      */
     limit?: number
+  }
+
+  /**
+   * User.bdActivities
+   */
+  export type User$bdActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    where?: BDActivityWhereInput
+    orderBy?: BDActivityOrderByWithRelationInput | BDActivityOrderByWithRelationInput[]
+    cursor?: BDActivityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDActivityScalarFieldEnum | BDActivityScalarFieldEnum[]
+  }
+
+  /**
+   * User.bdOwnedProjects
+   */
+  export type User$bdOwnedProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    where?: BDProjectWhereInput
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    cursor?: BDProjectWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDProjectScalarFieldEnum | BDProjectScalarFieldEnum[]
+  }
+
+  /**
+   * User.bdRequests
+   */
+  export type User$bdRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    where?: BDProjectWhereInput
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    cursor?: BDProjectWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDProjectScalarFieldEnum | BDProjectScalarFieldEnum[]
+  }
+
+  /**
+   * User.bdAssignedTasks
+   */
+  export type User$bdAssignedTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    where?: BDTaskWhereInput
+    orderBy?: BDTaskOrderByWithRelationInput | BDTaskOrderByWithRelationInput[]
+    cursor?: BDTaskWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDTaskScalarFieldEnum | BDTaskScalarFieldEnum[]
   }
 
   /**
@@ -162762,8 +163576,8 @@ export namespace Prisma {
     timeLogs?: boolean | CabinetAssemblyJob$timeLogsArgs<ExtArgs>
     order?: boolean | OrderDefaultArgs<ExtArgs>
     technician?: boolean | UserDefaultArgs<ExtArgs>
-    qcReport?: boolean | CabinetAssemblyJob$qcReportArgs<ExtArgs>
     fatReport?: boolean | CabinetAssemblyJob$fatReportArgs<ExtArgs>
+    qcReport?: boolean | CabinetAssemblyJob$qcReportArgs<ExtArgs>
     _count?: boolean | CabinetAssemblyJobCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cabinetAssemblyJob"]>
 
@@ -162815,8 +163629,8 @@ export namespace Prisma {
     timeLogs?: boolean | CabinetAssemblyJob$timeLogsArgs<ExtArgs>
     order?: boolean | OrderDefaultArgs<ExtArgs>
     technician?: boolean | UserDefaultArgs<ExtArgs>
-    qcReport?: boolean | CabinetAssemblyJob$qcReportArgs<ExtArgs>
     fatReport?: boolean | CabinetAssemblyJob$fatReportArgs<ExtArgs>
+    qcReport?: boolean | CabinetAssemblyJob$qcReportArgs<ExtArgs>
     _count?: boolean | CabinetAssemblyJobCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CabinetAssemblyJobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -162834,8 +163648,8 @@ export namespace Prisma {
       timeLogs: Prisma.$AssemblyTimeLogPayload<ExtArgs>[]
       order: Prisma.$OrderPayload<ExtArgs>
       technician: Prisma.$UserPayload<ExtArgs>
-      qcReport: Prisma.$CabinetQCReportPayload<ExtArgs> | null
       fatReport: Prisma.$CabinetFATReportPayload<ExtArgs> | null
+      qcReport: Prisma.$CabinetQCReportPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -163245,8 +164059,8 @@ export namespace Prisma {
     timeLogs<T extends CabinetAssemblyJob$timeLogsArgs<ExtArgs> = {}>(args?: Subset<T, CabinetAssemblyJob$timeLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssemblyTimeLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     technician<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    qcReport<T extends CabinetAssemblyJob$qcReportArgs<ExtArgs> = {}>(args?: Subset<T, CabinetAssemblyJob$qcReportArgs<ExtArgs>>): Prisma__CabinetQCReportClient<$Result.GetResult<Prisma.$CabinetQCReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     fatReport<T extends CabinetAssemblyJob$fatReportArgs<ExtArgs> = {}>(args?: Subset<T, CabinetAssemblyJob$fatReportArgs<ExtArgs>>): Prisma__CabinetFATReportClient<$Result.GetResult<Prisma.$CabinetFATReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    qcReport<T extends CabinetAssemblyJob$qcReportArgs<ExtArgs> = {}>(args?: Subset<T, CabinetAssemblyJob$qcReportArgs<ExtArgs>>): Prisma__CabinetQCReportClient<$Result.GetResult<Prisma.$CabinetQCReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -163711,25 +164525,6 @@ export namespace Prisma {
   }
 
   /**
-   * CabinetAssemblyJob.qcReport
-   */
-  export type CabinetAssemblyJob$qcReportArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CabinetQCReport
-     */
-    select?: CabinetQCReportSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CabinetQCReport
-     */
-    omit?: CabinetQCReportOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CabinetQCReportInclude<ExtArgs> | null
-    where?: CabinetQCReportWhereInput
-  }
-
-  /**
    * CabinetAssemblyJob.fatReport
    */
   export type CabinetAssemblyJob$fatReportArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -163746,6 +164541,25 @@ export namespace Prisma {
      */
     include?: CabinetFATReportInclude<ExtArgs> | null
     where?: CabinetFATReportWhereInput
+  }
+
+  /**
+   * CabinetAssemblyJob.qcReport
+   */
+  export type CabinetAssemblyJob$qcReportArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CabinetQCReport
+     */
+    select?: CabinetQCReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CabinetQCReport
+     */
+    omit?: CabinetQCReportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CabinetQCReportInclude<ExtArgs> | null
+    where?: CabinetQCReportWhereInput
   }
 
   /**
@@ -164843,92 +165657,92 @@ export namespace Prisma {
   export type CabinetQCReportMinAggregateOutputType = {
     id: string | null
     cabinetAssemblyJobId: string | null
-    serialNumber: string | null
-    nameplate: string | null
-    cabinetType: string | null
-    fanStatus: string | null
-    magicMarks: boolean | null
-    cabinetBody: boolean | null
     inverterCorrect: boolean | null
-    frontPanelEquipment: boolean | null
-    wireDucting: boolean | null
-    terminals: boolean | null
     cabinetKey: boolean | null
-    internalWiring: boolean | null
-    screwsTightened: boolean | null
-    groundingSystem: boolean | null
-    noMarks: boolean | null
-    overallEquipmentCheck: boolean | null
-    electricalSystem: boolean | null
-    wiringConnections: boolean | null
-    warningLabels: boolean | null
+    cabinetType: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    cabinetBody: boolean | null
+    frontPanelEquipment: boolean | null
+    groundingSystem: boolean | null
+    overallEquipmentCheck: boolean | null
     qcCorrections: string | null
     qcInspectorName: string | null
     qcNotes: string | null
     qcStatus: string | null
+    electricalSystem: boolean | null
+    fanStatus: string | null
+    internalWiring: boolean | null
+    magicMarks: boolean | null
+    nameplate: string | null
+    noMarks: boolean | null
+    screwsTightened: boolean | null
+    serialNumber: string | null
+    terminals: boolean | null
+    warningLabels: boolean | null
+    wireDucting: boolean | null
+    wiringConnections: boolean | null
   }
 
   export type CabinetQCReportMaxAggregateOutputType = {
     id: string | null
     cabinetAssemblyJobId: string | null
-    serialNumber: string | null
-    nameplate: string | null
-    cabinetType: string | null
-    fanStatus: string | null
-    magicMarks: boolean | null
-    cabinetBody: boolean | null
     inverterCorrect: boolean | null
-    frontPanelEquipment: boolean | null
-    wireDucting: boolean | null
-    terminals: boolean | null
     cabinetKey: boolean | null
-    internalWiring: boolean | null
-    screwsTightened: boolean | null
-    groundingSystem: boolean | null
-    noMarks: boolean | null
-    overallEquipmentCheck: boolean | null
-    electricalSystem: boolean | null
-    wiringConnections: boolean | null
-    warningLabels: boolean | null
+    cabinetType: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    cabinetBody: boolean | null
+    frontPanelEquipment: boolean | null
+    groundingSystem: boolean | null
+    overallEquipmentCheck: boolean | null
     qcCorrections: string | null
     qcInspectorName: string | null
     qcNotes: string | null
     qcStatus: string | null
+    electricalSystem: boolean | null
+    fanStatus: string | null
+    internalWiring: boolean | null
+    magicMarks: boolean | null
+    nameplate: string | null
+    noMarks: boolean | null
+    screwsTightened: boolean | null
+    serialNumber: string | null
+    terminals: boolean | null
+    warningLabels: boolean | null
+    wireDucting: boolean | null
+    wiringConnections: boolean | null
   }
 
   export type CabinetQCReportCountAggregateOutputType = {
     id: number
     cabinetAssemblyJobId: number
-    serialNumber: number
-    nameplate: number
-    cabinetType: number
-    fanStatus: number
-    magicMarks: number
-    cabinetBody: number
     inverterCorrect: number
-    frontPanelEquipment: number
-    wireDucting: number
-    terminals: number
     cabinetKey: number
-    internalWiring: number
-    screwsTightened: number
-    groundingSystem: number
-    noMarks: number
-    overallEquipmentCheck: number
-    electricalSystem: number
-    wiringConnections: number
-    warningLabels: number
+    cabinetType: number
     confirmationPhotos: number
     createdAt: number
     updatedAt: number
+    cabinetBody: number
+    frontPanelEquipment: number
+    groundingSystem: number
+    overallEquipmentCheck: number
     qcCorrections: number
     qcInspectorName: number
     qcNotes: number
     qcStatus: number
+    electricalSystem: number
+    fanStatus: number
+    internalWiring: number
+    magicMarks: number
+    nameplate: number
+    noMarks: number
+    screwsTightened: number
+    serialNumber: number
+    terminals: number
+    warningLabels: number
+    wireDucting: number
+    wiringConnections: number
     _all: number
   }
 
@@ -164936,92 +165750,92 @@ export namespace Prisma {
   export type CabinetQCReportMinAggregateInputType = {
     id?: true
     cabinetAssemblyJobId?: true
-    serialNumber?: true
-    nameplate?: true
-    cabinetType?: true
-    fanStatus?: true
-    magicMarks?: true
-    cabinetBody?: true
     inverterCorrect?: true
-    frontPanelEquipment?: true
-    wireDucting?: true
-    terminals?: true
     cabinetKey?: true
-    internalWiring?: true
-    screwsTightened?: true
-    groundingSystem?: true
-    noMarks?: true
-    overallEquipmentCheck?: true
-    electricalSystem?: true
-    wiringConnections?: true
-    warningLabels?: true
+    cabinetType?: true
     createdAt?: true
     updatedAt?: true
+    cabinetBody?: true
+    frontPanelEquipment?: true
+    groundingSystem?: true
+    overallEquipmentCheck?: true
     qcCorrections?: true
     qcInspectorName?: true
     qcNotes?: true
     qcStatus?: true
+    electricalSystem?: true
+    fanStatus?: true
+    internalWiring?: true
+    magicMarks?: true
+    nameplate?: true
+    noMarks?: true
+    screwsTightened?: true
+    serialNumber?: true
+    terminals?: true
+    warningLabels?: true
+    wireDucting?: true
+    wiringConnections?: true
   }
 
   export type CabinetQCReportMaxAggregateInputType = {
     id?: true
     cabinetAssemblyJobId?: true
-    serialNumber?: true
-    nameplate?: true
-    cabinetType?: true
-    fanStatus?: true
-    magicMarks?: true
-    cabinetBody?: true
     inverterCorrect?: true
-    frontPanelEquipment?: true
-    wireDucting?: true
-    terminals?: true
     cabinetKey?: true
-    internalWiring?: true
-    screwsTightened?: true
-    groundingSystem?: true
-    noMarks?: true
-    overallEquipmentCheck?: true
-    electricalSystem?: true
-    wiringConnections?: true
-    warningLabels?: true
+    cabinetType?: true
     createdAt?: true
     updatedAt?: true
+    cabinetBody?: true
+    frontPanelEquipment?: true
+    groundingSystem?: true
+    overallEquipmentCheck?: true
     qcCorrections?: true
     qcInspectorName?: true
     qcNotes?: true
     qcStatus?: true
+    electricalSystem?: true
+    fanStatus?: true
+    internalWiring?: true
+    magicMarks?: true
+    nameplate?: true
+    noMarks?: true
+    screwsTightened?: true
+    serialNumber?: true
+    terminals?: true
+    warningLabels?: true
+    wireDucting?: true
+    wiringConnections?: true
   }
 
   export type CabinetQCReportCountAggregateInputType = {
     id?: true
     cabinetAssemblyJobId?: true
-    serialNumber?: true
-    nameplate?: true
-    cabinetType?: true
-    fanStatus?: true
-    magicMarks?: true
-    cabinetBody?: true
     inverterCorrect?: true
-    frontPanelEquipment?: true
-    wireDucting?: true
-    terminals?: true
     cabinetKey?: true
-    internalWiring?: true
-    screwsTightened?: true
-    groundingSystem?: true
-    noMarks?: true
-    overallEquipmentCheck?: true
-    electricalSystem?: true
-    wiringConnections?: true
-    warningLabels?: true
+    cabinetType?: true
     confirmationPhotos?: true
     createdAt?: true
     updatedAt?: true
+    cabinetBody?: true
+    frontPanelEquipment?: true
+    groundingSystem?: true
+    overallEquipmentCheck?: true
     qcCorrections?: true
     qcInspectorName?: true
     qcNotes?: true
     qcStatus?: true
+    electricalSystem?: true
+    fanStatus?: true
+    internalWiring?: true
+    magicMarks?: true
+    nameplate?: true
+    noMarks?: true
+    screwsTightened?: true
+    serialNumber?: true
+    terminals?: true
+    warningLabels?: true
+    wireDucting?: true
+    wiringConnections?: true
     _all?: true
   }
 
@@ -165100,32 +165914,32 @@ export namespace Prisma {
   export type CabinetQCReportGroupByOutputType = {
     id: string
     cabinetAssemblyJobId: string
-    serialNumber: string | null
-    nameplate: string | null
-    cabinetType: string
-    fanStatus: string | null
-    magicMarks: boolean
-    cabinetBody: boolean
     inverterCorrect: boolean
-    frontPanelEquipment: boolean
-    wireDucting: boolean
-    terminals: boolean
     cabinetKey: boolean
-    internalWiring: boolean
-    screwsTightened: boolean
-    groundingSystem: boolean
-    noMarks: boolean
-    overallEquipmentCheck: boolean
-    electricalSystem: boolean
-    wiringConnections: boolean
-    warningLabels: boolean
+    cabinetType: string
     confirmationPhotos: string[]
     createdAt: Date
     updatedAt: Date
+    cabinetBody: boolean
+    frontPanelEquipment: boolean
+    groundingSystem: boolean
+    overallEquipmentCheck: boolean
     qcCorrections: string | null
     qcInspectorName: string | null
     qcNotes: string | null
     qcStatus: string
+    electricalSystem: boolean
+    fanStatus: string | null
+    internalWiring: boolean
+    magicMarks: boolean
+    nameplate: string | null
+    noMarks: boolean
+    screwsTightened: boolean
+    serialNumber: string | null
+    terminals: boolean
+    warningLabels: boolean
+    wireDucting: boolean
+    wiringConnections: boolean
     _count: CabinetQCReportCountAggregateOutputType | null
     _min: CabinetQCReportMinAggregateOutputType | null
     _max: CabinetQCReportMaxAggregateOutputType | null
@@ -165148,131 +165962,131 @@ export namespace Prisma {
   export type CabinetQCReportSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     cabinetAssemblyJobId?: boolean
-    serialNumber?: boolean
-    nameplate?: boolean
-    cabinetType?: boolean
-    fanStatus?: boolean
-    magicMarks?: boolean
-    cabinetBody?: boolean
     inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
     cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
+    cabinetType?: boolean
     confirmationPhotos?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
     qcCorrections?: boolean
     qcInspectorName?: boolean
     qcNotes?: boolean
     qcStatus?: boolean
+    electricalSystem?: boolean
+    fanStatus?: boolean
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: boolean
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: boolean
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
     job?: boolean | CabinetAssemblyJobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cabinetQCReport"]>
 
   export type CabinetQCReportSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     cabinetAssemblyJobId?: boolean
-    serialNumber?: boolean
-    nameplate?: boolean
-    cabinetType?: boolean
-    fanStatus?: boolean
-    magicMarks?: boolean
-    cabinetBody?: boolean
     inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
     cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
+    cabinetType?: boolean
     confirmationPhotos?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
     qcCorrections?: boolean
     qcInspectorName?: boolean
     qcNotes?: boolean
     qcStatus?: boolean
+    electricalSystem?: boolean
+    fanStatus?: boolean
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: boolean
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: boolean
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
     job?: boolean | CabinetAssemblyJobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cabinetQCReport"]>
 
   export type CabinetQCReportSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     cabinetAssemblyJobId?: boolean
-    serialNumber?: boolean
-    nameplate?: boolean
-    cabinetType?: boolean
-    fanStatus?: boolean
-    magicMarks?: boolean
-    cabinetBody?: boolean
     inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
     cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
+    cabinetType?: boolean
     confirmationPhotos?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
     qcCorrections?: boolean
     qcInspectorName?: boolean
     qcNotes?: boolean
     qcStatus?: boolean
+    electricalSystem?: boolean
+    fanStatus?: boolean
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: boolean
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: boolean
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
     job?: boolean | CabinetAssemblyJobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cabinetQCReport"]>
 
   export type CabinetQCReportSelectScalar = {
     id?: boolean
     cabinetAssemblyJobId?: boolean
-    serialNumber?: boolean
-    nameplate?: boolean
-    cabinetType?: boolean
-    fanStatus?: boolean
-    magicMarks?: boolean
-    cabinetBody?: boolean
     inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
     cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
+    cabinetType?: boolean
     confirmationPhotos?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
     qcCorrections?: boolean
     qcInspectorName?: boolean
     qcNotes?: boolean
     qcStatus?: boolean
+    electricalSystem?: boolean
+    fanStatus?: boolean
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: boolean
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: boolean
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
   }
 
-  export type CabinetQCReportOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cabinetAssemblyJobId" | "serialNumber" | "nameplate" | "cabinetType" | "fanStatus" | "magicMarks" | "cabinetBody" | "inverterCorrect" | "frontPanelEquipment" | "wireDucting" | "terminals" | "cabinetKey" | "internalWiring" | "screwsTightened" | "groundingSystem" | "noMarks" | "overallEquipmentCheck" | "electricalSystem" | "wiringConnections" | "warningLabels" | "confirmationPhotos" | "createdAt" | "updatedAt" | "qcCorrections" | "qcInspectorName" | "qcNotes" | "qcStatus", ExtArgs["result"]["cabinetQCReport"]>
+  export type CabinetQCReportOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cabinetAssemblyJobId" | "inverterCorrect" | "cabinetKey" | "cabinetType" | "confirmationPhotos" | "createdAt" | "updatedAt" | "cabinetBody" | "frontPanelEquipment" | "groundingSystem" | "overallEquipmentCheck" | "qcCorrections" | "qcInspectorName" | "qcNotes" | "qcStatus" | "electricalSystem" | "fanStatus" | "internalWiring" | "magicMarks" | "nameplate" | "noMarks" | "screwsTightened" | "serialNumber" | "terminals" | "warningLabels" | "wireDucting" | "wiringConnections", ExtArgs["result"]["cabinetQCReport"]>
   export type CabinetQCReportInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | CabinetAssemblyJobDefaultArgs<ExtArgs>
   }
@@ -165291,32 +166105,32 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       cabinetAssemblyJobId: string
-      serialNumber: string | null
-      nameplate: string | null
-      cabinetType: string
-      fanStatus: string | null
-      magicMarks: boolean
-      cabinetBody: boolean
       inverterCorrect: boolean
-      frontPanelEquipment: boolean
-      wireDucting: boolean
-      terminals: boolean
       cabinetKey: boolean
-      internalWiring: boolean
-      screwsTightened: boolean
-      groundingSystem: boolean
-      noMarks: boolean
-      overallEquipmentCheck: boolean
-      electricalSystem: boolean
-      wiringConnections: boolean
-      warningLabels: boolean
+      cabinetType: string
       confirmationPhotos: string[]
       createdAt: Date
       updatedAt: Date
+      cabinetBody: boolean
+      frontPanelEquipment: boolean
+      groundingSystem: boolean
+      overallEquipmentCheck: boolean
       qcCorrections: string | null
       qcInspectorName: string | null
       qcNotes: string | null
       qcStatus: string
+      electricalSystem: boolean
+      fanStatus: string | null
+      internalWiring: boolean
+      magicMarks: boolean
+      nameplate: string | null
+      noMarks: boolean
+      screwsTightened: boolean
+      serialNumber: string | null
+      terminals: boolean
+      warningLabels: boolean
+      wireDucting: boolean
+      wiringConnections: boolean
     }, ExtArgs["result"]["cabinetQCReport"]>
     composites: {}
   }
@@ -165743,32 +166557,32 @@ export namespace Prisma {
   interface CabinetQCReportFieldRefs {
     readonly id: FieldRef<"CabinetQCReport", 'String'>
     readonly cabinetAssemblyJobId: FieldRef<"CabinetQCReport", 'String'>
-    readonly serialNumber: FieldRef<"CabinetQCReport", 'String'>
-    readonly nameplate: FieldRef<"CabinetQCReport", 'String'>
-    readonly cabinetType: FieldRef<"CabinetQCReport", 'String'>
-    readonly fanStatus: FieldRef<"CabinetQCReport", 'String'>
-    readonly magicMarks: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly cabinetBody: FieldRef<"CabinetQCReport", 'Boolean'>
     readonly inverterCorrect: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly frontPanelEquipment: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly wireDucting: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly terminals: FieldRef<"CabinetQCReport", 'Boolean'>
     readonly cabinetKey: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly internalWiring: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly screwsTightened: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly groundingSystem: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly noMarks: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly overallEquipmentCheck: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly electricalSystem: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly wiringConnections: FieldRef<"CabinetQCReport", 'Boolean'>
-    readonly warningLabels: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly cabinetType: FieldRef<"CabinetQCReport", 'String'>
     readonly confirmationPhotos: FieldRef<"CabinetQCReport", 'String[]'>
     readonly createdAt: FieldRef<"CabinetQCReport", 'DateTime'>
     readonly updatedAt: FieldRef<"CabinetQCReport", 'DateTime'>
+    readonly cabinetBody: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly frontPanelEquipment: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly groundingSystem: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly overallEquipmentCheck: FieldRef<"CabinetQCReport", 'Boolean'>
     readonly qcCorrections: FieldRef<"CabinetQCReport", 'String'>
     readonly qcInspectorName: FieldRef<"CabinetQCReport", 'String'>
     readonly qcNotes: FieldRef<"CabinetQCReport", 'String'>
     readonly qcStatus: FieldRef<"CabinetQCReport", 'String'>
+    readonly electricalSystem: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly fanStatus: FieldRef<"CabinetQCReport", 'String'>
+    readonly internalWiring: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly magicMarks: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly nameplate: FieldRef<"CabinetQCReport", 'String'>
+    readonly noMarks: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly screwsTightened: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly serialNumber: FieldRef<"CabinetQCReport", 'String'>
+    readonly terminals: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly warningLabels: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly wireDucting: FieldRef<"CabinetQCReport", 'Boolean'>
+    readonly wiringConnections: FieldRef<"CabinetQCReport", 'Boolean'>
   }
     
 
@@ -172214,6 +173028,6937 @@ export namespace Prisma {
 
 
   /**
+   * Model BDWorkType
+   */
+
+  export type AggregateBDWorkType = {
+    _count: BDWorkTypeCountAggregateOutputType | null
+    _min: BDWorkTypeMinAggregateOutputType | null
+    _max: BDWorkTypeMaxAggregateOutputType | null
+  }
+
+  export type BDWorkTypeMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    defaultTemplateId: string | null
+  }
+
+  export type BDWorkTypeMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    defaultTemplateId: string | null
+  }
+
+  export type BDWorkTypeCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    defaultTemplateId: number
+    _all: number
+  }
+
+
+  export type BDWorkTypeMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    defaultTemplateId?: true
+  }
+
+  export type BDWorkTypeMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    defaultTemplateId?: true
+  }
+
+  export type BDWorkTypeCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    defaultTemplateId?: true
+    _all?: true
+  }
+
+  export type BDWorkTypeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDWorkType to aggregate.
+     */
+    where?: BDWorkTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkTypes to fetch.
+     */
+    orderBy?: BDWorkTypeOrderByWithRelationInput | BDWorkTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BDWorkTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BDWorkTypes
+    **/
+    _count?: true | BDWorkTypeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BDWorkTypeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BDWorkTypeMaxAggregateInputType
+  }
+
+  export type GetBDWorkTypeAggregateType<T extends BDWorkTypeAggregateArgs> = {
+        [P in keyof T & keyof AggregateBDWorkType]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBDWorkType[P]>
+      : GetScalarType<T[P], AggregateBDWorkType[P]>
+  }
+
+
+
+
+  export type BDWorkTypeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDWorkTypeWhereInput
+    orderBy?: BDWorkTypeOrderByWithAggregationInput | BDWorkTypeOrderByWithAggregationInput[]
+    by: BDWorkTypeScalarFieldEnum[] | BDWorkTypeScalarFieldEnum
+    having?: BDWorkTypeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BDWorkTypeCountAggregateInputType | true
+    _min?: BDWorkTypeMinAggregateInputType
+    _max?: BDWorkTypeMaxAggregateInputType
+  }
+
+  export type BDWorkTypeGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    defaultTemplateId: string | null
+    _count: BDWorkTypeCountAggregateOutputType | null
+    _min: BDWorkTypeMinAggregateOutputType | null
+    _max: BDWorkTypeMaxAggregateOutputType | null
+  }
+
+  type GetBDWorkTypeGroupByPayload<T extends BDWorkTypeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BDWorkTypeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BDWorkTypeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BDWorkTypeGroupByOutputType[P]>
+            : GetScalarType<T[P], BDWorkTypeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BDWorkTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    defaultTemplateId?: boolean
+    projects?: boolean | BDWorkType$projectsArgs<ExtArgs>
+    defaultTemplate?: boolean | BDWorkType$defaultTemplateArgs<ExtArgs>
+    _count?: boolean | BDWorkTypeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDWorkType"]>
+
+  export type BDWorkTypeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    defaultTemplateId?: boolean
+    defaultTemplate?: boolean | BDWorkType$defaultTemplateArgs<ExtArgs>
+  }, ExtArgs["result"]["bDWorkType"]>
+
+  export type BDWorkTypeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    defaultTemplateId?: boolean
+    defaultTemplate?: boolean | BDWorkType$defaultTemplateArgs<ExtArgs>
+  }, ExtArgs["result"]["bDWorkType"]>
+
+  export type BDWorkTypeSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    defaultTemplateId?: boolean
+  }
+
+  export type BDWorkTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "defaultTemplateId", ExtArgs["result"]["bDWorkType"]>
+  export type BDWorkTypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    projects?: boolean | BDWorkType$projectsArgs<ExtArgs>
+    defaultTemplate?: boolean | BDWorkType$defaultTemplateArgs<ExtArgs>
+    _count?: boolean | BDWorkTypeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BDWorkTypeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    defaultTemplate?: boolean | BDWorkType$defaultTemplateArgs<ExtArgs>
+  }
+  export type BDWorkTypeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    defaultTemplate?: boolean | BDWorkType$defaultTemplateArgs<ExtArgs>
+  }
+
+  export type $BDWorkTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BDWorkType"
+    objects: {
+      projects: Prisma.$BDProjectPayload<ExtArgs>[]
+      defaultTemplate: Prisma.$BDWorkflowTemplatePayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      defaultTemplateId: string | null
+    }, ExtArgs["result"]["bDWorkType"]>
+    composites: {}
+  }
+
+  type BDWorkTypeGetPayload<S extends boolean | null | undefined | BDWorkTypeDefaultArgs> = $Result.GetResult<Prisma.$BDWorkTypePayload, S>
+
+  type BDWorkTypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BDWorkTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BDWorkTypeCountAggregateInputType | true
+    }
+
+  export interface BDWorkTypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BDWorkType'], meta: { name: 'BDWorkType' } }
+    /**
+     * Find zero or one BDWorkType that matches the filter.
+     * @param {BDWorkTypeFindUniqueArgs} args - Arguments to find a BDWorkType
+     * @example
+     * // Get one BDWorkType
+     * const bDWorkType = await prisma.bDWorkType.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BDWorkTypeFindUniqueArgs>(args: SelectSubset<T, BDWorkTypeFindUniqueArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BDWorkType that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BDWorkTypeFindUniqueOrThrowArgs} args - Arguments to find a BDWorkType
+     * @example
+     * // Get one BDWorkType
+     * const bDWorkType = await prisma.bDWorkType.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BDWorkTypeFindUniqueOrThrowArgs>(args: SelectSubset<T, BDWorkTypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDWorkType that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkTypeFindFirstArgs} args - Arguments to find a BDWorkType
+     * @example
+     * // Get one BDWorkType
+     * const bDWorkType = await prisma.bDWorkType.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BDWorkTypeFindFirstArgs>(args?: SelectSubset<T, BDWorkTypeFindFirstArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDWorkType that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkTypeFindFirstOrThrowArgs} args - Arguments to find a BDWorkType
+     * @example
+     * // Get one BDWorkType
+     * const bDWorkType = await prisma.bDWorkType.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BDWorkTypeFindFirstOrThrowArgs>(args?: SelectSubset<T, BDWorkTypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BDWorkTypes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkTypeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BDWorkTypes
+     * const bDWorkTypes = await prisma.bDWorkType.findMany()
+     * 
+     * // Get first 10 BDWorkTypes
+     * const bDWorkTypes = await prisma.bDWorkType.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bDWorkTypeWithIdOnly = await prisma.bDWorkType.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BDWorkTypeFindManyArgs>(args?: SelectSubset<T, BDWorkTypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BDWorkType.
+     * @param {BDWorkTypeCreateArgs} args - Arguments to create a BDWorkType.
+     * @example
+     * // Create one BDWorkType
+     * const BDWorkType = await prisma.bDWorkType.create({
+     *   data: {
+     *     // ... data to create a BDWorkType
+     *   }
+     * })
+     * 
+     */
+    create<T extends BDWorkTypeCreateArgs>(args: SelectSubset<T, BDWorkTypeCreateArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BDWorkTypes.
+     * @param {BDWorkTypeCreateManyArgs} args - Arguments to create many BDWorkTypes.
+     * @example
+     * // Create many BDWorkTypes
+     * const bDWorkType = await prisma.bDWorkType.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BDWorkTypeCreateManyArgs>(args?: SelectSubset<T, BDWorkTypeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BDWorkTypes and returns the data saved in the database.
+     * @param {BDWorkTypeCreateManyAndReturnArgs} args - Arguments to create many BDWorkTypes.
+     * @example
+     * // Create many BDWorkTypes
+     * const bDWorkType = await prisma.bDWorkType.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BDWorkTypes and only return the `id`
+     * const bDWorkTypeWithIdOnly = await prisma.bDWorkType.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BDWorkTypeCreateManyAndReturnArgs>(args?: SelectSubset<T, BDWorkTypeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BDWorkType.
+     * @param {BDWorkTypeDeleteArgs} args - Arguments to delete one BDWorkType.
+     * @example
+     * // Delete one BDWorkType
+     * const BDWorkType = await prisma.bDWorkType.delete({
+     *   where: {
+     *     // ... filter to delete one BDWorkType
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BDWorkTypeDeleteArgs>(args: SelectSubset<T, BDWorkTypeDeleteArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BDWorkType.
+     * @param {BDWorkTypeUpdateArgs} args - Arguments to update one BDWorkType.
+     * @example
+     * // Update one BDWorkType
+     * const bDWorkType = await prisma.bDWorkType.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BDWorkTypeUpdateArgs>(args: SelectSubset<T, BDWorkTypeUpdateArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BDWorkTypes.
+     * @param {BDWorkTypeDeleteManyArgs} args - Arguments to filter BDWorkTypes to delete.
+     * @example
+     * // Delete a few BDWorkTypes
+     * const { count } = await prisma.bDWorkType.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BDWorkTypeDeleteManyArgs>(args?: SelectSubset<T, BDWorkTypeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDWorkTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkTypeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BDWorkTypes
+     * const bDWorkType = await prisma.bDWorkType.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BDWorkTypeUpdateManyArgs>(args: SelectSubset<T, BDWorkTypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDWorkTypes and returns the data updated in the database.
+     * @param {BDWorkTypeUpdateManyAndReturnArgs} args - Arguments to update many BDWorkTypes.
+     * @example
+     * // Update many BDWorkTypes
+     * const bDWorkType = await prisma.bDWorkType.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BDWorkTypes and only return the `id`
+     * const bDWorkTypeWithIdOnly = await prisma.bDWorkType.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BDWorkTypeUpdateManyAndReturnArgs>(args: SelectSubset<T, BDWorkTypeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BDWorkType.
+     * @param {BDWorkTypeUpsertArgs} args - Arguments to update or create a BDWorkType.
+     * @example
+     * // Update or create a BDWorkType
+     * const bDWorkType = await prisma.bDWorkType.upsert({
+     *   create: {
+     *     // ... data to create a BDWorkType
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BDWorkType we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BDWorkTypeUpsertArgs>(args: SelectSubset<T, BDWorkTypeUpsertArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BDWorkTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkTypeCountArgs} args - Arguments to filter BDWorkTypes to count.
+     * @example
+     * // Count the number of BDWorkTypes
+     * const count = await prisma.bDWorkType.count({
+     *   where: {
+     *     // ... the filter for the BDWorkTypes we want to count
+     *   }
+     * })
+    **/
+    count<T extends BDWorkTypeCountArgs>(
+      args?: Subset<T, BDWorkTypeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BDWorkTypeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BDWorkType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkTypeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BDWorkTypeAggregateArgs>(args: Subset<T, BDWorkTypeAggregateArgs>): Prisma.PrismaPromise<GetBDWorkTypeAggregateType<T>>
+
+    /**
+     * Group by BDWorkType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkTypeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BDWorkTypeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BDWorkTypeGroupByArgs['orderBy'] }
+        : { orderBy?: BDWorkTypeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BDWorkTypeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBDWorkTypeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BDWorkType model
+   */
+  readonly fields: BDWorkTypeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BDWorkType.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BDWorkTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    projects<T extends BDWorkType$projectsArgs<ExtArgs> = {}>(args?: Subset<T, BDWorkType$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    defaultTemplate<T extends BDWorkType$defaultTemplateArgs<ExtArgs> = {}>(args?: Subset<T, BDWorkType$defaultTemplateArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BDWorkType model
+   */
+  interface BDWorkTypeFieldRefs {
+    readonly id: FieldRef<"BDWorkType", 'String'>
+    readonly name: FieldRef<"BDWorkType", 'String'>
+    readonly description: FieldRef<"BDWorkType", 'String'>
+    readonly defaultTemplateId: FieldRef<"BDWorkType", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BDWorkType findUnique
+   */
+  export type BDWorkTypeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkType to fetch.
+     */
+    where: BDWorkTypeWhereUniqueInput
+  }
+
+  /**
+   * BDWorkType findUniqueOrThrow
+   */
+  export type BDWorkTypeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkType to fetch.
+     */
+    where: BDWorkTypeWhereUniqueInput
+  }
+
+  /**
+   * BDWorkType findFirst
+   */
+  export type BDWorkTypeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkType to fetch.
+     */
+    where?: BDWorkTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkTypes to fetch.
+     */
+    orderBy?: BDWorkTypeOrderByWithRelationInput | BDWorkTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDWorkTypes.
+     */
+    cursor?: BDWorkTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkTypes.
+     */
+    distinct?: BDWorkTypeScalarFieldEnum | BDWorkTypeScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkType findFirstOrThrow
+   */
+  export type BDWorkTypeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkType to fetch.
+     */
+    where?: BDWorkTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkTypes to fetch.
+     */
+    orderBy?: BDWorkTypeOrderByWithRelationInput | BDWorkTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDWorkTypes.
+     */
+    cursor?: BDWorkTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkTypes.
+     */
+    distinct?: BDWorkTypeScalarFieldEnum | BDWorkTypeScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkType findMany
+   */
+  export type BDWorkTypeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkTypes to fetch.
+     */
+    where?: BDWorkTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkTypes to fetch.
+     */
+    orderBy?: BDWorkTypeOrderByWithRelationInput | BDWorkTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BDWorkTypes.
+     */
+    cursor?: BDWorkTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkTypes.
+     */
+    distinct?: BDWorkTypeScalarFieldEnum | BDWorkTypeScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkType create
+   */
+  export type BDWorkTypeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BDWorkType.
+     */
+    data: XOR<BDWorkTypeCreateInput, BDWorkTypeUncheckedCreateInput>
+  }
+
+  /**
+   * BDWorkType createMany
+   */
+  export type BDWorkTypeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BDWorkTypes.
+     */
+    data: BDWorkTypeCreateManyInput | BDWorkTypeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BDWorkType createManyAndReturn
+   */
+  export type BDWorkTypeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * The data used to create many BDWorkTypes.
+     */
+    data: BDWorkTypeCreateManyInput | BDWorkTypeCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDWorkType update
+   */
+  export type BDWorkTypeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BDWorkType.
+     */
+    data: XOR<BDWorkTypeUpdateInput, BDWorkTypeUncheckedUpdateInput>
+    /**
+     * Choose, which BDWorkType to update.
+     */
+    where: BDWorkTypeWhereUniqueInput
+  }
+
+  /**
+   * BDWorkType updateMany
+   */
+  export type BDWorkTypeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BDWorkTypes.
+     */
+    data: XOR<BDWorkTypeUpdateManyMutationInput, BDWorkTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which BDWorkTypes to update
+     */
+    where?: BDWorkTypeWhereInput
+    /**
+     * Limit how many BDWorkTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDWorkType updateManyAndReturn
+   */
+  export type BDWorkTypeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * The data used to update BDWorkTypes.
+     */
+    data: XOR<BDWorkTypeUpdateManyMutationInput, BDWorkTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which BDWorkTypes to update
+     */
+    where?: BDWorkTypeWhereInput
+    /**
+     * Limit how many BDWorkTypes to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDWorkType upsert
+   */
+  export type BDWorkTypeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BDWorkType to update in case it exists.
+     */
+    where: BDWorkTypeWhereUniqueInput
+    /**
+     * In case the BDWorkType found by the `where` argument doesn't exist, create a new BDWorkType with this data.
+     */
+    create: XOR<BDWorkTypeCreateInput, BDWorkTypeUncheckedCreateInput>
+    /**
+     * In case the BDWorkType was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BDWorkTypeUpdateInput, BDWorkTypeUncheckedUpdateInput>
+  }
+
+  /**
+   * BDWorkType delete
+   */
+  export type BDWorkTypeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    /**
+     * Filter which BDWorkType to delete.
+     */
+    where: BDWorkTypeWhereUniqueInput
+  }
+
+  /**
+   * BDWorkType deleteMany
+   */
+  export type BDWorkTypeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDWorkTypes to delete
+     */
+    where?: BDWorkTypeWhereInput
+    /**
+     * Limit how many BDWorkTypes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDWorkType.projects
+   */
+  export type BDWorkType$projectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    where?: BDProjectWhereInput
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    cursor?: BDProjectWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDProjectScalarFieldEnum | BDProjectScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkType.defaultTemplate
+   */
+  export type BDWorkType$defaultTemplateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    where?: BDWorkflowTemplateWhereInput
+  }
+
+  /**
+   * BDWorkType without action
+   */
+  export type BDWorkTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BDProject
+   */
+
+  export type AggregateBDProject = {
+    _count: BDProjectCountAggregateOutputType | null
+    _min: BDProjectMinAggregateOutputType | null
+    _max: BDProjectMaxAggregateOutputType | null
+  }
+
+  export type BDProjectMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    objective: string | null
+    workTypeId: string | null
+    urgency: string | null
+    deadline: Date | null
+    status: string | null
+    requesterId: string | null
+    ownerId: string | null
+    blockedReason: string | null
+    waitingOn: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    intakeDate: Date | null
+    parentId: string | null
+  }
+
+  export type BDProjectMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    objective: string | null
+    workTypeId: string | null
+    urgency: string | null
+    deadline: Date | null
+    status: string | null
+    requesterId: string | null
+    ownerId: string | null
+    blockedReason: string | null
+    waitingOn: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    intakeDate: Date | null
+    parentId: string | null
+  }
+
+  export type BDProjectCountAggregateOutputType = {
+    id: number
+    name: number
+    objective: number
+    workTypeId: number
+    urgency: number
+    deadline: number
+    status: number
+    requesterId: number
+    ownerId: number
+    blockedReason: number
+    waitingOn: number
+    createdAt: number
+    updatedAt: number
+    intakeDate: number
+    parentId: number
+    _all: number
+  }
+
+
+  export type BDProjectMinAggregateInputType = {
+    id?: true
+    name?: true
+    objective?: true
+    workTypeId?: true
+    urgency?: true
+    deadline?: true
+    status?: true
+    requesterId?: true
+    ownerId?: true
+    blockedReason?: true
+    waitingOn?: true
+    createdAt?: true
+    updatedAt?: true
+    intakeDate?: true
+    parentId?: true
+  }
+
+  export type BDProjectMaxAggregateInputType = {
+    id?: true
+    name?: true
+    objective?: true
+    workTypeId?: true
+    urgency?: true
+    deadline?: true
+    status?: true
+    requesterId?: true
+    ownerId?: true
+    blockedReason?: true
+    waitingOn?: true
+    createdAt?: true
+    updatedAt?: true
+    intakeDate?: true
+    parentId?: true
+  }
+
+  export type BDProjectCountAggregateInputType = {
+    id?: true
+    name?: true
+    objective?: true
+    workTypeId?: true
+    urgency?: true
+    deadline?: true
+    status?: true
+    requesterId?: true
+    ownerId?: true
+    blockedReason?: true
+    waitingOn?: true
+    createdAt?: true
+    updatedAt?: true
+    intakeDate?: true
+    parentId?: true
+    _all?: true
+  }
+
+  export type BDProjectAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDProject to aggregate.
+     */
+    where?: BDProjectWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDProjects to fetch.
+     */
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BDProjectWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDProjects from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDProjects.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BDProjects
+    **/
+    _count?: true | BDProjectCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BDProjectMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BDProjectMaxAggregateInputType
+  }
+
+  export type GetBDProjectAggregateType<T extends BDProjectAggregateArgs> = {
+        [P in keyof T & keyof AggregateBDProject]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBDProject[P]>
+      : GetScalarType<T[P], AggregateBDProject[P]>
+  }
+
+
+
+
+  export type BDProjectGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDProjectWhereInput
+    orderBy?: BDProjectOrderByWithAggregationInput | BDProjectOrderByWithAggregationInput[]
+    by: BDProjectScalarFieldEnum[] | BDProjectScalarFieldEnum
+    having?: BDProjectScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BDProjectCountAggregateInputType | true
+    _min?: BDProjectMinAggregateInputType
+    _max?: BDProjectMaxAggregateInputType
+  }
+
+  export type BDProjectGroupByOutputType = {
+    id: string
+    name: string
+    objective: string | null
+    workTypeId: string
+    urgency: string
+    deadline: Date | null
+    status: string
+    requesterId: string
+    ownerId: string | null
+    blockedReason: string | null
+    waitingOn: string | null
+    createdAt: Date
+    updatedAt: Date
+    intakeDate: Date | null
+    parentId: string | null
+    _count: BDProjectCountAggregateOutputType | null
+    _min: BDProjectMinAggregateOutputType | null
+    _max: BDProjectMaxAggregateOutputType | null
+  }
+
+  type GetBDProjectGroupByPayload<T extends BDProjectGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BDProjectGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BDProjectGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BDProjectGroupByOutputType[P]>
+            : GetScalarType<T[P], BDProjectGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BDProjectSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    objective?: boolean
+    workTypeId?: boolean
+    urgency?: boolean
+    deadline?: boolean
+    status?: boolean
+    requesterId?: boolean
+    ownerId?: boolean
+    blockedReason?: boolean
+    waitingOn?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    intakeDate?: boolean
+    parentId?: boolean
+    activities?: boolean | BDProject$activitiesArgs<ExtArgs>
+    owner?: boolean | BDProject$ownerArgs<ExtArgs>
+    parent?: boolean | BDProject$parentArgs<ExtArgs>
+    subProjects?: boolean | BDProject$subProjectsArgs<ExtArgs>
+    requester?: boolean | UserDefaultArgs<ExtArgs>
+    workType?: boolean | BDWorkTypeDefaultArgs<ExtArgs>
+    tasks?: boolean | BDProject$tasksArgs<ExtArgs>
+    _count?: boolean | BDProjectCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDProject"]>
+
+  export type BDProjectSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    objective?: boolean
+    workTypeId?: boolean
+    urgency?: boolean
+    deadline?: boolean
+    status?: boolean
+    requesterId?: boolean
+    ownerId?: boolean
+    blockedReason?: boolean
+    waitingOn?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    intakeDate?: boolean
+    parentId?: boolean
+    owner?: boolean | BDProject$ownerArgs<ExtArgs>
+    parent?: boolean | BDProject$parentArgs<ExtArgs>
+    requester?: boolean | UserDefaultArgs<ExtArgs>
+    workType?: boolean | BDWorkTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDProject"]>
+
+  export type BDProjectSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    objective?: boolean
+    workTypeId?: boolean
+    urgency?: boolean
+    deadline?: boolean
+    status?: boolean
+    requesterId?: boolean
+    ownerId?: boolean
+    blockedReason?: boolean
+    waitingOn?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    intakeDate?: boolean
+    parentId?: boolean
+    owner?: boolean | BDProject$ownerArgs<ExtArgs>
+    parent?: boolean | BDProject$parentArgs<ExtArgs>
+    requester?: boolean | UserDefaultArgs<ExtArgs>
+    workType?: boolean | BDWorkTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDProject"]>
+
+  export type BDProjectSelectScalar = {
+    id?: boolean
+    name?: boolean
+    objective?: boolean
+    workTypeId?: boolean
+    urgency?: boolean
+    deadline?: boolean
+    status?: boolean
+    requesterId?: boolean
+    ownerId?: boolean
+    blockedReason?: boolean
+    waitingOn?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    intakeDate?: boolean
+    parentId?: boolean
+  }
+
+  export type BDProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "objective" | "workTypeId" | "urgency" | "deadline" | "status" | "requesterId" | "ownerId" | "blockedReason" | "waitingOn" | "createdAt" | "updatedAt" | "intakeDate" | "parentId", ExtArgs["result"]["bDProject"]>
+  export type BDProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activities?: boolean | BDProject$activitiesArgs<ExtArgs>
+    owner?: boolean | BDProject$ownerArgs<ExtArgs>
+    parent?: boolean | BDProject$parentArgs<ExtArgs>
+    subProjects?: boolean | BDProject$subProjectsArgs<ExtArgs>
+    requester?: boolean | UserDefaultArgs<ExtArgs>
+    workType?: boolean | BDWorkTypeDefaultArgs<ExtArgs>
+    tasks?: boolean | BDProject$tasksArgs<ExtArgs>
+    _count?: boolean | BDProjectCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BDProjectIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | BDProject$ownerArgs<ExtArgs>
+    parent?: boolean | BDProject$parentArgs<ExtArgs>
+    requester?: boolean | UserDefaultArgs<ExtArgs>
+    workType?: boolean | BDWorkTypeDefaultArgs<ExtArgs>
+  }
+  export type BDProjectIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | BDProject$ownerArgs<ExtArgs>
+    parent?: boolean | BDProject$parentArgs<ExtArgs>
+    requester?: boolean | UserDefaultArgs<ExtArgs>
+    workType?: boolean | BDWorkTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $BDProjectPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BDProject"
+    objects: {
+      activities: Prisma.$BDActivityPayload<ExtArgs>[]
+      owner: Prisma.$UserPayload<ExtArgs> | null
+      parent: Prisma.$BDProjectPayload<ExtArgs> | null
+      subProjects: Prisma.$BDProjectPayload<ExtArgs>[]
+      requester: Prisma.$UserPayload<ExtArgs>
+      workType: Prisma.$BDWorkTypePayload<ExtArgs>
+      tasks: Prisma.$BDTaskPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      objective: string | null
+      workTypeId: string
+      urgency: string
+      deadline: Date | null
+      status: string
+      requesterId: string
+      ownerId: string | null
+      blockedReason: string | null
+      waitingOn: string | null
+      createdAt: Date
+      updatedAt: Date
+      intakeDate: Date | null
+      parentId: string | null
+    }, ExtArgs["result"]["bDProject"]>
+    composites: {}
+  }
+
+  type BDProjectGetPayload<S extends boolean | null | undefined | BDProjectDefaultArgs> = $Result.GetResult<Prisma.$BDProjectPayload, S>
+
+  type BDProjectCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BDProjectFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BDProjectCountAggregateInputType | true
+    }
+
+  export interface BDProjectDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BDProject'], meta: { name: 'BDProject' } }
+    /**
+     * Find zero or one BDProject that matches the filter.
+     * @param {BDProjectFindUniqueArgs} args - Arguments to find a BDProject
+     * @example
+     * // Get one BDProject
+     * const bDProject = await prisma.bDProject.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BDProjectFindUniqueArgs>(args: SelectSubset<T, BDProjectFindUniqueArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BDProject that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BDProjectFindUniqueOrThrowArgs} args - Arguments to find a BDProject
+     * @example
+     * // Get one BDProject
+     * const bDProject = await prisma.bDProject.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BDProjectFindUniqueOrThrowArgs>(args: SelectSubset<T, BDProjectFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDProject that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDProjectFindFirstArgs} args - Arguments to find a BDProject
+     * @example
+     * // Get one BDProject
+     * const bDProject = await prisma.bDProject.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BDProjectFindFirstArgs>(args?: SelectSubset<T, BDProjectFindFirstArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDProject that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDProjectFindFirstOrThrowArgs} args - Arguments to find a BDProject
+     * @example
+     * // Get one BDProject
+     * const bDProject = await prisma.bDProject.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BDProjectFindFirstOrThrowArgs>(args?: SelectSubset<T, BDProjectFindFirstOrThrowArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BDProjects that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDProjectFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BDProjects
+     * const bDProjects = await prisma.bDProject.findMany()
+     * 
+     * // Get first 10 BDProjects
+     * const bDProjects = await prisma.bDProject.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bDProjectWithIdOnly = await prisma.bDProject.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BDProjectFindManyArgs>(args?: SelectSubset<T, BDProjectFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BDProject.
+     * @param {BDProjectCreateArgs} args - Arguments to create a BDProject.
+     * @example
+     * // Create one BDProject
+     * const BDProject = await prisma.bDProject.create({
+     *   data: {
+     *     // ... data to create a BDProject
+     *   }
+     * })
+     * 
+     */
+    create<T extends BDProjectCreateArgs>(args: SelectSubset<T, BDProjectCreateArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BDProjects.
+     * @param {BDProjectCreateManyArgs} args - Arguments to create many BDProjects.
+     * @example
+     * // Create many BDProjects
+     * const bDProject = await prisma.bDProject.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BDProjectCreateManyArgs>(args?: SelectSubset<T, BDProjectCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BDProjects and returns the data saved in the database.
+     * @param {BDProjectCreateManyAndReturnArgs} args - Arguments to create many BDProjects.
+     * @example
+     * // Create many BDProjects
+     * const bDProject = await prisma.bDProject.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BDProjects and only return the `id`
+     * const bDProjectWithIdOnly = await prisma.bDProject.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BDProjectCreateManyAndReturnArgs>(args?: SelectSubset<T, BDProjectCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BDProject.
+     * @param {BDProjectDeleteArgs} args - Arguments to delete one BDProject.
+     * @example
+     * // Delete one BDProject
+     * const BDProject = await prisma.bDProject.delete({
+     *   where: {
+     *     // ... filter to delete one BDProject
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BDProjectDeleteArgs>(args: SelectSubset<T, BDProjectDeleteArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BDProject.
+     * @param {BDProjectUpdateArgs} args - Arguments to update one BDProject.
+     * @example
+     * // Update one BDProject
+     * const bDProject = await prisma.bDProject.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BDProjectUpdateArgs>(args: SelectSubset<T, BDProjectUpdateArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BDProjects.
+     * @param {BDProjectDeleteManyArgs} args - Arguments to filter BDProjects to delete.
+     * @example
+     * // Delete a few BDProjects
+     * const { count } = await prisma.bDProject.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BDProjectDeleteManyArgs>(args?: SelectSubset<T, BDProjectDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDProjects.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDProjectUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BDProjects
+     * const bDProject = await prisma.bDProject.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BDProjectUpdateManyArgs>(args: SelectSubset<T, BDProjectUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDProjects and returns the data updated in the database.
+     * @param {BDProjectUpdateManyAndReturnArgs} args - Arguments to update many BDProjects.
+     * @example
+     * // Update many BDProjects
+     * const bDProject = await prisma.bDProject.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BDProjects and only return the `id`
+     * const bDProjectWithIdOnly = await prisma.bDProject.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BDProjectUpdateManyAndReturnArgs>(args: SelectSubset<T, BDProjectUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BDProject.
+     * @param {BDProjectUpsertArgs} args - Arguments to update or create a BDProject.
+     * @example
+     * // Update or create a BDProject
+     * const bDProject = await prisma.bDProject.upsert({
+     *   create: {
+     *     // ... data to create a BDProject
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BDProject we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BDProjectUpsertArgs>(args: SelectSubset<T, BDProjectUpsertArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BDProjects.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDProjectCountArgs} args - Arguments to filter BDProjects to count.
+     * @example
+     * // Count the number of BDProjects
+     * const count = await prisma.bDProject.count({
+     *   where: {
+     *     // ... the filter for the BDProjects we want to count
+     *   }
+     * })
+    **/
+    count<T extends BDProjectCountArgs>(
+      args?: Subset<T, BDProjectCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BDProjectCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BDProject.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDProjectAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BDProjectAggregateArgs>(args: Subset<T, BDProjectAggregateArgs>): Prisma.PrismaPromise<GetBDProjectAggregateType<T>>
+
+    /**
+     * Group by BDProject.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDProjectGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BDProjectGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BDProjectGroupByArgs['orderBy'] }
+        : { orderBy?: BDProjectGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BDProjectGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBDProjectGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BDProject model
+   */
+  readonly fields: BDProjectFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BDProject.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BDProjectClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    activities<T extends BDProject$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, BDProject$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    owner<T extends BDProject$ownerArgs<ExtArgs> = {}>(args?: Subset<T, BDProject$ownerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    parent<T extends BDProject$parentArgs<ExtArgs> = {}>(args?: Subset<T, BDProject$parentArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    subProjects<T extends BDProject$subProjectsArgs<ExtArgs> = {}>(args?: Subset<T, BDProject$subProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    requester<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    workType<T extends BDWorkTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BDWorkTypeDefaultArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    tasks<T extends BDProject$tasksArgs<ExtArgs> = {}>(args?: Subset<T, BDProject$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BDProject model
+   */
+  interface BDProjectFieldRefs {
+    readonly id: FieldRef<"BDProject", 'String'>
+    readonly name: FieldRef<"BDProject", 'String'>
+    readonly objective: FieldRef<"BDProject", 'String'>
+    readonly workTypeId: FieldRef<"BDProject", 'String'>
+    readonly urgency: FieldRef<"BDProject", 'String'>
+    readonly deadline: FieldRef<"BDProject", 'DateTime'>
+    readonly status: FieldRef<"BDProject", 'String'>
+    readonly requesterId: FieldRef<"BDProject", 'String'>
+    readonly ownerId: FieldRef<"BDProject", 'String'>
+    readonly blockedReason: FieldRef<"BDProject", 'String'>
+    readonly waitingOn: FieldRef<"BDProject", 'String'>
+    readonly createdAt: FieldRef<"BDProject", 'DateTime'>
+    readonly updatedAt: FieldRef<"BDProject", 'DateTime'>
+    readonly intakeDate: FieldRef<"BDProject", 'DateTime'>
+    readonly parentId: FieldRef<"BDProject", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BDProject findUnique
+   */
+  export type BDProjectFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * Filter, which BDProject to fetch.
+     */
+    where: BDProjectWhereUniqueInput
+  }
+
+  /**
+   * BDProject findUniqueOrThrow
+   */
+  export type BDProjectFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * Filter, which BDProject to fetch.
+     */
+    where: BDProjectWhereUniqueInput
+  }
+
+  /**
+   * BDProject findFirst
+   */
+  export type BDProjectFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * Filter, which BDProject to fetch.
+     */
+    where?: BDProjectWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDProjects to fetch.
+     */
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDProjects.
+     */
+    cursor?: BDProjectWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDProjects from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDProjects.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDProjects.
+     */
+    distinct?: BDProjectScalarFieldEnum | BDProjectScalarFieldEnum[]
+  }
+
+  /**
+   * BDProject findFirstOrThrow
+   */
+  export type BDProjectFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * Filter, which BDProject to fetch.
+     */
+    where?: BDProjectWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDProjects to fetch.
+     */
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDProjects.
+     */
+    cursor?: BDProjectWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDProjects from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDProjects.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDProjects.
+     */
+    distinct?: BDProjectScalarFieldEnum | BDProjectScalarFieldEnum[]
+  }
+
+  /**
+   * BDProject findMany
+   */
+  export type BDProjectFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * Filter, which BDProjects to fetch.
+     */
+    where?: BDProjectWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDProjects to fetch.
+     */
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BDProjects.
+     */
+    cursor?: BDProjectWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDProjects from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDProjects.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDProjects.
+     */
+    distinct?: BDProjectScalarFieldEnum | BDProjectScalarFieldEnum[]
+  }
+
+  /**
+   * BDProject create
+   */
+  export type BDProjectCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BDProject.
+     */
+    data: XOR<BDProjectCreateInput, BDProjectUncheckedCreateInput>
+  }
+
+  /**
+   * BDProject createMany
+   */
+  export type BDProjectCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BDProjects.
+     */
+    data: BDProjectCreateManyInput | BDProjectCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BDProject createManyAndReturn
+   */
+  export type BDProjectCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * The data used to create many BDProjects.
+     */
+    data: BDProjectCreateManyInput | BDProjectCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDProject update
+   */
+  export type BDProjectUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BDProject.
+     */
+    data: XOR<BDProjectUpdateInput, BDProjectUncheckedUpdateInput>
+    /**
+     * Choose, which BDProject to update.
+     */
+    where: BDProjectWhereUniqueInput
+  }
+
+  /**
+   * BDProject updateMany
+   */
+  export type BDProjectUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BDProjects.
+     */
+    data: XOR<BDProjectUpdateManyMutationInput, BDProjectUncheckedUpdateManyInput>
+    /**
+     * Filter which BDProjects to update
+     */
+    where?: BDProjectWhereInput
+    /**
+     * Limit how many BDProjects to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDProject updateManyAndReturn
+   */
+  export type BDProjectUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * The data used to update BDProjects.
+     */
+    data: XOR<BDProjectUpdateManyMutationInput, BDProjectUncheckedUpdateManyInput>
+    /**
+     * Filter which BDProjects to update
+     */
+    where?: BDProjectWhereInput
+    /**
+     * Limit how many BDProjects to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDProject upsert
+   */
+  export type BDProjectUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BDProject to update in case it exists.
+     */
+    where: BDProjectWhereUniqueInput
+    /**
+     * In case the BDProject found by the `where` argument doesn't exist, create a new BDProject with this data.
+     */
+    create: XOR<BDProjectCreateInput, BDProjectUncheckedCreateInput>
+    /**
+     * In case the BDProject was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BDProjectUpdateInput, BDProjectUncheckedUpdateInput>
+  }
+
+  /**
+   * BDProject delete
+   */
+  export type BDProjectDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    /**
+     * Filter which BDProject to delete.
+     */
+    where: BDProjectWhereUniqueInput
+  }
+
+  /**
+   * BDProject deleteMany
+   */
+  export type BDProjectDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDProjects to delete
+     */
+    where?: BDProjectWhereInput
+    /**
+     * Limit how many BDProjects to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDProject.activities
+   */
+  export type BDProject$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    where?: BDActivityWhereInput
+    orderBy?: BDActivityOrderByWithRelationInput | BDActivityOrderByWithRelationInput[]
+    cursor?: BDActivityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDActivityScalarFieldEnum | BDActivityScalarFieldEnum[]
+  }
+
+  /**
+   * BDProject.owner
+   */
+  export type BDProject$ownerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * BDProject.parent
+   */
+  export type BDProject$parentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    where?: BDProjectWhereInput
+  }
+
+  /**
+   * BDProject.subProjects
+   */
+  export type BDProject$subProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    where?: BDProjectWhereInput
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    cursor?: BDProjectWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDProjectScalarFieldEnum | BDProjectScalarFieldEnum[]
+  }
+
+  /**
+   * BDProject.tasks
+   */
+  export type BDProject$tasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    where?: BDTaskWhereInput
+    orderBy?: BDTaskOrderByWithRelationInput | BDTaskOrderByWithRelationInput[]
+    cursor?: BDTaskWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDTaskScalarFieldEnum | BDTaskScalarFieldEnum[]
+  }
+
+  /**
+   * BDProject without action
+   */
+  export type BDProjectDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BDWorkflowTemplate
+   */
+
+  export type AggregateBDWorkflowTemplate = {
+    _count: BDWorkflowTemplateCountAggregateOutputType | null
+    _min: BDWorkflowTemplateMinAggregateOutputType | null
+    _max: BDWorkflowTemplateMaxAggregateOutputType | null
+  }
+
+  export type BDWorkflowTemplateMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+  }
+
+  export type BDWorkflowTemplateMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+  }
+
+  export type BDWorkflowTemplateCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    _all: number
+  }
+
+
+  export type BDWorkflowTemplateMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+  }
+
+  export type BDWorkflowTemplateMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+  }
+
+  export type BDWorkflowTemplateCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    _all?: true
+  }
+
+  export type BDWorkflowTemplateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDWorkflowTemplate to aggregate.
+     */
+    where?: BDWorkflowTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkflowTemplates to fetch.
+     */
+    orderBy?: BDWorkflowTemplateOrderByWithRelationInput | BDWorkflowTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BDWorkflowTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkflowTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkflowTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BDWorkflowTemplates
+    **/
+    _count?: true | BDWorkflowTemplateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BDWorkflowTemplateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BDWorkflowTemplateMaxAggregateInputType
+  }
+
+  export type GetBDWorkflowTemplateAggregateType<T extends BDWorkflowTemplateAggregateArgs> = {
+        [P in keyof T & keyof AggregateBDWorkflowTemplate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBDWorkflowTemplate[P]>
+      : GetScalarType<T[P], AggregateBDWorkflowTemplate[P]>
+  }
+
+
+
+
+  export type BDWorkflowTemplateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDWorkflowTemplateWhereInput
+    orderBy?: BDWorkflowTemplateOrderByWithAggregationInput | BDWorkflowTemplateOrderByWithAggregationInput[]
+    by: BDWorkflowTemplateScalarFieldEnum[] | BDWorkflowTemplateScalarFieldEnum
+    having?: BDWorkflowTemplateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BDWorkflowTemplateCountAggregateInputType | true
+    _min?: BDWorkflowTemplateMinAggregateInputType
+    _max?: BDWorkflowTemplateMaxAggregateInputType
+  }
+
+  export type BDWorkflowTemplateGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    _count: BDWorkflowTemplateCountAggregateOutputType | null
+    _min: BDWorkflowTemplateMinAggregateOutputType | null
+    _max: BDWorkflowTemplateMaxAggregateOutputType | null
+  }
+
+  type GetBDWorkflowTemplateGroupByPayload<T extends BDWorkflowTemplateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BDWorkflowTemplateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BDWorkflowTemplateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BDWorkflowTemplateGroupByOutputType[P]>
+            : GetScalarType<T[P], BDWorkflowTemplateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BDWorkflowTemplateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    workTypes?: boolean | BDWorkflowTemplate$workTypesArgs<ExtArgs>
+    steps?: boolean | BDWorkflowTemplate$stepsArgs<ExtArgs>
+    _count?: boolean | BDWorkflowTemplateCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDWorkflowTemplate"]>
+
+  export type BDWorkflowTemplateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+  }, ExtArgs["result"]["bDWorkflowTemplate"]>
+
+  export type BDWorkflowTemplateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+  }, ExtArgs["result"]["bDWorkflowTemplate"]>
+
+  export type BDWorkflowTemplateSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+  }
+
+  export type BDWorkflowTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description", ExtArgs["result"]["bDWorkflowTemplate"]>
+  export type BDWorkflowTemplateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workTypes?: boolean | BDWorkflowTemplate$workTypesArgs<ExtArgs>
+    steps?: boolean | BDWorkflowTemplate$stepsArgs<ExtArgs>
+    _count?: boolean | BDWorkflowTemplateCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BDWorkflowTemplateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type BDWorkflowTemplateIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $BDWorkflowTemplatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BDWorkflowTemplate"
+    objects: {
+      workTypes: Prisma.$BDWorkTypePayload<ExtArgs>[]
+      steps: Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+    }, ExtArgs["result"]["bDWorkflowTemplate"]>
+    composites: {}
+  }
+
+  type BDWorkflowTemplateGetPayload<S extends boolean | null | undefined | BDWorkflowTemplateDefaultArgs> = $Result.GetResult<Prisma.$BDWorkflowTemplatePayload, S>
+
+  type BDWorkflowTemplateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BDWorkflowTemplateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BDWorkflowTemplateCountAggregateInputType | true
+    }
+
+  export interface BDWorkflowTemplateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BDWorkflowTemplate'], meta: { name: 'BDWorkflowTemplate' } }
+    /**
+     * Find zero or one BDWorkflowTemplate that matches the filter.
+     * @param {BDWorkflowTemplateFindUniqueArgs} args - Arguments to find a BDWorkflowTemplate
+     * @example
+     * // Get one BDWorkflowTemplate
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BDWorkflowTemplateFindUniqueArgs>(args: SelectSubset<T, BDWorkflowTemplateFindUniqueArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BDWorkflowTemplate that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BDWorkflowTemplateFindUniqueOrThrowArgs} args - Arguments to find a BDWorkflowTemplate
+     * @example
+     * // Get one BDWorkflowTemplate
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BDWorkflowTemplateFindUniqueOrThrowArgs>(args: SelectSubset<T, BDWorkflowTemplateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDWorkflowTemplate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowTemplateFindFirstArgs} args - Arguments to find a BDWorkflowTemplate
+     * @example
+     * // Get one BDWorkflowTemplate
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BDWorkflowTemplateFindFirstArgs>(args?: SelectSubset<T, BDWorkflowTemplateFindFirstArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDWorkflowTemplate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowTemplateFindFirstOrThrowArgs} args - Arguments to find a BDWorkflowTemplate
+     * @example
+     * // Get one BDWorkflowTemplate
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BDWorkflowTemplateFindFirstOrThrowArgs>(args?: SelectSubset<T, BDWorkflowTemplateFindFirstOrThrowArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BDWorkflowTemplates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowTemplateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BDWorkflowTemplates
+     * const bDWorkflowTemplates = await prisma.bDWorkflowTemplate.findMany()
+     * 
+     * // Get first 10 BDWorkflowTemplates
+     * const bDWorkflowTemplates = await prisma.bDWorkflowTemplate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bDWorkflowTemplateWithIdOnly = await prisma.bDWorkflowTemplate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BDWorkflowTemplateFindManyArgs>(args?: SelectSubset<T, BDWorkflowTemplateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BDWorkflowTemplate.
+     * @param {BDWorkflowTemplateCreateArgs} args - Arguments to create a BDWorkflowTemplate.
+     * @example
+     * // Create one BDWorkflowTemplate
+     * const BDWorkflowTemplate = await prisma.bDWorkflowTemplate.create({
+     *   data: {
+     *     // ... data to create a BDWorkflowTemplate
+     *   }
+     * })
+     * 
+     */
+    create<T extends BDWorkflowTemplateCreateArgs>(args: SelectSubset<T, BDWorkflowTemplateCreateArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BDWorkflowTemplates.
+     * @param {BDWorkflowTemplateCreateManyArgs} args - Arguments to create many BDWorkflowTemplates.
+     * @example
+     * // Create many BDWorkflowTemplates
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BDWorkflowTemplateCreateManyArgs>(args?: SelectSubset<T, BDWorkflowTemplateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BDWorkflowTemplates and returns the data saved in the database.
+     * @param {BDWorkflowTemplateCreateManyAndReturnArgs} args - Arguments to create many BDWorkflowTemplates.
+     * @example
+     * // Create many BDWorkflowTemplates
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BDWorkflowTemplates and only return the `id`
+     * const bDWorkflowTemplateWithIdOnly = await prisma.bDWorkflowTemplate.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BDWorkflowTemplateCreateManyAndReturnArgs>(args?: SelectSubset<T, BDWorkflowTemplateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BDWorkflowTemplate.
+     * @param {BDWorkflowTemplateDeleteArgs} args - Arguments to delete one BDWorkflowTemplate.
+     * @example
+     * // Delete one BDWorkflowTemplate
+     * const BDWorkflowTemplate = await prisma.bDWorkflowTemplate.delete({
+     *   where: {
+     *     // ... filter to delete one BDWorkflowTemplate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BDWorkflowTemplateDeleteArgs>(args: SelectSubset<T, BDWorkflowTemplateDeleteArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BDWorkflowTemplate.
+     * @param {BDWorkflowTemplateUpdateArgs} args - Arguments to update one BDWorkflowTemplate.
+     * @example
+     * // Update one BDWorkflowTemplate
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BDWorkflowTemplateUpdateArgs>(args: SelectSubset<T, BDWorkflowTemplateUpdateArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BDWorkflowTemplates.
+     * @param {BDWorkflowTemplateDeleteManyArgs} args - Arguments to filter BDWorkflowTemplates to delete.
+     * @example
+     * // Delete a few BDWorkflowTemplates
+     * const { count } = await prisma.bDWorkflowTemplate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BDWorkflowTemplateDeleteManyArgs>(args?: SelectSubset<T, BDWorkflowTemplateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDWorkflowTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowTemplateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BDWorkflowTemplates
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BDWorkflowTemplateUpdateManyArgs>(args: SelectSubset<T, BDWorkflowTemplateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDWorkflowTemplates and returns the data updated in the database.
+     * @param {BDWorkflowTemplateUpdateManyAndReturnArgs} args - Arguments to update many BDWorkflowTemplates.
+     * @example
+     * // Update many BDWorkflowTemplates
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BDWorkflowTemplates and only return the `id`
+     * const bDWorkflowTemplateWithIdOnly = await prisma.bDWorkflowTemplate.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BDWorkflowTemplateUpdateManyAndReturnArgs>(args: SelectSubset<T, BDWorkflowTemplateUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BDWorkflowTemplate.
+     * @param {BDWorkflowTemplateUpsertArgs} args - Arguments to update or create a BDWorkflowTemplate.
+     * @example
+     * // Update or create a BDWorkflowTemplate
+     * const bDWorkflowTemplate = await prisma.bDWorkflowTemplate.upsert({
+     *   create: {
+     *     // ... data to create a BDWorkflowTemplate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BDWorkflowTemplate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BDWorkflowTemplateUpsertArgs>(args: SelectSubset<T, BDWorkflowTemplateUpsertArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BDWorkflowTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowTemplateCountArgs} args - Arguments to filter BDWorkflowTemplates to count.
+     * @example
+     * // Count the number of BDWorkflowTemplates
+     * const count = await prisma.bDWorkflowTemplate.count({
+     *   where: {
+     *     // ... the filter for the BDWorkflowTemplates we want to count
+     *   }
+     * })
+    **/
+    count<T extends BDWorkflowTemplateCountArgs>(
+      args?: Subset<T, BDWorkflowTemplateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BDWorkflowTemplateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BDWorkflowTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowTemplateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BDWorkflowTemplateAggregateArgs>(args: Subset<T, BDWorkflowTemplateAggregateArgs>): Prisma.PrismaPromise<GetBDWorkflowTemplateAggregateType<T>>
+
+    /**
+     * Group by BDWorkflowTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowTemplateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BDWorkflowTemplateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BDWorkflowTemplateGroupByArgs['orderBy'] }
+        : { orderBy?: BDWorkflowTemplateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BDWorkflowTemplateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBDWorkflowTemplateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BDWorkflowTemplate model
+   */
+  readonly fields: BDWorkflowTemplateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BDWorkflowTemplate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BDWorkflowTemplateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    workTypes<T extends BDWorkflowTemplate$workTypesArgs<ExtArgs> = {}>(args?: Subset<T, BDWorkflowTemplate$workTypesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    steps<T extends BDWorkflowTemplate$stepsArgs<ExtArgs> = {}>(args?: Subset<T, BDWorkflowTemplate$stepsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BDWorkflowTemplate model
+   */
+  interface BDWorkflowTemplateFieldRefs {
+    readonly id: FieldRef<"BDWorkflowTemplate", 'String'>
+    readonly name: FieldRef<"BDWorkflowTemplate", 'String'>
+    readonly description: FieldRef<"BDWorkflowTemplate", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BDWorkflowTemplate findUnique
+   */
+  export type BDWorkflowTemplateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowTemplate to fetch.
+     */
+    where: BDWorkflowTemplateWhereUniqueInput
+  }
+
+  /**
+   * BDWorkflowTemplate findUniqueOrThrow
+   */
+  export type BDWorkflowTemplateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowTemplate to fetch.
+     */
+    where: BDWorkflowTemplateWhereUniqueInput
+  }
+
+  /**
+   * BDWorkflowTemplate findFirst
+   */
+  export type BDWorkflowTemplateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowTemplate to fetch.
+     */
+    where?: BDWorkflowTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkflowTemplates to fetch.
+     */
+    orderBy?: BDWorkflowTemplateOrderByWithRelationInput | BDWorkflowTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDWorkflowTemplates.
+     */
+    cursor?: BDWorkflowTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkflowTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkflowTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkflowTemplates.
+     */
+    distinct?: BDWorkflowTemplateScalarFieldEnum | BDWorkflowTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkflowTemplate findFirstOrThrow
+   */
+  export type BDWorkflowTemplateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowTemplate to fetch.
+     */
+    where?: BDWorkflowTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkflowTemplates to fetch.
+     */
+    orderBy?: BDWorkflowTemplateOrderByWithRelationInput | BDWorkflowTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDWorkflowTemplates.
+     */
+    cursor?: BDWorkflowTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkflowTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkflowTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkflowTemplates.
+     */
+    distinct?: BDWorkflowTemplateScalarFieldEnum | BDWorkflowTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkflowTemplate findMany
+   */
+  export type BDWorkflowTemplateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowTemplates to fetch.
+     */
+    where?: BDWorkflowTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkflowTemplates to fetch.
+     */
+    orderBy?: BDWorkflowTemplateOrderByWithRelationInput | BDWorkflowTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BDWorkflowTemplates.
+     */
+    cursor?: BDWorkflowTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkflowTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkflowTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkflowTemplates.
+     */
+    distinct?: BDWorkflowTemplateScalarFieldEnum | BDWorkflowTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkflowTemplate create
+   */
+  export type BDWorkflowTemplateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BDWorkflowTemplate.
+     */
+    data: XOR<BDWorkflowTemplateCreateInput, BDWorkflowTemplateUncheckedCreateInput>
+  }
+
+  /**
+   * BDWorkflowTemplate createMany
+   */
+  export type BDWorkflowTemplateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BDWorkflowTemplates.
+     */
+    data: BDWorkflowTemplateCreateManyInput | BDWorkflowTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BDWorkflowTemplate createManyAndReturn
+   */
+  export type BDWorkflowTemplateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to create many BDWorkflowTemplates.
+     */
+    data: BDWorkflowTemplateCreateManyInput | BDWorkflowTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BDWorkflowTemplate update
+   */
+  export type BDWorkflowTemplateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BDWorkflowTemplate.
+     */
+    data: XOR<BDWorkflowTemplateUpdateInput, BDWorkflowTemplateUncheckedUpdateInput>
+    /**
+     * Choose, which BDWorkflowTemplate to update.
+     */
+    where: BDWorkflowTemplateWhereUniqueInput
+  }
+
+  /**
+   * BDWorkflowTemplate updateMany
+   */
+  export type BDWorkflowTemplateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BDWorkflowTemplates.
+     */
+    data: XOR<BDWorkflowTemplateUpdateManyMutationInput, BDWorkflowTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which BDWorkflowTemplates to update
+     */
+    where?: BDWorkflowTemplateWhereInput
+    /**
+     * Limit how many BDWorkflowTemplates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDWorkflowTemplate updateManyAndReturn
+   */
+  export type BDWorkflowTemplateUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to update BDWorkflowTemplates.
+     */
+    data: XOR<BDWorkflowTemplateUpdateManyMutationInput, BDWorkflowTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which BDWorkflowTemplates to update
+     */
+    where?: BDWorkflowTemplateWhereInput
+    /**
+     * Limit how many BDWorkflowTemplates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDWorkflowTemplate upsert
+   */
+  export type BDWorkflowTemplateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BDWorkflowTemplate to update in case it exists.
+     */
+    where: BDWorkflowTemplateWhereUniqueInput
+    /**
+     * In case the BDWorkflowTemplate found by the `where` argument doesn't exist, create a new BDWorkflowTemplate with this data.
+     */
+    create: XOR<BDWorkflowTemplateCreateInput, BDWorkflowTemplateUncheckedCreateInput>
+    /**
+     * In case the BDWorkflowTemplate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BDWorkflowTemplateUpdateInput, BDWorkflowTemplateUncheckedUpdateInput>
+  }
+
+  /**
+   * BDWorkflowTemplate delete
+   */
+  export type BDWorkflowTemplateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+    /**
+     * Filter which BDWorkflowTemplate to delete.
+     */
+    where: BDWorkflowTemplateWhereUniqueInput
+  }
+
+  /**
+   * BDWorkflowTemplate deleteMany
+   */
+  export type BDWorkflowTemplateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDWorkflowTemplates to delete
+     */
+    where?: BDWorkflowTemplateWhereInput
+    /**
+     * Limit how many BDWorkflowTemplates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDWorkflowTemplate.workTypes
+   */
+  export type BDWorkflowTemplate$workTypesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkType
+     */
+    select?: BDWorkTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkType
+     */
+    omit?: BDWorkTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkTypeInclude<ExtArgs> | null
+    where?: BDWorkTypeWhereInput
+    orderBy?: BDWorkTypeOrderByWithRelationInput | BDWorkTypeOrderByWithRelationInput[]
+    cursor?: BDWorkTypeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDWorkTypeScalarFieldEnum | BDWorkTypeScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkflowTemplate.steps
+   */
+  export type BDWorkflowTemplate$stepsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    where?: BDWorkflowStepTemplateWhereInput
+    orderBy?: BDWorkflowStepTemplateOrderByWithRelationInput | BDWorkflowStepTemplateOrderByWithRelationInput[]
+    cursor?: BDWorkflowStepTemplateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDWorkflowStepTemplateScalarFieldEnum | BDWorkflowStepTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkflowTemplate without action
+   */
+  export type BDWorkflowTemplateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowTemplate
+     */
+    select?: BDWorkflowTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowTemplate
+     */
+    omit?: BDWorkflowTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowTemplateInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BDWorkflowStepTemplate
+   */
+
+  export type AggregateBDWorkflowStepTemplate = {
+    _count: BDWorkflowStepTemplateCountAggregateOutputType | null
+    _avg: BDWorkflowStepTemplateAvgAggregateOutputType | null
+    _sum: BDWorkflowStepTemplateSumAggregateOutputType | null
+    _min: BDWorkflowStepTemplateMinAggregateOutputType | null
+    _max: BDWorkflowStepTemplateMaxAggregateOutputType | null
+  }
+
+  export type BDWorkflowStepTemplateAvgAggregateOutputType = {
+    orderIndex: number | null
+  }
+
+  export type BDWorkflowStepTemplateSumAggregateOutputType = {
+    orderIndex: number | null
+  }
+
+  export type BDWorkflowStepTemplateMinAggregateOutputType = {
+    id: string | null
+    templateId: string | null
+    name: string | null
+    orderIndex: number | null
+  }
+
+  export type BDWorkflowStepTemplateMaxAggregateOutputType = {
+    id: string | null
+    templateId: string | null
+    name: string | null
+    orderIndex: number | null
+  }
+
+  export type BDWorkflowStepTemplateCountAggregateOutputType = {
+    id: number
+    templateId: number
+    name: number
+    orderIndex: number
+    checklist: number
+    _all: number
+  }
+
+
+  export type BDWorkflowStepTemplateAvgAggregateInputType = {
+    orderIndex?: true
+  }
+
+  export type BDWorkflowStepTemplateSumAggregateInputType = {
+    orderIndex?: true
+  }
+
+  export type BDWorkflowStepTemplateMinAggregateInputType = {
+    id?: true
+    templateId?: true
+    name?: true
+    orderIndex?: true
+  }
+
+  export type BDWorkflowStepTemplateMaxAggregateInputType = {
+    id?: true
+    templateId?: true
+    name?: true
+    orderIndex?: true
+  }
+
+  export type BDWorkflowStepTemplateCountAggregateInputType = {
+    id?: true
+    templateId?: true
+    name?: true
+    orderIndex?: true
+    checklist?: true
+    _all?: true
+  }
+
+  export type BDWorkflowStepTemplateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDWorkflowStepTemplate to aggregate.
+     */
+    where?: BDWorkflowStepTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkflowStepTemplates to fetch.
+     */
+    orderBy?: BDWorkflowStepTemplateOrderByWithRelationInput | BDWorkflowStepTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BDWorkflowStepTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkflowStepTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkflowStepTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BDWorkflowStepTemplates
+    **/
+    _count?: true | BDWorkflowStepTemplateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BDWorkflowStepTemplateAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BDWorkflowStepTemplateSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BDWorkflowStepTemplateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BDWorkflowStepTemplateMaxAggregateInputType
+  }
+
+  export type GetBDWorkflowStepTemplateAggregateType<T extends BDWorkflowStepTemplateAggregateArgs> = {
+        [P in keyof T & keyof AggregateBDWorkflowStepTemplate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBDWorkflowStepTemplate[P]>
+      : GetScalarType<T[P], AggregateBDWorkflowStepTemplate[P]>
+  }
+
+
+
+
+  export type BDWorkflowStepTemplateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDWorkflowStepTemplateWhereInput
+    orderBy?: BDWorkflowStepTemplateOrderByWithAggregationInput | BDWorkflowStepTemplateOrderByWithAggregationInput[]
+    by: BDWorkflowStepTemplateScalarFieldEnum[] | BDWorkflowStepTemplateScalarFieldEnum
+    having?: BDWorkflowStepTemplateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BDWorkflowStepTemplateCountAggregateInputType | true
+    _avg?: BDWorkflowStepTemplateAvgAggregateInputType
+    _sum?: BDWorkflowStepTemplateSumAggregateInputType
+    _min?: BDWorkflowStepTemplateMinAggregateInputType
+    _max?: BDWorkflowStepTemplateMaxAggregateInputType
+  }
+
+  export type BDWorkflowStepTemplateGroupByOutputType = {
+    id: string
+    templateId: string
+    name: string
+    orderIndex: number
+    checklist: JsonValue | null
+    _count: BDWorkflowStepTemplateCountAggregateOutputType | null
+    _avg: BDWorkflowStepTemplateAvgAggregateOutputType | null
+    _sum: BDWorkflowStepTemplateSumAggregateOutputType | null
+    _min: BDWorkflowStepTemplateMinAggregateOutputType | null
+    _max: BDWorkflowStepTemplateMaxAggregateOutputType | null
+  }
+
+  type GetBDWorkflowStepTemplateGroupByPayload<T extends BDWorkflowStepTemplateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BDWorkflowStepTemplateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BDWorkflowStepTemplateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BDWorkflowStepTemplateGroupByOutputType[P]>
+            : GetScalarType<T[P], BDWorkflowStepTemplateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BDWorkflowStepTemplateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    templateId?: boolean
+    name?: boolean
+    orderIndex?: boolean
+    checklist?: boolean
+    template?: boolean | BDWorkflowTemplateDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDWorkflowStepTemplate"]>
+
+  export type BDWorkflowStepTemplateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    templateId?: boolean
+    name?: boolean
+    orderIndex?: boolean
+    checklist?: boolean
+    template?: boolean | BDWorkflowTemplateDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDWorkflowStepTemplate"]>
+
+  export type BDWorkflowStepTemplateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    templateId?: boolean
+    name?: boolean
+    orderIndex?: boolean
+    checklist?: boolean
+    template?: boolean | BDWorkflowTemplateDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDWorkflowStepTemplate"]>
+
+  export type BDWorkflowStepTemplateSelectScalar = {
+    id?: boolean
+    templateId?: boolean
+    name?: boolean
+    orderIndex?: boolean
+    checklist?: boolean
+  }
+
+  export type BDWorkflowStepTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "templateId" | "name" | "orderIndex" | "checklist", ExtArgs["result"]["bDWorkflowStepTemplate"]>
+  export type BDWorkflowStepTemplateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    template?: boolean | BDWorkflowTemplateDefaultArgs<ExtArgs>
+  }
+  export type BDWorkflowStepTemplateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    template?: boolean | BDWorkflowTemplateDefaultArgs<ExtArgs>
+  }
+  export type BDWorkflowStepTemplateIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    template?: boolean | BDWorkflowTemplateDefaultArgs<ExtArgs>
+  }
+
+  export type $BDWorkflowStepTemplatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BDWorkflowStepTemplate"
+    objects: {
+      template: Prisma.$BDWorkflowTemplatePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      templateId: string
+      name: string
+      orderIndex: number
+      checklist: Prisma.JsonValue | null
+    }, ExtArgs["result"]["bDWorkflowStepTemplate"]>
+    composites: {}
+  }
+
+  type BDWorkflowStepTemplateGetPayload<S extends boolean | null | undefined | BDWorkflowStepTemplateDefaultArgs> = $Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload, S>
+
+  type BDWorkflowStepTemplateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BDWorkflowStepTemplateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BDWorkflowStepTemplateCountAggregateInputType | true
+    }
+
+  export interface BDWorkflowStepTemplateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BDWorkflowStepTemplate'], meta: { name: 'BDWorkflowStepTemplate' } }
+    /**
+     * Find zero or one BDWorkflowStepTemplate that matches the filter.
+     * @param {BDWorkflowStepTemplateFindUniqueArgs} args - Arguments to find a BDWorkflowStepTemplate
+     * @example
+     * // Get one BDWorkflowStepTemplate
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BDWorkflowStepTemplateFindUniqueArgs>(args: SelectSubset<T, BDWorkflowStepTemplateFindUniqueArgs<ExtArgs>>): Prisma__BDWorkflowStepTemplateClient<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BDWorkflowStepTemplate that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BDWorkflowStepTemplateFindUniqueOrThrowArgs} args - Arguments to find a BDWorkflowStepTemplate
+     * @example
+     * // Get one BDWorkflowStepTemplate
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BDWorkflowStepTemplateFindUniqueOrThrowArgs>(args: SelectSubset<T, BDWorkflowStepTemplateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BDWorkflowStepTemplateClient<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDWorkflowStepTemplate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowStepTemplateFindFirstArgs} args - Arguments to find a BDWorkflowStepTemplate
+     * @example
+     * // Get one BDWorkflowStepTemplate
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BDWorkflowStepTemplateFindFirstArgs>(args?: SelectSubset<T, BDWorkflowStepTemplateFindFirstArgs<ExtArgs>>): Prisma__BDWorkflowStepTemplateClient<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDWorkflowStepTemplate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowStepTemplateFindFirstOrThrowArgs} args - Arguments to find a BDWorkflowStepTemplate
+     * @example
+     * // Get one BDWorkflowStepTemplate
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BDWorkflowStepTemplateFindFirstOrThrowArgs>(args?: SelectSubset<T, BDWorkflowStepTemplateFindFirstOrThrowArgs<ExtArgs>>): Prisma__BDWorkflowStepTemplateClient<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BDWorkflowStepTemplates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowStepTemplateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BDWorkflowStepTemplates
+     * const bDWorkflowStepTemplates = await prisma.bDWorkflowStepTemplate.findMany()
+     * 
+     * // Get first 10 BDWorkflowStepTemplates
+     * const bDWorkflowStepTemplates = await prisma.bDWorkflowStepTemplate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bDWorkflowStepTemplateWithIdOnly = await prisma.bDWorkflowStepTemplate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BDWorkflowStepTemplateFindManyArgs>(args?: SelectSubset<T, BDWorkflowStepTemplateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BDWorkflowStepTemplate.
+     * @param {BDWorkflowStepTemplateCreateArgs} args - Arguments to create a BDWorkflowStepTemplate.
+     * @example
+     * // Create one BDWorkflowStepTemplate
+     * const BDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.create({
+     *   data: {
+     *     // ... data to create a BDWorkflowStepTemplate
+     *   }
+     * })
+     * 
+     */
+    create<T extends BDWorkflowStepTemplateCreateArgs>(args: SelectSubset<T, BDWorkflowStepTemplateCreateArgs<ExtArgs>>): Prisma__BDWorkflowStepTemplateClient<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BDWorkflowStepTemplates.
+     * @param {BDWorkflowStepTemplateCreateManyArgs} args - Arguments to create many BDWorkflowStepTemplates.
+     * @example
+     * // Create many BDWorkflowStepTemplates
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BDWorkflowStepTemplateCreateManyArgs>(args?: SelectSubset<T, BDWorkflowStepTemplateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BDWorkflowStepTemplates and returns the data saved in the database.
+     * @param {BDWorkflowStepTemplateCreateManyAndReturnArgs} args - Arguments to create many BDWorkflowStepTemplates.
+     * @example
+     * // Create many BDWorkflowStepTemplates
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BDWorkflowStepTemplates and only return the `id`
+     * const bDWorkflowStepTemplateWithIdOnly = await prisma.bDWorkflowStepTemplate.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BDWorkflowStepTemplateCreateManyAndReturnArgs>(args?: SelectSubset<T, BDWorkflowStepTemplateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BDWorkflowStepTemplate.
+     * @param {BDWorkflowStepTemplateDeleteArgs} args - Arguments to delete one BDWorkflowStepTemplate.
+     * @example
+     * // Delete one BDWorkflowStepTemplate
+     * const BDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.delete({
+     *   where: {
+     *     // ... filter to delete one BDWorkflowStepTemplate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BDWorkflowStepTemplateDeleteArgs>(args: SelectSubset<T, BDWorkflowStepTemplateDeleteArgs<ExtArgs>>): Prisma__BDWorkflowStepTemplateClient<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BDWorkflowStepTemplate.
+     * @param {BDWorkflowStepTemplateUpdateArgs} args - Arguments to update one BDWorkflowStepTemplate.
+     * @example
+     * // Update one BDWorkflowStepTemplate
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BDWorkflowStepTemplateUpdateArgs>(args: SelectSubset<T, BDWorkflowStepTemplateUpdateArgs<ExtArgs>>): Prisma__BDWorkflowStepTemplateClient<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BDWorkflowStepTemplates.
+     * @param {BDWorkflowStepTemplateDeleteManyArgs} args - Arguments to filter BDWorkflowStepTemplates to delete.
+     * @example
+     * // Delete a few BDWorkflowStepTemplates
+     * const { count } = await prisma.bDWorkflowStepTemplate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BDWorkflowStepTemplateDeleteManyArgs>(args?: SelectSubset<T, BDWorkflowStepTemplateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDWorkflowStepTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowStepTemplateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BDWorkflowStepTemplates
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BDWorkflowStepTemplateUpdateManyArgs>(args: SelectSubset<T, BDWorkflowStepTemplateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDWorkflowStepTemplates and returns the data updated in the database.
+     * @param {BDWorkflowStepTemplateUpdateManyAndReturnArgs} args - Arguments to update many BDWorkflowStepTemplates.
+     * @example
+     * // Update many BDWorkflowStepTemplates
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BDWorkflowStepTemplates and only return the `id`
+     * const bDWorkflowStepTemplateWithIdOnly = await prisma.bDWorkflowStepTemplate.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BDWorkflowStepTemplateUpdateManyAndReturnArgs>(args: SelectSubset<T, BDWorkflowStepTemplateUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BDWorkflowStepTemplate.
+     * @param {BDWorkflowStepTemplateUpsertArgs} args - Arguments to update or create a BDWorkflowStepTemplate.
+     * @example
+     * // Update or create a BDWorkflowStepTemplate
+     * const bDWorkflowStepTemplate = await prisma.bDWorkflowStepTemplate.upsert({
+     *   create: {
+     *     // ... data to create a BDWorkflowStepTemplate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BDWorkflowStepTemplate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BDWorkflowStepTemplateUpsertArgs>(args: SelectSubset<T, BDWorkflowStepTemplateUpsertArgs<ExtArgs>>): Prisma__BDWorkflowStepTemplateClient<$Result.GetResult<Prisma.$BDWorkflowStepTemplatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BDWorkflowStepTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowStepTemplateCountArgs} args - Arguments to filter BDWorkflowStepTemplates to count.
+     * @example
+     * // Count the number of BDWorkflowStepTemplates
+     * const count = await prisma.bDWorkflowStepTemplate.count({
+     *   where: {
+     *     // ... the filter for the BDWorkflowStepTemplates we want to count
+     *   }
+     * })
+    **/
+    count<T extends BDWorkflowStepTemplateCountArgs>(
+      args?: Subset<T, BDWorkflowStepTemplateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BDWorkflowStepTemplateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BDWorkflowStepTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowStepTemplateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BDWorkflowStepTemplateAggregateArgs>(args: Subset<T, BDWorkflowStepTemplateAggregateArgs>): Prisma.PrismaPromise<GetBDWorkflowStepTemplateAggregateType<T>>
+
+    /**
+     * Group by BDWorkflowStepTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDWorkflowStepTemplateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BDWorkflowStepTemplateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BDWorkflowStepTemplateGroupByArgs['orderBy'] }
+        : { orderBy?: BDWorkflowStepTemplateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BDWorkflowStepTemplateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBDWorkflowStepTemplateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BDWorkflowStepTemplate model
+   */
+  readonly fields: BDWorkflowStepTemplateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BDWorkflowStepTemplate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BDWorkflowStepTemplateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    template<T extends BDWorkflowTemplateDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BDWorkflowTemplateDefaultArgs<ExtArgs>>): Prisma__BDWorkflowTemplateClient<$Result.GetResult<Prisma.$BDWorkflowTemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BDWorkflowStepTemplate model
+   */
+  interface BDWorkflowStepTemplateFieldRefs {
+    readonly id: FieldRef<"BDWorkflowStepTemplate", 'String'>
+    readonly templateId: FieldRef<"BDWorkflowStepTemplate", 'String'>
+    readonly name: FieldRef<"BDWorkflowStepTemplate", 'String'>
+    readonly orderIndex: FieldRef<"BDWorkflowStepTemplate", 'Int'>
+    readonly checklist: FieldRef<"BDWorkflowStepTemplate", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BDWorkflowStepTemplate findUnique
+   */
+  export type BDWorkflowStepTemplateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowStepTemplate to fetch.
+     */
+    where: BDWorkflowStepTemplateWhereUniqueInput
+  }
+
+  /**
+   * BDWorkflowStepTemplate findUniqueOrThrow
+   */
+  export type BDWorkflowStepTemplateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowStepTemplate to fetch.
+     */
+    where: BDWorkflowStepTemplateWhereUniqueInput
+  }
+
+  /**
+   * BDWorkflowStepTemplate findFirst
+   */
+  export type BDWorkflowStepTemplateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowStepTemplate to fetch.
+     */
+    where?: BDWorkflowStepTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkflowStepTemplates to fetch.
+     */
+    orderBy?: BDWorkflowStepTemplateOrderByWithRelationInput | BDWorkflowStepTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDWorkflowStepTemplates.
+     */
+    cursor?: BDWorkflowStepTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkflowStepTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkflowStepTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkflowStepTemplates.
+     */
+    distinct?: BDWorkflowStepTemplateScalarFieldEnum | BDWorkflowStepTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkflowStepTemplate findFirstOrThrow
+   */
+  export type BDWorkflowStepTemplateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowStepTemplate to fetch.
+     */
+    where?: BDWorkflowStepTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkflowStepTemplates to fetch.
+     */
+    orderBy?: BDWorkflowStepTemplateOrderByWithRelationInput | BDWorkflowStepTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDWorkflowStepTemplates.
+     */
+    cursor?: BDWorkflowStepTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkflowStepTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkflowStepTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkflowStepTemplates.
+     */
+    distinct?: BDWorkflowStepTemplateScalarFieldEnum | BDWorkflowStepTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkflowStepTemplate findMany
+   */
+  export type BDWorkflowStepTemplateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BDWorkflowStepTemplates to fetch.
+     */
+    where?: BDWorkflowStepTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDWorkflowStepTemplates to fetch.
+     */
+    orderBy?: BDWorkflowStepTemplateOrderByWithRelationInput | BDWorkflowStepTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BDWorkflowStepTemplates.
+     */
+    cursor?: BDWorkflowStepTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDWorkflowStepTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDWorkflowStepTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDWorkflowStepTemplates.
+     */
+    distinct?: BDWorkflowStepTemplateScalarFieldEnum | BDWorkflowStepTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BDWorkflowStepTemplate create
+   */
+  export type BDWorkflowStepTemplateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BDWorkflowStepTemplate.
+     */
+    data: XOR<BDWorkflowStepTemplateCreateInput, BDWorkflowStepTemplateUncheckedCreateInput>
+  }
+
+  /**
+   * BDWorkflowStepTemplate createMany
+   */
+  export type BDWorkflowStepTemplateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BDWorkflowStepTemplates.
+     */
+    data: BDWorkflowStepTemplateCreateManyInput | BDWorkflowStepTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BDWorkflowStepTemplate createManyAndReturn
+   */
+  export type BDWorkflowStepTemplateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to create many BDWorkflowStepTemplates.
+     */
+    data: BDWorkflowStepTemplateCreateManyInput | BDWorkflowStepTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDWorkflowStepTemplate update
+   */
+  export type BDWorkflowStepTemplateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BDWorkflowStepTemplate.
+     */
+    data: XOR<BDWorkflowStepTemplateUpdateInput, BDWorkflowStepTemplateUncheckedUpdateInput>
+    /**
+     * Choose, which BDWorkflowStepTemplate to update.
+     */
+    where: BDWorkflowStepTemplateWhereUniqueInput
+  }
+
+  /**
+   * BDWorkflowStepTemplate updateMany
+   */
+  export type BDWorkflowStepTemplateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BDWorkflowStepTemplates.
+     */
+    data: XOR<BDWorkflowStepTemplateUpdateManyMutationInput, BDWorkflowStepTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which BDWorkflowStepTemplates to update
+     */
+    where?: BDWorkflowStepTemplateWhereInput
+    /**
+     * Limit how many BDWorkflowStepTemplates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDWorkflowStepTemplate updateManyAndReturn
+   */
+  export type BDWorkflowStepTemplateUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to update BDWorkflowStepTemplates.
+     */
+    data: XOR<BDWorkflowStepTemplateUpdateManyMutationInput, BDWorkflowStepTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which BDWorkflowStepTemplates to update
+     */
+    where?: BDWorkflowStepTemplateWhereInput
+    /**
+     * Limit how many BDWorkflowStepTemplates to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDWorkflowStepTemplate upsert
+   */
+  export type BDWorkflowStepTemplateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BDWorkflowStepTemplate to update in case it exists.
+     */
+    where: BDWorkflowStepTemplateWhereUniqueInput
+    /**
+     * In case the BDWorkflowStepTemplate found by the `where` argument doesn't exist, create a new BDWorkflowStepTemplate with this data.
+     */
+    create: XOR<BDWorkflowStepTemplateCreateInput, BDWorkflowStepTemplateUncheckedCreateInput>
+    /**
+     * In case the BDWorkflowStepTemplate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BDWorkflowStepTemplateUpdateInput, BDWorkflowStepTemplateUncheckedUpdateInput>
+  }
+
+  /**
+   * BDWorkflowStepTemplate delete
+   */
+  export type BDWorkflowStepTemplateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+    /**
+     * Filter which BDWorkflowStepTemplate to delete.
+     */
+    where: BDWorkflowStepTemplateWhereUniqueInput
+  }
+
+  /**
+   * BDWorkflowStepTemplate deleteMany
+   */
+  export type BDWorkflowStepTemplateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDWorkflowStepTemplates to delete
+     */
+    where?: BDWorkflowStepTemplateWhereInput
+    /**
+     * Limit how many BDWorkflowStepTemplates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDWorkflowStepTemplate without action
+   */
+  export type BDWorkflowStepTemplateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDWorkflowStepTemplate
+     */
+    select?: BDWorkflowStepTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDWorkflowStepTemplate
+     */
+    omit?: BDWorkflowStepTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDWorkflowStepTemplateInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BDTask
+   */
+
+  export type AggregateBDTask = {
+    _count: BDTaskCountAggregateOutputType | null
+    _avg: BDTaskAvgAggregateOutputType | null
+    _sum: BDTaskSumAggregateOutputType | null
+    _min: BDTaskMinAggregateOutputType | null
+    _max: BDTaskMaxAggregateOutputType | null
+  }
+
+  export type BDTaskAvgAggregateOutputType = {
+    orderIndex: number | null
+  }
+
+  export type BDTaskSumAggregateOutputType = {
+    orderIndex: number | null
+  }
+
+  export type BDTaskMinAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    name: string | null
+    status: string | null
+    dueDate: Date | null
+    orderIndex: number | null
+    assigneeId: string | null
+    blockedReason: string | null
+    waitingOn: string | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    blockedAt: Date | null
+  }
+
+  export type BDTaskMaxAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    name: string | null
+    status: string | null
+    dueDate: Date | null
+    orderIndex: number | null
+    assigneeId: string | null
+    blockedReason: string | null
+    waitingOn: string | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    blockedAt: Date | null
+  }
+
+  export type BDTaskCountAggregateOutputType = {
+    id: number
+    projectId: number
+    name: number
+    status: number
+    dueDate: number
+    orderIndex: number
+    checklistState: number
+    assigneeId: number
+    blockedReason: number
+    waitingOn: number
+    completedAt: number
+    createdAt: number
+    updatedAt: number
+    blockedAt: number
+    _all: number
+  }
+
+
+  export type BDTaskAvgAggregateInputType = {
+    orderIndex?: true
+  }
+
+  export type BDTaskSumAggregateInputType = {
+    orderIndex?: true
+  }
+
+  export type BDTaskMinAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    status?: true
+    dueDate?: true
+    orderIndex?: true
+    assigneeId?: true
+    blockedReason?: true
+    waitingOn?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    blockedAt?: true
+  }
+
+  export type BDTaskMaxAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    status?: true
+    dueDate?: true
+    orderIndex?: true
+    assigneeId?: true
+    blockedReason?: true
+    waitingOn?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    blockedAt?: true
+  }
+
+  export type BDTaskCountAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    status?: true
+    dueDate?: true
+    orderIndex?: true
+    checklistState?: true
+    assigneeId?: true
+    blockedReason?: true
+    waitingOn?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    blockedAt?: true
+    _all?: true
+  }
+
+  export type BDTaskAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDTask to aggregate.
+     */
+    where?: BDTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDTasks to fetch.
+     */
+    orderBy?: BDTaskOrderByWithRelationInput | BDTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BDTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BDTasks
+    **/
+    _count?: true | BDTaskCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BDTaskAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BDTaskSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BDTaskMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BDTaskMaxAggregateInputType
+  }
+
+  export type GetBDTaskAggregateType<T extends BDTaskAggregateArgs> = {
+        [P in keyof T & keyof AggregateBDTask]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBDTask[P]>
+      : GetScalarType<T[P], AggregateBDTask[P]>
+  }
+
+
+
+
+  export type BDTaskGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDTaskWhereInput
+    orderBy?: BDTaskOrderByWithAggregationInput | BDTaskOrderByWithAggregationInput[]
+    by: BDTaskScalarFieldEnum[] | BDTaskScalarFieldEnum
+    having?: BDTaskScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BDTaskCountAggregateInputType | true
+    _avg?: BDTaskAvgAggregateInputType
+    _sum?: BDTaskSumAggregateInputType
+    _min?: BDTaskMinAggregateInputType
+    _max?: BDTaskMaxAggregateInputType
+  }
+
+  export type BDTaskGroupByOutputType = {
+    id: string
+    projectId: string
+    name: string
+    status: string
+    dueDate: Date | null
+    orderIndex: number
+    checklistState: JsonValue | null
+    assigneeId: string | null
+    blockedReason: string | null
+    waitingOn: string | null
+    completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    blockedAt: Date | null
+    _count: BDTaskCountAggregateOutputType | null
+    _avg: BDTaskAvgAggregateOutputType | null
+    _sum: BDTaskSumAggregateOutputType | null
+    _min: BDTaskMinAggregateOutputType | null
+    _max: BDTaskMaxAggregateOutputType | null
+  }
+
+  type GetBDTaskGroupByPayload<T extends BDTaskGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BDTaskGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BDTaskGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BDTaskGroupByOutputType[P]>
+            : GetScalarType<T[P], BDTaskGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BDTaskSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    status?: boolean
+    dueDate?: boolean
+    orderIndex?: boolean
+    checklistState?: boolean
+    assigneeId?: boolean
+    blockedReason?: boolean
+    waitingOn?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    blockedAt?: boolean
+    assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDTask"]>
+
+  export type BDTaskSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    status?: boolean
+    dueDate?: boolean
+    orderIndex?: boolean
+    checklistState?: boolean
+    assigneeId?: boolean
+    blockedReason?: boolean
+    waitingOn?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    blockedAt?: boolean
+    assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDTask"]>
+
+  export type BDTaskSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    status?: boolean
+    dueDate?: boolean
+    orderIndex?: boolean
+    checklistState?: boolean
+    assigneeId?: boolean
+    blockedReason?: boolean
+    waitingOn?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    blockedAt?: boolean
+    assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDTask"]>
+
+  export type BDTaskSelectScalar = {
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    status?: boolean
+    dueDate?: boolean
+    orderIndex?: boolean
+    checklistState?: boolean
+    assigneeId?: boolean
+    blockedReason?: boolean
+    waitingOn?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    blockedAt?: boolean
+  }
+
+  export type BDTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "status" | "dueDate" | "orderIndex" | "checklistState" | "assigneeId" | "blockedReason" | "waitingOn" | "completedAt" | "createdAt" | "updatedAt" | "blockedAt", ExtArgs["result"]["bDTask"]>
+  export type BDTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+  }
+  export type BDTaskIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+  }
+  export type BDTaskIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+  }
+
+  export type $BDTaskPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BDTask"
+    objects: {
+      assignee: Prisma.$UserPayload<ExtArgs> | null
+      project: Prisma.$BDProjectPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      projectId: string
+      name: string
+      status: string
+      dueDate: Date | null
+      orderIndex: number
+      checklistState: Prisma.JsonValue | null
+      assigneeId: string | null
+      blockedReason: string | null
+      waitingOn: string | null
+      completedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+      blockedAt: Date | null
+    }, ExtArgs["result"]["bDTask"]>
+    composites: {}
+  }
+
+  type BDTaskGetPayload<S extends boolean | null | undefined | BDTaskDefaultArgs> = $Result.GetResult<Prisma.$BDTaskPayload, S>
+
+  type BDTaskCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BDTaskFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BDTaskCountAggregateInputType | true
+    }
+
+  export interface BDTaskDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BDTask'], meta: { name: 'BDTask' } }
+    /**
+     * Find zero or one BDTask that matches the filter.
+     * @param {BDTaskFindUniqueArgs} args - Arguments to find a BDTask
+     * @example
+     * // Get one BDTask
+     * const bDTask = await prisma.bDTask.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BDTaskFindUniqueArgs>(args: SelectSubset<T, BDTaskFindUniqueArgs<ExtArgs>>): Prisma__BDTaskClient<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BDTask that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BDTaskFindUniqueOrThrowArgs} args - Arguments to find a BDTask
+     * @example
+     * // Get one BDTask
+     * const bDTask = await prisma.bDTask.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BDTaskFindUniqueOrThrowArgs>(args: SelectSubset<T, BDTaskFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BDTaskClient<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDTask that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDTaskFindFirstArgs} args - Arguments to find a BDTask
+     * @example
+     * // Get one BDTask
+     * const bDTask = await prisma.bDTask.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BDTaskFindFirstArgs>(args?: SelectSubset<T, BDTaskFindFirstArgs<ExtArgs>>): Prisma__BDTaskClient<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDTask that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDTaskFindFirstOrThrowArgs} args - Arguments to find a BDTask
+     * @example
+     * // Get one BDTask
+     * const bDTask = await prisma.bDTask.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BDTaskFindFirstOrThrowArgs>(args?: SelectSubset<T, BDTaskFindFirstOrThrowArgs<ExtArgs>>): Prisma__BDTaskClient<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BDTasks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDTaskFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BDTasks
+     * const bDTasks = await prisma.bDTask.findMany()
+     * 
+     * // Get first 10 BDTasks
+     * const bDTasks = await prisma.bDTask.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bDTaskWithIdOnly = await prisma.bDTask.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BDTaskFindManyArgs>(args?: SelectSubset<T, BDTaskFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BDTask.
+     * @param {BDTaskCreateArgs} args - Arguments to create a BDTask.
+     * @example
+     * // Create one BDTask
+     * const BDTask = await prisma.bDTask.create({
+     *   data: {
+     *     // ... data to create a BDTask
+     *   }
+     * })
+     * 
+     */
+    create<T extends BDTaskCreateArgs>(args: SelectSubset<T, BDTaskCreateArgs<ExtArgs>>): Prisma__BDTaskClient<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BDTasks.
+     * @param {BDTaskCreateManyArgs} args - Arguments to create many BDTasks.
+     * @example
+     * // Create many BDTasks
+     * const bDTask = await prisma.bDTask.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BDTaskCreateManyArgs>(args?: SelectSubset<T, BDTaskCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BDTasks and returns the data saved in the database.
+     * @param {BDTaskCreateManyAndReturnArgs} args - Arguments to create many BDTasks.
+     * @example
+     * // Create many BDTasks
+     * const bDTask = await prisma.bDTask.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BDTasks and only return the `id`
+     * const bDTaskWithIdOnly = await prisma.bDTask.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BDTaskCreateManyAndReturnArgs>(args?: SelectSubset<T, BDTaskCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BDTask.
+     * @param {BDTaskDeleteArgs} args - Arguments to delete one BDTask.
+     * @example
+     * // Delete one BDTask
+     * const BDTask = await prisma.bDTask.delete({
+     *   where: {
+     *     // ... filter to delete one BDTask
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BDTaskDeleteArgs>(args: SelectSubset<T, BDTaskDeleteArgs<ExtArgs>>): Prisma__BDTaskClient<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BDTask.
+     * @param {BDTaskUpdateArgs} args - Arguments to update one BDTask.
+     * @example
+     * // Update one BDTask
+     * const bDTask = await prisma.bDTask.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BDTaskUpdateArgs>(args: SelectSubset<T, BDTaskUpdateArgs<ExtArgs>>): Prisma__BDTaskClient<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BDTasks.
+     * @param {BDTaskDeleteManyArgs} args - Arguments to filter BDTasks to delete.
+     * @example
+     * // Delete a few BDTasks
+     * const { count } = await prisma.bDTask.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BDTaskDeleteManyArgs>(args?: SelectSubset<T, BDTaskDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDTaskUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BDTasks
+     * const bDTask = await prisma.bDTask.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BDTaskUpdateManyArgs>(args: SelectSubset<T, BDTaskUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDTasks and returns the data updated in the database.
+     * @param {BDTaskUpdateManyAndReturnArgs} args - Arguments to update many BDTasks.
+     * @example
+     * // Update many BDTasks
+     * const bDTask = await prisma.bDTask.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BDTasks and only return the `id`
+     * const bDTaskWithIdOnly = await prisma.bDTask.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BDTaskUpdateManyAndReturnArgs>(args: SelectSubset<T, BDTaskUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BDTask.
+     * @param {BDTaskUpsertArgs} args - Arguments to update or create a BDTask.
+     * @example
+     * // Update or create a BDTask
+     * const bDTask = await prisma.bDTask.upsert({
+     *   create: {
+     *     // ... data to create a BDTask
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BDTask we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BDTaskUpsertArgs>(args: SelectSubset<T, BDTaskUpsertArgs<ExtArgs>>): Prisma__BDTaskClient<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BDTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDTaskCountArgs} args - Arguments to filter BDTasks to count.
+     * @example
+     * // Count the number of BDTasks
+     * const count = await prisma.bDTask.count({
+     *   where: {
+     *     // ... the filter for the BDTasks we want to count
+     *   }
+     * })
+    **/
+    count<T extends BDTaskCountArgs>(
+      args?: Subset<T, BDTaskCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BDTaskCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BDTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDTaskAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BDTaskAggregateArgs>(args: Subset<T, BDTaskAggregateArgs>): Prisma.PrismaPromise<GetBDTaskAggregateType<T>>
+
+    /**
+     * Group by BDTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDTaskGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BDTaskGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BDTaskGroupByArgs['orderBy'] }
+        : { orderBy?: BDTaskGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BDTaskGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBDTaskGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BDTask model
+   */
+  readonly fields: BDTaskFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BDTask.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BDTaskClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    assignee<T extends BDTask$assigneeArgs<ExtArgs> = {}>(args?: Subset<T, BDTask$assigneeArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    project<T extends BDProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BDProjectDefaultArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BDTask model
+   */
+  interface BDTaskFieldRefs {
+    readonly id: FieldRef<"BDTask", 'String'>
+    readonly projectId: FieldRef<"BDTask", 'String'>
+    readonly name: FieldRef<"BDTask", 'String'>
+    readonly status: FieldRef<"BDTask", 'String'>
+    readonly dueDate: FieldRef<"BDTask", 'DateTime'>
+    readonly orderIndex: FieldRef<"BDTask", 'Int'>
+    readonly checklistState: FieldRef<"BDTask", 'Json'>
+    readonly assigneeId: FieldRef<"BDTask", 'String'>
+    readonly blockedReason: FieldRef<"BDTask", 'String'>
+    readonly waitingOn: FieldRef<"BDTask", 'String'>
+    readonly completedAt: FieldRef<"BDTask", 'DateTime'>
+    readonly createdAt: FieldRef<"BDTask", 'DateTime'>
+    readonly updatedAt: FieldRef<"BDTask", 'DateTime'>
+    readonly blockedAt: FieldRef<"BDTask", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BDTask findUnique
+   */
+  export type BDTaskFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which BDTask to fetch.
+     */
+    where: BDTaskWhereUniqueInput
+  }
+
+  /**
+   * BDTask findUniqueOrThrow
+   */
+  export type BDTaskFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which BDTask to fetch.
+     */
+    where: BDTaskWhereUniqueInput
+  }
+
+  /**
+   * BDTask findFirst
+   */
+  export type BDTaskFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which BDTask to fetch.
+     */
+    where?: BDTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDTasks to fetch.
+     */
+    orderBy?: BDTaskOrderByWithRelationInput | BDTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDTasks.
+     */
+    cursor?: BDTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDTasks.
+     */
+    distinct?: BDTaskScalarFieldEnum | BDTaskScalarFieldEnum[]
+  }
+
+  /**
+   * BDTask findFirstOrThrow
+   */
+  export type BDTaskFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which BDTask to fetch.
+     */
+    where?: BDTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDTasks to fetch.
+     */
+    orderBy?: BDTaskOrderByWithRelationInput | BDTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDTasks.
+     */
+    cursor?: BDTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDTasks.
+     */
+    distinct?: BDTaskScalarFieldEnum | BDTaskScalarFieldEnum[]
+  }
+
+  /**
+   * BDTask findMany
+   */
+  export type BDTaskFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which BDTasks to fetch.
+     */
+    where?: BDTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDTasks to fetch.
+     */
+    orderBy?: BDTaskOrderByWithRelationInput | BDTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BDTasks.
+     */
+    cursor?: BDTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDTasks.
+     */
+    distinct?: BDTaskScalarFieldEnum | BDTaskScalarFieldEnum[]
+  }
+
+  /**
+   * BDTask create
+   */
+  export type BDTaskCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BDTask.
+     */
+    data: XOR<BDTaskCreateInput, BDTaskUncheckedCreateInput>
+  }
+
+  /**
+   * BDTask createMany
+   */
+  export type BDTaskCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BDTasks.
+     */
+    data: BDTaskCreateManyInput | BDTaskCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BDTask createManyAndReturn
+   */
+  export type BDTaskCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * The data used to create many BDTasks.
+     */
+    data: BDTaskCreateManyInput | BDTaskCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDTask update
+   */
+  export type BDTaskUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BDTask.
+     */
+    data: XOR<BDTaskUpdateInput, BDTaskUncheckedUpdateInput>
+    /**
+     * Choose, which BDTask to update.
+     */
+    where: BDTaskWhereUniqueInput
+  }
+
+  /**
+   * BDTask updateMany
+   */
+  export type BDTaskUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BDTasks.
+     */
+    data: XOR<BDTaskUpdateManyMutationInput, BDTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which BDTasks to update
+     */
+    where?: BDTaskWhereInput
+    /**
+     * Limit how many BDTasks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDTask updateManyAndReturn
+   */
+  export type BDTaskUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * The data used to update BDTasks.
+     */
+    data: XOR<BDTaskUpdateManyMutationInput, BDTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which BDTasks to update
+     */
+    where?: BDTaskWhereInput
+    /**
+     * Limit how many BDTasks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDTask upsert
+   */
+  export type BDTaskUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BDTask to update in case it exists.
+     */
+    where: BDTaskWhereUniqueInput
+    /**
+     * In case the BDTask found by the `where` argument doesn't exist, create a new BDTask with this data.
+     */
+    create: XOR<BDTaskCreateInput, BDTaskUncheckedCreateInput>
+    /**
+     * In case the BDTask was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BDTaskUpdateInput, BDTaskUncheckedUpdateInput>
+  }
+
+  /**
+   * BDTask delete
+   */
+  export type BDTaskDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+    /**
+     * Filter which BDTask to delete.
+     */
+    where: BDTaskWhereUniqueInput
+  }
+
+  /**
+   * BDTask deleteMany
+   */
+  export type BDTaskDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDTasks to delete
+     */
+    where?: BDTaskWhereInput
+    /**
+     * Limit how many BDTasks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDTask.assignee
+   */
+  export type BDTask$assigneeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * BDTask without action
+   */
+  export type BDTaskDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDTask
+     */
+    select?: BDTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDTask
+     */
+    omit?: BDTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDTaskInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BDActivity
+   */
+
+  export type AggregateBDActivity = {
+    _count: BDActivityCountAggregateOutputType | null
+    _min: BDActivityMinAggregateOutputType | null
+    _max: BDActivityMaxAggregateOutputType | null
+  }
+
+  export type BDActivityMinAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    userId: string | null
+    action: string | null
+    details: string | null
+    createdAt: Date | null
+  }
+
+  export type BDActivityMaxAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    userId: string | null
+    action: string | null
+    details: string | null
+    createdAt: Date | null
+  }
+
+  export type BDActivityCountAggregateOutputType = {
+    id: number
+    projectId: number
+    userId: number
+    action: number
+    details: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type BDActivityMinAggregateInputType = {
+    id?: true
+    projectId?: true
+    userId?: true
+    action?: true
+    details?: true
+    createdAt?: true
+  }
+
+  export type BDActivityMaxAggregateInputType = {
+    id?: true
+    projectId?: true
+    userId?: true
+    action?: true
+    details?: true
+    createdAt?: true
+  }
+
+  export type BDActivityCountAggregateInputType = {
+    id?: true
+    projectId?: true
+    userId?: true
+    action?: true
+    details?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type BDActivityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDActivity to aggregate.
+     */
+    where?: BDActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDActivities to fetch.
+     */
+    orderBy?: BDActivityOrderByWithRelationInput | BDActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BDActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BDActivities
+    **/
+    _count?: true | BDActivityCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BDActivityMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BDActivityMaxAggregateInputType
+  }
+
+  export type GetBDActivityAggregateType<T extends BDActivityAggregateArgs> = {
+        [P in keyof T & keyof AggregateBDActivity]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBDActivity[P]>
+      : GetScalarType<T[P], AggregateBDActivity[P]>
+  }
+
+
+
+
+  export type BDActivityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDActivityWhereInput
+    orderBy?: BDActivityOrderByWithAggregationInput | BDActivityOrderByWithAggregationInput[]
+    by: BDActivityScalarFieldEnum[] | BDActivityScalarFieldEnum
+    having?: BDActivityScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BDActivityCountAggregateInputType | true
+    _min?: BDActivityMinAggregateInputType
+    _max?: BDActivityMaxAggregateInputType
+  }
+
+  export type BDActivityGroupByOutputType = {
+    id: string
+    projectId: string
+    userId: string
+    action: string
+    details: string | null
+    createdAt: Date
+    _count: BDActivityCountAggregateOutputType | null
+    _min: BDActivityMinAggregateOutputType | null
+    _max: BDActivityMaxAggregateOutputType | null
+  }
+
+  type GetBDActivityGroupByPayload<T extends BDActivityGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BDActivityGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BDActivityGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BDActivityGroupByOutputType[P]>
+            : GetScalarType<T[P], BDActivityGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BDActivitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    createdAt?: boolean
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDActivity"]>
+
+  export type BDActivitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    createdAt?: boolean
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDActivity"]>
+
+  export type BDActivitySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    createdAt?: boolean
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["bDActivity"]>
+
+  export type BDActivitySelectScalar = {
+    id?: boolean
+    projectId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    createdAt?: boolean
+  }
+
+  export type BDActivityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "userId" | "action" | "details" | "createdAt", ExtArgs["result"]["bDActivity"]>
+  export type BDActivityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type BDActivityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type BDActivityIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | BDProjectDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $BDActivityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BDActivity"
+    objects: {
+      project: Prisma.$BDProjectPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      projectId: string
+      userId: string
+      action: string
+      details: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["bDActivity"]>
+    composites: {}
+  }
+
+  type BDActivityGetPayload<S extends boolean | null | undefined | BDActivityDefaultArgs> = $Result.GetResult<Prisma.$BDActivityPayload, S>
+
+  type BDActivityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BDActivityFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BDActivityCountAggregateInputType | true
+    }
+
+  export interface BDActivityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BDActivity'], meta: { name: 'BDActivity' } }
+    /**
+     * Find zero or one BDActivity that matches the filter.
+     * @param {BDActivityFindUniqueArgs} args - Arguments to find a BDActivity
+     * @example
+     * // Get one BDActivity
+     * const bDActivity = await prisma.bDActivity.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BDActivityFindUniqueArgs>(args: SelectSubset<T, BDActivityFindUniqueArgs<ExtArgs>>): Prisma__BDActivityClient<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BDActivity that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BDActivityFindUniqueOrThrowArgs} args - Arguments to find a BDActivity
+     * @example
+     * // Get one BDActivity
+     * const bDActivity = await prisma.bDActivity.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BDActivityFindUniqueOrThrowArgs>(args: SelectSubset<T, BDActivityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BDActivityClient<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDActivity that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDActivityFindFirstArgs} args - Arguments to find a BDActivity
+     * @example
+     * // Get one BDActivity
+     * const bDActivity = await prisma.bDActivity.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BDActivityFindFirstArgs>(args?: SelectSubset<T, BDActivityFindFirstArgs<ExtArgs>>): Prisma__BDActivityClient<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BDActivity that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDActivityFindFirstOrThrowArgs} args - Arguments to find a BDActivity
+     * @example
+     * // Get one BDActivity
+     * const bDActivity = await prisma.bDActivity.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BDActivityFindFirstOrThrowArgs>(args?: SelectSubset<T, BDActivityFindFirstOrThrowArgs<ExtArgs>>): Prisma__BDActivityClient<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BDActivities that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDActivityFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BDActivities
+     * const bDActivities = await prisma.bDActivity.findMany()
+     * 
+     * // Get first 10 BDActivities
+     * const bDActivities = await prisma.bDActivity.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bDActivityWithIdOnly = await prisma.bDActivity.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BDActivityFindManyArgs>(args?: SelectSubset<T, BDActivityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BDActivity.
+     * @param {BDActivityCreateArgs} args - Arguments to create a BDActivity.
+     * @example
+     * // Create one BDActivity
+     * const BDActivity = await prisma.bDActivity.create({
+     *   data: {
+     *     // ... data to create a BDActivity
+     *   }
+     * })
+     * 
+     */
+    create<T extends BDActivityCreateArgs>(args: SelectSubset<T, BDActivityCreateArgs<ExtArgs>>): Prisma__BDActivityClient<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BDActivities.
+     * @param {BDActivityCreateManyArgs} args - Arguments to create many BDActivities.
+     * @example
+     * // Create many BDActivities
+     * const bDActivity = await prisma.bDActivity.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BDActivityCreateManyArgs>(args?: SelectSubset<T, BDActivityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BDActivities and returns the data saved in the database.
+     * @param {BDActivityCreateManyAndReturnArgs} args - Arguments to create many BDActivities.
+     * @example
+     * // Create many BDActivities
+     * const bDActivity = await prisma.bDActivity.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BDActivities and only return the `id`
+     * const bDActivityWithIdOnly = await prisma.bDActivity.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BDActivityCreateManyAndReturnArgs>(args?: SelectSubset<T, BDActivityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BDActivity.
+     * @param {BDActivityDeleteArgs} args - Arguments to delete one BDActivity.
+     * @example
+     * // Delete one BDActivity
+     * const BDActivity = await prisma.bDActivity.delete({
+     *   where: {
+     *     // ... filter to delete one BDActivity
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BDActivityDeleteArgs>(args: SelectSubset<T, BDActivityDeleteArgs<ExtArgs>>): Prisma__BDActivityClient<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BDActivity.
+     * @param {BDActivityUpdateArgs} args - Arguments to update one BDActivity.
+     * @example
+     * // Update one BDActivity
+     * const bDActivity = await prisma.bDActivity.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BDActivityUpdateArgs>(args: SelectSubset<T, BDActivityUpdateArgs<ExtArgs>>): Prisma__BDActivityClient<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BDActivities.
+     * @param {BDActivityDeleteManyArgs} args - Arguments to filter BDActivities to delete.
+     * @example
+     * // Delete a few BDActivities
+     * const { count } = await prisma.bDActivity.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BDActivityDeleteManyArgs>(args?: SelectSubset<T, BDActivityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDActivities.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDActivityUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BDActivities
+     * const bDActivity = await prisma.bDActivity.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BDActivityUpdateManyArgs>(args: SelectSubset<T, BDActivityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BDActivities and returns the data updated in the database.
+     * @param {BDActivityUpdateManyAndReturnArgs} args - Arguments to update many BDActivities.
+     * @example
+     * // Update many BDActivities
+     * const bDActivity = await prisma.bDActivity.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BDActivities and only return the `id`
+     * const bDActivityWithIdOnly = await prisma.bDActivity.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BDActivityUpdateManyAndReturnArgs>(args: SelectSubset<T, BDActivityUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BDActivity.
+     * @param {BDActivityUpsertArgs} args - Arguments to update or create a BDActivity.
+     * @example
+     * // Update or create a BDActivity
+     * const bDActivity = await prisma.bDActivity.upsert({
+     *   create: {
+     *     // ... data to create a BDActivity
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BDActivity we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BDActivityUpsertArgs>(args: SelectSubset<T, BDActivityUpsertArgs<ExtArgs>>): Prisma__BDActivityClient<$Result.GetResult<Prisma.$BDActivityPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BDActivities.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDActivityCountArgs} args - Arguments to filter BDActivities to count.
+     * @example
+     * // Count the number of BDActivities
+     * const count = await prisma.bDActivity.count({
+     *   where: {
+     *     // ... the filter for the BDActivities we want to count
+     *   }
+     * })
+    **/
+    count<T extends BDActivityCountArgs>(
+      args?: Subset<T, BDActivityCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BDActivityCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BDActivity.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDActivityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BDActivityAggregateArgs>(args: Subset<T, BDActivityAggregateArgs>): Prisma.PrismaPromise<GetBDActivityAggregateType<T>>
+
+    /**
+     * Group by BDActivity.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BDActivityGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BDActivityGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BDActivityGroupByArgs['orderBy'] }
+        : { orderBy?: BDActivityGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BDActivityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBDActivityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BDActivity model
+   */
+  readonly fields: BDActivityFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BDActivity.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BDActivityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    project<T extends BDProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BDProjectDefaultArgs<ExtArgs>>): Prisma__BDProjectClient<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BDActivity model
+   */
+  interface BDActivityFieldRefs {
+    readonly id: FieldRef<"BDActivity", 'String'>
+    readonly projectId: FieldRef<"BDActivity", 'String'>
+    readonly userId: FieldRef<"BDActivity", 'String'>
+    readonly action: FieldRef<"BDActivity", 'String'>
+    readonly details: FieldRef<"BDActivity", 'String'>
+    readonly createdAt: FieldRef<"BDActivity", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BDActivity findUnique
+   */
+  export type BDActivityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which BDActivity to fetch.
+     */
+    where: BDActivityWhereUniqueInput
+  }
+
+  /**
+   * BDActivity findUniqueOrThrow
+   */
+  export type BDActivityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which BDActivity to fetch.
+     */
+    where: BDActivityWhereUniqueInput
+  }
+
+  /**
+   * BDActivity findFirst
+   */
+  export type BDActivityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which BDActivity to fetch.
+     */
+    where?: BDActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDActivities to fetch.
+     */
+    orderBy?: BDActivityOrderByWithRelationInput | BDActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDActivities.
+     */
+    cursor?: BDActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDActivities.
+     */
+    distinct?: BDActivityScalarFieldEnum | BDActivityScalarFieldEnum[]
+  }
+
+  /**
+   * BDActivity findFirstOrThrow
+   */
+  export type BDActivityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which BDActivity to fetch.
+     */
+    where?: BDActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDActivities to fetch.
+     */
+    orderBy?: BDActivityOrderByWithRelationInput | BDActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BDActivities.
+     */
+    cursor?: BDActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDActivities.
+     */
+    distinct?: BDActivityScalarFieldEnum | BDActivityScalarFieldEnum[]
+  }
+
+  /**
+   * BDActivity findMany
+   */
+  export type BDActivityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which BDActivities to fetch.
+     */
+    where?: BDActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BDActivities to fetch.
+     */
+    orderBy?: BDActivityOrderByWithRelationInput | BDActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BDActivities.
+     */
+    cursor?: BDActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BDActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BDActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BDActivities.
+     */
+    distinct?: BDActivityScalarFieldEnum | BDActivityScalarFieldEnum[]
+  }
+
+  /**
+   * BDActivity create
+   */
+  export type BDActivityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BDActivity.
+     */
+    data: XOR<BDActivityCreateInput, BDActivityUncheckedCreateInput>
+  }
+
+  /**
+   * BDActivity createMany
+   */
+  export type BDActivityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BDActivities.
+     */
+    data: BDActivityCreateManyInput | BDActivityCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BDActivity createManyAndReturn
+   */
+  export type BDActivityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * The data used to create many BDActivities.
+     */
+    data: BDActivityCreateManyInput | BDActivityCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDActivity update
+   */
+  export type BDActivityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BDActivity.
+     */
+    data: XOR<BDActivityUpdateInput, BDActivityUncheckedUpdateInput>
+    /**
+     * Choose, which BDActivity to update.
+     */
+    where: BDActivityWhereUniqueInput
+  }
+
+  /**
+   * BDActivity updateMany
+   */
+  export type BDActivityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BDActivities.
+     */
+    data: XOR<BDActivityUpdateManyMutationInput, BDActivityUncheckedUpdateManyInput>
+    /**
+     * Filter which BDActivities to update
+     */
+    where?: BDActivityWhereInput
+    /**
+     * Limit how many BDActivities to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDActivity updateManyAndReturn
+   */
+  export type BDActivityUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * The data used to update BDActivities.
+     */
+    data: XOR<BDActivityUpdateManyMutationInput, BDActivityUncheckedUpdateManyInput>
+    /**
+     * Filter which BDActivities to update
+     */
+    where?: BDActivityWhereInput
+    /**
+     * Limit how many BDActivities to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BDActivity upsert
+   */
+  export type BDActivityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BDActivity to update in case it exists.
+     */
+    where: BDActivityWhereUniqueInput
+    /**
+     * In case the BDActivity found by the `where` argument doesn't exist, create a new BDActivity with this data.
+     */
+    create: XOR<BDActivityCreateInput, BDActivityUncheckedCreateInput>
+    /**
+     * In case the BDActivity was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BDActivityUpdateInput, BDActivityUncheckedUpdateInput>
+  }
+
+  /**
+   * BDActivity delete
+   */
+  export type BDActivityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+    /**
+     * Filter which BDActivity to delete.
+     */
+    where: BDActivityWhereUniqueInput
+  }
+
+  /**
+   * BDActivity deleteMany
+   */
+  export type BDActivityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BDActivities to delete
+     */
+    where?: BDActivityWhereInput
+    /**
+     * Limit how many BDActivities to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BDActivity without action
+   */
+  export type BDActivityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDActivity
+     */
+    select?: BDActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDActivity
+     */
+    omit?: BDActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDActivityInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -174524,32 +182269,32 @@ export namespace Prisma {
   export const CabinetQCReportScalarFieldEnum: {
     id: 'id',
     cabinetAssemblyJobId: 'cabinetAssemblyJobId',
-    serialNumber: 'serialNumber',
-    nameplate: 'nameplate',
-    cabinetType: 'cabinetType',
-    fanStatus: 'fanStatus',
-    magicMarks: 'magicMarks',
-    cabinetBody: 'cabinetBody',
     inverterCorrect: 'inverterCorrect',
-    frontPanelEquipment: 'frontPanelEquipment',
-    wireDucting: 'wireDucting',
-    terminals: 'terminals',
     cabinetKey: 'cabinetKey',
-    internalWiring: 'internalWiring',
-    screwsTightened: 'screwsTightened',
-    groundingSystem: 'groundingSystem',
-    noMarks: 'noMarks',
-    overallEquipmentCheck: 'overallEquipmentCheck',
-    electricalSystem: 'electricalSystem',
-    wiringConnections: 'wiringConnections',
-    warningLabels: 'warningLabels',
+    cabinetType: 'cabinetType',
     confirmationPhotos: 'confirmationPhotos',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
+    cabinetBody: 'cabinetBody',
+    frontPanelEquipment: 'frontPanelEquipment',
+    groundingSystem: 'groundingSystem',
+    overallEquipmentCheck: 'overallEquipmentCheck',
     qcCorrections: 'qcCorrections',
     qcInspectorName: 'qcInspectorName',
     qcNotes: 'qcNotes',
-    qcStatus: 'qcStatus'
+    qcStatus: 'qcStatus',
+    electricalSystem: 'electricalSystem',
+    fanStatus: 'fanStatus',
+    internalWiring: 'internalWiring',
+    magicMarks: 'magicMarks',
+    nameplate: 'nameplate',
+    noMarks: 'noMarks',
+    screwsTightened: 'screwsTightened',
+    serialNumber: 'serialNumber',
+    terminals: 'terminals',
+    warningLabels: 'warningLabels',
+    wireDucting: 'wireDucting',
+    wiringConnections: 'wiringConnections'
   };
 
   export type CabinetQCReportScalarFieldEnum = (typeof CabinetQCReportScalarFieldEnum)[keyof typeof CabinetQCReportScalarFieldEnum]
@@ -174645,6 +182390,89 @@ export namespace Prisma {
   };
 
   export type ProductionStepScalarFieldEnum = (typeof ProductionStepScalarFieldEnum)[keyof typeof ProductionStepScalarFieldEnum]
+
+
+  export const BDWorkTypeScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    defaultTemplateId: 'defaultTemplateId'
+  };
+
+  export type BDWorkTypeScalarFieldEnum = (typeof BDWorkTypeScalarFieldEnum)[keyof typeof BDWorkTypeScalarFieldEnum]
+
+
+  export const BDProjectScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    objective: 'objective',
+    workTypeId: 'workTypeId',
+    urgency: 'urgency',
+    deadline: 'deadline',
+    status: 'status',
+    requesterId: 'requesterId',
+    ownerId: 'ownerId',
+    blockedReason: 'blockedReason',
+    waitingOn: 'waitingOn',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    intakeDate: 'intakeDate',
+    parentId: 'parentId'
+  };
+
+  export type BDProjectScalarFieldEnum = (typeof BDProjectScalarFieldEnum)[keyof typeof BDProjectScalarFieldEnum]
+
+
+  export const BDWorkflowTemplateScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description'
+  };
+
+  export type BDWorkflowTemplateScalarFieldEnum = (typeof BDWorkflowTemplateScalarFieldEnum)[keyof typeof BDWorkflowTemplateScalarFieldEnum]
+
+
+  export const BDWorkflowStepTemplateScalarFieldEnum: {
+    id: 'id',
+    templateId: 'templateId',
+    name: 'name',
+    orderIndex: 'orderIndex',
+    checklist: 'checklist'
+  };
+
+  export type BDWorkflowStepTemplateScalarFieldEnum = (typeof BDWorkflowStepTemplateScalarFieldEnum)[keyof typeof BDWorkflowStepTemplateScalarFieldEnum]
+
+
+  export const BDTaskScalarFieldEnum: {
+    id: 'id',
+    projectId: 'projectId',
+    name: 'name',
+    status: 'status',
+    dueDate: 'dueDate',
+    orderIndex: 'orderIndex',
+    checklistState: 'checklistState',
+    assigneeId: 'assigneeId',
+    blockedReason: 'blockedReason',
+    waitingOn: 'waitingOn',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    blockedAt: 'blockedAt'
+  };
+
+  export type BDTaskScalarFieldEnum = (typeof BDTaskScalarFieldEnum)[keyof typeof BDTaskScalarFieldEnum]
+
+
+  export const BDActivityScalarFieldEnum: {
+    id: 'id',
+    projectId: 'projectId',
+    userId: 'userId',
+    action: 'action',
+    details: 'details',
+    createdAt: 'createdAt'
+  };
+
+  export type BDActivityScalarFieldEnum = (typeof BDActivityScalarFieldEnum)[keyof typeof BDActivityScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -174825,6 +182653,10 @@ export namespace Prisma {
     otpCode?: StringNullableFilter<"User"> | string | null
     otpExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
     isActive?: BoolFilter<"User"> | boolean
+    bdActivities?: BDActivityListRelationFilter
+    bdOwnedProjects?: BDProjectListRelationFilter
+    bdRequests?: BDProjectListRelationFilter
+    bdAssignedTasks?: BDTaskListRelationFilter
     cabinetAssemblyJobs?: CabinetAssemblyJobListRelationFilter
     assignedCompanies?: CompanyListRelationFilter
     companyInteractions?: CompanyInteractionListRelationFilter
@@ -174873,6 +182705,10 @@ export namespace Prisma {
     otpCode?: SortOrderInput | SortOrder
     otpExpiresAt?: SortOrderInput | SortOrder
     isActive?: SortOrder
+    bdActivities?: BDActivityOrderByRelationAggregateInput
+    bdOwnedProjects?: BDProjectOrderByRelationAggregateInput
+    bdRequests?: BDProjectOrderByRelationAggregateInput
+    bdAssignedTasks?: BDTaskOrderByRelationAggregateInput
     cabinetAssemblyJobs?: CabinetAssemblyJobOrderByRelationAggregateInput
     assignedCompanies?: CompanyOrderByRelationAggregateInput
     companyInteractions?: CompanyInteractionOrderByRelationAggregateInput
@@ -174924,6 +182760,10 @@ export namespace Prisma {
     otpCode?: StringNullableFilter<"User"> | string | null
     otpExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
     isActive?: BoolFilter<"User"> | boolean
+    bdActivities?: BDActivityListRelationFilter
+    bdOwnedProjects?: BDProjectListRelationFilter
+    bdRequests?: BDProjectListRelationFilter
+    bdAssignedTasks?: BDTaskListRelationFilter
     cabinetAssemblyJobs?: CabinetAssemblyJobListRelationFilter
     assignedCompanies?: CompanyListRelationFilter
     companyInteractions?: CompanyInteractionListRelationFilter
@@ -186866,8 +194706,8 @@ export namespace Prisma {
     timeLogs?: AssemblyTimeLogListRelationFilter
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
     technician?: XOR<UserScalarRelationFilter, UserWhereInput>
-    qcReport?: XOR<CabinetQCReportNullableScalarRelationFilter, CabinetQCReportWhereInput> | null
     fatReport?: XOR<CabinetFATReportNullableScalarRelationFilter, CabinetFATReportWhereInput> | null
+    qcReport?: XOR<CabinetQCReportNullableScalarRelationFilter, CabinetQCReportWhereInput> | null
   }
 
   export type CabinetAssemblyJobOrderByWithRelationInput = {
@@ -186884,8 +194724,8 @@ export namespace Prisma {
     timeLogs?: AssemblyTimeLogOrderByRelationAggregateInput
     order?: OrderOrderByWithRelationInput
     technician?: UserOrderByWithRelationInput
-    qcReport?: CabinetQCReportOrderByWithRelationInput
     fatReport?: CabinetFATReportOrderByWithRelationInput
+    qcReport?: CabinetQCReportOrderByWithRelationInput
   }
 
   export type CabinetAssemblyJobWhereUniqueInput = Prisma.AtLeast<{
@@ -186905,8 +194745,8 @@ export namespace Prisma {
     timeLogs?: AssemblyTimeLogListRelationFilter
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
     technician?: XOR<UserScalarRelationFilter, UserWhereInput>
-    qcReport?: XOR<CabinetQCReportNullableScalarRelationFilter, CabinetQCReportWhereInput> | null
     fatReport?: XOR<CabinetFATReportNullableScalarRelationFilter, CabinetFATReportWhereInput> | null
+    qcReport?: XOR<CabinetQCReportNullableScalarRelationFilter, CabinetQCReportWhereInput> | null
   }, "id" | "jobNumber">
 
   export type CabinetAssemblyJobOrderByWithAggregationInput = {
@@ -187004,64 +194844,64 @@ export namespace Prisma {
     NOT?: CabinetQCReportWhereInput | CabinetQCReportWhereInput[]
     id?: StringFilter<"CabinetQCReport"> | string
     cabinetAssemblyJobId?: StringFilter<"CabinetQCReport"> | string
-    serialNumber?: StringNullableFilter<"CabinetQCReport"> | string | null
-    nameplate?: StringNullableFilter<"CabinetQCReport"> | string | null
-    cabinetType?: StringFilter<"CabinetQCReport"> | string
-    fanStatus?: StringNullableFilter<"CabinetQCReport"> | string | null
-    magicMarks?: BoolFilter<"CabinetQCReport"> | boolean
-    cabinetBody?: BoolFilter<"CabinetQCReport"> | boolean
     inverterCorrect?: BoolFilter<"CabinetQCReport"> | boolean
-    frontPanelEquipment?: BoolFilter<"CabinetQCReport"> | boolean
-    wireDucting?: BoolFilter<"CabinetQCReport"> | boolean
-    terminals?: BoolFilter<"CabinetQCReport"> | boolean
     cabinetKey?: BoolFilter<"CabinetQCReport"> | boolean
-    internalWiring?: BoolFilter<"CabinetQCReport"> | boolean
-    screwsTightened?: BoolFilter<"CabinetQCReport"> | boolean
-    groundingSystem?: BoolFilter<"CabinetQCReport"> | boolean
-    noMarks?: BoolFilter<"CabinetQCReport"> | boolean
-    overallEquipmentCheck?: BoolFilter<"CabinetQCReport"> | boolean
-    electricalSystem?: BoolFilter<"CabinetQCReport"> | boolean
-    wiringConnections?: BoolFilter<"CabinetQCReport"> | boolean
-    warningLabels?: BoolFilter<"CabinetQCReport"> | boolean
+    cabinetType?: StringFilter<"CabinetQCReport"> | string
     confirmationPhotos?: StringNullableListFilter<"CabinetQCReport">
     createdAt?: DateTimeFilter<"CabinetQCReport"> | Date | string
     updatedAt?: DateTimeFilter<"CabinetQCReport"> | Date | string
+    cabinetBody?: BoolFilter<"CabinetQCReport"> | boolean
+    frontPanelEquipment?: BoolFilter<"CabinetQCReport"> | boolean
+    groundingSystem?: BoolFilter<"CabinetQCReport"> | boolean
+    overallEquipmentCheck?: BoolFilter<"CabinetQCReport"> | boolean
     qcCorrections?: StringNullableFilter<"CabinetQCReport"> | string | null
     qcInspectorName?: StringNullableFilter<"CabinetQCReport"> | string | null
     qcNotes?: StringNullableFilter<"CabinetQCReport"> | string | null
     qcStatus?: StringFilter<"CabinetQCReport"> | string
+    electricalSystem?: BoolFilter<"CabinetQCReport"> | boolean
+    fanStatus?: StringNullableFilter<"CabinetQCReport"> | string | null
+    internalWiring?: BoolFilter<"CabinetQCReport"> | boolean
+    magicMarks?: BoolFilter<"CabinetQCReport"> | boolean
+    nameplate?: StringNullableFilter<"CabinetQCReport"> | string | null
+    noMarks?: BoolFilter<"CabinetQCReport"> | boolean
+    screwsTightened?: BoolFilter<"CabinetQCReport"> | boolean
+    serialNumber?: StringNullableFilter<"CabinetQCReport"> | string | null
+    terminals?: BoolFilter<"CabinetQCReport"> | boolean
+    warningLabels?: BoolFilter<"CabinetQCReport"> | boolean
+    wireDucting?: BoolFilter<"CabinetQCReport"> | boolean
+    wiringConnections?: BoolFilter<"CabinetQCReport"> | boolean
     job?: XOR<CabinetAssemblyJobScalarRelationFilter, CabinetAssemblyJobWhereInput>
   }
 
   export type CabinetQCReportOrderByWithRelationInput = {
     id?: SortOrder
     cabinetAssemblyJobId?: SortOrder
-    serialNumber?: SortOrderInput | SortOrder
-    nameplate?: SortOrderInput | SortOrder
-    cabinetType?: SortOrder
-    fanStatus?: SortOrderInput | SortOrder
-    magicMarks?: SortOrder
-    cabinetBody?: SortOrder
     inverterCorrect?: SortOrder
-    frontPanelEquipment?: SortOrder
-    wireDucting?: SortOrder
-    terminals?: SortOrder
     cabinetKey?: SortOrder
-    internalWiring?: SortOrder
-    screwsTightened?: SortOrder
-    groundingSystem?: SortOrder
-    noMarks?: SortOrder
-    overallEquipmentCheck?: SortOrder
-    electricalSystem?: SortOrder
-    wiringConnections?: SortOrder
-    warningLabels?: SortOrder
+    cabinetType?: SortOrder
     confirmationPhotos?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    cabinetBody?: SortOrder
+    frontPanelEquipment?: SortOrder
+    groundingSystem?: SortOrder
+    overallEquipmentCheck?: SortOrder
     qcCorrections?: SortOrderInput | SortOrder
     qcInspectorName?: SortOrderInput | SortOrder
     qcNotes?: SortOrderInput | SortOrder
     qcStatus?: SortOrder
+    electricalSystem?: SortOrder
+    fanStatus?: SortOrderInput | SortOrder
+    internalWiring?: SortOrder
+    magicMarks?: SortOrder
+    nameplate?: SortOrderInput | SortOrder
+    noMarks?: SortOrder
+    screwsTightened?: SortOrder
+    serialNumber?: SortOrderInput | SortOrder
+    terminals?: SortOrder
+    warningLabels?: SortOrder
+    wireDucting?: SortOrder
+    wiringConnections?: SortOrder
     job?: CabinetAssemblyJobOrderByWithRelationInput
   }
 
@@ -187071,64 +194911,64 @@ export namespace Prisma {
     AND?: CabinetQCReportWhereInput | CabinetQCReportWhereInput[]
     OR?: CabinetQCReportWhereInput[]
     NOT?: CabinetQCReportWhereInput | CabinetQCReportWhereInput[]
-    serialNumber?: StringNullableFilter<"CabinetQCReport"> | string | null
-    nameplate?: StringNullableFilter<"CabinetQCReport"> | string | null
-    cabinetType?: StringFilter<"CabinetQCReport"> | string
-    fanStatus?: StringNullableFilter<"CabinetQCReport"> | string | null
-    magicMarks?: BoolFilter<"CabinetQCReport"> | boolean
-    cabinetBody?: BoolFilter<"CabinetQCReport"> | boolean
     inverterCorrect?: BoolFilter<"CabinetQCReport"> | boolean
-    frontPanelEquipment?: BoolFilter<"CabinetQCReport"> | boolean
-    wireDucting?: BoolFilter<"CabinetQCReport"> | boolean
-    terminals?: BoolFilter<"CabinetQCReport"> | boolean
     cabinetKey?: BoolFilter<"CabinetQCReport"> | boolean
-    internalWiring?: BoolFilter<"CabinetQCReport"> | boolean
-    screwsTightened?: BoolFilter<"CabinetQCReport"> | boolean
-    groundingSystem?: BoolFilter<"CabinetQCReport"> | boolean
-    noMarks?: BoolFilter<"CabinetQCReport"> | boolean
-    overallEquipmentCheck?: BoolFilter<"CabinetQCReport"> | boolean
-    electricalSystem?: BoolFilter<"CabinetQCReport"> | boolean
-    wiringConnections?: BoolFilter<"CabinetQCReport"> | boolean
-    warningLabels?: BoolFilter<"CabinetQCReport"> | boolean
+    cabinetType?: StringFilter<"CabinetQCReport"> | string
     confirmationPhotos?: StringNullableListFilter<"CabinetQCReport">
     createdAt?: DateTimeFilter<"CabinetQCReport"> | Date | string
     updatedAt?: DateTimeFilter<"CabinetQCReport"> | Date | string
+    cabinetBody?: BoolFilter<"CabinetQCReport"> | boolean
+    frontPanelEquipment?: BoolFilter<"CabinetQCReport"> | boolean
+    groundingSystem?: BoolFilter<"CabinetQCReport"> | boolean
+    overallEquipmentCheck?: BoolFilter<"CabinetQCReport"> | boolean
     qcCorrections?: StringNullableFilter<"CabinetQCReport"> | string | null
     qcInspectorName?: StringNullableFilter<"CabinetQCReport"> | string | null
     qcNotes?: StringNullableFilter<"CabinetQCReport"> | string | null
     qcStatus?: StringFilter<"CabinetQCReport"> | string
+    electricalSystem?: BoolFilter<"CabinetQCReport"> | boolean
+    fanStatus?: StringNullableFilter<"CabinetQCReport"> | string | null
+    internalWiring?: BoolFilter<"CabinetQCReport"> | boolean
+    magicMarks?: BoolFilter<"CabinetQCReport"> | boolean
+    nameplate?: StringNullableFilter<"CabinetQCReport"> | string | null
+    noMarks?: BoolFilter<"CabinetQCReport"> | boolean
+    screwsTightened?: BoolFilter<"CabinetQCReport"> | boolean
+    serialNumber?: StringNullableFilter<"CabinetQCReport"> | string | null
+    terminals?: BoolFilter<"CabinetQCReport"> | boolean
+    warningLabels?: BoolFilter<"CabinetQCReport"> | boolean
+    wireDucting?: BoolFilter<"CabinetQCReport"> | boolean
+    wiringConnections?: BoolFilter<"CabinetQCReport"> | boolean
     job?: XOR<CabinetAssemblyJobScalarRelationFilter, CabinetAssemblyJobWhereInput>
   }, "id" | "cabinetAssemblyJobId">
 
   export type CabinetQCReportOrderByWithAggregationInput = {
     id?: SortOrder
     cabinetAssemblyJobId?: SortOrder
-    serialNumber?: SortOrderInput | SortOrder
-    nameplate?: SortOrderInput | SortOrder
-    cabinetType?: SortOrder
-    fanStatus?: SortOrderInput | SortOrder
-    magicMarks?: SortOrder
-    cabinetBody?: SortOrder
     inverterCorrect?: SortOrder
-    frontPanelEquipment?: SortOrder
-    wireDucting?: SortOrder
-    terminals?: SortOrder
     cabinetKey?: SortOrder
-    internalWiring?: SortOrder
-    screwsTightened?: SortOrder
-    groundingSystem?: SortOrder
-    noMarks?: SortOrder
-    overallEquipmentCheck?: SortOrder
-    electricalSystem?: SortOrder
-    wiringConnections?: SortOrder
-    warningLabels?: SortOrder
+    cabinetType?: SortOrder
     confirmationPhotos?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    cabinetBody?: SortOrder
+    frontPanelEquipment?: SortOrder
+    groundingSystem?: SortOrder
+    overallEquipmentCheck?: SortOrder
     qcCorrections?: SortOrderInput | SortOrder
     qcInspectorName?: SortOrderInput | SortOrder
     qcNotes?: SortOrderInput | SortOrder
     qcStatus?: SortOrder
+    electricalSystem?: SortOrder
+    fanStatus?: SortOrderInput | SortOrder
+    internalWiring?: SortOrder
+    magicMarks?: SortOrder
+    nameplate?: SortOrderInput | SortOrder
+    noMarks?: SortOrder
+    screwsTightened?: SortOrder
+    serialNumber?: SortOrderInput | SortOrder
+    terminals?: SortOrder
+    warningLabels?: SortOrder
+    wireDucting?: SortOrder
+    wiringConnections?: SortOrder
     _count?: CabinetQCReportCountOrderByAggregateInput
     _max?: CabinetQCReportMaxOrderByAggregateInput
     _min?: CabinetQCReportMinOrderByAggregateInput
@@ -187140,32 +194980,32 @@ export namespace Prisma {
     NOT?: CabinetQCReportScalarWhereWithAggregatesInput | CabinetQCReportScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"CabinetQCReport"> | string
     cabinetAssemblyJobId?: StringWithAggregatesFilter<"CabinetQCReport"> | string
-    serialNumber?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
-    nameplate?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
-    cabinetType?: StringWithAggregatesFilter<"CabinetQCReport"> | string
-    fanStatus?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
-    magicMarks?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    cabinetBody?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
     inverterCorrect?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    frontPanelEquipment?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    wireDucting?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    terminals?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
     cabinetKey?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    internalWiring?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    screwsTightened?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    groundingSystem?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    noMarks?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    overallEquipmentCheck?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    electricalSystem?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    wiringConnections?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
-    warningLabels?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    cabinetType?: StringWithAggregatesFilter<"CabinetQCReport"> | string
     confirmationPhotos?: StringNullableListFilter<"CabinetQCReport">
     createdAt?: DateTimeWithAggregatesFilter<"CabinetQCReport"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CabinetQCReport"> | Date | string
+    cabinetBody?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    frontPanelEquipment?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    groundingSystem?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    overallEquipmentCheck?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
     qcCorrections?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
     qcInspectorName?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
     qcNotes?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
     qcStatus?: StringWithAggregatesFilter<"CabinetQCReport"> | string
+    electricalSystem?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    fanStatus?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
+    internalWiring?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    magicMarks?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    nameplate?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
+    noMarks?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    screwsTightened?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    serialNumber?: StringNullableWithAggregatesFilter<"CabinetQCReport"> | string | null
+    terminals?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    warningLabels?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    wireDucting?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
+    wiringConnections?: BoolWithAggregatesFilter<"CabinetQCReport"> | boolean
   }
 
   export type CabinetFATReportWhereInput = {
@@ -187648,6 +195488,455 @@ export namespace Prisma {
     completedBy?: StringNullableWithAggregatesFilter<"ProductionStep"> | string | null
   }
 
+  export type BDWorkTypeWhereInput = {
+    AND?: BDWorkTypeWhereInput | BDWorkTypeWhereInput[]
+    OR?: BDWorkTypeWhereInput[]
+    NOT?: BDWorkTypeWhereInput | BDWorkTypeWhereInput[]
+    id?: StringFilter<"BDWorkType"> | string
+    name?: StringFilter<"BDWorkType"> | string
+    description?: StringNullableFilter<"BDWorkType"> | string | null
+    defaultTemplateId?: StringNullableFilter<"BDWorkType"> | string | null
+    projects?: BDProjectListRelationFilter
+    defaultTemplate?: XOR<BDWorkflowTemplateNullableScalarRelationFilter, BDWorkflowTemplateWhereInput> | null
+  }
+
+  export type BDWorkTypeOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    defaultTemplateId?: SortOrderInput | SortOrder
+    projects?: BDProjectOrderByRelationAggregateInput
+    defaultTemplate?: BDWorkflowTemplateOrderByWithRelationInput
+  }
+
+  export type BDWorkTypeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    name?: string
+    AND?: BDWorkTypeWhereInput | BDWorkTypeWhereInput[]
+    OR?: BDWorkTypeWhereInput[]
+    NOT?: BDWorkTypeWhereInput | BDWorkTypeWhereInput[]
+    description?: StringNullableFilter<"BDWorkType"> | string | null
+    defaultTemplateId?: StringNullableFilter<"BDWorkType"> | string | null
+    projects?: BDProjectListRelationFilter
+    defaultTemplate?: XOR<BDWorkflowTemplateNullableScalarRelationFilter, BDWorkflowTemplateWhereInput> | null
+  }, "id" | "name">
+
+  export type BDWorkTypeOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    defaultTemplateId?: SortOrderInput | SortOrder
+    _count?: BDWorkTypeCountOrderByAggregateInput
+    _max?: BDWorkTypeMaxOrderByAggregateInput
+    _min?: BDWorkTypeMinOrderByAggregateInput
+  }
+
+  export type BDWorkTypeScalarWhereWithAggregatesInput = {
+    AND?: BDWorkTypeScalarWhereWithAggregatesInput | BDWorkTypeScalarWhereWithAggregatesInput[]
+    OR?: BDWorkTypeScalarWhereWithAggregatesInput[]
+    NOT?: BDWorkTypeScalarWhereWithAggregatesInput | BDWorkTypeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BDWorkType"> | string
+    name?: StringWithAggregatesFilter<"BDWorkType"> | string
+    description?: StringNullableWithAggregatesFilter<"BDWorkType"> | string | null
+    defaultTemplateId?: StringNullableWithAggregatesFilter<"BDWorkType"> | string | null
+  }
+
+  export type BDProjectWhereInput = {
+    AND?: BDProjectWhereInput | BDProjectWhereInput[]
+    OR?: BDProjectWhereInput[]
+    NOT?: BDProjectWhereInput | BDProjectWhereInput[]
+    id?: StringFilter<"BDProject"> | string
+    name?: StringFilter<"BDProject"> | string
+    objective?: StringNullableFilter<"BDProject"> | string | null
+    workTypeId?: StringFilter<"BDProject"> | string
+    urgency?: StringFilter<"BDProject"> | string
+    deadline?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    status?: StringFilter<"BDProject"> | string
+    requesterId?: StringFilter<"BDProject"> | string
+    ownerId?: StringNullableFilter<"BDProject"> | string | null
+    blockedReason?: StringNullableFilter<"BDProject"> | string | null
+    waitingOn?: StringNullableFilter<"BDProject"> | string | null
+    createdAt?: DateTimeFilter<"BDProject"> | Date | string
+    updatedAt?: DateTimeFilter<"BDProject"> | Date | string
+    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    parentId?: StringNullableFilter<"BDProject"> | string | null
+    activities?: BDActivityListRelationFilter
+    owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    parent?: XOR<BDProjectNullableScalarRelationFilter, BDProjectWhereInput> | null
+    subProjects?: BDProjectListRelationFilter
+    requester?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workType?: XOR<BDWorkTypeScalarRelationFilter, BDWorkTypeWhereInput>
+    tasks?: BDTaskListRelationFilter
+  }
+
+  export type BDProjectOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    objective?: SortOrderInput | SortOrder
+    workTypeId?: SortOrder
+    urgency?: SortOrder
+    deadline?: SortOrderInput | SortOrder
+    status?: SortOrder
+    requesterId?: SortOrder
+    ownerId?: SortOrderInput | SortOrder
+    blockedReason?: SortOrderInput | SortOrder
+    waitingOn?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    intakeDate?: SortOrderInput | SortOrder
+    parentId?: SortOrderInput | SortOrder
+    activities?: BDActivityOrderByRelationAggregateInput
+    owner?: UserOrderByWithRelationInput
+    parent?: BDProjectOrderByWithRelationInput
+    subProjects?: BDProjectOrderByRelationAggregateInput
+    requester?: UserOrderByWithRelationInput
+    workType?: BDWorkTypeOrderByWithRelationInput
+    tasks?: BDTaskOrderByRelationAggregateInput
+  }
+
+  export type BDProjectWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BDProjectWhereInput | BDProjectWhereInput[]
+    OR?: BDProjectWhereInput[]
+    NOT?: BDProjectWhereInput | BDProjectWhereInput[]
+    name?: StringFilter<"BDProject"> | string
+    objective?: StringNullableFilter<"BDProject"> | string | null
+    workTypeId?: StringFilter<"BDProject"> | string
+    urgency?: StringFilter<"BDProject"> | string
+    deadline?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    status?: StringFilter<"BDProject"> | string
+    requesterId?: StringFilter<"BDProject"> | string
+    ownerId?: StringNullableFilter<"BDProject"> | string | null
+    blockedReason?: StringNullableFilter<"BDProject"> | string | null
+    waitingOn?: StringNullableFilter<"BDProject"> | string | null
+    createdAt?: DateTimeFilter<"BDProject"> | Date | string
+    updatedAt?: DateTimeFilter<"BDProject"> | Date | string
+    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    parentId?: StringNullableFilter<"BDProject"> | string | null
+    activities?: BDActivityListRelationFilter
+    owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    parent?: XOR<BDProjectNullableScalarRelationFilter, BDProjectWhereInput> | null
+    subProjects?: BDProjectListRelationFilter
+    requester?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workType?: XOR<BDWorkTypeScalarRelationFilter, BDWorkTypeWhereInput>
+    tasks?: BDTaskListRelationFilter
+  }, "id">
+
+  export type BDProjectOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    objective?: SortOrderInput | SortOrder
+    workTypeId?: SortOrder
+    urgency?: SortOrder
+    deadline?: SortOrderInput | SortOrder
+    status?: SortOrder
+    requesterId?: SortOrder
+    ownerId?: SortOrderInput | SortOrder
+    blockedReason?: SortOrderInput | SortOrder
+    waitingOn?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    intakeDate?: SortOrderInput | SortOrder
+    parentId?: SortOrderInput | SortOrder
+    _count?: BDProjectCountOrderByAggregateInput
+    _max?: BDProjectMaxOrderByAggregateInput
+    _min?: BDProjectMinOrderByAggregateInput
+  }
+
+  export type BDProjectScalarWhereWithAggregatesInput = {
+    AND?: BDProjectScalarWhereWithAggregatesInput | BDProjectScalarWhereWithAggregatesInput[]
+    OR?: BDProjectScalarWhereWithAggregatesInput[]
+    NOT?: BDProjectScalarWhereWithAggregatesInput | BDProjectScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BDProject"> | string
+    name?: StringWithAggregatesFilter<"BDProject"> | string
+    objective?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
+    workTypeId?: StringWithAggregatesFilter<"BDProject"> | string
+    urgency?: StringWithAggregatesFilter<"BDProject"> | string
+    deadline?: DateTimeNullableWithAggregatesFilter<"BDProject"> | Date | string | null
+    status?: StringWithAggregatesFilter<"BDProject"> | string
+    requesterId?: StringWithAggregatesFilter<"BDProject"> | string
+    ownerId?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
+    blockedReason?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
+    waitingOn?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"BDProject"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BDProject"> | Date | string
+    intakeDate?: DateTimeNullableWithAggregatesFilter<"BDProject"> | Date | string | null
+    parentId?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
+  }
+
+  export type BDWorkflowTemplateWhereInput = {
+    AND?: BDWorkflowTemplateWhereInput | BDWorkflowTemplateWhereInput[]
+    OR?: BDWorkflowTemplateWhereInput[]
+    NOT?: BDWorkflowTemplateWhereInput | BDWorkflowTemplateWhereInput[]
+    id?: StringFilter<"BDWorkflowTemplate"> | string
+    name?: StringFilter<"BDWorkflowTemplate"> | string
+    description?: StringNullableFilter<"BDWorkflowTemplate"> | string | null
+    workTypes?: BDWorkTypeListRelationFilter
+    steps?: BDWorkflowStepTemplateListRelationFilter
+  }
+
+  export type BDWorkflowTemplateOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    workTypes?: BDWorkTypeOrderByRelationAggregateInput
+    steps?: BDWorkflowStepTemplateOrderByRelationAggregateInput
+  }
+
+  export type BDWorkflowTemplateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BDWorkflowTemplateWhereInput | BDWorkflowTemplateWhereInput[]
+    OR?: BDWorkflowTemplateWhereInput[]
+    NOT?: BDWorkflowTemplateWhereInput | BDWorkflowTemplateWhereInput[]
+    name?: StringFilter<"BDWorkflowTemplate"> | string
+    description?: StringNullableFilter<"BDWorkflowTemplate"> | string | null
+    workTypes?: BDWorkTypeListRelationFilter
+    steps?: BDWorkflowStepTemplateListRelationFilter
+  }, "id">
+
+  export type BDWorkflowTemplateOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    _count?: BDWorkflowTemplateCountOrderByAggregateInput
+    _max?: BDWorkflowTemplateMaxOrderByAggregateInput
+    _min?: BDWorkflowTemplateMinOrderByAggregateInput
+  }
+
+  export type BDWorkflowTemplateScalarWhereWithAggregatesInput = {
+    AND?: BDWorkflowTemplateScalarWhereWithAggregatesInput | BDWorkflowTemplateScalarWhereWithAggregatesInput[]
+    OR?: BDWorkflowTemplateScalarWhereWithAggregatesInput[]
+    NOT?: BDWorkflowTemplateScalarWhereWithAggregatesInput | BDWorkflowTemplateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BDWorkflowTemplate"> | string
+    name?: StringWithAggregatesFilter<"BDWorkflowTemplate"> | string
+    description?: StringNullableWithAggregatesFilter<"BDWorkflowTemplate"> | string | null
+  }
+
+  export type BDWorkflowStepTemplateWhereInput = {
+    AND?: BDWorkflowStepTemplateWhereInput | BDWorkflowStepTemplateWhereInput[]
+    OR?: BDWorkflowStepTemplateWhereInput[]
+    NOT?: BDWorkflowStepTemplateWhereInput | BDWorkflowStepTemplateWhereInput[]
+    id?: StringFilter<"BDWorkflowStepTemplate"> | string
+    templateId?: StringFilter<"BDWorkflowStepTemplate"> | string
+    name?: StringFilter<"BDWorkflowStepTemplate"> | string
+    orderIndex?: IntFilter<"BDWorkflowStepTemplate"> | number
+    checklist?: JsonNullableFilter<"BDWorkflowStepTemplate">
+    template?: XOR<BDWorkflowTemplateScalarRelationFilter, BDWorkflowTemplateWhereInput>
+  }
+
+  export type BDWorkflowStepTemplateOrderByWithRelationInput = {
+    id?: SortOrder
+    templateId?: SortOrder
+    name?: SortOrder
+    orderIndex?: SortOrder
+    checklist?: SortOrderInput | SortOrder
+    template?: BDWorkflowTemplateOrderByWithRelationInput
+  }
+
+  export type BDWorkflowStepTemplateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BDWorkflowStepTemplateWhereInput | BDWorkflowStepTemplateWhereInput[]
+    OR?: BDWorkflowStepTemplateWhereInput[]
+    NOT?: BDWorkflowStepTemplateWhereInput | BDWorkflowStepTemplateWhereInput[]
+    templateId?: StringFilter<"BDWorkflowStepTemplate"> | string
+    name?: StringFilter<"BDWorkflowStepTemplate"> | string
+    orderIndex?: IntFilter<"BDWorkflowStepTemplate"> | number
+    checklist?: JsonNullableFilter<"BDWorkflowStepTemplate">
+    template?: XOR<BDWorkflowTemplateScalarRelationFilter, BDWorkflowTemplateWhereInput>
+  }, "id">
+
+  export type BDWorkflowStepTemplateOrderByWithAggregationInput = {
+    id?: SortOrder
+    templateId?: SortOrder
+    name?: SortOrder
+    orderIndex?: SortOrder
+    checklist?: SortOrderInput | SortOrder
+    _count?: BDWorkflowStepTemplateCountOrderByAggregateInput
+    _avg?: BDWorkflowStepTemplateAvgOrderByAggregateInput
+    _max?: BDWorkflowStepTemplateMaxOrderByAggregateInput
+    _min?: BDWorkflowStepTemplateMinOrderByAggregateInput
+    _sum?: BDWorkflowStepTemplateSumOrderByAggregateInput
+  }
+
+  export type BDWorkflowStepTemplateScalarWhereWithAggregatesInput = {
+    AND?: BDWorkflowStepTemplateScalarWhereWithAggregatesInput | BDWorkflowStepTemplateScalarWhereWithAggregatesInput[]
+    OR?: BDWorkflowStepTemplateScalarWhereWithAggregatesInput[]
+    NOT?: BDWorkflowStepTemplateScalarWhereWithAggregatesInput | BDWorkflowStepTemplateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BDWorkflowStepTemplate"> | string
+    templateId?: StringWithAggregatesFilter<"BDWorkflowStepTemplate"> | string
+    name?: StringWithAggregatesFilter<"BDWorkflowStepTemplate"> | string
+    orderIndex?: IntWithAggregatesFilter<"BDWorkflowStepTemplate"> | number
+    checklist?: JsonNullableWithAggregatesFilter<"BDWorkflowStepTemplate">
+  }
+
+  export type BDTaskWhereInput = {
+    AND?: BDTaskWhereInput | BDTaskWhereInput[]
+    OR?: BDTaskWhereInput[]
+    NOT?: BDTaskWhereInput | BDTaskWhereInput[]
+    id?: StringFilter<"BDTask"> | string
+    projectId?: StringFilter<"BDTask"> | string
+    name?: StringFilter<"BDTask"> | string
+    status?: StringFilter<"BDTask"> | string
+    dueDate?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    orderIndex?: IntFilter<"BDTask"> | number
+    checklistState?: JsonNullableFilter<"BDTask">
+    assigneeId?: StringNullableFilter<"BDTask"> | string | null
+    blockedReason?: StringNullableFilter<"BDTask"> | string | null
+    waitingOn?: StringNullableFilter<"BDTask"> | string | null
+    completedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    createdAt?: DateTimeFilter<"BDTask"> | Date | string
+    updatedAt?: DateTimeFilter<"BDTask"> | Date | string
+    blockedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    project?: XOR<BDProjectScalarRelationFilter, BDProjectWhereInput>
+  }
+
+  export type BDTaskOrderByWithRelationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    status?: SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    orderIndex?: SortOrder
+    checklistState?: SortOrderInput | SortOrder
+    assigneeId?: SortOrderInput | SortOrder
+    blockedReason?: SortOrderInput | SortOrder
+    waitingOn?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    blockedAt?: SortOrderInput | SortOrder
+    assignee?: UserOrderByWithRelationInput
+    project?: BDProjectOrderByWithRelationInput
+  }
+
+  export type BDTaskWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BDTaskWhereInput | BDTaskWhereInput[]
+    OR?: BDTaskWhereInput[]
+    NOT?: BDTaskWhereInput | BDTaskWhereInput[]
+    projectId?: StringFilter<"BDTask"> | string
+    name?: StringFilter<"BDTask"> | string
+    status?: StringFilter<"BDTask"> | string
+    dueDate?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    orderIndex?: IntFilter<"BDTask"> | number
+    checklistState?: JsonNullableFilter<"BDTask">
+    assigneeId?: StringNullableFilter<"BDTask"> | string | null
+    blockedReason?: StringNullableFilter<"BDTask"> | string | null
+    waitingOn?: StringNullableFilter<"BDTask"> | string | null
+    completedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    createdAt?: DateTimeFilter<"BDTask"> | Date | string
+    updatedAt?: DateTimeFilter<"BDTask"> | Date | string
+    blockedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    project?: XOR<BDProjectScalarRelationFilter, BDProjectWhereInput>
+  }, "id">
+
+  export type BDTaskOrderByWithAggregationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    status?: SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    orderIndex?: SortOrder
+    checklistState?: SortOrderInput | SortOrder
+    assigneeId?: SortOrderInput | SortOrder
+    blockedReason?: SortOrderInput | SortOrder
+    waitingOn?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    blockedAt?: SortOrderInput | SortOrder
+    _count?: BDTaskCountOrderByAggregateInput
+    _avg?: BDTaskAvgOrderByAggregateInput
+    _max?: BDTaskMaxOrderByAggregateInput
+    _min?: BDTaskMinOrderByAggregateInput
+    _sum?: BDTaskSumOrderByAggregateInput
+  }
+
+  export type BDTaskScalarWhereWithAggregatesInput = {
+    AND?: BDTaskScalarWhereWithAggregatesInput | BDTaskScalarWhereWithAggregatesInput[]
+    OR?: BDTaskScalarWhereWithAggregatesInput[]
+    NOT?: BDTaskScalarWhereWithAggregatesInput | BDTaskScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BDTask"> | string
+    projectId?: StringWithAggregatesFilter<"BDTask"> | string
+    name?: StringWithAggregatesFilter<"BDTask"> | string
+    status?: StringWithAggregatesFilter<"BDTask"> | string
+    dueDate?: DateTimeNullableWithAggregatesFilter<"BDTask"> | Date | string | null
+    orderIndex?: IntWithAggregatesFilter<"BDTask"> | number
+    checklistState?: JsonNullableWithAggregatesFilter<"BDTask">
+    assigneeId?: StringNullableWithAggregatesFilter<"BDTask"> | string | null
+    blockedReason?: StringNullableWithAggregatesFilter<"BDTask"> | string | null
+    waitingOn?: StringNullableWithAggregatesFilter<"BDTask"> | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"BDTask"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"BDTask"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BDTask"> | Date | string
+    blockedAt?: DateTimeNullableWithAggregatesFilter<"BDTask"> | Date | string | null
+  }
+
+  export type BDActivityWhereInput = {
+    AND?: BDActivityWhereInput | BDActivityWhereInput[]
+    OR?: BDActivityWhereInput[]
+    NOT?: BDActivityWhereInput | BDActivityWhereInput[]
+    id?: StringFilter<"BDActivity"> | string
+    projectId?: StringFilter<"BDActivity"> | string
+    userId?: StringFilter<"BDActivity"> | string
+    action?: StringFilter<"BDActivity"> | string
+    details?: StringNullableFilter<"BDActivity"> | string | null
+    createdAt?: DateTimeFilter<"BDActivity"> | Date | string
+    project?: XOR<BDProjectScalarRelationFilter, BDProjectWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type BDActivityOrderByWithRelationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    project?: BDProjectOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type BDActivityWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BDActivityWhereInput | BDActivityWhereInput[]
+    OR?: BDActivityWhereInput[]
+    NOT?: BDActivityWhereInput | BDActivityWhereInput[]
+    projectId?: StringFilter<"BDActivity"> | string
+    userId?: StringFilter<"BDActivity"> | string
+    action?: StringFilter<"BDActivity"> | string
+    details?: StringNullableFilter<"BDActivity"> | string | null
+    createdAt?: DateTimeFilter<"BDActivity"> | Date | string
+    project?: XOR<BDProjectScalarRelationFilter, BDProjectWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type BDActivityOrderByWithAggregationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: BDActivityCountOrderByAggregateInput
+    _max?: BDActivityMaxOrderByAggregateInput
+    _min?: BDActivityMinOrderByAggregateInput
+  }
+
+  export type BDActivityScalarWhereWithAggregatesInput = {
+    AND?: BDActivityScalarWhereWithAggregatesInput | BDActivityScalarWhereWithAggregatesInput[]
+    OR?: BDActivityScalarWhereWithAggregatesInput[]
+    NOT?: BDActivityScalarWhereWithAggregatesInput | BDActivityScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BDActivity"> | string
+    projectId?: StringWithAggregatesFilter<"BDActivity"> | string
+    userId?: StringWithAggregatesFilter<"BDActivity"> | string
+    action?: StringWithAggregatesFilter<"BDActivity"> | string
+    details?: StringNullableWithAggregatesFilter<"BDActivity"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"BDActivity"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -187662,6 +195951,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -187710,6 +196003,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -187758,6 +196055,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -187806,6 +196107,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -201328,8 +209633,8 @@ export namespace Prisma {
     timeLogs?: AssemblyTimeLogCreateNestedManyWithoutJobInput
     order: OrderCreateNestedOneWithoutCabinetAssemblyJobsInput
     technician: UserCreateNestedOneWithoutCabinetAssemblyJobsInput
-    qcReport?: CabinetQCReportCreateNestedOneWithoutJobInput
     fatReport?: CabinetFATReportCreateNestedOneWithoutJobInput
+    qcReport?: CabinetQCReportCreateNestedOneWithoutJobInput
   }
 
   export type CabinetAssemblyJobUncheckedCreateInput = {
@@ -201344,8 +209649,8 @@ export namespace Prisma {
     normalTimeMinutes?: number | null
     overtimeMinutes?: number | null
     timeLogs?: AssemblyTimeLogUncheckedCreateNestedManyWithoutJobInput
-    qcReport?: CabinetQCReportUncheckedCreateNestedOneWithoutJobInput
     fatReport?: CabinetFATReportUncheckedCreateNestedOneWithoutJobInput
+    qcReport?: CabinetQCReportUncheckedCreateNestedOneWithoutJobInput
   }
 
   export type CabinetAssemblyJobUpdateInput = {
@@ -201360,8 +209665,8 @@ export namespace Prisma {
     timeLogs?: AssemblyTimeLogUpdateManyWithoutJobNestedInput
     order?: OrderUpdateOneRequiredWithoutCabinetAssemblyJobsNestedInput
     technician?: UserUpdateOneRequiredWithoutCabinetAssemblyJobsNestedInput
-    qcReport?: CabinetQCReportUpdateOneWithoutJobNestedInput
     fatReport?: CabinetFATReportUpdateOneWithoutJobNestedInput
+    qcReport?: CabinetQCReportUpdateOneWithoutJobNestedInput
   }
 
   export type CabinetAssemblyJobUncheckedUpdateInput = {
@@ -201376,8 +209681,8 @@ export namespace Prisma {
     normalTimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     overtimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     timeLogs?: AssemblyTimeLogUncheckedUpdateManyWithoutJobNestedInput
-    qcReport?: CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput
     fatReport?: CabinetFATReportUncheckedUpdateOneWithoutJobNestedInput
+    qcReport?: CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput
   }
 
   export type CabinetAssemblyJobCreateManyInput = {
@@ -201474,218 +209779,218 @@ export namespace Prisma {
 
   export type CabinetQCReportCreateInput = {
     id?: string
-    serialNumber?: string | null
-    nameplate?: string | null
-    cabinetType: string
-    fanStatus?: string | null
-    magicMarks?: boolean
-    cabinetBody?: boolean
     inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
     cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
+    cabinetType: string
     confirmationPhotos?: CabinetQCReportCreateconfirmationPhotosInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
     qcCorrections?: string | null
     qcInspectorName?: string | null
     qcNotes?: string | null
     qcStatus?: string
+    electricalSystem?: boolean
+    fanStatus?: string | null
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: string | null
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: string | null
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
     job: CabinetAssemblyJobCreateNestedOneWithoutQcReportInput
   }
 
   export type CabinetQCReportUncheckedCreateInput = {
     id?: string
     cabinetAssemblyJobId: string
-    serialNumber?: string | null
-    nameplate?: string | null
-    cabinetType: string
-    fanStatus?: string | null
-    magicMarks?: boolean
-    cabinetBody?: boolean
     inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
     cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
+    cabinetType: string
     confirmationPhotos?: CabinetQCReportCreateconfirmationPhotosInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
     qcCorrections?: string | null
     qcInspectorName?: string | null
     qcNotes?: string | null
     qcStatus?: string
+    electricalSystem?: boolean
+    fanStatus?: string | null
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: string | null
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: string | null
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
   }
 
   export type CabinetQCReportUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
-    cabinetType?: StringFieldUpdateOperationsInput | string
-    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    magicMarks?: BoolFieldUpdateOperationsInput | boolean
-    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
     inverterCorrect?: BoolFieldUpdateOperationsInput | boolean
-    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
-    wireDucting?: BoolFieldUpdateOperationsInput | boolean
-    terminals?: BoolFieldUpdateOperationsInput | boolean
     cabinetKey?: BoolFieldUpdateOperationsInput | boolean
-    internalWiring?: BoolFieldUpdateOperationsInput | boolean
-    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
-    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
-    noMarks?: BoolFieldUpdateOperationsInput | boolean
-    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
-    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
-    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
-    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    cabinetType?: StringFieldUpdateOperationsInput | string
     confirmationPhotos?: CabinetQCReportUpdateconfirmationPhotosInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
+    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
+    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
+    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
     qcCorrections?: NullableStringFieldUpdateOperationsInput | string | null
     qcInspectorName?: NullableStringFieldUpdateOperationsInput | string | null
     qcNotes?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: StringFieldUpdateOperationsInput | string
+    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
+    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    internalWiring?: BoolFieldUpdateOperationsInput | boolean
+    magicMarks?: BoolFieldUpdateOperationsInput | boolean
+    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
+    noMarks?: BoolFieldUpdateOperationsInput | boolean
+    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
+    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    terminals?: BoolFieldUpdateOperationsInput | boolean
+    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    wireDucting?: BoolFieldUpdateOperationsInput | boolean
+    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
     job?: CabinetAssemblyJobUpdateOneRequiredWithoutQcReportNestedInput
   }
 
   export type CabinetQCReportUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     cabinetAssemblyJobId?: StringFieldUpdateOperationsInput | string
-    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
-    cabinetType?: StringFieldUpdateOperationsInput | string
-    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    magicMarks?: BoolFieldUpdateOperationsInput | boolean
-    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
     inverterCorrect?: BoolFieldUpdateOperationsInput | boolean
-    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
-    wireDucting?: BoolFieldUpdateOperationsInput | boolean
-    terminals?: BoolFieldUpdateOperationsInput | boolean
     cabinetKey?: BoolFieldUpdateOperationsInput | boolean
-    internalWiring?: BoolFieldUpdateOperationsInput | boolean
-    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
-    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
-    noMarks?: BoolFieldUpdateOperationsInput | boolean
-    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
-    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
-    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
-    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    cabinetType?: StringFieldUpdateOperationsInput | string
     confirmationPhotos?: CabinetQCReportUpdateconfirmationPhotosInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
+    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
+    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
+    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
     qcCorrections?: NullableStringFieldUpdateOperationsInput | string | null
     qcInspectorName?: NullableStringFieldUpdateOperationsInput | string | null
     qcNotes?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: StringFieldUpdateOperationsInput | string
+    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
+    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    internalWiring?: BoolFieldUpdateOperationsInput | boolean
+    magicMarks?: BoolFieldUpdateOperationsInput | boolean
+    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
+    noMarks?: BoolFieldUpdateOperationsInput | boolean
+    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
+    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    terminals?: BoolFieldUpdateOperationsInput | boolean
+    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    wireDucting?: BoolFieldUpdateOperationsInput | boolean
+    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type CabinetQCReportCreateManyInput = {
     id?: string
     cabinetAssemblyJobId: string
-    serialNumber?: string | null
-    nameplate?: string | null
-    cabinetType: string
-    fanStatus?: string | null
-    magicMarks?: boolean
-    cabinetBody?: boolean
     inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
     cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
+    cabinetType: string
     confirmationPhotos?: CabinetQCReportCreateconfirmationPhotosInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
     qcCorrections?: string | null
     qcInspectorName?: string | null
     qcNotes?: string | null
     qcStatus?: string
+    electricalSystem?: boolean
+    fanStatus?: string | null
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: string | null
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: string | null
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
   }
 
   export type CabinetQCReportUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
-    cabinetType?: StringFieldUpdateOperationsInput | string
-    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    magicMarks?: BoolFieldUpdateOperationsInput | boolean
-    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
     inverterCorrect?: BoolFieldUpdateOperationsInput | boolean
-    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
-    wireDucting?: BoolFieldUpdateOperationsInput | boolean
-    terminals?: BoolFieldUpdateOperationsInput | boolean
     cabinetKey?: BoolFieldUpdateOperationsInput | boolean
-    internalWiring?: BoolFieldUpdateOperationsInput | boolean
-    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
-    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
-    noMarks?: BoolFieldUpdateOperationsInput | boolean
-    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
-    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
-    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
-    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    cabinetType?: StringFieldUpdateOperationsInput | string
     confirmationPhotos?: CabinetQCReportUpdateconfirmationPhotosInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
+    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
+    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
+    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
     qcCorrections?: NullableStringFieldUpdateOperationsInput | string | null
     qcInspectorName?: NullableStringFieldUpdateOperationsInput | string | null
     qcNotes?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: StringFieldUpdateOperationsInput | string
+    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
+    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    internalWiring?: BoolFieldUpdateOperationsInput | boolean
+    magicMarks?: BoolFieldUpdateOperationsInput | boolean
+    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
+    noMarks?: BoolFieldUpdateOperationsInput | boolean
+    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
+    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    terminals?: BoolFieldUpdateOperationsInput | boolean
+    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    wireDucting?: BoolFieldUpdateOperationsInput | boolean
+    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type CabinetQCReportUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     cabinetAssemblyJobId?: StringFieldUpdateOperationsInput | string
-    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
-    cabinetType?: StringFieldUpdateOperationsInput | string
-    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    magicMarks?: BoolFieldUpdateOperationsInput | boolean
-    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
     inverterCorrect?: BoolFieldUpdateOperationsInput | boolean
-    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
-    wireDucting?: BoolFieldUpdateOperationsInput | boolean
-    terminals?: BoolFieldUpdateOperationsInput | boolean
     cabinetKey?: BoolFieldUpdateOperationsInput | boolean
-    internalWiring?: BoolFieldUpdateOperationsInput | boolean
-    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
-    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
-    noMarks?: BoolFieldUpdateOperationsInput | boolean
-    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
-    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
-    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
-    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    cabinetType?: StringFieldUpdateOperationsInput | string
     confirmationPhotos?: CabinetQCReportUpdateconfirmationPhotosInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
+    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
+    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
+    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
     qcCorrections?: NullableStringFieldUpdateOperationsInput | string | null
     qcInspectorName?: NullableStringFieldUpdateOperationsInput | string | null
     qcNotes?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: StringFieldUpdateOperationsInput | string
+    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
+    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    internalWiring?: BoolFieldUpdateOperationsInput | boolean
+    magicMarks?: BoolFieldUpdateOperationsInput | boolean
+    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
+    noMarks?: BoolFieldUpdateOperationsInput | boolean
+    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
+    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    terminals?: BoolFieldUpdateOperationsInput | boolean
+    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    wireDucting?: BoolFieldUpdateOperationsInput | boolean
+    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type CabinetFATReportCreateInput = {
@@ -202218,6 +210523,475 @@ export namespace Prisma {
     completedBy?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type BDWorkTypeCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    projects?: BDProjectCreateNestedManyWithoutWorkTypeInput
+    defaultTemplate?: BDWorkflowTemplateCreateNestedOneWithoutWorkTypesInput
+  }
+
+  export type BDWorkTypeUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    defaultTemplateId?: string | null
+    projects?: BDProjectUncheckedCreateNestedManyWithoutWorkTypeInput
+  }
+
+  export type BDWorkTypeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: BDProjectUpdateManyWithoutWorkTypeNestedInput
+    defaultTemplate?: BDWorkflowTemplateUpdateOneWithoutWorkTypesNestedInput
+  }
+
+  export type BDWorkTypeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultTemplateId?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: BDProjectUncheckedUpdateManyWithoutWorkTypeNestedInput
+  }
+
+  export type BDWorkTypeCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    defaultTemplateId?: string | null
+  }
+
+  export type BDWorkTypeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDWorkTypeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultTemplateId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDProjectCreateInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    activities?: BDActivityCreateNestedManyWithoutProjectInput
+    owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
+    parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
+    subProjects?: BDProjectCreateNestedManyWithoutParentInput
+    requester: UserCreateNestedOneWithoutBdRequestsInput
+    workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+    tasks?: BDTaskCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUncheckedCreateInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+    activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
+    subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+    tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activities?: BDActivityUpdateManyWithoutProjectNestedInput
+    owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
+    parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
+    subProjects?: BDProjectUpdateManyWithoutParentNestedInput
+    requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
+    workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+    tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
+    subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+    tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectCreateManyInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+  }
+
+  export type BDProjectUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BDProjectUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDWorkflowTemplateCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    workTypes?: BDWorkTypeCreateNestedManyWithoutDefaultTemplateInput
+    steps?: BDWorkflowStepTemplateCreateNestedManyWithoutTemplateInput
+  }
+
+  export type BDWorkflowTemplateUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    workTypes?: BDWorkTypeUncheckedCreateNestedManyWithoutDefaultTemplateInput
+    steps?: BDWorkflowStepTemplateUncheckedCreateNestedManyWithoutTemplateInput
+  }
+
+  export type BDWorkflowTemplateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypes?: BDWorkTypeUpdateManyWithoutDefaultTemplateNestedInput
+    steps?: BDWorkflowStepTemplateUpdateManyWithoutTemplateNestedInput
+  }
+
+  export type BDWorkflowTemplateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypes?: BDWorkTypeUncheckedUpdateManyWithoutDefaultTemplateNestedInput
+    steps?: BDWorkflowStepTemplateUncheckedUpdateManyWithoutTemplateNestedInput
+  }
+
+  export type BDWorkflowTemplateCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+  }
+
+  export type BDWorkflowTemplateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDWorkflowTemplateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDWorkflowStepTemplateCreateInput = {
+    id?: string
+    name: string
+    orderIndex: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    template: BDWorkflowTemplateCreateNestedOneWithoutStepsInput
+  }
+
+  export type BDWorkflowStepTemplateUncheckedCreateInput = {
+    id?: string
+    templateId: string
+    name: string
+    orderIndex: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkflowStepTemplateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    template?: BDWorkflowTemplateUpdateOneRequiredWithoutStepsNestedInput
+  }
+
+  export type BDWorkflowStepTemplateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkflowStepTemplateCreateManyInput = {
+    id?: string
+    templateId: string
+    name: string
+    orderIndex: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkflowStepTemplateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkflowStepTemplateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    templateId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDTaskCreateInput = {
+    id?: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
+    assignee?: UserCreateNestedOneWithoutBdAssignedTasksInput
+    project: BDProjectCreateNestedOneWithoutTasksInput
+  }
+
+  export type BDTaskUncheckedCreateInput = {
+    id?: string
+    projectId: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    assigneeId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
+  }
+
+  export type BDTaskUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignee?: UserUpdateOneWithoutBdAssignedTasksNestedInput
+    project?: BDProjectUpdateOneRequiredWithoutTasksNestedInput
+  }
+
+  export type BDTaskUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BDTaskCreateManyInput = {
+    id?: string
+    projectId: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    assigneeId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
+  }
+
+  export type BDTaskUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BDTaskUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BDActivityCreateInput = {
+    id?: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+    project: BDProjectCreateNestedOneWithoutActivitiesInput
+    user: UserCreateNestedOneWithoutBdActivitiesInput
+  }
+
+  export type BDActivityUncheckedCreateInput = {
+    id?: string
+    projectId: string
+    userId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BDActivityUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: BDProjectUpdateOneRequiredWithoutActivitiesNestedInput
+    user?: UserUpdateOneRequiredWithoutBdActivitiesNestedInput
+  }
+
+  export type BDActivityUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BDActivityCreateManyInput = {
+    id?: string
+    projectId: string
+    userId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BDActivityUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BDActivityUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -202273,6 +211047,24 @@ export namespace Prisma {
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type BDActivityListRelationFilter = {
+    every?: BDActivityWhereInput
+    some?: BDActivityWhereInput
+    none?: BDActivityWhereInput
+  }
+
+  export type BDProjectListRelationFilter = {
+    every?: BDProjectWhereInput
+    some?: BDProjectWhereInput
+    none?: BDProjectWhereInput
+  }
+
+  export type BDTaskListRelationFilter = {
+    every?: BDTaskWhereInput
+    some?: BDTaskWhereInput
+    none?: BDTaskWhereInput
   }
 
   export type CabinetAssemblyJobListRelationFilter = {
@@ -202445,6 +211237,18 @@ export namespace Prisma {
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type BDActivityOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BDProjectOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BDTaskOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type CabinetAssemblyJobOrderByRelationAggregateInput = {
@@ -210762,14 +219566,14 @@ export namespace Prisma {
     none?: AssemblyTimeLogWhereInput
   }
 
-  export type CabinetQCReportNullableScalarRelationFilter = {
-    is?: CabinetQCReportWhereInput | null
-    isNot?: CabinetQCReportWhereInput | null
-  }
-
   export type CabinetFATReportNullableScalarRelationFilter = {
     is?: CabinetFATReportWhereInput | null
     isNot?: CabinetFATReportWhereInput | null
+  }
+
+  export type CabinetQCReportNullableScalarRelationFilter = {
+    is?: CabinetQCReportWhereInput | null
+    isNot?: CabinetQCReportWhereInput | null
   }
 
   export type AssemblyTimeLogOrderByRelationAggregateInput = {
@@ -210859,92 +219663,92 @@ export namespace Prisma {
   export type CabinetQCReportCountOrderByAggregateInput = {
     id?: SortOrder
     cabinetAssemblyJobId?: SortOrder
-    serialNumber?: SortOrder
-    nameplate?: SortOrder
-    cabinetType?: SortOrder
-    fanStatus?: SortOrder
-    magicMarks?: SortOrder
-    cabinetBody?: SortOrder
     inverterCorrect?: SortOrder
-    frontPanelEquipment?: SortOrder
-    wireDucting?: SortOrder
-    terminals?: SortOrder
     cabinetKey?: SortOrder
-    internalWiring?: SortOrder
-    screwsTightened?: SortOrder
-    groundingSystem?: SortOrder
-    noMarks?: SortOrder
-    overallEquipmentCheck?: SortOrder
-    electricalSystem?: SortOrder
-    wiringConnections?: SortOrder
-    warningLabels?: SortOrder
+    cabinetType?: SortOrder
     confirmationPhotos?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    cabinetBody?: SortOrder
+    frontPanelEquipment?: SortOrder
+    groundingSystem?: SortOrder
+    overallEquipmentCheck?: SortOrder
     qcCorrections?: SortOrder
     qcInspectorName?: SortOrder
     qcNotes?: SortOrder
     qcStatus?: SortOrder
+    electricalSystem?: SortOrder
+    fanStatus?: SortOrder
+    internalWiring?: SortOrder
+    magicMarks?: SortOrder
+    nameplate?: SortOrder
+    noMarks?: SortOrder
+    screwsTightened?: SortOrder
+    serialNumber?: SortOrder
+    terminals?: SortOrder
+    warningLabels?: SortOrder
+    wireDucting?: SortOrder
+    wiringConnections?: SortOrder
   }
 
   export type CabinetQCReportMaxOrderByAggregateInput = {
     id?: SortOrder
     cabinetAssemblyJobId?: SortOrder
-    serialNumber?: SortOrder
-    nameplate?: SortOrder
-    cabinetType?: SortOrder
-    fanStatus?: SortOrder
-    magicMarks?: SortOrder
-    cabinetBody?: SortOrder
     inverterCorrect?: SortOrder
-    frontPanelEquipment?: SortOrder
-    wireDucting?: SortOrder
-    terminals?: SortOrder
     cabinetKey?: SortOrder
-    internalWiring?: SortOrder
-    screwsTightened?: SortOrder
-    groundingSystem?: SortOrder
-    noMarks?: SortOrder
-    overallEquipmentCheck?: SortOrder
-    electricalSystem?: SortOrder
-    wiringConnections?: SortOrder
-    warningLabels?: SortOrder
+    cabinetType?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    cabinetBody?: SortOrder
+    frontPanelEquipment?: SortOrder
+    groundingSystem?: SortOrder
+    overallEquipmentCheck?: SortOrder
     qcCorrections?: SortOrder
     qcInspectorName?: SortOrder
     qcNotes?: SortOrder
     qcStatus?: SortOrder
+    electricalSystem?: SortOrder
+    fanStatus?: SortOrder
+    internalWiring?: SortOrder
+    magicMarks?: SortOrder
+    nameplate?: SortOrder
+    noMarks?: SortOrder
+    screwsTightened?: SortOrder
+    serialNumber?: SortOrder
+    terminals?: SortOrder
+    warningLabels?: SortOrder
+    wireDucting?: SortOrder
+    wiringConnections?: SortOrder
   }
 
   export type CabinetQCReportMinOrderByAggregateInput = {
     id?: SortOrder
     cabinetAssemblyJobId?: SortOrder
-    serialNumber?: SortOrder
-    nameplate?: SortOrder
-    cabinetType?: SortOrder
-    fanStatus?: SortOrder
-    magicMarks?: SortOrder
-    cabinetBody?: SortOrder
     inverterCorrect?: SortOrder
-    frontPanelEquipment?: SortOrder
-    wireDucting?: SortOrder
-    terminals?: SortOrder
     cabinetKey?: SortOrder
-    internalWiring?: SortOrder
-    screwsTightened?: SortOrder
-    groundingSystem?: SortOrder
-    noMarks?: SortOrder
-    overallEquipmentCheck?: SortOrder
-    electricalSystem?: SortOrder
-    wiringConnections?: SortOrder
-    warningLabels?: SortOrder
+    cabinetType?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    cabinetBody?: SortOrder
+    frontPanelEquipment?: SortOrder
+    groundingSystem?: SortOrder
+    overallEquipmentCheck?: SortOrder
     qcCorrections?: SortOrder
     qcInspectorName?: SortOrder
     qcNotes?: SortOrder
     qcStatus?: SortOrder
+    electricalSystem?: SortOrder
+    fanStatus?: SortOrder
+    internalWiring?: SortOrder
+    magicMarks?: SortOrder
+    nameplate?: SortOrder
+    noMarks?: SortOrder
+    screwsTightened?: SortOrder
+    serialNumber?: SortOrder
+    terminals?: SortOrder
+    warningLabels?: SortOrder
+    wireDucting?: SortOrder
+    wiringConnections?: SortOrder
   }
 
   export type CabinetFATReportCountOrderByAggregateInput = {
@@ -211212,6 +220016,286 @@ export namespace Prisma {
     stepIndex?: SortOrder
   }
 
+  export type BDWorkflowTemplateNullableScalarRelationFilter = {
+    is?: BDWorkflowTemplateWhereInput | null
+    isNot?: BDWorkflowTemplateWhereInput | null
+  }
+
+  export type BDWorkTypeCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    defaultTemplateId?: SortOrder
+  }
+
+  export type BDWorkTypeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    defaultTemplateId?: SortOrder
+  }
+
+  export type BDWorkTypeMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    defaultTemplateId?: SortOrder
+  }
+
+  export type BDProjectNullableScalarRelationFilter = {
+    is?: BDProjectWhereInput | null
+    isNot?: BDProjectWhereInput | null
+  }
+
+  export type BDWorkTypeScalarRelationFilter = {
+    is?: BDWorkTypeWhereInput
+    isNot?: BDWorkTypeWhereInput
+  }
+
+  export type BDProjectCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    objective?: SortOrder
+    workTypeId?: SortOrder
+    urgency?: SortOrder
+    deadline?: SortOrder
+    status?: SortOrder
+    requesterId?: SortOrder
+    ownerId?: SortOrder
+    blockedReason?: SortOrder
+    waitingOn?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    intakeDate?: SortOrder
+    parentId?: SortOrder
+  }
+
+  export type BDProjectMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    objective?: SortOrder
+    workTypeId?: SortOrder
+    urgency?: SortOrder
+    deadline?: SortOrder
+    status?: SortOrder
+    requesterId?: SortOrder
+    ownerId?: SortOrder
+    blockedReason?: SortOrder
+    waitingOn?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    intakeDate?: SortOrder
+    parentId?: SortOrder
+  }
+
+  export type BDProjectMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    objective?: SortOrder
+    workTypeId?: SortOrder
+    urgency?: SortOrder
+    deadline?: SortOrder
+    status?: SortOrder
+    requesterId?: SortOrder
+    ownerId?: SortOrder
+    blockedReason?: SortOrder
+    waitingOn?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    intakeDate?: SortOrder
+    parentId?: SortOrder
+  }
+
+  export type BDWorkTypeListRelationFilter = {
+    every?: BDWorkTypeWhereInput
+    some?: BDWorkTypeWhereInput
+    none?: BDWorkTypeWhereInput
+  }
+
+  export type BDWorkflowStepTemplateListRelationFilter = {
+    every?: BDWorkflowStepTemplateWhereInput
+    some?: BDWorkflowStepTemplateWhereInput
+    none?: BDWorkflowStepTemplateWhereInput
+  }
+
+  export type BDWorkTypeOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BDWorkflowStepTemplateOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BDWorkflowTemplateCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+  }
+
+  export type BDWorkflowTemplateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+  }
+
+  export type BDWorkflowTemplateMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+  }
+
+  export type BDWorkflowTemplateScalarRelationFilter = {
+    is?: BDWorkflowTemplateWhereInput
+    isNot?: BDWorkflowTemplateWhereInput
+  }
+
+  export type BDWorkflowStepTemplateCountOrderByAggregateInput = {
+    id?: SortOrder
+    templateId?: SortOrder
+    name?: SortOrder
+    orderIndex?: SortOrder
+    checklist?: SortOrder
+  }
+
+  export type BDWorkflowStepTemplateAvgOrderByAggregateInput = {
+    orderIndex?: SortOrder
+  }
+
+  export type BDWorkflowStepTemplateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    templateId?: SortOrder
+    name?: SortOrder
+    orderIndex?: SortOrder
+  }
+
+  export type BDWorkflowStepTemplateMinOrderByAggregateInput = {
+    id?: SortOrder
+    templateId?: SortOrder
+    name?: SortOrder
+    orderIndex?: SortOrder
+  }
+
+  export type BDWorkflowStepTemplateSumOrderByAggregateInput = {
+    orderIndex?: SortOrder
+  }
+
+  export type BDProjectScalarRelationFilter = {
+    is?: BDProjectWhereInput
+    isNot?: BDProjectWhereInput
+  }
+
+  export type BDTaskCountOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    status?: SortOrder
+    dueDate?: SortOrder
+    orderIndex?: SortOrder
+    checklistState?: SortOrder
+    assigneeId?: SortOrder
+    blockedReason?: SortOrder
+    waitingOn?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    blockedAt?: SortOrder
+  }
+
+  export type BDTaskAvgOrderByAggregateInput = {
+    orderIndex?: SortOrder
+  }
+
+  export type BDTaskMaxOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    status?: SortOrder
+    dueDate?: SortOrder
+    orderIndex?: SortOrder
+    assigneeId?: SortOrder
+    blockedReason?: SortOrder
+    waitingOn?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    blockedAt?: SortOrder
+  }
+
+  export type BDTaskMinOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    status?: SortOrder
+    dueDate?: SortOrder
+    orderIndex?: SortOrder
+    assigneeId?: SortOrder
+    blockedReason?: SortOrder
+    waitingOn?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    blockedAt?: SortOrder
+  }
+
+  export type BDTaskSumOrderByAggregateInput = {
+    orderIndex?: SortOrder
+  }
+
+  export type BDActivityCountOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BDActivityMaxOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BDActivityMinOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BDActivityCreateNestedManyWithoutUserInput = {
+    create?: XOR<BDActivityCreateWithoutUserInput, BDActivityUncheckedCreateWithoutUserInput> | BDActivityCreateWithoutUserInput[] | BDActivityUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BDActivityCreateOrConnectWithoutUserInput | BDActivityCreateOrConnectWithoutUserInput[]
+    createMany?: BDActivityCreateManyUserInputEnvelope
+    connect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+  }
+
+  export type BDProjectCreateNestedManyWithoutOwnerInput = {
+    create?: XOR<BDProjectCreateWithoutOwnerInput, BDProjectUncheckedCreateWithoutOwnerInput> | BDProjectCreateWithoutOwnerInput[] | BDProjectUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutOwnerInput | BDProjectCreateOrConnectWithoutOwnerInput[]
+    createMany?: BDProjectCreateManyOwnerInputEnvelope
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
+  export type BDProjectCreateNestedManyWithoutRequesterInput = {
+    create?: XOR<BDProjectCreateWithoutRequesterInput, BDProjectUncheckedCreateWithoutRequesterInput> | BDProjectCreateWithoutRequesterInput[] | BDProjectUncheckedCreateWithoutRequesterInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutRequesterInput | BDProjectCreateOrConnectWithoutRequesterInput[]
+    createMany?: BDProjectCreateManyRequesterInputEnvelope
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
+  export type BDTaskCreateNestedManyWithoutAssigneeInput = {
+    create?: XOR<BDTaskCreateWithoutAssigneeInput, BDTaskUncheckedCreateWithoutAssigneeInput> | BDTaskCreateWithoutAssigneeInput[] | BDTaskUncheckedCreateWithoutAssigneeInput[]
+    connectOrCreate?: BDTaskCreateOrConnectWithoutAssigneeInput | BDTaskCreateOrConnectWithoutAssigneeInput[]
+    createMany?: BDTaskCreateManyAssigneeInputEnvelope
+    connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+  }
+
   export type CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput = {
     create?: XOR<CabinetAssemblyJobCreateWithoutTechnicianInput, CabinetAssemblyJobUncheckedCreateWithoutTechnicianInput> | CabinetAssemblyJobCreateWithoutTechnicianInput[] | CabinetAssemblyJobUncheckedCreateWithoutTechnicianInput[]
     connectOrCreate?: CabinetAssemblyJobCreateOrConnectWithoutTechnicianInput | CabinetAssemblyJobCreateOrConnectWithoutTechnicianInput[]
@@ -211432,6 +220516,34 @@ export namespace Prisma {
     create?: XOR<OrderCreateWithoutAssignedTechniciansInput, OrderUncheckedCreateWithoutAssignedTechniciansInput> | OrderCreateWithoutAssignedTechniciansInput[] | OrderUncheckedCreateWithoutAssignedTechniciansInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutAssignedTechniciansInput | OrderCreateOrConnectWithoutAssignedTechniciansInput[]
     connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+  }
+
+  export type BDActivityUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<BDActivityCreateWithoutUserInput, BDActivityUncheckedCreateWithoutUserInput> | BDActivityCreateWithoutUserInput[] | BDActivityUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BDActivityCreateOrConnectWithoutUserInput | BDActivityCreateOrConnectWithoutUserInput[]
+    createMany?: BDActivityCreateManyUserInputEnvelope
+    connect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+  }
+
+  export type BDProjectUncheckedCreateNestedManyWithoutOwnerInput = {
+    create?: XOR<BDProjectCreateWithoutOwnerInput, BDProjectUncheckedCreateWithoutOwnerInput> | BDProjectCreateWithoutOwnerInput[] | BDProjectUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutOwnerInput | BDProjectCreateOrConnectWithoutOwnerInput[]
+    createMany?: BDProjectCreateManyOwnerInputEnvelope
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
+  export type BDProjectUncheckedCreateNestedManyWithoutRequesterInput = {
+    create?: XOR<BDProjectCreateWithoutRequesterInput, BDProjectUncheckedCreateWithoutRequesterInput> | BDProjectCreateWithoutRequesterInput[] | BDProjectUncheckedCreateWithoutRequesterInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutRequesterInput | BDProjectCreateOrConnectWithoutRequesterInput[]
+    createMany?: BDProjectCreateManyRequesterInputEnvelope
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
+  export type BDTaskUncheckedCreateNestedManyWithoutAssigneeInput = {
+    create?: XOR<BDTaskCreateWithoutAssigneeInput, BDTaskUncheckedCreateWithoutAssigneeInput> | BDTaskCreateWithoutAssigneeInput[] | BDTaskUncheckedCreateWithoutAssigneeInput[]
+    connectOrCreate?: BDTaskCreateOrConnectWithoutAssigneeInput | BDTaskCreateOrConnectWithoutAssigneeInput[]
+    createMany?: BDTaskCreateManyAssigneeInputEnvelope
+    connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
   }
 
   export type CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput = {
@@ -211674,6 +220786,62 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type BDActivityUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BDActivityCreateWithoutUserInput, BDActivityUncheckedCreateWithoutUserInput> | BDActivityCreateWithoutUserInput[] | BDActivityUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BDActivityCreateOrConnectWithoutUserInput | BDActivityCreateOrConnectWithoutUserInput[]
+    upsert?: BDActivityUpsertWithWhereUniqueWithoutUserInput | BDActivityUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BDActivityCreateManyUserInputEnvelope
+    set?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    disconnect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    delete?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    connect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    update?: BDActivityUpdateWithWhereUniqueWithoutUserInput | BDActivityUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BDActivityUpdateManyWithWhereWithoutUserInput | BDActivityUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BDActivityScalarWhereInput | BDActivityScalarWhereInput[]
+  }
+
+  export type BDProjectUpdateManyWithoutOwnerNestedInput = {
+    create?: XOR<BDProjectCreateWithoutOwnerInput, BDProjectUncheckedCreateWithoutOwnerInput> | BDProjectCreateWithoutOwnerInput[] | BDProjectUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutOwnerInput | BDProjectCreateOrConnectWithoutOwnerInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutOwnerInput | BDProjectUpsertWithWhereUniqueWithoutOwnerInput[]
+    createMany?: BDProjectCreateManyOwnerInputEnvelope
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutOwnerInput | BDProjectUpdateWithWhereUniqueWithoutOwnerInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutOwnerInput | BDProjectUpdateManyWithWhereWithoutOwnerInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
+  export type BDProjectUpdateManyWithoutRequesterNestedInput = {
+    create?: XOR<BDProjectCreateWithoutRequesterInput, BDProjectUncheckedCreateWithoutRequesterInput> | BDProjectCreateWithoutRequesterInput[] | BDProjectUncheckedCreateWithoutRequesterInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutRequesterInput | BDProjectCreateOrConnectWithoutRequesterInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutRequesterInput | BDProjectUpsertWithWhereUniqueWithoutRequesterInput[]
+    createMany?: BDProjectCreateManyRequesterInputEnvelope
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutRequesterInput | BDProjectUpdateWithWhereUniqueWithoutRequesterInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutRequesterInput | BDProjectUpdateManyWithWhereWithoutRequesterInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
+  export type BDTaskUpdateManyWithoutAssigneeNestedInput = {
+    create?: XOR<BDTaskCreateWithoutAssigneeInput, BDTaskUncheckedCreateWithoutAssigneeInput> | BDTaskCreateWithoutAssigneeInput[] | BDTaskUncheckedCreateWithoutAssigneeInput[]
+    connectOrCreate?: BDTaskCreateOrConnectWithoutAssigneeInput | BDTaskCreateOrConnectWithoutAssigneeInput[]
+    upsert?: BDTaskUpsertWithWhereUniqueWithoutAssigneeInput | BDTaskUpsertWithWhereUniqueWithoutAssigneeInput[]
+    createMany?: BDTaskCreateManyAssigneeInputEnvelope
+    set?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    disconnect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    delete?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    update?: BDTaskUpdateWithWhereUniqueWithoutAssigneeInput | BDTaskUpdateWithWhereUniqueWithoutAssigneeInput[]
+    updateMany?: BDTaskUpdateManyWithWhereWithoutAssigneeInput | BDTaskUpdateManyWithWhereWithoutAssigneeInput[]
+    deleteMany?: BDTaskScalarWhereInput | BDTaskScalarWhereInput[]
   }
 
   export type CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput = {
@@ -212117,6 +221285,62 @@ export namespace Prisma {
     update?: OrderUpdateWithWhereUniqueWithoutAssignedTechniciansInput | OrderUpdateWithWhereUniqueWithoutAssignedTechniciansInput[]
     updateMany?: OrderUpdateManyWithWhereWithoutAssignedTechniciansInput | OrderUpdateManyWithWhereWithoutAssignedTechniciansInput[]
     deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
+  }
+
+  export type BDActivityUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BDActivityCreateWithoutUserInput, BDActivityUncheckedCreateWithoutUserInput> | BDActivityCreateWithoutUserInput[] | BDActivityUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BDActivityCreateOrConnectWithoutUserInput | BDActivityCreateOrConnectWithoutUserInput[]
+    upsert?: BDActivityUpsertWithWhereUniqueWithoutUserInput | BDActivityUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BDActivityCreateManyUserInputEnvelope
+    set?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    disconnect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    delete?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    connect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    update?: BDActivityUpdateWithWhereUniqueWithoutUserInput | BDActivityUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BDActivityUpdateManyWithWhereWithoutUserInput | BDActivityUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BDActivityScalarWhereInput | BDActivityScalarWhereInput[]
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutOwnerNestedInput = {
+    create?: XOR<BDProjectCreateWithoutOwnerInput, BDProjectUncheckedCreateWithoutOwnerInput> | BDProjectCreateWithoutOwnerInput[] | BDProjectUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutOwnerInput | BDProjectCreateOrConnectWithoutOwnerInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutOwnerInput | BDProjectUpsertWithWhereUniqueWithoutOwnerInput[]
+    createMany?: BDProjectCreateManyOwnerInputEnvelope
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutOwnerInput | BDProjectUpdateWithWhereUniqueWithoutOwnerInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutOwnerInput | BDProjectUpdateManyWithWhereWithoutOwnerInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutRequesterNestedInput = {
+    create?: XOR<BDProjectCreateWithoutRequesterInput, BDProjectUncheckedCreateWithoutRequesterInput> | BDProjectCreateWithoutRequesterInput[] | BDProjectUncheckedCreateWithoutRequesterInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutRequesterInput | BDProjectCreateOrConnectWithoutRequesterInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutRequesterInput | BDProjectUpsertWithWhereUniqueWithoutRequesterInput[]
+    createMany?: BDProjectCreateManyRequesterInputEnvelope
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutRequesterInput | BDProjectUpdateWithWhereUniqueWithoutRequesterInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutRequesterInput | BDProjectUpdateManyWithWhereWithoutRequesterInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
+  export type BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput = {
+    create?: XOR<BDTaskCreateWithoutAssigneeInput, BDTaskUncheckedCreateWithoutAssigneeInput> | BDTaskCreateWithoutAssigneeInput[] | BDTaskUncheckedCreateWithoutAssigneeInput[]
+    connectOrCreate?: BDTaskCreateOrConnectWithoutAssigneeInput | BDTaskCreateOrConnectWithoutAssigneeInput[]
+    upsert?: BDTaskUpsertWithWhereUniqueWithoutAssigneeInput | BDTaskUpsertWithWhereUniqueWithoutAssigneeInput[]
+    createMany?: BDTaskCreateManyAssigneeInputEnvelope
+    set?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    disconnect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    delete?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    update?: BDTaskUpdateWithWhereUniqueWithoutAssigneeInput | BDTaskUpdateWithWhereUniqueWithoutAssigneeInput[]
+    updateMany?: BDTaskUpdateManyWithWhereWithoutAssigneeInput | BDTaskUpdateManyWithWhereWithoutAssigneeInput[]
+    deleteMany?: BDTaskScalarWhereInput | BDTaskScalarWhereInput[]
   }
 
   export type CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput = {
@@ -219652,16 +228876,16 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type CabinetQCReportCreateNestedOneWithoutJobInput = {
-    create?: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
-    connectOrCreate?: CabinetQCReportCreateOrConnectWithoutJobInput
-    connect?: CabinetQCReportWhereUniqueInput
-  }
-
   export type CabinetFATReportCreateNestedOneWithoutJobInput = {
     create?: XOR<CabinetFATReportCreateWithoutJobInput, CabinetFATReportUncheckedCreateWithoutJobInput>
     connectOrCreate?: CabinetFATReportCreateOrConnectWithoutJobInput
     connect?: CabinetFATReportWhereUniqueInput
+  }
+
+  export type CabinetQCReportCreateNestedOneWithoutJobInput = {
+    create?: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
+    connectOrCreate?: CabinetQCReportCreateOrConnectWithoutJobInput
+    connect?: CabinetQCReportWhereUniqueInput
   }
 
   export type AssemblyTimeLogUncheckedCreateNestedManyWithoutJobInput = {
@@ -219671,16 +228895,16 @@ export namespace Prisma {
     connect?: AssemblyTimeLogWhereUniqueInput | AssemblyTimeLogWhereUniqueInput[]
   }
 
-  export type CabinetQCReportUncheckedCreateNestedOneWithoutJobInput = {
-    create?: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
-    connectOrCreate?: CabinetQCReportCreateOrConnectWithoutJobInput
-    connect?: CabinetQCReportWhereUniqueInput
-  }
-
   export type CabinetFATReportUncheckedCreateNestedOneWithoutJobInput = {
     create?: XOR<CabinetFATReportCreateWithoutJobInput, CabinetFATReportUncheckedCreateWithoutJobInput>
     connectOrCreate?: CabinetFATReportCreateOrConnectWithoutJobInput
     connect?: CabinetFATReportWhereUniqueInput
+  }
+
+  export type CabinetQCReportUncheckedCreateNestedOneWithoutJobInput = {
+    create?: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
+    connectOrCreate?: CabinetQCReportCreateOrConnectWithoutJobInput
+    connect?: CabinetQCReportWhereUniqueInput
   }
 
   export type AssemblyTimeLogUpdateManyWithoutJobNestedInput = {
@@ -219713,16 +228937,6 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCabinetAssemblyJobsInput, UserUpdateWithoutCabinetAssemblyJobsInput>, UserUncheckedUpdateWithoutCabinetAssemblyJobsInput>
   }
 
-  export type CabinetQCReportUpdateOneWithoutJobNestedInput = {
-    create?: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
-    connectOrCreate?: CabinetQCReportCreateOrConnectWithoutJobInput
-    upsert?: CabinetQCReportUpsertWithoutJobInput
-    disconnect?: CabinetQCReportWhereInput | boolean
-    delete?: CabinetQCReportWhereInput | boolean
-    connect?: CabinetQCReportWhereUniqueInput
-    update?: XOR<XOR<CabinetQCReportUpdateToOneWithWhereWithoutJobInput, CabinetQCReportUpdateWithoutJobInput>, CabinetQCReportUncheckedUpdateWithoutJobInput>
-  }
-
   export type CabinetFATReportUpdateOneWithoutJobNestedInput = {
     create?: XOR<CabinetFATReportCreateWithoutJobInput, CabinetFATReportUncheckedCreateWithoutJobInput>
     connectOrCreate?: CabinetFATReportCreateOrConnectWithoutJobInput
@@ -219731,6 +228945,16 @@ export namespace Prisma {
     delete?: CabinetFATReportWhereInput | boolean
     connect?: CabinetFATReportWhereUniqueInput
     update?: XOR<XOR<CabinetFATReportUpdateToOneWithWhereWithoutJobInput, CabinetFATReportUpdateWithoutJobInput>, CabinetFATReportUncheckedUpdateWithoutJobInput>
+  }
+
+  export type CabinetQCReportUpdateOneWithoutJobNestedInput = {
+    create?: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
+    connectOrCreate?: CabinetQCReportCreateOrConnectWithoutJobInput
+    upsert?: CabinetQCReportUpsertWithoutJobInput
+    disconnect?: CabinetQCReportWhereInput | boolean
+    delete?: CabinetQCReportWhereInput | boolean
+    connect?: CabinetQCReportWhereUniqueInput
+    update?: XOR<XOR<CabinetQCReportUpdateToOneWithWhereWithoutJobInput, CabinetQCReportUpdateWithoutJobInput>, CabinetQCReportUncheckedUpdateWithoutJobInput>
   }
 
   export type AssemblyTimeLogUncheckedUpdateManyWithoutJobNestedInput = {
@@ -219747,16 +228971,6 @@ export namespace Prisma {
     deleteMany?: AssemblyTimeLogScalarWhereInput | AssemblyTimeLogScalarWhereInput[]
   }
 
-  export type CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput = {
-    create?: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
-    connectOrCreate?: CabinetQCReportCreateOrConnectWithoutJobInput
-    upsert?: CabinetQCReportUpsertWithoutJobInput
-    disconnect?: CabinetQCReportWhereInput | boolean
-    delete?: CabinetQCReportWhereInput | boolean
-    connect?: CabinetQCReportWhereUniqueInput
-    update?: XOR<XOR<CabinetQCReportUpdateToOneWithWhereWithoutJobInput, CabinetQCReportUpdateWithoutJobInput>, CabinetQCReportUncheckedUpdateWithoutJobInput>
-  }
-
   export type CabinetFATReportUncheckedUpdateOneWithoutJobNestedInput = {
     create?: XOR<CabinetFATReportCreateWithoutJobInput, CabinetFATReportUncheckedCreateWithoutJobInput>
     connectOrCreate?: CabinetFATReportCreateOrConnectWithoutJobInput
@@ -219765,6 +228979,16 @@ export namespace Prisma {
     delete?: CabinetFATReportWhereInput | boolean
     connect?: CabinetFATReportWhereUniqueInput
     update?: XOR<XOR<CabinetFATReportUpdateToOneWithWhereWithoutJobInput, CabinetFATReportUpdateWithoutJobInput>, CabinetFATReportUncheckedUpdateWithoutJobInput>
+  }
+
+  export type CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput = {
+    create?: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
+    connectOrCreate?: CabinetQCReportCreateOrConnectWithoutJobInput
+    upsert?: CabinetQCReportUpsertWithoutJobInput
+    disconnect?: CabinetQCReportWhereInput | boolean
+    delete?: CabinetQCReportWhereInput | boolean
+    connect?: CabinetQCReportWhereUniqueInput
+    update?: XOR<XOR<CabinetQCReportUpdateToOneWithWhereWithoutJobInput, CabinetQCReportUpdateWithoutJobInput>, CabinetQCReportUncheckedUpdateWithoutJobInput>
   }
 
   export type CabinetAssemblyJobCreateNestedOneWithoutTimeLogsInput = {
@@ -219961,6 +229185,406 @@ export namespace Prisma {
     upsert?: OrderUpsertWithoutProductionStepsInput
     connect?: OrderWhereUniqueInput
     update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutProductionStepsInput, OrderUpdateWithoutProductionStepsInput>, OrderUncheckedUpdateWithoutProductionStepsInput>
+  }
+
+  export type BDProjectCreateNestedManyWithoutWorkTypeInput = {
+    create?: XOR<BDProjectCreateWithoutWorkTypeInput, BDProjectUncheckedCreateWithoutWorkTypeInput> | BDProjectCreateWithoutWorkTypeInput[] | BDProjectUncheckedCreateWithoutWorkTypeInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutWorkTypeInput | BDProjectCreateOrConnectWithoutWorkTypeInput[]
+    createMany?: BDProjectCreateManyWorkTypeInputEnvelope
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
+  export type BDWorkflowTemplateCreateNestedOneWithoutWorkTypesInput = {
+    create?: XOR<BDWorkflowTemplateCreateWithoutWorkTypesInput, BDWorkflowTemplateUncheckedCreateWithoutWorkTypesInput>
+    connectOrCreate?: BDWorkflowTemplateCreateOrConnectWithoutWorkTypesInput
+    connect?: BDWorkflowTemplateWhereUniqueInput
+  }
+
+  export type BDProjectUncheckedCreateNestedManyWithoutWorkTypeInput = {
+    create?: XOR<BDProjectCreateWithoutWorkTypeInput, BDProjectUncheckedCreateWithoutWorkTypeInput> | BDProjectCreateWithoutWorkTypeInput[] | BDProjectUncheckedCreateWithoutWorkTypeInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutWorkTypeInput | BDProjectCreateOrConnectWithoutWorkTypeInput[]
+    createMany?: BDProjectCreateManyWorkTypeInputEnvelope
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
+  export type BDProjectUpdateManyWithoutWorkTypeNestedInput = {
+    create?: XOR<BDProjectCreateWithoutWorkTypeInput, BDProjectUncheckedCreateWithoutWorkTypeInput> | BDProjectCreateWithoutWorkTypeInput[] | BDProjectUncheckedCreateWithoutWorkTypeInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutWorkTypeInput | BDProjectCreateOrConnectWithoutWorkTypeInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutWorkTypeInput | BDProjectUpsertWithWhereUniqueWithoutWorkTypeInput[]
+    createMany?: BDProjectCreateManyWorkTypeInputEnvelope
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutWorkTypeInput | BDProjectUpdateWithWhereUniqueWithoutWorkTypeInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutWorkTypeInput | BDProjectUpdateManyWithWhereWithoutWorkTypeInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
+  export type BDWorkflowTemplateUpdateOneWithoutWorkTypesNestedInput = {
+    create?: XOR<BDWorkflowTemplateCreateWithoutWorkTypesInput, BDWorkflowTemplateUncheckedCreateWithoutWorkTypesInput>
+    connectOrCreate?: BDWorkflowTemplateCreateOrConnectWithoutWorkTypesInput
+    upsert?: BDWorkflowTemplateUpsertWithoutWorkTypesInput
+    disconnect?: BDWorkflowTemplateWhereInput | boolean
+    delete?: BDWorkflowTemplateWhereInput | boolean
+    connect?: BDWorkflowTemplateWhereUniqueInput
+    update?: XOR<XOR<BDWorkflowTemplateUpdateToOneWithWhereWithoutWorkTypesInput, BDWorkflowTemplateUpdateWithoutWorkTypesInput>, BDWorkflowTemplateUncheckedUpdateWithoutWorkTypesInput>
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutWorkTypeNestedInput = {
+    create?: XOR<BDProjectCreateWithoutWorkTypeInput, BDProjectUncheckedCreateWithoutWorkTypeInput> | BDProjectCreateWithoutWorkTypeInput[] | BDProjectUncheckedCreateWithoutWorkTypeInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutWorkTypeInput | BDProjectCreateOrConnectWithoutWorkTypeInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutWorkTypeInput | BDProjectUpsertWithWhereUniqueWithoutWorkTypeInput[]
+    createMany?: BDProjectCreateManyWorkTypeInputEnvelope
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutWorkTypeInput | BDProjectUpdateWithWhereUniqueWithoutWorkTypeInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutWorkTypeInput | BDProjectUpdateManyWithWhereWithoutWorkTypeInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
+  export type BDActivityCreateNestedManyWithoutProjectInput = {
+    create?: XOR<BDActivityCreateWithoutProjectInput, BDActivityUncheckedCreateWithoutProjectInput> | BDActivityCreateWithoutProjectInput[] | BDActivityUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BDActivityCreateOrConnectWithoutProjectInput | BDActivityCreateOrConnectWithoutProjectInput[]
+    createMany?: BDActivityCreateManyProjectInputEnvelope
+    connect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+  }
+
+  export type UserCreateNestedOneWithoutBdOwnedProjectsInput = {
+    create?: XOR<UserCreateWithoutBdOwnedProjectsInput, UserUncheckedCreateWithoutBdOwnedProjectsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBdOwnedProjectsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type BDProjectCreateNestedOneWithoutSubProjectsInput = {
+    create?: XOR<BDProjectCreateWithoutSubProjectsInput, BDProjectUncheckedCreateWithoutSubProjectsInput>
+    connectOrCreate?: BDProjectCreateOrConnectWithoutSubProjectsInput
+    connect?: BDProjectWhereUniqueInput
+  }
+
+  export type BDProjectCreateNestedManyWithoutParentInput = {
+    create?: XOR<BDProjectCreateWithoutParentInput, BDProjectUncheckedCreateWithoutParentInput> | BDProjectCreateWithoutParentInput[] | BDProjectUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutParentInput | BDProjectCreateOrConnectWithoutParentInput[]
+    createMany?: BDProjectCreateManyParentInputEnvelope
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
+  export type UserCreateNestedOneWithoutBdRequestsInput = {
+    create?: XOR<UserCreateWithoutBdRequestsInput, UserUncheckedCreateWithoutBdRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBdRequestsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type BDWorkTypeCreateNestedOneWithoutProjectsInput = {
+    create?: XOR<BDWorkTypeCreateWithoutProjectsInput, BDWorkTypeUncheckedCreateWithoutProjectsInput>
+    connectOrCreate?: BDWorkTypeCreateOrConnectWithoutProjectsInput
+    connect?: BDWorkTypeWhereUniqueInput
+  }
+
+  export type BDTaskCreateNestedManyWithoutProjectInput = {
+    create?: XOR<BDTaskCreateWithoutProjectInput, BDTaskUncheckedCreateWithoutProjectInput> | BDTaskCreateWithoutProjectInput[] | BDTaskUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BDTaskCreateOrConnectWithoutProjectInput | BDTaskCreateOrConnectWithoutProjectInput[]
+    createMany?: BDTaskCreateManyProjectInputEnvelope
+    connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+  }
+
+  export type BDActivityUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<BDActivityCreateWithoutProjectInput, BDActivityUncheckedCreateWithoutProjectInput> | BDActivityCreateWithoutProjectInput[] | BDActivityUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BDActivityCreateOrConnectWithoutProjectInput | BDActivityCreateOrConnectWithoutProjectInput[]
+    createMany?: BDActivityCreateManyProjectInputEnvelope
+    connect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+  }
+
+  export type BDProjectUncheckedCreateNestedManyWithoutParentInput = {
+    create?: XOR<BDProjectCreateWithoutParentInput, BDProjectUncheckedCreateWithoutParentInput> | BDProjectCreateWithoutParentInput[] | BDProjectUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutParentInput | BDProjectCreateOrConnectWithoutParentInput[]
+    createMany?: BDProjectCreateManyParentInputEnvelope
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
+  export type BDTaskUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<BDTaskCreateWithoutProjectInput, BDTaskUncheckedCreateWithoutProjectInput> | BDTaskCreateWithoutProjectInput[] | BDTaskUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BDTaskCreateOrConnectWithoutProjectInput | BDTaskCreateOrConnectWithoutProjectInput[]
+    createMany?: BDTaskCreateManyProjectInputEnvelope
+    connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+  }
+
+  export type BDActivityUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<BDActivityCreateWithoutProjectInput, BDActivityUncheckedCreateWithoutProjectInput> | BDActivityCreateWithoutProjectInput[] | BDActivityUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BDActivityCreateOrConnectWithoutProjectInput | BDActivityCreateOrConnectWithoutProjectInput[]
+    upsert?: BDActivityUpsertWithWhereUniqueWithoutProjectInput | BDActivityUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: BDActivityCreateManyProjectInputEnvelope
+    set?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    disconnect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    delete?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    connect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    update?: BDActivityUpdateWithWhereUniqueWithoutProjectInput | BDActivityUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: BDActivityUpdateManyWithWhereWithoutProjectInput | BDActivityUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: BDActivityScalarWhereInput | BDActivityScalarWhereInput[]
+  }
+
+  export type UserUpdateOneWithoutBdOwnedProjectsNestedInput = {
+    create?: XOR<UserCreateWithoutBdOwnedProjectsInput, UserUncheckedCreateWithoutBdOwnedProjectsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBdOwnedProjectsInput
+    upsert?: UserUpsertWithoutBdOwnedProjectsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBdOwnedProjectsInput, UserUpdateWithoutBdOwnedProjectsInput>, UserUncheckedUpdateWithoutBdOwnedProjectsInput>
+  }
+
+  export type BDProjectUpdateOneWithoutSubProjectsNestedInput = {
+    create?: XOR<BDProjectCreateWithoutSubProjectsInput, BDProjectUncheckedCreateWithoutSubProjectsInput>
+    connectOrCreate?: BDProjectCreateOrConnectWithoutSubProjectsInput
+    upsert?: BDProjectUpsertWithoutSubProjectsInput
+    disconnect?: BDProjectWhereInput | boolean
+    delete?: BDProjectWhereInput | boolean
+    connect?: BDProjectWhereUniqueInput
+    update?: XOR<XOR<BDProjectUpdateToOneWithWhereWithoutSubProjectsInput, BDProjectUpdateWithoutSubProjectsInput>, BDProjectUncheckedUpdateWithoutSubProjectsInput>
+  }
+
+  export type BDProjectUpdateManyWithoutParentNestedInput = {
+    create?: XOR<BDProjectCreateWithoutParentInput, BDProjectUncheckedCreateWithoutParentInput> | BDProjectCreateWithoutParentInput[] | BDProjectUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutParentInput | BDProjectCreateOrConnectWithoutParentInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutParentInput | BDProjectUpsertWithWhereUniqueWithoutParentInput[]
+    createMany?: BDProjectCreateManyParentInputEnvelope
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutParentInput | BDProjectUpdateWithWhereUniqueWithoutParentInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutParentInput | BDProjectUpdateManyWithWhereWithoutParentInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
+  export type UserUpdateOneRequiredWithoutBdRequestsNestedInput = {
+    create?: XOR<UserCreateWithoutBdRequestsInput, UserUncheckedCreateWithoutBdRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBdRequestsInput
+    upsert?: UserUpsertWithoutBdRequestsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBdRequestsInput, UserUpdateWithoutBdRequestsInput>, UserUncheckedUpdateWithoutBdRequestsInput>
+  }
+
+  export type BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput = {
+    create?: XOR<BDWorkTypeCreateWithoutProjectsInput, BDWorkTypeUncheckedCreateWithoutProjectsInput>
+    connectOrCreate?: BDWorkTypeCreateOrConnectWithoutProjectsInput
+    upsert?: BDWorkTypeUpsertWithoutProjectsInput
+    connect?: BDWorkTypeWhereUniqueInput
+    update?: XOR<XOR<BDWorkTypeUpdateToOneWithWhereWithoutProjectsInput, BDWorkTypeUpdateWithoutProjectsInput>, BDWorkTypeUncheckedUpdateWithoutProjectsInput>
+  }
+
+  export type BDTaskUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<BDTaskCreateWithoutProjectInput, BDTaskUncheckedCreateWithoutProjectInput> | BDTaskCreateWithoutProjectInput[] | BDTaskUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BDTaskCreateOrConnectWithoutProjectInput | BDTaskCreateOrConnectWithoutProjectInput[]
+    upsert?: BDTaskUpsertWithWhereUniqueWithoutProjectInput | BDTaskUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: BDTaskCreateManyProjectInputEnvelope
+    set?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    disconnect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    delete?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    update?: BDTaskUpdateWithWhereUniqueWithoutProjectInput | BDTaskUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: BDTaskUpdateManyWithWhereWithoutProjectInput | BDTaskUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: BDTaskScalarWhereInput | BDTaskScalarWhereInput[]
+  }
+
+  export type BDActivityUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<BDActivityCreateWithoutProjectInput, BDActivityUncheckedCreateWithoutProjectInput> | BDActivityCreateWithoutProjectInput[] | BDActivityUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BDActivityCreateOrConnectWithoutProjectInput | BDActivityCreateOrConnectWithoutProjectInput[]
+    upsert?: BDActivityUpsertWithWhereUniqueWithoutProjectInput | BDActivityUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: BDActivityCreateManyProjectInputEnvelope
+    set?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    disconnect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    delete?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    connect?: BDActivityWhereUniqueInput | BDActivityWhereUniqueInput[]
+    update?: BDActivityUpdateWithWhereUniqueWithoutProjectInput | BDActivityUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: BDActivityUpdateManyWithWhereWithoutProjectInput | BDActivityUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: BDActivityScalarWhereInput | BDActivityScalarWhereInput[]
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutParentNestedInput = {
+    create?: XOR<BDProjectCreateWithoutParentInput, BDProjectUncheckedCreateWithoutParentInput> | BDProjectCreateWithoutParentInput[] | BDProjectUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutParentInput | BDProjectCreateOrConnectWithoutParentInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutParentInput | BDProjectUpsertWithWhereUniqueWithoutParentInput[]
+    createMany?: BDProjectCreateManyParentInputEnvelope
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutParentInput | BDProjectUpdateWithWhereUniqueWithoutParentInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutParentInput | BDProjectUpdateManyWithWhereWithoutParentInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
+  export type BDTaskUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<BDTaskCreateWithoutProjectInput, BDTaskUncheckedCreateWithoutProjectInput> | BDTaskCreateWithoutProjectInput[] | BDTaskUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: BDTaskCreateOrConnectWithoutProjectInput | BDTaskCreateOrConnectWithoutProjectInput[]
+    upsert?: BDTaskUpsertWithWhereUniqueWithoutProjectInput | BDTaskUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: BDTaskCreateManyProjectInputEnvelope
+    set?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    disconnect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    delete?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+    update?: BDTaskUpdateWithWhereUniqueWithoutProjectInput | BDTaskUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: BDTaskUpdateManyWithWhereWithoutProjectInput | BDTaskUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: BDTaskScalarWhereInput | BDTaskScalarWhereInput[]
+  }
+
+  export type BDWorkTypeCreateNestedManyWithoutDefaultTemplateInput = {
+    create?: XOR<BDWorkTypeCreateWithoutDefaultTemplateInput, BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput> | BDWorkTypeCreateWithoutDefaultTemplateInput[] | BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput[]
+    connectOrCreate?: BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput | BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput[]
+    createMany?: BDWorkTypeCreateManyDefaultTemplateInputEnvelope
+    connect?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+  }
+
+  export type BDWorkflowStepTemplateCreateNestedManyWithoutTemplateInput = {
+    create?: XOR<BDWorkflowStepTemplateCreateWithoutTemplateInput, BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput> | BDWorkflowStepTemplateCreateWithoutTemplateInput[] | BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput[]
+    connectOrCreate?: BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput | BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput[]
+    createMany?: BDWorkflowStepTemplateCreateManyTemplateInputEnvelope
+    connect?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+  }
+
+  export type BDWorkTypeUncheckedCreateNestedManyWithoutDefaultTemplateInput = {
+    create?: XOR<BDWorkTypeCreateWithoutDefaultTemplateInput, BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput> | BDWorkTypeCreateWithoutDefaultTemplateInput[] | BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput[]
+    connectOrCreate?: BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput | BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput[]
+    createMany?: BDWorkTypeCreateManyDefaultTemplateInputEnvelope
+    connect?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+  }
+
+  export type BDWorkflowStepTemplateUncheckedCreateNestedManyWithoutTemplateInput = {
+    create?: XOR<BDWorkflowStepTemplateCreateWithoutTemplateInput, BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput> | BDWorkflowStepTemplateCreateWithoutTemplateInput[] | BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput[]
+    connectOrCreate?: BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput | BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput[]
+    createMany?: BDWorkflowStepTemplateCreateManyTemplateInputEnvelope
+    connect?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+  }
+
+  export type BDWorkTypeUpdateManyWithoutDefaultTemplateNestedInput = {
+    create?: XOR<BDWorkTypeCreateWithoutDefaultTemplateInput, BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput> | BDWorkTypeCreateWithoutDefaultTemplateInput[] | BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput[]
+    connectOrCreate?: BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput | BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput[]
+    upsert?: BDWorkTypeUpsertWithWhereUniqueWithoutDefaultTemplateInput | BDWorkTypeUpsertWithWhereUniqueWithoutDefaultTemplateInput[]
+    createMany?: BDWorkTypeCreateManyDefaultTemplateInputEnvelope
+    set?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+    disconnect?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+    delete?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+    connect?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+    update?: BDWorkTypeUpdateWithWhereUniqueWithoutDefaultTemplateInput | BDWorkTypeUpdateWithWhereUniqueWithoutDefaultTemplateInput[]
+    updateMany?: BDWorkTypeUpdateManyWithWhereWithoutDefaultTemplateInput | BDWorkTypeUpdateManyWithWhereWithoutDefaultTemplateInput[]
+    deleteMany?: BDWorkTypeScalarWhereInput | BDWorkTypeScalarWhereInput[]
+  }
+
+  export type BDWorkflowStepTemplateUpdateManyWithoutTemplateNestedInput = {
+    create?: XOR<BDWorkflowStepTemplateCreateWithoutTemplateInput, BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput> | BDWorkflowStepTemplateCreateWithoutTemplateInput[] | BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput[]
+    connectOrCreate?: BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput | BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput[]
+    upsert?: BDWorkflowStepTemplateUpsertWithWhereUniqueWithoutTemplateInput | BDWorkflowStepTemplateUpsertWithWhereUniqueWithoutTemplateInput[]
+    createMany?: BDWorkflowStepTemplateCreateManyTemplateInputEnvelope
+    set?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+    disconnect?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+    delete?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+    connect?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+    update?: BDWorkflowStepTemplateUpdateWithWhereUniqueWithoutTemplateInput | BDWorkflowStepTemplateUpdateWithWhereUniqueWithoutTemplateInput[]
+    updateMany?: BDWorkflowStepTemplateUpdateManyWithWhereWithoutTemplateInput | BDWorkflowStepTemplateUpdateManyWithWhereWithoutTemplateInput[]
+    deleteMany?: BDWorkflowStepTemplateScalarWhereInput | BDWorkflowStepTemplateScalarWhereInput[]
+  }
+
+  export type BDWorkTypeUncheckedUpdateManyWithoutDefaultTemplateNestedInput = {
+    create?: XOR<BDWorkTypeCreateWithoutDefaultTemplateInput, BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput> | BDWorkTypeCreateWithoutDefaultTemplateInput[] | BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput[]
+    connectOrCreate?: BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput | BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput[]
+    upsert?: BDWorkTypeUpsertWithWhereUniqueWithoutDefaultTemplateInput | BDWorkTypeUpsertWithWhereUniqueWithoutDefaultTemplateInput[]
+    createMany?: BDWorkTypeCreateManyDefaultTemplateInputEnvelope
+    set?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+    disconnect?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+    delete?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+    connect?: BDWorkTypeWhereUniqueInput | BDWorkTypeWhereUniqueInput[]
+    update?: BDWorkTypeUpdateWithWhereUniqueWithoutDefaultTemplateInput | BDWorkTypeUpdateWithWhereUniqueWithoutDefaultTemplateInput[]
+    updateMany?: BDWorkTypeUpdateManyWithWhereWithoutDefaultTemplateInput | BDWorkTypeUpdateManyWithWhereWithoutDefaultTemplateInput[]
+    deleteMany?: BDWorkTypeScalarWhereInput | BDWorkTypeScalarWhereInput[]
+  }
+
+  export type BDWorkflowStepTemplateUncheckedUpdateManyWithoutTemplateNestedInput = {
+    create?: XOR<BDWorkflowStepTemplateCreateWithoutTemplateInput, BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput> | BDWorkflowStepTemplateCreateWithoutTemplateInput[] | BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput[]
+    connectOrCreate?: BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput | BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput[]
+    upsert?: BDWorkflowStepTemplateUpsertWithWhereUniqueWithoutTemplateInput | BDWorkflowStepTemplateUpsertWithWhereUniqueWithoutTemplateInput[]
+    createMany?: BDWorkflowStepTemplateCreateManyTemplateInputEnvelope
+    set?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+    disconnect?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+    delete?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+    connect?: BDWorkflowStepTemplateWhereUniqueInput | BDWorkflowStepTemplateWhereUniqueInput[]
+    update?: BDWorkflowStepTemplateUpdateWithWhereUniqueWithoutTemplateInput | BDWorkflowStepTemplateUpdateWithWhereUniqueWithoutTemplateInput[]
+    updateMany?: BDWorkflowStepTemplateUpdateManyWithWhereWithoutTemplateInput | BDWorkflowStepTemplateUpdateManyWithWhereWithoutTemplateInput[]
+    deleteMany?: BDWorkflowStepTemplateScalarWhereInput | BDWorkflowStepTemplateScalarWhereInput[]
+  }
+
+  export type BDWorkflowTemplateCreateNestedOneWithoutStepsInput = {
+    create?: XOR<BDWorkflowTemplateCreateWithoutStepsInput, BDWorkflowTemplateUncheckedCreateWithoutStepsInput>
+    connectOrCreate?: BDWorkflowTemplateCreateOrConnectWithoutStepsInput
+    connect?: BDWorkflowTemplateWhereUniqueInput
+  }
+
+  export type BDWorkflowTemplateUpdateOneRequiredWithoutStepsNestedInput = {
+    create?: XOR<BDWorkflowTemplateCreateWithoutStepsInput, BDWorkflowTemplateUncheckedCreateWithoutStepsInput>
+    connectOrCreate?: BDWorkflowTemplateCreateOrConnectWithoutStepsInput
+    upsert?: BDWorkflowTemplateUpsertWithoutStepsInput
+    connect?: BDWorkflowTemplateWhereUniqueInput
+    update?: XOR<XOR<BDWorkflowTemplateUpdateToOneWithWhereWithoutStepsInput, BDWorkflowTemplateUpdateWithoutStepsInput>, BDWorkflowTemplateUncheckedUpdateWithoutStepsInput>
+  }
+
+  export type UserCreateNestedOneWithoutBdAssignedTasksInput = {
+    create?: XOR<UserCreateWithoutBdAssignedTasksInput, UserUncheckedCreateWithoutBdAssignedTasksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBdAssignedTasksInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type BDProjectCreateNestedOneWithoutTasksInput = {
+    create?: XOR<BDProjectCreateWithoutTasksInput, BDProjectUncheckedCreateWithoutTasksInput>
+    connectOrCreate?: BDProjectCreateOrConnectWithoutTasksInput
+    connect?: BDProjectWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutBdAssignedTasksNestedInput = {
+    create?: XOR<UserCreateWithoutBdAssignedTasksInput, UserUncheckedCreateWithoutBdAssignedTasksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBdAssignedTasksInput
+    upsert?: UserUpsertWithoutBdAssignedTasksInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBdAssignedTasksInput, UserUpdateWithoutBdAssignedTasksInput>, UserUncheckedUpdateWithoutBdAssignedTasksInput>
+  }
+
+  export type BDProjectUpdateOneRequiredWithoutTasksNestedInput = {
+    create?: XOR<BDProjectCreateWithoutTasksInput, BDProjectUncheckedCreateWithoutTasksInput>
+    connectOrCreate?: BDProjectCreateOrConnectWithoutTasksInput
+    upsert?: BDProjectUpsertWithoutTasksInput
+    connect?: BDProjectWhereUniqueInput
+    update?: XOR<XOR<BDProjectUpdateToOneWithWhereWithoutTasksInput, BDProjectUpdateWithoutTasksInput>, BDProjectUncheckedUpdateWithoutTasksInput>
+  }
+
+  export type BDProjectCreateNestedOneWithoutActivitiesInput = {
+    create?: XOR<BDProjectCreateWithoutActivitiesInput, BDProjectUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: BDProjectCreateOrConnectWithoutActivitiesInput
+    connect?: BDProjectWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutBdActivitiesInput = {
+    create?: XOR<UserCreateWithoutBdActivitiesInput, UserUncheckedCreateWithoutBdActivitiesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBdActivitiesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type BDProjectUpdateOneRequiredWithoutActivitiesNestedInput = {
+    create?: XOR<BDProjectCreateWithoutActivitiesInput, BDProjectUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: BDProjectCreateOrConnectWithoutActivitiesInput
+    upsert?: BDProjectUpsertWithoutActivitiesInput
+    connect?: BDProjectWhereUniqueInput
+    update?: XOR<XOR<BDProjectUpdateToOneWithWhereWithoutActivitiesInput, BDProjectUpdateWithoutActivitiesInput>, BDProjectUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutBdActivitiesNestedInput = {
+    create?: XOR<UserCreateWithoutBdActivitiesInput, UserUncheckedCreateWithoutBdActivitiesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBdActivitiesInput
+    upsert?: UserUpsertWithoutBdActivitiesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBdActivitiesInput, UserUpdateWithoutBdActivitiesInput>, UserUncheckedUpdateWithoutBdActivitiesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -220336,6 +229960,174 @@ export namespace Prisma {
     _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
+  export type BDActivityCreateWithoutUserInput = {
+    id?: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+    project: BDProjectCreateNestedOneWithoutActivitiesInput
+  }
+
+  export type BDActivityUncheckedCreateWithoutUserInput = {
+    id?: string
+    projectId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BDActivityCreateOrConnectWithoutUserInput = {
+    where: BDActivityWhereUniqueInput
+    create: XOR<BDActivityCreateWithoutUserInput, BDActivityUncheckedCreateWithoutUserInput>
+  }
+
+  export type BDActivityCreateManyUserInputEnvelope = {
+    data: BDActivityCreateManyUserInput | BDActivityCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BDProjectCreateWithoutOwnerInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    activities?: BDActivityCreateNestedManyWithoutProjectInput
+    parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
+    subProjects?: BDProjectCreateNestedManyWithoutParentInput
+    requester: UserCreateNestedOneWithoutBdRequestsInput
+    workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+    tasks?: BDTaskCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUncheckedCreateWithoutOwnerInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+    activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
+    subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+    tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectCreateOrConnectWithoutOwnerInput = {
+    where: BDProjectWhereUniqueInput
+    create: XOR<BDProjectCreateWithoutOwnerInput, BDProjectUncheckedCreateWithoutOwnerInput>
+  }
+
+  export type BDProjectCreateManyOwnerInputEnvelope = {
+    data: BDProjectCreateManyOwnerInput | BDProjectCreateManyOwnerInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BDProjectCreateWithoutRequesterInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    activities?: BDActivityCreateNestedManyWithoutProjectInput
+    owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
+    parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
+    subProjects?: BDProjectCreateNestedManyWithoutParentInput
+    workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+    tasks?: BDTaskCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUncheckedCreateWithoutRequesterInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+    activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
+    subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+    tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectCreateOrConnectWithoutRequesterInput = {
+    where: BDProjectWhereUniqueInput
+    create: XOR<BDProjectCreateWithoutRequesterInput, BDProjectUncheckedCreateWithoutRequesterInput>
+  }
+
+  export type BDProjectCreateManyRequesterInputEnvelope = {
+    data: BDProjectCreateManyRequesterInput | BDProjectCreateManyRequesterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BDTaskCreateWithoutAssigneeInput = {
+    id?: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
+    project: BDProjectCreateNestedOneWithoutTasksInput
+  }
+
+  export type BDTaskUncheckedCreateWithoutAssigneeInput = {
+    id?: string
+    projectId: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
+  }
+
+  export type BDTaskCreateOrConnectWithoutAssigneeInput = {
+    where: BDTaskWhereUniqueInput
+    create: XOR<BDTaskCreateWithoutAssigneeInput, BDTaskUncheckedCreateWithoutAssigneeInput>
+  }
+
+  export type BDTaskCreateManyAssigneeInputEnvelope = {
+    data: BDTaskCreateManyAssigneeInput | BDTaskCreateManyAssigneeInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CabinetAssemblyJobCreateWithoutTechnicianInput = {
     id?: string
     jobNumber: string
@@ -220347,8 +230139,8 @@ export namespace Prisma {
     overtimeMinutes?: number | null
     timeLogs?: AssemblyTimeLogCreateNestedManyWithoutJobInput
     order: OrderCreateNestedOneWithoutCabinetAssemblyJobsInput
-    qcReport?: CabinetQCReportCreateNestedOneWithoutJobInput
     fatReport?: CabinetFATReportCreateNestedOneWithoutJobInput
+    qcReport?: CabinetQCReportCreateNestedOneWithoutJobInput
   }
 
   export type CabinetAssemblyJobUncheckedCreateWithoutTechnicianInput = {
@@ -220362,8 +230154,8 @@ export namespace Prisma {
     normalTimeMinutes?: number | null
     overtimeMinutes?: number | null
     timeLogs?: AssemblyTimeLogUncheckedCreateNestedManyWithoutJobInput
-    qcReport?: CabinetQCReportUncheckedCreateNestedOneWithoutJobInput
     fatReport?: CabinetFATReportUncheckedCreateNestedOneWithoutJobInput
+    qcReport?: CabinetQCReportUncheckedCreateNestedOneWithoutJobInput
   }
 
   export type CabinetAssemblyJobCreateOrConnectWithoutTechnicianInput = {
@@ -222080,6 +231872,123 @@ export namespace Prisma {
     create: XOR<OrderCreateWithoutAssignedTechniciansInput, OrderUncheckedCreateWithoutAssignedTechniciansInput>
   }
 
+  export type BDActivityUpsertWithWhereUniqueWithoutUserInput = {
+    where: BDActivityWhereUniqueInput
+    update: XOR<BDActivityUpdateWithoutUserInput, BDActivityUncheckedUpdateWithoutUserInput>
+    create: XOR<BDActivityCreateWithoutUserInput, BDActivityUncheckedCreateWithoutUserInput>
+  }
+
+  export type BDActivityUpdateWithWhereUniqueWithoutUserInput = {
+    where: BDActivityWhereUniqueInput
+    data: XOR<BDActivityUpdateWithoutUserInput, BDActivityUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BDActivityUpdateManyWithWhereWithoutUserInput = {
+    where: BDActivityScalarWhereInput
+    data: XOR<BDActivityUpdateManyMutationInput, BDActivityUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type BDActivityScalarWhereInput = {
+    AND?: BDActivityScalarWhereInput | BDActivityScalarWhereInput[]
+    OR?: BDActivityScalarWhereInput[]
+    NOT?: BDActivityScalarWhereInput | BDActivityScalarWhereInput[]
+    id?: StringFilter<"BDActivity"> | string
+    projectId?: StringFilter<"BDActivity"> | string
+    userId?: StringFilter<"BDActivity"> | string
+    action?: StringFilter<"BDActivity"> | string
+    details?: StringNullableFilter<"BDActivity"> | string | null
+    createdAt?: DateTimeFilter<"BDActivity"> | Date | string
+  }
+
+  export type BDProjectUpsertWithWhereUniqueWithoutOwnerInput = {
+    where: BDProjectWhereUniqueInput
+    update: XOR<BDProjectUpdateWithoutOwnerInput, BDProjectUncheckedUpdateWithoutOwnerInput>
+    create: XOR<BDProjectCreateWithoutOwnerInput, BDProjectUncheckedCreateWithoutOwnerInput>
+  }
+
+  export type BDProjectUpdateWithWhereUniqueWithoutOwnerInput = {
+    where: BDProjectWhereUniqueInput
+    data: XOR<BDProjectUpdateWithoutOwnerInput, BDProjectUncheckedUpdateWithoutOwnerInput>
+  }
+
+  export type BDProjectUpdateManyWithWhereWithoutOwnerInput = {
+    where: BDProjectScalarWhereInput
+    data: XOR<BDProjectUpdateManyMutationInput, BDProjectUncheckedUpdateManyWithoutOwnerInput>
+  }
+
+  export type BDProjectScalarWhereInput = {
+    AND?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+    OR?: BDProjectScalarWhereInput[]
+    NOT?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+    id?: StringFilter<"BDProject"> | string
+    name?: StringFilter<"BDProject"> | string
+    objective?: StringNullableFilter<"BDProject"> | string | null
+    workTypeId?: StringFilter<"BDProject"> | string
+    urgency?: StringFilter<"BDProject"> | string
+    deadline?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    status?: StringFilter<"BDProject"> | string
+    requesterId?: StringFilter<"BDProject"> | string
+    ownerId?: StringNullableFilter<"BDProject"> | string | null
+    blockedReason?: StringNullableFilter<"BDProject"> | string | null
+    waitingOn?: StringNullableFilter<"BDProject"> | string | null
+    createdAt?: DateTimeFilter<"BDProject"> | Date | string
+    updatedAt?: DateTimeFilter<"BDProject"> | Date | string
+    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    parentId?: StringNullableFilter<"BDProject"> | string | null
+  }
+
+  export type BDProjectUpsertWithWhereUniqueWithoutRequesterInput = {
+    where: BDProjectWhereUniqueInput
+    update: XOR<BDProjectUpdateWithoutRequesterInput, BDProjectUncheckedUpdateWithoutRequesterInput>
+    create: XOR<BDProjectCreateWithoutRequesterInput, BDProjectUncheckedCreateWithoutRequesterInput>
+  }
+
+  export type BDProjectUpdateWithWhereUniqueWithoutRequesterInput = {
+    where: BDProjectWhereUniqueInput
+    data: XOR<BDProjectUpdateWithoutRequesterInput, BDProjectUncheckedUpdateWithoutRequesterInput>
+  }
+
+  export type BDProjectUpdateManyWithWhereWithoutRequesterInput = {
+    where: BDProjectScalarWhereInput
+    data: XOR<BDProjectUpdateManyMutationInput, BDProjectUncheckedUpdateManyWithoutRequesterInput>
+  }
+
+  export type BDTaskUpsertWithWhereUniqueWithoutAssigneeInput = {
+    where: BDTaskWhereUniqueInput
+    update: XOR<BDTaskUpdateWithoutAssigneeInput, BDTaskUncheckedUpdateWithoutAssigneeInput>
+    create: XOR<BDTaskCreateWithoutAssigneeInput, BDTaskUncheckedCreateWithoutAssigneeInput>
+  }
+
+  export type BDTaskUpdateWithWhereUniqueWithoutAssigneeInput = {
+    where: BDTaskWhereUniqueInput
+    data: XOR<BDTaskUpdateWithoutAssigneeInput, BDTaskUncheckedUpdateWithoutAssigneeInput>
+  }
+
+  export type BDTaskUpdateManyWithWhereWithoutAssigneeInput = {
+    where: BDTaskScalarWhereInput
+    data: XOR<BDTaskUpdateManyMutationInput, BDTaskUncheckedUpdateManyWithoutAssigneeInput>
+  }
+
+  export type BDTaskScalarWhereInput = {
+    AND?: BDTaskScalarWhereInput | BDTaskScalarWhereInput[]
+    OR?: BDTaskScalarWhereInput[]
+    NOT?: BDTaskScalarWhereInput | BDTaskScalarWhereInput[]
+    id?: StringFilter<"BDTask"> | string
+    projectId?: StringFilter<"BDTask"> | string
+    name?: StringFilter<"BDTask"> | string
+    status?: StringFilter<"BDTask"> | string
+    dueDate?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    orderIndex?: IntFilter<"BDTask"> | number
+    checklistState?: JsonNullableFilter<"BDTask">
+    assigneeId?: StringNullableFilter<"BDTask"> | string | null
+    blockedReason?: StringNullableFilter<"BDTask"> | string | null
+    waitingOn?: StringNullableFilter<"BDTask"> | string | null
+    completedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    createdAt?: DateTimeFilter<"BDTask"> | Date | string
+    updatedAt?: DateTimeFilter<"BDTask"> | Date | string
+    blockedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+  }
+
   export type CabinetAssemblyJobUpsertWithWhereUniqueWithoutTechnicianInput = {
     where: CabinetAssemblyJobWhereUniqueInput
     update: XOR<CabinetAssemblyJobUpdateWithoutTechnicianInput, CabinetAssemblyJobUncheckedUpdateWithoutTechnicianInput>
@@ -223281,6 +233190,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -223328,6 +233241,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -223391,6 +233308,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -223438,6 +233359,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -223623,6 +233548,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -223670,6 +233599,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -223883,6 +233816,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -223930,6 +233867,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -223977,6 +233918,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -224024,6 +233969,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -224087,6 +234036,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -224134,6 +234087,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -224181,6 +234138,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
@@ -224228,6 +234189,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
@@ -224843,6 +234808,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
@@ -224890,6 +234859,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
@@ -225209,6 +235182,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
@@ -225256,6 +235233,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
@@ -225414,6 +235395,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
@@ -225461,6 +235446,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
@@ -226091,6 +236080,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -226138,6 +236131,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -226595,6 +236592,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -226642,6 +236643,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -226969,6 +236974,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -227016,6 +237025,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -227221,6 +237234,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -227268,6 +237285,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -227315,6 +237336,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -227362,6 +237387,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -227425,6 +237454,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -227472,6 +237505,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -227516,8 +237553,8 @@ export namespace Prisma {
     overtimeMinutes?: number | null
     timeLogs?: AssemblyTimeLogCreateNestedManyWithoutJobInput
     technician: UserCreateNestedOneWithoutCabinetAssemblyJobsInput
-    qcReport?: CabinetQCReportCreateNestedOneWithoutJobInput
     fatReport?: CabinetFATReportCreateNestedOneWithoutJobInput
+    qcReport?: CabinetQCReportCreateNestedOneWithoutJobInput
   }
 
   export type CabinetAssemblyJobUncheckedCreateWithoutOrderInput = {
@@ -227531,8 +237568,8 @@ export namespace Prisma {
     normalTimeMinutes?: number | null
     overtimeMinutes?: number | null
     timeLogs?: AssemblyTimeLogUncheckedCreateNestedManyWithoutJobInput
-    qcReport?: CabinetQCReportUncheckedCreateNestedOneWithoutJobInput
     fatReport?: CabinetFATReportUncheckedCreateNestedOneWithoutJobInput
+    qcReport?: CabinetQCReportUncheckedCreateNestedOneWithoutJobInput
   }
 
   export type CabinetAssemblyJobCreateOrConnectWithoutOrderInput = {
@@ -227733,6 +237770,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -227780,6 +237821,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -227987,6 +238032,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -228034,6 +238083,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -228299,6 +238352,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -228346,6 +238403,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -228622,6 +238683,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -228669,6 +238734,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -228821,6 +238890,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -228868,6 +238941,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -230253,6 +240330,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -230300,6 +240381,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -230464,6 +240549,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -230511,6 +240600,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -230754,6 +240847,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -230801,6 +240898,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -230959,6 +241060,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -231006,6 +241111,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -232197,6 +242306,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -232244,6 +242357,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -232408,6 +242525,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -232455,6 +242576,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -232698,6 +242823,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -232745,6 +242874,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -232797,6 +242930,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -232844,6 +242981,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -232907,6 +243048,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -232954,6 +243099,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -233012,6 +243161,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -233059,6 +243212,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -246826,6 +256983,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -246873,6 +257034,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -247273,6 +257438,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -247320,6 +257489,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -247896,6 +258069,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -247943,6 +258120,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -248155,6 +258336,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -248202,6 +258387,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -248249,6 +258438,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -248296,6 +258489,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -248605,6 +258802,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -248652,6 +258853,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -249222,6 +259427,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -249269,6 +259478,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -249510,6 +259723,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -249557,6 +259774,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -254987,6 +265208,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -255034,6 +265259,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -255086,6 +265315,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -255133,6 +265366,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -255281,6 +265518,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -255328,6 +265569,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -255386,6 +265631,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -255433,6 +265682,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -255571,6 +265824,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -255618,6 +265875,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -255681,6 +265942,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -255728,6 +265993,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -255954,6 +266223,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -256001,6 +266274,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -256053,6 +266330,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -256100,6 +266381,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -256530,6 +266815,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -256577,6 +266866,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -256635,6 +266928,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -256682,6 +266979,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -259361,6 +269662,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -259408,6 +269713,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -259471,6 +269780,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -259518,6 +269831,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -259565,6 +269882,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -259612,6 +269933,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -259675,6 +270000,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -259722,6 +270051,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -260919,6 +271252,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -260966,6 +271303,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -261124,6 +271465,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -261171,6 +271516,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -262053,6 +272402,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
@@ -262100,6 +272453,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
@@ -262138,71 +272495,6 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutCabinetAssemblyJobsInput, UserUncheckedCreateWithoutCabinetAssemblyJobsInput>
   }
 
-  export type CabinetQCReportCreateWithoutJobInput = {
-    id?: string
-    serialNumber?: string | null
-    nameplate?: string | null
-    cabinetType: string
-    fanStatus?: string | null
-    magicMarks?: boolean
-    cabinetBody?: boolean
-    inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
-    cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
-    confirmationPhotos?: CabinetQCReportCreateconfirmationPhotosInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    qcCorrections?: string | null
-    qcInspectorName?: string | null
-    qcNotes?: string | null
-    qcStatus?: string
-  }
-
-  export type CabinetQCReportUncheckedCreateWithoutJobInput = {
-    id?: string
-    serialNumber?: string | null
-    nameplate?: string | null
-    cabinetType: string
-    fanStatus?: string | null
-    magicMarks?: boolean
-    cabinetBody?: boolean
-    inverterCorrect?: boolean
-    frontPanelEquipment?: boolean
-    wireDucting?: boolean
-    terminals?: boolean
-    cabinetKey?: boolean
-    internalWiring?: boolean
-    screwsTightened?: boolean
-    groundingSystem?: boolean
-    noMarks?: boolean
-    overallEquipmentCheck?: boolean
-    electricalSystem?: boolean
-    wiringConnections?: boolean
-    warningLabels?: boolean
-    confirmationPhotos?: CabinetQCReportCreateconfirmationPhotosInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    qcCorrections?: string | null
-    qcInspectorName?: string | null
-    qcNotes?: string | null
-    qcStatus?: string
-  }
-
-  export type CabinetQCReportCreateOrConnectWithoutJobInput = {
-    where: CabinetQCReportWhereUniqueInput
-    create: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
-  }
-
   export type CabinetFATReportCreateWithoutJobInput = {
     id?: string
     testerName?: string | null
@@ -262238,6 +272530,71 @@ export namespace Prisma {
   export type CabinetFATReportCreateOrConnectWithoutJobInput = {
     where: CabinetFATReportWhereUniqueInput
     create: XOR<CabinetFATReportCreateWithoutJobInput, CabinetFATReportUncheckedCreateWithoutJobInput>
+  }
+
+  export type CabinetQCReportCreateWithoutJobInput = {
+    id?: string
+    inverterCorrect?: boolean
+    cabinetKey?: boolean
+    cabinetType: string
+    confirmationPhotos?: CabinetQCReportCreateconfirmationPhotosInput | string[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
+    qcCorrections?: string | null
+    qcInspectorName?: string | null
+    qcNotes?: string | null
+    qcStatus?: string
+    electricalSystem?: boolean
+    fanStatus?: string | null
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: string | null
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: string | null
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
+  }
+
+  export type CabinetQCReportUncheckedCreateWithoutJobInput = {
+    id?: string
+    inverterCorrect?: boolean
+    cabinetKey?: boolean
+    cabinetType: string
+    confirmationPhotos?: CabinetQCReportCreateconfirmationPhotosInput | string[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    cabinetBody?: boolean
+    frontPanelEquipment?: boolean
+    groundingSystem?: boolean
+    overallEquipmentCheck?: boolean
+    qcCorrections?: string | null
+    qcInspectorName?: string | null
+    qcNotes?: string | null
+    qcStatus?: string
+    electricalSystem?: boolean
+    fanStatus?: string | null
+    internalWiring?: boolean
+    magicMarks?: boolean
+    nameplate?: string | null
+    noMarks?: boolean
+    screwsTightened?: boolean
+    serialNumber?: string | null
+    terminals?: boolean
+    warningLabels?: boolean
+    wireDucting?: boolean
+    wiringConnections?: boolean
+  }
+
+  export type CabinetQCReportCreateOrConnectWithoutJobInput = {
+    where: CabinetQCReportWhereUniqueInput
+    create: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
   }
 
   export type AssemblyTimeLogUpsertWithWhereUniqueWithoutJobInput = {
@@ -262381,6 +272738,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
@@ -262428,6 +272789,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
@@ -262459,77 +272824,6 @@ export namespace Prisma {
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
-  }
-
-  export type CabinetQCReportUpsertWithoutJobInput = {
-    update: XOR<CabinetQCReportUpdateWithoutJobInput, CabinetQCReportUncheckedUpdateWithoutJobInput>
-    create: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
-    where?: CabinetQCReportWhereInput
-  }
-
-  export type CabinetQCReportUpdateToOneWithWhereWithoutJobInput = {
-    where?: CabinetQCReportWhereInput
-    data: XOR<CabinetQCReportUpdateWithoutJobInput, CabinetQCReportUncheckedUpdateWithoutJobInput>
-  }
-
-  export type CabinetQCReportUpdateWithoutJobInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
-    cabinetType?: StringFieldUpdateOperationsInput | string
-    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    magicMarks?: BoolFieldUpdateOperationsInput | boolean
-    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
-    inverterCorrect?: BoolFieldUpdateOperationsInput | boolean
-    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
-    wireDucting?: BoolFieldUpdateOperationsInput | boolean
-    terminals?: BoolFieldUpdateOperationsInput | boolean
-    cabinetKey?: BoolFieldUpdateOperationsInput | boolean
-    internalWiring?: BoolFieldUpdateOperationsInput | boolean
-    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
-    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
-    noMarks?: BoolFieldUpdateOperationsInput | boolean
-    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
-    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
-    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
-    warningLabels?: BoolFieldUpdateOperationsInput | boolean
-    confirmationPhotos?: CabinetQCReportUpdateconfirmationPhotosInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    qcCorrections?: NullableStringFieldUpdateOperationsInput | string | null
-    qcInspectorName?: NullableStringFieldUpdateOperationsInput | string | null
-    qcNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    qcStatus?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type CabinetQCReportUncheckedUpdateWithoutJobInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
-    cabinetType?: StringFieldUpdateOperationsInput | string
-    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    magicMarks?: BoolFieldUpdateOperationsInput | boolean
-    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
-    inverterCorrect?: BoolFieldUpdateOperationsInput | boolean
-    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
-    wireDucting?: BoolFieldUpdateOperationsInput | boolean
-    terminals?: BoolFieldUpdateOperationsInput | boolean
-    cabinetKey?: BoolFieldUpdateOperationsInput | boolean
-    internalWiring?: BoolFieldUpdateOperationsInput | boolean
-    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
-    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
-    noMarks?: BoolFieldUpdateOperationsInput | boolean
-    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
-    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
-    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
-    warningLabels?: BoolFieldUpdateOperationsInput | boolean
-    confirmationPhotos?: CabinetQCReportUpdateconfirmationPhotosInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    qcCorrections?: NullableStringFieldUpdateOperationsInput | string | null
-    qcInspectorName?: NullableStringFieldUpdateOperationsInput | string | null
-    qcNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    qcStatus?: StringFieldUpdateOperationsInput | string
   }
 
   export type CabinetFATReportUpsertWithoutJobInput = {
@@ -262575,6 +272869,77 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CabinetQCReportUpsertWithoutJobInput = {
+    update: XOR<CabinetQCReportUpdateWithoutJobInput, CabinetQCReportUncheckedUpdateWithoutJobInput>
+    create: XOR<CabinetQCReportCreateWithoutJobInput, CabinetQCReportUncheckedCreateWithoutJobInput>
+    where?: CabinetQCReportWhereInput
+  }
+
+  export type CabinetQCReportUpdateToOneWithWhereWithoutJobInput = {
+    where?: CabinetQCReportWhereInput
+    data: XOR<CabinetQCReportUpdateWithoutJobInput, CabinetQCReportUncheckedUpdateWithoutJobInput>
+  }
+
+  export type CabinetQCReportUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inverterCorrect?: BoolFieldUpdateOperationsInput | boolean
+    cabinetKey?: BoolFieldUpdateOperationsInput | boolean
+    cabinetType?: StringFieldUpdateOperationsInput | string
+    confirmationPhotos?: CabinetQCReportUpdateconfirmationPhotosInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
+    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
+    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
+    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
+    qcCorrections?: NullableStringFieldUpdateOperationsInput | string | null
+    qcInspectorName?: NullableStringFieldUpdateOperationsInput | string | null
+    qcNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    qcStatus?: StringFieldUpdateOperationsInput | string
+    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
+    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    internalWiring?: BoolFieldUpdateOperationsInput | boolean
+    magicMarks?: BoolFieldUpdateOperationsInput | boolean
+    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
+    noMarks?: BoolFieldUpdateOperationsInput | boolean
+    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
+    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    terminals?: BoolFieldUpdateOperationsInput | boolean
+    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    wireDucting?: BoolFieldUpdateOperationsInput | boolean
+    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type CabinetQCReportUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inverterCorrect?: BoolFieldUpdateOperationsInput | boolean
+    cabinetKey?: BoolFieldUpdateOperationsInput | boolean
+    cabinetType?: StringFieldUpdateOperationsInput | string
+    confirmationPhotos?: CabinetQCReportUpdateconfirmationPhotosInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cabinetBody?: BoolFieldUpdateOperationsInput | boolean
+    frontPanelEquipment?: BoolFieldUpdateOperationsInput | boolean
+    groundingSystem?: BoolFieldUpdateOperationsInput | boolean
+    overallEquipmentCheck?: BoolFieldUpdateOperationsInput | boolean
+    qcCorrections?: NullableStringFieldUpdateOperationsInput | string | null
+    qcInspectorName?: NullableStringFieldUpdateOperationsInput | string | null
+    qcNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    qcStatus?: StringFieldUpdateOperationsInput | string
+    electricalSystem?: BoolFieldUpdateOperationsInput | boolean
+    fanStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    internalWiring?: BoolFieldUpdateOperationsInput | boolean
+    magicMarks?: BoolFieldUpdateOperationsInput | boolean
+    nameplate?: NullableStringFieldUpdateOperationsInput | string | null
+    noMarks?: BoolFieldUpdateOperationsInput | boolean
+    screwsTightened?: BoolFieldUpdateOperationsInput | boolean
+    serialNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    terminals?: BoolFieldUpdateOperationsInput | boolean
+    warningLabels?: BoolFieldUpdateOperationsInput | boolean
+    wireDucting?: BoolFieldUpdateOperationsInput | boolean
+    wiringConnections?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type CabinetAssemblyJobCreateWithoutTimeLogsInput = {
     id?: string
     jobNumber: string
@@ -262586,8 +272951,8 @@ export namespace Prisma {
     overtimeMinutes?: number | null
     order: OrderCreateNestedOneWithoutCabinetAssemblyJobsInput
     technician: UserCreateNestedOneWithoutCabinetAssemblyJobsInput
-    qcReport?: CabinetQCReportCreateNestedOneWithoutJobInput
     fatReport?: CabinetFATReportCreateNestedOneWithoutJobInput
+    qcReport?: CabinetQCReportCreateNestedOneWithoutJobInput
   }
 
   export type CabinetAssemblyJobUncheckedCreateWithoutTimeLogsInput = {
@@ -262601,8 +272966,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     normalTimeMinutes?: number | null
     overtimeMinutes?: number | null
-    qcReport?: CabinetQCReportUncheckedCreateNestedOneWithoutJobInput
     fatReport?: CabinetFATReportUncheckedCreateNestedOneWithoutJobInput
+    qcReport?: CabinetQCReportUncheckedCreateNestedOneWithoutJobInput
   }
 
   export type CabinetAssemblyJobCreateOrConnectWithoutTimeLogsInput = {
@@ -262632,8 +272997,8 @@ export namespace Prisma {
     overtimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     order?: OrderUpdateOneRequiredWithoutCabinetAssemblyJobsNestedInput
     technician?: UserUpdateOneRequiredWithoutCabinetAssemblyJobsNestedInput
-    qcReport?: CabinetQCReportUpdateOneWithoutJobNestedInput
     fatReport?: CabinetFATReportUpdateOneWithoutJobNestedInput
+    qcReport?: CabinetQCReportUpdateOneWithoutJobNestedInput
   }
 
   export type CabinetAssemblyJobUncheckedUpdateWithoutTimeLogsInput = {
@@ -262647,8 +273012,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     normalTimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     overtimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
-    qcReport?: CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput
     fatReport?: CabinetFATReportUncheckedUpdateOneWithoutJobNestedInput
+    qcReport?: CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput
   }
 
   export type CabinetAssemblyJobCreateWithoutQcReportInput = {
@@ -262817,6 +273182,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -262864,6 +273233,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -263165,6 +273538,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -263212,6 +273589,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -263592,6 +273973,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -263639,6 +274024,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -263791,6 +274180,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -263838,6 +274231,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -263968,6 +274365,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
@@ -264015,6 +274416,10 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
@@ -264167,6 +274572,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -264214,6 +274623,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -264417,6 +274830,1697 @@ export namespace Prisma {
     timeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
     assignedTechnicians?: UserUncheckedUpdateManyWithoutTechnicianOrdersNestedInput
+  }
+
+  export type BDProjectCreateWithoutWorkTypeInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    activities?: BDActivityCreateNestedManyWithoutProjectInput
+    owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
+    parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
+    subProjects?: BDProjectCreateNestedManyWithoutParentInput
+    requester: UserCreateNestedOneWithoutBdRequestsInput
+    tasks?: BDTaskCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUncheckedCreateWithoutWorkTypeInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+    activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
+    subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+    tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectCreateOrConnectWithoutWorkTypeInput = {
+    where: BDProjectWhereUniqueInput
+    create: XOR<BDProjectCreateWithoutWorkTypeInput, BDProjectUncheckedCreateWithoutWorkTypeInput>
+  }
+
+  export type BDProjectCreateManyWorkTypeInputEnvelope = {
+    data: BDProjectCreateManyWorkTypeInput | BDProjectCreateManyWorkTypeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BDWorkflowTemplateCreateWithoutWorkTypesInput = {
+    id?: string
+    name: string
+    description?: string | null
+    steps?: BDWorkflowStepTemplateCreateNestedManyWithoutTemplateInput
+  }
+
+  export type BDWorkflowTemplateUncheckedCreateWithoutWorkTypesInput = {
+    id?: string
+    name: string
+    description?: string | null
+    steps?: BDWorkflowStepTemplateUncheckedCreateNestedManyWithoutTemplateInput
+  }
+
+  export type BDWorkflowTemplateCreateOrConnectWithoutWorkTypesInput = {
+    where: BDWorkflowTemplateWhereUniqueInput
+    create: XOR<BDWorkflowTemplateCreateWithoutWorkTypesInput, BDWorkflowTemplateUncheckedCreateWithoutWorkTypesInput>
+  }
+
+  export type BDProjectUpsertWithWhereUniqueWithoutWorkTypeInput = {
+    where: BDProjectWhereUniqueInput
+    update: XOR<BDProjectUpdateWithoutWorkTypeInput, BDProjectUncheckedUpdateWithoutWorkTypeInput>
+    create: XOR<BDProjectCreateWithoutWorkTypeInput, BDProjectUncheckedCreateWithoutWorkTypeInput>
+  }
+
+  export type BDProjectUpdateWithWhereUniqueWithoutWorkTypeInput = {
+    where: BDProjectWhereUniqueInput
+    data: XOR<BDProjectUpdateWithoutWorkTypeInput, BDProjectUncheckedUpdateWithoutWorkTypeInput>
+  }
+
+  export type BDProjectUpdateManyWithWhereWithoutWorkTypeInput = {
+    where: BDProjectScalarWhereInput
+    data: XOR<BDProjectUpdateManyMutationInput, BDProjectUncheckedUpdateManyWithoutWorkTypeInput>
+  }
+
+  export type BDWorkflowTemplateUpsertWithoutWorkTypesInput = {
+    update: XOR<BDWorkflowTemplateUpdateWithoutWorkTypesInput, BDWorkflowTemplateUncheckedUpdateWithoutWorkTypesInput>
+    create: XOR<BDWorkflowTemplateCreateWithoutWorkTypesInput, BDWorkflowTemplateUncheckedCreateWithoutWorkTypesInput>
+    where?: BDWorkflowTemplateWhereInput
+  }
+
+  export type BDWorkflowTemplateUpdateToOneWithWhereWithoutWorkTypesInput = {
+    where?: BDWorkflowTemplateWhereInput
+    data: XOR<BDWorkflowTemplateUpdateWithoutWorkTypesInput, BDWorkflowTemplateUncheckedUpdateWithoutWorkTypesInput>
+  }
+
+  export type BDWorkflowTemplateUpdateWithoutWorkTypesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    steps?: BDWorkflowStepTemplateUpdateManyWithoutTemplateNestedInput
+  }
+
+  export type BDWorkflowTemplateUncheckedUpdateWithoutWorkTypesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    steps?: BDWorkflowStepTemplateUncheckedUpdateManyWithoutTemplateNestedInput
+  }
+
+  export type BDActivityCreateWithoutProjectInput = {
+    id?: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutBdActivitiesInput
+  }
+
+  export type BDActivityUncheckedCreateWithoutProjectInput = {
+    id?: string
+    userId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BDActivityCreateOrConnectWithoutProjectInput = {
+    where: BDActivityWhereUniqueInput
+    create: XOR<BDActivityCreateWithoutProjectInput, BDActivityUncheckedCreateWithoutProjectInput>
+  }
+
+  export type BDActivityCreateManyProjectInputEnvelope = {
+    data: BDActivityCreateManyProjectInput | BDActivityCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserCreateWithoutBdOwnedProjectsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutBdOwnedProjectsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutBdOwnedProjectsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBdOwnedProjectsInput, UserUncheckedCreateWithoutBdOwnedProjectsInput>
+  }
+
+  export type BDProjectCreateWithoutSubProjectsInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    activities?: BDActivityCreateNestedManyWithoutProjectInput
+    owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
+    parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
+    requester: UserCreateNestedOneWithoutBdRequestsInput
+    workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+    tasks?: BDTaskCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUncheckedCreateWithoutSubProjectsInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+    activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
+    tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectCreateOrConnectWithoutSubProjectsInput = {
+    where: BDProjectWhereUniqueInput
+    create: XOR<BDProjectCreateWithoutSubProjectsInput, BDProjectUncheckedCreateWithoutSubProjectsInput>
+  }
+
+  export type BDProjectCreateWithoutParentInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    activities?: BDActivityCreateNestedManyWithoutProjectInput
+    owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
+    subProjects?: BDProjectCreateNestedManyWithoutParentInput
+    requester: UserCreateNestedOneWithoutBdRequestsInput
+    workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+    tasks?: BDTaskCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUncheckedCreateWithoutParentInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
+    subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+    tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectCreateOrConnectWithoutParentInput = {
+    where: BDProjectWhereUniqueInput
+    create: XOR<BDProjectCreateWithoutParentInput, BDProjectUncheckedCreateWithoutParentInput>
+  }
+
+  export type BDProjectCreateManyParentInputEnvelope = {
+    data: BDProjectCreateManyParentInput | BDProjectCreateManyParentInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserCreateWithoutBdRequestsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutBdRequestsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutBdRequestsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBdRequestsInput, UserUncheckedCreateWithoutBdRequestsInput>
+  }
+
+  export type BDWorkTypeCreateWithoutProjectsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    defaultTemplate?: BDWorkflowTemplateCreateNestedOneWithoutWorkTypesInput
+  }
+
+  export type BDWorkTypeUncheckedCreateWithoutProjectsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    defaultTemplateId?: string | null
+  }
+
+  export type BDWorkTypeCreateOrConnectWithoutProjectsInput = {
+    where: BDWorkTypeWhereUniqueInput
+    create: XOR<BDWorkTypeCreateWithoutProjectsInput, BDWorkTypeUncheckedCreateWithoutProjectsInput>
+  }
+
+  export type BDTaskCreateWithoutProjectInput = {
+    id?: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
+    assignee?: UserCreateNestedOneWithoutBdAssignedTasksInput
+  }
+
+  export type BDTaskUncheckedCreateWithoutProjectInput = {
+    id?: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    assigneeId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
+  }
+
+  export type BDTaskCreateOrConnectWithoutProjectInput = {
+    where: BDTaskWhereUniqueInput
+    create: XOR<BDTaskCreateWithoutProjectInput, BDTaskUncheckedCreateWithoutProjectInput>
+  }
+
+  export type BDTaskCreateManyProjectInputEnvelope = {
+    data: BDTaskCreateManyProjectInput | BDTaskCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BDActivityUpsertWithWhereUniqueWithoutProjectInput = {
+    where: BDActivityWhereUniqueInput
+    update: XOR<BDActivityUpdateWithoutProjectInput, BDActivityUncheckedUpdateWithoutProjectInput>
+    create: XOR<BDActivityCreateWithoutProjectInput, BDActivityUncheckedCreateWithoutProjectInput>
+  }
+
+  export type BDActivityUpdateWithWhereUniqueWithoutProjectInput = {
+    where: BDActivityWhereUniqueInput
+    data: XOR<BDActivityUpdateWithoutProjectInput, BDActivityUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type BDActivityUpdateManyWithWhereWithoutProjectInput = {
+    where: BDActivityScalarWhereInput
+    data: XOR<BDActivityUpdateManyMutationInput, BDActivityUncheckedUpdateManyWithoutProjectInput>
+  }
+
+  export type UserUpsertWithoutBdOwnedProjectsInput = {
+    update: XOR<UserUpdateWithoutBdOwnedProjectsInput, UserUncheckedUpdateWithoutBdOwnedProjectsInput>
+    create: XOR<UserCreateWithoutBdOwnedProjectsInput, UserUncheckedCreateWithoutBdOwnedProjectsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBdOwnedProjectsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBdOwnedProjectsInput, UserUncheckedUpdateWithoutBdOwnedProjectsInput>
+  }
+
+  export type UserUpdateWithoutBdOwnedProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBdOwnedProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type BDProjectUpsertWithoutSubProjectsInput = {
+    update: XOR<BDProjectUpdateWithoutSubProjectsInput, BDProjectUncheckedUpdateWithoutSubProjectsInput>
+    create: XOR<BDProjectCreateWithoutSubProjectsInput, BDProjectUncheckedCreateWithoutSubProjectsInput>
+    where?: BDProjectWhereInput
+  }
+
+  export type BDProjectUpdateToOneWithWhereWithoutSubProjectsInput = {
+    where?: BDProjectWhereInput
+    data: XOR<BDProjectUpdateWithoutSubProjectsInput, BDProjectUncheckedUpdateWithoutSubProjectsInput>
+  }
+
+  export type BDProjectUpdateWithoutSubProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activities?: BDActivityUpdateManyWithoutProjectNestedInput
+    owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
+    parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
+    requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
+    workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+    tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateWithoutSubProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
+    tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUpsertWithWhereUniqueWithoutParentInput = {
+    where: BDProjectWhereUniqueInput
+    update: XOR<BDProjectUpdateWithoutParentInput, BDProjectUncheckedUpdateWithoutParentInput>
+    create: XOR<BDProjectCreateWithoutParentInput, BDProjectUncheckedCreateWithoutParentInput>
+  }
+
+  export type BDProjectUpdateWithWhereUniqueWithoutParentInput = {
+    where: BDProjectWhereUniqueInput
+    data: XOR<BDProjectUpdateWithoutParentInput, BDProjectUncheckedUpdateWithoutParentInput>
+  }
+
+  export type BDProjectUpdateManyWithWhereWithoutParentInput = {
+    where: BDProjectScalarWhereInput
+    data: XOR<BDProjectUpdateManyMutationInput, BDProjectUncheckedUpdateManyWithoutParentInput>
+  }
+
+  export type UserUpsertWithoutBdRequestsInput = {
+    update: XOR<UserUpdateWithoutBdRequestsInput, UserUncheckedUpdateWithoutBdRequestsInput>
+    create: XOR<UserCreateWithoutBdRequestsInput, UserUncheckedCreateWithoutBdRequestsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBdRequestsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBdRequestsInput, UserUncheckedUpdateWithoutBdRequestsInput>
+  }
+
+  export type UserUpdateWithoutBdRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBdRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type BDWorkTypeUpsertWithoutProjectsInput = {
+    update: XOR<BDWorkTypeUpdateWithoutProjectsInput, BDWorkTypeUncheckedUpdateWithoutProjectsInput>
+    create: XOR<BDWorkTypeCreateWithoutProjectsInput, BDWorkTypeUncheckedCreateWithoutProjectsInput>
+    where?: BDWorkTypeWhereInput
+  }
+
+  export type BDWorkTypeUpdateToOneWithWhereWithoutProjectsInput = {
+    where?: BDWorkTypeWhereInput
+    data: XOR<BDWorkTypeUpdateWithoutProjectsInput, BDWorkTypeUncheckedUpdateWithoutProjectsInput>
+  }
+
+  export type BDWorkTypeUpdateWithoutProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultTemplate?: BDWorkflowTemplateUpdateOneWithoutWorkTypesNestedInput
+  }
+
+  export type BDWorkTypeUncheckedUpdateWithoutProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultTemplateId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDTaskUpsertWithWhereUniqueWithoutProjectInput = {
+    where: BDTaskWhereUniqueInput
+    update: XOR<BDTaskUpdateWithoutProjectInput, BDTaskUncheckedUpdateWithoutProjectInput>
+    create: XOR<BDTaskCreateWithoutProjectInput, BDTaskUncheckedCreateWithoutProjectInput>
+  }
+
+  export type BDTaskUpdateWithWhereUniqueWithoutProjectInput = {
+    where: BDTaskWhereUniqueInput
+    data: XOR<BDTaskUpdateWithoutProjectInput, BDTaskUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type BDTaskUpdateManyWithWhereWithoutProjectInput = {
+    where: BDTaskScalarWhereInput
+    data: XOR<BDTaskUpdateManyMutationInput, BDTaskUncheckedUpdateManyWithoutProjectInput>
+  }
+
+  export type BDWorkTypeCreateWithoutDefaultTemplateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    projects?: BDProjectCreateNestedManyWithoutWorkTypeInput
+  }
+
+  export type BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    projects?: BDProjectUncheckedCreateNestedManyWithoutWorkTypeInput
+  }
+
+  export type BDWorkTypeCreateOrConnectWithoutDefaultTemplateInput = {
+    where: BDWorkTypeWhereUniqueInput
+    create: XOR<BDWorkTypeCreateWithoutDefaultTemplateInput, BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput>
+  }
+
+  export type BDWorkTypeCreateManyDefaultTemplateInputEnvelope = {
+    data: BDWorkTypeCreateManyDefaultTemplateInput | BDWorkTypeCreateManyDefaultTemplateInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BDWorkflowStepTemplateCreateWithoutTemplateInput = {
+    id?: string
+    name: string
+    orderIndex: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput = {
+    id?: string
+    name: string
+    orderIndex: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkflowStepTemplateCreateOrConnectWithoutTemplateInput = {
+    where: BDWorkflowStepTemplateWhereUniqueInput
+    create: XOR<BDWorkflowStepTemplateCreateWithoutTemplateInput, BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput>
+  }
+
+  export type BDWorkflowStepTemplateCreateManyTemplateInputEnvelope = {
+    data: BDWorkflowStepTemplateCreateManyTemplateInput | BDWorkflowStepTemplateCreateManyTemplateInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BDWorkTypeUpsertWithWhereUniqueWithoutDefaultTemplateInput = {
+    where: BDWorkTypeWhereUniqueInput
+    update: XOR<BDWorkTypeUpdateWithoutDefaultTemplateInput, BDWorkTypeUncheckedUpdateWithoutDefaultTemplateInput>
+    create: XOR<BDWorkTypeCreateWithoutDefaultTemplateInput, BDWorkTypeUncheckedCreateWithoutDefaultTemplateInput>
+  }
+
+  export type BDWorkTypeUpdateWithWhereUniqueWithoutDefaultTemplateInput = {
+    where: BDWorkTypeWhereUniqueInput
+    data: XOR<BDWorkTypeUpdateWithoutDefaultTemplateInput, BDWorkTypeUncheckedUpdateWithoutDefaultTemplateInput>
+  }
+
+  export type BDWorkTypeUpdateManyWithWhereWithoutDefaultTemplateInput = {
+    where: BDWorkTypeScalarWhereInput
+    data: XOR<BDWorkTypeUpdateManyMutationInput, BDWorkTypeUncheckedUpdateManyWithoutDefaultTemplateInput>
+  }
+
+  export type BDWorkTypeScalarWhereInput = {
+    AND?: BDWorkTypeScalarWhereInput | BDWorkTypeScalarWhereInput[]
+    OR?: BDWorkTypeScalarWhereInput[]
+    NOT?: BDWorkTypeScalarWhereInput | BDWorkTypeScalarWhereInput[]
+    id?: StringFilter<"BDWorkType"> | string
+    name?: StringFilter<"BDWorkType"> | string
+    description?: StringNullableFilter<"BDWorkType"> | string | null
+    defaultTemplateId?: StringNullableFilter<"BDWorkType"> | string | null
+  }
+
+  export type BDWorkflowStepTemplateUpsertWithWhereUniqueWithoutTemplateInput = {
+    where: BDWorkflowStepTemplateWhereUniqueInput
+    update: XOR<BDWorkflowStepTemplateUpdateWithoutTemplateInput, BDWorkflowStepTemplateUncheckedUpdateWithoutTemplateInput>
+    create: XOR<BDWorkflowStepTemplateCreateWithoutTemplateInput, BDWorkflowStepTemplateUncheckedCreateWithoutTemplateInput>
+  }
+
+  export type BDWorkflowStepTemplateUpdateWithWhereUniqueWithoutTemplateInput = {
+    where: BDWorkflowStepTemplateWhereUniqueInput
+    data: XOR<BDWorkflowStepTemplateUpdateWithoutTemplateInput, BDWorkflowStepTemplateUncheckedUpdateWithoutTemplateInput>
+  }
+
+  export type BDWorkflowStepTemplateUpdateManyWithWhereWithoutTemplateInput = {
+    where: BDWorkflowStepTemplateScalarWhereInput
+    data: XOR<BDWorkflowStepTemplateUpdateManyMutationInput, BDWorkflowStepTemplateUncheckedUpdateManyWithoutTemplateInput>
+  }
+
+  export type BDWorkflowStepTemplateScalarWhereInput = {
+    AND?: BDWorkflowStepTemplateScalarWhereInput | BDWorkflowStepTemplateScalarWhereInput[]
+    OR?: BDWorkflowStepTemplateScalarWhereInput[]
+    NOT?: BDWorkflowStepTemplateScalarWhereInput | BDWorkflowStepTemplateScalarWhereInput[]
+    id?: StringFilter<"BDWorkflowStepTemplate"> | string
+    templateId?: StringFilter<"BDWorkflowStepTemplate"> | string
+    name?: StringFilter<"BDWorkflowStepTemplate"> | string
+    orderIndex?: IntFilter<"BDWorkflowStepTemplate"> | number
+    checklist?: JsonNullableFilter<"BDWorkflowStepTemplate">
+  }
+
+  export type BDWorkflowTemplateCreateWithoutStepsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    workTypes?: BDWorkTypeCreateNestedManyWithoutDefaultTemplateInput
+  }
+
+  export type BDWorkflowTemplateUncheckedCreateWithoutStepsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    workTypes?: BDWorkTypeUncheckedCreateNestedManyWithoutDefaultTemplateInput
+  }
+
+  export type BDWorkflowTemplateCreateOrConnectWithoutStepsInput = {
+    where: BDWorkflowTemplateWhereUniqueInput
+    create: XOR<BDWorkflowTemplateCreateWithoutStepsInput, BDWorkflowTemplateUncheckedCreateWithoutStepsInput>
+  }
+
+  export type BDWorkflowTemplateUpsertWithoutStepsInput = {
+    update: XOR<BDWorkflowTemplateUpdateWithoutStepsInput, BDWorkflowTemplateUncheckedUpdateWithoutStepsInput>
+    create: XOR<BDWorkflowTemplateCreateWithoutStepsInput, BDWorkflowTemplateUncheckedCreateWithoutStepsInput>
+    where?: BDWorkflowTemplateWhereInput
+  }
+
+  export type BDWorkflowTemplateUpdateToOneWithWhereWithoutStepsInput = {
+    where?: BDWorkflowTemplateWhereInput
+    data: XOR<BDWorkflowTemplateUpdateWithoutStepsInput, BDWorkflowTemplateUncheckedUpdateWithoutStepsInput>
+  }
+
+  export type BDWorkflowTemplateUpdateWithoutStepsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypes?: BDWorkTypeUpdateManyWithoutDefaultTemplateNestedInput
+  }
+
+  export type BDWorkflowTemplateUncheckedUpdateWithoutStepsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypes?: BDWorkTypeUncheckedUpdateManyWithoutDefaultTemplateNestedInput
+  }
+
+  export type UserCreateWithoutBdAssignedTasksInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutBdAssignedTasksInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutBdAssignedTasksInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBdAssignedTasksInput, UserUncheckedCreateWithoutBdAssignedTasksInput>
+  }
+
+  export type BDProjectCreateWithoutTasksInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    activities?: BDActivityCreateNestedManyWithoutProjectInput
+    owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
+    parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
+    subProjects?: BDProjectCreateNestedManyWithoutParentInput
+    requester: UserCreateNestedOneWithoutBdRequestsInput
+    workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+  }
+
+  export type BDProjectUncheckedCreateWithoutTasksInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+    activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
+    subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type BDProjectCreateOrConnectWithoutTasksInput = {
+    where: BDProjectWhereUniqueInput
+    create: XOR<BDProjectCreateWithoutTasksInput, BDProjectUncheckedCreateWithoutTasksInput>
+  }
+
+  export type UserUpsertWithoutBdAssignedTasksInput = {
+    update: XOR<UserUpdateWithoutBdAssignedTasksInput, UserUncheckedUpdateWithoutBdAssignedTasksInput>
+    create: XOR<UserCreateWithoutBdAssignedTasksInput, UserUncheckedCreateWithoutBdAssignedTasksInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBdAssignedTasksInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBdAssignedTasksInput, UserUncheckedUpdateWithoutBdAssignedTasksInput>
+  }
+
+  export type UserUpdateWithoutBdAssignedTasksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBdAssignedTasksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type BDProjectUpsertWithoutTasksInput = {
+    update: XOR<BDProjectUpdateWithoutTasksInput, BDProjectUncheckedUpdateWithoutTasksInput>
+    create: XOR<BDProjectCreateWithoutTasksInput, BDProjectUncheckedCreateWithoutTasksInput>
+    where?: BDProjectWhereInput
+  }
+
+  export type BDProjectUpdateToOneWithWhereWithoutTasksInput = {
+    where?: BDProjectWhereInput
+    data: XOR<BDProjectUpdateWithoutTasksInput, BDProjectUncheckedUpdateWithoutTasksInput>
+  }
+
+  export type BDProjectUpdateWithoutTasksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activities?: BDActivityUpdateManyWithoutProjectNestedInput
+    owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
+    parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
+    subProjects?: BDProjectUpdateManyWithoutParentNestedInput
+    requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
+    workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateWithoutTasksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
+    subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type BDProjectCreateWithoutActivitiesInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
+    parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
+    subProjects?: BDProjectCreateNestedManyWithoutParentInput
+    requester: UserCreateNestedOneWithoutBdRequestsInput
+    workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+    tasks?: BDTaskCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUncheckedCreateWithoutActivitiesInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+    subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+    tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectCreateOrConnectWithoutActivitiesInput = {
+    where: BDProjectWhereUniqueInput
+    create: XOR<BDProjectCreateWithoutActivitiesInput, BDProjectUncheckedCreateWithoutActivitiesInput>
+  }
+
+  export type UserCreateWithoutBdActivitiesInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutBdActivitiesInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutBdActivitiesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBdActivitiesInput, UserUncheckedCreateWithoutBdActivitiesInput>
+  }
+
+  export type BDProjectUpsertWithoutActivitiesInput = {
+    update: XOR<BDProjectUpdateWithoutActivitiesInput, BDProjectUncheckedUpdateWithoutActivitiesInput>
+    create: XOR<BDProjectCreateWithoutActivitiesInput, BDProjectUncheckedCreateWithoutActivitiesInput>
+    where?: BDProjectWhereInput
+  }
+
+  export type BDProjectUpdateToOneWithWhereWithoutActivitiesInput = {
+    where?: BDProjectWhereInput
+    data: XOR<BDProjectUpdateWithoutActivitiesInput, BDProjectUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type BDProjectUpdateWithoutActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
+    parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
+    subProjects?: BDProjectUpdateManyWithoutParentNestedInput
+    requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
+    workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+    tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateWithoutActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+    tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type UserUpsertWithoutBdActivitiesInput = {
+    update: XOR<UserUpdateWithoutBdActivitiesInput, UserUncheckedUpdateWithoutBdActivitiesInput>
+    create: XOR<UserCreateWithoutBdActivitiesInput, UserUncheckedCreateWithoutBdActivitiesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBdActivitiesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBdActivitiesInput, UserUncheckedUpdateWithoutBdActivitiesInput>
+  }
+
+  export type UserUpdateWithoutBdActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBdActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type BDActivityCreateManyUserInput = {
+    id?: string
+    projectId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BDProjectCreateManyOwnerInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+  }
+
+  export type BDProjectCreateManyRequesterInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+  }
+
+  export type BDTaskCreateManyAssigneeInput = {
+    id?: string
+    projectId: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
   }
 
   export type CabinetAssemblyJobCreateManyTechnicianInput = {
@@ -265034,6 +277138,192 @@ export namespace Prisma {
     completedAt?: Date | string
   }
 
+  export type BDActivityUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: BDProjectUpdateOneRequiredWithoutActivitiesNestedInput
+  }
+
+  export type BDActivityUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BDActivityUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BDProjectUpdateWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activities?: BDActivityUpdateManyWithoutProjectNestedInput
+    parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
+    subProjects?: BDProjectUpdateManyWithoutParentNestedInput
+    requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
+    workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+    tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
+    subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+    tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDProjectUpdateWithoutRequesterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activities?: BDActivityUpdateManyWithoutProjectNestedInput
+    owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
+    parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
+    subProjects?: BDProjectUpdateManyWithoutParentNestedInput
+    workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+    tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateWithoutRequesterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
+    subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+    tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutRequesterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDTaskUpdateWithoutAssigneeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    project?: BDProjectUpdateOneRequiredWithoutTasksNestedInput
+  }
+
+  export type BDTaskUncheckedUpdateWithoutAssigneeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BDTaskUncheckedUpdateManyWithoutAssigneeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type CabinetAssemblyJobUpdateWithoutTechnicianInput = {
     id?: StringFieldUpdateOperationsInput | string
     jobNumber?: StringFieldUpdateOperationsInput | string
@@ -265045,8 +277335,8 @@ export namespace Prisma {
     overtimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     timeLogs?: AssemblyTimeLogUpdateManyWithoutJobNestedInput
     order?: OrderUpdateOneRequiredWithoutCabinetAssemblyJobsNestedInput
-    qcReport?: CabinetQCReportUpdateOneWithoutJobNestedInput
     fatReport?: CabinetFATReportUpdateOneWithoutJobNestedInput
+    qcReport?: CabinetQCReportUpdateOneWithoutJobNestedInput
   }
 
   export type CabinetAssemblyJobUncheckedUpdateWithoutTechnicianInput = {
@@ -265060,8 +277350,8 @@ export namespace Prisma {
     normalTimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     overtimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     timeLogs?: AssemblyTimeLogUncheckedUpdateManyWithoutJobNestedInput
-    qcReport?: CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput
     fatReport?: CabinetFATReportUncheckedUpdateOneWithoutJobNestedInput
+    qcReport?: CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput
   }
 
   export type CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianInput = {
@@ -268577,8 +280867,8 @@ export namespace Prisma {
     overtimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     timeLogs?: AssemblyTimeLogUpdateManyWithoutJobNestedInput
     technician?: UserUpdateOneRequiredWithoutCabinetAssemblyJobsNestedInput
-    qcReport?: CabinetQCReportUpdateOneWithoutJobNestedInput
     fatReport?: CabinetFATReportUpdateOneWithoutJobNestedInput
+    qcReport?: CabinetQCReportUpdateOneWithoutJobNestedInput
   }
 
   export type CabinetAssemblyJobUncheckedUpdateWithoutOrderInput = {
@@ -268592,8 +280882,8 @@ export namespace Prisma {
     normalTimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     overtimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
     timeLogs?: AssemblyTimeLogUncheckedUpdateManyWithoutJobNestedInput
-    qcReport?: CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput
     fatReport?: CabinetFATReportUncheckedUpdateOneWithoutJobNestedInput
+    qcReport?: CabinetQCReportUncheckedUpdateOneWithoutJobNestedInput
   }
 
   export type CabinetAssemblyJobUncheckedUpdateManyWithoutOrderInput = {
@@ -268779,6 +281069,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
@@ -268826,6 +281120,10 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
@@ -275316,6 +287614,304 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     reason?: NullableStringFieldUpdateOperationsInput | string | null
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BDProjectCreateManyWorkTypeInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    parentId?: string | null
+  }
+
+  export type BDProjectUpdateWithoutWorkTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activities?: BDActivityUpdateManyWithoutProjectNestedInput
+    owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
+    parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
+    subProjects?: BDProjectUpdateManyWithoutParentNestedInput
+    requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
+    tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateWithoutWorkTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
+    subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+    tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutWorkTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDActivityCreateManyProjectInput = {
+    id?: string
+    userId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BDProjectCreateManyParentInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+  }
+
+  export type BDTaskCreateManyProjectInput = {
+    id?: string
+    name: string
+    status?: string
+    dueDate?: Date | string | null
+    orderIndex: number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    assigneeId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    blockedAt?: Date | string | null
+  }
+
+  export type BDActivityUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBdActivitiesNestedInput
+  }
+
+  export type BDActivityUncheckedUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BDActivityUncheckedUpdateManyWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BDProjectUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activities?: BDActivityUpdateManyWithoutProjectNestedInput
+    owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
+    subProjects?: BDProjectUpdateManyWithoutParentNestedInput
+    requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
+    workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+    tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
+    subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+    tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BDTaskUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignee?: UserUpdateOneWithoutBdAssignedTasksNestedInput
+  }
+
+  export type BDTaskUncheckedUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BDTaskUncheckedUpdateManyWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklistState?: NullableJsonNullValueInput | InputJsonValue
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BDWorkTypeCreateManyDefaultTemplateInput = {
+    id?: string
+    name: string
+    description?: string | null
+  }
+
+  export type BDWorkflowStepTemplateCreateManyTemplateInput = {
+    id?: string
+    name: string
+    orderIndex: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkTypeUpdateWithoutDefaultTemplateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: BDProjectUpdateManyWithoutWorkTypeNestedInput
+  }
+
+  export type BDWorkTypeUncheckedUpdateWithoutDefaultTemplateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: BDProjectUncheckedUpdateManyWithoutWorkTypeNestedInput
+  }
+
+  export type BDWorkTypeUncheckedUpdateManyWithoutDefaultTemplateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BDWorkflowStepTemplateUpdateWithoutTemplateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkflowStepTemplateUncheckedUpdateWithoutTemplateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BDWorkflowStepTemplateUncheckedUpdateManyWithoutTemplateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
   }
 
 

@@ -619,9 +619,9 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
             <div className="flex flex-col gap-2" ref={assigneeDropdownRef}>
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">ผู้รับผิดชอบ</span>
-              
+
               <div className="relative">
-                <div 
+                <div
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus-within:ring-2 focus-within:ring-red-100 flex items-center justify-between cursor-text"
                   onClick={() => setIsAssigneeOpen(true)}
                 >
@@ -638,29 +638,29 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                     <div className="w-full text-gray-700 truncate">
                       {(() => {
                         const selectedUser = users.find(u => u.id === assignedToId);
-                        return selectedUser 
-                          ? `${selectedUser.fullName} ${selectedUser.role ? `(${selectedUser.role})` : ''}` 
+                        return selectedUser
+                          ? `${selectedUser.fullName} ${selectedUser.role ? `(${selectedUser.role})` : ''}`
                           : 'ไม่ได้มอบหมาย (คลิกเพื่อค้นหา)';
                       })()}
                     </div>
                   )}
                   {assignedToId && !isAssigneeOpen && (
-                     <button 
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         setAssignedToId('');
-                         handleSave({ assignedToId: null as any });
-                       }}
-                       className="text-gray-400 hover:text-red-500 ml-2"
-                     >
-                       <X size={14} />
-                     </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAssignedToId('');
+                        handleSave({ assignedToId: null as any });
+                      }}
+                      className="text-gray-400 hover:text-red-500 ml-2"
+                    >
+                      <X size={14} />
+                    </button>
                   )}
                 </div>
 
                 {isAssigneeOpen && (
                   <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
-                    <div 
+                    <div
                       className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${!assignedToId ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-700'}`}
                       onClick={() => {
                         setAssignedToId('');
@@ -672,10 +672,10 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                       ไม่ได้มอบหมาย
                     </div>
                     {(() => {
-                      const filteredAssignees = users.filter(u => 
+                      const filteredAssignees = users.filter(u =>
                         u.fullName.toLowerCase().includes(assigneeSearch.toLowerCase())
                       );
-                      
+
                       return filteredAssignees.length > 0 ? (
                         filteredAssignees.map(u => (
                           <div
@@ -791,9 +791,9 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
             <div className="flex flex-col gap-2" ref={salespersonDropdownRef}>
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">เซลส์ (Salesperson)</span>
-              
+
               <div className="relative">
-                <div 
+                <div
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus-within:ring-2 focus-within:ring-red-100 flex items-center justify-between cursor-text"
                   onClick={() => setIsSalespersonOpen(true)}
                 >
@@ -811,29 +811,29 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                       {(() => {
                         const eligibleSales = users.filter(u => ['SALES', 'SALE', 'เซลส์', 'ขาย'].some(r => (u.role || '').toUpperCase().includes(r)));
                         const selectedSales = eligibleSales.find(u => u.id === salespersonId);
-                        return selectedSales 
-                          ? `${selectedSales.fullName} ${selectedSales.role ? `(${selectedSales.role})` : ''}` 
+                        return selectedSales
+                          ? `${selectedSales.fullName} ${selectedSales.role ? `(${selectedSales.role})` : ''}`
                           : 'ไม่ได้มอบหมาย (คลิกเพื่อค้นหา)';
                       })()}
                     </div>
                   )}
                   {salespersonId && !isSalespersonOpen && (
-                     <button 
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         setSalespersonId('');
-                         handleSave({ salespersonId: null as any });
-                       }}
-                       className="text-gray-400 hover:text-red-500 ml-2"
-                     >
-                       <X size={14} />
-                     </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSalespersonId('');
+                        handleSave({ salespersonId: null as any });
+                      }}
+                      className="text-gray-400 hover:text-red-500 ml-2"
+                    >
+                      <X size={14} />
+                    </button>
                   )}
                 </div>
 
                 {isSalespersonOpen && (
                   <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
-                    <div 
+                    <div
                       className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${!salespersonId ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-700'}`}
                       onClick={() => {
                         setSalespersonId('');
@@ -846,10 +846,10 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                     </div>
                     {(() => {
                       const eligibleSales = users.filter(u => ['SALES', 'SALE', 'เซลส์', 'ขาย'].some(r => (u.role || '').toUpperCase().includes(r)));
-                      const filteredSales = eligibleSales.filter(u => 
+                      const filteredSales = eligibleSales.filter(u =>
                         u.fullName.toLowerCase().includes(salespersonSearch.toLowerCase())
                       );
-                      
+
                       return filteredSales.length > 0 ? (
                         filteredSales.map(u => (
                           <div

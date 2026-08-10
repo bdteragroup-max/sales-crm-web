@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getRepairDeliveries } from "@/app/actions/repairDeliveries"
 import RepairDeliveriesClientPage from "./RepairDeliveriesClientPage"
 import { getUser } from "@/app/lib/dal"

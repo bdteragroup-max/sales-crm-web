@@ -9,10 +9,11 @@ export default function QcReviewModal({ job, currentUser, onClose }: { job: any,
   const [qcNotes, setQcNotes] = useState(job.qcReport?.qcNotes || '');
   const [qcCorrections, setQcCorrections] = useState(job.qcReport?.qcCorrections || '');
   const [confirmAction, setConfirmAction] = useState<'Passed' | 'Needs Correction' | null>(null);
+  const [errorPopup, setErrorPopup] = useState<string | null>(null);
 
   const initiateReview = (status: 'Passed' | 'Needs Correction') => {
     if (status === 'Needs Correction' && !qcCorrections.trim()) {
-      alert('กรุณาระบุสิ่งที่ต้องแก้ไข (Corrections) ก่อนส่งกลับให้ช่าง');
+      setErrorPopup('กรุณาระบุสิ่งที่ต้องแก้ไข (Corrections) ก่อนส่งกลับให้ช่าง');
       return;
     }
     setConfirmAction(status);
@@ -32,11 +33,11 @@ export default function QcReviewModal({ job, currentUser, onClose }: { job: any,
       if (res.success) {
         onClose();
       } else {
-        alert(res.error || 'Failed to submit review');
+        setErrorPopup(res.error || 'Failed to submit review');
       }
     } catch (err) {
       console.error(err);
-      alert('Error occurred');
+      setErrorPopup('Error occurred');
     } finally {
       setLoading(false);
     }
@@ -256,6 +257,29 @@ export default function QcReviewModal({ job, currentUser, onClose }: { job: any,
                 className={`px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-colors flex-1 flex items-center justify-center gap-2 ${confirmAction === 'Passed' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
               >
                 {loading ? 'กำลังบันทึก...' : 'ยืนยัน'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Popup */}
+      {errorPopup && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[120] p-4 animate-in fade-in backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden text-center p-6 border border-gray-100">
+            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-red-100 text-red-600">
+              <AlertCircle size={32} />
+            </div>
+            <h3 className="text-xl font-black text-gray-900 mb-2">ข้อผิดพลาด</h3>
+            <p className="text-gray-500 text-sm font-medium mb-8">
+              {errorPopup}
+            </p>
+            <div className="flex justify-center">
+              <button 
+                onClick={() => setErrorPopup(null)}
+                className="px-8 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors"
+              >
+                ตกลง
               </button>
             </div>
           </div>

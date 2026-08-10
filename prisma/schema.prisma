@@ -21,6 +21,10 @@ model User {
   otpCode                 String?
   otpExpiresAt            DateTime?              @db.Timestamptz(6)
   isActive                Boolean                @default(true)
+  bdActivities            BDActivity[]
+  bdOwnedProjects         BDProject[]            @relation("BDOwner")
+  bdRequests              BDProject[]            @relation("BDRequester")
+  bdAssignedTasks         BDTask[]               @relation("BDTaskAssignee")
   cabinetAssemblyJobs     CabinetAssemblyJob[]
   assignedCompanies       Company[]              @relation("AssignedCompany")
   companyInteractions     CompanyInteraction[]
@@ -2442,8 +2446,8 @@ model CabinetAssemblyJob {
   timeLogs          AssemblyTimeLog[]
   order             Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
   technician        User              @relation(fields: [technicianId], references: [id])
-  qcReport          CabinetQCReport?
   fatReport         CabinetFATReport?
+  qcReport          CabinetQCReport?
 
   @@index([orderId])
   @@index([technicianId])
@@ -2463,63 +2467,51 @@ model AssemblyTimeLog {
 model CabinetQCReport {
   id                    String             @id @default(cuid())
   cabinetAssemblyJobId  String             @unique
-  
-  // Basic info
-  serialNumber          String?
-  nameplate             String?
-  cabinetType           String
-  fanStatus             String?
-  magicMarks            Boolean            @default(false)
-  
-  // Checklist
-  cabinetBody           Boolean            @default(false)
   inverterCorrect       Boolean            @default(false)
-  frontPanelEquipment   Boolean            @default(false)
-  wireDucting           Boolean            @default(false)
-  terminals             Boolean            @default(false)
   cabinetKey            Boolean            @default(false)
-  internalWiring        Boolean            @default(false)
-  screwsTightened       Boolean            @default(false)
-  groundingSystem       Boolean            @default(false)
-  noMarks               Boolean            @default(false)
-  overallEquipmentCheck Boolean            @default(false)
-  electricalSystem      Boolean            @default(false)
-  wiringConnections     Boolean            @default(false)
-  warningLabels         Boolean            @default(false)
-
-  // System & Metadata
+  cabinetType           String
   confirmationPhotos    String[]           @default([])
   createdAt             DateTime           @default(now()) @db.Timestamptz(6)
   updatedAt             DateTime           @updatedAt @db.Timestamptz(6)
-  
+  cabinetBody           Boolean            @default(false)
+  frontPanelEquipment   Boolean            @default(false)
+  groundingSystem       Boolean            @default(false)
+  overallEquipmentCheck Boolean            @default(false)
   qcCorrections         String?
   qcInspectorName       String?
   qcNotes               String?
   qcStatus              String             @default("Pending Inspection")
-  
+  electricalSystem      Boolean            @default(false)
+  fanStatus             String?
+  internalWiring        Boolean            @default(false)
+  magicMarks            Boolean            @default(false)
+  nameplate             String?
+  noMarks               Boolean            @default(false)
+  screwsTightened       Boolean            @default(false)
+  serialNumber          String?
+  terminals             Boolean            @default(false)
+  warningLabels         Boolean            @default(false)
+  wireDucting           Boolean            @default(false)
+  wiringConnections     Boolean            @default(false)
   job                   CabinetAssemblyJob @relation(fields: [cabinetAssemblyJobId], references: [id], onDelete: Cascade)
 }
 
 model CabinetFATReport {
-  id                    String             @id @default(cuid())
-  cabinetAssemblyJobId  String             @unique
-  testerName            String?
-  
-  panelFunctionalTest   Boolean            @default(false)
-  acInputVoltage        Float?
-  dcInputVoltage        Float?
-  outputVoltage         Float?
-  protectionSystemTest  Boolean            @default(false)
-  testDetails           String?
-  displaySystemCheck    Boolean            @default(false)
-  remarks               String?
-  
-  fatStatus             String             @default("Pending")
-  
-  createdAt             DateTime           @default(now()) @db.Timestamptz(6)
-  updatedAt             DateTime           @updatedAt @db.Timestamptz(6)
-  
-  job                   CabinetAssemblyJob @relation(fields: [cabinetAssemblyJobId], references: [id], onDelete: Cascade)
+  id                   String             @id @default(cuid())
+  cabinetAssemblyJobId String             @unique
+  testerName           String?
+  panelFunctionalTest  Boolean            @default(false)
+  acInputVoltage       Float?
+  dcInputVoltage       Float?
+  outputVoltage        Float?
+  protectionSystemTest Boolean            @default(false)
+  testDetails          String?
+  displaySystemCheck   Boolean            @default(false)
+  remarks              String?
+  fatStatus            String             @default("Pending")
+  createdAt            DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime           @updatedAt @db.Timestamptz(6)
+  job                  CabinetAssemblyJob @relation(fields: [cabinetAssemblyJobId], references: [id], onDelete: Cascade)
 }
 
 model TechnicianTask {
@@ -2588,4 +2580,85 @@ model ProductionStep {
   completedAt DateTime?
   completedBy String?
   order       Order     @relation(fields: [orderId], references: [id])
+}
+
+model BDWorkType {
+  id                String              @id @default(cuid())
+  name              String              @unique
+  description       String?
+  defaultTemplateId String?
+  projects          BDProject[]
+  defaultTemplate   BDWorkflowTemplate? @relation(fields: [defaultTemplateId], references: [id])
+}
+
+model BDProject {
+  id            String       @id @default(cuid())
+  name          String
+  objective     String?
+  workTypeId    String
+  urgency       String       @default("Normal")
+  deadline      DateTime?    @db.Timestamptz(6)
+  status        String       @default("PENDING_REVIEW")
+  requesterId   String
+  ownerId       String?
+  blockedReason String?
+  waitingOn     String?
+  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+  intakeDate    DateTime?    @db.Timestamptz(6)
+  parentId      String?
+  activities    BDActivity[]
+  owner         User?        @relation("BDOwner", fields: [ownerId], references: [id])
+  parent        BDProject?   @relation("BDSubProjects", fields: [parentId], references: [id])
+  subProjects   BDProject[]  @relation("BDSubProjects")
+  requester     User         @relation("BDRequester", fields: [requesterId], references: [id])
+  workType      BDWorkType   @relation(fields: [workTypeId], references: [id])
+  tasks         BDTask[]
+}
+
+model BDWorkflowTemplate {
+  id          String                   @id @default(cuid())
+  name        String
+  description String?
+  workTypes   BDWorkType[]
+  steps       BDWorkflowStepTemplate[]
+}
+
+model BDWorkflowStepTemplate {
+  id         String             @id @default(cuid())
+  templateId String
+  name       String
+  orderIndex Int
+  checklist  Json?
+  template   BDWorkflowTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+}
+
+model BDTask {
+  id             String    @id @default(cuid())
+  projectId      String
+  name           String
+  status         String    @default("PENDING")
+  dueDate        DateTime? @db.Timestamptz(6)
+  orderIndex     Int
+  checklistState Json?
+  assigneeId     String?
+  blockedReason  String?
+  waitingOn      String?
+  completedAt    DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  blockedAt      DateTime? @db.Timestamptz(6)
+  assignee       User?     @relation("BDTaskAssignee", fields: [assigneeId], references: [id])
+  project        BDProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model BDActivity {
+  id        String    @id @default(cuid())
+  projectId String
+  userId    String
+  action    String
+  details   String?
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  project   BDProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
 }

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';

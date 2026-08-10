@@ -48,8 +48,7 @@ export default function ProductionStartModal({
   const [prNote, setPrNote] = useState('');
   const [estimatedDate, setEstimatedDate] = useState<Date | null>(null);
   const [technicianCounts, setTechnicianCounts] = useState<Record<string, number>>({});
-  const [techSearch, setTechSearch] = useState('');
-  
+  const [selectedTechId, setSelectedTechId] = useState('');  
   const [contractors, setContractors] = useState<string[]>([]);
   const [newContractor, setNewContractor] = useState('');
 
@@ -94,8 +93,8 @@ export default function ProductionStartModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 animate-in fade-in">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-        <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col max-h-[90vh] overflow-hidden">
+        <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center shrink-0">
           <h2 className="font-bold text-gray-800 flex items-center gap-2 text-sm">
             <Settings size={18} className="text-brand-red" />
             เริ่มการผลิต {order?.orderNumber}
@@ -105,7 +104,7 @@ export default function ProductionStartModal({
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+        <form onSubmit={handleSubmit} className="p-5 space-y-5 overflow-y-auto custom-scrollbar">
           <div className="space-y-3">
             <label className="block text-xs font-bold text-gray-700">สถานะวัตถุดิบ (Raw Material Status)</label>
             <div className="grid grid-cols-2 gap-3">
@@ -152,46 +151,73 @@ export default function ProductionStartModal({
             </div>
           )}
 
-          <div className="space-y-1">
+          <div className="space-y-2">
             <label className="block text-xs font-bold text-gray-700">ช่างเทคนิคที่รับผิดชอบและจำนวนตู้ (Technicians & Cabinets)</label>
-            <div className="relative mb-2">
-              <input 
-                type="text"
-                placeholder="ค้นหาช่าง (Search Technician)..."
-                value={techSearch}
-                onChange={e => setTechSearch(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
-              />
+            <div className="flex gap-2">
+              <select 
+                value={selectedTechId}
+                onChange={e => setSelectedTechId(e.target.value)}
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+              >
+                <option value="">-- เลือกช่างเทคนิค --</option>
+                {technicians.filter(t => !technicianCounts[t.id]).map(tech => (
+                  <option key={tech.id} value={tech.id}>{tech.fullName}</option>
+                ))}
+              </select>
+              <button 
+                type="button"
+                onClick={() => {
+                  if (selectedTechId) {
+                    setTechnicianCounts(prev => ({ ...prev, [selectedTechId]: 1 }));
+                    setSelectedTechId('');
+                  }
+                }}
+                className="px-3 py-2 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                เพิ่ม
+              </button>
             </div>
-            <div className="flex flex-col gap-2 border border-gray-200 rounded-lg p-2 max-h-48 overflow-y-auto">
-              {technicians
-                .filter(t => t.fullName.toLowerCase().includes(techSearch.toLowerCase()))
-                .map(tech => {
-                const count = technicianCounts[tech.id] || 0;
-                return (
-                  <div key={tech.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-colors">
-                    <span className="text-sm font-semibold text-gray-700">{tech.fullName}</span>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        type="button" 
-                        onClick={() => setTechnicianCounts(prev => ({ ...prev, [tech.id]: Math.max(0, count - 1) }))}
-                        className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
-                      >
-                        -
-                      </button>
-                      <span className="w-6 text-center font-bold text-sm text-brand-red">{count}</span>
-                      <button 
-                        type="button" 
-                        onClick={() => setTechnicianCounts(prev => ({ ...prev, [tech.id]: count + 1 }))}
-                        className="w-7 h-7 rounded-full bg-brand-red flex items-center justify-center text-white hover:bg-red-700 shadow-sm shadow-red-200"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            {Object.keys(technicianCounts).filter(id => technicianCounts[id] > 0).length > 0 && (
+              <div className="flex flex-col gap-2 border border-gray-200 rounded-lg p-2 max-h-40 overflow-y-auto mt-2">
+                {Object.keys(technicianCounts)
+                  .filter(id => technicianCounts[id] > 0)
+                  .map(id => {
+                    const tech = technicians.find(t => t.id === id);
+                    if (!tech) return null;
+                    const count = technicianCounts[id];
+                    return (
+                      <div key={id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <span className="text-sm font-semibold text-gray-700">{tech.fullName}</span>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              if (count === 1) {
+                                const newCounts = { ...technicianCounts };
+                                delete newCounts[id];
+                                setTechnicianCounts(newCounts);
+                              } else {
+                                setTechnicianCounts(prev => ({ ...prev, [id]: count - 1 }));
+                              }
+                            }}
+                            className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100"
+                          >
+                            -
+                          </button>
+                          <span className="w-6 text-center font-bold text-sm text-brand-red">{count}</span>
+                          <button 
+                            type="button" 
+                            onClick={() => setTechnicianCounts(prev => ({ ...prev, [id]: count + 1 }))}
+                            className="w-7 h-7 rounded-full bg-brand-red flex items-center justify-center text-white hover:bg-red-700 shadow-sm shadow-red-200"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

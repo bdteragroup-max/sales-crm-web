@@ -2051,32 +2051,32 @@ exports.Prisma.AssemblyTimeLogScalarFieldEnum = {
 exports.Prisma.CabinetQCReportScalarFieldEnum = {
   id: 'id',
   cabinetAssemblyJobId: 'cabinetAssemblyJobId',
-  serialNumber: 'serialNumber',
-  nameplate: 'nameplate',
-  cabinetType: 'cabinetType',
-  fanStatus: 'fanStatus',
-  magicMarks: 'magicMarks',
-  cabinetBody: 'cabinetBody',
   inverterCorrect: 'inverterCorrect',
-  frontPanelEquipment: 'frontPanelEquipment',
-  wireDucting: 'wireDucting',
-  terminals: 'terminals',
   cabinetKey: 'cabinetKey',
-  internalWiring: 'internalWiring',
-  screwsTightened: 'screwsTightened',
-  groundingSystem: 'groundingSystem',
-  noMarks: 'noMarks',
-  overallEquipmentCheck: 'overallEquipmentCheck',
-  electricalSystem: 'electricalSystem',
-  wiringConnections: 'wiringConnections',
-  warningLabels: 'warningLabels',
+  cabinetType: 'cabinetType',
   confirmationPhotos: 'confirmationPhotos',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  cabinetBody: 'cabinetBody',
+  frontPanelEquipment: 'frontPanelEquipment',
+  groundingSystem: 'groundingSystem',
+  overallEquipmentCheck: 'overallEquipmentCheck',
   qcCorrections: 'qcCorrections',
   qcInspectorName: 'qcInspectorName',
   qcNotes: 'qcNotes',
-  qcStatus: 'qcStatus'
+  qcStatus: 'qcStatus',
+  electricalSystem: 'electricalSystem',
+  fanStatus: 'fanStatus',
+  internalWiring: 'internalWiring',
+  magicMarks: 'magicMarks',
+  nameplate: 'nameplate',
+  noMarks: 'noMarks',
+  screwsTightened: 'screwsTightened',
+  serialNumber: 'serialNumber',
+  terminals: 'terminals',
+  warningLabels: 'warningLabels',
+  wireDucting: 'wireDucting',
+  wiringConnections: 'wiringConnections'
 };
 
 exports.Prisma.CabinetFATReportScalarFieldEnum = {
@@ -2154,6 +2154,71 @@ exports.Prisma.ProductionStepScalarFieldEnum = {
   isCompleted: 'isCompleted',
   completedAt: 'completedAt',
   completedBy: 'completedBy'
+};
+
+exports.Prisma.BDWorkTypeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  defaultTemplateId: 'defaultTemplateId'
+};
+
+exports.Prisma.BDProjectScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  objective: 'objective',
+  workTypeId: 'workTypeId',
+  urgency: 'urgency',
+  deadline: 'deadline',
+  status: 'status',
+  requesterId: 'requesterId',
+  ownerId: 'ownerId',
+  blockedReason: 'blockedReason',
+  waitingOn: 'waitingOn',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  intakeDate: 'intakeDate',
+  parentId: 'parentId'
+};
+
+exports.Prisma.BDWorkflowTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description'
+};
+
+exports.Prisma.BDWorkflowStepTemplateScalarFieldEnum = {
+  id: 'id',
+  templateId: 'templateId',
+  name: 'name',
+  orderIndex: 'orderIndex',
+  checklist: 'checklist'
+};
+
+exports.Prisma.BDTaskScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  name: 'name',
+  status: 'status',
+  dueDate: 'dueDate',
+  orderIndex: 'orderIndex',
+  checklistState: 'checklistState',
+  assigneeId: 'assigneeId',
+  blockedReason: 'blockedReason',
+  waitingOn: 'waitingOn',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  blockedAt: 'blockedAt'
+};
+
+exports.Prisma.BDActivityScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  userId: 'userId',
+  action: 'action',
+  details: 'details',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -2315,7 +2380,13 @@ exports.Prisma.ModelName = {
   TechnicianTask: 'TechnicianTask',
   ProductionAssignment: 'ProductionAssignment',
   ProductionTimeLog: 'ProductionTimeLog',
-  ProductionStep: 'ProductionStep'
+  ProductionStep: 'ProductionStep',
+  BDWorkType: 'BDWorkType',
+  BDProject: 'BDProject',
+  BDWorkflowTemplate: 'BDWorkflowTemplate',
+  BDWorkflowStepTemplate: 'BDWorkflowStepTemplate',
+  BDTask: 'BDTask',
+  BDActivity: 'BDActivity'
 };
 
 /**
