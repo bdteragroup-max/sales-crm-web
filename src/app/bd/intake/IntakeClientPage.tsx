@@ -17,6 +17,7 @@ export default function IntakeClientPage() {
     name: '',
     objective: '',
     workTypeId: '',
+    customWorkType: '',
     urgency: 'Normal',
     deadline: '',
     intakeDate: new Date().toISOString().split('T')[0],
@@ -60,6 +61,7 @@ export default function IntakeClientPage() {
       name: formData.name,
       objective: formData.objective,
       workTypeId: formData.workTypeId,
+      customWorkType: formData.customWorkType,
       urgency: formData.urgency,
       deadline: formData.deadline ? new Date(formData.deadline) : undefined,
       intakeDate: formData.intakeDate ? new Date(formData.intakeDate) : undefined,
@@ -129,7 +131,18 @@ export default function IntakeClientPage() {
                 {workTypes.map(wt => (
                   <option key={wt.id} value={wt.id}>{wt.name}</option>
                 ))}
+                <option value="OTHER">อื่นๆ (โปรดระบุ)</option>
               </select>
+              {formData.workTypeId === 'OTHER' && (
+                <input 
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg p-2.5 mt-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all"
+                  placeholder="ระบุประเภทงาน..."
+                  value={formData.customWorkType}
+                  onChange={e => setFormData({...formData, customWorkType: e.target.value})}
+                  required
+                />
+              )}
             </div>
 
             <div>

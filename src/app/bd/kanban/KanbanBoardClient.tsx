@@ -157,7 +157,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
       setPendingAcceptProject(project);
 
       // Select default template if available
-      const workTypeMatch = templates.find(t => t.workTypes.some((wt: any) => wt.id === project.workTypeId));
+      const workTypeMatch = templates.find(t => t.workTypes?.some((wt: any) => wt.id === project.workTypeId));
       if (workTypeMatch) setSelectedTemplateId(workTypeMatch.id);
 
       setShowAcceptModal(true);

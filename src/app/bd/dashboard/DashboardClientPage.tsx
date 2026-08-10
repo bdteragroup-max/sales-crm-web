@@ -171,7 +171,7 @@ export default function DashboardClientPage() {
                             ${project.status === 'PENDING_REVIEW' ? 'bg-white border border-gray-300 text-gray-600' : ''}
                             ${project.status === 'IN_PROGRESS' ? 'bg-red-100 text-red-800' : ''}
                             ${project.status === 'ON_HOLD' ? 'bg-gray-200 text-gray-800' : ''}
-                            ${project.status === 'COMPLETED' ? 'bg-gray-50 text-gray-500 line-through' : ''}
+                            ${project.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : ''}
                           `}>
                             {project.status === 'PENDING_REVIEW' ? 'รอการพิจารณา' :
                               project.status === 'IN_PROGRESS' ? 'กำลังดำเนินการ' :

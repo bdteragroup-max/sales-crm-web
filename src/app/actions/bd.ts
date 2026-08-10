@@ -136,7 +136,8 @@ export async function getBDWorkflowTemplates() {
   try {
     const templates = await prisma.bDWorkflowTemplate.findMany({
       include: {
-        steps: { orderBy: { orderIndex: 'asc' } }
+        steps: { orderBy: { orderIndex: 'asc' } },
+        workTypes: true
       },
       orderBy: { name: 'asc' }
     });
@@ -151,6 +152,7 @@ export async function createBDProject(data: {
   name: string;
   objective?: string;
   workTypeId: string;
+  customWorkType?: string;
   urgency: string;
   deadline?: Date;
   parentId?: string;
@@ -164,11 +166,22 @@ export async function createBDProject(data: {
       return { success: false, error: 'Unauthorized' };
     }
 
+    let finalWorkTypeId = data.workTypeId;
+
+    if (data.workTypeId === 'OTHER' && data.customWorkType) {
+      const trimmedName = data.customWorkType.trim();
+      let wt = await prisma.bDWorkType.findUnique({ where: { name: trimmedName }});
+      if (!wt) {
+        wt = await prisma.bDWorkType.create({ data: { name: trimmedName }});
+      }
+      finalWorkTypeId = wt.id;
+    }
+
     const project = await prisma.bDProject.create({
       data: {
         name: data.name,
         objective: data.objective,
-        workTypeId: data.workTypeId,
+        workTypeId: finalWorkTypeId,
         urgency: data.urgency,
         deadline: data.deadline || null,
         requesterId: user.id,
