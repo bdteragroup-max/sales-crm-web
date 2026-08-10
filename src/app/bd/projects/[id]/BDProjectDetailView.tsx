@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { getBDProjectDetails, acceptBDProject, getBDWorkflowTemplates, updateBDProject, addBDComment, claimBDBrief, releaseBDBrief } from '@/app/actions/bd';
+import { getBDProjectDetails, acceptBDProject, getBDWorkflowTemplates, updateBDProject, addBDComment, claimBDBrief, releaseBDBrief, createBDTask, getAllUsersForBD } from '@/app/actions/bd';
 import Link from 'next/link';
 import BDTaskItem from './BDTaskItem';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,15 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
   const [savingEdit, setSavingEdit] = useState(false);
+  
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+
+  // Add Task Modal State
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [newTaskName, setNewTaskName] = useState('');
+  const [newTaskChecklist, setNewTaskChecklist] = useState<string[]>([]);
+  const [newChecklistItemText, setNewChecklistItemText] = useState('');
+  const [addingTask, setAddingTask] = useState(false);
 
   const loadData = async () => {
     const res = await getBDProjectDetails(id);
@@ -34,6 +43,11 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
     const tRes = await getBDWorkflowTemplates();
     if (tRes.success && tRes.data) {
       setTemplates(tRes.data);
+    }
+
+    const uRes = await getAllUsersForBD();
+    if (uRes.success && uRes.data) {
+      setAllUsers(uRes.data);
     }
   };
 
@@ -124,6 +138,8 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
       urgency: project.urgency,
       deadline: project.deadline ? new Date(project.deadline).toISOString().split('T')[0] : '',
       intakeDate: project.intakeDate ? new Date(project.intakeDate).toISOString().split('T')[0] : '',
+      color: project.color || '#ffffff',
+      memberIds: project.members ? project.members.map((m: any) => m.id) : []
     });
     setIsEditing(true);
   };
@@ -136,6 +152,8 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
       urgency: editForm.urgency,
       deadline: editForm.deadline ? new Date(editForm.deadline) : null,
       intakeDate: editForm.intakeDate ? new Date(editForm.intakeDate) : null,
+      color: editForm.color !== '#ffffff' ? editForm.color : null,
+      memberIds: editForm.memberIds,
     });
     setSavingEdit(false);
     
@@ -147,8 +165,44 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
     }
   };
 
+  const handleAddTask = async () => {
+    if (!newTaskName.trim()) return;
+    setAddingTask(true);
+    
+    const checklistPayload = newTaskChecklist.length > 0 ? newTaskChecklist.map((label, idx) => ({
+      id: `chk_${Date.now()}_${idx}`,
+      label,
+      checked: false
+    })) : undefined;
+
+    const res = await createBDTask(id, newTaskName, checklistPayload);
+    setAddingTask(false);
+    if (res.success) {
+      setShowAddTaskModal(false);
+      setNewTaskName('');
+      setNewTaskChecklist([]);
+      setNewChecklistItemText('');
+      loadData();
+    } else {
+      alert(res.error || 'Failed to add task');
+    }
+  };
+
   if (loading) return <div className="p-8 text-center">กำลังโหลดข้อมูล...</div>;
   if (error || !project) return <div className="p-8 text-center text-red-500">{error || 'ไม่พบข้อมูลโครงการ'}</div>;
+
+  const getResponsibleText = () => {
+    const allRes = [];
+    if (project.owner) allRes.push(project.owner.fullName + ' (Lead)');
+    if (project.members) {
+      project.members.forEach((m: any) => {
+        if (m.id !== project.ownerId) {
+          allRes.push(m.fullName);
+        }
+      });
+    }
+    return allRes.length > 0 ? allRes.join(', ') : 'ยังไม่กำหนด (Unassigned)';
+  };
 
   return (
     <div className={`${isModal ? 'p-4 md:p-6' : 'min-h-screen bg-gray-50 p-6 md:p-8'}`}>
@@ -186,17 +240,17 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
             )}
             
             <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-            <p className="text-gray-500 text-sm mt-1">ผู้ร้องขอ: <span className="font-medium text-gray-700">{project.requester?.fullName}</span> | ประเภทงาน: <span className="font-medium text-gray-700">{project.workType?.name}</span></p>
+            <p className="text-gray-500 text-sm mt-1">ผู้ร้องขอ: <span className="font-medium text-gray-700">{project.requester?.fullName}</span> | ประเภทงาน: <span className="font-medium text-gray-700">{project.workType?.name}</span> | ผู้รับผิดชอบ: <span className="font-medium text-gray-700">{getResponsibleText()}</span></p>
           </div>
           
           <div className="flex gap-2">
              <button onClick={startEdit} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">แก้ไขรายละเอียด</button>
-             {project.status === 'PENDING_REVIEW' && project.ownerId === null && (
+             {project.ownerId === null && (
                <button 
                  onClick={handleClaimBrief}
                  className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
                >
-                 รับบรีฟ (Claim)
+                 {project.status === 'PENDING_REVIEW' ? 'รับบรีฟ (Claim)' : 'รับเป็นผู้รับผิดชอบ (Claim Project)'}
                </button>
              )}
              {project.status === 'PENDING_REVIEW' && project.ownerId !== null && (
@@ -301,7 +355,7 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center justify-between">
                 <span>ขั้นตอนการทำงาน (Workflow & Tasks)</span>
-                <button className="text-sm text-red-600 font-medium hover:underline">+ เพิ่มงาน</button>
+                <button onClick={() => setShowAddTaskModal(true)} className="text-sm text-red-600 font-medium hover:underline">+ เพิ่มงาน</button>
               </h2>
               
               {project.tasks.length === 0 ? (
@@ -327,7 +381,7 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
                 {project.activities.length === 0 ? (
                   <p className="text-sm text-gray-500 italic">ยังไม่มีกิจกรรม</p>
                 ) : (
-                  <div className="flow-root">
+                  <div className="flow-root max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
                     <ul role="list" className="-mb-8">
                       {project.activities.map((activity: any, activityIdx: number) => (
                         <li key={activity.id}>
@@ -485,6 +539,43 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
                     onChange={e => setEditForm({...editForm, deadline: e.target.value})}
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">สีการ์ด (Card Color)</label>
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="color" 
+                      className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                      value={editForm.color || '#ffffff'}
+                      onChange={e => setEditForm({...editForm, color: e.target.value})}
+                    />
+                    <span className="text-sm text-gray-500 uppercase">{editForm.color || '#FFFFFF'}</span>
+                  </div>
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">สมาชิกในทีม (Team Members)</label>
+                  <p className="text-xs text-gray-500 mb-2">เลือกผู้ที่มีส่วนร่วมหรือรับผิดชอบในโครงการนี้ (นอกเหนือจาก Project Lead)</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto p-2 border border-gray-200 rounded-lg">
+                    {allUsers.map(u => (
+                      <label key={u.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input 
+                          type="checkbox"
+                          className="rounded text-red-600 focus:ring-red-500"
+                          checked={editForm.memberIds?.includes(u.id) || false}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEditForm({...editForm, memberIds: [...(editForm.memberIds || []), u.id]});
+                            } else {
+                              setEditForm({...editForm, memberIds: (editForm.memberIds || []).filter((id: string) => id !== u.id)});
+                            }
+                          }}
+                        />
+                        <span className="truncate">{u.fullName}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             </div>
 
@@ -534,6 +625,98 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
               >
                 ยืนยันปิดโครงการ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Task Modal */}
+      {showAddTaskModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">เพิ่มงานใหม่</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">ชื่องาน (Task Name)</label>
+                <input 
+                  type="text" 
+                  className="w-full border border-gray-300 rounded-lg p-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                  value={newTaskName}
+                  onChange={e => setNewTaskName(e.target.value)}
+                  placeholder="เช่น ระบุเป้าหมายการดำเนินงาน"
+                  autoFocus
+                  onKeyDown={e => { if (e.key === 'Enter') handleAddTask(); }}
+                />
+              </div>
+
+              <div className="pt-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">รายการเช็คลิสต์ย่อย (Checklist) - ทางเลือก</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    className="flex-1 border border-gray-300 rounded-lg p-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm"
+                    value={newChecklistItemText}
+                    onChange={e => setNewChecklistItemText(e.target.value)}
+                    placeholder="เช่น ตรวจสอบเอกสาร..."
+                    onKeyDown={e => { 
+                      if (e.key === 'Enter' && newChecklistItemText.trim()) {
+                        e.preventDefault();
+                        setNewTaskChecklist([...newTaskChecklist, newChecklistItemText.trim()]);
+                        setNewChecklistItemText('');
+                      }
+                    }}
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      if (newChecklistItemText.trim()) {
+                        setNewTaskChecklist([...newTaskChecklist, newChecklistItemText.trim()]);
+                        setNewChecklistItemText('');
+                      }
+                    }}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium border border-gray-200"
+                  >
+                    + เพิ่ม
+                  </button>
+                </div>
+                {newTaskChecklist.length > 0 && (
+                  <ul className="space-y-2 mt-3 bg-gray-50 p-3 rounded-lg border border-gray-200 max-h-60 overflow-y-auto custom-scrollbar">
+                    {newTaskChecklist.map((item, idx) => (
+                      <li key={idx} className="flex justify-between items-center text-sm">
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                          {item}
+                        </div>
+                        <button 
+                          type="button"
+                          onClick={() => setNewTaskChecklist(newTaskChecklist.filter((_, i) => i !== idx))}
+                          className="text-gray-400 hover:text-red-500"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-end gap-3">
+              <button 
+                onClick={() => setShowAddTaskModal(false)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                disabled={addingTask}
+              >
+                ยกเลิก
+              </button>
+              <button 
+                onClick={handleAddTask}
+                disabled={addingTask || !newTaskName.trim()}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+              >
+                {addingTask ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>
           </div>

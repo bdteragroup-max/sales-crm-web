@@ -13003,6 +13003,7 @@ export namespace Prisma {
     telesales: number
     telesalesKPIs: number
     jobStepLogs: number
+    bdMemberProjects: number
     technicianOrders: number
   }
 
@@ -13041,6 +13042,7 @@ export namespace Prisma {
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     telesalesKPIs?: boolean | UserCountOutputTypeCountTelesalesKPIsArgs
     jobStepLogs?: boolean | UserCountOutputTypeCountJobStepLogsArgs
+    bdMemberProjects?: boolean | UserCountOutputTypeCountBdMemberProjectsArgs
     technicianOrders?: boolean | UserCountOutputTypeCountTechnicianOrdersArgs
   }
 
@@ -13291,6 +13293,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountJobStepLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: JobStepLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBdMemberProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BDProjectWhereInput
   }
 
   /**
@@ -15126,12 +15135,14 @@ export namespace Prisma {
     activities: number
     subProjects: number
     tasks: number
+    members: number
   }
 
   export type BDProjectCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     activities?: boolean | BDProjectCountOutputTypeCountActivitiesArgs
     subProjects?: boolean | BDProjectCountOutputTypeCountSubProjectsArgs
     tasks?: boolean | BDProjectCountOutputTypeCountTasksArgs
+    members?: boolean | BDProjectCountOutputTypeCountMembersArgs
   }
 
   // Custom InputTypes
@@ -15164,6 +15175,13 @@ export namespace Prisma {
    */
   export type BDProjectCountOutputTypeCountTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BDTaskWhereInput
+  }
+
+  /**
+   * BDProjectCountOutputType without action
+   */
+  export type BDProjectCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
   }
 
 
@@ -15474,6 +15492,7 @@ export namespace Prisma {
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
+    bdMemberProjects?: boolean | User$bdMemberProjectsArgs<ExtArgs>
     technicianOrders?: boolean | User$technicianOrdersArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -15563,6 +15582,7 @@ export namespace Prisma {
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
+    bdMemberProjects?: boolean | User$bdMemberProjectsArgs<ExtArgs>
     technicianOrders?: boolean | User$technicianOrdersArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -15607,6 +15627,7 @@ export namespace Prisma {
       telesalesKPIs: Prisma.$TelesalesKPIPayload<ExtArgs>[]
       employeeSale: Prisma.$EmployeeSalePayload<ExtArgs> | null
       jobStepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
+      bdMemberProjects: Prisma.$BDProjectPayload<ExtArgs>[]
       technicianOrders: Prisma.$OrderPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -16052,6 +16073,7 @@ export namespace Prisma {
     telesalesKPIs<T extends User$telesalesKPIsArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesKPIsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employeeSale<T extends User$employeeSaleArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeSaleArgs<ExtArgs>>): Prisma__EmployeeSaleClient<$Result.GetResult<Prisma.$EmployeeSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     jobStepLogs<T extends User$jobStepLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$jobStepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bdMemberProjects<T extends User$bdMemberProjectsArgs<ExtArgs> = {}>(args?: Subset<T, User$bdMemberProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     technicianOrders<T extends User$technicianOrdersArgs<ExtArgs> = {}>(args?: Subset<T, User$technicianOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -17320,6 +17342,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: JobStepLogScalarFieldEnum | JobStepLogScalarFieldEnum[]
+  }
+
+  /**
+   * User.bdMemberProjects
+   */
+  export type User$bdMemberProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BDProject
+     */
+    select?: BDProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BDProject
+     */
+    omit?: BDProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BDProjectInclude<ExtArgs> | null
+    where?: BDProjectWhereInput
+    orderBy?: BDProjectOrderByWithRelationInput | BDProjectOrderByWithRelationInput[]
+    cursor?: BDProjectWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BDProjectScalarFieldEnum | BDProjectScalarFieldEnum[]
   }
 
   /**
@@ -174150,8 +174196,9 @@ export namespace Prisma {
     waitingOn: string | null
     createdAt: Date | null
     updatedAt: Date | null
-    intakeDate: Date | null
     parentId: string | null
+    intakeDate: Date | null
+    color: string | null
   }
 
   export type BDProjectMaxAggregateOutputType = {
@@ -174168,8 +174215,9 @@ export namespace Prisma {
     waitingOn: string | null
     createdAt: Date | null
     updatedAt: Date | null
-    intakeDate: Date | null
     parentId: string | null
+    intakeDate: Date | null
+    color: string | null
   }
 
   export type BDProjectCountAggregateOutputType = {
@@ -174186,8 +174234,9 @@ export namespace Prisma {
     waitingOn: number
     createdAt: number
     updatedAt: number
-    intakeDate: number
     parentId: number
+    intakeDate: number
+    color: number
     _all: number
   }
 
@@ -174206,8 +174255,9 @@ export namespace Prisma {
     waitingOn?: true
     createdAt?: true
     updatedAt?: true
-    intakeDate?: true
     parentId?: true
+    intakeDate?: true
+    color?: true
   }
 
   export type BDProjectMaxAggregateInputType = {
@@ -174224,8 +174274,9 @@ export namespace Prisma {
     waitingOn?: true
     createdAt?: true
     updatedAt?: true
-    intakeDate?: true
     parentId?: true
+    intakeDate?: true
+    color?: true
   }
 
   export type BDProjectCountAggregateInputType = {
@@ -174242,8 +174293,9 @@ export namespace Prisma {
     waitingOn?: true
     createdAt?: true
     updatedAt?: true
-    intakeDate?: true
     parentId?: true
+    intakeDate?: true
+    color?: true
     _all?: true
   }
 
@@ -174333,8 +174385,9 @@ export namespace Prisma {
     waitingOn: string | null
     createdAt: Date
     updatedAt: Date
-    intakeDate: Date | null
     parentId: string | null
+    intakeDate: Date | null
+    color: string | null
     _count: BDProjectCountAggregateOutputType | null
     _min: BDProjectMinAggregateOutputType | null
     _max: BDProjectMaxAggregateOutputType | null
@@ -174368,8 +174421,9 @@ export namespace Prisma {
     waitingOn?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    intakeDate?: boolean
     parentId?: boolean
+    intakeDate?: boolean
+    color?: boolean
     activities?: boolean | BDProject$activitiesArgs<ExtArgs>
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
@@ -174377,6 +174431,7 @@ export namespace Prisma {
     requester?: boolean | UserDefaultArgs<ExtArgs>
     workType?: boolean | BDWorkTypeDefaultArgs<ExtArgs>
     tasks?: boolean | BDProject$tasksArgs<ExtArgs>
+    members?: boolean | BDProject$membersArgs<ExtArgs>
     _count?: boolean | BDProjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bDProject"]>
 
@@ -174394,8 +174449,9 @@ export namespace Prisma {
     waitingOn?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    intakeDate?: boolean
     parentId?: boolean
+    intakeDate?: boolean
+    color?: boolean
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
     requester?: boolean | UserDefaultArgs<ExtArgs>
@@ -174416,8 +174472,9 @@ export namespace Prisma {
     waitingOn?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    intakeDate?: boolean
     parentId?: boolean
+    intakeDate?: boolean
+    color?: boolean
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
     requester?: boolean | UserDefaultArgs<ExtArgs>
@@ -174438,11 +174495,12 @@ export namespace Prisma {
     waitingOn?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    intakeDate?: boolean
     parentId?: boolean
+    intakeDate?: boolean
+    color?: boolean
   }
 
-  export type BDProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "objective" | "workTypeId" | "urgency" | "deadline" | "status" | "requesterId" | "ownerId" | "blockedReason" | "waitingOn" | "createdAt" | "updatedAt" | "intakeDate" | "parentId", ExtArgs["result"]["bDProject"]>
+  export type BDProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "objective" | "workTypeId" | "urgency" | "deadline" | "status" | "requesterId" | "ownerId" | "blockedReason" | "waitingOn" | "createdAt" | "updatedAt" | "parentId" | "intakeDate" | "color", ExtArgs["result"]["bDProject"]>
   export type BDProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     activities?: boolean | BDProject$activitiesArgs<ExtArgs>
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
@@ -174451,6 +174509,7 @@ export namespace Prisma {
     requester?: boolean | UserDefaultArgs<ExtArgs>
     workType?: boolean | BDWorkTypeDefaultArgs<ExtArgs>
     tasks?: boolean | BDProject$tasksArgs<ExtArgs>
+    members?: boolean | BDProject$membersArgs<ExtArgs>
     _count?: boolean | BDProjectCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BDProjectIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -174476,6 +174535,7 @@ export namespace Prisma {
       requester: Prisma.$UserPayload<ExtArgs>
       workType: Prisma.$BDWorkTypePayload<ExtArgs>
       tasks: Prisma.$BDTaskPayload<ExtArgs>[]
+      members: Prisma.$UserPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -174491,8 +174551,9 @@ export namespace Prisma {
       waitingOn: string | null
       createdAt: Date
       updatedAt: Date
-      intakeDate: Date | null
       parentId: string | null
+      intakeDate: Date | null
+      color: string | null
     }, ExtArgs["result"]["bDProject"]>
     composites: {}
   }
@@ -174894,6 +174955,7 @@ export namespace Prisma {
     requester<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     workType<T extends BDWorkTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BDWorkTypeDefaultArgs<ExtArgs>>): Prisma__BDWorkTypeClient<$Result.GetResult<Prisma.$BDWorkTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     tasks<T extends BDProject$tasksArgs<ExtArgs> = {}>(args?: Subset<T, BDProject$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    members<T extends BDProject$membersArgs<ExtArgs> = {}>(args?: Subset<T, BDProject$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -174936,8 +174998,9 @@ export namespace Prisma {
     readonly waitingOn: FieldRef<"BDProject", 'String'>
     readonly createdAt: FieldRef<"BDProject", 'DateTime'>
     readonly updatedAt: FieldRef<"BDProject", 'DateTime'>
-    readonly intakeDate: FieldRef<"BDProject", 'DateTime'>
     readonly parentId: FieldRef<"BDProject", 'String'>
+    readonly intakeDate: FieldRef<"BDProject", 'DateTime'>
+    readonly color: FieldRef<"BDProject", 'String'>
   }
     
 
@@ -175446,6 +175509,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BDTaskScalarFieldEnum | BDTaskScalarFieldEnum[]
+  }
+
+  /**
+   * BDProject.members
+   */
+  export type BDProject$membersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
   /**
@@ -182416,8 +182503,9 @@ export namespace Prisma {
     waitingOn: 'waitingOn',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
+    parentId: 'parentId',
     intakeDate: 'intakeDate',
-    parentId: 'parentId'
+    color: 'color'
   };
 
   export type BDProjectScalarFieldEnum = (typeof BDProjectScalarFieldEnum)[keyof typeof BDProjectScalarFieldEnum]
@@ -182688,6 +182776,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     jobStepLogs?: JobStepLogListRelationFilter
+    bdMemberProjects?: BDProjectListRelationFilter
     technicianOrders?: OrderListRelationFilter
   }
 
@@ -182740,6 +182829,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIOrderByRelationAggregateInput
     employeeSale?: EmployeeSaleOrderByWithRelationInput
     jobStepLogs?: JobStepLogOrderByRelationAggregateInput
+    bdMemberProjects?: BDProjectOrderByRelationAggregateInput
     technicianOrders?: OrderOrderByRelationAggregateInput
   }
 
@@ -182795,6 +182885,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     jobStepLogs?: JobStepLogListRelationFilter
+    bdMemberProjects?: BDProjectListRelationFilter
     technicianOrders?: OrderListRelationFilter
   }, "id" | "employeeId" | "email">
 
@@ -195558,8 +195649,9 @@ export namespace Prisma {
     waitingOn?: StringNullableFilter<"BDProject"> | string | null
     createdAt?: DateTimeFilter<"BDProject"> | Date | string
     updatedAt?: DateTimeFilter<"BDProject"> | Date | string
-    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     parentId?: StringNullableFilter<"BDProject"> | string | null
+    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    color?: StringNullableFilter<"BDProject"> | string | null
     activities?: BDActivityListRelationFilter
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     parent?: XOR<BDProjectNullableScalarRelationFilter, BDProjectWhereInput> | null
@@ -195567,6 +195659,7 @@ export namespace Prisma {
     requester?: XOR<UserScalarRelationFilter, UserWhereInput>
     workType?: XOR<BDWorkTypeScalarRelationFilter, BDWorkTypeWhereInput>
     tasks?: BDTaskListRelationFilter
+    members?: UserListRelationFilter
   }
 
   export type BDProjectOrderByWithRelationInput = {
@@ -195583,8 +195676,9 @@ export namespace Prisma {
     waitingOn?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    intakeDate?: SortOrderInput | SortOrder
     parentId?: SortOrderInput | SortOrder
+    intakeDate?: SortOrderInput | SortOrder
+    color?: SortOrderInput | SortOrder
     activities?: BDActivityOrderByRelationAggregateInput
     owner?: UserOrderByWithRelationInput
     parent?: BDProjectOrderByWithRelationInput
@@ -195592,6 +195686,7 @@ export namespace Prisma {
     requester?: UserOrderByWithRelationInput
     workType?: BDWorkTypeOrderByWithRelationInput
     tasks?: BDTaskOrderByRelationAggregateInput
+    members?: UserOrderByRelationAggregateInput
   }
 
   export type BDProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -195611,8 +195706,9 @@ export namespace Prisma {
     waitingOn?: StringNullableFilter<"BDProject"> | string | null
     createdAt?: DateTimeFilter<"BDProject"> | Date | string
     updatedAt?: DateTimeFilter<"BDProject"> | Date | string
-    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     parentId?: StringNullableFilter<"BDProject"> | string | null
+    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    color?: StringNullableFilter<"BDProject"> | string | null
     activities?: BDActivityListRelationFilter
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     parent?: XOR<BDProjectNullableScalarRelationFilter, BDProjectWhereInput> | null
@@ -195620,6 +195716,7 @@ export namespace Prisma {
     requester?: XOR<UserScalarRelationFilter, UserWhereInput>
     workType?: XOR<BDWorkTypeScalarRelationFilter, BDWorkTypeWhereInput>
     tasks?: BDTaskListRelationFilter
+    members?: UserListRelationFilter
   }, "id">
 
   export type BDProjectOrderByWithAggregationInput = {
@@ -195636,8 +195733,9 @@ export namespace Prisma {
     waitingOn?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    intakeDate?: SortOrderInput | SortOrder
     parentId?: SortOrderInput | SortOrder
+    intakeDate?: SortOrderInput | SortOrder
+    color?: SortOrderInput | SortOrder
     _count?: BDProjectCountOrderByAggregateInput
     _max?: BDProjectMaxOrderByAggregateInput
     _min?: BDProjectMinOrderByAggregateInput
@@ -195660,8 +195758,9 @@ export namespace Prisma {
     waitingOn?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BDProject"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BDProject"> | Date | string
-    intakeDate?: DateTimeNullableWithAggregatesFilter<"BDProject"> | Date | string | null
     parentId?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
+    intakeDate?: DateTimeNullableWithAggregatesFilter<"BDProject"> | Date | string | null
+    color?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
   }
 
   export type BDWorkflowTemplateWhereInput = {
@@ -195986,6 +196085,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -196038,6 +196138,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -196090,6 +196191,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -196142,6 +196244,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -210587,6 +210690,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -210594,6 +210698,7 @@ export namespace Prisma {
     requester: UserCreateNestedOneWithoutBdRequestsInput
     workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
     tasks?: BDTaskCreateNestedManyWithoutProjectInput
+    members?: UserCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUncheckedCreateInput = {
@@ -210610,11 +210715,13 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+    members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUpdateInput = {
@@ -210629,6 +210736,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -210636,6 +210744,7 @@ export namespace Prisma {
     requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
     workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
     tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+    members?: UserUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateInput = {
@@ -210652,11 +210761,13 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+    members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectCreateManyInput = {
@@ -210673,8 +210784,9 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
   }
 
   export type BDProjectUpdateManyMutationInput = {
@@ -210689,6 +210801,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDProjectUncheckedUpdateManyInput = {
@@ -210705,8 +210818,9 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDWorkflowTemplateCreateInput = {
@@ -220066,8 +220180,9 @@ export namespace Prisma {
     waitingOn?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    intakeDate?: SortOrder
     parentId?: SortOrder
+    intakeDate?: SortOrder
+    color?: SortOrder
   }
 
   export type BDProjectMaxOrderByAggregateInput = {
@@ -220084,8 +220199,9 @@ export namespace Prisma {
     waitingOn?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    intakeDate?: SortOrder
     parentId?: SortOrder
+    intakeDate?: SortOrder
+    color?: SortOrder
   }
 
   export type BDProjectMinOrderByAggregateInput = {
@@ -220102,8 +220218,9 @@ export namespace Prisma {
     waitingOn?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    intakeDate?: SortOrder
     parentId?: SortOrder
+    intakeDate?: SortOrder
+    color?: SortOrder
   }
 
   export type BDWorkTypeListRelationFilter = {
@@ -220512,6 +220629,12 @@ export namespace Prisma {
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
   }
 
+  export type BDProjectCreateNestedManyWithoutMembersInput = {
+    create?: XOR<BDProjectCreateWithoutMembersInput, BDProjectUncheckedCreateWithoutMembersInput> | BDProjectCreateWithoutMembersInput[] | BDProjectUncheckedCreateWithoutMembersInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutMembersInput | BDProjectCreateOrConnectWithoutMembersInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+  }
+
   export type OrderCreateNestedManyWithoutAssignedTechniciansInput = {
     create?: XOR<OrderCreateWithoutAssignedTechniciansInput, OrderUncheckedCreateWithoutAssignedTechniciansInput> | OrderCreateWithoutAssignedTechniciansInput[] | OrderUncheckedCreateWithoutAssignedTechniciansInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutAssignedTechniciansInput | OrderCreateOrConnectWithoutAssignedTechniciansInput[]
@@ -220760,6 +220883,12 @@ export namespace Prisma {
     connectOrCreate?: JobStepLogCreateOrConnectWithoutCompletedByUserInput | JobStepLogCreateOrConnectWithoutCompletedByUserInput[]
     createMany?: JobStepLogCreateManyCompletedByUserInputEnvelope
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+  }
+
+  export type BDProjectUncheckedCreateNestedManyWithoutMembersInput = {
+    create?: XOR<BDProjectCreateWithoutMembersInput, BDProjectUncheckedCreateWithoutMembersInput> | BDProjectCreateWithoutMembersInput[] | BDProjectUncheckedCreateWithoutMembersInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutMembersInput | BDProjectCreateOrConnectWithoutMembersInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
   }
 
   export type OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput = {
@@ -221274,6 +221403,19 @@ export namespace Prisma {
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
   }
 
+  export type BDProjectUpdateManyWithoutMembersNestedInput = {
+    create?: XOR<BDProjectCreateWithoutMembersInput, BDProjectUncheckedCreateWithoutMembersInput> | BDProjectCreateWithoutMembersInput[] | BDProjectUncheckedCreateWithoutMembersInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutMembersInput | BDProjectCreateOrConnectWithoutMembersInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutMembersInput | BDProjectUpsertWithWhereUniqueWithoutMembersInput[]
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutMembersInput | BDProjectUpdateWithWhereUniqueWithoutMembersInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutMembersInput | BDProjectUpdateManyWithWhereWithoutMembersInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
+  }
+
   export type OrderUpdateManyWithoutAssignedTechniciansNestedInput = {
     create?: XOR<OrderCreateWithoutAssignedTechniciansInput, OrderUncheckedCreateWithoutAssignedTechniciansInput> | OrderCreateWithoutAssignedTechniciansInput[] | OrderUncheckedCreateWithoutAssignedTechniciansInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutAssignedTechniciansInput | OrderCreateOrConnectWithoutAssignedTechniciansInput[]
@@ -221771,6 +221913,19 @@ export namespace Prisma {
     update?: JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput | JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput[]
     updateMany?: JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput | JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput[]
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutMembersNestedInput = {
+    create?: XOR<BDProjectCreateWithoutMembersInput, BDProjectUncheckedCreateWithoutMembersInput> | BDProjectCreateWithoutMembersInput[] | BDProjectUncheckedCreateWithoutMembersInput[]
+    connectOrCreate?: BDProjectCreateOrConnectWithoutMembersInput | BDProjectCreateOrConnectWithoutMembersInput[]
+    upsert?: BDProjectUpsertWithWhereUniqueWithoutMembersInput | BDProjectUpsertWithWhereUniqueWithoutMembersInput[]
+    set?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    disconnect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    delete?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    connect?: BDProjectWhereUniqueInput | BDProjectWhereUniqueInput[]
+    update?: BDProjectUpdateWithWhereUniqueWithoutMembersInput | BDProjectUpdateWithWhereUniqueWithoutMembersInput[]
+    updateMany?: BDProjectUpdateManyWithWhereWithoutMembersInput | BDProjectUpdateManyWithWhereWithoutMembersInput[]
+    deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
   }
 
   export type OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput = {
@@ -229290,6 +229445,12 @@ export namespace Prisma {
     connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
   }
 
+  export type UserCreateNestedManyWithoutBdMemberProjectsInput = {
+    create?: XOR<UserCreateWithoutBdMemberProjectsInput, UserUncheckedCreateWithoutBdMemberProjectsInput> | UserCreateWithoutBdMemberProjectsInput[] | UserUncheckedCreateWithoutBdMemberProjectsInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutBdMemberProjectsInput | UserCreateOrConnectWithoutBdMemberProjectsInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
   export type BDActivityUncheckedCreateNestedManyWithoutProjectInput = {
     create?: XOR<BDActivityCreateWithoutProjectInput, BDActivityUncheckedCreateWithoutProjectInput> | BDActivityCreateWithoutProjectInput[] | BDActivityUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: BDActivityCreateOrConnectWithoutProjectInput | BDActivityCreateOrConnectWithoutProjectInput[]
@@ -229309,6 +229470,12 @@ export namespace Prisma {
     connectOrCreate?: BDTaskCreateOrConnectWithoutProjectInput | BDTaskCreateOrConnectWithoutProjectInput[]
     createMany?: BDTaskCreateManyProjectInputEnvelope
     connect?: BDTaskWhereUniqueInput | BDTaskWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput = {
+    create?: XOR<UserCreateWithoutBdMemberProjectsInput, UserUncheckedCreateWithoutBdMemberProjectsInput> | UserCreateWithoutBdMemberProjectsInput[] | UserUncheckedCreateWithoutBdMemberProjectsInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutBdMemberProjectsInput | UserCreateOrConnectWithoutBdMemberProjectsInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
   export type BDActivityUpdateManyWithoutProjectNestedInput = {
@@ -229389,6 +229556,19 @@ export namespace Prisma {
     deleteMany?: BDTaskScalarWhereInput | BDTaskScalarWhereInput[]
   }
 
+  export type UserUpdateManyWithoutBdMemberProjectsNestedInput = {
+    create?: XOR<UserCreateWithoutBdMemberProjectsInput, UserUncheckedCreateWithoutBdMemberProjectsInput> | UserCreateWithoutBdMemberProjectsInput[] | UserUncheckedCreateWithoutBdMemberProjectsInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutBdMemberProjectsInput | UserCreateOrConnectWithoutBdMemberProjectsInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutBdMemberProjectsInput | UserUpsertWithWhereUniqueWithoutBdMemberProjectsInput[]
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutBdMemberProjectsInput | UserUpdateWithWhereUniqueWithoutBdMemberProjectsInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutBdMemberProjectsInput | UserUpdateManyWithWhereWithoutBdMemberProjectsInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
   export type BDActivityUncheckedUpdateManyWithoutProjectNestedInput = {
     create?: XOR<BDActivityCreateWithoutProjectInput, BDActivityUncheckedCreateWithoutProjectInput> | BDActivityCreateWithoutProjectInput[] | BDActivityUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: BDActivityCreateOrConnectWithoutProjectInput | BDActivityCreateOrConnectWithoutProjectInput[]
@@ -229429,6 +229609,19 @@ export namespace Prisma {
     update?: BDTaskUpdateWithWhereUniqueWithoutProjectInput | BDTaskUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: BDTaskUpdateManyWithWhereWithoutProjectInput | BDTaskUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: BDTaskScalarWhereInput | BDTaskScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput = {
+    create?: XOR<UserCreateWithoutBdMemberProjectsInput, UserUncheckedCreateWithoutBdMemberProjectsInput> | UserCreateWithoutBdMemberProjectsInput[] | UserUncheckedCreateWithoutBdMemberProjectsInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutBdMemberProjectsInput | UserCreateOrConnectWithoutBdMemberProjectsInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutBdMemberProjectsInput | UserUpsertWithWhereUniqueWithoutBdMemberProjectsInput[]
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutBdMemberProjectsInput | UserUpdateWithWhereUniqueWithoutBdMemberProjectsInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutBdMemberProjectsInput | UserUpdateManyWithWhereWithoutBdMemberProjectsInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type BDWorkTypeCreateNestedManyWithoutDefaultTemplateInput = {
@@ -229998,12 +230191,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
     requester: UserCreateNestedOneWithoutBdRequestsInput
     workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
     tasks?: BDTaskCreateNestedManyWithoutProjectInput
+    members?: UserCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUncheckedCreateWithoutOwnerInput = {
@@ -230019,11 +230214,13 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+    members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectCreateOrConnectWithoutOwnerInput = {
@@ -230048,12 +230245,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
     workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
     tasks?: BDTaskCreateNestedManyWithoutProjectInput
+    members?: UserCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUncheckedCreateWithoutRequesterInput = {
@@ -230069,11 +230268,13 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+    members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectCreateOrConnectWithoutRequesterInput = {
@@ -231789,6 +231990,55 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type BDProjectCreateWithoutMembersInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    intakeDate?: Date | string | null
+    color?: string | null
+    activities?: BDActivityCreateNestedManyWithoutProjectInput
+    owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
+    parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
+    subProjects?: BDProjectCreateNestedManyWithoutParentInput
+    requester: UserCreateNestedOneWithoutBdRequestsInput
+    workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+    tasks?: BDTaskCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectUncheckedCreateWithoutMembersInput = {
+    id?: string
+    name: string
+    objective?: string | null
+    workTypeId: string
+    urgency?: string
+    deadline?: Date | string | null
+    status?: string
+    requesterId: string
+    ownerId?: string | null
+    blockedReason?: string | null
+    waitingOn?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
+    activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
+    subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+    tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type BDProjectCreateOrConnectWithoutMembersInput = {
+    where: BDProjectWhereUniqueInput
+    create: XOR<BDProjectCreateWithoutMembersInput, BDProjectUncheckedCreateWithoutMembersInput>
+  }
+
   export type OrderCreateWithoutAssignedTechniciansInput = {
     id?: string
     orderNumber: string
@@ -231933,8 +232183,9 @@ export namespace Prisma {
     waitingOn?: StringNullableFilter<"BDProject"> | string | null
     createdAt?: DateTimeFilter<"BDProject"> | Date | string
     updatedAt?: DateTimeFilter<"BDProject"> | Date | string
-    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     parentId?: StringNullableFilter<"BDProject"> | string | null
+    intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
+    color?: StringNullableFilter<"BDProject"> | string | null
   }
 
   export type BDProjectUpsertWithWhereUniqueWithoutRequesterInput = {
@@ -233160,6 +233411,22 @@ export namespace Prisma {
     completedByUserId?: StringNullableFilter<"JobStepLog"> | string | null
   }
 
+  export type BDProjectUpsertWithWhereUniqueWithoutMembersInput = {
+    where: BDProjectWhereUniqueInput
+    update: XOR<BDProjectUpdateWithoutMembersInput, BDProjectUncheckedUpdateWithoutMembersInput>
+    create: XOR<BDProjectCreateWithoutMembersInput, BDProjectUncheckedCreateWithoutMembersInput>
+  }
+
+  export type BDProjectUpdateWithWhereUniqueWithoutMembersInput = {
+    where: BDProjectWhereUniqueInput
+    data: XOR<BDProjectUpdateWithoutMembersInput, BDProjectUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type BDProjectUpdateManyWithWhereWithoutMembersInput = {
+    where: BDProjectScalarWhereInput
+    data: XOR<BDProjectUpdateManyMutationInput, BDProjectUncheckedUpdateManyWithoutMembersInput>
+  }
+
   export type OrderUpsertWithWhereUniqueWithoutAssignedTechniciansInput = {
     where: OrderWhereUniqueInput
     update: XOR<OrderUpdateWithoutAssignedTechniciansInput, OrderUncheckedUpdateWithoutAssignedTechniciansInput>
@@ -233224,6 +233491,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -233275,6 +233543,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -233342,6 +233611,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -233393,6 +233663,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -233582,6 +233853,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -233633,6 +233905,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -233850,6 +234123,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -233901,6 +234175,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -233952,6 +234227,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -234003,6 +234279,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -234070,6 +234347,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -234121,6 +234399,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -234172,6 +234451,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -234223,6 +234503,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -234842,6 +235123,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -234893,6 +235175,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -235216,6 +235499,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -235267,6 +235551,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -235429,6 +235714,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -235480,6 +235766,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -236114,6 +236401,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -236165,6 +236453,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -236626,6 +236915,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -236677,6 +236967,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -237008,6 +237299,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -237059,6 +237351,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -237268,6 +237561,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -237319,6 +237613,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -237370,6 +237665,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -237421,6 +237717,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -237488,6 +237785,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -237539,6 +237837,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -237804,6 +238103,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -237855,6 +238155,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -238067,6 +238368,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
   }
 
   export type UserUncheckedCreateWithoutTechnicianOrdersInput = {
@@ -238118,6 +238420,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
   }
 
   export type UserCreateOrConnectWithoutTechnicianOrdersInput = {
@@ -238386,6 +238689,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -238437,6 +238741,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -238717,6 +239022,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -238768,6 +239074,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -238924,6 +239231,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -238975,6 +239283,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -240364,6 +240673,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -240415,6 +240725,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -240583,6 +240894,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -240634,6 +240946,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -240881,6 +241194,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -240932,6 +241246,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -241094,6 +241409,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -241145,6 +241461,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -242340,6 +242657,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -242391,6 +242709,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -242559,6 +242878,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -242610,6 +242930,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -242857,6 +243178,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -242908,6 +243230,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -242964,6 +243287,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -243015,6 +243339,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -243082,6 +243407,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -243133,6 +243459,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -243195,6 +243522,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -243246,6 +243574,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -257017,6 +257346,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -257068,6 +257398,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -257472,6 +257803,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -257523,6 +257855,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -258103,6 +258436,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -258154,6 +258488,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -258370,6 +258705,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -258421,6 +258757,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -258472,6 +258809,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -258523,6 +258861,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -258836,6 +259175,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -258887,6 +259227,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -259461,6 +259802,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -259512,6 +259854,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -259757,6 +260100,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -259808,6 +260152,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -265242,6 +265587,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -265293,6 +265639,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -265349,6 +265696,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -265400,6 +265748,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -265552,6 +265901,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -265603,6 +265953,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -265665,6 +266016,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -265716,6 +266068,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -265858,6 +266211,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -265909,6 +266263,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -265976,6 +266331,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -266027,6 +266383,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -266257,6 +266614,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -266308,6 +266666,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -266364,6 +266723,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -266415,6 +266775,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -266849,6 +267210,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -266900,6 +267262,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -266962,6 +267325,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -267013,6 +267377,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -269696,6 +270061,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -269747,6 +270113,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -269814,6 +270181,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -269865,6 +270233,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -269916,6 +270285,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -269967,6 +270337,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -270034,6 +270405,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -270085,6 +270457,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -271286,6 +271659,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -271337,6 +271711,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -271499,6 +271874,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -271550,6 +271926,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -272436,6 +272813,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -272487,6 +272865,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -272772,6 +273151,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -272823,6 +273203,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -273216,6 +273597,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -273267,6 +273649,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -273572,6 +273955,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -273623,6 +274007,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -274007,6 +274392,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -274058,6 +274444,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -274214,6 +274601,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -274265,6 +274653,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -274399,6 +274788,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -274450,6 +274840,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -274606,6 +274997,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -274657,6 +275049,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -274844,12 +275237,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
     requester: UserCreateNestedOneWithoutBdRequestsInput
     tasks?: BDTaskCreateNestedManyWithoutProjectInput
+    members?: UserCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUncheckedCreateWithoutWorkTypeInput = {
@@ -274865,11 +275260,13 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+    members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectCreateOrConnectWithoutWorkTypeInput = {
@@ -275016,6 +275413,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -275067,6 +275465,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -275087,12 +275486,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     requester: UserCreateNestedOneWithoutBdRequestsInput
     workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
     tasks?: BDTaskCreateNestedManyWithoutProjectInput
+    members?: UserCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUncheckedCreateWithoutSubProjectsInput = {
@@ -275109,10 +275510,12 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+    members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectCreateOrConnectWithoutSubProjectsInput = {
@@ -275132,12 +275535,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
     requester: UserCreateNestedOneWithoutBdRequestsInput
     workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
     tasks?: BDTaskCreateNestedManyWithoutProjectInput
+    members?: UserCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUncheckedCreateWithoutParentInput = {
@@ -275155,9 +275560,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+    members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectCreateOrConnectWithoutParentInput = {
@@ -275218,6 +275625,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -275269,6 +275677,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -275336,6 +275745,115 @@ export namespace Prisma {
   export type BDTaskCreateManyProjectInputEnvelope = {
     data: BDTaskCreateManyProjectInput | BDTaskCreateManyProjectInput[]
     skipDuplicates?: boolean
+  }
+
+  export type UserCreateWithoutBdMemberProjectsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutBdMemberProjectsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutBdMemberProjectsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBdMemberProjectsInput, UserUncheckedCreateWithoutBdMemberProjectsInput>
   }
 
   export type BDActivityUpsertWithWhereUniqueWithoutProjectInput = {
@@ -275413,6 +275931,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -275464,6 +275983,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -275490,12 +276010,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
     workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
     tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+    members?: UserUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateWithoutSubProjectsInput = {
@@ -275512,10 +276034,12 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+    members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUpsertWithWhereUniqueWithoutParentInput = {
@@ -275593,6 +276117,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -275644,6 +276169,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -275686,6 +276212,22 @@ export namespace Prisma {
   export type BDTaskUpdateManyWithWhereWithoutProjectInput = {
     where: BDTaskScalarWhereInput
     data: XOR<BDTaskUpdateManyMutationInput, BDTaskUncheckedUpdateManyWithoutProjectInput>
+  }
+
+  export type UserUpsertWithWhereUniqueWithoutBdMemberProjectsInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutBdMemberProjectsInput, UserUncheckedUpdateWithoutBdMemberProjectsInput>
+    create: XOR<UserCreateWithoutBdMemberProjectsInput, UserUncheckedCreateWithoutBdMemberProjectsInput>
+  }
+
+  export type UserUpdateWithWhereUniqueWithoutBdMemberProjectsInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutBdMemberProjectsInput, UserUncheckedUpdateWithoutBdMemberProjectsInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutBdMemberProjectsInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutBdMemberProjectsInput>
   }
 
   export type BDWorkTypeCreateWithoutDefaultTemplateInput = {
@@ -275881,6 +276423,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -275932,6 +276475,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -275952,12 +276496,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
     requester: UserCreateNestedOneWithoutBdRequestsInput
     workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
+    members?: UserCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUncheckedCreateWithoutTasksInput = {
@@ -275974,10 +276520,12 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
+    members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectCreateOrConnectWithoutTasksInput = {
@@ -276044,6 +276592,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -276095,6 +276644,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -276121,12 +276671,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
     requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
     workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+    members?: UserUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateWithoutTasksInput = {
@@ -276143,10 +276695,12 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+    members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectCreateWithoutActivitiesInput = {
@@ -276161,12 +276715,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
     requester: UserCreateNestedOneWithoutBdRequestsInput
     workType: BDWorkTypeCreateNestedOneWithoutProjectsInput
     tasks?: BDTaskCreateNestedManyWithoutProjectInput
+    members?: UserCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectUncheckedCreateWithoutActivitiesInput = {
@@ -276183,10 +276739,12 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
+    members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
   }
 
   export type BDProjectCreateOrConnectWithoutActivitiesInput = {
@@ -276242,6 +276800,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -276293,6 +276852,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
   }
 
@@ -276324,12 +276884,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
     requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
     workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
     tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+    members?: UserUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateWithoutActivitiesInput = {
@@ -276346,10 +276908,12 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+    members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type UserUpsertWithoutBdActivitiesInput = {
@@ -276411,6 +276975,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -276462,6 +277027,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
@@ -276486,8 +277052,9 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
   }
 
   export type BDProjectCreateManyRequesterInput = {
@@ -276503,8 +277070,9 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
   }
 
   export type BDTaskCreateManyAssigneeInput = {
@@ -277174,12 +277742,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
     requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
     workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
     tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+    members?: UserUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateWithoutOwnerInput = {
@@ -277195,11 +277765,13 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+    members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateManyWithoutOwnerInput = {
@@ -277215,8 +277787,9 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDProjectUpdateWithoutRequesterInput = {
@@ -277231,12 +277804,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
     workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
     tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+    members?: UserUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateWithoutRequesterInput = {
@@ -277252,11 +277827,13 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+    members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateManyWithoutRequesterInput = {
@@ -277272,8 +277849,9 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDTaskUpdateWithoutAssigneeInput = {
@@ -279267,6 +279845,69 @@ export namespace Prisma {
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BDProjectUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    activities?: BDActivityUpdateManyWithoutProjectNestedInput
+    owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
+    parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
+    subProjects?: BDProjectUpdateManyWithoutParentNestedInput
+    requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
+    workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
+    tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
+    subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
+    tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type BDProjectUncheckedUpdateManyWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    workTypeId?: StringFieldUpdateOperationsInput | string
+    urgency?: StringFieldUpdateOperationsInput | string
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    requesterId?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    blockedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type OrderUpdateWithoutAssignedTechniciansInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
@@ -281104,6 +281745,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTechnicianOrdersInput = {
@@ -281155,6 +281797,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutTechnicianOrdersInput = {
@@ -287629,8 +288272,9 @@ export namespace Prisma {
     waitingOn?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    intakeDate?: Date | string | null
     parentId?: string | null
+    intakeDate?: Date | string | null
+    color?: string | null
   }
 
   export type BDProjectUpdateWithoutWorkTypeInput = {
@@ -287645,12 +288289,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
     requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
     tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+    members?: UserUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateWithoutWorkTypeInput = {
@@ -287666,11 +288312,13 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+    members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateManyWithoutWorkTypeInput = {
@@ -287686,8 +288334,9 @@ export namespace Prisma {
     waitingOn?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDActivityCreateManyProjectInput = {
@@ -287713,6 +288362,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     intakeDate?: Date | string | null
+    color?: string | null
   }
 
   export type BDTaskCreateManyProjectInput = {
@@ -287767,12 +288417,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
     requester?: UserUpdateOneRequiredWithoutBdRequestsNestedInput
     workType?: BDWorkTypeUpdateOneRequiredWithoutProjectsNestedInput
     tasks?: BDTaskUpdateManyWithoutProjectNestedInput
+    members?: UserUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateWithoutParentInput = {
@@ -287790,9 +288442,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
+    members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
   }
 
   export type BDProjectUncheckedUpdateManyWithoutParentInput = {
@@ -287810,6 +288464,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDTaskUpdateWithoutProjectInput = {
@@ -287858,6 +288513,126 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserUpdateWithoutBdMemberProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBdMemberProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutBdMemberProjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type BDWorkTypeCreateManyDefaultTemplateInput = {

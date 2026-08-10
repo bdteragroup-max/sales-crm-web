@@ -38,7 +38,10 @@ export default function KanbanCard({ project, onClick }: Props) {
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        borderTop: project.color && project.color !== '#ffffff' ? `6px solid ${project.color}` : undefined
+      }}
       {...attributes}
       {...listeners}
       onClick={(e) => {
@@ -74,13 +77,23 @@ export default function KanbanCard({ project, onClick }: Props) {
             <User className="w-3.5 h-3.5" />
             <span className="truncate max-w-[80px]">{project.requester?.fullName}</span>
           </div>
-          {project.owner && (
-            <div className="flex items-center gap-1" title="Owner">
-              <span className="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-[10px]">
+          <div className="flex -space-x-1 overflow-hidden" title="Responsible (Owner & Members)">
+            {project.owner && (
+              <span className="w-5 h-5 rounded-full bg-red-100 border-2 border-white text-red-600 flex items-center justify-center font-bold text-[10px] z-10 relative">
                 {project.owner.fullName.charAt(0)}
               </span>
-            </div>
-          )}
+            )}
+            {project.members?.filter((m: any) => m.id !== project.ownerId).slice(0, 2).map((m: any, idx: number) => (
+              <span key={m.id} className={`w-5 h-5 rounded-full bg-gray-200 border-2 border-white text-gray-700 flex items-center justify-center font-bold text-[10px] relative z-${9-idx}`}>
+                {m.fullName.charAt(0)}
+              </span>
+            ))}
+            {(project.members?.filter((m: any) => m.id !== project.ownerId).length || 0) > 2 && (
+              <span className="w-5 h-5 rounded-full bg-gray-100 border-2 border-white text-gray-500 flex items-center justify-center font-bold text-[9px] relative z-0">
+                +{(project.members?.filter((m: any) => m.id !== project.ownerId).length || 0) - 2}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center justify-between mt-1">

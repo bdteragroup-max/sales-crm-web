@@ -56,6 +56,7 @@ model User {
   telesalesKPIs           TelesalesKPI[]
   employeeSale            EmployeeSale?
   jobStepLogs             JobStepLog[]
+  bdMemberProjects        BDProject[]            @relation("BDProjectMembers")
   technicianOrders        Order[]                @relation("OrderTechnicians")
 }
 
@@ -2605,8 +2606,9 @@ model BDProject {
   waitingOn     String?
   createdAt     DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt     DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
-  intakeDate    DateTime?    @db.Timestamptz(6)
   parentId      String?
+  intakeDate    DateTime?    @db.Timestamptz(6)
+  color         String?
   activities    BDActivity[]
   owner         User?        @relation("BDOwner", fields: [ownerId], references: [id])
   parent        BDProject?   @relation("BDSubProjects", fields: [parentId], references: [id])
@@ -2614,6 +2616,7 @@ model BDProject {
   requester     User         @relation("BDRequester", fields: [requesterId], references: [id])
   workType      BDWorkType   @relation(fields: [workTypeId], references: [id])
   tasks         BDTask[]
+  members       User[]       @relation("BDProjectMembers")
 }
 
 model BDWorkflowTemplate {

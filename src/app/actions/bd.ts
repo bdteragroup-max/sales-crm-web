@@ -3,6 +3,20 @@
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 
+export async function getAllUsersForBD() {
+  try {
+    const users = await prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, fullName: true, role: true },
+      orderBy: { fullName: 'asc' }
+    });
+    return { success: true, data: users };
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return { success: false, error: 'Failed to fetch users' };
+  }
+}
+
 export async function seedBDWorkTypes() {
   const defaultTypes = [
     { name: 'EV', description: 'EV Charging Station Project' },
@@ -141,6 +155,8 @@ export async function createBDProject(data: {
   deadline?: Date;
   parentId?: string;
   intakeDate?: Date;
+  color?: string;
+  memberIds?: string[];
 }) {
   try {
     const user = await getUser();
@@ -159,6 +175,10 @@ export async function createBDProject(data: {
         status: 'PENDING_REVIEW',
         parentId: data.parentId || null,
         intakeDate: data.intakeDate || null,
+        color: data.color || null,
+        members: {
+          connect: data.memberIds?.map(id => ({ id })) || []
+        }
       },
     });
 
@@ -186,6 +206,7 @@ export async function getBDProjects() {
         workType: true,
         requester: { select: { id: true, fullName: true, employeeId: true } },
         owner: { select: { id: true, fullName: true, employeeId: true } },
+        members: { select: { id: true, fullName: true } },
         tasks: {
           orderBy: { orderIndex: 'asc' },
           include: { assignee: { select: { id: true, fullName: true } } }
@@ -231,6 +252,7 @@ export async function getBDKanbanProjects() {
         workType: true,
         requester: { select: { id: true, fullName: true, employeeId: true } },
         owner: { select: { id: true, fullName: true, employeeId: true } },
+        members: { select: { id: true, fullName: true } },
         tasks: {
           orderBy: { orderIndex: 'asc' },
           include: { assignee: { select: { id: true, fullName: true } } }
@@ -251,6 +273,7 @@ export async function getBDKanbanProjects() {
         workType: true,
         requester: { select: { id: true, fullName: true, employeeId: true } },
         owner: { select: { id: true, fullName: true, employeeId: true } },
+        members: { select: { id: true, fullName: true } },
         tasks: {
           orderBy: { orderIndex: 'asc' },
           include: { assignee: { select: { id: true, fullName: true } } }
@@ -278,6 +301,7 @@ export async function getBDProjectDetails(id: string) {
         workType: true,
         requester: { select: { id: true, fullName: true, employeeId: true } },
         owner: { select: { id: true, fullName: true, employeeId: true } },
+        members: { select: { id: true, fullName: true } },
         tasks: {
           orderBy: { orderIndex: 'asc' },
           include: { assignee: { select: { id: true, fullName: true } } }
@@ -313,12 +337,16 @@ export async function updateBDProject(id: string, data: {
   status?: string;
   deadline?: Date | null;
   intakeDate?: Date | null;
+  color?: string | null;
+  memberIds?: string[];
 }) {
   try {
+    const { memberIds, ...restData } = data;
     const project = await prisma.bDProject.update({
       where: { id },
       data: {
-        ...data
+        ...restData,
+        ...(memberIds ? { members: { set: memberIds.map(id => ({ id })) } } : {})
       }
     });
     return { success: true, data: project };
@@ -670,5 +698,78 @@ export async function releaseBDTask(taskId: string) {
   } catch (error) {
     console.error('Error releasing task:', error);
     return { success: false, error: 'Failed to release task' };
+  }
+}
+
+export async function createBDTask(projectId: string, name: string, checklist?: { label: string; checked: boolean; id: string }[]) {
+  try {
+    const user = await getUser();
+    if (!user) return { success: false, error: 'Unauthorized' };
+
+    const project = await prisma.bDProject.findUnique({
+      where: { id: projectId },
+      include: { tasks: { select: { orderIndex: true } } }
+    });
+
+    if (!project) return { success: false, error: 'Project not found' };
+
+    const maxOrder = project.tasks.length > 0 ? Math.max(...project.tasks.map(t => t.orderIndex)) : 0;
+
+    const task = await prisma.bDTask.create({
+      data: {
+        projectId,
+        name,
+        orderIndex: maxOrder + 1,
+        status: 'PENDING',
+        checklistState: checklist ? (checklist as any) : undefined
+      }
+    });
+
+    await prisma.bDActivity.create({
+      data: {
+        projectId,
+        userId: user.id,
+        action: 'TASK_CREATED',
+        details: `Task "${name}" was manually created.`
+      }
+    });
+
+    return { success: true, data: task };
+  } catch (error) {
+    console.error('Error creating task:', error);
+    return { success: false, error: 'Failed to create task' };
+  }
+}
+
+export async function updateBDTaskName(taskId: string, name: string) {
+  try {
+    const user = await getUser();
+    if (!user) return { success: false, error: 'Unauthorized' };
+
+    await prisma.bDTask.update({
+      where: { id: taskId },
+      data: { name }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating task name:', error);
+    return { success: false, error: 'Failed to update task name' };
+  }
+}
+
+export async function deleteBDTask(taskId: string) {
+  try {
+    const user = await getUser();
+    if (!user) return { success: false, error: 'Unauthorized' };
+
+    await prisma.bDTask.delete({
+      where: { id: taskId }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    return { success: false, error: 'Failed to delete task' };
   }
 }
