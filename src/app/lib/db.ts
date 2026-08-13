@@ -4,6 +4,17 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import fs from 'fs'
 import path from 'path'
 
+const originalEmitWarning = process.emitWarning;
+process.emitWarning = function(warning: any, ...args: any[]) {
+  if (typeof warning === 'string' && warning.includes('Calling client.query() when the client is already executing a query')) {
+    return;
+  }
+  if (warning && warning.message && warning.message.includes('Calling client.query() when the client is already executing a query')) {
+    return;
+  }
+  return originalEmitWarning.call(process, warning, ...args);
+};
+
 const prismaClientSingleton = () => {
   let dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
@@ -16,15 +27,10 @@ const prismaClientSingleton = () => {
       console.warn("Failed to load DATABASE_URL from .env file");
     }
   }
-
-  if (!dbUrl) {
-    console.error("DATABASE_URL is not defined in environment or .env file! Database connections will fail.");
-  }
-
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 50, // Increased to 50 for heavy multi-tab usage
-    idleTimeoutMillis: 10000, // Free up unused connections faster
+    max: 50,
+    idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 10000,
   })
   const adapter = new PrismaPg(pool)
@@ -36,11 +42,11 @@ const prismaClientSingleton = () => {
 }
 
 declare global {
-  var prisma_instance_v23: undefined | ReturnType<typeof prismaClientSingleton>
+  var prisma_instance_v25: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-const prisma = globalThis.prisma_instance_v23 ?? prismaClientSingleton()
+const prisma = globalThis.prisma_instance_v25 ?? prismaClientSingleton()
 
 export default prisma
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma_instance_v23 = prisma
+if (process.env.NODE_ENV !== 'production') globalThis.prisma_instance_v25 = prisma
