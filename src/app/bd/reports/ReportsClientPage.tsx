@@ -255,7 +255,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                   className="text-sm bg-transparent outline-none pl-2 pr-1 border-r border-gray-200 text-gray-700"
                 >
                   <option value="ASSIGNED">วันที่มอบหมาย</option>
-                  <option value="COMPLETED">วันที่เสร็จสิ้น</option>
+                  <option value="COMPLETED">กำหนดส่ง (Due Date)</option>
                 </select>
                 <input
                   type="date"
