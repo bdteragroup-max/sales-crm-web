@@ -184,7 +184,14 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
           };
         }),
         charts: {
-          tasksByStatus: tasksByStatusAgg.map(t => ({ name: t.status, value: t._count.status })),
+          tasksByStatus: tasksByStatusAgg.map(t => {
+            let label = t.status;
+            if (t.status === 'COMPLETED') label = 'เสร็จสิ้น';
+            if (t.status === 'IN_PROGRESS') label = 'กำลังดำเนินการ';
+            if (t.status === 'PENDING') label = 'รอดำเนินการ';
+            if (t.status === 'ON_HOLD') label = 'ระงับชั่วคราว';
+            return { name: label, value: t._count.status };
+          }),
           trendData: {
             completed: recentlyCompletedTasks,
             assigned: recentlyAssignedTasks,

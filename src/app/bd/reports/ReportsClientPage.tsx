@@ -155,6 +155,18 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
     return buckets;
   }, [reportData]);
 
+  const paddedCompetencies = useMemo(() => {
+    if (!reportData?.charts?.competencies) return [];
+    let data = [...reportData.charts.competencies];
+    if (data.length === 1) {
+      data.push({ subject: ' ', A: 0, fullMark: 100 });
+      data.push({ subject: '  ', A: 0, fullMark: 100 });
+    } else if (data.length === 2) {
+      data.push({ subject: ' ', A: 0, fullMark: 100 });
+    }
+    return data;
+  }, [reportData]);
+
   const processedTeamData = useMemo(() => {
     return teamData.map(u => ({
       ...u,
@@ -344,7 +356,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                             <XAxis dataKey="firstName" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
                             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
                             <RechartsTooltip cursor={{ fill: '#F3F4F6' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                            <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '13px' }} iconType="square" align="left" />
+                            <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '13px' }} iconType="square" align="right" />
                             <Bar dataKey="completedThisMonth" name="แล้วเสร็จ" stackId="a" fill="#10B981" barSize={40} />
                             <Bar dataKey="inProgressTasks" name="กำลังดำเนินการ" stackId="a" fill="#3B82F6" barSize={40} />
                             <Bar dataKey="pendingTasks" name="ยังไม่เริ่ม" stackId="a" fill="#D1D5DB" radius={[4, 4, 0, 0]} barSize={40} />
@@ -694,7 +706,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                         <div className="h-72">
                           {reportData.charts.competencies && reportData.charts.competencies.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={reportData.charts.competencies}>
+                              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={paddedCompetencies}>
                                 <PolarGrid stroke="#E5E7EB" />
                                 <PolarAngleAxis dataKey="subject" tick={{ fill: '#4B5563', fontSize: 12 }} />
                                 <PolarRadiusAxis angle={30} domain={[0, 'dataMax']} tick={{ fill: '#9CA3AF', fontSize: 10 }} />
@@ -723,6 +735,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                                   outerRadius={90}
                                   paddingAngle={5}
                                   dataKey="value"
+                                  nameKey="name"
                                 >
                                   {reportData.charts.tasksByStatus.map((entry: any, index: number) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
