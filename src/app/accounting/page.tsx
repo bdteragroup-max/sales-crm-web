@@ -113,7 +113,8 @@ export default async function AccountingPage() {
     include: {
       job: {
         include: {
-          quotation: true
+          quotation: true,
+          project: true
         }
       }
     },

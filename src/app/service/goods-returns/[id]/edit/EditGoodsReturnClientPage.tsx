@@ -24,7 +24,7 @@ export default function EditGoodsReturnClientPage({ companies, jobs, quotations,
     customer: initialGoodsReturn?.customer || "",
     deliveryLocation: initialGoodsReturn?.deliveryLocation || "",
     reference: initialGoodsReturn?.reference || "",
-    returnType: initialGoodsReturn?.returnType || "DEFECT",
+    returnType: initialGoodsReturn?.returnType || "RETURN_TO_CUSTOMER",
     receiverName: initialGoodsReturn?.receiverName || "",
     receiverDate: initialGoodsReturn?.receiverDate ? new Date(initialGoodsReturn.receiverDate).toISOString().split('T')[0] : "",
     senderName: initialGoodsReturn?.senderName || currentUser?.fullName || "",
@@ -173,9 +173,8 @@ export default function EditGoodsReturnClientPage({ companies, jobs, quotations,
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-[#ff2301]"
               >
-                <option value="DEFECT">คืนของเสีย (Defect)</option>
-                <option value="REPAIR">ส่งซ่อม (Repair)</option>
-                <option value="SUPPLIER">คืนซัพพลายเออร์ (Supplier)</option>
+                <option value="RETURN_TO_CUSTOMER">คืนลูกค้า (Return to Customer)</option>
+                <option value="RETURN_WITHOUT_REPAIR">คืนโดยไม่ซ่อม (Return Without Repair)</option>
               </select>
             </div>
 

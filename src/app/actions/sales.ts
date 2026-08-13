@@ -54,7 +54,7 @@ export async function generateNextQuotationNumber(companyAbbr: string) {
   }
 }
 
-export async function searchCompanies(query: string) {
+export async function searchCompanies(query: string, surveyExcludeFilter?: { round: string, year: string, method: string }) {
   if (!query || query.length < 2) return [];
   
   try {
@@ -67,7 +67,27 @@ export async function searchCompanies(query: string) {
     };
     
     if (user) {
-      whereClause.AND = [ getCompanyWhereClause(user as any) ];
+      if (!whereClause.AND) whereClause.AND = [];
+      whereClause.AND.push(getCompanyWhereClause(user as any));
+    }
+
+    if (surveyExcludeFilter) {
+      const { round, year, method } = surveyExcludeFilter;
+      const evaluated = await prisma.customerSatisfaction.findMany({
+        where: {
+          surveyRound: parseInt(round),
+          surveyYear: parseInt(year),
+          surveyMethod: method
+        },
+        select: { companyId: true }
+      });
+      const evaluatedIds = evaluated.map(s => s.companyId);
+      if (evaluatedIds.length > 0) {
+        if (!whereClause.AND) whereClause.AND = [];
+        whereClause.AND.push({
+          id: { notIn: evaluatedIds }
+        });
+      }
     }
 
     const companies = await prisma.company.findMany({

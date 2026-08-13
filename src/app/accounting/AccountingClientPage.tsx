@@ -88,6 +88,7 @@ function JobDetailModal({
   }
 
   const { job, quotation, company, paymentTasks, stepLogs, project } = data;
+  const projectValueExclVat = project?.projectValue ? Number(project.projectValue) * 100 / 107 : undefined;
   const isCompleted = paymentTasks?.every((pt: any) => pt.status === 'ตรวจสอบและบันทึกแล้ว') || false;
 
   // Format steps timeline
@@ -176,10 +177,10 @@ function JobDetailModal({
                 </p>
               </div>
               <div>
-                <p className="text-xs text-blue-500/70 mb-1">มูลค่ารวมสุทธิ</p>
+                <p className="text-xs text-blue-500/70 mb-1">มูลค่ารวมสุทธิ (Excl. VAT)</p>
                 <p className="text-sm font-black text-blue-700">
-                  {project?.projectValue
-                    ? `฿${Number(project.projectValue).toLocaleString()}`
+                  {projectValueExclVat
+                    ? `฿${projectValueExclVat.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                     : (quotation?.totalAmountBeforeVat ? `฿${quotation.totalAmountBeforeVat.toLocaleString()}` : '-')}
                 </p>
               </div>
@@ -362,11 +363,11 @@ function JobDetailModal({
                         <div className="flex justify-between items-center mb-1">
                           <p className="text-xs font-bold text-emerald-700">มัดจำแล้ว: ฿{pt.paidAmount.toLocaleString()}</p>
                           <p className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
-                            {(((pt.paidAmount) / (project?.projectValue || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || pt.installmentAmount || 1)) * 100).toFixed(2)}%
+                            {(((pt.paidAmount) / (projectValueExclVat || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || pt.installmentAmount || 1)) * 100).toFixed(2)}%
                           </p>
                         </div>
                         <p className="text-xs text-gray-500">
-                          ยอดคงเหลือที่ต้องชำระ: ฿{((pt.installmentAmount || project?.projectValue || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 0) - pt.paidAmount).toLocaleString()}
+                          ยอดคงเหลือที่ต้องชำระ: ฿{((pt.installmentAmount || projectValueExclVat || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 0) - pt.paidAmount).toLocaleString()}
                         </p>
                       </div>
                     )}
@@ -423,10 +424,10 @@ function JobDetailModal({
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-bold text-emerald-800">คิดเป็น:</span>
                     <span className="text-lg font-black text-emerald-700">
-                      {((Number(depositAmount) / (project?.projectValue || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 1)) * 100).toFixed(2)}%
+                      {((Number(depositAmount) / (projectValueExclVat || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 1)) * 100).toFixed(2)}%
                     </span>
                   </div>
-                  <p className="text-xs text-emerald-600 mt-1">ของยอดรวมทั้งหมด ฿{(project?.projectValue || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 0).toLocaleString()}</p>
+                  <p className="text-xs text-emerald-600 mt-1">ของยอดรวมทั้งหมด ฿{(projectValueExclVat || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 0).toLocaleString()}</p>
                 </div>
               )}
 
@@ -739,8 +740,9 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           creditDaysLeft = Math.ceil(diff / (1000 * 3600 * 24)).toString();
         }
 
-        const totalValue = g.job?.quotation?.actualClosingAmount || g.job?.quotation?.totalAmountBeforeVat || 0;
-        const amountDue = t.installmentAmount || (t.installmentNo ? 0 : totalValue);
+        const projectValueExclVat = g.job?.project?.projectValue ? Number(g.job.project.projectValue) * 100 / 107 : null;
+        const totalValue = Number(projectValueExclVat || g.job?.quotation?.actualClosingAmount || g.job?.quotation?.totalAmountBeforeVat || 0);
+        const amountDue = Number(t.installmentAmount) || (t.installmentNo ? 0 : totalValue);
 
         return {
           'เลขที่งาน (Job No.)': g.job?.jobNumber || '-',
@@ -1080,9 +1082,9 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
                           {group.job?.paymentMethod || '-'}
                         </span>
-                        {group.tasks[0]?.installmentAmount && (
-                          <p className="text-[10px] text-gray-500 mt-1 font-bold">฿{group.tasks[0].installmentAmount.toLocaleString()}</p>
-                        )}
+                        <p className="text-[10px] text-gray-500 mt-1 font-bold">
+                          ฿{Number((group.job?.project?.projectValue ? Number(group.job.project.projectValue) * 100 / 107 : null) || group.job?.quotation?.actualClosingAmount || group.job?.quotation?.totalAmountBeforeVat || group.tasks[0]?.installmentAmount || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
                       </div>
                     )}
                   </td>

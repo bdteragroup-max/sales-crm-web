@@ -334,6 +334,31 @@ export async function startProductionWorkflow(id: string, payload: {
         }
       });
 
+      // Generate cabinet assembly jobs sequentially based on technicianWorkload
+      if (payload.technicianWorkload && Array.isArray(payload.technicianWorkload)) {
+        let globalCabIndex = 1;
+        for (const workload of payload.technicianWorkload) {
+          const techId = workload.technicianId;
+          const count = workload.count || 0;
+          
+          for (let i = 0; i < count; i++) {
+            const jobNumber = `${order.orderNumber}-CAB-${globalCabIndex.toString().padStart(2, '0')}`;
+            await tx.cabinetAssemblyJob.upsert({
+              where: { jobNumber },
+              update: { technicianId: techId },
+              create: {
+                orderId: id,
+                technicianId: techId,
+                jobNumber,
+                cabinetIndex: globalCabIndex,
+                status: 'PENDING'
+              }
+            });
+            globalCabIndex++;
+          }
+        }
+      }
+
       return updatedOrder;
     }, { maxWait: 15000, timeout: 30000 });
 

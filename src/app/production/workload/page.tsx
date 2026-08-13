@@ -44,7 +44,7 @@ export default async function WorkloadPage() {
       OR: [
         {
           status: {
-            in: ['PENDING', 'IN_PROGRESS', 'QC_FAILED']
+            in: ['PENDING', 'IN_PROGRESS', 'PAUSED', 'QC_FAILED']
           }
         },
         {

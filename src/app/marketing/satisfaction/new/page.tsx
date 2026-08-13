@@ -55,7 +55,7 @@ export default function NewSatisfactionSurvey() {
     searchTimeout.current = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const results = await searchCompanies(search);
+        const results = await searchCompanies(search, { round, year, method });
         setCompanies(results);
       } catch (error) {
         console.error(error);
@@ -63,14 +63,14 @@ export default function NewSatisfactionSurvey() {
         setIsSearching(false);
       }
     }, 500);
-  }, [search]);
+  }, [search, round, year, method]);
 
-  // Fetch active companies based on round and year
+  // Fetch active companies based on round, year, and method
   useEffect(() => {
     const fetchActiveCompanies = async () => {
       setLoadingActiveCompanies(true);
       try {
-        const res = await fetch(`/api/satisfaction/active-companies?round=${round}&year=${year}`);
+        const res = await fetch(`/api/satisfaction/active-companies?round=${round}&year=${year}&method=${method}`);
         if (res.ok) {
           const data = await res.json();
           setActiveCompanies(data.companies || []);
@@ -82,7 +82,7 @@ export default function NewSatisfactionSurvey() {
       }
     };
     fetchActiveCompanies();
-  }, [round, year]);
+  }, [round, year, method]);
 
   // Fetch sales data when company is selected
   useEffect(() => {

@@ -80,7 +80,7 @@ export default function GoodsReturnsClientPage({ initialData, currentUser }: { i
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                      {doc.returnType === 'DEFECT' ? 'คืนของเสีย' : doc.returnType === 'REPAIR' ? 'ส่งซ่อม' : doc.returnType === 'SUPPLIER' ? 'คืนซัพพลายเออร์' : doc.returnType}
+                      {doc.returnType === 'DEFECT' ? 'คืนของเสีย' : doc.returnType === 'REPAIR' ? 'ส่งซ่อม' : doc.returnType === 'SUPPLIER' ? 'คืนซัพพลายเออร์' : doc.returnType === 'RETURN_TO_CUSTOMER' ? 'คืนลูกค้า' : doc.returnType === 'RETURN_WITHOUT_REPAIR' ? 'คืนโดยไม่ซ่อม' : doc.returnType}
                     </span>
                   </td>
                   <td className="px-6 py-4">

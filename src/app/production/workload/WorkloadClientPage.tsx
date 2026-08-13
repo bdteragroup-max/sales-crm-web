@@ -110,10 +110,9 @@ export default function WorkloadClientPage({ jobs: initialJobs, technicians, cur
     };
   }
 
-  const getMockCapacity = (techId: string) => {
-    const val = parseInt(techId.slice(-1), 16) || 5;
-    const cap = (val % 6) * 15 + 40; // 40 to 115%
-    return Math.min(cap, 100);
+  // Calculate capacity based on actual jobs count (assuming max 10 jobs for 100%)
+  const getCapacity = (jobsCount: number) => {
+    return Math.min((jobsCount / 10) * 100, 100);
   }
 
   const getMockNextQueue = (techId: string) => {
@@ -323,7 +322,7 @@ export default function WorkloadClientPage({ jobs: initialJobs, technicians, cur
             {technicians.map((tech, i) => {
               const techJobs = getJobsForTechnician(tech.id)
               const isDragOver = dragOverCol === tech.id
-              const capacity = getMockCapacity(tech.id)
+              const capacity = getCapacity(techJobs.length)
 
               const techInProgress = techJobs.filter(j => j.status === 'IN_PROGRESS').length
               const techIssue = techJobs.filter(j => j.status === 'QC_FAILED').length
@@ -353,7 +352,7 @@ export default function WorkloadClientPage({ jobs: initialJobs, technicians, cur
                     <div className="space-y-1.5 mb-4">
                       <div className="flex justify-between text-[10px] font-bold">
                         <span className="text-gray-500">Capacity {capacity}%</span>
-                        <span className="text-gray-400">เหลือรับงานเพิ่มได้ {capacity < 80 ? '2' : (capacity < 95 ? '1' : '0')} งาน</span>
+                        <span className="text-gray-400">เหลือรับงานเพิ่มได้ {Math.max(10 - techJobs.length, 0)} งาน</span>
                       </div>
                       <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
                         <div className={`h-full rounded-full ${capacity > 90 ? 'bg-red-500' : (capacity > 75 ? 'bg-orange-500' : 'bg-green-500')}`} style={{ width: `${capacity}%` }}></div>
@@ -419,7 +418,7 @@ export default function WorkloadClientPage({ jobs: initialJobs, technicians, cur
                             </div>
                           ) : (
                             <div className="mb-3">
-                              <p className={`text-[10px] font-black mb-1 ${job.status === 'PENDING' ? 'text-gray-400' : 'text-blue-600'}`}>{job.status === 'PENDING' ? 'รอเริ่ม' : 'กำลังประกอบ'}</p>
+                              <p className={`text-[10px] font-black mb-1 ${job.status === 'PENDING' ? 'text-gray-400' : job.status === 'PAUSED' ? 'text-orange-500' : 'text-blue-600'}`}>{job.status === 'PENDING' ? 'รอเริ่ม' : job.status === 'PAUSED' ? 'หยุดพักชั่วคราว' : 'กำลังประกอบ'}</p>
                               <p className="text-[10px] font-bold text-gray-500 mb-1.5">{subStatus}</p>
                               <div className="flex items-center gap-2">
                                 <div className="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
@@ -512,7 +511,7 @@ export default function WorkloadClientPage({ jobs: initialJobs, technicians, cur
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <p className={`text-[10px] font-black ${job.status === 'PENDING' ? 'text-gray-400' : 'text-blue-600'}`}>{job.status === 'PENDING' ? 'รอเริ่ม' : 'กำลังประกอบ'}</p>
+                      <p className={`text-[10px] font-black ${job.status === 'PENDING' ? 'text-gray-400' : job.status === 'PAUSED' ? 'text-orange-500' : 'text-blue-600'}`}>{job.status === 'PENDING' ? 'รอเริ่ม' : job.status === 'PAUSED' ? 'หยุดพักชั่วคราว' : 'กำลังประกอบ'}</p>
                       <p className="text-[9px] font-bold text-gray-500">{subStatus}</p>
                     </td>
                     <td className="px-4 py-3 min-w-[120px]">

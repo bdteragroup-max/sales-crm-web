@@ -7,6 +7,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const round = searchParams.get('round');
   const year = searchParams.get('year');
+  const method = searchParams.get('method');
 
   if (!round || !year) {
     return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
@@ -29,6 +30,9 @@ export async function GET(req: Request) {
         status: {
           in: ["เปิดบิลแล้ว", "PO แล้วรอเงินโอน"]
         },
+        salespersonId: {
+          not: 'cmq7iv42y000004l496tyrofk' // Exclude Mr. Teerawat Pokphet
+        },
         OR: [
           { quotationDate: { gte: startDate, lte: endDate } },
           { poDate: { gte: startDate, lte: endDate } },
@@ -48,8 +52,22 @@ export async function GET(req: Request) {
       distinct: ['companyId']
     });
 
-    // Extract unique companies, filtering out any nulls
-    const companies = quotations.map(q => q.company).filter(Boolean);
+    // Find companies that have already been evaluated in this round/year/method
+    const existingSurveys = await prisma.customerSatisfaction.findMany({
+      where: {
+        surveyRound: parseInt(round),
+        surveyYear: parseInt(year),
+        ...(method ? { surveyMethod: method } : {})
+      },
+      select: { companyId: true }
+    });
+    const evaluatedCompanyIds = new Set(existingSurveys.map(s => s.companyId));
+
+    // Extract unique companies, filtering out any nulls and already evaluated ones
+    const companies = quotations
+      .map(q => q.company)
+      .filter(Boolean)
+      .filter(c => c && !evaluatedCompanyIds.has(c.id));
 
     return NextResponse.json({ companies });
   } catch (error) {
