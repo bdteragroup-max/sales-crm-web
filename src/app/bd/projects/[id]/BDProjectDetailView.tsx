@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getBDProjectDetails, acceptBDProject, getBDWorkflowTemplates, updateBDProject, addBDComment, claimBDBrief, releaseBDBrief, createBDTask, getAllUsersForBD } from '@/app/actions/bd';
 import Link from 'next/link';
 import BDTaskItem from './BDTaskItem';
@@ -31,6 +31,15 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
   const [newTaskChecklist, setNewTaskChecklist] = useState<string[]>([]);
   const [newChecklistItemText, setNewChecklistItemText] = useState('');
   const [addingTask, setAddingTask] = useState(false);
+
+  // Tags State
+  const [newTag, setNewTag] = useState('');
+
+  // Mentions State
+  const [showMentionMenu, setShowMentionMenu] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const loadData = async () => {
     const res = await getBDProjectDetails(id);
@@ -104,10 +113,69 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
 
   const handlePostComment = async () => {
     if (!commentText.trim()) return;
-    const res = await addBDComment(id, commentText);
+    const res = await addBDComment(id, commentText, mentionedUserIds);
     if (res.success) {
       setCommentText('');
+      setMentionedUserIds([]);
       loadData();
+    }
+  };
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setCommentText(val);
+
+    const cursorPosition = e.target.selectionStart || 0;
+    const textBeforeCursor = val.slice(0, cursorPosition);
+    const lastWord = textBeforeCursor.split(/[\s\n]+/).pop();
+
+    if (lastWord && lastWord.startsWith('@')) {
+      setShowMentionMenu(true);
+      setMentionQuery(lastWord.slice(1).toLowerCase());
+    } else {
+      setShowMentionMenu(false);
+    }
+  };
+
+  const handleMentionSelect = (user: any) => {
+    const cursorPosition = textareaRef.current?.selectionStart || 0;
+    const textBeforeCursor = commentText.slice(0, cursorPosition);
+    const textAfterCursor = commentText.slice(cursorPosition);
+    const lastWordIndex = textBeforeCursor.lastIndexOf('@');
+    
+    const newTextBefore = textBeforeCursor.slice(0, lastWordIndex);
+    const newText = `${newTextBefore}@${user.fullName} ${textAfterCursor}`;
+    setCommentText(newText);
+    setShowMentionMenu(false);
+    
+    if (!mentionedUserIds.includes(user.id)) {
+      setMentionedUserIds([...mentionedUserIds, user.id]);
+    }
+    textareaRef.current?.focus();
+  };
+
+  const handleAddTag = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newTag.trim()) {
+      e.preventDefault();
+      const tag = newTag.trim();
+      const currentTags = project.tags || [];
+      if (!currentTags.includes(tag)) {
+        const updatedTags = [...currentTags, tag];
+        const res = await updateBDProject(id, { tags: updatedTags });
+        if (res.success) {
+          setProject({ ...project, tags: updatedTags });
+          setNewTag('');
+        }
+      }
+    }
+  };
+
+  const handleRemoveTag = async (tagToRemove: string) => {
+    const currentTags = project.tags || [];
+    const updatedTags = currentTags.filter((t: string) => t !== tagToRemove);
+    const res = await updateBDProject(id, { tags: updatedTags });
+    if (res.success) {
+      setProject({ ...project, tags: updatedTags });
     }
   };
 
@@ -230,6 +298,22 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
               `}>
                 {project.urgency}
               </span>
+              <div className="flex flex-wrap items-center gap-1 ml-2">
+                {(project.tags || []).map((tag: string) => (
+                  <span key={tag} className="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium border border-blue-200">
+                    {tag}
+                    <button onClick={() => handleRemoveTag(tag)} className="text-blue-400 hover:text-blue-700 ml-1">&times;</button>
+                  </span>
+                ))}
+                <input 
+                  type="text" 
+                  placeholder="+ Tag"
+                  value={newTag}
+                  onChange={e => setNewTag(e.target.value)}
+                  onKeyDown={handleAddTag}
+                  className="w-16 text-xs bg-transparent border-b border-dashed border-gray-300 focus:border-red-500 focus:outline-none placeholder:text-gray-400 pb-0.5"
+                />
+              </div>
             </div>
             
             {project.parent && (
@@ -421,14 +505,36 @@ export default function BDProjectDetailView({ id, isModal = false, onClose }: { 
                 )}
               </div>
               
-              <div className="mt-6 border-t border-gray-100 pt-4">
+              <div className="mt-6 border-t border-gray-100 pt-4 relative">
                 <textarea 
+                  ref={textareaRef}
                   className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none" 
-                  placeholder="เพิ่มความคิดเห็น หรืออัปเดตงาน..."
+                  placeholder="เพิ่มความคิดเห็น (พิมพ์ @ เพื่อแท็กชื่อ)..."
                   rows={2}
                   value={commentText}
-                  onChange={e => setCommentText(e.target.value)}
+                  onChange={handleCommentChange}
                 ></textarea>
+                
+                {showMentionMenu && (
+                  <div className="absolute bottom-full mb-1 left-0 w-64 max-h-48 overflow-y-auto bg-white border border-gray-200 shadow-xl rounded-lg z-10">
+                    {allUsers.filter(u => u.fullName.toLowerCase().includes(mentionQuery)).length > 0 ? (
+                      allUsers.filter(u => u.fullName.toLowerCase().includes(mentionQuery)).map(u => (
+                        <div 
+                          key={u.id} 
+                          onClick={() => handleMentionSelect(u)}
+                          className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm flex items-center gap-2"
+                        >
+                          <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-[10px]">
+                            {u.fullName.charAt(0)}
+                          </div>
+                          <span>{u.fullName}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-4 py-2 text-sm text-gray-500">No users found</div>
+                    )}
+                  </div>
+                )}
                 <button 
                   onClick={handlePostComment}
                   disabled={!commentText.trim()}

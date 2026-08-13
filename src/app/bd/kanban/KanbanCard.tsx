@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { User, AlertCircle, CheckCircle, KanbanSquare } from 'lucide-react';
+import { User, AlertCircle, CheckCircle, KanbanSquare, Clock, Tag } from 'lucide-react';
+import { differenceInDays } from 'date-fns';
 
 interface Props {
   project: any;
@@ -35,6 +36,26 @@ export default function KanbanCard({ project, onClick }: Props) {
     project.urgency === 'High' ? 'bg-orange-100 text-orange-800' :
     'bg-gray-100 text-gray-800';
 
+  const tags = project.tags || [];
+  
+  let deadlineBadge = null;
+  if (project.deadline && project.status !== 'COMPLETED') {
+    const deadlineDate = new Date(project.deadline);
+    const diff = differenceInDays(deadlineDate, new Date());
+    
+    if (diff < 0) {
+      deadlineBadge = <div className="flex items-center gap-1 text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold border border-red-200"><Clock className="w-3 h-3" /> {Math.abs(diff)} days overdue</div>;
+    } else if (diff === 0) {
+      deadlineBadge = <div className="flex items-center gap-1 text-[10px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-bold border border-orange-200"><Clock className="w-3 h-3" /> Due today</div>;
+    } else if (diff <= 3) {
+      deadlineBadge = <div className="flex items-center gap-1 text-[10px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded font-bold border border-yellow-200"><Clock className="w-3 h-3" /> {diff} days left</div>;
+    } else {
+      deadlineBadge = <div className="flex items-center gap-1 text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200"><Clock className="w-3 h-3" /> {diff} days left</div>;
+    }
+  }
+
+  const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
   return (
     <div
       ref={setNodeRef}
@@ -61,6 +82,8 @@ export default function KanbanCard({ project, onClick }: Props) {
           {project.name}
         </div>
       </div>
+      
+      {deadlineBadge && <div className="mb-2">{deadlineBadge}</div>}
 
       <div className="flex flex-wrap gap-2 mb-3">
         <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
@@ -69,6 +92,11 @@ export default function KanbanCard({ project, onClick }: Props) {
         <span className={`px-2 py-0.5 rounded text-xs font-medium ${urgencyColor}`}>
           {project.urgency}
         </span>
+        {tags.map((tag: string) => (
+          <span key={tag} className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            <Tag className="w-2.5 h-2.5" /> {tag}
+          </span>
+        ))}
       </div>
 
       <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-gray-100">
@@ -96,9 +124,9 @@ export default function KanbanCard({ project, onClick }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-1">
+        <div className="flex flex-col gap-2 mt-1">
           {isBlocked ? (
-            <div className="flex items-center gap-1 text-xs text-red-600 font-medium bg-red-50 px-2 py-0.5 rounded">
+            <div className="flex items-center gap-1 text-xs text-red-600 font-medium bg-red-50 px-2 py-0.5 rounded w-fit">
               <AlertCircle className="w-3.5 h-3.5" />
               Blocked
             </div>
@@ -108,9 +136,14 @@ export default function KanbanCard({ project, onClick }: Props) {
               {completedSubProjects}/{totalSubProjects} Sub-projects
             </div>
           ) : totalTasks > 0 ? (
-            <div className={`flex items-center gap-1 text-xs ${completedTasks === totalTasks ? 'text-green-600' : 'text-gray-500'}`}>
-              <CheckCircle className="w-3.5 h-3.5" />
-              {completedTasks}/{totalTasks} Tasks
+            <div className="w-full mt-1">
+              <div className="flex justify-between text-[10px] text-gray-500 mb-1">
+                <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3" /> {completedTasks}/{totalTasks} tasks</span>
+                <span>{completionPercentage}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div className={`h-1.5 rounded-full ${completionPercentage === 100 ? 'bg-green-500' : 'bg-red-500'}`} style={{ width: `${completionPercentage}%` }}></div>
+              </div>
             </div>
           ) : (
             <div className="text-xs text-gray-400">No tasks</div>

@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
+import { sendPushToUser } from "@/app/lib/pushNotification";
 
 export async function getAllUsersForBD() {
   try {
@@ -354,6 +355,7 @@ export async function updateBDProject(id: string, data: {
   color?: string | null;
   completedAt?: Date | null;
   memberIds?: string[];
+  tags?: string[];
 }) {
   try {
     const { memberIds, ...restData } = data;
@@ -594,10 +596,15 @@ export async function unblockBDTask(taskId: string) {
   }
 }
 
-export async function addBDComment(projectId: string, comment: string) {
+export async function addBDComment(projectId: string, comment: string, mentionedUserIds?: string[]) {
   try {
     const user = await getUser();
     if (!user) return { success: false, error: 'Unauthorized' };
+
+    const project = await prisma.bDProject.findUnique({
+      where: { id: projectId },
+      select: { name: true }
+    });
 
     await prisma.bDActivity.create({
       data: {
@@ -607,6 +614,22 @@ export async function addBDComment(projectId: string, comment: string) {
         details: comment
       }
     });
+
+    if (mentionedUserIds && mentionedUserIds.length > 0 && project) {
+      // Snippet for push notification
+      const snippet = comment.length > 50 ? comment.substring(0, 50) + '...' : comment;
+      
+      for (const targetUserId of mentionedUserIds) {
+        if (targetUserId !== user.id) { // Don't notify self
+          await sendPushToUser(targetUserId, {
+            title: `Mentioned by ${user.fullName}`,
+            body: `[${project.name}]: ${snippet}`,
+            url: `/bd/projects/${projectId}`,
+            category: 'BD_MENTION'
+          });
+        }
+      }
+    }
 
     return { success: true };
   } catch (error) {

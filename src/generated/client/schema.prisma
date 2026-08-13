@@ -2610,6 +2610,7 @@ model BDProject {
   intakeDate    DateTime?    @db.Timestamptz(6)
   color         String?
   completedAt   DateTime?    @db.Timestamptz(6)
+  tags          String[]     @default([])
   activities    BDActivity[]
   owner         User?        @relation("BDOwner", fields: [ownerId], references: [id])
   parent        BDProject?   @relation("BDSubProjects", fields: [parentId], references: [id])

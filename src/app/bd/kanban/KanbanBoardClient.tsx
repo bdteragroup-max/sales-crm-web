@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy
 } from '@dnd-kit/sortable';
-import { Loader2, KanbanSquare, Plus } from 'lucide-react';
+import { Loader2, KanbanSquare, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { getBDKanbanProjects, updateBDProject, acceptBDProject, getBDWorkflowTemplates } from '@/app/actions/bd';
 import KanbanCard from './KanbanCard';
@@ -47,6 +47,12 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
 
   // Active Drag State
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterAssignee, setFilterAssignee] = useState<string>('');
+  const [filterWorkType, setFilterWorkType] = useState<string>('');
+  const [filterTag, setFilterTag] = useState<string>('');
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -84,6 +90,40 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
     })
   );
 
+  const uniqueAssignees = useMemo(() => {
+    const map = new Map<string, string>();
+    projects.forEach(p => {
+      if (p.owner) map.set(p.owner.id, p.owner.fullName);
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [projects]);
+
+  const uniqueWorkTypes = useMemo(() => {
+    const map = new Map<string, string>();
+    projects.forEach(p => {
+      if (p.workType) map.set(p.workType.id, p.workType.name);
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [projects]);
+
+  const uniqueTags = useMemo(() => {
+    const set = new Set<string>();
+    projects.forEach(p => {
+      if (p.tags) p.tags.forEach((t: string) => set.add(t));
+    });
+    return Array.from(set);
+  }, [projects]);
+
+  const filteredProjects = useMemo(() => {
+    return projects.filter(p => {
+      if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (filterAssignee && p.ownerId !== filterAssignee) return false;
+      if (filterWorkType && p.workTypeId !== filterWorkType) return false;
+      if (filterTag && !(p.tags || []).includes(filterTag)) return false;
+      return true;
+    });
+  }, [projects, searchQuery, filterAssignee, filterWorkType, filterTag]);
+
   const columnsData = useMemo(() => {
     const data: Record<string, any[]> = {
       PENDING_REVIEW: [],
@@ -92,14 +132,14 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
       COMPLETED: []
     };
 
-    projects.forEach(p => {
+    filteredProjects.forEach(p => {
       if (data[p.status]) {
         data[p.status].push(p);
       }
     });
 
     return data;
-  }, [projects]);
+  }, [filteredProjects]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -217,6 +257,44 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
           <Plus className="w-4 h-4" />
           สร้างบรีฟใหม่ (New Brief)
         </Link>
+      </div>
+
+      {/* Search & Filters */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3 flex flex-wrap gap-4 items-center shrink-0">
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-4 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
+          />
+        </div>
+        <select
+          value={filterAssignee}
+          onChange={(e) => setFilterAssignee(e.target.value)}
+          className="py-1.5 pl-3 pr-8 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500"
+        >
+          <option value="">All Assignees</option>
+          {uniqueAssignees.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+        </select>
+        <select
+          value={filterWorkType}
+          onChange={(e) => setFilterWorkType(e.target.value)}
+          className="py-1.5 pl-3 pr-8 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500"
+        >
+          <option value="">All Work Types</option>
+          {uniqueWorkTypes.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+        </select>
+        <select
+          value={filterTag}
+          onChange={(e) => setFilterTag(e.target.value)}
+          className="py-1.5 pl-3 pr-8 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500"
+        >
+          <option value="">All Tags</option>
+          {uniqueTags.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
       </div>
 
       {/* Board */}
