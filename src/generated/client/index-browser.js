@@ -2163,6 +2163,41 @@ exports.Prisma.BDWorkTypeScalarFieldEnum = {
   defaultTemplateId: 'defaultTemplateId'
 };
 
+exports.Prisma.SupportTicketScalarFieldEnum = {
+  id: 'id',
+  ticketNumber: 'ticketNumber',
+  title: 'title',
+  description: 'description',
+  attachments: 'attachments',
+  urgency: 'urgency',
+  status: 'status',
+  reporterId: 'reporterId',
+  assigneeId: 'assigneeId',
+  resolutionPlan: 'resolutionPlan',
+  progressPercent: 'progressPercent',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TicketCommentScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  userId: 'userId',
+  message: 'message',
+  attachments: 'attachments',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.TicketLogScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  userId: 'userId',
+  action: 'action',
+  details: 'details',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.BDProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2385,6 +2420,9 @@ exports.Prisma.ModelName = {
   ProductionTimeLog: 'ProductionTimeLog',
   ProductionStep: 'ProductionStep',
   BDWorkType: 'BDWorkType',
+  SupportTicket: 'SupportTicket',
+  TicketComment: 'TicketComment',
+  TicketLog: 'TicketLog',
   BDProject: 'BDProject',
   BDWorkflowTemplate: 'BDWorkflowTemplate',
   BDWorkflowStepTemplate: 'BDWorkflowStepTemplate',

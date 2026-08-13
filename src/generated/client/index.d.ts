@@ -659,6 +659,21 @@ export type ProductionStep = $Result.DefaultSelection<Prisma.$ProductionStepPayl
  */
 export type BDWorkType = $Result.DefaultSelection<Prisma.$BDWorkTypePayload>
 /**
+ * Model SupportTicket
+ * 
+ */
+export type SupportTicket = $Result.DefaultSelection<Prisma.$SupportTicketPayload>
+/**
+ * Model TicketComment
+ * 
+ */
+export type TicketComment = $Result.DefaultSelection<Prisma.$TicketCommentPayload>
+/**
+ * Model TicketLog
+ * 
+ */
+export type TicketLog = $Result.DefaultSelection<Prisma.$TicketLogPayload>
+/**
  * Model BDProject
  * 
  */
@@ -2096,6 +2111,36 @@ export class PrismaClient<
   get bDWorkType(): Prisma.BDWorkTypeDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.supportTicket`: Exposes CRUD operations for the **SupportTicket** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SupportTickets
+    * const supportTickets = await prisma.supportTicket.findMany()
+    * ```
+    */
+  get supportTicket(): Prisma.SupportTicketDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ticketComment`: Exposes CRUD operations for the **TicketComment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TicketComments
+    * const ticketComments = await prisma.ticketComment.findMany()
+    * ```
+    */
+  get ticketComment(): Prisma.TicketCommentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ticketLog`: Exposes CRUD operations for the **TicketLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TicketLogs
+    * const ticketLogs = await prisma.ticketLog.findMany()
+    * ```
+    */
+  get ticketLog(): Prisma.TicketLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.bDProject`: Exposes CRUD operations for the **BDProject** model.
     * Example usage:
     * ```ts
@@ -2707,6 +2752,9 @@ export namespace Prisma {
     ProductionTimeLog: 'ProductionTimeLog',
     ProductionStep: 'ProductionStep',
     BDWorkType: 'BDWorkType',
+    SupportTicket: 'SupportTicket',
+    TicketComment: 'TicketComment',
+    TicketLog: 'TicketLog',
     BDProject: 'BDProject',
     BDWorkflowTemplate: 'BDWorkflowTemplate',
     BDWorkflowStepTemplate: 'BDWorkflowStepTemplate',
@@ -2727,7 +2775,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog" | "cabinetAssemblyJob" | "assemblyTimeLog" | "cabinetQCReport" | "cabinetFATReport" | "technicianTask" | "productionAssignment" | "productionTimeLog" | "productionStep" | "bDWorkType" | "bDProject" | "bDWorkflowTemplate" | "bDWorkflowStepTemplate" | "bDTask" | "bDActivity"
+      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog" | "cabinetAssemblyJob" | "assemblyTimeLog" | "cabinetQCReport" | "cabinetFATReport" | "technicianTask" | "productionAssignment" | "productionTimeLog" | "productionStep" | "bDWorkType" | "supportTicket" | "ticketComment" | "ticketLog" | "bDProject" | "bDWorkflowTemplate" | "bDWorkflowStepTemplate" | "bDTask" | "bDActivity"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -12277,6 +12325,228 @@ export namespace Prisma {
           }
         }
       }
+      SupportTicket: {
+        payload: Prisma.$SupportTicketPayload<ExtArgs>
+        fields: Prisma.SupportTicketFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SupportTicketFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SupportTicketFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>
+          }
+          findFirst: {
+            args: Prisma.SupportTicketFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SupportTicketFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>
+          }
+          findMany: {
+            args: Prisma.SupportTicketFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>[]
+          }
+          create: {
+            args: Prisma.SupportTicketCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>
+          }
+          createMany: {
+            args: Prisma.SupportTicketCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SupportTicketCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>[]
+          }
+          delete: {
+            args: Prisma.SupportTicketDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>
+          }
+          update: {
+            args: Prisma.SupportTicketUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>
+          }
+          deleteMany: {
+            args: Prisma.SupportTicketDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SupportTicketUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SupportTicketUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>[]
+          }
+          upsert: {
+            args: Prisma.SupportTicketUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportTicketPayload>
+          }
+          aggregate: {
+            args: Prisma.SupportTicketAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSupportTicket>
+          }
+          groupBy: {
+            args: Prisma.SupportTicketGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SupportTicketGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SupportTicketCountArgs<ExtArgs>
+            result: $Utils.Optional<SupportTicketCountAggregateOutputType> | number
+          }
+        }
+      }
+      TicketComment: {
+        payload: Prisma.$TicketCommentPayload<ExtArgs>
+        fields: Prisma.TicketCommentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TicketCommentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TicketCommentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>
+          }
+          findFirst: {
+            args: Prisma.TicketCommentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TicketCommentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>
+          }
+          findMany: {
+            args: Prisma.TicketCommentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>[]
+          }
+          create: {
+            args: Prisma.TicketCommentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>
+          }
+          createMany: {
+            args: Prisma.TicketCommentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TicketCommentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>[]
+          }
+          delete: {
+            args: Prisma.TicketCommentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>
+          }
+          update: {
+            args: Prisma.TicketCommentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>
+          }
+          deleteMany: {
+            args: Prisma.TicketCommentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TicketCommentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TicketCommentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>[]
+          }
+          upsert: {
+            args: Prisma.TicketCommentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCommentPayload>
+          }
+          aggregate: {
+            args: Prisma.TicketCommentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTicketComment>
+          }
+          groupBy: {
+            args: Prisma.TicketCommentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TicketCommentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TicketCommentCountArgs<ExtArgs>
+            result: $Utils.Optional<TicketCommentCountAggregateOutputType> | number
+          }
+        }
+      }
+      TicketLog: {
+        payload: Prisma.$TicketLogPayload<ExtArgs>
+        fields: Prisma.TicketLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TicketLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TicketLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>
+          }
+          findFirst: {
+            args: Prisma.TicketLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TicketLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>
+          }
+          findMany: {
+            args: Prisma.TicketLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>[]
+          }
+          create: {
+            args: Prisma.TicketLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>
+          }
+          createMany: {
+            args: Prisma.TicketLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TicketLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>[]
+          }
+          delete: {
+            args: Prisma.TicketLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>
+          }
+          update: {
+            args: Prisma.TicketLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.TicketLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TicketLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TicketLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.TicketLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketLogPayload>
+          }
+          aggregate: {
+            args: Prisma.TicketLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTicketLog>
+          }
+          groupBy: {
+            args: Prisma.TicketLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TicketLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TicketLogCountArgs<ExtArgs>
+            result: $Utils.Optional<TicketLogCountAggregateOutputType> | number
+          }
+        }
+      }
       BDProject: {
         payload: Prisma.$BDProjectPayload<ExtArgs>
         fields: Prisma.BDProjectFieldRefs
@@ -12884,6 +13154,9 @@ export namespace Prisma {
     productionTimeLog?: ProductionTimeLogOmit
     productionStep?: ProductionStepOmit
     bDWorkType?: BDWorkTypeOmit
+    supportTicket?: SupportTicketOmit
+    ticketComment?: TicketCommentOmit
+    ticketLog?: TicketLogOmit
     bDProject?: BDProjectOmit
     bDWorkflowTemplate?: BDWorkflowTemplateOmit
     bDWorkflowStepTemplate?: BDWorkflowStepTemplateOmit
@@ -12999,9 +13272,13 @@ export namespace Prisma {
     serviceSchedules: number
     estimatedSurveys: number
     siteSurveys: number
+    assignedTickets: number
+    reportedTickets: number
     assignedTechnicianTasks: number
     telesales: number
     telesalesKPIs: number
+    ticketComments: number
+    ticketLogs: number
     jobStepLogs: number
     bdMemberProjects: number
     technicianOrders: number
@@ -13038,9 +13315,13 @@ export namespace Prisma {
     serviceSchedules?: boolean | UserCountOutputTypeCountServiceSchedulesArgs
     estimatedSurveys?: boolean | UserCountOutputTypeCountEstimatedSurveysArgs
     siteSurveys?: boolean | UserCountOutputTypeCountSiteSurveysArgs
+    assignedTickets?: boolean | UserCountOutputTypeCountAssignedTicketsArgs
+    reportedTickets?: boolean | UserCountOutputTypeCountReportedTicketsArgs
     assignedTechnicianTasks?: boolean | UserCountOutputTypeCountAssignedTechnicianTasksArgs
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     telesalesKPIs?: boolean | UserCountOutputTypeCountTelesalesKPIsArgs
+    ticketComments?: boolean | UserCountOutputTypeCountTicketCommentsArgs
+    ticketLogs?: boolean | UserCountOutputTypeCountTicketLogsArgs
     jobStepLogs?: boolean | UserCountOutputTypeCountJobStepLogsArgs
     bdMemberProjects?: boolean | UserCountOutputTypeCountBdMemberProjectsArgs
     technicianOrders?: boolean | UserCountOutputTypeCountTechnicianOrdersArgs
@@ -13270,6 +13551,20 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
+  export type UserCountOutputTypeCountAssignedTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportTicketWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountReportedTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportTicketWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
   export type UserCountOutputTypeCountAssignedTechnicianTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TechnicianTaskWhereInput
   }
@@ -13286,6 +13581,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountTelesalesKPIsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TelesalesKPIWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTicketCommentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketCommentWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTicketLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketLogWhereInput
   }
 
   /**
@@ -15128,6 +15437,46 @@ export namespace Prisma {
 
 
   /**
+   * Count Type SupportTicketCountOutputType
+   */
+
+  export type SupportTicketCountOutputType = {
+    comments: number
+    logs: number
+  }
+
+  export type SupportTicketCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    comments?: boolean | SupportTicketCountOutputTypeCountCommentsArgs
+    logs?: boolean | SupportTicketCountOutputTypeCountLogsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SupportTicketCountOutputType without action
+   */
+  export type SupportTicketCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicketCountOutputType
+     */
+    select?: SupportTicketCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SupportTicketCountOutputType without action
+   */
+  export type SupportTicketCountOutputTypeCountCommentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketCommentWhereInput
+  }
+
+  /**
+   * SupportTicketCountOutputType without action
+   */
+  export type SupportTicketCountOutputTypeCountLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketLogWhereInput
+  }
+
+
+  /**
    * Count Type BDProjectCountOutputType
    */
 
@@ -15487,9 +15836,13 @@ export namespace Prisma {
     serviceSchedules?: boolean | User$serviceSchedulesArgs<ExtArgs>
     estimatedSurveys?: boolean | User$estimatedSurveysArgs<ExtArgs>
     siteSurveys?: boolean | User$siteSurveysArgs<ExtArgs>
+    assignedTickets?: boolean | User$assignedTicketsArgs<ExtArgs>
+    reportedTickets?: boolean | User$reportedTicketsArgs<ExtArgs>
     assignedTechnicianTasks?: boolean | User$assignedTechnicianTasksArgs<ExtArgs>
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
+    ticketComments?: boolean | User$ticketCommentsArgs<ExtArgs>
+    ticketLogs?: boolean | User$ticketLogsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
     bdMemberProjects?: boolean | User$bdMemberProjectsArgs<ExtArgs>
@@ -15577,9 +15930,13 @@ export namespace Prisma {
     serviceSchedules?: boolean | User$serviceSchedulesArgs<ExtArgs>
     estimatedSurveys?: boolean | User$estimatedSurveysArgs<ExtArgs>
     siteSurveys?: boolean | User$siteSurveysArgs<ExtArgs>
+    assignedTickets?: boolean | User$assignedTicketsArgs<ExtArgs>
+    reportedTickets?: boolean | User$reportedTicketsArgs<ExtArgs>
     assignedTechnicianTasks?: boolean | User$assignedTechnicianTasksArgs<ExtArgs>
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
+    ticketComments?: boolean | User$ticketCommentsArgs<ExtArgs>
+    ticketLogs?: boolean | User$ticketLogsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
     bdMemberProjects?: boolean | User$bdMemberProjectsArgs<ExtArgs>
@@ -15622,9 +15979,13 @@ export namespace Prisma {
       serviceSchedules: Prisma.$ServiceSchedulePayload<ExtArgs>[]
       estimatedSurveys: Prisma.$SiteSurveyPayload<ExtArgs>[]
       siteSurveys: Prisma.$SiteSurveyPayload<ExtArgs>[]
+      assignedTickets: Prisma.$SupportTicketPayload<ExtArgs>[]
+      reportedTickets: Prisma.$SupportTicketPayload<ExtArgs>[]
       assignedTechnicianTasks: Prisma.$TechnicianTaskPayload<ExtArgs>[]
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
       telesalesKPIs: Prisma.$TelesalesKPIPayload<ExtArgs>[]
+      ticketComments: Prisma.$TicketCommentPayload<ExtArgs>[]
+      ticketLogs: Prisma.$TicketLogPayload<ExtArgs>[]
       employeeSale: Prisma.$EmployeeSalePayload<ExtArgs> | null
       jobStepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
       bdMemberProjects: Prisma.$BDProjectPayload<ExtArgs>[]
@@ -16068,9 +16429,13 @@ export namespace Prisma {
     serviceSchedules<T extends User$serviceSchedulesArgs<ExtArgs> = {}>(args?: Subset<T, User$serviceSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     estimatedSurveys<T extends User$estimatedSurveysArgs<ExtArgs> = {}>(args?: Subset<T, User$estimatedSurveysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteSurveyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     siteSurveys<T extends User$siteSurveysArgs<ExtArgs> = {}>(args?: Subset<T, User$siteSurveysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteSurveyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    assignedTickets<T extends User$assignedTicketsArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedTicketsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reportedTickets<T extends User$reportedTicketsArgs<ExtArgs> = {}>(args?: Subset<T, User$reportedTicketsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedTechnicianTasks<T extends User$assignedTechnicianTasksArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedTechnicianTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TechnicianTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesales<T extends User$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesalesKPIs<T extends User$telesalesKPIsArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesKPIsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    ticketComments<T extends User$ticketCommentsArgs<ExtArgs> = {}>(args?: Subset<T, User$ticketCommentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    ticketLogs<T extends User$ticketLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$ticketLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employeeSale<T extends User$employeeSaleArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeSaleArgs<ExtArgs>>): Prisma__EmployeeSaleClient<$Result.GetResult<Prisma.$EmployeeSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     jobStepLogs<T extends User$jobStepLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$jobStepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     bdMemberProjects<T extends User$bdMemberProjectsArgs<ExtArgs> = {}>(args?: Subset<T, User$bdMemberProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BDProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -17230,6 +17595,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.assignedTickets
+   */
+  export type User$assignedTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    where?: SupportTicketWhereInput
+    orderBy?: SupportTicketOrderByWithRelationInput | SupportTicketOrderByWithRelationInput[]
+    cursor?: SupportTicketWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportTicketScalarFieldEnum | SupportTicketScalarFieldEnum[]
+  }
+
+  /**
+   * User.reportedTickets
+   */
+  export type User$reportedTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    where?: SupportTicketWhereInput
+    orderBy?: SupportTicketOrderByWithRelationInput | SupportTicketOrderByWithRelationInput[]
+    cursor?: SupportTicketWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportTicketScalarFieldEnum | SupportTicketScalarFieldEnum[]
+  }
+
+  /**
    * User.assignedTechnicianTasks
    */
   export type User$assignedTechnicianTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17299,6 +17712,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TelesalesKPIScalarFieldEnum | TelesalesKPIScalarFieldEnum[]
+  }
+
+  /**
+   * User.ticketComments
+   */
+  export type User$ticketCommentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    where?: TicketCommentWhereInput
+    orderBy?: TicketCommentOrderByWithRelationInput | TicketCommentOrderByWithRelationInput[]
+    cursor?: TicketCommentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketCommentScalarFieldEnum | TicketCommentScalarFieldEnum[]
+  }
+
+  /**
+   * User.ticketLogs
+   */
+  export type User$ticketLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    where?: TicketLogWhereInput
+    orderBy?: TicketLogOrderByWithRelationInput | TicketLogOrderByWithRelationInput[]
+    cursor?: TicketLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketLogScalarFieldEnum | TicketLogScalarFieldEnum[]
   }
 
   /**
@@ -174173,6 +174634,3465 @@ export namespace Prisma {
 
 
   /**
+   * Model SupportTicket
+   */
+
+  export type AggregateSupportTicket = {
+    _count: SupportTicketCountAggregateOutputType | null
+    _avg: SupportTicketAvgAggregateOutputType | null
+    _sum: SupportTicketSumAggregateOutputType | null
+    _min: SupportTicketMinAggregateOutputType | null
+    _max: SupportTicketMaxAggregateOutputType | null
+  }
+
+  export type SupportTicketAvgAggregateOutputType = {
+    progressPercent: number | null
+  }
+
+  export type SupportTicketSumAggregateOutputType = {
+    progressPercent: number | null
+  }
+
+  export type SupportTicketMinAggregateOutputType = {
+    id: string | null
+    ticketNumber: string | null
+    title: string | null
+    description: string | null
+    urgency: string | null
+    status: string | null
+    reporterId: string | null
+    assigneeId: string | null
+    resolutionPlan: string | null
+    progressPercent: number | null
+    resolvedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SupportTicketMaxAggregateOutputType = {
+    id: string | null
+    ticketNumber: string | null
+    title: string | null
+    description: string | null
+    urgency: string | null
+    status: string | null
+    reporterId: string | null
+    assigneeId: string | null
+    resolutionPlan: string | null
+    progressPercent: number | null
+    resolvedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SupportTicketCountAggregateOutputType = {
+    id: number
+    ticketNumber: number
+    title: number
+    description: number
+    attachments: number
+    urgency: number
+    status: number
+    reporterId: number
+    assigneeId: number
+    resolutionPlan: number
+    progressPercent: number
+    resolvedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SupportTicketAvgAggregateInputType = {
+    progressPercent?: true
+  }
+
+  export type SupportTicketSumAggregateInputType = {
+    progressPercent?: true
+  }
+
+  export type SupportTicketMinAggregateInputType = {
+    id?: true
+    ticketNumber?: true
+    title?: true
+    description?: true
+    urgency?: true
+    status?: true
+    reporterId?: true
+    assigneeId?: true
+    resolutionPlan?: true
+    progressPercent?: true
+    resolvedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SupportTicketMaxAggregateInputType = {
+    id?: true
+    ticketNumber?: true
+    title?: true
+    description?: true
+    urgency?: true
+    status?: true
+    reporterId?: true
+    assigneeId?: true
+    resolutionPlan?: true
+    progressPercent?: true
+    resolvedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SupportTicketCountAggregateInputType = {
+    id?: true
+    ticketNumber?: true
+    title?: true
+    description?: true
+    attachments?: true
+    urgency?: true
+    status?: true
+    reporterId?: true
+    assigneeId?: true
+    resolutionPlan?: true
+    progressPercent?: true
+    resolvedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SupportTicketAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportTicket to aggregate.
+     */
+    where?: SupportTicketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportTickets to fetch.
+     */
+    orderBy?: SupportTicketOrderByWithRelationInput | SupportTicketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SupportTicketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportTickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportTickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SupportTickets
+    **/
+    _count?: true | SupportTicketCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SupportTicketAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SupportTicketSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SupportTicketMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SupportTicketMaxAggregateInputType
+  }
+
+  export type GetSupportTicketAggregateType<T extends SupportTicketAggregateArgs> = {
+        [P in keyof T & keyof AggregateSupportTicket]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSupportTicket[P]>
+      : GetScalarType<T[P], AggregateSupportTicket[P]>
+  }
+
+
+
+
+  export type SupportTicketGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportTicketWhereInput
+    orderBy?: SupportTicketOrderByWithAggregationInput | SupportTicketOrderByWithAggregationInput[]
+    by: SupportTicketScalarFieldEnum[] | SupportTicketScalarFieldEnum
+    having?: SupportTicketScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SupportTicketCountAggregateInputType | true
+    _avg?: SupportTicketAvgAggregateInputType
+    _sum?: SupportTicketSumAggregateInputType
+    _min?: SupportTicketMinAggregateInputType
+    _max?: SupportTicketMaxAggregateInputType
+  }
+
+  export type SupportTicketGroupByOutputType = {
+    id: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments: string[]
+    urgency: string
+    status: string
+    reporterId: string
+    assigneeId: string | null
+    resolutionPlan: string | null
+    progressPercent: number
+    resolvedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SupportTicketCountAggregateOutputType | null
+    _avg: SupportTicketAvgAggregateOutputType | null
+    _sum: SupportTicketSumAggregateOutputType | null
+    _min: SupportTicketMinAggregateOutputType | null
+    _max: SupportTicketMaxAggregateOutputType | null
+  }
+
+  type GetSupportTicketGroupByPayload<T extends SupportTicketGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SupportTicketGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SupportTicketGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SupportTicketGroupByOutputType[P]>
+            : GetScalarType<T[P], SupportTicketGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SupportTicketSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketNumber?: boolean
+    title?: boolean
+    description?: boolean
+    attachments?: boolean
+    urgency?: boolean
+    status?: boolean
+    reporterId?: boolean
+    assigneeId?: boolean
+    resolutionPlan?: boolean
+    progressPercent?: boolean
+    resolvedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
+    reporter?: boolean | UserDefaultArgs<ExtArgs>
+    comments?: boolean | SupportTicket$commentsArgs<ExtArgs>
+    logs?: boolean | SupportTicket$logsArgs<ExtArgs>
+    _count?: boolean | SupportTicketCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportTicket"]>
+
+  export type SupportTicketSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketNumber?: boolean
+    title?: boolean
+    description?: boolean
+    attachments?: boolean
+    urgency?: boolean
+    status?: boolean
+    reporterId?: boolean
+    assigneeId?: boolean
+    resolutionPlan?: boolean
+    progressPercent?: boolean
+    resolvedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
+    reporter?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportTicket"]>
+
+  export type SupportTicketSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketNumber?: boolean
+    title?: boolean
+    description?: boolean
+    attachments?: boolean
+    urgency?: boolean
+    status?: boolean
+    reporterId?: boolean
+    assigneeId?: boolean
+    resolutionPlan?: boolean
+    progressPercent?: boolean
+    resolvedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
+    reporter?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportTicket"]>
+
+  export type SupportTicketSelectScalar = {
+    id?: boolean
+    ticketNumber?: boolean
+    title?: boolean
+    description?: boolean
+    attachments?: boolean
+    urgency?: boolean
+    status?: boolean
+    reporterId?: boolean
+    assigneeId?: boolean
+    resolutionPlan?: boolean
+    progressPercent?: boolean
+    resolvedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SupportTicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketNumber" | "title" | "description" | "attachments" | "urgency" | "status" | "reporterId" | "assigneeId" | "resolutionPlan" | "progressPercent" | "resolvedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["supportTicket"]>
+  export type SupportTicketInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
+    reporter?: boolean | UserDefaultArgs<ExtArgs>
+    comments?: boolean | SupportTicket$commentsArgs<ExtArgs>
+    logs?: boolean | SupportTicket$logsArgs<ExtArgs>
+    _count?: boolean | SupportTicketCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type SupportTicketIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
+    reporter?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type SupportTicketIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
+    reporter?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $SupportTicketPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SupportTicket"
+    objects: {
+      assignee: Prisma.$UserPayload<ExtArgs> | null
+      reporter: Prisma.$UserPayload<ExtArgs>
+      comments: Prisma.$TicketCommentPayload<ExtArgs>[]
+      logs: Prisma.$TicketLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      ticketNumber: string
+      title: string
+      description: string
+      attachments: string[]
+      urgency: string
+      status: string
+      reporterId: string
+      assigneeId: string | null
+      resolutionPlan: string | null
+      progressPercent: number
+      resolvedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["supportTicket"]>
+    composites: {}
+  }
+
+  type SupportTicketGetPayload<S extends boolean | null | undefined | SupportTicketDefaultArgs> = $Result.GetResult<Prisma.$SupportTicketPayload, S>
+
+  type SupportTicketCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SupportTicketFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SupportTicketCountAggregateInputType | true
+    }
+
+  export interface SupportTicketDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SupportTicket'], meta: { name: 'SupportTicket' } }
+    /**
+     * Find zero or one SupportTicket that matches the filter.
+     * @param {SupportTicketFindUniqueArgs} args - Arguments to find a SupportTicket
+     * @example
+     * // Get one SupportTicket
+     * const supportTicket = await prisma.supportTicket.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SupportTicketFindUniqueArgs>(args: SelectSubset<T, SupportTicketFindUniqueArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SupportTicket that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SupportTicketFindUniqueOrThrowArgs} args - Arguments to find a SupportTicket
+     * @example
+     * // Get one SupportTicket
+     * const supportTicket = await prisma.supportTicket.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SupportTicketFindUniqueOrThrowArgs>(args: SelectSubset<T, SupportTicketFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportTicket that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportTicketFindFirstArgs} args - Arguments to find a SupportTicket
+     * @example
+     * // Get one SupportTicket
+     * const supportTicket = await prisma.supportTicket.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SupportTicketFindFirstArgs>(args?: SelectSubset<T, SupportTicketFindFirstArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportTicket that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportTicketFindFirstOrThrowArgs} args - Arguments to find a SupportTicket
+     * @example
+     * // Get one SupportTicket
+     * const supportTicket = await prisma.supportTicket.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SupportTicketFindFirstOrThrowArgs>(args?: SelectSubset<T, SupportTicketFindFirstOrThrowArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SupportTickets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportTicketFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SupportTickets
+     * const supportTickets = await prisma.supportTicket.findMany()
+     * 
+     * // Get first 10 SupportTickets
+     * const supportTickets = await prisma.supportTicket.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const supportTicketWithIdOnly = await prisma.supportTicket.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SupportTicketFindManyArgs>(args?: SelectSubset<T, SupportTicketFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SupportTicket.
+     * @param {SupportTicketCreateArgs} args - Arguments to create a SupportTicket.
+     * @example
+     * // Create one SupportTicket
+     * const SupportTicket = await prisma.supportTicket.create({
+     *   data: {
+     *     // ... data to create a SupportTicket
+     *   }
+     * })
+     * 
+     */
+    create<T extends SupportTicketCreateArgs>(args: SelectSubset<T, SupportTicketCreateArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SupportTickets.
+     * @param {SupportTicketCreateManyArgs} args - Arguments to create many SupportTickets.
+     * @example
+     * // Create many SupportTickets
+     * const supportTicket = await prisma.supportTicket.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SupportTicketCreateManyArgs>(args?: SelectSubset<T, SupportTicketCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SupportTickets and returns the data saved in the database.
+     * @param {SupportTicketCreateManyAndReturnArgs} args - Arguments to create many SupportTickets.
+     * @example
+     * // Create many SupportTickets
+     * const supportTicket = await prisma.supportTicket.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SupportTickets and only return the `id`
+     * const supportTicketWithIdOnly = await prisma.supportTicket.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SupportTicketCreateManyAndReturnArgs>(args?: SelectSubset<T, SupportTicketCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SupportTicket.
+     * @param {SupportTicketDeleteArgs} args - Arguments to delete one SupportTicket.
+     * @example
+     * // Delete one SupportTicket
+     * const SupportTicket = await prisma.supportTicket.delete({
+     *   where: {
+     *     // ... filter to delete one SupportTicket
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SupportTicketDeleteArgs>(args: SelectSubset<T, SupportTicketDeleteArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SupportTicket.
+     * @param {SupportTicketUpdateArgs} args - Arguments to update one SupportTicket.
+     * @example
+     * // Update one SupportTicket
+     * const supportTicket = await prisma.supportTicket.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SupportTicketUpdateArgs>(args: SelectSubset<T, SupportTicketUpdateArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SupportTickets.
+     * @param {SupportTicketDeleteManyArgs} args - Arguments to filter SupportTickets to delete.
+     * @example
+     * // Delete a few SupportTickets
+     * const { count } = await prisma.supportTicket.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SupportTicketDeleteManyArgs>(args?: SelectSubset<T, SupportTicketDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportTickets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportTicketUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SupportTickets
+     * const supportTicket = await prisma.supportTicket.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SupportTicketUpdateManyArgs>(args: SelectSubset<T, SupportTicketUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportTickets and returns the data updated in the database.
+     * @param {SupportTicketUpdateManyAndReturnArgs} args - Arguments to update many SupportTickets.
+     * @example
+     * // Update many SupportTickets
+     * const supportTicket = await prisma.supportTicket.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SupportTickets and only return the `id`
+     * const supportTicketWithIdOnly = await prisma.supportTicket.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SupportTicketUpdateManyAndReturnArgs>(args: SelectSubset<T, SupportTicketUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SupportTicket.
+     * @param {SupportTicketUpsertArgs} args - Arguments to update or create a SupportTicket.
+     * @example
+     * // Update or create a SupportTicket
+     * const supportTicket = await prisma.supportTicket.upsert({
+     *   create: {
+     *     // ... data to create a SupportTicket
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SupportTicket we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SupportTicketUpsertArgs>(args: SelectSubset<T, SupportTicketUpsertArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SupportTickets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportTicketCountArgs} args - Arguments to filter SupportTickets to count.
+     * @example
+     * // Count the number of SupportTickets
+     * const count = await prisma.supportTicket.count({
+     *   where: {
+     *     // ... the filter for the SupportTickets we want to count
+     *   }
+     * })
+    **/
+    count<T extends SupportTicketCountArgs>(
+      args?: Subset<T, SupportTicketCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SupportTicketCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SupportTicket.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportTicketAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SupportTicketAggregateArgs>(args: Subset<T, SupportTicketAggregateArgs>): Prisma.PrismaPromise<GetSupportTicketAggregateType<T>>
+
+    /**
+     * Group by SupportTicket.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportTicketGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SupportTicketGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SupportTicketGroupByArgs['orderBy'] }
+        : { orderBy?: SupportTicketGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SupportTicketGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSupportTicketGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SupportTicket model
+   */
+  readonly fields: SupportTicketFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SupportTicket.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SupportTicketClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    assignee<T extends SupportTicket$assigneeArgs<ExtArgs> = {}>(args?: Subset<T, SupportTicket$assigneeArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reporter<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    comments<T extends SupportTicket$commentsArgs<ExtArgs> = {}>(args?: Subset<T, SupportTicket$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    logs<T extends SupportTicket$logsArgs<ExtArgs> = {}>(args?: Subset<T, SupportTicket$logsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SupportTicket model
+   */
+  interface SupportTicketFieldRefs {
+    readonly id: FieldRef<"SupportTicket", 'String'>
+    readonly ticketNumber: FieldRef<"SupportTicket", 'String'>
+    readonly title: FieldRef<"SupportTicket", 'String'>
+    readonly description: FieldRef<"SupportTicket", 'String'>
+    readonly attachments: FieldRef<"SupportTicket", 'String[]'>
+    readonly urgency: FieldRef<"SupportTicket", 'String'>
+    readonly status: FieldRef<"SupportTicket", 'String'>
+    readonly reporterId: FieldRef<"SupportTicket", 'String'>
+    readonly assigneeId: FieldRef<"SupportTicket", 'String'>
+    readonly resolutionPlan: FieldRef<"SupportTicket", 'String'>
+    readonly progressPercent: FieldRef<"SupportTicket", 'Int'>
+    readonly resolvedAt: FieldRef<"SupportTicket", 'DateTime'>
+    readonly createdAt: FieldRef<"SupportTicket", 'DateTime'>
+    readonly updatedAt: FieldRef<"SupportTicket", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SupportTicket findUnique
+   */
+  export type SupportTicketFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportTicket to fetch.
+     */
+    where: SupportTicketWhereUniqueInput
+  }
+
+  /**
+   * SupportTicket findUniqueOrThrow
+   */
+  export type SupportTicketFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportTicket to fetch.
+     */
+    where: SupportTicketWhereUniqueInput
+  }
+
+  /**
+   * SupportTicket findFirst
+   */
+  export type SupportTicketFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportTicket to fetch.
+     */
+    where?: SupportTicketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportTickets to fetch.
+     */
+    orderBy?: SupportTicketOrderByWithRelationInput | SupportTicketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportTickets.
+     */
+    cursor?: SupportTicketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportTickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportTickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportTickets.
+     */
+    distinct?: SupportTicketScalarFieldEnum | SupportTicketScalarFieldEnum[]
+  }
+
+  /**
+   * SupportTicket findFirstOrThrow
+   */
+  export type SupportTicketFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportTicket to fetch.
+     */
+    where?: SupportTicketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportTickets to fetch.
+     */
+    orderBy?: SupportTicketOrderByWithRelationInput | SupportTicketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportTickets.
+     */
+    cursor?: SupportTicketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportTickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportTickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportTickets.
+     */
+    distinct?: SupportTicketScalarFieldEnum | SupportTicketScalarFieldEnum[]
+  }
+
+  /**
+   * SupportTicket findMany
+   */
+  export type SupportTicketFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportTickets to fetch.
+     */
+    where?: SupportTicketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportTickets to fetch.
+     */
+    orderBy?: SupportTicketOrderByWithRelationInput | SupportTicketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SupportTickets.
+     */
+    cursor?: SupportTicketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportTickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportTickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportTickets.
+     */
+    distinct?: SupportTicketScalarFieldEnum | SupportTicketScalarFieldEnum[]
+  }
+
+  /**
+   * SupportTicket create
+   */
+  export type SupportTicketCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SupportTicket.
+     */
+    data: XOR<SupportTicketCreateInput, SupportTicketUncheckedCreateInput>
+  }
+
+  /**
+   * SupportTicket createMany
+   */
+  export type SupportTicketCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SupportTickets.
+     */
+    data: SupportTicketCreateManyInput | SupportTicketCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SupportTicket createManyAndReturn
+   */
+  export type SupportTicketCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * The data used to create many SupportTickets.
+     */
+    data: SupportTicketCreateManyInput | SupportTicketCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportTicket update
+   */
+  export type SupportTicketUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SupportTicket.
+     */
+    data: XOR<SupportTicketUpdateInput, SupportTicketUncheckedUpdateInput>
+    /**
+     * Choose, which SupportTicket to update.
+     */
+    where: SupportTicketWhereUniqueInput
+  }
+
+  /**
+   * SupportTicket updateMany
+   */
+  export type SupportTicketUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SupportTickets.
+     */
+    data: XOR<SupportTicketUpdateManyMutationInput, SupportTicketUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportTickets to update
+     */
+    where?: SupportTicketWhereInput
+    /**
+     * Limit how many SupportTickets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportTicket updateManyAndReturn
+   */
+  export type SupportTicketUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * The data used to update SupportTickets.
+     */
+    data: XOR<SupportTicketUpdateManyMutationInput, SupportTicketUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportTickets to update
+     */
+    where?: SupportTicketWhereInput
+    /**
+     * Limit how many SupportTickets to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportTicket upsert
+   */
+  export type SupportTicketUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SupportTicket to update in case it exists.
+     */
+    where: SupportTicketWhereUniqueInput
+    /**
+     * In case the SupportTicket found by the `where` argument doesn't exist, create a new SupportTicket with this data.
+     */
+    create: XOR<SupportTicketCreateInput, SupportTicketUncheckedCreateInput>
+    /**
+     * In case the SupportTicket was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SupportTicketUpdateInput, SupportTicketUncheckedUpdateInput>
+  }
+
+  /**
+   * SupportTicket delete
+   */
+  export type SupportTicketDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+    /**
+     * Filter which SupportTicket to delete.
+     */
+    where: SupportTicketWhereUniqueInput
+  }
+
+  /**
+   * SupportTicket deleteMany
+   */
+  export type SupportTicketDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportTickets to delete
+     */
+    where?: SupportTicketWhereInput
+    /**
+     * Limit how many SupportTickets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportTicket.assignee
+   */
+  export type SupportTicket$assigneeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * SupportTicket.comments
+   */
+  export type SupportTicket$commentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    where?: TicketCommentWhereInput
+    orderBy?: TicketCommentOrderByWithRelationInput | TicketCommentOrderByWithRelationInput[]
+    cursor?: TicketCommentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketCommentScalarFieldEnum | TicketCommentScalarFieldEnum[]
+  }
+
+  /**
+   * SupportTicket.logs
+   */
+  export type SupportTicket$logsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    where?: TicketLogWhereInput
+    orderBy?: TicketLogOrderByWithRelationInput | TicketLogOrderByWithRelationInput[]
+    cursor?: TicketLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketLogScalarFieldEnum | TicketLogScalarFieldEnum[]
+  }
+
+  /**
+   * SupportTicket without action
+   */
+  export type SupportTicketDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportTicket
+     */
+    select?: SupportTicketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportTicket
+     */
+    omit?: SupportTicketOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportTicketInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TicketComment
+   */
+
+  export type AggregateTicketComment = {
+    _count: TicketCommentCountAggregateOutputType | null
+    _min: TicketCommentMinAggregateOutputType | null
+    _max: TicketCommentMaxAggregateOutputType | null
+  }
+
+  export type TicketCommentMinAggregateOutputType = {
+    id: string | null
+    ticketId: string | null
+    userId: string | null
+    message: string | null
+    createdAt: Date | null
+  }
+
+  export type TicketCommentMaxAggregateOutputType = {
+    id: string | null
+    ticketId: string | null
+    userId: string | null
+    message: string | null
+    createdAt: Date | null
+  }
+
+  export type TicketCommentCountAggregateOutputType = {
+    id: number
+    ticketId: number
+    userId: number
+    message: number
+    attachments: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type TicketCommentMinAggregateInputType = {
+    id?: true
+    ticketId?: true
+    userId?: true
+    message?: true
+    createdAt?: true
+  }
+
+  export type TicketCommentMaxAggregateInputType = {
+    id?: true
+    ticketId?: true
+    userId?: true
+    message?: true
+    createdAt?: true
+  }
+
+  export type TicketCommentCountAggregateInputType = {
+    id?: true
+    ticketId?: true
+    userId?: true
+    message?: true
+    attachments?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type TicketCommentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketComment to aggregate.
+     */
+    where?: TicketCommentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketComments to fetch.
+     */
+    orderBy?: TicketCommentOrderByWithRelationInput | TicketCommentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TicketCommentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketComments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketComments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TicketComments
+    **/
+    _count?: true | TicketCommentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TicketCommentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TicketCommentMaxAggregateInputType
+  }
+
+  export type GetTicketCommentAggregateType<T extends TicketCommentAggregateArgs> = {
+        [P in keyof T & keyof AggregateTicketComment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTicketComment[P]>
+      : GetScalarType<T[P], AggregateTicketComment[P]>
+  }
+
+
+
+
+  export type TicketCommentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketCommentWhereInput
+    orderBy?: TicketCommentOrderByWithAggregationInput | TicketCommentOrderByWithAggregationInput[]
+    by: TicketCommentScalarFieldEnum[] | TicketCommentScalarFieldEnum
+    having?: TicketCommentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TicketCommentCountAggregateInputType | true
+    _min?: TicketCommentMinAggregateInputType
+    _max?: TicketCommentMaxAggregateInputType
+  }
+
+  export type TicketCommentGroupByOutputType = {
+    id: string
+    ticketId: string
+    userId: string
+    message: string
+    attachments: string[]
+    createdAt: Date
+    _count: TicketCommentCountAggregateOutputType | null
+    _min: TicketCommentMinAggregateOutputType | null
+    _max: TicketCommentMaxAggregateOutputType | null
+  }
+
+  type GetTicketCommentGroupByPayload<T extends TicketCommentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TicketCommentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TicketCommentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TicketCommentGroupByOutputType[P]>
+            : GetScalarType<T[P], TicketCommentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TicketCommentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    message?: boolean
+    attachments?: boolean
+    createdAt?: boolean
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketComment"]>
+
+  export type TicketCommentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    message?: boolean
+    attachments?: boolean
+    createdAt?: boolean
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketComment"]>
+
+  export type TicketCommentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    message?: boolean
+    attachments?: boolean
+    createdAt?: boolean
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketComment"]>
+
+  export type TicketCommentSelectScalar = {
+    id?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    message?: boolean
+    attachments?: boolean
+    createdAt?: boolean
+  }
+
+  export type TicketCommentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketId" | "userId" | "message" | "attachments" | "createdAt", ExtArgs["result"]["ticketComment"]>
+  export type TicketCommentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TicketCommentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TicketCommentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $TicketCommentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TicketComment"
+    objects: {
+      ticket: Prisma.$SupportTicketPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      ticketId: string
+      userId: string
+      message: string
+      attachments: string[]
+      createdAt: Date
+    }, ExtArgs["result"]["ticketComment"]>
+    composites: {}
+  }
+
+  type TicketCommentGetPayload<S extends boolean | null | undefined | TicketCommentDefaultArgs> = $Result.GetResult<Prisma.$TicketCommentPayload, S>
+
+  type TicketCommentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TicketCommentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TicketCommentCountAggregateInputType | true
+    }
+
+  export interface TicketCommentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TicketComment'], meta: { name: 'TicketComment' } }
+    /**
+     * Find zero or one TicketComment that matches the filter.
+     * @param {TicketCommentFindUniqueArgs} args - Arguments to find a TicketComment
+     * @example
+     * // Get one TicketComment
+     * const ticketComment = await prisma.ticketComment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TicketCommentFindUniqueArgs>(args: SelectSubset<T, TicketCommentFindUniqueArgs<ExtArgs>>): Prisma__TicketCommentClient<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TicketComment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TicketCommentFindUniqueOrThrowArgs} args - Arguments to find a TicketComment
+     * @example
+     * // Get one TicketComment
+     * const ticketComment = await prisma.ticketComment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TicketCommentFindUniqueOrThrowArgs>(args: SelectSubset<T, TicketCommentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TicketCommentClient<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketComment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCommentFindFirstArgs} args - Arguments to find a TicketComment
+     * @example
+     * // Get one TicketComment
+     * const ticketComment = await prisma.ticketComment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TicketCommentFindFirstArgs>(args?: SelectSubset<T, TicketCommentFindFirstArgs<ExtArgs>>): Prisma__TicketCommentClient<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketComment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCommentFindFirstOrThrowArgs} args - Arguments to find a TicketComment
+     * @example
+     * // Get one TicketComment
+     * const ticketComment = await prisma.ticketComment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TicketCommentFindFirstOrThrowArgs>(args?: SelectSubset<T, TicketCommentFindFirstOrThrowArgs<ExtArgs>>): Prisma__TicketCommentClient<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TicketComments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCommentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TicketComments
+     * const ticketComments = await prisma.ticketComment.findMany()
+     * 
+     * // Get first 10 TicketComments
+     * const ticketComments = await prisma.ticketComment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ticketCommentWithIdOnly = await prisma.ticketComment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TicketCommentFindManyArgs>(args?: SelectSubset<T, TicketCommentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TicketComment.
+     * @param {TicketCommentCreateArgs} args - Arguments to create a TicketComment.
+     * @example
+     * // Create one TicketComment
+     * const TicketComment = await prisma.ticketComment.create({
+     *   data: {
+     *     // ... data to create a TicketComment
+     *   }
+     * })
+     * 
+     */
+    create<T extends TicketCommentCreateArgs>(args: SelectSubset<T, TicketCommentCreateArgs<ExtArgs>>): Prisma__TicketCommentClient<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TicketComments.
+     * @param {TicketCommentCreateManyArgs} args - Arguments to create many TicketComments.
+     * @example
+     * // Create many TicketComments
+     * const ticketComment = await prisma.ticketComment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TicketCommentCreateManyArgs>(args?: SelectSubset<T, TicketCommentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TicketComments and returns the data saved in the database.
+     * @param {TicketCommentCreateManyAndReturnArgs} args - Arguments to create many TicketComments.
+     * @example
+     * // Create many TicketComments
+     * const ticketComment = await prisma.ticketComment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TicketComments and only return the `id`
+     * const ticketCommentWithIdOnly = await prisma.ticketComment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TicketCommentCreateManyAndReturnArgs>(args?: SelectSubset<T, TicketCommentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TicketComment.
+     * @param {TicketCommentDeleteArgs} args - Arguments to delete one TicketComment.
+     * @example
+     * // Delete one TicketComment
+     * const TicketComment = await prisma.ticketComment.delete({
+     *   where: {
+     *     // ... filter to delete one TicketComment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TicketCommentDeleteArgs>(args: SelectSubset<T, TicketCommentDeleteArgs<ExtArgs>>): Prisma__TicketCommentClient<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TicketComment.
+     * @param {TicketCommentUpdateArgs} args - Arguments to update one TicketComment.
+     * @example
+     * // Update one TicketComment
+     * const ticketComment = await prisma.ticketComment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TicketCommentUpdateArgs>(args: SelectSubset<T, TicketCommentUpdateArgs<ExtArgs>>): Prisma__TicketCommentClient<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TicketComments.
+     * @param {TicketCommentDeleteManyArgs} args - Arguments to filter TicketComments to delete.
+     * @example
+     * // Delete a few TicketComments
+     * const { count } = await prisma.ticketComment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TicketCommentDeleteManyArgs>(args?: SelectSubset<T, TicketCommentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketComments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCommentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TicketComments
+     * const ticketComment = await prisma.ticketComment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TicketCommentUpdateManyArgs>(args: SelectSubset<T, TicketCommentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketComments and returns the data updated in the database.
+     * @param {TicketCommentUpdateManyAndReturnArgs} args - Arguments to update many TicketComments.
+     * @example
+     * // Update many TicketComments
+     * const ticketComment = await prisma.ticketComment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TicketComments and only return the `id`
+     * const ticketCommentWithIdOnly = await prisma.ticketComment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TicketCommentUpdateManyAndReturnArgs>(args: SelectSubset<T, TicketCommentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TicketComment.
+     * @param {TicketCommentUpsertArgs} args - Arguments to update or create a TicketComment.
+     * @example
+     * // Update or create a TicketComment
+     * const ticketComment = await prisma.ticketComment.upsert({
+     *   create: {
+     *     // ... data to create a TicketComment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TicketComment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TicketCommentUpsertArgs>(args: SelectSubset<T, TicketCommentUpsertArgs<ExtArgs>>): Prisma__TicketCommentClient<$Result.GetResult<Prisma.$TicketCommentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TicketComments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCommentCountArgs} args - Arguments to filter TicketComments to count.
+     * @example
+     * // Count the number of TicketComments
+     * const count = await prisma.ticketComment.count({
+     *   where: {
+     *     // ... the filter for the TicketComments we want to count
+     *   }
+     * })
+    **/
+    count<T extends TicketCommentCountArgs>(
+      args?: Subset<T, TicketCommentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TicketCommentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TicketComment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCommentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TicketCommentAggregateArgs>(args: Subset<T, TicketCommentAggregateArgs>): Prisma.PrismaPromise<GetTicketCommentAggregateType<T>>
+
+    /**
+     * Group by TicketComment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCommentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TicketCommentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TicketCommentGroupByArgs['orderBy'] }
+        : { orderBy?: TicketCommentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TicketCommentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTicketCommentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TicketComment model
+   */
+  readonly fields: TicketCommentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TicketComment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TicketCommentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    ticket<T extends SupportTicketDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SupportTicketDefaultArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TicketComment model
+   */
+  interface TicketCommentFieldRefs {
+    readonly id: FieldRef<"TicketComment", 'String'>
+    readonly ticketId: FieldRef<"TicketComment", 'String'>
+    readonly userId: FieldRef<"TicketComment", 'String'>
+    readonly message: FieldRef<"TicketComment", 'String'>
+    readonly attachments: FieldRef<"TicketComment", 'String[]'>
+    readonly createdAt: FieldRef<"TicketComment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TicketComment findUnique
+   */
+  export type TicketCommentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketComment to fetch.
+     */
+    where: TicketCommentWhereUniqueInput
+  }
+
+  /**
+   * TicketComment findUniqueOrThrow
+   */
+  export type TicketCommentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketComment to fetch.
+     */
+    where: TicketCommentWhereUniqueInput
+  }
+
+  /**
+   * TicketComment findFirst
+   */
+  export type TicketCommentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketComment to fetch.
+     */
+    where?: TicketCommentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketComments to fetch.
+     */
+    orderBy?: TicketCommentOrderByWithRelationInput | TicketCommentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketComments.
+     */
+    cursor?: TicketCommentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketComments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketComments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketComments.
+     */
+    distinct?: TicketCommentScalarFieldEnum | TicketCommentScalarFieldEnum[]
+  }
+
+  /**
+   * TicketComment findFirstOrThrow
+   */
+  export type TicketCommentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketComment to fetch.
+     */
+    where?: TicketCommentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketComments to fetch.
+     */
+    orderBy?: TicketCommentOrderByWithRelationInput | TicketCommentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketComments.
+     */
+    cursor?: TicketCommentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketComments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketComments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketComments.
+     */
+    distinct?: TicketCommentScalarFieldEnum | TicketCommentScalarFieldEnum[]
+  }
+
+  /**
+   * TicketComment findMany
+   */
+  export type TicketCommentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketComments to fetch.
+     */
+    where?: TicketCommentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketComments to fetch.
+     */
+    orderBy?: TicketCommentOrderByWithRelationInput | TicketCommentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TicketComments.
+     */
+    cursor?: TicketCommentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketComments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketComments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketComments.
+     */
+    distinct?: TicketCommentScalarFieldEnum | TicketCommentScalarFieldEnum[]
+  }
+
+  /**
+   * TicketComment create
+   */
+  export type TicketCommentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TicketComment.
+     */
+    data: XOR<TicketCommentCreateInput, TicketCommentUncheckedCreateInput>
+  }
+
+  /**
+   * TicketComment createMany
+   */
+  export type TicketCommentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TicketComments.
+     */
+    data: TicketCommentCreateManyInput | TicketCommentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TicketComment createManyAndReturn
+   */
+  export type TicketCommentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * The data used to create many TicketComments.
+     */
+    data: TicketCommentCreateManyInput | TicketCommentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TicketComment update
+   */
+  export type TicketCommentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TicketComment.
+     */
+    data: XOR<TicketCommentUpdateInput, TicketCommentUncheckedUpdateInput>
+    /**
+     * Choose, which TicketComment to update.
+     */
+    where: TicketCommentWhereUniqueInput
+  }
+
+  /**
+   * TicketComment updateMany
+   */
+  export type TicketCommentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TicketComments.
+     */
+    data: XOR<TicketCommentUpdateManyMutationInput, TicketCommentUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketComments to update
+     */
+    where?: TicketCommentWhereInput
+    /**
+     * Limit how many TicketComments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketComment updateManyAndReturn
+   */
+  export type TicketCommentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * The data used to update TicketComments.
+     */
+    data: XOR<TicketCommentUpdateManyMutationInput, TicketCommentUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketComments to update
+     */
+    where?: TicketCommentWhereInput
+    /**
+     * Limit how many TicketComments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TicketComment upsert
+   */
+  export type TicketCommentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TicketComment to update in case it exists.
+     */
+    where: TicketCommentWhereUniqueInput
+    /**
+     * In case the TicketComment found by the `where` argument doesn't exist, create a new TicketComment with this data.
+     */
+    create: XOR<TicketCommentCreateInput, TicketCommentUncheckedCreateInput>
+    /**
+     * In case the TicketComment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TicketCommentUpdateInput, TicketCommentUncheckedUpdateInput>
+  }
+
+  /**
+   * TicketComment delete
+   */
+  export type TicketCommentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+    /**
+     * Filter which TicketComment to delete.
+     */
+    where: TicketCommentWhereUniqueInput
+  }
+
+  /**
+   * TicketComment deleteMany
+   */
+  export type TicketCommentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketComments to delete
+     */
+    where?: TicketCommentWhereInput
+    /**
+     * Limit how many TicketComments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketComment without action
+   */
+  export type TicketCommentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketComment
+     */
+    select?: TicketCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketComment
+     */
+    omit?: TicketCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketCommentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TicketLog
+   */
+
+  export type AggregateTicketLog = {
+    _count: TicketLogCountAggregateOutputType | null
+    _min: TicketLogMinAggregateOutputType | null
+    _max: TicketLogMaxAggregateOutputType | null
+  }
+
+  export type TicketLogMinAggregateOutputType = {
+    id: string | null
+    ticketId: string | null
+    userId: string | null
+    action: string | null
+    details: string | null
+    createdAt: Date | null
+  }
+
+  export type TicketLogMaxAggregateOutputType = {
+    id: string | null
+    ticketId: string | null
+    userId: string | null
+    action: string | null
+    details: string | null
+    createdAt: Date | null
+  }
+
+  export type TicketLogCountAggregateOutputType = {
+    id: number
+    ticketId: number
+    userId: number
+    action: number
+    details: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type TicketLogMinAggregateInputType = {
+    id?: true
+    ticketId?: true
+    userId?: true
+    action?: true
+    details?: true
+    createdAt?: true
+  }
+
+  export type TicketLogMaxAggregateInputType = {
+    id?: true
+    ticketId?: true
+    userId?: true
+    action?: true
+    details?: true
+    createdAt?: true
+  }
+
+  export type TicketLogCountAggregateInputType = {
+    id?: true
+    ticketId?: true
+    userId?: true
+    action?: true
+    details?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type TicketLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketLog to aggregate.
+     */
+    where?: TicketLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketLogs to fetch.
+     */
+    orderBy?: TicketLogOrderByWithRelationInput | TicketLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TicketLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TicketLogs
+    **/
+    _count?: true | TicketLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TicketLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TicketLogMaxAggregateInputType
+  }
+
+  export type GetTicketLogAggregateType<T extends TicketLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateTicketLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTicketLog[P]>
+      : GetScalarType<T[P], AggregateTicketLog[P]>
+  }
+
+
+
+
+  export type TicketLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketLogWhereInput
+    orderBy?: TicketLogOrderByWithAggregationInput | TicketLogOrderByWithAggregationInput[]
+    by: TicketLogScalarFieldEnum[] | TicketLogScalarFieldEnum
+    having?: TicketLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TicketLogCountAggregateInputType | true
+    _min?: TicketLogMinAggregateInputType
+    _max?: TicketLogMaxAggregateInputType
+  }
+
+  export type TicketLogGroupByOutputType = {
+    id: string
+    ticketId: string
+    userId: string
+    action: string
+    details: string | null
+    createdAt: Date
+    _count: TicketLogCountAggregateOutputType | null
+    _min: TicketLogMinAggregateOutputType | null
+    _max: TicketLogMaxAggregateOutputType | null
+  }
+
+  type GetTicketLogGroupByPayload<T extends TicketLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TicketLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TicketLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TicketLogGroupByOutputType[P]>
+            : GetScalarType<T[P], TicketLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TicketLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    createdAt?: boolean
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketLog"]>
+
+  export type TicketLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    createdAt?: boolean
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketLog"]>
+
+  export type TicketLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    createdAt?: boolean
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketLog"]>
+
+  export type TicketLogSelectScalar = {
+    id?: boolean
+    ticketId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    createdAt?: boolean
+  }
+
+  export type TicketLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketId" | "userId" | "action" | "details" | "createdAt", ExtArgs["result"]["ticketLog"]>
+  export type TicketLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TicketLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TicketLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | SupportTicketDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $TicketLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TicketLog"
+    objects: {
+      ticket: Prisma.$SupportTicketPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      ticketId: string
+      userId: string
+      action: string
+      details: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["ticketLog"]>
+    composites: {}
+  }
+
+  type TicketLogGetPayload<S extends boolean | null | undefined | TicketLogDefaultArgs> = $Result.GetResult<Prisma.$TicketLogPayload, S>
+
+  type TicketLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TicketLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TicketLogCountAggregateInputType | true
+    }
+
+  export interface TicketLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TicketLog'], meta: { name: 'TicketLog' } }
+    /**
+     * Find zero or one TicketLog that matches the filter.
+     * @param {TicketLogFindUniqueArgs} args - Arguments to find a TicketLog
+     * @example
+     * // Get one TicketLog
+     * const ticketLog = await prisma.ticketLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TicketLogFindUniqueArgs>(args: SelectSubset<T, TicketLogFindUniqueArgs<ExtArgs>>): Prisma__TicketLogClient<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TicketLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TicketLogFindUniqueOrThrowArgs} args - Arguments to find a TicketLog
+     * @example
+     * // Get one TicketLog
+     * const ticketLog = await prisma.ticketLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TicketLogFindUniqueOrThrowArgs>(args: SelectSubset<T, TicketLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TicketLogClient<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketLogFindFirstArgs} args - Arguments to find a TicketLog
+     * @example
+     * // Get one TicketLog
+     * const ticketLog = await prisma.ticketLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TicketLogFindFirstArgs>(args?: SelectSubset<T, TicketLogFindFirstArgs<ExtArgs>>): Prisma__TicketLogClient<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketLogFindFirstOrThrowArgs} args - Arguments to find a TicketLog
+     * @example
+     * // Get one TicketLog
+     * const ticketLog = await prisma.ticketLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TicketLogFindFirstOrThrowArgs>(args?: SelectSubset<T, TicketLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__TicketLogClient<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TicketLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TicketLogs
+     * const ticketLogs = await prisma.ticketLog.findMany()
+     * 
+     * // Get first 10 TicketLogs
+     * const ticketLogs = await prisma.ticketLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ticketLogWithIdOnly = await prisma.ticketLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TicketLogFindManyArgs>(args?: SelectSubset<T, TicketLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TicketLog.
+     * @param {TicketLogCreateArgs} args - Arguments to create a TicketLog.
+     * @example
+     * // Create one TicketLog
+     * const TicketLog = await prisma.ticketLog.create({
+     *   data: {
+     *     // ... data to create a TicketLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends TicketLogCreateArgs>(args: SelectSubset<T, TicketLogCreateArgs<ExtArgs>>): Prisma__TicketLogClient<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TicketLogs.
+     * @param {TicketLogCreateManyArgs} args - Arguments to create many TicketLogs.
+     * @example
+     * // Create many TicketLogs
+     * const ticketLog = await prisma.ticketLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TicketLogCreateManyArgs>(args?: SelectSubset<T, TicketLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TicketLogs and returns the data saved in the database.
+     * @param {TicketLogCreateManyAndReturnArgs} args - Arguments to create many TicketLogs.
+     * @example
+     * // Create many TicketLogs
+     * const ticketLog = await prisma.ticketLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TicketLogs and only return the `id`
+     * const ticketLogWithIdOnly = await prisma.ticketLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TicketLogCreateManyAndReturnArgs>(args?: SelectSubset<T, TicketLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TicketLog.
+     * @param {TicketLogDeleteArgs} args - Arguments to delete one TicketLog.
+     * @example
+     * // Delete one TicketLog
+     * const TicketLog = await prisma.ticketLog.delete({
+     *   where: {
+     *     // ... filter to delete one TicketLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TicketLogDeleteArgs>(args: SelectSubset<T, TicketLogDeleteArgs<ExtArgs>>): Prisma__TicketLogClient<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TicketLog.
+     * @param {TicketLogUpdateArgs} args - Arguments to update one TicketLog.
+     * @example
+     * // Update one TicketLog
+     * const ticketLog = await prisma.ticketLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TicketLogUpdateArgs>(args: SelectSubset<T, TicketLogUpdateArgs<ExtArgs>>): Prisma__TicketLogClient<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TicketLogs.
+     * @param {TicketLogDeleteManyArgs} args - Arguments to filter TicketLogs to delete.
+     * @example
+     * // Delete a few TicketLogs
+     * const { count } = await prisma.ticketLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TicketLogDeleteManyArgs>(args?: SelectSubset<T, TicketLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TicketLogs
+     * const ticketLog = await prisma.ticketLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TicketLogUpdateManyArgs>(args: SelectSubset<T, TicketLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketLogs and returns the data updated in the database.
+     * @param {TicketLogUpdateManyAndReturnArgs} args - Arguments to update many TicketLogs.
+     * @example
+     * // Update many TicketLogs
+     * const ticketLog = await prisma.ticketLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TicketLogs and only return the `id`
+     * const ticketLogWithIdOnly = await prisma.ticketLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TicketLogUpdateManyAndReturnArgs>(args: SelectSubset<T, TicketLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TicketLog.
+     * @param {TicketLogUpsertArgs} args - Arguments to update or create a TicketLog.
+     * @example
+     * // Update or create a TicketLog
+     * const ticketLog = await prisma.ticketLog.upsert({
+     *   create: {
+     *     // ... data to create a TicketLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TicketLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TicketLogUpsertArgs>(args: SelectSubset<T, TicketLogUpsertArgs<ExtArgs>>): Prisma__TicketLogClient<$Result.GetResult<Prisma.$TicketLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TicketLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketLogCountArgs} args - Arguments to filter TicketLogs to count.
+     * @example
+     * // Count the number of TicketLogs
+     * const count = await prisma.ticketLog.count({
+     *   where: {
+     *     // ... the filter for the TicketLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends TicketLogCountArgs>(
+      args?: Subset<T, TicketLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TicketLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TicketLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TicketLogAggregateArgs>(args: Subset<T, TicketLogAggregateArgs>): Prisma.PrismaPromise<GetTicketLogAggregateType<T>>
+
+    /**
+     * Group by TicketLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TicketLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TicketLogGroupByArgs['orderBy'] }
+        : { orderBy?: TicketLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TicketLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTicketLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TicketLog model
+   */
+  readonly fields: TicketLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TicketLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TicketLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    ticket<T extends SupportTicketDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SupportTicketDefaultArgs<ExtArgs>>): Prisma__SupportTicketClient<$Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TicketLog model
+   */
+  interface TicketLogFieldRefs {
+    readonly id: FieldRef<"TicketLog", 'String'>
+    readonly ticketId: FieldRef<"TicketLog", 'String'>
+    readonly userId: FieldRef<"TicketLog", 'String'>
+    readonly action: FieldRef<"TicketLog", 'String'>
+    readonly details: FieldRef<"TicketLog", 'String'>
+    readonly createdAt: FieldRef<"TicketLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TicketLog findUnique
+   */
+  export type TicketLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketLog to fetch.
+     */
+    where: TicketLogWhereUniqueInput
+  }
+
+  /**
+   * TicketLog findUniqueOrThrow
+   */
+  export type TicketLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketLog to fetch.
+     */
+    where: TicketLogWhereUniqueInput
+  }
+
+  /**
+   * TicketLog findFirst
+   */
+  export type TicketLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketLog to fetch.
+     */
+    where?: TicketLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketLogs to fetch.
+     */
+    orderBy?: TicketLogOrderByWithRelationInput | TicketLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketLogs.
+     */
+    cursor?: TicketLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketLogs.
+     */
+    distinct?: TicketLogScalarFieldEnum | TicketLogScalarFieldEnum[]
+  }
+
+  /**
+   * TicketLog findFirstOrThrow
+   */
+  export type TicketLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketLog to fetch.
+     */
+    where?: TicketLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketLogs to fetch.
+     */
+    orderBy?: TicketLogOrderByWithRelationInput | TicketLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketLogs.
+     */
+    cursor?: TicketLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketLogs.
+     */
+    distinct?: TicketLogScalarFieldEnum | TicketLogScalarFieldEnum[]
+  }
+
+  /**
+   * TicketLog findMany
+   */
+  export type TicketLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketLogs to fetch.
+     */
+    where?: TicketLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketLogs to fetch.
+     */
+    orderBy?: TicketLogOrderByWithRelationInput | TicketLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TicketLogs.
+     */
+    cursor?: TicketLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketLogs.
+     */
+    distinct?: TicketLogScalarFieldEnum | TicketLogScalarFieldEnum[]
+  }
+
+  /**
+   * TicketLog create
+   */
+  export type TicketLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TicketLog.
+     */
+    data: XOR<TicketLogCreateInput, TicketLogUncheckedCreateInput>
+  }
+
+  /**
+   * TicketLog createMany
+   */
+  export type TicketLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TicketLogs.
+     */
+    data: TicketLogCreateManyInput | TicketLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TicketLog createManyAndReturn
+   */
+  export type TicketLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many TicketLogs.
+     */
+    data: TicketLogCreateManyInput | TicketLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TicketLog update
+   */
+  export type TicketLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TicketLog.
+     */
+    data: XOR<TicketLogUpdateInput, TicketLogUncheckedUpdateInput>
+    /**
+     * Choose, which TicketLog to update.
+     */
+    where: TicketLogWhereUniqueInput
+  }
+
+  /**
+   * TicketLog updateMany
+   */
+  export type TicketLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TicketLogs.
+     */
+    data: XOR<TicketLogUpdateManyMutationInput, TicketLogUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketLogs to update
+     */
+    where?: TicketLogWhereInput
+    /**
+     * Limit how many TicketLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketLog updateManyAndReturn
+   */
+  export type TicketLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * The data used to update TicketLogs.
+     */
+    data: XOR<TicketLogUpdateManyMutationInput, TicketLogUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketLogs to update
+     */
+    where?: TicketLogWhereInput
+    /**
+     * Limit how many TicketLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TicketLog upsert
+   */
+  export type TicketLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TicketLog to update in case it exists.
+     */
+    where: TicketLogWhereUniqueInput
+    /**
+     * In case the TicketLog found by the `where` argument doesn't exist, create a new TicketLog with this data.
+     */
+    create: XOR<TicketLogCreateInput, TicketLogUncheckedCreateInput>
+    /**
+     * In case the TicketLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TicketLogUpdateInput, TicketLogUncheckedUpdateInput>
+  }
+
+  /**
+   * TicketLog delete
+   */
+  export type TicketLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+    /**
+     * Filter which TicketLog to delete.
+     */
+    where: TicketLogWhereUniqueInput
+  }
+
+  /**
+   * TicketLog deleteMany
+   */
+  export type TicketLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketLogs to delete
+     */
+    where?: TicketLogWhereInput
+    /**
+     * Limit how many TicketLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketLog without action
+   */
+  export type TicketLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketLog
+     */
+    select?: TicketLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketLog
+     */
+    omit?: TicketLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model BDProject
    */
 
@@ -182511,6 +186431,50 @@ export namespace Prisma {
   export type BDWorkTypeScalarFieldEnum = (typeof BDWorkTypeScalarFieldEnum)[keyof typeof BDWorkTypeScalarFieldEnum]
 
 
+  export const SupportTicketScalarFieldEnum: {
+    id: 'id',
+    ticketNumber: 'ticketNumber',
+    title: 'title',
+    description: 'description',
+    attachments: 'attachments',
+    urgency: 'urgency',
+    status: 'status',
+    reporterId: 'reporterId',
+    assigneeId: 'assigneeId',
+    resolutionPlan: 'resolutionPlan',
+    progressPercent: 'progressPercent',
+    resolvedAt: 'resolvedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SupportTicketScalarFieldEnum = (typeof SupportTicketScalarFieldEnum)[keyof typeof SupportTicketScalarFieldEnum]
+
+
+  export const TicketCommentScalarFieldEnum: {
+    id: 'id',
+    ticketId: 'ticketId',
+    userId: 'userId',
+    message: 'message',
+    attachments: 'attachments',
+    createdAt: 'createdAt'
+  };
+
+  export type TicketCommentScalarFieldEnum = (typeof TicketCommentScalarFieldEnum)[keyof typeof TicketCommentScalarFieldEnum]
+
+
+  export const TicketLogScalarFieldEnum: {
+    id: 'id',
+    ticketId: 'ticketId',
+    userId: 'userId',
+    action: 'action',
+    details: 'details',
+    createdAt: 'createdAt'
+  };
+
+  export type TicketLogScalarFieldEnum = (typeof TicketLogScalarFieldEnum)[keyof typeof TicketLogScalarFieldEnum]
+
+
   export const BDProjectScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -182795,9 +186759,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleListRelationFilter
     estimatedSurveys?: SiteSurveyListRelationFilter
     siteSurveys?: SiteSurveyListRelationFilter
+    assignedTickets?: SupportTicketListRelationFilter
+    reportedTickets?: SupportTicketListRelationFilter
     assignedTechnicianTasks?: TechnicianTaskListRelationFilter
     telesales?: TelesaleListRelationFilter
     telesalesKPIs?: TelesalesKPIListRelationFilter
+    ticketComments?: TicketCommentListRelationFilter
+    ticketLogs?: TicketLogListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     jobStepLogs?: JobStepLogListRelationFilter
     bdMemberProjects?: BDProjectListRelationFilter
@@ -182848,9 +186816,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleOrderByRelationAggregateInput
     estimatedSurveys?: SiteSurveyOrderByRelationAggregateInput
     siteSurveys?: SiteSurveyOrderByRelationAggregateInput
+    assignedTickets?: SupportTicketOrderByRelationAggregateInput
+    reportedTickets?: SupportTicketOrderByRelationAggregateInput
     assignedTechnicianTasks?: TechnicianTaskOrderByRelationAggregateInput
     telesales?: TelesaleOrderByRelationAggregateInput
     telesalesKPIs?: TelesalesKPIOrderByRelationAggregateInput
+    ticketComments?: TicketCommentOrderByRelationAggregateInput
+    ticketLogs?: TicketLogOrderByRelationAggregateInput
     employeeSale?: EmployeeSaleOrderByWithRelationInput
     jobStepLogs?: JobStepLogOrderByRelationAggregateInput
     bdMemberProjects?: BDProjectOrderByRelationAggregateInput
@@ -182904,9 +186876,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleListRelationFilter
     estimatedSurveys?: SiteSurveyListRelationFilter
     siteSurveys?: SiteSurveyListRelationFilter
+    assignedTickets?: SupportTicketListRelationFilter
+    reportedTickets?: SupportTicketListRelationFilter
     assignedTechnicianTasks?: TechnicianTaskListRelationFilter
     telesales?: TelesaleListRelationFilter
     telesalesKPIs?: TelesalesKPIListRelationFilter
+    ticketComments?: TicketCommentListRelationFilter
+    ticketLogs?: TicketLogListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     jobStepLogs?: JobStepLogListRelationFilter
     bdMemberProjects?: BDProjectListRelationFilter
@@ -195656,6 +199632,243 @@ export namespace Prisma {
     defaultTemplateId?: StringNullableWithAggregatesFilter<"BDWorkType"> | string | null
   }
 
+  export type SupportTicketWhereInput = {
+    AND?: SupportTicketWhereInput | SupportTicketWhereInput[]
+    OR?: SupportTicketWhereInput[]
+    NOT?: SupportTicketWhereInput | SupportTicketWhereInput[]
+    id?: StringFilter<"SupportTicket"> | string
+    ticketNumber?: StringFilter<"SupportTicket"> | string
+    title?: StringFilter<"SupportTicket"> | string
+    description?: StringFilter<"SupportTicket"> | string
+    attachments?: StringNullableListFilter<"SupportTicket">
+    urgency?: StringFilter<"SupportTicket"> | string
+    status?: StringFilter<"SupportTicket"> | string
+    reporterId?: StringFilter<"SupportTicket"> | string
+    assigneeId?: StringNullableFilter<"SupportTicket"> | string | null
+    resolutionPlan?: StringNullableFilter<"SupportTicket"> | string | null
+    progressPercent?: IntFilter<"SupportTicket"> | number
+    resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+    createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    reporter?: XOR<UserScalarRelationFilter, UserWhereInput>
+    comments?: TicketCommentListRelationFilter
+    logs?: TicketLogListRelationFilter
+  }
+
+  export type SupportTicketOrderByWithRelationInput = {
+    id?: SortOrder
+    ticketNumber?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    attachments?: SortOrder
+    urgency?: SortOrder
+    status?: SortOrder
+    reporterId?: SortOrder
+    assigneeId?: SortOrderInput | SortOrder
+    resolutionPlan?: SortOrderInput | SortOrder
+    progressPercent?: SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    assignee?: UserOrderByWithRelationInput
+    reporter?: UserOrderByWithRelationInput
+    comments?: TicketCommentOrderByRelationAggregateInput
+    logs?: TicketLogOrderByRelationAggregateInput
+  }
+
+  export type SupportTicketWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    ticketNumber?: string
+    AND?: SupportTicketWhereInput | SupportTicketWhereInput[]
+    OR?: SupportTicketWhereInput[]
+    NOT?: SupportTicketWhereInput | SupportTicketWhereInput[]
+    title?: StringFilter<"SupportTicket"> | string
+    description?: StringFilter<"SupportTicket"> | string
+    attachments?: StringNullableListFilter<"SupportTicket">
+    urgency?: StringFilter<"SupportTicket"> | string
+    status?: StringFilter<"SupportTicket"> | string
+    reporterId?: StringFilter<"SupportTicket"> | string
+    assigneeId?: StringNullableFilter<"SupportTicket"> | string | null
+    resolutionPlan?: StringNullableFilter<"SupportTicket"> | string | null
+    progressPercent?: IntFilter<"SupportTicket"> | number
+    resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+    createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    reporter?: XOR<UserScalarRelationFilter, UserWhereInput>
+    comments?: TicketCommentListRelationFilter
+    logs?: TicketLogListRelationFilter
+  }, "id" | "ticketNumber">
+
+  export type SupportTicketOrderByWithAggregationInput = {
+    id?: SortOrder
+    ticketNumber?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    attachments?: SortOrder
+    urgency?: SortOrder
+    status?: SortOrder
+    reporterId?: SortOrder
+    assigneeId?: SortOrderInput | SortOrder
+    resolutionPlan?: SortOrderInput | SortOrder
+    progressPercent?: SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SupportTicketCountOrderByAggregateInput
+    _avg?: SupportTicketAvgOrderByAggregateInput
+    _max?: SupportTicketMaxOrderByAggregateInput
+    _min?: SupportTicketMinOrderByAggregateInput
+    _sum?: SupportTicketSumOrderByAggregateInput
+  }
+
+  export type SupportTicketScalarWhereWithAggregatesInput = {
+    AND?: SupportTicketScalarWhereWithAggregatesInput | SupportTicketScalarWhereWithAggregatesInput[]
+    OR?: SupportTicketScalarWhereWithAggregatesInput[]
+    NOT?: SupportTicketScalarWhereWithAggregatesInput | SupportTicketScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SupportTicket"> | string
+    ticketNumber?: StringWithAggregatesFilter<"SupportTicket"> | string
+    title?: StringWithAggregatesFilter<"SupportTicket"> | string
+    description?: StringWithAggregatesFilter<"SupportTicket"> | string
+    attachments?: StringNullableListFilter<"SupportTicket">
+    urgency?: StringWithAggregatesFilter<"SupportTicket"> | string
+    status?: StringWithAggregatesFilter<"SupportTicket"> | string
+    reporterId?: StringWithAggregatesFilter<"SupportTicket"> | string
+    assigneeId?: StringNullableWithAggregatesFilter<"SupportTicket"> | string | null
+    resolutionPlan?: StringNullableWithAggregatesFilter<"SupportTicket"> | string | null
+    progressPercent?: IntWithAggregatesFilter<"SupportTicket"> | number
+    resolvedAt?: DateTimeNullableWithAggregatesFilter<"SupportTicket"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
+  }
+
+  export type TicketCommentWhereInput = {
+    AND?: TicketCommentWhereInput | TicketCommentWhereInput[]
+    OR?: TicketCommentWhereInput[]
+    NOT?: TicketCommentWhereInput | TicketCommentWhereInput[]
+    id?: StringFilter<"TicketComment"> | string
+    ticketId?: StringFilter<"TicketComment"> | string
+    userId?: StringFilter<"TicketComment"> | string
+    message?: StringFilter<"TicketComment"> | string
+    attachments?: StringNullableListFilter<"TicketComment">
+    createdAt?: DateTimeFilter<"TicketComment"> | Date | string
+    ticket?: XOR<SupportTicketScalarRelationFilter, SupportTicketWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type TicketCommentOrderByWithRelationInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    message?: SortOrder
+    attachments?: SortOrder
+    createdAt?: SortOrder
+    ticket?: SupportTicketOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type TicketCommentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TicketCommentWhereInput | TicketCommentWhereInput[]
+    OR?: TicketCommentWhereInput[]
+    NOT?: TicketCommentWhereInput | TicketCommentWhereInput[]
+    ticketId?: StringFilter<"TicketComment"> | string
+    userId?: StringFilter<"TicketComment"> | string
+    message?: StringFilter<"TicketComment"> | string
+    attachments?: StringNullableListFilter<"TicketComment">
+    createdAt?: DateTimeFilter<"TicketComment"> | Date | string
+    ticket?: XOR<SupportTicketScalarRelationFilter, SupportTicketWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type TicketCommentOrderByWithAggregationInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    message?: SortOrder
+    attachments?: SortOrder
+    createdAt?: SortOrder
+    _count?: TicketCommentCountOrderByAggregateInput
+    _max?: TicketCommentMaxOrderByAggregateInput
+    _min?: TicketCommentMinOrderByAggregateInput
+  }
+
+  export type TicketCommentScalarWhereWithAggregatesInput = {
+    AND?: TicketCommentScalarWhereWithAggregatesInput | TicketCommentScalarWhereWithAggregatesInput[]
+    OR?: TicketCommentScalarWhereWithAggregatesInput[]
+    NOT?: TicketCommentScalarWhereWithAggregatesInput | TicketCommentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TicketComment"> | string
+    ticketId?: StringWithAggregatesFilter<"TicketComment"> | string
+    userId?: StringWithAggregatesFilter<"TicketComment"> | string
+    message?: StringWithAggregatesFilter<"TicketComment"> | string
+    attachments?: StringNullableListFilter<"TicketComment">
+    createdAt?: DateTimeWithAggregatesFilter<"TicketComment"> | Date | string
+  }
+
+  export type TicketLogWhereInput = {
+    AND?: TicketLogWhereInput | TicketLogWhereInput[]
+    OR?: TicketLogWhereInput[]
+    NOT?: TicketLogWhereInput | TicketLogWhereInput[]
+    id?: StringFilter<"TicketLog"> | string
+    ticketId?: StringFilter<"TicketLog"> | string
+    userId?: StringFilter<"TicketLog"> | string
+    action?: StringFilter<"TicketLog"> | string
+    details?: StringNullableFilter<"TicketLog"> | string | null
+    createdAt?: DateTimeFilter<"TicketLog"> | Date | string
+    ticket?: XOR<SupportTicketScalarRelationFilter, SupportTicketWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type TicketLogOrderByWithRelationInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    ticket?: SupportTicketOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type TicketLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TicketLogWhereInput | TicketLogWhereInput[]
+    OR?: TicketLogWhereInput[]
+    NOT?: TicketLogWhereInput | TicketLogWhereInput[]
+    ticketId?: StringFilter<"TicketLog"> | string
+    userId?: StringFilter<"TicketLog"> | string
+    action?: StringFilter<"TicketLog"> | string
+    details?: StringNullableFilter<"TicketLog"> | string | null
+    createdAt?: DateTimeFilter<"TicketLog"> | Date | string
+    ticket?: XOR<SupportTicketScalarRelationFilter, SupportTicketWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type TicketLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: TicketLogCountOrderByAggregateInput
+    _max?: TicketLogMaxOrderByAggregateInput
+    _min?: TicketLogMinOrderByAggregateInput
+  }
+
+  export type TicketLogScalarWhereWithAggregatesInput = {
+    AND?: TicketLogScalarWhereWithAggregatesInput | TicketLogScalarWhereWithAggregatesInput[]
+    OR?: TicketLogScalarWhereWithAggregatesInput[]
+    NOT?: TicketLogScalarWhereWithAggregatesInput | TicketLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TicketLog"> | string
+    ticketId?: StringWithAggregatesFilter<"TicketLog"> | string
+    userId?: StringWithAggregatesFilter<"TicketLog"> | string
+    action?: StringWithAggregatesFilter<"TicketLog"> | string
+    details?: StringNullableWithAggregatesFilter<"TicketLog"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"TicketLog"> | Date | string
+  }
+
   export type BDProjectWhereInput = {
     AND?: BDProjectWhereInput | BDProjectWhereInput[]
     OR?: BDProjectWhereInput[]
@@ -196114,9 +200327,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -196167,9 +200384,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -196220,9 +200441,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -196273,9 +200498,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -210712,6 +214941,253 @@ export namespace Prisma {
     defaultTemplateId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type SupportTicketCreateInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
+    reporter: UserCreateNestedOneWithoutReportedTicketsInput
+    comments?: TicketCommentCreateNestedManyWithoutTicketInput
+    logs?: TicketLogCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketUncheckedCreateInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    reporterId: string
+    assigneeId?: string | null
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
+    logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
+    reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
+    comments?: TicketCommentUpdateManyWithoutTicketNestedInput
+    logs?: TicketLogUpdateManyWithoutTicketNestedInput
+  }
+
+  export type SupportTicketUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reporterId?: StringFieldUpdateOperationsInput | string
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
+    logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type SupportTicketCreateManyInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    reporterId: string
+    assigneeId?: string | null
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SupportTicketUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportTicketUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reporterId?: StringFieldUpdateOperationsInput | string
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketCommentCreateInput = {
+    id?: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+    ticket: SupportTicketCreateNestedOneWithoutCommentsInput
+    user: UserCreateNestedOneWithoutTicketCommentsInput
+  }
+
+  export type TicketCommentUncheckedCreateInput = {
+    id?: string
+    ticketId: string
+    userId: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+  }
+
+  export type TicketCommentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticket?: SupportTicketUpdateOneRequiredWithoutCommentsNestedInput
+    user?: UserUpdateOneRequiredWithoutTicketCommentsNestedInput
+  }
+
+  export type TicketCommentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketCommentCreateManyInput = {
+    id?: string
+    ticketId: string
+    userId: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+  }
+
+  export type TicketCommentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketCommentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketLogCreateInput = {
+    id?: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+    ticket: SupportTicketCreateNestedOneWithoutLogsInput
+    user: UserCreateNestedOneWithoutTicketLogsInput
+  }
+
+  export type TicketLogUncheckedCreateInput = {
+    id?: string
+    ticketId: string
+    userId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type TicketLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticket?: SupportTicketUpdateOneRequiredWithoutLogsNestedInput
+    user?: UserUpdateOneRequiredWithoutTicketLogsNestedInput
+  }
+
+  export type TicketLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketLogCreateManyInput = {
+    id?: string
+    ticketId: string
+    userId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type TicketLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type BDProjectCreateInput = {
     id?: string
     name: string
@@ -211367,6 +215843,12 @@ export namespace Prisma {
     none?: SiteSurveyWhereInput
   }
 
+  export type SupportTicketListRelationFilter = {
+    every?: SupportTicketWhereInput
+    some?: SupportTicketWhereInput
+    none?: SupportTicketWhereInput
+  }
+
   export type TechnicianTaskListRelationFilter = {
     every?: TechnicianTaskWhereInput
     some?: TechnicianTaskWhereInput
@@ -211383,6 +215865,18 @@ export namespace Prisma {
     every?: TelesalesKPIWhereInput
     some?: TelesalesKPIWhereInput
     none?: TelesalesKPIWhereInput
+  }
+
+  export type TicketCommentListRelationFilter = {
+    every?: TicketCommentWhereInput
+    some?: TicketCommentWhereInput
+    none?: TicketCommentWhereInput
+  }
+
+  export type TicketLogListRelationFilter = {
+    every?: TicketLogWhereInput
+    some?: TicketLogWhereInput
+    none?: TicketLogWhereInput
   }
 
   export type EmployeeSaleNullableScalarRelationFilter = {
@@ -211505,6 +215999,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type SupportTicketOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type TechnicianTaskOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -211514,6 +216012,14 @@ export namespace Prisma {
   }
 
   export type TelesalesKPIOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TicketCommentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TicketLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -220204,6 +224710,120 @@ export namespace Prisma {
     defaultTemplateId?: SortOrder
   }
 
+  export type SupportTicketCountOrderByAggregateInput = {
+    id?: SortOrder
+    ticketNumber?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    attachments?: SortOrder
+    urgency?: SortOrder
+    status?: SortOrder
+    reporterId?: SortOrder
+    assigneeId?: SortOrder
+    resolutionPlan?: SortOrder
+    progressPercent?: SortOrder
+    resolvedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SupportTicketAvgOrderByAggregateInput = {
+    progressPercent?: SortOrder
+  }
+
+  export type SupportTicketMaxOrderByAggregateInput = {
+    id?: SortOrder
+    ticketNumber?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    urgency?: SortOrder
+    status?: SortOrder
+    reporterId?: SortOrder
+    assigneeId?: SortOrder
+    resolutionPlan?: SortOrder
+    progressPercent?: SortOrder
+    resolvedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SupportTicketMinOrderByAggregateInput = {
+    id?: SortOrder
+    ticketNumber?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    urgency?: SortOrder
+    status?: SortOrder
+    reporterId?: SortOrder
+    assigneeId?: SortOrder
+    resolutionPlan?: SortOrder
+    progressPercent?: SortOrder
+    resolvedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SupportTicketSumOrderByAggregateInput = {
+    progressPercent?: SortOrder
+  }
+
+  export type SupportTicketScalarRelationFilter = {
+    is?: SupportTicketWhereInput
+    isNot?: SupportTicketWhereInput
+  }
+
+  export type TicketCommentCountOrderByAggregateInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    message?: SortOrder
+    attachments?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TicketCommentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TicketCommentMinOrderByAggregateInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TicketLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TicketLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TicketLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    ticketId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type BDProjectNullableScalarRelationFilter = {
     is?: BDProjectWhereInput | null
     isNot?: BDProjectWhereInput | null
@@ -220647,6 +225267,20 @@ export namespace Prisma {
     connect?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
   }
 
+  export type SupportTicketCreateNestedManyWithoutAssigneeInput = {
+    create?: XOR<SupportTicketCreateWithoutAssigneeInput, SupportTicketUncheckedCreateWithoutAssigneeInput> | SupportTicketCreateWithoutAssigneeInput[] | SupportTicketUncheckedCreateWithoutAssigneeInput[]
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutAssigneeInput | SupportTicketCreateOrConnectWithoutAssigneeInput[]
+    createMany?: SupportTicketCreateManyAssigneeInputEnvelope
+    connect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+  }
+
+  export type SupportTicketCreateNestedManyWithoutReporterInput = {
+    create?: XOR<SupportTicketCreateWithoutReporterInput, SupportTicketUncheckedCreateWithoutReporterInput> | SupportTicketCreateWithoutReporterInput[] | SupportTicketUncheckedCreateWithoutReporterInput[]
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutReporterInput | SupportTicketCreateOrConnectWithoutReporterInput[]
+    createMany?: SupportTicketCreateManyReporterInputEnvelope
+    connect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+  }
+
   export type TechnicianTaskCreateNestedManyWithoutAssignerInput = {
     create?: XOR<TechnicianTaskCreateWithoutAssignerInput, TechnicianTaskUncheckedCreateWithoutAssignerInput> | TechnicianTaskCreateWithoutAssignerInput[] | TechnicianTaskUncheckedCreateWithoutAssignerInput[]
     connectOrCreate?: TechnicianTaskCreateOrConnectWithoutAssignerInput | TechnicianTaskCreateOrConnectWithoutAssignerInput[]
@@ -220666,6 +225300,20 @@ export namespace Prisma {
     connectOrCreate?: TelesalesKPICreateOrConnectWithoutUserInput | TelesalesKPICreateOrConnectWithoutUserInput[]
     createMany?: TelesalesKPICreateManyUserInputEnvelope
     connect?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+  }
+
+  export type TicketCommentCreateNestedManyWithoutUserInput = {
+    create?: XOR<TicketCommentCreateWithoutUserInput, TicketCommentUncheckedCreateWithoutUserInput> | TicketCommentCreateWithoutUserInput[] | TicketCommentUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketCommentCreateOrConnectWithoutUserInput | TicketCommentCreateOrConnectWithoutUserInput[]
+    createMany?: TicketCommentCreateManyUserInputEnvelope
+    connect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+  }
+
+  export type TicketLogCreateNestedManyWithoutUserInput = {
+    create?: XOR<TicketLogCreateWithoutUserInput, TicketLogUncheckedCreateWithoutUserInput> | TicketLogCreateWithoutUserInput[] | TicketLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketLogCreateOrConnectWithoutUserInput | TicketLogCreateOrConnectWithoutUserInput[]
+    createMany?: TicketLogCreateManyUserInputEnvelope
+    connect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
   }
 
   export type EmployeeSaleCreateNestedOneWithoutUserInput = {
@@ -220903,6 +225551,20 @@ export namespace Prisma {
     connect?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
   }
 
+  export type SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput = {
+    create?: XOR<SupportTicketCreateWithoutAssigneeInput, SupportTicketUncheckedCreateWithoutAssigneeInput> | SupportTicketCreateWithoutAssigneeInput[] | SupportTicketUncheckedCreateWithoutAssigneeInput[]
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutAssigneeInput | SupportTicketCreateOrConnectWithoutAssigneeInput[]
+    createMany?: SupportTicketCreateManyAssigneeInputEnvelope
+    connect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+  }
+
+  export type SupportTicketUncheckedCreateNestedManyWithoutReporterInput = {
+    create?: XOR<SupportTicketCreateWithoutReporterInput, SupportTicketUncheckedCreateWithoutReporterInput> | SupportTicketCreateWithoutReporterInput[] | SupportTicketUncheckedCreateWithoutReporterInput[]
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutReporterInput | SupportTicketCreateOrConnectWithoutReporterInput[]
+    createMany?: SupportTicketCreateManyReporterInputEnvelope
+    connect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+  }
+
   export type TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput = {
     create?: XOR<TechnicianTaskCreateWithoutAssignerInput, TechnicianTaskUncheckedCreateWithoutAssignerInput> | TechnicianTaskCreateWithoutAssignerInput[] | TechnicianTaskUncheckedCreateWithoutAssignerInput[]
     connectOrCreate?: TechnicianTaskCreateOrConnectWithoutAssignerInput | TechnicianTaskCreateOrConnectWithoutAssignerInput[]
@@ -220922,6 +225584,20 @@ export namespace Prisma {
     connectOrCreate?: TelesalesKPICreateOrConnectWithoutUserInput | TelesalesKPICreateOrConnectWithoutUserInput[]
     createMany?: TelesalesKPICreateManyUserInputEnvelope
     connect?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+  }
+
+  export type TicketCommentUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<TicketCommentCreateWithoutUserInput, TicketCommentUncheckedCreateWithoutUserInput> | TicketCommentCreateWithoutUserInput[] | TicketCommentUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketCommentCreateOrConnectWithoutUserInput | TicketCommentCreateOrConnectWithoutUserInput[]
+    createMany?: TicketCommentCreateManyUserInputEnvelope
+    connect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+  }
+
+  export type TicketLogUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<TicketLogCreateWithoutUserInput, TicketLogUncheckedCreateWithoutUserInput> | TicketLogCreateWithoutUserInput[] | TicketLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketLogCreateOrConnectWithoutUserInput | TicketLogCreateOrConnectWithoutUserInput[]
+    createMany?: TicketLogCreateManyUserInputEnvelope
+    connect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
   }
 
   export type EmployeeSaleUncheckedCreateNestedOneWithoutUserInput = {
@@ -221389,6 +226065,34 @@ export namespace Prisma {
     deleteMany?: SiteSurveyScalarWhereInput | SiteSurveyScalarWhereInput[]
   }
 
+  export type SupportTicketUpdateManyWithoutAssigneeNestedInput = {
+    create?: XOR<SupportTicketCreateWithoutAssigneeInput, SupportTicketUncheckedCreateWithoutAssigneeInput> | SupportTicketCreateWithoutAssigneeInput[] | SupportTicketUncheckedCreateWithoutAssigneeInput[]
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutAssigneeInput | SupportTicketCreateOrConnectWithoutAssigneeInput[]
+    upsert?: SupportTicketUpsertWithWhereUniqueWithoutAssigneeInput | SupportTicketUpsertWithWhereUniqueWithoutAssigneeInput[]
+    createMany?: SupportTicketCreateManyAssigneeInputEnvelope
+    set?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    disconnect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    delete?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    connect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    update?: SupportTicketUpdateWithWhereUniqueWithoutAssigneeInput | SupportTicketUpdateWithWhereUniqueWithoutAssigneeInput[]
+    updateMany?: SupportTicketUpdateManyWithWhereWithoutAssigneeInput | SupportTicketUpdateManyWithWhereWithoutAssigneeInput[]
+    deleteMany?: SupportTicketScalarWhereInput | SupportTicketScalarWhereInput[]
+  }
+
+  export type SupportTicketUpdateManyWithoutReporterNestedInput = {
+    create?: XOR<SupportTicketCreateWithoutReporterInput, SupportTicketUncheckedCreateWithoutReporterInput> | SupportTicketCreateWithoutReporterInput[] | SupportTicketUncheckedCreateWithoutReporterInput[]
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutReporterInput | SupportTicketCreateOrConnectWithoutReporterInput[]
+    upsert?: SupportTicketUpsertWithWhereUniqueWithoutReporterInput | SupportTicketUpsertWithWhereUniqueWithoutReporterInput[]
+    createMany?: SupportTicketCreateManyReporterInputEnvelope
+    set?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    disconnect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    delete?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    connect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    update?: SupportTicketUpdateWithWhereUniqueWithoutReporterInput | SupportTicketUpdateWithWhereUniqueWithoutReporterInput[]
+    updateMany?: SupportTicketUpdateManyWithWhereWithoutReporterInput | SupportTicketUpdateManyWithWhereWithoutReporterInput[]
+    deleteMany?: SupportTicketScalarWhereInput | SupportTicketScalarWhereInput[]
+  }
+
   export type TechnicianTaskUpdateManyWithoutAssignerNestedInput = {
     create?: XOR<TechnicianTaskCreateWithoutAssignerInput, TechnicianTaskUncheckedCreateWithoutAssignerInput> | TechnicianTaskCreateWithoutAssignerInput[] | TechnicianTaskUncheckedCreateWithoutAssignerInput[]
     connectOrCreate?: TechnicianTaskCreateOrConnectWithoutAssignerInput | TechnicianTaskCreateOrConnectWithoutAssignerInput[]
@@ -221429,6 +226133,34 @@ export namespace Prisma {
     update?: TelesalesKPIUpdateWithWhereUniqueWithoutUserInput | TelesalesKPIUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: TelesalesKPIUpdateManyWithWhereWithoutUserInput | TelesalesKPIUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: TelesalesKPIScalarWhereInput | TelesalesKPIScalarWhereInput[]
+  }
+
+  export type TicketCommentUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TicketCommentCreateWithoutUserInput, TicketCommentUncheckedCreateWithoutUserInput> | TicketCommentCreateWithoutUserInput[] | TicketCommentUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketCommentCreateOrConnectWithoutUserInput | TicketCommentCreateOrConnectWithoutUserInput[]
+    upsert?: TicketCommentUpsertWithWhereUniqueWithoutUserInput | TicketCommentUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TicketCommentCreateManyUserInputEnvelope
+    set?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    disconnect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    delete?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    connect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    update?: TicketCommentUpdateWithWhereUniqueWithoutUserInput | TicketCommentUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TicketCommentUpdateManyWithWhereWithoutUserInput | TicketCommentUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TicketCommentScalarWhereInput | TicketCommentScalarWhereInput[]
+  }
+
+  export type TicketLogUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TicketLogCreateWithoutUserInput, TicketLogUncheckedCreateWithoutUserInput> | TicketLogCreateWithoutUserInput[] | TicketLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketLogCreateOrConnectWithoutUserInput | TicketLogCreateOrConnectWithoutUserInput[]
+    upsert?: TicketLogUpsertWithWhereUniqueWithoutUserInput | TicketLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TicketLogCreateManyUserInputEnvelope
+    set?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    disconnect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    delete?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    connect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    update?: TicketLogUpdateWithWhereUniqueWithoutUserInput | TicketLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TicketLogUpdateManyWithWhereWithoutUserInput | TicketLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TicketLogScalarWhereInput | TicketLogScalarWhereInput[]
   }
 
   export type EmployeeSaleUpdateOneWithoutUserNestedInput = {
@@ -221901,6 +226633,34 @@ export namespace Prisma {
     deleteMany?: SiteSurveyScalarWhereInput | SiteSurveyScalarWhereInput[]
   }
 
+  export type SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput = {
+    create?: XOR<SupportTicketCreateWithoutAssigneeInput, SupportTicketUncheckedCreateWithoutAssigneeInput> | SupportTicketCreateWithoutAssigneeInput[] | SupportTicketUncheckedCreateWithoutAssigneeInput[]
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutAssigneeInput | SupportTicketCreateOrConnectWithoutAssigneeInput[]
+    upsert?: SupportTicketUpsertWithWhereUniqueWithoutAssigneeInput | SupportTicketUpsertWithWhereUniqueWithoutAssigneeInput[]
+    createMany?: SupportTicketCreateManyAssigneeInputEnvelope
+    set?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    disconnect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    delete?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    connect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    update?: SupportTicketUpdateWithWhereUniqueWithoutAssigneeInput | SupportTicketUpdateWithWhereUniqueWithoutAssigneeInput[]
+    updateMany?: SupportTicketUpdateManyWithWhereWithoutAssigneeInput | SupportTicketUpdateManyWithWhereWithoutAssigneeInput[]
+    deleteMany?: SupportTicketScalarWhereInput | SupportTicketScalarWhereInput[]
+  }
+
+  export type SupportTicketUncheckedUpdateManyWithoutReporterNestedInput = {
+    create?: XOR<SupportTicketCreateWithoutReporterInput, SupportTicketUncheckedCreateWithoutReporterInput> | SupportTicketCreateWithoutReporterInput[] | SupportTicketUncheckedCreateWithoutReporterInput[]
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutReporterInput | SupportTicketCreateOrConnectWithoutReporterInput[]
+    upsert?: SupportTicketUpsertWithWhereUniqueWithoutReporterInput | SupportTicketUpsertWithWhereUniqueWithoutReporterInput[]
+    createMany?: SupportTicketCreateManyReporterInputEnvelope
+    set?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    disconnect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    delete?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    connect?: SupportTicketWhereUniqueInput | SupportTicketWhereUniqueInput[]
+    update?: SupportTicketUpdateWithWhereUniqueWithoutReporterInput | SupportTicketUpdateWithWhereUniqueWithoutReporterInput[]
+    updateMany?: SupportTicketUpdateManyWithWhereWithoutReporterInput | SupportTicketUpdateManyWithWhereWithoutReporterInput[]
+    deleteMany?: SupportTicketScalarWhereInput | SupportTicketScalarWhereInput[]
+  }
+
   export type TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput = {
     create?: XOR<TechnicianTaskCreateWithoutAssignerInput, TechnicianTaskUncheckedCreateWithoutAssignerInput> | TechnicianTaskCreateWithoutAssignerInput[] | TechnicianTaskUncheckedCreateWithoutAssignerInput[]
     connectOrCreate?: TechnicianTaskCreateOrConnectWithoutAssignerInput | TechnicianTaskCreateOrConnectWithoutAssignerInput[]
@@ -221941,6 +226701,34 @@ export namespace Prisma {
     update?: TelesalesKPIUpdateWithWhereUniqueWithoutUserInput | TelesalesKPIUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: TelesalesKPIUpdateManyWithWhereWithoutUserInput | TelesalesKPIUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: TelesalesKPIScalarWhereInput | TelesalesKPIScalarWhereInput[]
+  }
+
+  export type TicketCommentUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TicketCommentCreateWithoutUserInput, TicketCommentUncheckedCreateWithoutUserInput> | TicketCommentCreateWithoutUserInput[] | TicketCommentUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketCommentCreateOrConnectWithoutUserInput | TicketCommentCreateOrConnectWithoutUserInput[]
+    upsert?: TicketCommentUpsertWithWhereUniqueWithoutUserInput | TicketCommentUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TicketCommentCreateManyUserInputEnvelope
+    set?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    disconnect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    delete?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    connect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    update?: TicketCommentUpdateWithWhereUniqueWithoutUserInput | TicketCommentUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TicketCommentUpdateManyWithWhereWithoutUserInput | TicketCommentUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TicketCommentScalarWhereInput | TicketCommentScalarWhereInput[]
+  }
+
+  export type TicketLogUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TicketLogCreateWithoutUserInput, TicketLogUncheckedCreateWithoutUserInput> | TicketLogCreateWithoutUserInput[] | TicketLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TicketLogCreateOrConnectWithoutUserInput | TicketLogCreateOrConnectWithoutUserInput[]
+    upsert?: TicketLogUpsertWithWhereUniqueWithoutUserInput | TicketLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TicketLogCreateManyUserInputEnvelope
+    set?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    disconnect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    delete?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    connect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    update?: TicketLogUpdateWithWhereUniqueWithoutUserInput | TicketLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TicketLogUpdateManyWithWhereWithoutUserInput | TicketLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TicketLogScalarWhereInput | TicketLogScalarWhereInput[]
   }
 
   export type EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput = {
@@ -229452,6 +234240,194 @@ export namespace Prisma {
     deleteMany?: BDProjectScalarWhereInput | BDProjectScalarWhereInput[]
   }
 
+  export type SupportTicketCreateattachmentsInput = {
+    set: string[]
+  }
+
+  export type UserCreateNestedOneWithoutAssignedTicketsInput = {
+    create?: XOR<UserCreateWithoutAssignedTicketsInput, UserUncheckedCreateWithoutAssignedTicketsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssignedTicketsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutReportedTicketsInput = {
+    create?: XOR<UserCreateWithoutReportedTicketsInput, UserUncheckedCreateWithoutReportedTicketsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutReportedTicketsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type TicketCommentCreateNestedManyWithoutTicketInput = {
+    create?: XOR<TicketCommentCreateWithoutTicketInput, TicketCommentUncheckedCreateWithoutTicketInput> | TicketCommentCreateWithoutTicketInput[] | TicketCommentUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketCommentCreateOrConnectWithoutTicketInput | TicketCommentCreateOrConnectWithoutTicketInput[]
+    createMany?: TicketCommentCreateManyTicketInputEnvelope
+    connect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+  }
+
+  export type TicketLogCreateNestedManyWithoutTicketInput = {
+    create?: XOR<TicketLogCreateWithoutTicketInput, TicketLogUncheckedCreateWithoutTicketInput> | TicketLogCreateWithoutTicketInput[] | TicketLogUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketLogCreateOrConnectWithoutTicketInput | TicketLogCreateOrConnectWithoutTicketInput[]
+    createMany?: TicketLogCreateManyTicketInputEnvelope
+    connect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+  }
+
+  export type TicketCommentUncheckedCreateNestedManyWithoutTicketInput = {
+    create?: XOR<TicketCommentCreateWithoutTicketInput, TicketCommentUncheckedCreateWithoutTicketInput> | TicketCommentCreateWithoutTicketInput[] | TicketCommentUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketCommentCreateOrConnectWithoutTicketInput | TicketCommentCreateOrConnectWithoutTicketInput[]
+    createMany?: TicketCommentCreateManyTicketInputEnvelope
+    connect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+  }
+
+  export type TicketLogUncheckedCreateNestedManyWithoutTicketInput = {
+    create?: XOR<TicketLogCreateWithoutTicketInput, TicketLogUncheckedCreateWithoutTicketInput> | TicketLogCreateWithoutTicketInput[] | TicketLogUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketLogCreateOrConnectWithoutTicketInput | TicketLogCreateOrConnectWithoutTicketInput[]
+    createMany?: TicketLogCreateManyTicketInputEnvelope
+    connect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+  }
+
+  export type SupportTicketUpdateattachmentsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type UserUpdateOneWithoutAssignedTicketsNestedInput = {
+    create?: XOR<UserCreateWithoutAssignedTicketsInput, UserUncheckedCreateWithoutAssignedTicketsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssignedTicketsInput
+    upsert?: UserUpsertWithoutAssignedTicketsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAssignedTicketsInput, UserUpdateWithoutAssignedTicketsInput>, UserUncheckedUpdateWithoutAssignedTicketsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutReportedTicketsNestedInput = {
+    create?: XOR<UserCreateWithoutReportedTicketsInput, UserUncheckedCreateWithoutReportedTicketsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutReportedTicketsInput
+    upsert?: UserUpsertWithoutReportedTicketsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutReportedTicketsInput, UserUpdateWithoutReportedTicketsInput>, UserUncheckedUpdateWithoutReportedTicketsInput>
+  }
+
+  export type TicketCommentUpdateManyWithoutTicketNestedInput = {
+    create?: XOR<TicketCommentCreateWithoutTicketInput, TicketCommentUncheckedCreateWithoutTicketInput> | TicketCommentCreateWithoutTicketInput[] | TicketCommentUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketCommentCreateOrConnectWithoutTicketInput | TicketCommentCreateOrConnectWithoutTicketInput[]
+    upsert?: TicketCommentUpsertWithWhereUniqueWithoutTicketInput | TicketCommentUpsertWithWhereUniqueWithoutTicketInput[]
+    createMany?: TicketCommentCreateManyTicketInputEnvelope
+    set?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    disconnect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    delete?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    connect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    update?: TicketCommentUpdateWithWhereUniqueWithoutTicketInput | TicketCommentUpdateWithWhereUniqueWithoutTicketInput[]
+    updateMany?: TicketCommentUpdateManyWithWhereWithoutTicketInput | TicketCommentUpdateManyWithWhereWithoutTicketInput[]
+    deleteMany?: TicketCommentScalarWhereInput | TicketCommentScalarWhereInput[]
+  }
+
+  export type TicketLogUpdateManyWithoutTicketNestedInput = {
+    create?: XOR<TicketLogCreateWithoutTicketInput, TicketLogUncheckedCreateWithoutTicketInput> | TicketLogCreateWithoutTicketInput[] | TicketLogUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketLogCreateOrConnectWithoutTicketInput | TicketLogCreateOrConnectWithoutTicketInput[]
+    upsert?: TicketLogUpsertWithWhereUniqueWithoutTicketInput | TicketLogUpsertWithWhereUniqueWithoutTicketInput[]
+    createMany?: TicketLogCreateManyTicketInputEnvelope
+    set?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    disconnect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    delete?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    connect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    update?: TicketLogUpdateWithWhereUniqueWithoutTicketInput | TicketLogUpdateWithWhereUniqueWithoutTicketInput[]
+    updateMany?: TicketLogUpdateManyWithWhereWithoutTicketInput | TicketLogUpdateManyWithWhereWithoutTicketInput[]
+    deleteMany?: TicketLogScalarWhereInput | TicketLogScalarWhereInput[]
+  }
+
+  export type TicketCommentUncheckedUpdateManyWithoutTicketNestedInput = {
+    create?: XOR<TicketCommentCreateWithoutTicketInput, TicketCommentUncheckedCreateWithoutTicketInput> | TicketCommentCreateWithoutTicketInput[] | TicketCommentUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketCommentCreateOrConnectWithoutTicketInput | TicketCommentCreateOrConnectWithoutTicketInput[]
+    upsert?: TicketCommentUpsertWithWhereUniqueWithoutTicketInput | TicketCommentUpsertWithWhereUniqueWithoutTicketInput[]
+    createMany?: TicketCommentCreateManyTicketInputEnvelope
+    set?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    disconnect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    delete?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    connect?: TicketCommentWhereUniqueInput | TicketCommentWhereUniqueInput[]
+    update?: TicketCommentUpdateWithWhereUniqueWithoutTicketInput | TicketCommentUpdateWithWhereUniqueWithoutTicketInput[]
+    updateMany?: TicketCommentUpdateManyWithWhereWithoutTicketInput | TicketCommentUpdateManyWithWhereWithoutTicketInput[]
+    deleteMany?: TicketCommentScalarWhereInput | TicketCommentScalarWhereInput[]
+  }
+
+  export type TicketLogUncheckedUpdateManyWithoutTicketNestedInput = {
+    create?: XOR<TicketLogCreateWithoutTicketInput, TicketLogUncheckedCreateWithoutTicketInput> | TicketLogCreateWithoutTicketInput[] | TicketLogUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: TicketLogCreateOrConnectWithoutTicketInput | TicketLogCreateOrConnectWithoutTicketInput[]
+    upsert?: TicketLogUpsertWithWhereUniqueWithoutTicketInput | TicketLogUpsertWithWhereUniqueWithoutTicketInput[]
+    createMany?: TicketLogCreateManyTicketInputEnvelope
+    set?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    disconnect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    delete?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    connect?: TicketLogWhereUniqueInput | TicketLogWhereUniqueInput[]
+    update?: TicketLogUpdateWithWhereUniqueWithoutTicketInput | TicketLogUpdateWithWhereUniqueWithoutTicketInput[]
+    updateMany?: TicketLogUpdateManyWithWhereWithoutTicketInput | TicketLogUpdateManyWithWhereWithoutTicketInput[]
+    deleteMany?: TicketLogScalarWhereInput | TicketLogScalarWhereInput[]
+  }
+
+  export type TicketCommentCreateattachmentsInput = {
+    set: string[]
+  }
+
+  export type SupportTicketCreateNestedOneWithoutCommentsInput = {
+    create?: XOR<SupportTicketCreateWithoutCommentsInput, SupportTicketUncheckedCreateWithoutCommentsInput>
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutCommentsInput
+    connect?: SupportTicketWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutTicketCommentsInput = {
+    create?: XOR<UserCreateWithoutTicketCommentsInput, UserUncheckedCreateWithoutTicketCommentsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTicketCommentsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type TicketCommentUpdateattachmentsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type SupportTicketUpdateOneRequiredWithoutCommentsNestedInput = {
+    create?: XOR<SupportTicketCreateWithoutCommentsInput, SupportTicketUncheckedCreateWithoutCommentsInput>
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutCommentsInput
+    upsert?: SupportTicketUpsertWithoutCommentsInput
+    connect?: SupportTicketWhereUniqueInput
+    update?: XOR<XOR<SupportTicketUpdateToOneWithWhereWithoutCommentsInput, SupportTicketUpdateWithoutCommentsInput>, SupportTicketUncheckedUpdateWithoutCommentsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutTicketCommentsNestedInput = {
+    create?: XOR<UserCreateWithoutTicketCommentsInput, UserUncheckedCreateWithoutTicketCommentsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTicketCommentsInput
+    upsert?: UserUpsertWithoutTicketCommentsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTicketCommentsInput, UserUpdateWithoutTicketCommentsInput>, UserUncheckedUpdateWithoutTicketCommentsInput>
+  }
+
+  export type SupportTicketCreateNestedOneWithoutLogsInput = {
+    create?: XOR<SupportTicketCreateWithoutLogsInput, SupportTicketUncheckedCreateWithoutLogsInput>
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutLogsInput
+    connect?: SupportTicketWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutTicketLogsInput = {
+    create?: XOR<UserCreateWithoutTicketLogsInput, UserUncheckedCreateWithoutTicketLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTicketLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type SupportTicketUpdateOneRequiredWithoutLogsNestedInput = {
+    create?: XOR<SupportTicketCreateWithoutLogsInput, SupportTicketUncheckedCreateWithoutLogsInput>
+    connectOrCreate?: SupportTicketCreateOrConnectWithoutLogsInput
+    upsert?: SupportTicketUpsertWithoutLogsInput
+    connect?: SupportTicketWhereUniqueInput
+    update?: XOR<XOR<SupportTicketUpdateToOneWithWhereWithoutLogsInput, SupportTicketUpdateWithoutLogsInput>, SupportTicketUncheckedUpdateWithoutLogsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutTicketLogsNestedInput = {
+    create?: XOR<UserCreateWithoutTicketLogsInput, UserUncheckedCreateWithoutTicketLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTicketLogsInput
+    upsert?: UserUpsertWithoutTicketLogsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTicketLogsInput, UserUpdateWithoutTicketLogsInput>, UserUncheckedUpdateWithoutTicketLogsInput>
+  }
+
   export type BDProjectCreatetagsInput = {
     set: string[]
   }
@@ -231846,6 +236822,98 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SupportTicketCreateWithoutAssigneeInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reporter: UserCreateNestedOneWithoutReportedTicketsInput
+    comments?: TicketCommentCreateNestedManyWithoutTicketInput
+    logs?: TicketLogCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketUncheckedCreateWithoutAssigneeInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    reporterId: string
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
+    logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketCreateOrConnectWithoutAssigneeInput = {
+    where: SupportTicketWhereUniqueInput
+    create: XOR<SupportTicketCreateWithoutAssigneeInput, SupportTicketUncheckedCreateWithoutAssigneeInput>
+  }
+
+  export type SupportTicketCreateManyAssigneeInputEnvelope = {
+    data: SupportTicketCreateManyAssigneeInput | SupportTicketCreateManyAssigneeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SupportTicketCreateWithoutReporterInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
+    comments?: TicketCommentCreateNestedManyWithoutTicketInput
+    logs?: TicketLogCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketUncheckedCreateWithoutReporterInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    assigneeId?: string | null
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
+    logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketCreateOrConnectWithoutReporterInput = {
+    where: SupportTicketWhereUniqueInput
+    create: XOR<SupportTicketCreateWithoutReporterInput, SupportTicketUncheckedCreateWithoutReporterInput>
+  }
+
+  export type SupportTicketCreateManyReporterInputEnvelope = {
+    data: SupportTicketCreateManyReporterInput | SupportTicketCreateManyReporterInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TechnicianTaskCreateWithoutAssignerInput = {
     id?: string
     taskType: string
@@ -231993,6 +237061,58 @@ export namespace Prisma {
 
   export type TelesalesKPICreateManyUserInputEnvelope = {
     data: TelesalesKPICreateManyUserInput | TelesalesKPICreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TicketCommentCreateWithoutUserInput = {
+    id?: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+    ticket: SupportTicketCreateNestedOneWithoutCommentsInput
+  }
+
+  export type TicketCommentUncheckedCreateWithoutUserInput = {
+    id?: string
+    ticketId: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+  }
+
+  export type TicketCommentCreateOrConnectWithoutUserInput = {
+    where: TicketCommentWhereUniqueInput
+    create: XOR<TicketCommentCreateWithoutUserInput, TicketCommentUncheckedCreateWithoutUserInput>
+  }
+
+  export type TicketCommentCreateManyUserInputEnvelope = {
+    data: TicketCommentCreateManyUserInput | TicketCommentCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TicketLogCreateWithoutUserInput = {
+    id?: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+    ticket: SupportTicketCreateNestedOneWithoutLogsInput
+  }
+
+  export type TicketLogUncheckedCreateWithoutUserInput = {
+    id?: string
+    ticketId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type TicketLogCreateOrConnectWithoutUserInput = {
+    where: TicketLogWhereUniqueInput
+    create: XOR<TicketLogCreateWithoutUserInput, TicketLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type TicketLogCreateManyUserInputEnvelope = {
+    data: TicketLogCreateManyUserInput | TicketLogCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -233298,6 +238418,58 @@ export namespace Prisma {
     data: XOR<SiteSurveyUpdateManyMutationInput, SiteSurveyUncheckedUpdateManyWithoutSalespersonInput>
   }
 
+  export type SupportTicketUpsertWithWhereUniqueWithoutAssigneeInput = {
+    where: SupportTicketWhereUniqueInput
+    update: XOR<SupportTicketUpdateWithoutAssigneeInput, SupportTicketUncheckedUpdateWithoutAssigneeInput>
+    create: XOR<SupportTicketCreateWithoutAssigneeInput, SupportTicketUncheckedCreateWithoutAssigneeInput>
+  }
+
+  export type SupportTicketUpdateWithWhereUniqueWithoutAssigneeInput = {
+    where: SupportTicketWhereUniqueInput
+    data: XOR<SupportTicketUpdateWithoutAssigneeInput, SupportTicketUncheckedUpdateWithoutAssigneeInput>
+  }
+
+  export type SupportTicketUpdateManyWithWhereWithoutAssigneeInput = {
+    where: SupportTicketScalarWhereInput
+    data: XOR<SupportTicketUpdateManyMutationInput, SupportTicketUncheckedUpdateManyWithoutAssigneeInput>
+  }
+
+  export type SupportTicketScalarWhereInput = {
+    AND?: SupportTicketScalarWhereInput | SupportTicketScalarWhereInput[]
+    OR?: SupportTicketScalarWhereInput[]
+    NOT?: SupportTicketScalarWhereInput | SupportTicketScalarWhereInput[]
+    id?: StringFilter<"SupportTicket"> | string
+    ticketNumber?: StringFilter<"SupportTicket"> | string
+    title?: StringFilter<"SupportTicket"> | string
+    description?: StringFilter<"SupportTicket"> | string
+    attachments?: StringNullableListFilter<"SupportTicket">
+    urgency?: StringFilter<"SupportTicket"> | string
+    status?: StringFilter<"SupportTicket"> | string
+    reporterId?: StringFilter<"SupportTicket"> | string
+    assigneeId?: StringNullableFilter<"SupportTicket"> | string | null
+    resolutionPlan?: StringNullableFilter<"SupportTicket"> | string | null
+    progressPercent?: IntFilter<"SupportTicket"> | number
+    resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+    createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+  }
+
+  export type SupportTicketUpsertWithWhereUniqueWithoutReporterInput = {
+    where: SupportTicketWhereUniqueInput
+    update: XOR<SupportTicketUpdateWithoutReporterInput, SupportTicketUncheckedUpdateWithoutReporterInput>
+    create: XOR<SupportTicketCreateWithoutReporterInput, SupportTicketUncheckedCreateWithoutReporterInput>
+  }
+
+  export type SupportTicketUpdateWithWhereUniqueWithoutReporterInput = {
+    where: SupportTicketWhereUniqueInput
+    data: XOR<SupportTicketUpdateWithoutReporterInput, SupportTicketUncheckedUpdateWithoutReporterInput>
+  }
+
+  export type SupportTicketUpdateManyWithWhereWithoutReporterInput = {
+    where: SupportTicketScalarWhereInput
+    data: XOR<SupportTicketUpdateManyMutationInput, SupportTicketUncheckedUpdateManyWithoutReporterInput>
+  }
+
   export type TechnicianTaskUpsertWithWhereUniqueWithoutAssignerInput = {
     where: TechnicianTaskWhereUniqueInput
     update: XOR<TechnicianTaskUpdateWithoutAssignerInput, TechnicianTaskUncheckedUpdateWithoutAssignerInput>
@@ -233415,6 +238587,62 @@ export namespace Prisma {
     connectionRateMin?: FloatFilter<"TelesalesKPI"> | number
     createdAt?: DateTimeFilter<"TelesalesKPI"> | Date | string
     updatedAt?: DateTimeFilter<"TelesalesKPI"> | Date | string
+  }
+
+  export type TicketCommentUpsertWithWhereUniqueWithoutUserInput = {
+    where: TicketCommentWhereUniqueInput
+    update: XOR<TicketCommentUpdateWithoutUserInput, TicketCommentUncheckedUpdateWithoutUserInput>
+    create: XOR<TicketCommentCreateWithoutUserInput, TicketCommentUncheckedCreateWithoutUserInput>
+  }
+
+  export type TicketCommentUpdateWithWhereUniqueWithoutUserInput = {
+    where: TicketCommentWhereUniqueInput
+    data: XOR<TicketCommentUpdateWithoutUserInput, TicketCommentUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TicketCommentUpdateManyWithWhereWithoutUserInput = {
+    where: TicketCommentScalarWhereInput
+    data: XOR<TicketCommentUpdateManyMutationInput, TicketCommentUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type TicketCommentScalarWhereInput = {
+    AND?: TicketCommentScalarWhereInput | TicketCommentScalarWhereInput[]
+    OR?: TicketCommentScalarWhereInput[]
+    NOT?: TicketCommentScalarWhereInput | TicketCommentScalarWhereInput[]
+    id?: StringFilter<"TicketComment"> | string
+    ticketId?: StringFilter<"TicketComment"> | string
+    userId?: StringFilter<"TicketComment"> | string
+    message?: StringFilter<"TicketComment"> | string
+    attachments?: StringNullableListFilter<"TicketComment">
+    createdAt?: DateTimeFilter<"TicketComment"> | Date | string
+  }
+
+  export type TicketLogUpsertWithWhereUniqueWithoutUserInput = {
+    where: TicketLogWhereUniqueInput
+    update: XOR<TicketLogUpdateWithoutUserInput, TicketLogUncheckedUpdateWithoutUserInput>
+    create: XOR<TicketLogCreateWithoutUserInput, TicketLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type TicketLogUpdateWithWhereUniqueWithoutUserInput = {
+    where: TicketLogWhereUniqueInput
+    data: XOR<TicketLogUpdateWithoutUserInput, TicketLogUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TicketLogUpdateManyWithWhereWithoutUserInput = {
+    where: TicketLogScalarWhereInput
+    data: XOR<TicketLogUpdateManyMutationInput, TicketLogUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type TicketLogScalarWhereInput = {
+    AND?: TicketLogScalarWhereInput | TicketLogScalarWhereInput[]
+    OR?: TicketLogScalarWhereInput[]
+    NOT?: TicketLogScalarWhereInput | TicketLogScalarWhereInput[]
+    id?: StringFilter<"TicketLog"> | string
+    ticketId?: StringFilter<"TicketLog"> | string
+    userId?: StringFilter<"TicketLog"> | string
+    action?: StringFilter<"TicketLog"> | string
+    details?: StringNullableFilter<"TicketLog"> | string | null
+    createdAt?: DateTimeFilter<"TicketLog"> | Date | string
   }
 
   export type EmployeeSaleUpsertWithoutUserInput = {
@@ -233561,9 +238789,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -233613,9 +238845,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -233681,9 +238917,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -233733,9 +238973,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -233923,9 +239167,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -233975,9 +239223,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -234193,9 +239445,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -234245,9 +239501,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -234298,9 +239558,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
@@ -234350,9 +239614,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
@@ -234418,9 +239686,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
@@ -234470,9 +239742,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
@@ -234521,9 +239797,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -234573,9 +239853,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -235193,9 +240477,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -235245,9 +240533,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -235569,9 +240861,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -235621,9 +240917,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -235784,9 +241084,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -235836,9 +241140,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -236471,9 +241779,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -236523,9 +241835,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -236985,9 +242301,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -237037,9 +242357,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -237370,8 +242694,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -237422,8 +242750,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -237632,8 +242964,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -237684,8 +243020,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -237736,8 +243076,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -237788,8 +243132,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -237856,8 +243204,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -237908,8 +243260,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -238173,9 +243529,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -238225,9 +243585,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -238438,9 +243802,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -238490,9 +243858,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -238759,9 +244131,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -238811,9 +244187,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -239092,9 +244472,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -239144,9 +244528,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -239301,9 +244689,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -239353,9 +244745,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -240743,9 +246139,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -240795,9 +246195,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -240964,9 +246368,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -241016,9 +246424,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -241265,9 +246677,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
@@ -241317,9 +246733,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
@@ -241480,9 +246900,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
@@ -241532,9 +246956,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
@@ -242727,9 +248155,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -242779,9 +248211,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -242948,9 +248384,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -243000,9 +248440,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -243248,9 +248692,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -243300,9 +248748,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -243357,9 +248809,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -243409,9 +248865,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -243477,9 +248937,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -243529,9 +248993,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -243592,9 +249060,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -243644,9 +249116,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -257416,9 +262892,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -257468,9 +262948,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -257873,9 +263357,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -257925,9 +263413,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -258506,9 +263998,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -258558,9 +264054,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -258775,9 +264275,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -258827,9 +264331,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -258879,9 +264387,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -258931,9 +264443,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -259245,9 +264761,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -259297,9 +264817,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -259872,9 +265396,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -259924,9 +265452,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -260170,9 +265702,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -260222,9 +265758,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -265657,9 +271197,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -265709,9 +271253,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -265766,9 +271314,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -265818,9 +271370,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -265971,9 +271527,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -266023,9 +271583,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -266086,9 +271650,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -266138,9 +271706,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -266281,9 +271853,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -266333,9 +271909,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -266401,9 +271981,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -266453,9 +272037,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -266684,9 +272272,13 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -266736,9 +272328,13 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -266793,9 +272389,13 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -266845,9 +272445,13 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -267280,9 +272884,13 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -267332,9 +272940,13 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -267395,9 +273007,13 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -267447,9 +273063,13 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -270131,9 +275751,13 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -270183,9 +275807,13 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -270251,9 +275879,13 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -270303,9 +275935,13 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -270355,9 +275991,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -270407,9 +276047,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -270475,9 +276119,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -270527,9 +276175,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -271729,9 +277381,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -271781,9 +277437,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -271944,9 +277604,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -271996,9 +277660,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -272883,9 +278551,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -272935,9 +278607,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -273221,9 +278897,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -273273,9 +278953,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -273668,8 +279352,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -273720,8 +279408,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -274026,8 +279718,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -274078,8 +279774,12 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -274462,9 +280162,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -274514,9 +280218,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -274671,9 +280379,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -274723,9 +280435,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -274858,9 +280574,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -274910,9 +280630,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -275067,9 +280791,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -275119,9 +280847,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -275418,6 +281150,1226 @@ export namespace Prisma {
     steps?: BDWorkflowStepTemplateUncheckedUpdateManyWithoutTemplateNestedInput
   }
 
+  export type UserCreateWithoutAssignedTicketsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutAssignedTicketsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutAssignedTicketsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAssignedTicketsInput, UserUncheckedCreateWithoutAssignedTicketsInput>
+  }
+
+  export type UserCreateWithoutReportedTicketsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutReportedTicketsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutReportedTicketsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutReportedTicketsInput, UserUncheckedCreateWithoutReportedTicketsInput>
+  }
+
+  export type TicketCommentCreateWithoutTicketInput = {
+    id?: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutTicketCommentsInput
+  }
+
+  export type TicketCommentUncheckedCreateWithoutTicketInput = {
+    id?: string
+    userId: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+  }
+
+  export type TicketCommentCreateOrConnectWithoutTicketInput = {
+    where: TicketCommentWhereUniqueInput
+    create: XOR<TicketCommentCreateWithoutTicketInput, TicketCommentUncheckedCreateWithoutTicketInput>
+  }
+
+  export type TicketCommentCreateManyTicketInputEnvelope = {
+    data: TicketCommentCreateManyTicketInput | TicketCommentCreateManyTicketInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TicketLogCreateWithoutTicketInput = {
+    id?: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutTicketLogsInput
+  }
+
+  export type TicketLogUncheckedCreateWithoutTicketInput = {
+    id?: string
+    userId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type TicketLogCreateOrConnectWithoutTicketInput = {
+    where: TicketLogWhereUniqueInput
+    create: XOR<TicketLogCreateWithoutTicketInput, TicketLogUncheckedCreateWithoutTicketInput>
+  }
+
+  export type TicketLogCreateManyTicketInputEnvelope = {
+    data: TicketLogCreateManyTicketInput | TicketLogCreateManyTicketInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutAssignedTicketsInput = {
+    update: XOR<UserUpdateWithoutAssignedTicketsInput, UserUncheckedUpdateWithoutAssignedTicketsInput>
+    create: XOR<UserCreateWithoutAssignedTicketsInput, UserUncheckedCreateWithoutAssignedTicketsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAssignedTicketsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAssignedTicketsInput, UserUncheckedUpdateWithoutAssignedTicketsInput>
+  }
+
+  export type UserUpdateWithoutAssignedTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAssignedTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUpsertWithoutReportedTicketsInput = {
+    update: XOR<UserUpdateWithoutReportedTicketsInput, UserUncheckedUpdateWithoutReportedTicketsInput>
+    create: XOR<UserCreateWithoutReportedTicketsInput, UserUncheckedCreateWithoutReportedTicketsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutReportedTicketsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutReportedTicketsInput, UserUncheckedUpdateWithoutReportedTicketsInput>
+  }
+
+  export type UserUpdateWithoutReportedTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutReportedTicketsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type TicketCommentUpsertWithWhereUniqueWithoutTicketInput = {
+    where: TicketCommentWhereUniqueInput
+    update: XOR<TicketCommentUpdateWithoutTicketInput, TicketCommentUncheckedUpdateWithoutTicketInput>
+    create: XOR<TicketCommentCreateWithoutTicketInput, TicketCommentUncheckedCreateWithoutTicketInput>
+  }
+
+  export type TicketCommentUpdateWithWhereUniqueWithoutTicketInput = {
+    where: TicketCommentWhereUniqueInput
+    data: XOR<TicketCommentUpdateWithoutTicketInput, TicketCommentUncheckedUpdateWithoutTicketInput>
+  }
+
+  export type TicketCommentUpdateManyWithWhereWithoutTicketInput = {
+    where: TicketCommentScalarWhereInput
+    data: XOR<TicketCommentUpdateManyMutationInput, TicketCommentUncheckedUpdateManyWithoutTicketInput>
+  }
+
+  export type TicketLogUpsertWithWhereUniqueWithoutTicketInput = {
+    where: TicketLogWhereUniqueInput
+    update: XOR<TicketLogUpdateWithoutTicketInput, TicketLogUncheckedUpdateWithoutTicketInput>
+    create: XOR<TicketLogCreateWithoutTicketInput, TicketLogUncheckedCreateWithoutTicketInput>
+  }
+
+  export type TicketLogUpdateWithWhereUniqueWithoutTicketInput = {
+    where: TicketLogWhereUniqueInput
+    data: XOR<TicketLogUpdateWithoutTicketInput, TicketLogUncheckedUpdateWithoutTicketInput>
+  }
+
+  export type TicketLogUpdateManyWithWhereWithoutTicketInput = {
+    where: TicketLogScalarWhereInput
+    data: XOR<TicketLogUpdateManyMutationInput, TicketLogUncheckedUpdateManyWithoutTicketInput>
+  }
+
+  export type SupportTicketCreateWithoutCommentsInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
+    reporter: UserCreateNestedOneWithoutReportedTicketsInput
+    logs?: TicketLogCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketUncheckedCreateWithoutCommentsInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    reporterId: string
+    assigneeId?: string | null
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketCreateOrConnectWithoutCommentsInput = {
+    where: SupportTicketWhereUniqueInput
+    create: XOR<SupportTicketCreateWithoutCommentsInput, SupportTicketUncheckedCreateWithoutCommentsInput>
+  }
+
+  export type UserCreateWithoutTicketCommentsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutTicketCommentsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutTicketCommentsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTicketCommentsInput, UserUncheckedCreateWithoutTicketCommentsInput>
+  }
+
+  export type SupportTicketUpsertWithoutCommentsInput = {
+    update: XOR<SupportTicketUpdateWithoutCommentsInput, SupportTicketUncheckedUpdateWithoutCommentsInput>
+    create: XOR<SupportTicketCreateWithoutCommentsInput, SupportTicketUncheckedCreateWithoutCommentsInput>
+    where?: SupportTicketWhereInput
+  }
+
+  export type SupportTicketUpdateToOneWithWhereWithoutCommentsInput = {
+    where?: SupportTicketWhereInput
+    data: XOR<SupportTicketUpdateWithoutCommentsInput, SupportTicketUncheckedUpdateWithoutCommentsInput>
+  }
+
+  export type SupportTicketUpdateWithoutCommentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
+    reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
+    logs?: TicketLogUpdateManyWithoutTicketNestedInput
+  }
+
+  export type SupportTicketUncheckedUpdateWithoutCommentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reporterId?: StringFieldUpdateOperationsInput | string
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type UserUpsertWithoutTicketCommentsInput = {
+    update: XOR<UserUpdateWithoutTicketCommentsInput, UserUncheckedUpdateWithoutTicketCommentsInput>
+    create: XOR<UserCreateWithoutTicketCommentsInput, UserUncheckedCreateWithoutTicketCommentsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTicketCommentsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTicketCommentsInput, UserUncheckedUpdateWithoutTicketCommentsInput>
+  }
+
+  export type UserUpdateWithoutTicketCommentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTicketCommentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type SupportTicketCreateWithoutLogsInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
+    reporter: UserCreateNestedOneWithoutReportedTicketsInput
+    comments?: TicketCommentCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketUncheckedCreateWithoutLogsInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    reporterId: string
+    assigneeId?: string | null
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type SupportTicketCreateOrConnectWithoutLogsInput = {
+    where: SupportTicketWhereUniqueInput
+    create: XOR<SupportTicketCreateWithoutLogsInput, SupportTicketUncheckedCreateWithoutLogsInput>
+  }
+
+  export type UserCreateWithoutTicketLogsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
+    assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
+    technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserUncheckedCreateWithoutTicketLogsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    bdActivities?: BDActivityUncheckedCreateNestedManyWithoutUserInput
+    bdOwnedProjects?: BDProjectUncheckedCreateNestedManyWithoutOwnerInput
+    bdRequests?: BDProjectUncheckedCreateNestedManyWithoutRequesterInput
+    bdAssignedTasks?: BDTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedCreateNestedManyWithoutTechnicianInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    orderStatusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutUserInput
+    productionAssignments?: ProductionAssignmentUncheckedCreateNestedManyWithoutUserInput
+    productionTimeLogs?: ProductionTimeLogUncheckedCreateNestedManyWithoutUserInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
+    technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
+  }
+
+  export type UserCreateOrConnectWithoutTicketLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTicketLogsInput, UserUncheckedCreateWithoutTicketLogsInput>
+  }
+
+  export type SupportTicketUpsertWithoutLogsInput = {
+    update: XOR<SupportTicketUpdateWithoutLogsInput, SupportTicketUncheckedUpdateWithoutLogsInput>
+    create: XOR<SupportTicketCreateWithoutLogsInput, SupportTicketUncheckedCreateWithoutLogsInput>
+    where?: SupportTicketWhereInput
+  }
+
+  export type SupportTicketUpdateToOneWithWhereWithoutLogsInput = {
+    where?: SupportTicketWhereInput
+    data: XOR<SupportTicketUpdateWithoutLogsInput, SupportTicketUncheckedUpdateWithoutLogsInput>
+  }
+
+  export type SupportTicketUpdateWithoutLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
+    reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
+    comments?: TicketCommentUpdateManyWithoutTicketNestedInput
+  }
+
+  export type SupportTicketUncheckedUpdateWithoutLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reporterId?: StringFieldUpdateOperationsInput | string
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type UserUpsertWithoutTicketLogsInput = {
+    update: XOR<UserUpdateWithoutTicketLogsInput, UserUncheckedUpdateWithoutTicketLogsInput>
+    create: XOR<UserCreateWithoutTicketLogsInput, UserUncheckedCreateWithoutTicketLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTicketLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTicketLogsInput, UserUncheckedUpdateWithoutTicketLogsInput>
+  }
+
+  export type UserUpdateWithoutTicketLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
+    technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTicketLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    bdActivities?: BDActivityUncheckedUpdateManyWithoutUserNestedInput
+    bdOwnedProjects?: BDProjectUncheckedUpdateManyWithoutOwnerNestedInput
+    bdRequests?: BDProjectUncheckedUpdateManyWithoutRequesterNestedInput
+    bdAssignedTasks?: BDTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    cabinetAssemblyJobs?: CabinetAssemblyJobUncheckedUpdateManyWithoutTechnicianNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    orderStatusLogs?: OrderStatusLogUncheckedUpdateManyWithoutUserNestedInput
+    productionAssignments?: ProductionAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    productionTimeLogs?: ProductionTimeLogUncheckedUpdateManyWithoutUserNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
+    assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
+    technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
+  }
+
   export type BDActivityCreateWithoutProjectInput = {
     id?: string
     action: string
@@ -275487,9 +282439,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -275539,9 +282495,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -275707,9 +282667,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -275759,9 +282723,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -275878,9 +282846,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     technicianOrders?: OrderCreateNestedManyWithoutAssignedTechniciansInput
@@ -275930,9 +282902,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     technicianOrders?: OrderUncheckedCreateNestedManyWithoutAssignedTechniciansInput
@@ -276013,9 +282989,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -276065,9 +283045,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -276203,9 +283187,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -276255,9 +283243,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -276509,9 +283501,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -276561,9 +283557,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -276682,9 +283682,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -276734,9 +283738,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -276898,9 +283906,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectCreateNestedManyWithoutMembersInput
@@ -276950,9 +283962,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    assignedTickets?: SupportTicketUncheckedCreateNestedManyWithoutAssigneeInput
+    reportedTickets?: SupportTicketUncheckedCreateNestedManyWithoutReporterInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedCreateNestedManyWithoutAssignerInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    ticketComments?: TicketCommentUncheckedCreateNestedManyWithoutUserInput
+    ticketLogs?: TicketLogUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
     bdMemberProjects?: BDProjectUncheckedCreateNestedManyWithoutMembersInput
@@ -277077,9 +284093,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -277129,9 +284149,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -277748,6 +284772,38 @@ export namespace Prisma {
     roofStructureFileUrl?: string | null
   }
 
+  export type SupportTicketCreateManyAssigneeInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    reporterId: string
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SupportTicketCreateManyReporterInput = {
+    id?: string
+    ticketNumber: string
+    title: string
+    description: string
+    attachments?: SupportTicketCreateattachmentsInput | string[]
+    urgency?: string
+    status?: string
+    assigneeId?: string | null
+    resolutionPlan?: string | null
+    progressPercent?: number
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type TechnicianTaskCreateManyAssignerInput = {
     id?: string
     taskType: string
@@ -277805,6 +284861,22 @@ export namespace Prisma {
     connectionRateMin?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type TicketCommentCreateManyUserInput = {
+    id?: string
+    ticketId: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+  }
+
+  export type TicketLogCreateManyUserInput = {
+    id?: string
+    ticketId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
   }
 
   export type JobStepLogCreateManyCompletedByUserInput = {
@@ -279759,6 +286831,110 @@ export namespace Prisma {
     roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type SupportTicketUpdateWithoutAssigneeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
+    comments?: TicketCommentUpdateManyWithoutTicketNestedInput
+    logs?: TicketLogUpdateManyWithoutTicketNestedInput
+  }
+
+  export type SupportTicketUncheckedUpdateWithoutAssigneeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reporterId?: StringFieldUpdateOperationsInput | string
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
+    logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type SupportTicketUncheckedUpdateManyWithoutAssigneeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reporterId?: StringFieldUpdateOperationsInput | string
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportTicketUpdateWithoutReporterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
+    comments?: TicketCommentUpdateManyWithoutTicketNestedInput
+    logs?: TicketLogUpdateManyWithoutTicketNestedInput
+  }
+
+  export type SupportTicketUncheckedUpdateWithoutReporterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
+    logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type SupportTicketUncheckedUpdateManyWithoutReporterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    attachments?: SupportTicketUpdateattachmentsInput | string[]
+    urgency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assigneeId?: NullableStringFieldUpdateOperationsInput | string | null
+    resolutionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    progressPercent?: IntFieldUpdateOperationsInput | number
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TechnicianTaskUpdateWithoutAssignerInput = {
     id?: StringFieldUpdateOperationsInput | string
     taskType?: StringFieldUpdateOperationsInput | string
@@ -279936,6 +287112,54 @@ export namespace Prisma {
     connectionRateMin?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketCommentUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticket?: SupportTicketUpdateOneRequiredWithoutCommentsNestedInput
+  }
+
+  export type TicketCommentUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketCommentUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketLogUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticket?: SupportTicketUpdateOneRequiredWithoutLogsNestedInput
+  }
+
+  export type TicketLogUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketLogUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type JobStepLogUpdateWithoutCompletedByUserInput = {
@@ -281869,9 +289093,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUpdateManyWithoutMembersNestedInput
@@ -281921,9 +289149,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     bdMemberProjects?: BDProjectUncheckedUpdateManyWithoutMembersNestedInput
@@ -288476,6 +295708,70 @@ export namespace Prisma {
     tags?: BDProjectUpdatetagsInput | string[]
   }
 
+  export type TicketCommentCreateManyTicketInput = {
+    id?: string
+    userId: string
+    message: string
+    attachments?: TicketCommentCreateattachmentsInput | string[]
+    createdAt?: Date | string
+  }
+
+  export type TicketLogCreateManyTicketInput = {
+    id?: string
+    userId: string
+    action: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type TicketCommentUpdateWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutTicketCommentsNestedInput
+  }
+
+  export type TicketCommentUncheckedUpdateWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketCommentUncheckedUpdateManyWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    attachments?: TicketCommentUpdateattachmentsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketLogUpdateWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutTicketLogsNestedInput
+  }
+
+  export type TicketLogUncheckedUpdateWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketLogUncheckedUpdateManyWithoutTicketInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type BDActivityCreateManyProjectInput = {
     id?: string
     userId: string
@@ -288704,9 +296000,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
     technicianOrders?: OrderUpdateManyWithoutAssignedTechniciansNestedInput
@@ -288756,9 +296056,13 @@ export namespace Prisma {
     serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    assignedTickets?: SupportTicketUncheckedUpdateManyWithoutAssigneeNestedInput
+    reportedTickets?: SupportTicketUncheckedUpdateManyWithoutReporterNestedInput
     assignedTechnicianTasks?: TechnicianTaskUncheckedUpdateManyWithoutAssignerNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    ticketComments?: TicketCommentUncheckedUpdateManyWithoutUserNestedInput
+    ticketLogs?: TicketLogUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput

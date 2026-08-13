@@ -51,9 +51,13 @@ model User {
   serviceSchedules        ServiceSchedule[]
   estimatedSurveys        SiteSurvey[]           @relation("SurveyEstimator")
   siteSurveys             SiteSurvey[]
+  assignedTickets         SupportTicket[]        @relation("TicketAssignee")
+  reportedTickets         SupportTicket[]        @relation("TicketReporter")
   assignedTechnicianTasks TechnicianTask[]       @relation("TaskAssigner")
   telesales               Telesale[]
   telesalesKPIs           TelesalesKPI[]
+  ticketComments          TicketComment[]
+  ticketLogs              TicketLog[]
   employeeSale            EmployeeSale?
   jobStepLogs             JobStepLog[]
   bdMemberProjects        BDProject[]            @relation("BDProjectMembers")
@@ -2590,6 +2594,58 @@ model BDWorkType {
   defaultTemplateId String?
   projects          BDProject[]
   defaultTemplate   BDWorkflowTemplate? @relation(fields: [defaultTemplateId], references: [id])
+}
+
+model SupportTicket {
+  id              String          @id @default(cuid())
+  ticketNumber    String          @unique
+  title           String
+  description     String
+  attachments     String[]        @default([])
+  urgency         String          @default("MEDIUM")
+  status          String          @default("SUBMITTED")
+  reporterId      String
+  assigneeId      String?
+  resolutionPlan  String?
+  progressPercent Int             @default(0)
+  resolvedAt      DateTime?       @db.Timestamptz(6)
+  createdAt       DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
+  assignee        User?           @relation("TicketAssignee", fields: [assigneeId], references: [id])
+  reporter        User            @relation("TicketReporter", fields: [reporterId], references: [id])
+  comments        TicketComment[]
+  logs            TicketLog[]
+
+  @@index([reporterId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model TicketComment {
+  id          String        @id @default(cuid())
+  ticketId    String
+  userId      String
+  message     String
+  attachments String[]      @default([])
+  createdAt   DateTime      @default(now()) @db.Timestamptz(6)
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+}
+
+model TicketLog {
+  id        String        @id @default(cuid())
+  ticketId  String
+  userId    String
+  action    String
+  details   String?
+  createdAt DateTime      @default(now()) @db.Timestamptz(6)
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
 }
 
 model BDProject {
