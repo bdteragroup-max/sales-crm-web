@@ -33,6 +33,9 @@ export default async function MarketingDashboardPage({
   // Fetch quotations created within this date range
   const quotations = await prisma.quotation.findMany({
     where: {
+      salespersonId: {
+        not: 'cmq7iv42y000004l496tyrofk' // Exclude Mr. Teerawat Pokphet
+      },
       OR: [
         { quotationDate: { gte: startDate, lte: endDate } },
         { quotationDate: null, createdAt: { gte: startDate, lte: endDate } }
