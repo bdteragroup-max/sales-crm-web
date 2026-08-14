@@ -157,15 +157,15 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-4">
                   <Activity className="w-5 h-5 mr-2 text-red-600" /> แผนการแก้ไขและความคืบหน้า
                 </h3>
-                
+
                 <div className="mb-4">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-gray-700">ความคืบหน้า</span>
                     <span className="text-sm font-medium text-red-600">{ticket.progressPercent}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div 
-                      className={`h-2.5 rounded-full ${ticket.progressPercent === 100 ? 'bg-green-500' : 'bg-red-600'}`} 
+                    <div
+                      className={`h-2.5 rounded-full ${ticket.progressPercent === 100 ? 'bg-green-500' : 'bg-red-600'}`}
                       style={{ width: `${ticket.progressPercent}%` }}
                     ></div>
                   </div>
@@ -227,7 +227,7 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
             <MessageSquare className="w-5 h-5 mr-2 text-red-600" /> สนทนา / ถาม-ตอบ
           </h3>
         </div>
-        
+
         <div className="p-6 space-y-6 max-h-[500px] overflow-y-auto">
           {ticket.comments.length === 0 ? (
             <div className="text-center text-gray-500 py-8 italic">ยังไม่มีการสนทนาในรายการนี้</div>
@@ -239,7 +239,7 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
                   <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${isMine ? 'bg-red-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none'}`}>
                     {!isMine && <div className="text-xs font-semibold text-red-600 mb-1">{c.user.fullName} ({c.user.role})</div>}
                     <div className="whitespace-pre-wrap text-sm">{c.message}</div>
-                    
+
                     {c.attachments && c.attachments.length > 0 && (
                       <div className="mt-2 space-y-1">
                         {c.attachments.map((url: string, i: number) => (
@@ -280,10 +280,10 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
               <div className="flex items-center gap-2">
                 <label className="cursor-pointer flex items-center text-sm text-gray-600 hover:text-red-600">
                   <Paperclip className="w-4 h-4 mr-1" /> แนบไฟล์รูปภาพ/เอกสาร
-                  <input 
-                    type="file" 
-                    multiple 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    multiple
+                    className="hidden"
                     ref={fileInputRef}
                     onChange={(e) => {
                       if (e.target.files) {

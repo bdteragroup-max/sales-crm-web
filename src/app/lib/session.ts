@@ -6,11 +6,11 @@ import { SessionPayload } from '@/app/lib/definitions'
 const secretKey = process.env.SESSION_SECRET
 const encodedKey = new TextEncoder().encode(secretKey)
 
-export async function encrypt(payload: SessionPayload) {
+export async function encrypt(payload: SessionPayload, expiresIn: string | number = '7d') {
   return new SignJWT(payload as any)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('7d')
+    .setExpirationTime(expiresIn)
     .sign(encodedKey)
 }
 
@@ -63,4 +63,26 @@ export async function updateSession() {
 export async function deleteSession() {
   const cookieStore = await cookies()
   cookieStore.delete('session')
+}
+
+export async function refreshSession(expiresIn: string | number = '7d') {
+  const sessionCookie = (await cookies()).get('session')?.value
+  const payload = await decrypt(sessionCookie)
+  
+  if (!sessionCookie || !payload || !payload.userId) {
+    return { success: false, error: 'No active session' }
+  }
+
+  const expiresAt = new Date(Date.now() + (expiresIn === '2h' ? 2 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000))
+  const newSession = await encrypt({ userId: payload.userId, expiresAt }, expiresIn)
+  
+  const cookieStore = await cookies()
+  cookieStore.set('session', newSession, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+  })
+  
+  return { success: true }
 }

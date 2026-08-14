@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { getBDReportData, getBDTeamOverview, getBDTeamMembers } from '@/app/actions/bd-reports';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, LineChart, Line, CartesianGrid, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import Link from 'next/link';
+import { getBdCombinedWorkload } from '@/app/actions/bd-combined';
+import { RefreshCw, MonitorPlay, Ticket, FolderKanban } from 'lucide-react';
 
 interface Props {
   currentUserId: string;
@@ -23,6 +25,9 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
   const [teamTaskStatus, setTeamTaskStatus] = useState<any[]>([]);
   const [ganttProjects, setGanttProjects] = useState<any[]>([]);
   const [projectProgress, setProjectProgress] = useState<any[]>([]);
+
+  const [liveWorkload, setLiveWorkload] = useState<any[]>([]);
+  const [liveWorkloadLoading, setLiveWorkloadLoading] = useState(false);
 
   const [dateType, setDateType] = useState<'ASSIGNED' | 'COMPLETED'>('ASSIGNED');
   const [startDate, setStartDate] = useState<string>('');
@@ -54,6 +59,19 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
     return { minStart, maxEnd, totalDuration: maxEnd - minStart };
   }, [ganttProjects]);
 
+  const loadLiveWorkload = async () => {
+    setLiveWorkloadLoading(true);
+    try {
+      const res = await getBdCombinedWorkload();
+      if (res.success && res.data) {
+        setLiveWorkload(res.data.userWorkloads);
+      }
+    } catch (e) {
+      console.error("loadLiveWorkload exception:", e);
+    }
+    setLiveWorkloadLoading(false);
+  };
+
   const loadReportData = async () => {
     setLoading(true);
     try {
@@ -70,6 +88,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
           setTeamTaskStatus(res.data.teamTaskStatus || []);
           setGanttProjects(res.data.ganttProjects || []);
           setProjectProgress(res.data.projectProgress || []);
+          loadLiveWorkload();
         } else {
           console.error("getBDTeamOverview failed:", res.error);
         }
@@ -344,6 +363,94 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                       </div>
                     </div>
                   )}
+
+                  {/* Live Workload Snapshot */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MonitorPlay className="w-5 h-5 text-gray-500" />
+                        <h3 className="text-base font-semibold text-gray-800">ภาระงานแบบเรียลไทม์ (Live Workload Snapshot)</h3>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={loadLiveWorkload}
+                          disabled={liveWorkloadLoading}
+                          className="text-gray-500 hover:text-gray-800 flex items-center gap-1.5 text-sm font-medium transition-colors"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${liveWorkloadLoading ? 'animate-spin' : ''}`} />
+                          รีเฟรช
+                        </button>
+                        <Link 
+                          href="/bd/tickets/tv" 
+                          target="_blank"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+                        >
+                          <MonitorPlay className="w-4 h-4" />
+                          View in TV mode
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-white border-b border-gray-200 text-sm text-gray-500 font-medium">
+                            <th className="px-6 py-4 whitespace-nowrap" rowSpan={2}>ชื่อพนักงาน</th>
+                            <th className="px-6 py-4 text-center whitespace-nowrap border-l border-gray-200" colSpan={3}>
+                              <div className="flex items-center justify-center gap-2 text-purple-600">
+                                <Ticket className="w-4 h-4" /> Support Tickets
+                              </div>
+                            </th>
+                            <th className="px-6 py-4 text-center whitespace-nowrap border-l border-gray-200" colSpan={3}>
+                              <div className="flex items-center justify-center gap-2 text-sky-600">
+                                <FolderKanban className="w-4 h-4" /> Projects / Tasks
+                              </div>
+                            </th>
+                          </tr>
+                          <tr className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500">
+                            <th className="px-4 py-3 text-center text-orange-600 border-l border-gray-200">รอดำเนินการ</th>
+                            <th className="px-4 py-3 text-center text-blue-600">กำลังดำเนินการ</th>
+                            <th className="px-4 py-3 text-center text-green-600">เสร็จสิ้นวันนี้</th>
+                            <th className="px-4 py-3 text-center text-blue-600 border-l border-gray-200">กำลังดำเนินการ</th>
+                            <th className="px-4 py-3 text-center text-orange-600">คงเหลือ</th>
+                            <th className="px-4 py-3 text-center">ความคืบหน้า</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {liveWorkloadLoading && liveWorkload.length === 0 ? (
+                            <tr>
+                              <td colSpan={7} className="text-center py-8 text-gray-500">กำลังโหลดข้อมูลเรียลไทม์...</td>
+                            </tr>
+                          ) : liveWorkload.length > 0 ? (
+                            liveWorkload.map((bd: any) => (
+                              <tr key={bd.userId} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900">{bd.name}</td>
+                                <td className="px-4 py-4 text-sm text-center text-orange-600 font-medium border-l border-gray-100 bg-orange-50/30">{bd.tickets.waiting}</td>
+                                <td className="px-4 py-4 text-sm text-center text-blue-600 font-medium bg-blue-50/30">{bd.tickets.inProgress}</td>
+                                <td className="px-4 py-4 text-sm text-center text-green-600 font-medium bg-green-50/30">{bd.tickets.completedToday}</td>
+                                <td className="px-4 py-4 text-sm text-center text-blue-600 font-medium border-l border-gray-100 bg-blue-50/30">{bd.projects.inProgress}</td>
+                                <td className="px-4 py-4 text-sm text-center text-orange-600 font-medium bg-orange-50/30">{bd.projects.remaining}</td>
+                                <td className="px-4 py-4 text-center bg-gray-50/50">
+                                  <div className="flex items-center justify-center gap-2">
+                                    <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                      <div 
+                                        className="h-full bg-sky-500 rounded-full" 
+                                        style={{ width: `${bd.projects.avgProgress}%` }} 
+                                      />
+                                    </div>
+                                    <span className="text-sm font-medium text-gray-700 min-w-[2.5rem]">{bd.projects.avgProgress}%</span>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={7} className="text-center py-8 text-gray-500">ไม่มีข้อมูลภาระงาน</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
 
                   {/* Stacked Bar Chart: ปริมาณงานรายคน */}
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">

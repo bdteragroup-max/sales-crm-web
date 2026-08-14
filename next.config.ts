@@ -6,8 +6,14 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: '/bd/tickets/tv',
+        destination: '/tv-views/bd-tickets',
+      },
+    ]
+  },
 };
 
 export default nextConfig;
-
-// Force restart 2

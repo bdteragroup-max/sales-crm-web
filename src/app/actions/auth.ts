@@ -3,7 +3,7 @@
 
 
 import { LoginFormSchema, ForgotPasswordFormSchema, FormState } from '@/app/lib/definitions'
-import { createSession, deleteSession } from '@/app/lib/session'
+import { createSession, deleteSession, refreshSession } from '@/app/lib/session'
 import { redirect } from 'next/navigation'
 import bcrypt from 'bcryptjs'
 import prisma from '@/app/lib/db'
@@ -254,4 +254,13 @@ export async function getMyDepartment() {
   return teraEmployee?.departments?.name || null;
 }
 
+export async function refreshTvSession() {
+  const user = await getUser();
+  if (!user || (!user.role.includes('Business Development') && user.role !== 'BD Intern')) {
+    return { success: false, error: 'Unauthorized role for TV dashboard' };
+  }
 
+  // Use a short 2-hour expiry for the TV session to limit risk
+  const result = await refreshSession('2h');
+  return result;
+}

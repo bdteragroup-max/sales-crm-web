@@ -422,3 +422,88 @@ export async function getTicketStats() {
     return { success: false, error: error.message };
   }
 }
+
+// 11. BD TV Display Data
+export async function getBdWorkloadSummary() {
+  try {
+    // 1. Verify user role instead of token
+    const user = await getUser();
+    if (!user || (!user.role.includes('Business Development') && user.role !== 'BD Intern')) {
+      return { success: false, error: "Unauthorized role for TV dashboard" };
+    }
+
+    // 2. Fetch all active BD users
+    const bdUsers = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        role: {
+          in: ['Business Development', 'BD Intern'],
+        },
+      },
+      select: {
+        id: true,
+        fullName: true,
+      },
+      orderBy: {
+        fullName: 'asc'
+      }
+    });
+
+    // 3. Fetch all active or recently resolved tickets for these users
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tickets = await prisma.supportTicket.findMany({
+      where: {
+        assigneeId: {
+          in: bdUsers.map(u => u.id)
+        },
+        OR: [
+          { status: { not: "RESOLVED" } },
+          { 
+            status: "RESOLVED",
+            resolvedAt: {
+              gte: today
+            }
+          }
+        ]
+      },
+      select: {
+        id: true,
+        assigneeId: true,
+        status: true,
+        progressPercent: true,
+        resolvedAt: true,
+      }
+    });
+
+    // 4. Calculate stats per BD
+    const summary = bdUsers.map(bd => {
+      const bdTickets = tickets.filter(t => t.assigneeId === bd.id);
+      
+      const waiting = bdTickets.filter(t => t.status === "SUBMITTED" || t.status === "ACKNOWLEDGED").length;
+      const inProgress = bdTickets.filter(t => t.status === "IN_PROGRESS").length;
+      const completedToday = bdTickets.filter(t => t.status === "RESOLVED").length;
+      
+      const unresolvedTickets = bdTickets.filter(t => t.status !== "RESOLVED");
+      const totalUnresolved = unresolvedTickets.length;
+      const sumProgress = unresolvedTickets.reduce((acc, t) => acc + (t.progressPercent || 0), 0);
+      const averageProgress = totalUnresolved > 0 ? Math.round(sumProgress / totalUnresolved) : 0;
+
+      return {
+        id: bd.id,
+        name: bd.fullName,
+        total: totalUnresolved,
+        waiting,
+        inProgress,
+        completedToday,
+        averageProgress
+      };
+    });
+
+    return { success: true, data: summary };
+  } catch (error: any) {
+    console.error("Error fetching BD workload summary:", error);
+    return { success: false, error: error.message };
+  }
+}
