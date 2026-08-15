@@ -47,15 +47,13 @@ export default async function PipelinePage({
 
   let teamMembers: { id: string; fullName: string }[] = []
   if (isSalesManager) {
-    const subordinates = await teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    })
-    const subEmpIds = subordinates.map(s => s.emp_id)
+    const userBranch = user.employeeSale?.branch;
+    const branchFilter = (userBranch && !isMarketingManager) ? { employeeSale: { branch: userBranch } } : {};
 
     teamMembers = await prisma.user.findMany({
-      where: isMarketingManager ? {
+      where: {
         isActive: true,
+        ...branchFilter,
         NOT: {
           OR: [
             { role: 'อื่นๆ' },
@@ -69,12 +67,6 @@ export default async function PipelinePage({
             { role: { contains: 'บริการ' } }
           ]
         }
-      } : {
-        OR: [
-          { employeeId: { in: subEmpIds } },
-          { employeeSale: { teamLeader: user.fullName } },
-          { id: user.id }
-        ]
       },
       select: { id: true, fullName: true },
       orderBy: { fullName: 'asc' }
@@ -83,16 +75,45 @@ export default async function PipelinePage({
     teamMembers = [{ id: user.id, fullName: user.fullName }]
   }
 
-  // Managers see their team's records + unassigned; Reps see their own + any unassigned; Non-sales see everything
+  // Managers see their branch's records + unassigned; Reps see their own + any unassigned; Non-sales see everything
   let whereClause: any = {};
   if (isSalesManager) {
-    whereClause = { OR: [{ salespersonId: { in: teamMembers.map(t => t.id) } }, { salespersonId: null }] };
+    if (isMarketingManager) {
+      // Marketing Manager can see everything (like SUPER_ADMIN), and UI handles branch filtering
+      whereClause = {};
+    } else {
+      const userBranch = user.employeeSale?.branch;
+      if (userBranch) {
+        // strictly lock to their branch or unassigned items belonging to their branch
+        whereClause = {
+          OR: [
+            { salesBranch: userBranch },
+            {
+              AND: [
+                { salesBranch: null },
+                {
+                  OR: [
+                    { salespersonId: { in: teamMembers.map(t => t.id) } },
+                    { company: { assignedUserId: user.id } },
+                    { company: { assignedUser: { employeeSale: { branch: userBranch } } } }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
+      } else {
+        whereClause = { OR: [{ salespersonId: { in: teamMembers.map(t => t.id) } }, { salespersonId: null }] };
+      }
+    }
   } else if (isSales && !isServiceManager) {
     whereClause = { OR: [{ salespersonId: user.id }, { salespersonId: null }] };
   }
   
-  // Apply company-level visibility to all quotations
-  whereClause.company = getCompanyWhereClause(user as any);
+  // Apply company-level visibility to all quotations (Except Managers/Marketing which need full pipeline access to match Admin totals)
+  if (!isSalesManager) {
+    whereClause.company = getCompanyWhereClause(user as any);
+  }
 
   // Parse Date Filters
   const dateField = (resolvedParams.dateField as string) || 'updatedAt'
@@ -134,14 +155,24 @@ export default async function PipelinePage({
         select: {
           id: true,
           fullName: true,
-          role: true
+          role: true,
+          employeeSale: {
+            select: { branch: true }
+          }
         }
       },
       company: {
         select: {
           id: true,
           companyName: true,
-          businessType: true
+          businessType: true,
+          assignedUser: {
+            select: {
+              employeeSale: {
+                select: { branch: true }
+              }
+            }
+          }
         }
       },
       jobs: {

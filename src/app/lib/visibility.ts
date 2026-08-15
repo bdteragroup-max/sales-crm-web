@@ -7,6 +7,7 @@ export type UserContext = {
   employeeId?: string;
   employeeSale?: {
     department?: string | null;
+    branch?: string | null;
   } | null;
 };
 
@@ -15,7 +16,7 @@ export type UserContext = {
  * 
  * Rules:
  * - Admin / MD: See all companies
- * - Manager / Team Leader: See companies assigned to anyone in their department
+ * - Manager / Team Leader: See companies assigned to anyone in their department or branch
  * - Salesperson (or others): See only companies assigned to themselves or unassigned
  */
 export function getCompanyWhereClause(user: UserContext): Prisma.CompanyWhereInput {
@@ -32,26 +33,41 @@ export function getCompanyWhereClause(user: UserContext): Prisma.CompanyWhereInp
     return {};
   }
 
-  // 2. Managers see everything in their department
+  // 2. Managers see everything in their department and branch
   const isManager = roleStr.includes('manager') || roleStr.includes('ผู้จัดการ') || roleStr === 'md' || roleStr.includes('หัวหน้า');
   if (isManager) {
     const userDept = user.employeeSale?.department || '';
-    if (userDept) {
-      return {
-        OR: [
-          { assignedUserId: user.id }, // Directly assigned to them
-          {
-            assignedUser: {
-              employeeSale: {
-                department: userDept
-              }
+    const userBranch = user.employeeSale?.branch || '';
+    
+    if (userDept || userBranch) {
+      const orConditions: any[] = [
+        { assignedUserId: user.id }, // Directly assigned to them
+        { assignedUserId: null } // Unassigned companies are visible to everyone
+      ];
+
+      if (userDept) {
+        orConditions.push({
+          assignedUser: {
+            employeeSale: {
+              department: userDept
             }
-          },
-          { assignedUserId: null } // Unassigned companies are visible to everyone
-        ]
-      };
+          }
+        });
+      }
+
+      if (userBranch) {
+        orConditions.push({
+          assignedUser: {
+            employeeSale: {
+              branch: userBranch
+            }
+          }
+        });
+      }
+
+      return { OR: orConditions };
     } else {
-       // If a manager has no department set, fallback to just seeing their own
+       // If a manager has no department or branch set, fallback to just seeing their own
        return {
         OR: [
           { assignedUserId: user.id },

@@ -201,8 +201,8 @@ export default function PipelineClientPage({
     if (updates.search !== undefined) setSearchTerm(newSearch)
 
     const params = new URLSearchParams()
-    if (newDf) params.set('dateField', newDf)
-    if (newPr) params.set('preset', newPr)
+    if (newDf && newPr !== 'all') params.set('dateField', newDf)
+    if (newPr && newPr !== 'all') params.set('preset', newPr)
     if (newPr === 'custom') {
       if (newDFrom) params.set('dateFrom', newDFrom)
       if (newDTo) params.set('dateTo', newDTo)
@@ -367,6 +367,13 @@ export default function PipelineClientPage({
     await moveQuotationStatus(id, targetColumnId)
   }
 
+  const getQuotationBranch = (quote: any) => {
+    if (quote.salesBranch) return getThaiBranchName(quote.salesBranch);
+    if (quote.salesperson?.employeeSale?.branch) return getThaiBranchName(quote.salesperson.employeeSale.branch);
+    if (quote.company?.assignedUser?.employeeSale?.branch) return getThaiBranchName(quote.company.assignedUser.employeeSale.branch);
+    return '';
+  }
+
   const filteredQuotations = quotations.filter(q => {
     const matchesSearch = !searchTerm ||
       q.company?.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -375,13 +382,13 @@ export default function PipelineClientPage({
       q.contact?.contactName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       q.subject?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesSalesperson = !selectedSalespersonId || q.salespersonId === selectedSalespersonId
-    const matchesBranch = !selectedBranch || getThaiBranchName(q.salesBranch) === selectedBranch
+    const matchesBranch = !selectedBranch || getQuotationBranch(q) === selectedBranch
     const isLost = q.status?.startsWith('ปฏิเสธ') || (q.status?.startsWith('ยกเลิก') && q.status !== 'ยกเลิก-Revise')
     const matchesLostStatus = showLostDeals ? true : !isLost
     return matchesSearch && matchesSalesperson && matchesBranch && matchesLostStatus
   })
 
-  const uniqueBranches = Array.from(new Set(quotations.map(q => getThaiBranchName(q.salesBranch)).filter(Boolean))).sort() as string[]
+  const uniqueBranches = Array.from(new Set(quotations.map(q => getQuotationBranch(q)).filter(Boolean))).sort() as string[]
 
   const getColumnData = (columnId: string) => {
     const list = filteredQuotations.filter(q => mapStatusToColumn(q.status) === columnId)
