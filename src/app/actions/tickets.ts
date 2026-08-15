@@ -4,10 +4,100 @@ import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 
-// 1. Create a ticket
+// 1. Core ticket creation logic (no session required)
+// Used by both the server action and the external API route
+export async function createTicketCore(data: {
+  reporterId: string;
+  title: string;
+  description: string;
+  category?: string;
+  urgency?: string;
+  attachments?: string[];
+  sourceModule?: string;
+}) {
+  // Generate ticket number: TK-YYYYMMDD-NNN
+  const date = new Date();
+  const dateStr = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
+  
+  // Find the latest ticket for today to increment the number
+  const latestTicket = await prisma.supportTicket.findFirst({
+    where: {
+      ticketNumber: {
+        startsWith: `TK-${dateStr}-`,
+      },
+    },
+    orderBy: {
+      ticketNumber: "desc",
+    },
+  });
+
+  let nextNum = 1;
+  if (latestTicket) {
+    const parts = latestTicket.ticketNumber.split("-");
+    if (parts.length === 3) {
+      nextNum = parseInt(parts[2], 10) + 1;
+    }
+  }
+  const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, "0")}`;
+
+  const urgency = data.urgency || "MEDIUM";
+
+  // Create ticket and initial log
+  const ticket = await prisma.supportTicket.create({
+    data: {
+      ticketNumber,
+      title: data.title,
+      description: data.description,
+      category: data.category || 'OTHER',
+      urgency,
+      attachments: data.attachments || [],
+      reporterId: data.reporterId,
+      sourceModule: data.sourceModule || 'general',
+      status: "SUBMITTED",
+      logs: {
+        create: {
+          userId: data.reporterId,
+          action: "สร้างรายการแจ้งปัญหา",
+          details: `ระดับความสำคัญ: ${urgency}`,
+        },
+      },
+    },
+  });
+
+  // Notify BD users
+  const bdUsers = await prisma.user.findMany({
+    where: {
+      isActive: true,
+      role: {
+        in: ['Business Development', 'BD Intern'],
+      },
+    },
+    select: { id: true },
+  });
+
+  if (bdUsers.length > 0) {
+    await prisma.notification.createMany({
+      data: bdUsers.map((bdUser) => ({
+        userId: bdUser.id,
+        title: "แจ้งปัญหาใหม่",
+        message: `Ticket: ${ticketNumber} - ${data.title} (${urgency})`,
+        type: "SUPPORT_TICKET",
+        linkUrl: `/bd/tickets/${ticket.id}`,
+      })),
+    });
+  }
+
+  revalidatePath("/support/tickets");
+  revalidatePath("/bd/tickets");
+
+  return ticket;
+}
+
+// 1b. Server action wrapper (with session) — used by /support/tickets UI
 export async function createTicket(data: {
   title: string;
   description: string;
+  category?: string;
   urgency: string;
   attachments?: string[];
 }) {
@@ -15,76 +105,11 @@ export async function createTicket(data: {
     const user = await getUser();
     if (!user) return { success: false, error: "Unauthorized" };
 
-    // Generate ticket number: TK-YYYYMMDD-NNN
-    const date = new Date();
-    const dateStr = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
-    
-    // Find the latest ticket for today to increment the number
-    const latestTicket = await prisma.supportTicket.findFirst({
-      where: {
-        ticketNumber: {
-          startsWith: `TK-${dateStr}-`,
-        },
-      },
-      orderBy: {
-        ticketNumber: "desc",
-      },
+    const ticket = await createTicketCore({
+      reporterId: user.id,
+      ...data,
+      sourceModule: 'crm',
     });
-
-    let nextNum = 1;
-    if (latestTicket) {
-      const parts = latestTicket.ticketNumber.split("-");
-      if (parts.length === 3) {
-        nextNum = parseInt(parts[2], 10) + 1;
-      }
-    }
-    const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, "0")}`;
-
-    // Create ticket and initial log
-    const ticket = await prisma.supportTicket.create({
-      data: {
-        ticketNumber,
-        title: data.title,
-        description: data.description,
-        urgency: data.urgency,
-        attachments: data.attachments || [],
-        reporterId: user.id,
-        status: "SUBMITTED",
-        logs: {
-          create: {
-            userId: user.id,
-            action: "สร้างรายการแจ้งปัญหา",
-            details: `ระดับความสำคัญ: ${data.urgency}`,
-          },
-        },
-      },
-    });
-
-    // Notify BD users
-    const bdUsers = await prisma.user.findMany({
-      where: {
-        isActive: true,
-        role: {
-          in: ['Business Development', 'BD Intern'],
-        },
-      },
-      select: { id: true },
-    });
-
-    if (bdUsers.length > 0) {
-      await prisma.notification.createMany({
-        data: bdUsers.map((bdUser) => ({
-          userId: bdUser.id,
-          title: "แจ้งปัญหาใหม่",
-          message: `Ticket: ${ticketNumber} - ${data.title} (${data.urgency})`,
-          type: "SUPPORT_TICKET",
-          linkUrl: `/bd/tickets/${ticket.id}`,
-        })),
-      });
-    }
-
-    revalidatePath("/support/tickets");
-    revalidatePath("/bd/tickets");
 
     return { success: true, data: ticket };
   } catch (error: any) {
@@ -92,6 +117,7 @@ export async function createTicket(data: {
     return { success: false, error: error.message };
   }
 }
+
 
 // 2. Get tickets for the current user (Reporter view)
 export async function getMyTickets() {
@@ -432,13 +458,27 @@ export async function getBdWorkloadSummary() {
       return { success: false, error: "Unauthorized role for TV dashboard" };
     }
 
-    // 2. Fetch all active BD users
+    // 2. Fetch all users involved in BD (role OR project members/owners)
+    const bdProjectUsers = await prisma.bDProject.findMany({
+      where: { OR: [{ ownerId: { not: null } }, { members: { some: {} } }] },
+      select: { ownerId: true, members: { select: { id: true } } },
+    });
+
+    const projectUserIds = new Set<string>();
+    bdProjectUsers.forEach(p => {
+      if (p.ownerId) projectUserIds.add(p.ownerId);
+      p.members.forEach(m => projectUserIds.add(m.id));
+    });
+
+    const ownerIds = Array.from(projectUserIds);
+
     const bdUsers = await prisma.user.findMany({
       where: {
         isActive: true,
-        role: {
-          in: ['Business Development', 'BD Intern'],
-        },
+        OR: [
+          { role: { in: ['Business Development', 'BD Intern'] } },
+          { id: { in: ownerIds } }
+        ]
       },
       select: {
         id: true,
@@ -504,6 +544,201 @@ export async function getBdWorkloadSummary() {
     return { success: true, data: summary };
   } catch (error: any) {
     console.error("Error fetching BD workload summary:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Convert ticket to BD Project
+export async function convertTicketToProject(ticketId: string, projectDetails: { name: string, objective: string, workTypeId: string, urgency: string }) {
+  try {
+    const user = await getUser();
+    if (!user || (!user.role.includes('Business Development') && !user.role.includes('Admin'))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const ticket = await prisma.supportTicket.findUnique({ where: { id: ticketId } });
+    if (!ticket) return { success: false, error: "Ticket not found" };
+    if (ticket.status === 'CONVERTED') return { success: false, error: "Ticket already converted" };
+
+    // Create the BD Project
+    const project = await prisma.bDProject.create({
+      data: {
+        name: projectDetails.name,
+        objective: projectDetails.objective,
+        workTypeId: projectDetails.workTypeId,
+        urgency: projectDetails.urgency,
+        requesterId: ticket.reporterId,
+        ownerId: user.id,
+        supportTicketId: ticketId,
+        status: 'PENDING_REVIEW'
+      }
+    });
+
+    // Add activity log to BDProject
+    await prisma.bDActivity.create({
+      data: {
+        projectId: project.id,
+        userId: user.id,
+        action: 'PROJECT_CREATED',
+        details: 'Project created from converting Ticket #' + ticket.ticketNumber
+      }
+    });
+
+    // Update ticket status
+    await prisma.supportTicket.update({
+      where: { id: ticketId },
+      data: { status: 'CONVERTED' }
+    });
+
+    // Add ticket log
+    await prisma.ticketLog.create({
+      data: {
+        ticketId,
+        userId: user.id,
+        action: 'CONVERTED_TO_PROJECT',
+        details: 'แปลงเป็นโปรเจกต์: ' + project.name
+      }
+    });
+
+    // Add comment for user
+    await prisma.ticketComment.create({
+      data: {
+        ticketId,
+        userId: user.id,
+        message: 'ปัญหานี้ถูกแปลงเป็นโปรเจกต์/แผนงานเรียบร้อยแล้ว: ' + project.name + '\nสถานะของรายการนี้จะถูกหยุดไว้เพื่อไปติดตามในระบบโปรเจกต์แทน'
+      }
+    });
+
+    revalidatePath('/bd/tickets');
+    revalidatePath('/support/tickets');
+    revalidatePath(`/bd/tickets/${ticketId}`);
+    revalidatePath(`/support/tickets/${ticketId}`);
+
+    return { success: true, data: project };
+  } catch (error: any) {
+    console.error("Error converting ticket to project:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Convert ticket to BD Task
+export async function convertTicketToTask(ticketId: string, taskDetails: { projectId: string, name: string }) {
+  try {
+    const user = await getUser();
+    if (!user || (!user.role.includes('Business Development') && !user.role.includes('Admin'))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const ticket = await prisma.supportTicket.findUnique({ where: { id: ticketId } });
+    if (!ticket) return { success: false, error: "Ticket not found" };
+    if (ticket.status === 'CONVERTED') return { success: false, error: "Ticket already converted" };
+
+    // Get project info
+    const project = await prisma.bDProject.findUnique({ where: { id: taskDetails.projectId } });
+    if (!project) return { success: false, error: "Project not found" };
+
+    // Get max orderIndex
+    const maxOrder = await prisma.bDTask.aggregate({
+      where: { projectId: taskDetails.projectId },
+      _max: { orderIndex: true }
+    });
+    const nextOrder = (maxOrder._max.orderIndex || 0) + 1;
+
+    // Create the BD Task
+    const task = await prisma.bDTask.create({
+      data: {
+        projectId: taskDetails.projectId,
+        name: taskDetails.name,
+        orderIndex: nextOrder,
+        assigneeId: user.id,
+        supportTicketId: ticketId,
+        status: 'PENDING'
+      }
+    });
+
+    // Add activity log to BDProject
+    await prisma.bDActivity.create({
+      data: {
+        projectId: taskDetails.projectId,
+        userId: user.id,
+        action: 'TASK_ADDED',
+        details: 'Task "' + task.name + '" added from converting Ticket #' + ticket.ticketNumber
+      }
+    });
+
+    // Update ticket status
+    await prisma.supportTicket.update({
+      where: { id: ticketId },
+      data: { status: 'CONVERTED' }
+    });
+
+    // Add ticket log
+    await prisma.ticketLog.create({
+      data: {
+        ticketId,
+        userId: user.id,
+        action: 'CONVERTED_TO_TASK',
+        details: 'แปลงเป็นงานย่อยในโปรเจกต์: ' + project.name
+      }
+    });
+
+    // Add comment for user
+    await prisma.ticketComment.create({
+      data: {
+        ticketId,
+        userId: user.id,
+        message: 'ปัญหานี้ถูกแปลงเป็นงานย่อยในโปรเจกต์: ' + project.name + '\nสถานะของรายการนี้จะถูกหยุดไว้เพื่อไปติดตามในระบบโปรเจกต์แทน'
+      }
+    });
+
+    revalidatePath('/bd/tickets');
+    revalidatePath('/support/tickets');
+    revalidatePath(`/bd/tickets/${ticketId}`);
+    revalidatePath(`/support/tickets/${ticketId}`);
+
+    return { success: true, data: task };
+  } catch (error: any) {
+    console.error("Error converting ticket to task:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Update ticket category
+export async function updateTicketCategory(ticketId: string, category: string) {
+  try {
+    const user = await getUser();
+    if (!user || (!user.role.includes('Business Development') && !user.role.includes('Admin'))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const ticket = await prisma.supportTicket.findUnique({ where: { id: ticketId } });
+    if (!ticket) return { success: false, error: "Ticket not found" };
+
+    const oldCategory = ticket.category;
+    if (oldCategory === category) return { success: true };
+
+    await prisma.supportTicket.update({
+      where: { id: ticketId },
+      data: { category }
+    });
+
+    await prisma.ticketLog.create({
+      data: {
+        ticketId,
+        userId: user.id,
+        action: 'CATEGORY_UPDATED',
+        details: 'Changed category from ' + oldCategory + ' to ' + category
+      }
+    });
+
+    revalidatePath('/bd/tickets');
+    revalidatePath('/support/tickets');
+    revalidatePath(`/bd/tickets/${ticketId}`);
+    revalidatePath(`/support/tickets/${ticketId}`);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating ticket category:", error);
     return { success: false, error: error.message };
   }
 }

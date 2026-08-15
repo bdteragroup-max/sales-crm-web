@@ -316,7 +316,7 @@ function ResponsiveSidebar({
   const bestMatchHref = sortedNav.find(n => currentFullPath === n.href || pathname === n.href || pathname.startsWith(n.href + '/'))?.href || activeRoute;
 
   const currentTheme = theme || 'red';
-  
+
   const getThemeColors = () => {
     switch (currentTheme) {
       case 'blue': return { bg: 'bg-blue-600', text: 'text-blue-600', lightBg: 'bg-blue-50', border: 'border-blue-100', shadow: 'shadow-blue-200', hoverBg: 'hover:bg-blue-50' };
@@ -328,6 +328,8 @@ function ResponsiveSidebar({
     }
   };
   const colors = getThemeColors();
+
+  if (pathname === '/bd/tickets/tv') return null;
 
   return (
     <>

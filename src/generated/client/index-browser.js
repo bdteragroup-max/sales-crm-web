@@ -2168,6 +2168,7 @@ exports.Prisma.SupportTicketScalarFieldEnum = {
   ticketNumber: 'ticketNumber',
   title: 'title',
   description: 'description',
+  category: 'category',
   attachments: 'attachments',
   urgency: 'urgency',
   status: 'status',
@@ -2177,7 +2178,8 @@ exports.Prisma.SupportTicketScalarFieldEnum = {
   progressPercent: 'progressPercent',
   resolvedAt: 'resolvedAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  sourceModule: 'sourceModule'
 };
 
 exports.Prisma.TicketCommentScalarFieldEnum = {
@@ -2216,7 +2218,8 @@ exports.Prisma.BDProjectScalarFieldEnum = {
   intakeDate: 'intakeDate',
   color: 'color',
   completedAt: 'completedAt',
-  tags: 'tags'
+  tags: 'tags',
+  supportTicketId: 'supportTicketId'
 };
 
 exports.Prisma.BDWorkflowTemplateScalarFieldEnum = {
@@ -2247,7 +2250,8 @@ exports.Prisma.BDTaskScalarFieldEnum = {
   completedAt: 'completedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  blockedAt: 'blockedAt'
+  blockedAt: 'blockedAt',
+  supportTicketId: 'supportTicketId'
 };
 
 exports.Prisma.BDActivityScalarFieldEnum = {
@@ -2257,6 +2261,17 @@ exports.Prisma.BDActivityScalarFieldEnum = {
   action: 'action',
   details: 'details',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.ExternalApiKeyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  hashedKey: 'hashedKey',
+  scope: 'scope',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -2427,7 +2442,8 @@ exports.Prisma.ModelName = {
   BDWorkflowTemplate: 'BDWorkflowTemplate',
   BDWorkflowStepTemplate: 'BDWorkflowStepTemplate',
   BDTask: 'BDTask',
-  BDActivity: 'BDActivity'
+  BDActivity: 'BDActivity',
+  ExternalApiKey: 'ExternalApiKey'
 };
 
 /**

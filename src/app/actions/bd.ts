@@ -831,3 +831,16 @@ export async function deleteBDTask(taskId: string) {
     return { success: false, error: 'Failed to delete task' };
   }
 }
+
+export async function getAllBDProjects() {
+  try {
+    const projects = await prisma.bDProject.findMany({
+      select: { id: true, name: true, status: true },
+      orderBy: { name: 'asc' }
+    });
+    return { success: true, data: projects };
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return { success: false, error: 'Failed to fetch projects' };
+  }
+}

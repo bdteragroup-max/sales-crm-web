@@ -17,6 +17,7 @@ export default function TicketsClientPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [urgency, setUrgency] = useState('MEDIUM');
+  const [category, setCategory] = useState('BUG');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -70,6 +71,7 @@ export default function TicketsClientPage() {
       const res = await createTicket({
         title,
         description,
+        category,
         urgency,
         attachments: attachmentUrls,
       });
@@ -80,6 +82,7 @@ export default function TicketsClientPage() {
         setDescription('');
         setAttachments([]);
         setUrgency('MEDIUM');
+        setCategory('BUG');
         fetchTickets();
       } else {
         setError(res.error || 'เกิดข้อผิดพลาดในการสร้างรายการ');
@@ -117,6 +120,21 @@ export default function TicketsClientPage() {
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle2 className="w-3 h-3 mr-1" /> แก้ไขแล้ว (ปิดงาน)</span>;
       default:
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{status}</span>;
+    }
+  };
+
+  const getCategoryBadge = (category: string) => {
+    switch (category) {
+      case 'BUG':
+        return <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100">Bug</span>;
+      case 'FEATURE_REQUEST':
+        return <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">Feature</span>;
+      case 'QUESTION':
+        return <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-100">Question</span>;
+      case 'ACCOUNT_ACCESS':
+        return <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-100">Access</span>;
+      default:
+        return <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">Other</span>;
     }
   };
 
@@ -191,10 +209,11 @@ export default function TicketsClientPage() {
             <Link href={`/support/tickets/${ticket.id}`} key={ticket.id} className="block">
               <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-red-300 hover:shadow-md transition cursor-pointer">
                 <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-mono text-sm font-semibold text-red-600 bg-red-50 px-2 py-1 rounded">
                       {ticket.ticketNumber}
                     </span>
+                    {getCategoryBadge(ticket.category)}
                     {getUrgencyBadge(ticket.urgency)}
                   </div>
                   <div>{getStatusBadge(ticket.status)}</div>
@@ -278,6 +297,19 @@ export default function TicketsClientPage() {
                         </div>
 
                         <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">ประเภทปัญหา <span className="text-red-500">*</span></label>
+                          <select 
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-500 focus:border-red-500 mb-4"
+                          >
+                            <option value="BUG">แจ้งบั๊ก/ปัญหาการใช้งาน (Bug)</option>
+                            <option value="FEATURE_REQUEST">เสนอแนะฟีเจอร์ใหม่ (Feature Request)</option>
+                            <option value="QUESTION">สอบถามการใช้งาน (Question)</option>
+                            <option value="ACCOUNT_ACCESS">ปัญหาการเข้าสู่ระบบ/สิทธิ์การใช้งาน (Account Access)</option>
+                            <option value="OTHER">อื่นๆ (Other)</option>
+                          </select>
+
                           <label className="block text-sm font-medium text-gray-700 mb-1">ระดับความรุนแรง</label>
                           <select 
                             value={urgency}

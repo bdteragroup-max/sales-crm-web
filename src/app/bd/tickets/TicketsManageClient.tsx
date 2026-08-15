@@ -14,6 +14,7 @@ export default function TicketsManageClient() {
   // Filters
   const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, NEW, IN_PROGRESS, RESOLVED
   const [urgencyFilter, setUrgencyFilter] = useState('ALL');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -78,6 +79,9 @@ export default function TicketsManageClient() {
     // Urgency
     if (urgencyFilter !== 'ALL' && t.urgency !== urgencyFilter) return false;
 
+    // Category
+    if (categoryFilter !== 'ALL' && t.category !== categoryFilter) return false;
+
     // Search
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -103,6 +107,21 @@ export default function TicketsManageClient() {
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle2 className="w-3 h-3 mr-1" /> ปิดงาน</span>;
       default:
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{status}</span>;
+    }
+  };
+
+  const getCategoryBadge = (category: string) => {
+    switch (category) {
+      case 'BUG':
+        return <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100">Bug</span>;
+      case 'FEATURE_REQUEST':
+        return <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">Feature</span>;
+      case 'QUESTION':
+        return <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-100">Question</span>;
+      case 'ACCOUNT_ACCESS':
+        return <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-100">Access</span>;
+      default:
+        return <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">Other</span>;
     }
   };
 
@@ -171,6 +190,22 @@ export default function TicketsManageClient() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+        </div>
+
+        <div className="w-full md:w-48">
+          <label className="block text-sm font-medium text-gray-700 mb-1">หมวดหมู่</label>
+          <select
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-red-500 focus:border-red-500"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="ALL">ทั้งหมด</option>
+            <option value="BUG">Bug</option>
+            <option value="FEATURE_REQUEST">Feature Request</option>
+            <option value="QUESTION">Question</option>
+            <option value="ACCOUNT_ACCESS">Account Access</option>
+            <option value="OTHER">Other</option>
+          </select>
         </div>
 
         <div className="w-full md:w-48">
@@ -244,7 +279,10 @@ export default function TicketsManageClient() {
                       <div className="text-xs text-gray-500">{ticket.reporter.role}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getUrgencyBadge(ticket.urgency)}
+                      <div className="flex flex-col gap-1 items-start">
+                        {getCategoryBadge(ticket.category)}
+                        {getUrgencyBadge(ticket.urgency)}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(ticket.status)}

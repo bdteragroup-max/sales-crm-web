@@ -2601,6 +2601,7 @@ model SupportTicket {
   ticketNumber    String          @unique
   title           String
   description     String
+  category        String          @default("OTHER")
   attachments     String[]        @default([])
   urgency         String          @default("MEDIUM")
   status          String          @default("SUBMITTED")
@@ -2611,6 +2612,7 @@ model SupportTicket {
   resolvedAt      DateTime?       @db.Timestamptz(6)
   createdAt       DateTime        @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
+  sourceModule    String?         @default("general")
   assignee        User?           @relation("TicketAssignee", fields: [assigneeId], references: [id])
   reporter        User            @relation("TicketReporter", fields: [reporterId], references: [id])
   comments        TicketComment[]
@@ -2649,32 +2651,33 @@ model TicketLog {
 }
 
 model BDProject {
-  id            String       @id @default(cuid())
-  name          String
-  objective     String?
-  workTypeId    String
-  urgency       String       @default("Normal")
-  deadline      DateTime?    @db.Timestamptz(6)
-  status        String       @default("PENDING_REVIEW")
-  requesterId   String
-  ownerId       String?
-  blockedReason String?
-  waitingOn     String?
-  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
-  parentId      String?
-  intakeDate    DateTime?    @db.Timestamptz(6)
-  color         String?
-  completedAt   DateTime?    @db.Timestamptz(6)
-  tags          String[]     @default([])
-  activities    BDActivity[]
-  owner         User?        @relation("BDOwner", fields: [ownerId], references: [id])
-  parent        BDProject?   @relation("BDSubProjects", fields: [parentId], references: [id])
-  subProjects   BDProject[]  @relation("BDSubProjects")
-  requester     User         @relation("BDRequester", fields: [requesterId], references: [id])
-  workType      BDWorkType   @relation(fields: [workTypeId], references: [id])
-  tasks         BDTask[]
-  members       User[]       @relation("BDProjectMembers")
+  id              String       @id @default(cuid())
+  name            String
+  objective       String?
+  workTypeId      String
+  urgency         String       @default("Normal")
+  deadline        DateTime?    @db.Timestamptz(6)
+  status          String       @default("PENDING_REVIEW")
+  requesterId     String
+  ownerId         String?
+  blockedReason   String?
+  waitingOn       String?
+  createdAt       DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+  parentId        String?
+  intakeDate      DateTime?    @db.Timestamptz(6)
+  color           String?
+  completedAt     DateTime?    @db.Timestamptz(6)
+  tags            String[]     @default([])
+  supportTicketId String?
+  activities      BDActivity[]
+  owner           User?        @relation("BDOwner", fields: [ownerId], references: [id])
+  parent          BDProject?   @relation("BDSubProjects", fields: [parentId], references: [id])
+  subProjects     BDProject[]  @relation("BDSubProjects")
+  requester       User         @relation("BDRequester", fields: [requesterId], references: [id])
+  workType        BDWorkType   @relation(fields: [workTypeId], references: [id])
+  tasks           BDTask[]
+  members         User[]       @relation("BDProjectMembers")
 }
 
 model BDWorkflowTemplate {
@@ -2695,22 +2698,23 @@ model BDWorkflowStepTemplate {
 }
 
 model BDTask {
-  id             String    @id @default(cuid())
-  projectId      String
-  name           String
-  status         String    @default("PENDING")
-  dueDate        DateTime? @db.Timestamptz(6)
-  orderIndex     Int
-  checklistState Json?
-  assigneeId     String?
-  blockedReason  String?
-  waitingOn      String?
-  completedAt    DateTime? @db.Timestamptz(6)
-  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
-  blockedAt      DateTime? @db.Timestamptz(6)
-  assignee       User?     @relation("BDTaskAssignee", fields: [assigneeId], references: [id])
-  project        BDProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id              String    @id @default(cuid())
+  projectId       String
+  name            String
+  status          String    @default("PENDING")
+  dueDate         DateTime? @db.Timestamptz(6)
+  orderIndex      Int
+  checklistState  Json?
+  assigneeId      String?
+  blockedReason   String?
+  waitingOn       String?
+  completedAt     DateTime? @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  blockedAt       DateTime? @db.Timestamptz(6)
+  supportTicketId String?
+  assignee        User?     @relation("BDTaskAssignee", fields: [assigneeId], references: [id])
+  project         BDProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model BDActivity {
@@ -2722,4 +2726,17 @@ model BDActivity {
   createdAt DateTime  @default(now()) @db.Timestamptz(6)
   project   BDProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id])
+}
+
+model ExternalApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  hashedKey  String    @unique
+  scope      String[]  @default(["ticket:create"])
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  createdBy  String?
+  lastUsedAt DateTime? @db.Timestamptz(6)
+  revokedAt  DateTime? @db.Timestamptz(6)
+
+  @@index([hashedKey])
 }

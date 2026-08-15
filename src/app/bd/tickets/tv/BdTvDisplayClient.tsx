@@ -196,15 +196,15 @@ export default function BdTvDisplayClient() {
                 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400 text-sm">รอดำเนินการ:</span>
+                    <span className="text-gray-400 text-sm">New:</span>
                     <span className="font-bold text-orange-400">{bd.tickets.waiting}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400 text-sm">กำลังดำเนินการ:</span>
+                    <span className="text-gray-400 text-sm">WIP:</span>
                     <span className="font-bold text-blue-400">{bd.tickets.inProgress}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400 text-sm">เสร็จสิ้นวันนี้:</span>
+                    <span className="text-gray-400 text-sm">Done:</span>
                     <span className="font-bold text-green-400">{bd.tickets.completedToday}</span>
                   </div>
                 </div>

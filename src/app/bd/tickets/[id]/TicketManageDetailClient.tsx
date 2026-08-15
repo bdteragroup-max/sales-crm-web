@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { getTicketById, addComment, updateResolutionPlan, resolveTicket, reassignTicket } from '@/app/actions/tickets';
-import { getAllUsersForBD } from '@/app/actions/bd'; // We can reuse this for getting users to reassign
-import { LifeBuoy, AlertCircle, Clock, CheckCircle2, Activity, MessageSquare, Paperclip, ChevronLeft, Send, Loader2, Save, UserPlus } from 'lucide-react';
+import { getTicketById, addComment, updateResolutionPlan, resolveTicket, reassignTicket, convertTicketToProject, convertTicketToTask, updateTicketCategory } from '@/app/actions/tickets';
+import { getAllUsersForBD, getBDWorkTypes, getAllBDProjects } from '@/app/actions/bd';
+import { LifeBuoy, AlertCircle, Clock, CheckCircle2, Activity, MessageSquare, Paperclip, ChevronLeft, Send, Loader2, Save, UserPlus, FolderSync, X } from 'lucide-react';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
 
@@ -15,6 +15,9 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const [ticketCategory, setTicketCategory] = useState('');
+  const [isUpdatingCategory, setIsUpdatingCategory] = useState(false);
+  
   // BD specific states
   const [resolutionPlan, setResolutionPlan] = useState('');
   const [progressPercent, setProgressPercent] = useState(0);
@@ -25,6 +28,16 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
   const [bdUsers, setBdUsers] = useState<any[]>([]);
   const [selectedAssignee, setSelectedAssignee] = useState('');
   const [isReassigning, setIsReassigning] = useState(false);
+
+  // Convert states
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [convertType, setConvertType] = useState<'PROJECT' | 'TASK'>('PROJECT');
+  const [workTypes, setWorkTypes] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  
+  const [projectDetails, setProjectDetails] = useState({ name: '', objective: '', workTypeId: '', urgency: 'Normal' });
+  const [taskDetails, setTaskDetails] = useState({ projectId: '', name: '' });
+  const [isConverting, setIsConverting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,6 +53,7 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
       setTicket(res.data);
       setResolutionPlan(res.data.resolutionPlan || '');
       setProgressPercent(res.data.progressPercent || 0);
+      setTicketCategory(res.data.category || 'OTHER');
     } else {
       setError(res.error || 'ไม่พบข้อมูล');
     }
@@ -104,6 +118,24 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
     setIsSaving(false);
   };
 
+  const handleUpdateCategory = async (newCategory: string) => {
+    setTicketCategory(newCategory);
+    setIsUpdatingCategory(true);
+    const res = await updateTicketCategory(ticketId, newCategory);
+    if (res.success) {
+      fetchTicket();
+    } else {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: res.error || 'ไม่สามารถอัปเดตหมวดหมู่ได้',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
+      });
+      setTicketCategory(ticket.category); // Revert
+    }
+    setIsUpdatingCategory(false);
+  };
+
   const handleResolve = async () => {
     const result = await Swal.fire({
       title: 'ยืนยันการปิดงาน',
@@ -162,6 +194,50 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
     setIsReassigning(false);
   };
 
+  const openConvertModal = async () => {
+    setShowConvertModal(true);
+    setProjectDetails(prev => ({ ...prev, name: ticket.title, objective: ticket.description }));
+    setTaskDetails(prev => ({ ...prev, name: ticket.title }));
+    
+    // Fetch options if not fetched
+    if (workTypes.length === 0) {
+      const wtRes = await getBDWorkTypes();
+      if (wtRes.success) setWorkTypes(wtRes.data || []);
+    }
+    if (projects.length === 0) {
+      const pRes = await getAllBDProjects();
+      if (pRes.success) setProjects(pRes.data || []);
+    }
+  };
+
+  const handleConvert = async () => {
+    setIsConverting(true);
+    let res;
+    if (convertType === 'PROJECT') {
+      res = await convertTicketToProject(ticketId, projectDetails);
+    } else {
+      res = await convertTicketToTask(ticketId, taskDetails);
+    }
+
+    if (res?.success) {
+      setShowConvertModal(false);
+      Swal.fire({
+        title: 'แปลงสำเร็จ',
+        icon: 'success',
+        confirmButtonColor: '#dc2626'
+      });
+      fetchTicket();
+    } else {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: res?.error || 'เกิดข้อผิดพลาด',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
+      });
+    }
+    setIsConverting(false);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'SUBMITTED':
@@ -172,6 +248,8 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
         return <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800"><Activity className="w-4 h-4 mr-1" /> กำลังดำเนินการ</span>;
       case 'RESOLVED':
         return <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"><CheckCircle2 className="w-4 h-4 mr-1" /> ปิดงาน</span>;
+      case 'CONVERTED':
+        return <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"><FolderSync className="w-4 h-4 mr-1" /> แปลงเป็นโปรเจกต์แล้ว</span>;
       default:
         return <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">{status}</span>;
     }
@@ -192,6 +270,21 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
     }
   };
 
+  const getCategoryBadge = (category: string) => {
+    switch (category) {
+      case 'BUG':
+        return <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100">Bug</span>;
+      case 'FEATURE_REQUEST':
+        return <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">Feature</span>;
+      case 'QUESTION':
+        return <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-100">Question</span>;
+      case 'ACCOUNT_ACCESS':
+        return <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-100">Access</span>;
+      default:
+        return <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">Other</span>;
+    }
+  };
+
   if (loading) return <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 text-red-600 animate-spin" /></div>;
   if (error || !ticket) return <div className="p-12 text-center text-red-600">{error}</div>;
 
@@ -202,7 +295,15 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
           <ChevronLeft className="w-4 h-4 mr-1" /> กลับไปหน้ารายการ
         </Link>
         <div className="flex gap-2">
-          {ticket.status !== 'RESOLVED' && ticket.status !== 'SUBMITTED' && (
+          {ticket.status !== 'RESOLVED' && ticket.status !== 'SUBMITTED' && ticket.status !== 'CONVERTED' && (
+            <button
+              onClick={() => openConvertModal()}
+              className="flex items-center px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              <FolderSync className="w-4 h-4 mr-1.5" /> แปลงเป็น Project/Task
+            </button>
+          )}
+          {ticket.status !== 'RESOLVED' && ticket.status !== 'SUBMITTED' && ticket.status !== 'CONVERTED' && (
             <button
               onClick={() => setShowReassign(!showReassign)}
               className="flex items-center px-3 py-1.5 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
@@ -210,7 +311,7 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
               <UserPlus className="w-4 h-4 mr-1.5" /> มอบหมายงานใหม่
             </button>
           )}
-          {ticket.status !== 'RESOLVED' && ticket.status !== 'SUBMITTED' && (
+          {ticket.status !== 'RESOLVED' && ticket.status !== 'SUBMITTED' && ticket.status !== 'CONVERTED' && (
             <button
               onClick={handleResolve}
               disabled={isSaving}
@@ -263,6 +364,7 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                   <span className="font-mono text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded">
                     {ticket.ticketNumber}
                   </span>
+                  {getCategoryBadge(ticket.category)}
                   {getUrgencyBadge(ticket.urgency)}
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">{ticket.title}</h1>
@@ -296,7 +398,16 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
           </div>
 
           {/* BD Work Area */}
-          {ticket.status !== 'SUBMITTED' && ticket.status !== 'RESOLVED' && (
+          {ticket.status === 'CONVERTED' ? (
+            <div className="bg-purple-50 rounded-xl shadow-sm border border-purple-200 overflow-hidden mb-6">
+              <div className="p-6">
+                <h3 className="text-lg font-bold text-purple-900 mb-2 flex items-center">
+                  <FolderSync className="w-5 h-5 mr-2" /> รายการนี้ถูกแปลงเป็นโปรเจกต์หรืองานย่อยแล้ว
+                </h3>
+                <p className="text-purple-700">สถานะและแผนการแก้ไขของรายการนี้จะถูกระงับ เพื่อย้ายไปติดตามในระบบ BD Project แทน</p>
+              </div>
+            </div>
+          ) : ticket.status !== 'SUBMITTED' && ticket.status !== 'RESOLVED' && (
             <div className="bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden">
               <div className="p-4 border-b border-red-100 bg-red-50">
                 <h3 className="text-lg font-semibold text-red-900 flex items-center">
@@ -446,6 +557,25 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex justify-between items-center">
+              หมวดหมู่ปัญหา
+              {isUpdatingCategory && <Loader2 className="w-3 h-3 text-red-600 animate-spin" />}
+            </h3>
+            <select
+              value={ticketCategory}
+              onChange={(e) => handleUpdateCategory(e.target.value)}
+              disabled={isUpdatingCategory || ticket.status === 'RESOLVED' || ticket.status === 'CONVERTED'}
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-red-500 focus:border-red-500"
+            >
+              <option value="BUG">Bug</option>
+              <option value="FEATURE_REQUEST">Feature Request</option>
+              <option value="QUESTION">Question</option>
+              <option value="ACCOUNT_ACCESS">Account Access</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">ผู้รับผิดชอบ (BD)</h3>
             {ticket.assignee ? (
               <div className="flex items-start gap-3">
@@ -481,6 +611,137 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
           </div>
         </div>
       </div>
+
+      {/* Convert Modal */}
+      {showConvertModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                <FolderSync className="w-5 h-5 mr-2 text-purple-600" />
+                แปลงเป็น Project / Task
+              </h2>
+              <button onClick={() => setShowConvertModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto">
+              <div className="flex gap-4 mb-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="radio" 
+                    name="convertType" 
+                    checked={convertType === 'PROJECT'} 
+                    onChange={() => setConvertType('PROJECT')} 
+                    className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="font-medium text-gray-900">สร้างเป็น Project ใหม่</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="radio" 
+                    name="convertType" 
+                    checked={convertType === 'TASK'} 
+                    onChange={() => setConvertType('TASK')} 
+                    className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="font-medium text-gray-900">เพิ่มเป็น Task ย่อยในโปรเจกต์เดิม</span>
+                </label>
+              </div>
+
+              {convertType === 'PROJECT' ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อโปรเจกต์</label>
+                    <input 
+                      type="text" 
+                      value={projectDetails.name} 
+                      onChange={e => setProjectDetails({...projectDetails, name: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">รายละเอียด / วัตถุประสงค์</label>
+                    <textarea 
+                      value={projectDetails.objective} 
+                      onChange={e => setProjectDetails({...projectDetails, objective: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg p-2 h-24 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ประเภทงาน (Work Type)</label>
+                    <select 
+                      value={projectDetails.workTypeId} 
+                      onChange={e => setProjectDetails({...projectDetails, workTypeId: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
+                    >
+                      <option value="">-- เลือกประเภทงาน --</option>
+                      {workTypes.map(wt => (
+                        <option key={wt.id} value={wt.id}>{wt.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ความเร่งด่วน</label>
+                    <select 
+                      value={projectDetails.urgency} 
+                      onChange={e => setProjectDetails({...projectDetails, urgency: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
+                    >
+                      <option value="Normal">Normal (ปกติ)</option>
+                      <option value="Urgent">Urgent (ด่วน)</option>
+                      <option value="Critical">Critical (วิกฤต)</option>
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">เลือกโปรเจกต์เป้าหมาย</label>
+                    <select 
+                      value={taskDetails.projectId} 
+                      onChange={e => setTaskDetails({...taskDetails, projectId: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
+                    >
+                      <option value="">-- เลือกโปรเจกต์ --</option>
+                      {projects.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ชื่องาน (Task Name)</label>
+                    <input 
+                      type="text" 
+                      value={taskDetails.name} 
+                      onChange={e => setTaskDetails({...taskDetails, name: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+              <button 
+                onClick={() => setShowConvertModal(false)}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+              >
+                ยกเลิก
+              </button>
+              <button 
+                onClick={handleConvert}
+                disabled={isConverting || (convertType === 'PROJECT' && (!projectDetails.name || !projectDetails.workTypeId)) || (convertType === 'TASK' && (!taskDetails.name || !taskDetails.projectId))}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-purple-300 flex items-center"
+              >
+                {isConverting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                ยืนยันการแปลง
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

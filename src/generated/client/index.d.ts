@@ -698,6 +698,11 @@ export type BDTask = $Result.DefaultSelection<Prisma.$BDTaskPayload>
  * 
  */
 export type BDActivity = $Result.DefaultSelection<Prisma.$BDActivityPayload>
+/**
+ * Model ExternalApiKey
+ * 
+ */
+export type ExternalApiKey = $Result.DefaultSelection<Prisma.$ExternalApiKeyPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -2189,6 +2194,16 @@ export class PrismaClient<
     * ```
     */
   get bDActivity(): Prisma.BDActivityDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.externalApiKey`: Exposes CRUD operations for the **ExternalApiKey** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExternalApiKeys
+    * const externalApiKeys = await prisma.externalApiKey.findMany()
+    * ```
+    */
+  get externalApiKey(): Prisma.ExternalApiKeyDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2759,7 +2774,8 @@ export namespace Prisma {
     BDWorkflowTemplate: 'BDWorkflowTemplate',
     BDWorkflowStepTemplate: 'BDWorkflowStepTemplate',
     BDTask: 'BDTask',
-    BDActivity: 'BDActivity'
+    BDActivity: 'BDActivity',
+    ExternalApiKey: 'ExternalApiKey'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2775,7 +2791,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog" | "cabinetAssemblyJob" | "assemblyTimeLog" | "cabinetQCReport" | "cabinetFATReport" | "technicianTask" | "productionAssignment" | "productionTimeLog" | "productionStep" | "bDWorkType" | "supportTicket" | "ticketComment" | "ticketLog" | "bDProject" | "bDWorkflowTemplate" | "bDWorkflowStepTemplate" | "bDTask" | "bDActivity"
+      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog" | "cabinetAssemblyJob" | "assemblyTimeLog" | "cabinetQCReport" | "cabinetFATReport" | "technicianTask" | "productionAssignment" | "productionTimeLog" | "productionStep" | "bDWorkType" | "supportTicket" | "ticketComment" | "ticketLog" | "bDProject" | "bDWorkflowTemplate" | "bDWorkflowStepTemplate" | "bDTask" | "bDActivity" | "externalApiKey"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -12917,6 +12933,80 @@ export namespace Prisma {
           }
         }
       }
+      ExternalApiKey: {
+        payload: Prisma.$ExternalApiKeyPayload<ExtArgs>
+        fields: Prisma.ExternalApiKeyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExternalApiKeyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExternalApiKeyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>
+          }
+          findFirst: {
+            args: Prisma.ExternalApiKeyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExternalApiKeyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>
+          }
+          findMany: {
+            args: Prisma.ExternalApiKeyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>[]
+          }
+          create: {
+            args: Prisma.ExternalApiKeyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>
+          }
+          createMany: {
+            args: Prisma.ExternalApiKeyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ExternalApiKeyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>[]
+          }
+          delete: {
+            args: Prisma.ExternalApiKeyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>
+          }
+          update: {
+            args: Prisma.ExternalApiKeyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExternalApiKeyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExternalApiKeyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ExternalApiKeyUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>[]
+          }
+          upsert: {
+            args: Prisma.ExternalApiKeyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalApiKeyPayload>
+          }
+          aggregate: {
+            args: Prisma.ExternalApiKeyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExternalApiKey>
+          }
+          groupBy: {
+            args: Prisma.ExternalApiKeyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExternalApiKeyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExternalApiKeyCountArgs<ExtArgs>
+            result: $Utils.Optional<ExternalApiKeyCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -13162,6 +13252,7 @@ export namespace Prisma {
     bDWorkflowStepTemplate?: BDWorkflowStepTemplateOmit
     bDTask?: BDTaskOmit
     bDActivity?: BDActivityOmit
+    externalApiKey?: ExternalApiKeyOmit
   }
 
   /* Types for Logging */
@@ -174658,6 +174749,7 @@ export namespace Prisma {
     ticketNumber: string | null
     title: string | null
     description: string | null
+    category: string | null
     urgency: string | null
     status: string | null
     reporterId: string | null
@@ -174667,6 +174759,7 @@ export namespace Prisma {
     resolvedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    sourceModule: string | null
   }
 
   export type SupportTicketMaxAggregateOutputType = {
@@ -174674,6 +174767,7 @@ export namespace Prisma {
     ticketNumber: string | null
     title: string | null
     description: string | null
+    category: string | null
     urgency: string | null
     status: string | null
     reporterId: string | null
@@ -174683,6 +174777,7 @@ export namespace Prisma {
     resolvedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    sourceModule: string | null
   }
 
   export type SupportTicketCountAggregateOutputType = {
@@ -174690,6 +174785,7 @@ export namespace Prisma {
     ticketNumber: number
     title: number
     description: number
+    category: number
     attachments: number
     urgency: number
     status: number
@@ -174700,6 +174796,7 @@ export namespace Prisma {
     resolvedAt: number
     createdAt: number
     updatedAt: number
+    sourceModule: number
     _all: number
   }
 
@@ -174717,6 +174814,7 @@ export namespace Prisma {
     ticketNumber?: true
     title?: true
     description?: true
+    category?: true
     urgency?: true
     status?: true
     reporterId?: true
@@ -174726,6 +174824,7 @@ export namespace Prisma {
     resolvedAt?: true
     createdAt?: true
     updatedAt?: true
+    sourceModule?: true
   }
 
   export type SupportTicketMaxAggregateInputType = {
@@ -174733,6 +174832,7 @@ export namespace Prisma {
     ticketNumber?: true
     title?: true
     description?: true
+    category?: true
     urgency?: true
     status?: true
     reporterId?: true
@@ -174742,6 +174842,7 @@ export namespace Prisma {
     resolvedAt?: true
     createdAt?: true
     updatedAt?: true
+    sourceModule?: true
   }
 
   export type SupportTicketCountAggregateInputType = {
@@ -174749,6 +174850,7 @@ export namespace Prisma {
     ticketNumber?: true
     title?: true
     description?: true
+    category?: true
     attachments?: true
     urgency?: true
     status?: true
@@ -174759,6 +174861,7 @@ export namespace Prisma {
     resolvedAt?: true
     createdAt?: true
     updatedAt?: true
+    sourceModule?: true
     _all?: true
   }
 
@@ -174853,6 +174956,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category: string
     attachments: string[]
     urgency: string
     status: string
@@ -174863,6 +174967,7 @@ export namespace Prisma {
     resolvedAt: Date | null
     createdAt: Date
     updatedAt: Date
+    sourceModule: string | null
     _count: SupportTicketCountAggregateOutputType | null
     _avg: SupportTicketAvgAggregateOutputType | null
     _sum: SupportTicketSumAggregateOutputType | null
@@ -174889,6 +174994,7 @@ export namespace Prisma {
     ticketNumber?: boolean
     title?: boolean
     description?: boolean
+    category?: boolean
     attachments?: boolean
     urgency?: boolean
     status?: boolean
@@ -174899,6 +175005,7 @@ export namespace Prisma {
     resolvedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    sourceModule?: boolean
     assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
     comments?: boolean | SupportTicket$commentsArgs<ExtArgs>
@@ -174911,6 +175018,7 @@ export namespace Prisma {
     ticketNumber?: boolean
     title?: boolean
     description?: boolean
+    category?: boolean
     attachments?: boolean
     urgency?: boolean
     status?: boolean
@@ -174921,6 +175029,7 @@ export namespace Prisma {
     resolvedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    sourceModule?: boolean
     assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["supportTicket"]>
@@ -174930,6 +175039,7 @@ export namespace Prisma {
     ticketNumber?: boolean
     title?: boolean
     description?: boolean
+    category?: boolean
     attachments?: boolean
     urgency?: boolean
     status?: boolean
@@ -174940,6 +175050,7 @@ export namespace Prisma {
     resolvedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    sourceModule?: boolean
     assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["supportTicket"]>
@@ -174949,6 +175060,7 @@ export namespace Prisma {
     ticketNumber?: boolean
     title?: boolean
     description?: boolean
+    category?: boolean
     attachments?: boolean
     urgency?: boolean
     status?: boolean
@@ -174959,9 +175071,10 @@ export namespace Prisma {
     resolvedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    sourceModule?: boolean
   }
 
-  export type SupportTicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketNumber" | "title" | "description" | "attachments" | "urgency" | "status" | "reporterId" | "assigneeId" | "resolutionPlan" | "progressPercent" | "resolvedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["supportTicket"]>
+  export type SupportTicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketNumber" | "title" | "description" | "category" | "attachments" | "urgency" | "status" | "reporterId" | "assigneeId" | "resolutionPlan" | "progressPercent" | "resolvedAt" | "createdAt" | "updatedAt" | "sourceModule", ExtArgs["result"]["supportTicket"]>
   export type SupportTicketInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
@@ -174991,6 +175104,7 @@ export namespace Prisma {
       ticketNumber: string
       title: string
       description: string
+      category: string
       attachments: string[]
       urgency: string
       status: string
@@ -175001,6 +175115,7 @@ export namespace Prisma {
       resolvedAt: Date | null
       createdAt: Date
       updatedAt: Date
+      sourceModule: string | null
     }, ExtArgs["result"]["supportTicket"]>
     composites: {}
   }
@@ -175432,6 +175547,7 @@ export namespace Prisma {
     readonly ticketNumber: FieldRef<"SupportTicket", 'String'>
     readonly title: FieldRef<"SupportTicket", 'String'>
     readonly description: FieldRef<"SupportTicket", 'String'>
+    readonly category: FieldRef<"SupportTicket", 'String'>
     readonly attachments: FieldRef<"SupportTicket", 'String[]'>
     readonly urgency: FieldRef<"SupportTicket", 'String'>
     readonly status: FieldRef<"SupportTicket", 'String'>
@@ -175442,6 +175558,7 @@ export namespace Prisma {
     readonly resolvedAt: FieldRef<"SupportTicket", 'DateTime'>
     readonly createdAt: FieldRef<"SupportTicket", 'DateTime'>
     readonly updatedAt: FieldRef<"SupportTicket", 'DateTime'>
+    readonly sourceModule: FieldRef<"SupportTicket", 'String'>
   }
     
 
@@ -178120,6 +178237,7 @@ export namespace Prisma {
     intakeDate: Date | null
     color: string | null
     completedAt: Date | null
+    supportTicketId: string | null
   }
 
   export type BDProjectMaxAggregateOutputType = {
@@ -178140,6 +178258,7 @@ export namespace Prisma {
     intakeDate: Date | null
     color: string | null
     completedAt: Date | null
+    supportTicketId: string | null
   }
 
   export type BDProjectCountAggregateOutputType = {
@@ -178161,6 +178280,7 @@ export namespace Prisma {
     color: number
     completedAt: number
     tags: number
+    supportTicketId: number
     _all: number
   }
 
@@ -178183,6 +178303,7 @@ export namespace Prisma {
     intakeDate?: true
     color?: true
     completedAt?: true
+    supportTicketId?: true
   }
 
   export type BDProjectMaxAggregateInputType = {
@@ -178203,6 +178324,7 @@ export namespace Prisma {
     intakeDate?: true
     color?: true
     completedAt?: true
+    supportTicketId?: true
   }
 
   export type BDProjectCountAggregateInputType = {
@@ -178224,6 +178346,7 @@ export namespace Prisma {
     color?: true
     completedAt?: true
     tags?: true
+    supportTicketId?: true
     _all?: true
   }
 
@@ -178318,6 +178441,7 @@ export namespace Prisma {
     color: string | null
     completedAt: Date | null
     tags: string[]
+    supportTicketId: string | null
     _count: BDProjectCountAggregateOutputType | null
     _min: BDProjectMinAggregateOutputType | null
     _max: BDProjectMaxAggregateOutputType | null
@@ -178356,6 +178480,7 @@ export namespace Prisma {
     color?: boolean
     completedAt?: boolean
     tags?: boolean
+    supportTicketId?: boolean
     activities?: boolean | BDProject$activitiesArgs<ExtArgs>
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
@@ -178386,6 +178511,7 @@ export namespace Prisma {
     color?: boolean
     completedAt?: boolean
     tags?: boolean
+    supportTicketId?: boolean
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
     requester?: boolean | UserDefaultArgs<ExtArgs>
@@ -178411,6 +178537,7 @@ export namespace Prisma {
     color?: boolean
     completedAt?: boolean
     tags?: boolean
+    supportTicketId?: boolean
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
     requester?: boolean | UserDefaultArgs<ExtArgs>
@@ -178436,9 +178563,10 @@ export namespace Prisma {
     color?: boolean
     completedAt?: boolean
     tags?: boolean
+    supportTicketId?: boolean
   }
 
-  export type BDProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "objective" | "workTypeId" | "urgency" | "deadline" | "status" | "requesterId" | "ownerId" | "blockedReason" | "waitingOn" | "createdAt" | "updatedAt" | "parentId" | "intakeDate" | "color" | "completedAt" | "tags", ExtArgs["result"]["bDProject"]>
+  export type BDProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "objective" | "workTypeId" | "urgency" | "deadline" | "status" | "requesterId" | "ownerId" | "blockedReason" | "waitingOn" | "createdAt" | "updatedAt" | "parentId" | "intakeDate" | "color" | "completedAt" | "tags" | "supportTicketId", ExtArgs["result"]["bDProject"]>
   export type BDProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     activities?: boolean | BDProject$activitiesArgs<ExtArgs>
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
@@ -178494,6 +178622,7 @@ export namespace Prisma {
       color: string | null
       completedAt: Date | null
       tags: string[]
+      supportTicketId: string | null
     }, ExtArgs["result"]["bDProject"]>
     composites: {}
   }
@@ -178943,6 +179072,7 @@ export namespace Prisma {
     readonly color: FieldRef<"BDProject", 'String'>
     readonly completedAt: FieldRef<"BDProject", 'DateTime'>
     readonly tags: FieldRef<"BDProject", 'String[]'>
+    readonly supportTicketId: FieldRef<"BDProject", 'String'>
   }
     
 
@@ -181700,6 +181830,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     blockedAt: Date | null
+    supportTicketId: string | null
   }
 
   export type BDTaskMaxAggregateOutputType = {
@@ -181716,6 +181847,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     blockedAt: Date | null
+    supportTicketId: string | null
   }
 
   export type BDTaskCountAggregateOutputType = {
@@ -181733,6 +181865,7 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     blockedAt: number
+    supportTicketId: number
     _all: number
   }
 
@@ -181759,6 +181892,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     blockedAt?: true
+    supportTicketId?: true
   }
 
   export type BDTaskMaxAggregateInputType = {
@@ -181775,6 +181909,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     blockedAt?: true
+    supportTicketId?: true
   }
 
   export type BDTaskCountAggregateInputType = {
@@ -181792,6 +181927,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     blockedAt?: true
+    supportTicketId?: true
     _all?: true
   }
 
@@ -181896,6 +182032,7 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     blockedAt: Date | null
+    supportTicketId: string | null
     _count: BDTaskCountAggregateOutputType | null
     _avg: BDTaskAvgAggregateOutputType | null
     _sum: BDTaskSumAggregateOutputType | null
@@ -181932,6 +182069,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     blockedAt?: boolean
+    supportTicketId?: boolean
     assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
     project?: boolean | BDProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bDTask"]>
@@ -181951,6 +182089,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     blockedAt?: boolean
+    supportTicketId?: boolean
     assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
     project?: boolean | BDProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bDTask"]>
@@ -181970,6 +182109,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     blockedAt?: boolean
+    supportTicketId?: boolean
     assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
     project?: boolean | BDProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bDTask"]>
@@ -181989,9 +182129,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     blockedAt?: boolean
+    supportTicketId?: boolean
   }
 
-  export type BDTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "status" | "dueDate" | "orderIndex" | "checklistState" | "assigneeId" | "blockedReason" | "waitingOn" | "completedAt" | "createdAt" | "updatedAt" | "blockedAt", ExtArgs["result"]["bDTask"]>
+  export type BDTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "status" | "dueDate" | "orderIndex" | "checklistState" | "assigneeId" | "blockedReason" | "waitingOn" | "completedAt" | "createdAt" | "updatedAt" | "blockedAt" | "supportTicketId", ExtArgs["result"]["bDTask"]>
   export type BDTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignee?: boolean | BDTask$assigneeArgs<ExtArgs>
     project?: boolean | BDProjectDefaultArgs<ExtArgs>
@@ -182026,6 +182167,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       blockedAt: Date | null
+      supportTicketId: string | null
     }, ExtArgs["result"]["bDTask"]>
     composites: {}
   }
@@ -182465,6 +182607,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"BDTask", 'DateTime'>
     readonly updatedAt: FieldRef<"BDTask", 'DateTime'>
     readonly blockedAt: FieldRef<"BDTask", 'DateTime'>
+    readonly supportTicketId: FieldRef<"BDTask", 'String'>
   }
     
 
@@ -183984,6 +184127,1041 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: BDActivityInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ExternalApiKey
+   */
+
+  export type AggregateExternalApiKey = {
+    _count: ExternalApiKeyCountAggregateOutputType | null
+    _min: ExternalApiKeyMinAggregateOutputType | null
+    _max: ExternalApiKeyMaxAggregateOutputType | null
+  }
+
+  export type ExternalApiKeyMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    hashedKey: string | null
+    createdAt: Date | null
+    createdBy: string | null
+    lastUsedAt: Date | null
+    revokedAt: Date | null
+  }
+
+  export type ExternalApiKeyMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    hashedKey: string | null
+    createdAt: Date | null
+    createdBy: string | null
+    lastUsedAt: Date | null
+    revokedAt: Date | null
+  }
+
+  export type ExternalApiKeyCountAggregateOutputType = {
+    id: number
+    name: number
+    hashedKey: number
+    scope: number
+    createdAt: number
+    createdBy: number
+    lastUsedAt: number
+    revokedAt: number
+    _all: number
+  }
+
+
+  export type ExternalApiKeyMinAggregateInputType = {
+    id?: true
+    name?: true
+    hashedKey?: true
+    createdAt?: true
+    createdBy?: true
+    lastUsedAt?: true
+    revokedAt?: true
+  }
+
+  export type ExternalApiKeyMaxAggregateInputType = {
+    id?: true
+    name?: true
+    hashedKey?: true
+    createdAt?: true
+    createdBy?: true
+    lastUsedAt?: true
+    revokedAt?: true
+  }
+
+  export type ExternalApiKeyCountAggregateInputType = {
+    id?: true
+    name?: true
+    hashedKey?: true
+    scope?: true
+    createdAt?: true
+    createdBy?: true
+    lastUsedAt?: true
+    revokedAt?: true
+    _all?: true
+  }
+
+  export type ExternalApiKeyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExternalApiKey to aggregate.
+     */
+    where?: ExternalApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExternalApiKeys to fetch.
+     */
+    orderBy?: ExternalApiKeyOrderByWithRelationInput | ExternalApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExternalApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExternalApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExternalApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExternalApiKeys
+    **/
+    _count?: true | ExternalApiKeyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExternalApiKeyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExternalApiKeyMaxAggregateInputType
+  }
+
+  export type GetExternalApiKeyAggregateType<T extends ExternalApiKeyAggregateArgs> = {
+        [P in keyof T & keyof AggregateExternalApiKey]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExternalApiKey[P]>
+      : GetScalarType<T[P], AggregateExternalApiKey[P]>
+  }
+
+
+
+
+  export type ExternalApiKeyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExternalApiKeyWhereInput
+    orderBy?: ExternalApiKeyOrderByWithAggregationInput | ExternalApiKeyOrderByWithAggregationInput[]
+    by: ExternalApiKeyScalarFieldEnum[] | ExternalApiKeyScalarFieldEnum
+    having?: ExternalApiKeyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExternalApiKeyCountAggregateInputType | true
+    _min?: ExternalApiKeyMinAggregateInputType
+    _max?: ExternalApiKeyMaxAggregateInputType
+  }
+
+  export type ExternalApiKeyGroupByOutputType = {
+    id: string
+    name: string
+    hashedKey: string
+    scope: string[]
+    createdAt: Date
+    createdBy: string | null
+    lastUsedAt: Date | null
+    revokedAt: Date | null
+    _count: ExternalApiKeyCountAggregateOutputType | null
+    _min: ExternalApiKeyMinAggregateOutputType | null
+    _max: ExternalApiKeyMaxAggregateOutputType | null
+  }
+
+  type GetExternalApiKeyGroupByPayload<T extends ExternalApiKeyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExternalApiKeyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExternalApiKeyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExternalApiKeyGroupByOutputType[P]>
+            : GetScalarType<T[P], ExternalApiKeyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExternalApiKeySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    hashedKey?: boolean
+    scope?: boolean
+    createdAt?: boolean
+    createdBy?: boolean
+    lastUsedAt?: boolean
+    revokedAt?: boolean
+  }, ExtArgs["result"]["externalApiKey"]>
+
+  export type ExternalApiKeySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    hashedKey?: boolean
+    scope?: boolean
+    createdAt?: boolean
+    createdBy?: boolean
+    lastUsedAt?: boolean
+    revokedAt?: boolean
+  }, ExtArgs["result"]["externalApiKey"]>
+
+  export type ExternalApiKeySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    hashedKey?: boolean
+    scope?: boolean
+    createdAt?: boolean
+    createdBy?: boolean
+    lastUsedAt?: boolean
+    revokedAt?: boolean
+  }, ExtArgs["result"]["externalApiKey"]>
+
+  export type ExternalApiKeySelectScalar = {
+    id?: boolean
+    name?: boolean
+    hashedKey?: boolean
+    scope?: boolean
+    createdAt?: boolean
+    createdBy?: boolean
+    lastUsedAt?: boolean
+    revokedAt?: boolean
+  }
+
+  export type ExternalApiKeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "hashedKey" | "scope" | "createdAt" | "createdBy" | "lastUsedAt" | "revokedAt", ExtArgs["result"]["externalApiKey"]>
+
+  export type $ExternalApiKeyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExternalApiKey"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      hashedKey: string
+      scope: string[]
+      createdAt: Date
+      createdBy: string | null
+      lastUsedAt: Date | null
+      revokedAt: Date | null
+    }, ExtArgs["result"]["externalApiKey"]>
+    composites: {}
+  }
+
+  type ExternalApiKeyGetPayload<S extends boolean | null | undefined | ExternalApiKeyDefaultArgs> = $Result.GetResult<Prisma.$ExternalApiKeyPayload, S>
+
+  type ExternalApiKeyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ExternalApiKeyFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ExternalApiKeyCountAggregateInputType | true
+    }
+
+  export interface ExternalApiKeyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExternalApiKey'], meta: { name: 'ExternalApiKey' } }
+    /**
+     * Find zero or one ExternalApiKey that matches the filter.
+     * @param {ExternalApiKeyFindUniqueArgs} args - Arguments to find a ExternalApiKey
+     * @example
+     * // Get one ExternalApiKey
+     * const externalApiKey = await prisma.externalApiKey.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExternalApiKeyFindUniqueArgs>(args: SelectSubset<T, ExternalApiKeyFindUniqueArgs<ExtArgs>>): Prisma__ExternalApiKeyClient<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ExternalApiKey that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ExternalApiKeyFindUniqueOrThrowArgs} args - Arguments to find a ExternalApiKey
+     * @example
+     * // Get one ExternalApiKey
+     * const externalApiKey = await prisma.externalApiKey.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExternalApiKeyFindUniqueOrThrowArgs>(args: SelectSubset<T, ExternalApiKeyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExternalApiKeyClient<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ExternalApiKey that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalApiKeyFindFirstArgs} args - Arguments to find a ExternalApiKey
+     * @example
+     * // Get one ExternalApiKey
+     * const externalApiKey = await prisma.externalApiKey.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExternalApiKeyFindFirstArgs>(args?: SelectSubset<T, ExternalApiKeyFindFirstArgs<ExtArgs>>): Prisma__ExternalApiKeyClient<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ExternalApiKey that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalApiKeyFindFirstOrThrowArgs} args - Arguments to find a ExternalApiKey
+     * @example
+     * // Get one ExternalApiKey
+     * const externalApiKey = await prisma.externalApiKey.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExternalApiKeyFindFirstOrThrowArgs>(args?: SelectSubset<T, ExternalApiKeyFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExternalApiKeyClient<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ExternalApiKeys that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalApiKeyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExternalApiKeys
+     * const externalApiKeys = await prisma.externalApiKey.findMany()
+     * 
+     * // Get first 10 ExternalApiKeys
+     * const externalApiKeys = await prisma.externalApiKey.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const externalApiKeyWithIdOnly = await prisma.externalApiKey.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExternalApiKeyFindManyArgs>(args?: SelectSubset<T, ExternalApiKeyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ExternalApiKey.
+     * @param {ExternalApiKeyCreateArgs} args - Arguments to create a ExternalApiKey.
+     * @example
+     * // Create one ExternalApiKey
+     * const ExternalApiKey = await prisma.externalApiKey.create({
+     *   data: {
+     *     // ... data to create a ExternalApiKey
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExternalApiKeyCreateArgs>(args: SelectSubset<T, ExternalApiKeyCreateArgs<ExtArgs>>): Prisma__ExternalApiKeyClient<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ExternalApiKeys.
+     * @param {ExternalApiKeyCreateManyArgs} args - Arguments to create many ExternalApiKeys.
+     * @example
+     * // Create many ExternalApiKeys
+     * const externalApiKey = await prisma.externalApiKey.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExternalApiKeyCreateManyArgs>(args?: SelectSubset<T, ExternalApiKeyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ExternalApiKeys and returns the data saved in the database.
+     * @param {ExternalApiKeyCreateManyAndReturnArgs} args - Arguments to create many ExternalApiKeys.
+     * @example
+     * // Create many ExternalApiKeys
+     * const externalApiKey = await prisma.externalApiKey.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ExternalApiKeys and only return the `id`
+     * const externalApiKeyWithIdOnly = await prisma.externalApiKey.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ExternalApiKeyCreateManyAndReturnArgs>(args?: SelectSubset<T, ExternalApiKeyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ExternalApiKey.
+     * @param {ExternalApiKeyDeleteArgs} args - Arguments to delete one ExternalApiKey.
+     * @example
+     * // Delete one ExternalApiKey
+     * const ExternalApiKey = await prisma.externalApiKey.delete({
+     *   where: {
+     *     // ... filter to delete one ExternalApiKey
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExternalApiKeyDeleteArgs>(args: SelectSubset<T, ExternalApiKeyDeleteArgs<ExtArgs>>): Prisma__ExternalApiKeyClient<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ExternalApiKey.
+     * @param {ExternalApiKeyUpdateArgs} args - Arguments to update one ExternalApiKey.
+     * @example
+     * // Update one ExternalApiKey
+     * const externalApiKey = await prisma.externalApiKey.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExternalApiKeyUpdateArgs>(args: SelectSubset<T, ExternalApiKeyUpdateArgs<ExtArgs>>): Prisma__ExternalApiKeyClient<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ExternalApiKeys.
+     * @param {ExternalApiKeyDeleteManyArgs} args - Arguments to filter ExternalApiKeys to delete.
+     * @example
+     * // Delete a few ExternalApiKeys
+     * const { count } = await prisma.externalApiKey.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExternalApiKeyDeleteManyArgs>(args?: SelectSubset<T, ExternalApiKeyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExternalApiKeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalApiKeyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExternalApiKeys
+     * const externalApiKey = await prisma.externalApiKey.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExternalApiKeyUpdateManyArgs>(args: SelectSubset<T, ExternalApiKeyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExternalApiKeys and returns the data updated in the database.
+     * @param {ExternalApiKeyUpdateManyAndReturnArgs} args - Arguments to update many ExternalApiKeys.
+     * @example
+     * // Update many ExternalApiKeys
+     * const externalApiKey = await prisma.externalApiKey.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ExternalApiKeys and only return the `id`
+     * const externalApiKeyWithIdOnly = await prisma.externalApiKey.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ExternalApiKeyUpdateManyAndReturnArgs>(args: SelectSubset<T, ExternalApiKeyUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ExternalApiKey.
+     * @param {ExternalApiKeyUpsertArgs} args - Arguments to update or create a ExternalApiKey.
+     * @example
+     * // Update or create a ExternalApiKey
+     * const externalApiKey = await prisma.externalApiKey.upsert({
+     *   create: {
+     *     // ... data to create a ExternalApiKey
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExternalApiKey we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExternalApiKeyUpsertArgs>(args: SelectSubset<T, ExternalApiKeyUpsertArgs<ExtArgs>>): Prisma__ExternalApiKeyClient<$Result.GetResult<Prisma.$ExternalApiKeyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ExternalApiKeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalApiKeyCountArgs} args - Arguments to filter ExternalApiKeys to count.
+     * @example
+     * // Count the number of ExternalApiKeys
+     * const count = await prisma.externalApiKey.count({
+     *   where: {
+     *     // ... the filter for the ExternalApiKeys we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExternalApiKeyCountArgs>(
+      args?: Subset<T, ExternalApiKeyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExternalApiKeyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExternalApiKey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalApiKeyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExternalApiKeyAggregateArgs>(args: Subset<T, ExternalApiKeyAggregateArgs>): Prisma.PrismaPromise<GetExternalApiKeyAggregateType<T>>
+
+    /**
+     * Group by ExternalApiKey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalApiKeyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExternalApiKeyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExternalApiKeyGroupByArgs['orderBy'] }
+        : { orderBy?: ExternalApiKeyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExternalApiKeyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExternalApiKeyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExternalApiKey model
+   */
+  readonly fields: ExternalApiKeyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExternalApiKey.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExternalApiKeyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExternalApiKey model
+   */
+  interface ExternalApiKeyFieldRefs {
+    readonly id: FieldRef<"ExternalApiKey", 'String'>
+    readonly name: FieldRef<"ExternalApiKey", 'String'>
+    readonly hashedKey: FieldRef<"ExternalApiKey", 'String'>
+    readonly scope: FieldRef<"ExternalApiKey", 'String[]'>
+    readonly createdAt: FieldRef<"ExternalApiKey", 'DateTime'>
+    readonly createdBy: FieldRef<"ExternalApiKey", 'String'>
+    readonly lastUsedAt: FieldRef<"ExternalApiKey", 'DateTime'>
+    readonly revokedAt: FieldRef<"ExternalApiKey", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExternalApiKey findUnique
+   */
+  export type ExternalApiKeyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalApiKey to fetch.
+     */
+    where: ExternalApiKeyWhereUniqueInput
+  }
+
+  /**
+   * ExternalApiKey findUniqueOrThrow
+   */
+  export type ExternalApiKeyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalApiKey to fetch.
+     */
+    where: ExternalApiKeyWhereUniqueInput
+  }
+
+  /**
+   * ExternalApiKey findFirst
+   */
+  export type ExternalApiKeyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalApiKey to fetch.
+     */
+    where?: ExternalApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExternalApiKeys to fetch.
+     */
+    orderBy?: ExternalApiKeyOrderByWithRelationInput | ExternalApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExternalApiKeys.
+     */
+    cursor?: ExternalApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExternalApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExternalApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExternalApiKeys.
+     */
+    distinct?: ExternalApiKeyScalarFieldEnum | ExternalApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * ExternalApiKey findFirstOrThrow
+   */
+  export type ExternalApiKeyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalApiKey to fetch.
+     */
+    where?: ExternalApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExternalApiKeys to fetch.
+     */
+    orderBy?: ExternalApiKeyOrderByWithRelationInput | ExternalApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExternalApiKeys.
+     */
+    cursor?: ExternalApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExternalApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExternalApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExternalApiKeys.
+     */
+    distinct?: ExternalApiKeyScalarFieldEnum | ExternalApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * ExternalApiKey findMany
+   */
+  export type ExternalApiKeyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalApiKeys to fetch.
+     */
+    where?: ExternalApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExternalApiKeys to fetch.
+     */
+    orderBy?: ExternalApiKeyOrderByWithRelationInput | ExternalApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExternalApiKeys.
+     */
+    cursor?: ExternalApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExternalApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExternalApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExternalApiKeys.
+     */
+    distinct?: ExternalApiKeyScalarFieldEnum | ExternalApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * ExternalApiKey create
+   */
+  export type ExternalApiKeyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ExternalApiKey.
+     */
+    data: XOR<ExternalApiKeyCreateInput, ExternalApiKeyUncheckedCreateInput>
+  }
+
+  /**
+   * ExternalApiKey createMany
+   */
+  export type ExternalApiKeyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExternalApiKeys.
+     */
+    data: ExternalApiKeyCreateManyInput | ExternalApiKeyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExternalApiKey createManyAndReturn
+   */
+  export type ExternalApiKeyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * The data used to create many ExternalApiKeys.
+     */
+    data: ExternalApiKeyCreateManyInput | ExternalApiKeyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExternalApiKey update
+   */
+  export type ExternalApiKeyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ExternalApiKey.
+     */
+    data: XOR<ExternalApiKeyUpdateInput, ExternalApiKeyUncheckedUpdateInput>
+    /**
+     * Choose, which ExternalApiKey to update.
+     */
+    where: ExternalApiKeyWhereUniqueInput
+  }
+
+  /**
+   * ExternalApiKey updateMany
+   */
+  export type ExternalApiKeyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExternalApiKeys.
+     */
+    data: XOR<ExternalApiKeyUpdateManyMutationInput, ExternalApiKeyUncheckedUpdateManyInput>
+    /**
+     * Filter which ExternalApiKeys to update
+     */
+    where?: ExternalApiKeyWhereInput
+    /**
+     * Limit how many ExternalApiKeys to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ExternalApiKey updateManyAndReturn
+   */
+  export type ExternalApiKeyUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * The data used to update ExternalApiKeys.
+     */
+    data: XOR<ExternalApiKeyUpdateManyMutationInput, ExternalApiKeyUncheckedUpdateManyInput>
+    /**
+     * Filter which ExternalApiKeys to update
+     */
+    where?: ExternalApiKeyWhereInput
+    /**
+     * Limit how many ExternalApiKeys to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ExternalApiKey upsert
+   */
+  export type ExternalApiKeyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ExternalApiKey to update in case it exists.
+     */
+    where: ExternalApiKeyWhereUniqueInput
+    /**
+     * In case the ExternalApiKey found by the `where` argument doesn't exist, create a new ExternalApiKey with this data.
+     */
+    create: XOR<ExternalApiKeyCreateInput, ExternalApiKeyUncheckedCreateInput>
+    /**
+     * In case the ExternalApiKey was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExternalApiKeyUpdateInput, ExternalApiKeyUncheckedUpdateInput>
+  }
+
+  /**
+   * ExternalApiKey delete
+   */
+  export type ExternalApiKeyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
+    /**
+     * Filter which ExternalApiKey to delete.
+     */
+    where: ExternalApiKeyWhereUniqueInput
+  }
+
+  /**
+   * ExternalApiKey deleteMany
+   */
+  export type ExternalApiKeyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExternalApiKeys to delete
+     */
+    where?: ExternalApiKeyWhereInput
+    /**
+     * Limit how many ExternalApiKeys to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ExternalApiKey without action
+   */
+  export type ExternalApiKeyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalApiKey
+     */
+    select?: ExternalApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalApiKey
+     */
+    omit?: ExternalApiKeyOmit<ExtArgs> | null
   }
 
 
@@ -186436,6 +187614,7 @@ export namespace Prisma {
     ticketNumber: 'ticketNumber',
     title: 'title',
     description: 'description',
+    category: 'category',
     attachments: 'attachments',
     urgency: 'urgency',
     status: 'status',
@@ -186445,7 +187624,8 @@ export namespace Prisma {
     progressPercent: 'progressPercent',
     resolvedAt: 'resolvedAt',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    sourceModule: 'sourceModule'
   };
 
   export type SupportTicketScalarFieldEnum = (typeof SupportTicketScalarFieldEnum)[keyof typeof SupportTicketScalarFieldEnum]
@@ -186493,7 +187673,8 @@ export namespace Prisma {
     intakeDate: 'intakeDate',
     color: 'color',
     completedAt: 'completedAt',
-    tags: 'tags'
+    tags: 'tags',
+    supportTicketId: 'supportTicketId'
   };
 
   export type BDProjectScalarFieldEnum = (typeof BDProjectScalarFieldEnum)[keyof typeof BDProjectScalarFieldEnum]
@@ -186533,7 +187714,8 @@ export namespace Prisma {
     completedAt: 'completedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    blockedAt: 'blockedAt'
+    blockedAt: 'blockedAt',
+    supportTicketId: 'supportTicketId'
   };
 
   export type BDTaskScalarFieldEnum = (typeof BDTaskScalarFieldEnum)[keyof typeof BDTaskScalarFieldEnum]
@@ -186549,6 +187731,20 @@ export namespace Prisma {
   };
 
   export type BDActivityScalarFieldEnum = (typeof BDActivityScalarFieldEnum)[keyof typeof BDActivityScalarFieldEnum]
+
+
+  export const ExternalApiKeyScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    hashedKey: 'hashedKey',
+    scope: 'scope',
+    createdAt: 'createdAt',
+    createdBy: 'createdBy',
+    lastUsedAt: 'lastUsedAt',
+    revokedAt: 'revokedAt'
+  };
+
+  export type ExternalApiKeyScalarFieldEnum = (typeof ExternalApiKeyScalarFieldEnum)[keyof typeof ExternalApiKeyScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -199640,6 +200836,7 @@ export namespace Prisma {
     ticketNumber?: StringFilter<"SupportTicket"> | string
     title?: StringFilter<"SupportTicket"> | string
     description?: StringFilter<"SupportTicket"> | string
+    category?: StringFilter<"SupportTicket"> | string
     attachments?: StringNullableListFilter<"SupportTicket">
     urgency?: StringFilter<"SupportTicket"> | string
     status?: StringFilter<"SupportTicket"> | string
@@ -199650,6 +200847,7 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
     createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
     updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    sourceModule?: StringNullableFilter<"SupportTicket"> | string | null
     assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     reporter?: XOR<UserScalarRelationFilter, UserWhereInput>
     comments?: TicketCommentListRelationFilter
@@ -199661,6 +200859,7 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
+    category?: SortOrder
     attachments?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
@@ -199671,6 +200870,7 @@ export namespace Prisma {
     resolvedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    sourceModule?: SortOrderInput | SortOrder
     assignee?: UserOrderByWithRelationInput
     reporter?: UserOrderByWithRelationInput
     comments?: TicketCommentOrderByRelationAggregateInput
@@ -199685,6 +200885,7 @@ export namespace Prisma {
     NOT?: SupportTicketWhereInput | SupportTicketWhereInput[]
     title?: StringFilter<"SupportTicket"> | string
     description?: StringFilter<"SupportTicket"> | string
+    category?: StringFilter<"SupportTicket"> | string
     attachments?: StringNullableListFilter<"SupportTicket">
     urgency?: StringFilter<"SupportTicket"> | string
     status?: StringFilter<"SupportTicket"> | string
@@ -199695,6 +200896,7 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
     createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
     updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    sourceModule?: StringNullableFilter<"SupportTicket"> | string | null
     assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     reporter?: XOR<UserScalarRelationFilter, UserWhereInput>
     comments?: TicketCommentListRelationFilter
@@ -199706,6 +200908,7 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
+    category?: SortOrder
     attachments?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
@@ -199716,6 +200919,7 @@ export namespace Prisma {
     resolvedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    sourceModule?: SortOrderInput | SortOrder
     _count?: SupportTicketCountOrderByAggregateInput
     _avg?: SupportTicketAvgOrderByAggregateInput
     _max?: SupportTicketMaxOrderByAggregateInput
@@ -199731,6 +200935,7 @@ export namespace Prisma {
     ticketNumber?: StringWithAggregatesFilter<"SupportTicket"> | string
     title?: StringWithAggregatesFilter<"SupportTicket"> | string
     description?: StringWithAggregatesFilter<"SupportTicket"> | string
+    category?: StringWithAggregatesFilter<"SupportTicket"> | string
     attachments?: StringNullableListFilter<"SupportTicket">
     urgency?: StringWithAggregatesFilter<"SupportTicket"> | string
     status?: StringWithAggregatesFilter<"SupportTicket"> | string
@@ -199741,6 +200946,7 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableWithAggregatesFilter<"SupportTicket"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
+    sourceModule?: StringNullableWithAggregatesFilter<"SupportTicket"> | string | null
   }
 
   export type TicketCommentWhereInput = {
@@ -199891,6 +201097,7 @@ export namespace Prisma {
     color?: StringNullableFilter<"BDProject"> | string | null
     completedAt?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     tags?: StringNullableListFilter<"BDProject">
+    supportTicketId?: StringNullableFilter<"BDProject"> | string | null
     activities?: BDActivityListRelationFilter
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     parent?: XOR<BDProjectNullableScalarRelationFilter, BDProjectWhereInput> | null
@@ -199920,6 +201127,7 @@ export namespace Prisma {
     color?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
     tags?: SortOrder
+    supportTicketId?: SortOrderInput | SortOrder
     activities?: BDActivityOrderByRelationAggregateInput
     owner?: UserOrderByWithRelationInput
     parent?: BDProjectOrderByWithRelationInput
@@ -199952,6 +201160,7 @@ export namespace Prisma {
     color?: StringNullableFilter<"BDProject"> | string | null
     completedAt?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     tags?: StringNullableListFilter<"BDProject">
+    supportTicketId?: StringNullableFilter<"BDProject"> | string | null
     activities?: BDActivityListRelationFilter
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     parent?: XOR<BDProjectNullableScalarRelationFilter, BDProjectWhereInput> | null
@@ -199981,6 +201190,7 @@ export namespace Prisma {
     color?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
     tags?: SortOrder
+    supportTicketId?: SortOrderInput | SortOrder
     _count?: BDProjectCountOrderByAggregateInput
     _max?: BDProjectMaxOrderByAggregateInput
     _min?: BDProjectMinOrderByAggregateInput
@@ -200008,6 +201218,7 @@ export namespace Prisma {
     color?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
     completedAt?: DateTimeNullableWithAggregatesFilter<"BDProject"> | Date | string | null
     tags?: StringNullableListFilter<"BDProject">
+    supportTicketId?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
   }
 
   export type BDWorkflowTemplateWhereInput = {
@@ -200133,6 +201344,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"BDTask"> | Date | string
     updatedAt?: DateTimeFilter<"BDTask"> | Date | string
     blockedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    supportTicketId?: StringNullableFilter<"BDTask"> | string | null
     assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     project?: XOR<BDProjectScalarRelationFilter, BDProjectWhereInput>
   }
@@ -200152,6 +201364,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     blockedAt?: SortOrderInput | SortOrder
+    supportTicketId?: SortOrderInput | SortOrder
     assignee?: UserOrderByWithRelationInput
     project?: BDProjectOrderByWithRelationInput
   }
@@ -200174,6 +201387,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"BDTask"> | Date | string
     updatedAt?: DateTimeFilter<"BDTask"> | Date | string
     blockedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    supportTicketId?: StringNullableFilter<"BDTask"> | string | null
     assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     project?: XOR<BDProjectScalarRelationFilter, BDProjectWhereInput>
   }, "id">
@@ -200193,6 +201407,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     blockedAt?: SortOrderInput | SortOrder
+    supportTicketId?: SortOrderInput | SortOrder
     _count?: BDTaskCountOrderByAggregateInput
     _avg?: BDTaskAvgOrderByAggregateInput
     _max?: BDTaskMaxOrderByAggregateInput
@@ -200218,6 +201433,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"BDTask"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BDTask"> | Date | string
     blockedAt?: DateTimeNullableWithAggregatesFilter<"BDTask"> | Date | string | null
+    supportTicketId?: StringNullableWithAggregatesFilter<"BDTask"> | string | null
   }
 
   export type BDActivityWhereInput = {
@@ -200281,6 +201497,73 @@ export namespace Prisma {
     action?: StringWithAggregatesFilter<"BDActivity"> | string
     details?: StringNullableWithAggregatesFilter<"BDActivity"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BDActivity"> | Date | string
+  }
+
+  export type ExternalApiKeyWhereInput = {
+    AND?: ExternalApiKeyWhereInput | ExternalApiKeyWhereInput[]
+    OR?: ExternalApiKeyWhereInput[]
+    NOT?: ExternalApiKeyWhereInput | ExternalApiKeyWhereInput[]
+    id?: StringFilter<"ExternalApiKey"> | string
+    name?: StringFilter<"ExternalApiKey"> | string
+    hashedKey?: StringFilter<"ExternalApiKey"> | string
+    scope?: StringNullableListFilter<"ExternalApiKey">
+    createdAt?: DateTimeFilter<"ExternalApiKey"> | Date | string
+    createdBy?: StringNullableFilter<"ExternalApiKey"> | string | null
+    lastUsedAt?: DateTimeNullableFilter<"ExternalApiKey"> | Date | string | null
+    revokedAt?: DateTimeNullableFilter<"ExternalApiKey"> | Date | string | null
+  }
+
+  export type ExternalApiKeyOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hashedKey?: SortOrder
+    scope?: SortOrder
+    createdAt?: SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    lastUsedAt?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+  }
+
+  export type ExternalApiKeyWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    hashedKey?: string
+    AND?: ExternalApiKeyWhereInput | ExternalApiKeyWhereInput[]
+    OR?: ExternalApiKeyWhereInput[]
+    NOT?: ExternalApiKeyWhereInput | ExternalApiKeyWhereInput[]
+    name?: StringFilter<"ExternalApiKey"> | string
+    scope?: StringNullableListFilter<"ExternalApiKey">
+    createdAt?: DateTimeFilter<"ExternalApiKey"> | Date | string
+    createdBy?: StringNullableFilter<"ExternalApiKey"> | string | null
+    lastUsedAt?: DateTimeNullableFilter<"ExternalApiKey"> | Date | string | null
+    revokedAt?: DateTimeNullableFilter<"ExternalApiKey"> | Date | string | null
+  }, "id" | "hashedKey">
+
+  export type ExternalApiKeyOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hashedKey?: SortOrder
+    scope?: SortOrder
+    createdAt?: SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    lastUsedAt?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    _count?: ExternalApiKeyCountOrderByAggregateInput
+    _max?: ExternalApiKeyMaxOrderByAggregateInput
+    _min?: ExternalApiKeyMinOrderByAggregateInput
+  }
+
+  export type ExternalApiKeyScalarWhereWithAggregatesInput = {
+    AND?: ExternalApiKeyScalarWhereWithAggregatesInput | ExternalApiKeyScalarWhereWithAggregatesInput[]
+    OR?: ExternalApiKeyScalarWhereWithAggregatesInput[]
+    NOT?: ExternalApiKeyScalarWhereWithAggregatesInput | ExternalApiKeyScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ExternalApiKey"> | string
+    name?: StringWithAggregatesFilter<"ExternalApiKey"> | string
+    hashedKey?: StringWithAggregatesFilter<"ExternalApiKey"> | string
+    scope?: StringNullableListFilter<"ExternalApiKey">
+    createdAt?: DateTimeWithAggregatesFilter<"ExternalApiKey"> | Date | string
+    createdBy?: StringNullableWithAggregatesFilter<"ExternalApiKey"> | string | null
+    lastUsedAt?: DateTimeNullableWithAggregatesFilter<"ExternalApiKey"> | Date | string | null
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"ExternalApiKey"> | Date | string | null
   }
 
   export type UserCreateInput = {
@@ -214946,6 +216229,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -214954,6 +216238,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
     reporter: UserCreateNestedOneWithoutReportedTicketsInput
     comments?: TicketCommentCreateNestedManyWithoutTicketInput
@@ -214965,6 +216250,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -214975,6 +216261,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
     logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -214984,6 +216271,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -214992,6 +216280,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
     reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
     comments?: TicketCommentUpdateManyWithoutTicketNestedInput
@@ -215003,6 +216292,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -215013,6 +216303,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
     logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -215022,6 +216313,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -215032,6 +216324,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
   }
 
   export type SupportTicketUpdateManyMutationInput = {
@@ -215039,6 +216332,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -215047,6 +216341,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupportTicketUncheckedUpdateManyInput = {
@@ -215054,6 +216349,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -215064,6 +216360,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TicketCommentCreateInput = {
@@ -215203,6 +216500,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -215232,6 +216530,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -215253,6 +216552,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -215282,6 +216582,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -215307,6 +216608,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
   }
 
   export type BDProjectUpdateManyMutationInput = {
@@ -215324,6 +216626,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDProjectUncheckedUpdateManyInput = {
@@ -215345,6 +216648,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDWorkflowTemplateCreateInput = {
@@ -215465,6 +216769,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
     assignee?: UserCreateNestedOneWithoutBdAssignedTasksInput
     project: BDProjectCreateNestedOneWithoutTasksInput
   }
@@ -215484,6 +216789,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
   }
 
   export type BDTaskUpdateInput = {
@@ -215499,6 +216805,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutBdAssignedTasksNestedInput
     project?: BDProjectUpdateOneRequiredWithoutTasksNestedInput
   }
@@ -215518,6 +216825,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDTaskCreateManyInput = {
@@ -215535,6 +216843,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
   }
 
   export type BDTaskUpdateManyMutationInput = {
@@ -215550,6 +216859,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDTaskUncheckedUpdateManyInput = {
@@ -215567,6 +216877,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDActivityCreateInput = {
@@ -215628,6 +216939,83 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     details?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExternalApiKeyCreateInput = {
+    id?: string
+    name: string
+    hashedKey: string
+    scope?: ExternalApiKeyCreatescopeInput | string[]
+    createdAt?: Date | string
+    createdBy?: string | null
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+  }
+
+  export type ExternalApiKeyUncheckedCreateInput = {
+    id?: string
+    name: string
+    hashedKey: string
+    scope?: ExternalApiKeyCreatescopeInput | string[]
+    createdAt?: Date | string
+    createdBy?: string | null
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+  }
+
+  export type ExternalApiKeyUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    hashedKey?: StringFieldUpdateOperationsInput | string
+    scope?: ExternalApiKeyUpdatescopeInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ExternalApiKeyUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    hashedKey?: StringFieldUpdateOperationsInput | string
+    scope?: ExternalApiKeyUpdatescopeInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ExternalApiKeyCreateManyInput = {
+    id?: string
+    name: string
+    hashedKey: string
+    scope?: ExternalApiKeyCreatescopeInput | string[]
+    createdAt?: Date | string
+    createdBy?: string | null
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+  }
+
+  export type ExternalApiKeyUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    hashedKey?: StringFieldUpdateOperationsInput | string
+    scope?: ExternalApiKeyUpdatescopeInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ExternalApiKeyUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    hashedKey?: StringFieldUpdateOperationsInput | string
+    scope?: ExternalApiKeyUpdatescopeInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -224715,6 +226103,7 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
+    category?: SortOrder
     attachments?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
@@ -224725,6 +226114,7 @@ export namespace Prisma {
     resolvedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    sourceModule?: SortOrder
   }
 
   export type SupportTicketAvgOrderByAggregateInput = {
@@ -224736,6 +226126,7 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
+    category?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
     reporterId?: SortOrder
@@ -224745,6 +226136,7 @@ export namespace Prisma {
     resolvedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    sourceModule?: SortOrder
   }
 
   export type SupportTicketMinOrderByAggregateInput = {
@@ -224752,6 +226144,7 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
+    category?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
     reporterId?: SortOrder
@@ -224761,6 +226154,7 @@ export namespace Prisma {
     resolvedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    sourceModule?: SortOrder
   }
 
   export type SupportTicketSumOrderByAggregateInput = {
@@ -224853,6 +226247,7 @@ export namespace Prisma {
     color?: SortOrder
     completedAt?: SortOrder
     tags?: SortOrder
+    supportTicketId?: SortOrder
   }
 
   export type BDProjectMaxOrderByAggregateInput = {
@@ -224873,6 +226268,7 @@ export namespace Prisma {
     intakeDate?: SortOrder
     color?: SortOrder
     completedAt?: SortOrder
+    supportTicketId?: SortOrder
   }
 
   export type BDProjectMinOrderByAggregateInput = {
@@ -224893,6 +226289,7 @@ export namespace Prisma {
     intakeDate?: SortOrder
     color?: SortOrder
     completedAt?: SortOrder
+    supportTicketId?: SortOrder
   }
 
   export type BDWorkTypeListRelationFilter = {
@@ -224988,6 +226385,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     blockedAt?: SortOrder
+    supportTicketId?: SortOrder
   }
 
   export type BDTaskAvgOrderByAggregateInput = {
@@ -225008,6 +226406,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     blockedAt?: SortOrder
+    supportTicketId?: SortOrder
   }
 
   export type BDTaskMinOrderByAggregateInput = {
@@ -225024,6 +226423,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     blockedAt?: SortOrder
+    supportTicketId?: SortOrder
   }
 
   export type BDTaskSumOrderByAggregateInput = {
@@ -225055,6 +226455,37 @@ export namespace Prisma {
     action?: SortOrder
     details?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type ExternalApiKeyCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hashedKey?: SortOrder
+    scope?: SortOrder
+    createdAt?: SortOrder
+    createdBy?: SortOrder
+    lastUsedAt?: SortOrder
+    revokedAt?: SortOrder
+  }
+
+  export type ExternalApiKeyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hashedKey?: SortOrder
+    createdAt?: SortOrder
+    createdBy?: SortOrder
+    lastUsedAt?: SortOrder
+    revokedAt?: SortOrder
+  }
+
+  export type ExternalApiKeyMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    hashedKey?: SortOrder
+    createdAt?: SortOrder
+    createdBy?: SortOrder
+    lastUsedAt?: SortOrder
+    revokedAt?: SortOrder
   }
 
   export type BDActivityCreateNestedManyWithoutUserInput = {
@@ -234817,6 +236248,15 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBdActivitiesInput, UserUpdateWithoutBdActivitiesInput>, UserUncheckedUpdateWithoutBdActivitiesInput>
   }
 
+  export type ExternalApiKeyCreatescopeInput = {
+    set: string[]
+  }
+
+  export type ExternalApiKeyUpdatescopeInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -235231,6 +236671,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
@@ -235258,6 +236699,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -235289,6 +236731,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -235316,6 +236759,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -235345,6 +236789,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
     project: BDProjectCreateNestedOneWithoutTasksInput
   }
 
@@ -235362,6 +236807,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
   }
 
   export type BDTaskCreateOrConnectWithoutAssigneeInput = {
@@ -236827,6 +238273,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -236835,6 +238282,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     reporter: UserCreateNestedOneWithoutReportedTicketsInput
     comments?: TicketCommentCreateNestedManyWithoutTicketInput
     logs?: TicketLogCreateNestedManyWithoutTicketInput
@@ -236845,6 +238293,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -236854,6 +238303,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
     logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -236873,6 +238323,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -236881,6 +238332,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
     comments?: TicketCommentCreateNestedManyWithoutTicketInput
     logs?: TicketLogCreateNestedManyWithoutTicketInput
@@ -236891,6 +238343,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -236900,6 +238353,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
     logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -237194,6 +238648,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -237222,6 +238677,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -237381,6 +238837,7 @@ export namespace Prisma {
     color?: StringNullableFilter<"BDProject"> | string | null
     completedAt?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     tags?: StringNullableListFilter<"BDProject">
+    supportTicketId?: StringNullableFilter<"BDProject"> | string | null
   }
 
   export type BDProjectUpsertWithWhereUniqueWithoutRequesterInput = {
@@ -237433,6 +238890,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"BDTask"> | Date | string
     updatedAt?: DateTimeFilter<"BDTask"> | Date | string
     blockedAt?: DateTimeNullableFilter<"BDTask"> | Date | string | null
+    supportTicketId?: StringNullableFilter<"BDTask"> | string | null
   }
 
   export type CabinetAssemblyJobUpsertWithWhereUniqueWithoutTechnicianInput = {
@@ -238442,6 +239900,7 @@ export namespace Prisma {
     ticketNumber?: StringFilter<"SupportTicket"> | string
     title?: StringFilter<"SupportTicket"> | string
     description?: StringFilter<"SupportTicket"> | string
+    category?: StringFilter<"SupportTicket"> | string
     attachments?: StringNullableListFilter<"SupportTicket">
     urgency?: StringFilter<"SupportTicket"> | string
     status?: StringFilter<"SupportTicket"> | string
@@ -238452,6 +239911,7 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
     createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
     updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    sourceModule?: StringNullableFilter<"SupportTicket"> | string | null
   }
 
   export type SupportTicketUpsertWithWhereUniqueWithoutReporterInput = {
@@ -281047,6 +282507,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -281074,6 +282535,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -281719,6 +283181,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -281727,6 +283190,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
     reporter: UserCreateNestedOneWithoutReportedTicketsInput
     logs?: TicketLogCreateNestedManyWithoutTicketInput
@@ -281737,6 +283201,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -281747,6 +283212,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
   }
 
@@ -281888,6 +283354,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -281896,6 +283363,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
     reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
     logs?: TicketLogUpdateManyWithoutTicketNestedInput
@@ -281906,6 +283374,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -281916,6 +283385,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
   }
 
@@ -282047,6 +283517,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -282055,6 +283526,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
     reporter: UserCreateNestedOneWithoutReportedTicketsInput
     comments?: TicketCommentCreateNestedManyWithoutTicketInput
@@ -282065,6 +283537,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -282075,6 +283548,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
     comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
   }
 
@@ -282216,6 +283690,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -282224,6 +283699,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
     reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
     comments?: TicketCommentUpdateManyWithoutTicketNestedInput
@@ -282234,6 +283710,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -282244,6 +283721,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
   }
 
@@ -282528,6 +284006,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -282556,6 +284035,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
     members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
@@ -282581,6 +284061,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
@@ -282608,6 +284089,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -282773,6 +284255,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
     assignee?: UserCreateNestedOneWithoutBdAssignedTasksInput
   }
 
@@ -282790,6 +284273,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
   }
 
   export type BDTaskCreateOrConnectWithoutProjectInput = {
@@ -283084,6 +284568,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -283112,6 +284597,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
     members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
@@ -283590,6 +285076,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -283618,6 +285105,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
@@ -283777,6 +285265,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -283805,6 +285294,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
@@ -283825,6 +285315,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
@@ -283853,6 +285344,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
     members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
@@ -284006,6 +285498,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
@@ -284034,6 +285527,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
     members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
@@ -284188,6 +285682,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
   }
 
   export type BDProjectCreateManyRequesterInput = {
@@ -284208,6 +285703,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
   }
 
   export type BDTaskCreateManyAssigneeInput = {
@@ -284224,6 +285720,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
   }
 
   export type CabinetAssemblyJobCreateManyTechnicianInput = {
@@ -284777,6 +286274,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -284786,6 +286284,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
   }
 
   export type SupportTicketCreateManyReporterInput = {
@@ -284793,6 +286292,7 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
+    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -284802,6 +286302,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    sourceModule?: string | null
   }
 
   export type TechnicianTaskCreateManyAssignerInput = {
@@ -284928,6 +286429,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
@@ -284955,6 +286457,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -284979,6 +286482,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDProjectUpdateWithoutRequesterInput = {
@@ -284996,6 +286500,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -285023,6 +286528,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -285047,6 +286553,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDTaskUpdateWithoutAssigneeInput = {
@@ -285062,6 +286569,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     project?: BDProjectUpdateOneRequiredWithoutTasksNestedInput
   }
 
@@ -285079,6 +286587,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDTaskUncheckedUpdateManyWithoutAssigneeInput = {
@@ -285095,6 +286604,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CabinetAssemblyJobUpdateWithoutTechnicianInput = {
@@ -286836,6 +288346,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -286844,6 +288355,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
     comments?: TicketCommentUpdateManyWithoutTicketNestedInput
     logs?: TicketLogUpdateManyWithoutTicketNestedInput
@@ -286854,6 +288366,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -286863,6 +288376,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
     logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -286872,6 +288386,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -286881,6 +288396,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupportTicketUpdateWithoutReporterInput = {
@@ -286888,6 +288404,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -286896,6 +288413,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
     comments?: TicketCommentUpdateManyWithoutTicketNestedInput
     logs?: TicketLogUpdateManyWithoutTicketNestedInput
@@ -286906,6 +288424,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -286915,6 +288434,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
     logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -286924,6 +288444,7 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -286933,6 +288454,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TechnicianTaskUpdateWithoutAssignerInput = {
@@ -287207,6 +288729,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -287235,6 +288758,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -287259,6 +288783,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderUpdateWithoutAssignedTechniciansInput = {
@@ -295638,6 +297163,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
   }
 
   export type BDProjectUpdateWithoutWorkTypeInput = {
@@ -295655,6 +297181,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -295682,6 +297209,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -295706,6 +297234,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TicketCommentCreateManyTicketInput = {
@@ -295798,6 +297327,7 @@ export namespace Prisma {
     color?: string | null
     completedAt?: Date | string | null
     tags?: BDProjectCreatetagsInput | string[]
+    supportTicketId?: string | null
   }
 
   export type BDTaskCreateManyProjectInput = {
@@ -295814,6 +297344,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     blockedAt?: Date | string | null
+    supportTicketId?: string | null
   }
 
   export type BDActivityUpdateWithoutProjectInput = {
@@ -295855,6 +297386,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
@@ -295882,6 +297414,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -295906,6 +297439,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: BDProjectUpdatetagsInput | string[]
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDTaskUpdateWithoutProjectInput = {
@@ -295921,6 +297455,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutBdAssignedTasksNestedInput
   }
 
@@ -295938,6 +297473,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BDTaskUncheckedUpdateManyWithoutProjectInput = {
@@ -295954,6 +297490,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     blockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supportTicketId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserUpdateWithoutBdMemberProjectsInput = {

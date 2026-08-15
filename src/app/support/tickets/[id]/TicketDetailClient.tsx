@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { getTicketById, addComment } from '@/app/actions/tickets';
-import { LifeBuoy, AlertCircle, Clock, CheckCircle2, Activity, MessageSquare, Paperclip, ChevronLeft, Send, Loader2 } from 'lucide-react';
+import { LifeBuoy, AlertCircle, Clock, CheckCircle2, Activity, MessageSquare, Paperclip, ChevronLeft, Send, Loader2, FolderSync } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
@@ -81,8 +81,25 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
         return <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800"><Activity className="w-4 h-4 mr-1" /> กำลังแก้ไข</span>;
       case 'RESOLVED':
         return <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"><CheckCircle2 className="w-4 h-4 mr-1" /> แก้ไขแล้ว (ปิดงาน)</span>;
+      case 'CONVERTED':
+        return <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"><FolderSync className="w-4 h-4 mr-1" /> แปลงเป็นโปรเจกต์แล้ว</span>;
       default:
         return <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">{status}</span>;
+    }
+  };
+
+  const getCategoryBadge = (category: string) => {
+    switch (category) {
+      case 'BUG':
+        return <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100">Bug</span>;
+      case 'FEATURE_REQUEST':
+        return <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">Feature</span>;
+      case 'QUESTION':
+        return <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-100">Question</span>;
+      case 'ACCOUNT_ACCESS':
+        return <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-100">Access</span>;
+      default:
+        return <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">Other</span>;
     }
   };
 
@@ -118,6 +135,7 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
               <span className="font-mono text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded">
                 {ticket.ticketNumber}
               </span>
+              {getCategoryBadge(ticket.category)}
               {getUrgencyBadge(ticket.urgency)}
             </div>
             <h1 className="text-2xl font-bold text-gray-900">{ticket.title}</h1>
@@ -158,18 +176,27 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
                   <Activity className="w-5 h-5 mr-2 text-red-600" /> แผนการแก้ไขและความคืบหน้า
                 </h3>
 
-                <div className="mb-4">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-700">ความคืบหน้า</span>
-                    <span className="text-sm font-medium text-red-600">{ticket.progressPercent}%</span>
+                {ticket.status === 'CONVERTED' ? (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+                    <h4 className="text-sm font-bold text-purple-900 flex items-center mb-2">
+                      <FolderSync className="w-4 h-4 mr-2" /> รายการนี้ถูกแปลงเป็นโปรเจกต์/แผนงานเรียบร้อยแล้ว
+                    </h4>
+                    <p className="text-purple-700 text-sm">สถานะความคืบหน้าของรายการนี้จะถูกระงับไว้ เพื่อย้ายไปติดตามในระบบ Project/Task แทน</p>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className={`h-2.5 rounded-full ${ticket.progressPercent === 100 ? 'bg-green-500' : 'bg-red-600'}`}
-                      style={{ width: `${ticket.progressPercent}%` }}
-                    ></div>
+                ) : (
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-gray-700">ความคืบหน้า</span>
+                      <span className="text-sm font-medium text-red-600">{ticket.progressPercent}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className={`h-2.5 rounded-full ${ticket.progressPercent === 100 ? 'bg-green-500' : 'bg-red-600'}`}
+                        style={{ width: `${ticket.progressPercent}%` }}
+                      ></div>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="bg-red-50 border border-red-100 rounded-lg p-4">
                   <h4 className="text-sm font-semibold text-red-800 mb-2">บันทึกจากทีมงาน (Resolution Plan)</h4>
@@ -259,7 +286,7 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
           )}
         </div>
 
-        {ticket.status !== 'RESOLVED' && (
+        {ticket.status !== 'RESOLVED' && ticket.status !== 'CONVERTED' && (
           <div className="p-4 border-t border-gray-200 bg-gray-50">
             <form onSubmit={handleAddComment} className="flex flex-col gap-2">
               <div className="flex gap-2">
