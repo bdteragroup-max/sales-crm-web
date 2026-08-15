@@ -703,6 +703,11 @@ export type BDActivity = $Result.DefaultSelection<Prisma.$BDActivityPayload>
  * 
  */
 export type ExternalApiKey = $Result.DefaultSelection<Prisma.$ExternalApiKeyPayload>
+/**
+ * Model probation_evaluation_revisions
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type probation_evaluation_revisions = $Result.DefaultSelection<Prisma.$probation_evaluation_revisionsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -2204,6 +2209,16 @@ export class PrismaClient<
     * ```
     */
   get externalApiKey(): Prisma.ExternalApiKeyDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.probation_evaluation_revisions`: Exposes CRUD operations for the **probation_evaluation_revisions** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Probation_evaluation_revisions
+    * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.findMany()
+    * ```
+    */
+  get probation_evaluation_revisions(): Prisma.probation_evaluation_revisionsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2775,7 +2790,8 @@ export namespace Prisma {
     BDWorkflowStepTemplate: 'BDWorkflowStepTemplate',
     BDTask: 'BDTask',
     BDActivity: 'BDActivity',
-    ExternalApiKey: 'ExternalApiKey'
+    ExternalApiKey: 'ExternalApiKey',
+    probation_evaluation_revisions: 'probation_evaluation_revisions'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2791,7 +2807,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog" | "cabinetAssemblyJob" | "assemblyTimeLog" | "cabinetQCReport" | "cabinetFATReport" | "technicianTask" | "productionAssignment" | "productionTimeLog" | "productionStep" | "bDWorkType" | "supportTicket" | "ticketComment" | "ticketLog" | "bDProject" | "bDWorkflowTemplate" | "bDWorkflowStepTemplate" | "bDTask" | "bDActivity" | "externalApiKey"
+      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog" | "cabinetAssemblyJob" | "assemblyTimeLog" | "cabinetQCReport" | "cabinetFATReport" | "technicianTask" | "productionAssignment" | "productionTimeLog" | "productionStep" | "bDWorkType" | "supportTicket" | "ticketComment" | "ticketLog" | "bDProject" | "bDWorkflowTemplate" | "bDWorkflowStepTemplate" | "bDTask" | "bDActivity" | "externalApiKey" | "probation_evaluation_revisions"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -13007,6 +13023,80 @@ export namespace Prisma {
           }
         }
       }
+      probation_evaluation_revisions: {
+        payload: Prisma.$probation_evaluation_revisionsPayload<ExtArgs>
+        fields: Prisma.probation_evaluation_revisionsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.probation_evaluation_revisionsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.probation_evaluation_revisionsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>
+          }
+          findFirst: {
+            args: Prisma.probation_evaluation_revisionsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.probation_evaluation_revisionsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>
+          }
+          findMany: {
+            args: Prisma.probation_evaluation_revisionsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>[]
+          }
+          create: {
+            args: Prisma.probation_evaluation_revisionsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>
+          }
+          createMany: {
+            args: Prisma.probation_evaluation_revisionsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.probation_evaluation_revisionsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>[]
+          }
+          delete: {
+            args: Prisma.probation_evaluation_revisionsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>
+          }
+          update: {
+            args: Prisma.probation_evaluation_revisionsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>
+          }
+          deleteMany: {
+            args: Prisma.probation_evaluation_revisionsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.probation_evaluation_revisionsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.probation_evaluation_revisionsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>[]
+          }
+          upsert: {
+            args: Prisma.probation_evaluation_revisionsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$probation_evaluation_revisionsPayload>
+          }
+          aggregate: {
+            args: Prisma.Probation_evaluation_revisionsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProbation_evaluation_revisions>
+          }
+          groupBy: {
+            args: Prisma.probation_evaluation_revisionsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Probation_evaluation_revisionsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.probation_evaluation_revisionsCountArgs<ExtArgs>
+            result: $Utils.Optional<Probation_evaluation_revisionsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -13253,6 +13343,7 @@ export namespace Prisma {
     bDTask?: BDTaskOmit
     bDActivity?: BDActivityOmit
     externalApiKey?: ExternalApiKeyOmit
+    probation_evaluation_revisions?: probation_evaluation_revisionsOmit
   }
 
   /* Types for Logging */
@@ -14703,6 +14794,37 @@ export namespace Prisma {
    */
   export type Meeting_roomsCountOutputTypeCountRoom_bookingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: room_bookingsWhereInput
+  }
+
+
+  /**
+   * Count Type Probation_evaluationsCountOutputType
+   */
+
+  export type Probation_evaluationsCountOutputType = {
+    probation_evaluation_revisions: number
+  }
+
+  export type Probation_evaluationsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    probation_evaluation_revisions?: boolean | Probation_evaluationsCountOutputTypeCountProbation_evaluation_revisionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * Probation_evaluationsCountOutputType without action
+   */
+  export type Probation_evaluationsCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Probation_evaluationsCountOutputType
+     */
+    select?: Probation_evaluationsCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * Probation_evaluationsCountOutputType without action
+   */
+  export type Probation_evaluationsCountOutputTypeCountProbation_evaluation_revisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: probation_evaluation_revisionsWhereInput
   }
 
 
@@ -82960,6 +83082,7 @@ export namespace Prisma {
     is_sent_to_management: boolean | null
     created_at: Date | null
     updated_at: Date | null
+    return_reason: string | null
   }
 
   export type Probation_evaluationsMaxAggregateOutputType = {
@@ -83002,6 +83125,7 @@ export namespace Prisma {
     is_sent_to_management: boolean | null
     created_at: Date | null
     updated_at: Date | null
+    return_reason: string | null
   }
 
   export type Probation_evaluationsCountAggregateOutputType = {
@@ -83045,6 +83169,7 @@ export namespace Prisma {
     created_at: number
     updated_at: number
     score_comments: number
+    return_reason: number
     _all: number
   }
 
@@ -83143,6 +83268,7 @@ export namespace Prisma {
     is_sent_to_management?: true
     created_at?: true
     updated_at?: true
+    return_reason?: true
   }
 
   export type Probation_evaluationsMaxAggregateInputType = {
@@ -83185,6 +83311,7 @@ export namespace Prisma {
     is_sent_to_management?: true
     created_at?: true
     updated_at?: true
+    return_reason?: true
   }
 
   export type Probation_evaluationsCountAggregateInputType = {
@@ -83228,6 +83355,7 @@ export namespace Prisma {
     created_at?: true
     updated_at?: true
     score_comments?: true
+    return_reason?: true
     _all?: true
   }
 
@@ -83358,6 +83486,7 @@ export namespace Prisma {
     created_at: Date
     updated_at: Date
     score_comments: JsonValue | null
+    return_reason: string | null
     _count: Probation_evaluationsCountAggregateOutputType | null
     _avg: Probation_evaluationsAvgAggregateOutputType | null
     _sum: Probation_evaluationsSumAggregateOutputType | null
@@ -83420,8 +83549,11 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     score_comments?: boolean
+    return_reason?: boolean
+    probation_evaluation_revisions?: boolean | probation_evaluations$probation_evaluation_revisionsArgs<ExtArgs>
     employees_probation_evaluations_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
     employees_probation_evaluations_supervisor_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
+    _count?: boolean | Probation_evaluationsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["probation_evaluations"]>
 
   export type probation_evaluationsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -83465,6 +83597,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     score_comments?: boolean
+    return_reason?: boolean
     employees_probation_evaluations_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
     employees_probation_evaluations_supervisor_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["probation_evaluations"]>
@@ -83510,6 +83643,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     score_comments?: boolean
+    return_reason?: boolean
     employees_probation_evaluations_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
     employees_probation_evaluations_supervisor_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["probation_evaluations"]>
@@ -83555,12 +83689,15 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     score_comments?: boolean
+    return_reason?: boolean
   }
 
-  export type probation_evaluationsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "supervisor_id" | "evaluation_no" | "evaluation_date" | "period_start" | "period_end" | "score_work_quality" | "score_work_quantity" | "score_dedication" | "score_knowledge" | "score_learning" | "score_obedience" | "score_responsibility" | "score_creativity" | "score_teamwork" | "score_discipline" | "score_tool_maintenance" | "score_participation" | "score_late" | "score_sick_leave" | "score_personal_leave" | "count_late" | "count_sick_leave" | "count_personal_leave" | "count_activity" | "total_score" | "grade" | "comment_supervisor" | "comment_improvement" | "comment_praise" | "decision" | "salary_adjust_from" | "salary_adjust_to" | "status" | "hr_remark" | "is_sent_to_management" | "created_at" | "updated_at" | "score_comments", ExtArgs["result"]["probation_evaluations"]>
+  export type probation_evaluationsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "supervisor_id" | "evaluation_no" | "evaluation_date" | "period_start" | "period_end" | "score_work_quality" | "score_work_quantity" | "score_dedication" | "score_knowledge" | "score_learning" | "score_obedience" | "score_responsibility" | "score_creativity" | "score_teamwork" | "score_discipline" | "score_tool_maintenance" | "score_participation" | "score_late" | "score_sick_leave" | "score_personal_leave" | "count_late" | "count_sick_leave" | "count_personal_leave" | "count_activity" | "total_score" | "grade" | "comment_supervisor" | "comment_improvement" | "comment_praise" | "decision" | "salary_adjust_from" | "salary_adjust_to" | "status" | "hr_remark" | "is_sent_to_management" | "created_at" | "updated_at" | "score_comments" | "return_reason", ExtArgs["result"]["probation_evaluations"]>
   export type probation_evaluationsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    probation_evaluation_revisions?: boolean | probation_evaluations$probation_evaluation_revisionsArgs<ExtArgs>
     employees_probation_evaluations_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
     employees_probation_evaluations_supervisor_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
+    _count?: boolean | Probation_evaluationsCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type probation_evaluationsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     employees_probation_evaluations_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
@@ -83574,6 +83711,7 @@ export namespace Prisma {
   export type $probation_evaluationsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "probation_evaluations"
     objects: {
+      probation_evaluation_revisions: Prisma.$probation_evaluation_revisionsPayload<ExtArgs>[]
       employees_probation_evaluations_emp_idToemployees: Prisma.$employeesPayload<ExtArgs>
       employees_probation_evaluations_supervisor_idToemployees: Prisma.$employeesPayload<ExtArgs>
     }
@@ -83618,6 +83756,7 @@ export namespace Prisma {
       created_at: Date
       updated_at: Date
       score_comments: Prisma.JsonValue | null
+      return_reason: string | null
     }, ExtArgs["result"]["probation_evaluations"]>
     composites: {}
   }
@@ -84012,6 +84151,7 @@ export namespace Prisma {
    */
   export interface Prisma__probation_evaluationsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    probation_evaluation_revisions<T extends probation_evaluations$probation_evaluation_revisionsArgs<ExtArgs> = {}>(args?: Subset<T, probation_evaluations$probation_evaluation_revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employees_probation_evaluations_emp_idToemployees<T extends employeesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, employeesDefaultArgs<ExtArgs>>): Prisma__employeesClient<$Result.GetResult<Prisma.$employeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     employees_probation_evaluations_supervisor_idToemployees<T extends employeesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, employeesDefaultArgs<ExtArgs>>): Prisma__employeesClient<$Result.GetResult<Prisma.$employeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
@@ -84083,6 +84223,7 @@ export namespace Prisma {
     readonly created_at: FieldRef<"probation_evaluations", 'DateTime'>
     readonly updated_at: FieldRef<"probation_evaluations", 'DateTime'>
     readonly score_comments: FieldRef<"probation_evaluations", 'Json'>
+    readonly return_reason: FieldRef<"probation_evaluations", 'String'>
   }
     
 
@@ -84481,6 +84622,30 @@ export namespace Prisma {
      * Limit how many probation_evaluations to delete.
      */
     limit?: number
+  }
+
+  /**
+   * probation_evaluations.probation_evaluation_revisions
+   */
+  export type probation_evaluations$probation_evaluation_revisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    where?: probation_evaluation_revisionsWhereInput
+    orderBy?: probation_evaluation_revisionsOrderByWithRelationInput | probation_evaluation_revisionsOrderByWithRelationInput[]
+    cursor?: probation_evaluation_revisionsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Probation_evaluation_revisionsScalarFieldEnum | Probation_evaluation_revisionsScalarFieldEnum[]
   }
 
   /**
@@ -174749,7 +174914,6 @@ export namespace Prisma {
     ticketNumber: string | null
     title: string | null
     description: string | null
-    category: string | null
     urgency: string | null
     status: string | null
     reporterId: string | null
@@ -174759,6 +174923,7 @@ export namespace Prisma {
     resolvedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    category: string | null
     sourceModule: string | null
   }
 
@@ -174767,7 +174932,6 @@ export namespace Prisma {
     ticketNumber: string | null
     title: string | null
     description: string | null
-    category: string | null
     urgency: string | null
     status: string | null
     reporterId: string | null
@@ -174777,6 +174941,7 @@ export namespace Prisma {
     resolvedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    category: string | null
     sourceModule: string | null
   }
 
@@ -174785,7 +174950,6 @@ export namespace Prisma {
     ticketNumber: number
     title: number
     description: number
-    category: number
     attachments: number
     urgency: number
     status: number
@@ -174796,6 +174960,7 @@ export namespace Prisma {
     resolvedAt: number
     createdAt: number
     updatedAt: number
+    category: number
     sourceModule: number
     _all: number
   }
@@ -174814,7 +174979,6 @@ export namespace Prisma {
     ticketNumber?: true
     title?: true
     description?: true
-    category?: true
     urgency?: true
     status?: true
     reporterId?: true
@@ -174824,6 +174988,7 @@ export namespace Prisma {
     resolvedAt?: true
     createdAt?: true
     updatedAt?: true
+    category?: true
     sourceModule?: true
   }
 
@@ -174832,7 +174997,6 @@ export namespace Prisma {
     ticketNumber?: true
     title?: true
     description?: true
-    category?: true
     urgency?: true
     status?: true
     reporterId?: true
@@ -174842,6 +175006,7 @@ export namespace Prisma {
     resolvedAt?: true
     createdAt?: true
     updatedAt?: true
+    category?: true
     sourceModule?: true
   }
 
@@ -174850,7 +175015,6 @@ export namespace Prisma {
     ticketNumber?: true
     title?: true
     description?: true
-    category?: true
     attachments?: true
     urgency?: true
     status?: true
@@ -174861,6 +175025,7 @@ export namespace Prisma {
     resolvedAt?: true
     createdAt?: true
     updatedAt?: true
+    category?: true
     sourceModule?: true
     _all?: true
   }
@@ -174956,7 +175121,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category: string
     attachments: string[]
     urgency: string
     status: string
@@ -174967,6 +175131,7 @@ export namespace Prisma {
     resolvedAt: Date | null
     createdAt: Date
     updatedAt: Date
+    category: string
     sourceModule: string | null
     _count: SupportTicketCountAggregateOutputType | null
     _avg: SupportTicketAvgAggregateOutputType | null
@@ -174994,7 +175159,6 @@ export namespace Prisma {
     ticketNumber?: boolean
     title?: boolean
     description?: boolean
-    category?: boolean
     attachments?: boolean
     urgency?: boolean
     status?: boolean
@@ -175005,6 +175169,7 @@ export namespace Prisma {
     resolvedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    category?: boolean
     sourceModule?: boolean
     assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
@@ -175018,7 +175183,6 @@ export namespace Prisma {
     ticketNumber?: boolean
     title?: boolean
     description?: boolean
-    category?: boolean
     attachments?: boolean
     urgency?: boolean
     status?: boolean
@@ -175029,6 +175193,7 @@ export namespace Prisma {
     resolvedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    category?: boolean
     sourceModule?: boolean
     assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
@@ -175039,7 +175204,6 @@ export namespace Prisma {
     ticketNumber?: boolean
     title?: boolean
     description?: boolean
-    category?: boolean
     attachments?: boolean
     urgency?: boolean
     status?: boolean
@@ -175050,6 +175214,7 @@ export namespace Prisma {
     resolvedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    category?: boolean
     sourceModule?: boolean
     assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
@@ -175060,7 +175225,6 @@ export namespace Prisma {
     ticketNumber?: boolean
     title?: boolean
     description?: boolean
-    category?: boolean
     attachments?: boolean
     urgency?: boolean
     status?: boolean
@@ -175071,10 +175235,11 @@ export namespace Prisma {
     resolvedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    category?: boolean
     sourceModule?: boolean
   }
 
-  export type SupportTicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketNumber" | "title" | "description" | "category" | "attachments" | "urgency" | "status" | "reporterId" | "assigneeId" | "resolutionPlan" | "progressPercent" | "resolvedAt" | "createdAt" | "updatedAt" | "sourceModule", ExtArgs["result"]["supportTicket"]>
+  export type SupportTicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketNumber" | "title" | "description" | "attachments" | "urgency" | "status" | "reporterId" | "assigneeId" | "resolutionPlan" | "progressPercent" | "resolvedAt" | "createdAt" | "updatedAt" | "category" | "sourceModule", ExtArgs["result"]["supportTicket"]>
   export type SupportTicketInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignee?: boolean | SupportTicket$assigneeArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
@@ -175104,7 +175269,6 @@ export namespace Prisma {
       ticketNumber: string
       title: string
       description: string
-      category: string
       attachments: string[]
       urgency: string
       status: string
@@ -175115,6 +175279,7 @@ export namespace Prisma {
       resolvedAt: Date | null
       createdAt: Date
       updatedAt: Date
+      category: string
       sourceModule: string | null
     }, ExtArgs["result"]["supportTicket"]>
     composites: {}
@@ -175547,7 +175712,6 @@ export namespace Prisma {
     readonly ticketNumber: FieldRef<"SupportTicket", 'String'>
     readonly title: FieldRef<"SupportTicket", 'String'>
     readonly description: FieldRef<"SupportTicket", 'String'>
-    readonly category: FieldRef<"SupportTicket", 'String'>
     readonly attachments: FieldRef<"SupportTicket", 'String[]'>
     readonly urgency: FieldRef<"SupportTicket", 'String'>
     readonly status: FieldRef<"SupportTicket", 'String'>
@@ -175558,6 +175722,7 @@ export namespace Prisma {
     readonly resolvedAt: FieldRef<"SupportTicket", 'DateTime'>
     readonly createdAt: FieldRef<"SupportTicket", 'DateTime'>
     readonly updatedAt: FieldRef<"SupportTicket", 'DateTime'>
+    readonly category: FieldRef<"SupportTicket", 'String'>
     readonly sourceModule: FieldRef<"SupportTicket", 'String'>
   }
     
@@ -185166,6 +185331,1142 @@ export namespace Prisma {
 
 
   /**
+   * Model probation_evaluation_revisions
+   */
+
+  export type AggregateProbation_evaluation_revisions = {
+    _count: Probation_evaluation_revisionsCountAggregateOutputType | null
+    _avg: Probation_evaluation_revisionsAvgAggregateOutputType | null
+    _sum: Probation_evaluation_revisionsSumAggregateOutputType | null
+    _min: Probation_evaluation_revisionsMinAggregateOutputType | null
+    _max: Probation_evaluation_revisionsMaxAggregateOutputType | null
+  }
+
+  export type Probation_evaluation_revisionsAvgAggregateOutputType = {
+    id: number | null
+    evaluation_id: number | null
+  }
+
+  export type Probation_evaluation_revisionsSumAggregateOutputType = {
+    id: number | null
+    evaluation_id: number | null
+  }
+
+  export type Probation_evaluation_revisionsMinAggregateOutputType = {
+    id: number | null
+    evaluation_id: number | null
+    emp_id: string | null
+    supervisor_id: string | null
+    revision_date: Date | null
+    return_reason: string | null
+    returned_by: string | null
+  }
+
+  export type Probation_evaluation_revisionsMaxAggregateOutputType = {
+    id: number | null
+    evaluation_id: number | null
+    emp_id: string | null
+    supervisor_id: string | null
+    revision_date: Date | null
+    return_reason: string | null
+    returned_by: string | null
+  }
+
+  export type Probation_evaluation_revisionsCountAggregateOutputType = {
+    id: number
+    evaluation_id: number
+    emp_id: number
+    supervisor_id: number
+    revision_date: number
+    return_reason: number
+    returned_by: number
+    snapshot: number
+    _all: number
+  }
+
+
+  export type Probation_evaluation_revisionsAvgAggregateInputType = {
+    id?: true
+    evaluation_id?: true
+  }
+
+  export type Probation_evaluation_revisionsSumAggregateInputType = {
+    id?: true
+    evaluation_id?: true
+  }
+
+  export type Probation_evaluation_revisionsMinAggregateInputType = {
+    id?: true
+    evaluation_id?: true
+    emp_id?: true
+    supervisor_id?: true
+    revision_date?: true
+    return_reason?: true
+    returned_by?: true
+  }
+
+  export type Probation_evaluation_revisionsMaxAggregateInputType = {
+    id?: true
+    evaluation_id?: true
+    emp_id?: true
+    supervisor_id?: true
+    revision_date?: true
+    return_reason?: true
+    returned_by?: true
+  }
+
+  export type Probation_evaluation_revisionsCountAggregateInputType = {
+    id?: true
+    evaluation_id?: true
+    emp_id?: true
+    supervisor_id?: true
+    revision_date?: true
+    return_reason?: true
+    returned_by?: true
+    snapshot?: true
+    _all?: true
+  }
+
+  export type Probation_evaluation_revisionsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which probation_evaluation_revisions to aggregate.
+     */
+    where?: probation_evaluation_revisionsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of probation_evaluation_revisions to fetch.
+     */
+    orderBy?: probation_evaluation_revisionsOrderByWithRelationInput | probation_evaluation_revisionsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: probation_evaluation_revisionsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` probation_evaluation_revisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` probation_evaluation_revisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned probation_evaluation_revisions
+    **/
+    _count?: true | Probation_evaluation_revisionsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Probation_evaluation_revisionsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Probation_evaluation_revisionsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Probation_evaluation_revisionsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Probation_evaluation_revisionsMaxAggregateInputType
+  }
+
+  export type GetProbation_evaluation_revisionsAggregateType<T extends Probation_evaluation_revisionsAggregateArgs> = {
+        [P in keyof T & keyof AggregateProbation_evaluation_revisions]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProbation_evaluation_revisions[P]>
+      : GetScalarType<T[P], AggregateProbation_evaluation_revisions[P]>
+  }
+
+
+
+
+  export type probation_evaluation_revisionsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: probation_evaluation_revisionsWhereInput
+    orderBy?: probation_evaluation_revisionsOrderByWithAggregationInput | probation_evaluation_revisionsOrderByWithAggregationInput[]
+    by: Probation_evaluation_revisionsScalarFieldEnum[] | Probation_evaluation_revisionsScalarFieldEnum
+    having?: probation_evaluation_revisionsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Probation_evaluation_revisionsCountAggregateInputType | true
+    _avg?: Probation_evaluation_revisionsAvgAggregateInputType
+    _sum?: Probation_evaluation_revisionsSumAggregateInputType
+    _min?: Probation_evaluation_revisionsMinAggregateInputType
+    _max?: Probation_evaluation_revisionsMaxAggregateInputType
+  }
+
+  export type Probation_evaluation_revisionsGroupByOutputType = {
+    id: number
+    evaluation_id: number
+    emp_id: string
+    supervisor_id: string
+    revision_date: Date
+    return_reason: string | null
+    returned_by: string | null
+    snapshot: JsonValue
+    _count: Probation_evaluation_revisionsCountAggregateOutputType | null
+    _avg: Probation_evaluation_revisionsAvgAggregateOutputType | null
+    _sum: Probation_evaluation_revisionsSumAggregateOutputType | null
+    _min: Probation_evaluation_revisionsMinAggregateOutputType | null
+    _max: Probation_evaluation_revisionsMaxAggregateOutputType | null
+  }
+
+  type GetProbation_evaluation_revisionsGroupByPayload<T extends probation_evaluation_revisionsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Probation_evaluation_revisionsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Probation_evaluation_revisionsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Probation_evaluation_revisionsGroupByOutputType[P]>
+            : GetScalarType<T[P], Probation_evaluation_revisionsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type probation_evaluation_revisionsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    evaluation_id?: boolean
+    emp_id?: boolean
+    supervisor_id?: boolean
+    revision_date?: boolean
+    return_reason?: boolean
+    returned_by?: boolean
+    snapshot?: boolean
+    probation_evaluations?: boolean | probation_evaluationsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["probation_evaluation_revisions"]>
+
+  export type probation_evaluation_revisionsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    evaluation_id?: boolean
+    emp_id?: boolean
+    supervisor_id?: boolean
+    revision_date?: boolean
+    return_reason?: boolean
+    returned_by?: boolean
+    snapshot?: boolean
+    probation_evaluations?: boolean | probation_evaluationsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["probation_evaluation_revisions"]>
+
+  export type probation_evaluation_revisionsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    evaluation_id?: boolean
+    emp_id?: boolean
+    supervisor_id?: boolean
+    revision_date?: boolean
+    return_reason?: boolean
+    returned_by?: boolean
+    snapshot?: boolean
+    probation_evaluations?: boolean | probation_evaluationsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["probation_evaluation_revisions"]>
+
+  export type probation_evaluation_revisionsSelectScalar = {
+    id?: boolean
+    evaluation_id?: boolean
+    emp_id?: boolean
+    supervisor_id?: boolean
+    revision_date?: boolean
+    return_reason?: boolean
+    returned_by?: boolean
+    snapshot?: boolean
+  }
+
+  export type probation_evaluation_revisionsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "evaluation_id" | "emp_id" | "supervisor_id" | "revision_date" | "return_reason" | "returned_by" | "snapshot", ExtArgs["result"]["probation_evaluation_revisions"]>
+  export type probation_evaluation_revisionsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    probation_evaluations?: boolean | probation_evaluationsDefaultArgs<ExtArgs>
+  }
+  export type probation_evaluation_revisionsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    probation_evaluations?: boolean | probation_evaluationsDefaultArgs<ExtArgs>
+  }
+  export type probation_evaluation_revisionsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    probation_evaluations?: boolean | probation_evaluationsDefaultArgs<ExtArgs>
+  }
+
+  export type $probation_evaluation_revisionsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "probation_evaluation_revisions"
+    objects: {
+      probation_evaluations: Prisma.$probation_evaluationsPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      evaluation_id: number
+      emp_id: string
+      supervisor_id: string
+      revision_date: Date
+      return_reason: string | null
+      returned_by: string | null
+      snapshot: Prisma.JsonValue
+    }, ExtArgs["result"]["probation_evaluation_revisions"]>
+    composites: {}
+  }
+
+  type probation_evaluation_revisionsGetPayload<S extends boolean | null | undefined | probation_evaluation_revisionsDefaultArgs> = $Result.GetResult<Prisma.$probation_evaluation_revisionsPayload, S>
+
+  type probation_evaluation_revisionsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<probation_evaluation_revisionsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Probation_evaluation_revisionsCountAggregateInputType | true
+    }
+
+  export interface probation_evaluation_revisionsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['probation_evaluation_revisions'], meta: { name: 'probation_evaluation_revisions' } }
+    /**
+     * Find zero or one Probation_evaluation_revisions that matches the filter.
+     * @param {probation_evaluation_revisionsFindUniqueArgs} args - Arguments to find a Probation_evaluation_revisions
+     * @example
+     * // Get one Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends probation_evaluation_revisionsFindUniqueArgs>(args: SelectSubset<T, probation_evaluation_revisionsFindUniqueArgs<ExtArgs>>): Prisma__probation_evaluation_revisionsClient<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Probation_evaluation_revisions that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {probation_evaluation_revisionsFindUniqueOrThrowArgs} args - Arguments to find a Probation_evaluation_revisions
+     * @example
+     * // Get one Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends probation_evaluation_revisionsFindUniqueOrThrowArgs>(args: SelectSubset<T, probation_evaluation_revisionsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__probation_evaluation_revisionsClient<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Probation_evaluation_revisions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {probation_evaluation_revisionsFindFirstArgs} args - Arguments to find a Probation_evaluation_revisions
+     * @example
+     * // Get one Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends probation_evaluation_revisionsFindFirstArgs>(args?: SelectSubset<T, probation_evaluation_revisionsFindFirstArgs<ExtArgs>>): Prisma__probation_evaluation_revisionsClient<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Probation_evaluation_revisions that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {probation_evaluation_revisionsFindFirstOrThrowArgs} args - Arguments to find a Probation_evaluation_revisions
+     * @example
+     * // Get one Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends probation_evaluation_revisionsFindFirstOrThrowArgs>(args?: SelectSubset<T, probation_evaluation_revisionsFindFirstOrThrowArgs<ExtArgs>>): Prisma__probation_evaluation_revisionsClient<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Probation_evaluation_revisions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {probation_evaluation_revisionsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.findMany()
+     * 
+     * // Get first 10 Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const probation_evaluation_revisionsWithIdOnly = await prisma.probation_evaluation_revisions.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends probation_evaluation_revisionsFindManyArgs>(args?: SelectSubset<T, probation_evaluation_revisionsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Probation_evaluation_revisions.
+     * @param {probation_evaluation_revisionsCreateArgs} args - Arguments to create a Probation_evaluation_revisions.
+     * @example
+     * // Create one Probation_evaluation_revisions
+     * const Probation_evaluation_revisions = await prisma.probation_evaluation_revisions.create({
+     *   data: {
+     *     // ... data to create a Probation_evaluation_revisions
+     *   }
+     * })
+     * 
+     */
+    create<T extends probation_evaluation_revisionsCreateArgs>(args: SelectSubset<T, probation_evaluation_revisionsCreateArgs<ExtArgs>>): Prisma__probation_evaluation_revisionsClient<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Probation_evaluation_revisions.
+     * @param {probation_evaluation_revisionsCreateManyArgs} args - Arguments to create many Probation_evaluation_revisions.
+     * @example
+     * // Create many Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends probation_evaluation_revisionsCreateManyArgs>(args?: SelectSubset<T, probation_evaluation_revisionsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Probation_evaluation_revisions and returns the data saved in the database.
+     * @param {probation_evaluation_revisionsCreateManyAndReturnArgs} args - Arguments to create many Probation_evaluation_revisions.
+     * @example
+     * // Create many Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Probation_evaluation_revisions and only return the `id`
+     * const probation_evaluation_revisionsWithIdOnly = await prisma.probation_evaluation_revisions.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends probation_evaluation_revisionsCreateManyAndReturnArgs>(args?: SelectSubset<T, probation_evaluation_revisionsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Probation_evaluation_revisions.
+     * @param {probation_evaluation_revisionsDeleteArgs} args - Arguments to delete one Probation_evaluation_revisions.
+     * @example
+     * // Delete one Probation_evaluation_revisions
+     * const Probation_evaluation_revisions = await prisma.probation_evaluation_revisions.delete({
+     *   where: {
+     *     // ... filter to delete one Probation_evaluation_revisions
+     *   }
+     * })
+     * 
+     */
+    delete<T extends probation_evaluation_revisionsDeleteArgs>(args: SelectSubset<T, probation_evaluation_revisionsDeleteArgs<ExtArgs>>): Prisma__probation_evaluation_revisionsClient<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Probation_evaluation_revisions.
+     * @param {probation_evaluation_revisionsUpdateArgs} args - Arguments to update one Probation_evaluation_revisions.
+     * @example
+     * // Update one Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends probation_evaluation_revisionsUpdateArgs>(args: SelectSubset<T, probation_evaluation_revisionsUpdateArgs<ExtArgs>>): Prisma__probation_evaluation_revisionsClient<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Probation_evaluation_revisions.
+     * @param {probation_evaluation_revisionsDeleteManyArgs} args - Arguments to filter Probation_evaluation_revisions to delete.
+     * @example
+     * // Delete a few Probation_evaluation_revisions
+     * const { count } = await prisma.probation_evaluation_revisions.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends probation_evaluation_revisionsDeleteManyArgs>(args?: SelectSubset<T, probation_evaluation_revisionsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Probation_evaluation_revisions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {probation_evaluation_revisionsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends probation_evaluation_revisionsUpdateManyArgs>(args: SelectSubset<T, probation_evaluation_revisionsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Probation_evaluation_revisions and returns the data updated in the database.
+     * @param {probation_evaluation_revisionsUpdateManyAndReturnArgs} args - Arguments to update many Probation_evaluation_revisions.
+     * @example
+     * // Update many Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Probation_evaluation_revisions and only return the `id`
+     * const probation_evaluation_revisionsWithIdOnly = await prisma.probation_evaluation_revisions.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends probation_evaluation_revisionsUpdateManyAndReturnArgs>(args: SelectSubset<T, probation_evaluation_revisionsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Probation_evaluation_revisions.
+     * @param {probation_evaluation_revisionsUpsertArgs} args - Arguments to update or create a Probation_evaluation_revisions.
+     * @example
+     * // Update or create a Probation_evaluation_revisions
+     * const probation_evaluation_revisions = await prisma.probation_evaluation_revisions.upsert({
+     *   create: {
+     *     // ... data to create a Probation_evaluation_revisions
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Probation_evaluation_revisions we want to update
+     *   }
+     * })
+     */
+    upsert<T extends probation_evaluation_revisionsUpsertArgs>(args: SelectSubset<T, probation_evaluation_revisionsUpsertArgs<ExtArgs>>): Prisma__probation_evaluation_revisionsClient<$Result.GetResult<Prisma.$probation_evaluation_revisionsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Probation_evaluation_revisions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {probation_evaluation_revisionsCountArgs} args - Arguments to filter Probation_evaluation_revisions to count.
+     * @example
+     * // Count the number of Probation_evaluation_revisions
+     * const count = await prisma.probation_evaluation_revisions.count({
+     *   where: {
+     *     // ... the filter for the Probation_evaluation_revisions we want to count
+     *   }
+     * })
+    **/
+    count<T extends probation_evaluation_revisionsCountArgs>(
+      args?: Subset<T, probation_evaluation_revisionsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Probation_evaluation_revisionsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Probation_evaluation_revisions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Probation_evaluation_revisionsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Probation_evaluation_revisionsAggregateArgs>(args: Subset<T, Probation_evaluation_revisionsAggregateArgs>): Prisma.PrismaPromise<GetProbation_evaluation_revisionsAggregateType<T>>
+
+    /**
+     * Group by Probation_evaluation_revisions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {probation_evaluation_revisionsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends probation_evaluation_revisionsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: probation_evaluation_revisionsGroupByArgs['orderBy'] }
+        : { orderBy?: probation_evaluation_revisionsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, probation_evaluation_revisionsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProbation_evaluation_revisionsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the probation_evaluation_revisions model
+   */
+  readonly fields: probation_evaluation_revisionsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for probation_evaluation_revisions.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__probation_evaluation_revisionsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    probation_evaluations<T extends probation_evaluationsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, probation_evaluationsDefaultArgs<ExtArgs>>): Prisma__probation_evaluationsClient<$Result.GetResult<Prisma.$probation_evaluationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the probation_evaluation_revisions model
+   */
+  interface probation_evaluation_revisionsFieldRefs {
+    readonly id: FieldRef<"probation_evaluation_revisions", 'Int'>
+    readonly evaluation_id: FieldRef<"probation_evaluation_revisions", 'Int'>
+    readonly emp_id: FieldRef<"probation_evaluation_revisions", 'String'>
+    readonly supervisor_id: FieldRef<"probation_evaluation_revisions", 'String'>
+    readonly revision_date: FieldRef<"probation_evaluation_revisions", 'DateTime'>
+    readonly return_reason: FieldRef<"probation_evaluation_revisions", 'String'>
+    readonly returned_by: FieldRef<"probation_evaluation_revisions", 'String'>
+    readonly snapshot: FieldRef<"probation_evaluation_revisions", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * probation_evaluation_revisions findUnique
+   */
+  export type probation_evaluation_revisionsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * Filter, which probation_evaluation_revisions to fetch.
+     */
+    where: probation_evaluation_revisionsWhereUniqueInput
+  }
+
+  /**
+   * probation_evaluation_revisions findUniqueOrThrow
+   */
+  export type probation_evaluation_revisionsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * Filter, which probation_evaluation_revisions to fetch.
+     */
+    where: probation_evaluation_revisionsWhereUniqueInput
+  }
+
+  /**
+   * probation_evaluation_revisions findFirst
+   */
+  export type probation_evaluation_revisionsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * Filter, which probation_evaluation_revisions to fetch.
+     */
+    where?: probation_evaluation_revisionsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of probation_evaluation_revisions to fetch.
+     */
+    orderBy?: probation_evaluation_revisionsOrderByWithRelationInput | probation_evaluation_revisionsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for probation_evaluation_revisions.
+     */
+    cursor?: probation_evaluation_revisionsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` probation_evaluation_revisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` probation_evaluation_revisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of probation_evaluation_revisions.
+     */
+    distinct?: Probation_evaluation_revisionsScalarFieldEnum | Probation_evaluation_revisionsScalarFieldEnum[]
+  }
+
+  /**
+   * probation_evaluation_revisions findFirstOrThrow
+   */
+  export type probation_evaluation_revisionsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * Filter, which probation_evaluation_revisions to fetch.
+     */
+    where?: probation_evaluation_revisionsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of probation_evaluation_revisions to fetch.
+     */
+    orderBy?: probation_evaluation_revisionsOrderByWithRelationInput | probation_evaluation_revisionsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for probation_evaluation_revisions.
+     */
+    cursor?: probation_evaluation_revisionsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` probation_evaluation_revisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` probation_evaluation_revisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of probation_evaluation_revisions.
+     */
+    distinct?: Probation_evaluation_revisionsScalarFieldEnum | Probation_evaluation_revisionsScalarFieldEnum[]
+  }
+
+  /**
+   * probation_evaluation_revisions findMany
+   */
+  export type probation_evaluation_revisionsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * Filter, which probation_evaluation_revisions to fetch.
+     */
+    where?: probation_evaluation_revisionsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of probation_evaluation_revisions to fetch.
+     */
+    orderBy?: probation_evaluation_revisionsOrderByWithRelationInput | probation_evaluation_revisionsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing probation_evaluation_revisions.
+     */
+    cursor?: probation_evaluation_revisionsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` probation_evaluation_revisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` probation_evaluation_revisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of probation_evaluation_revisions.
+     */
+    distinct?: Probation_evaluation_revisionsScalarFieldEnum | Probation_evaluation_revisionsScalarFieldEnum[]
+  }
+
+  /**
+   * probation_evaluation_revisions create
+   */
+  export type probation_evaluation_revisionsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a probation_evaluation_revisions.
+     */
+    data: XOR<probation_evaluation_revisionsCreateInput, probation_evaluation_revisionsUncheckedCreateInput>
+  }
+
+  /**
+   * probation_evaluation_revisions createMany
+   */
+  export type probation_evaluation_revisionsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many probation_evaluation_revisions.
+     */
+    data: probation_evaluation_revisionsCreateManyInput | probation_evaluation_revisionsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * probation_evaluation_revisions createManyAndReturn
+   */
+  export type probation_evaluation_revisionsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * The data used to create many probation_evaluation_revisions.
+     */
+    data: probation_evaluation_revisionsCreateManyInput | probation_evaluation_revisionsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * probation_evaluation_revisions update
+   */
+  export type probation_evaluation_revisionsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a probation_evaluation_revisions.
+     */
+    data: XOR<probation_evaluation_revisionsUpdateInput, probation_evaluation_revisionsUncheckedUpdateInput>
+    /**
+     * Choose, which probation_evaluation_revisions to update.
+     */
+    where: probation_evaluation_revisionsWhereUniqueInput
+  }
+
+  /**
+   * probation_evaluation_revisions updateMany
+   */
+  export type probation_evaluation_revisionsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update probation_evaluation_revisions.
+     */
+    data: XOR<probation_evaluation_revisionsUpdateManyMutationInput, probation_evaluation_revisionsUncheckedUpdateManyInput>
+    /**
+     * Filter which probation_evaluation_revisions to update
+     */
+    where?: probation_evaluation_revisionsWhereInput
+    /**
+     * Limit how many probation_evaluation_revisions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * probation_evaluation_revisions updateManyAndReturn
+   */
+  export type probation_evaluation_revisionsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * The data used to update probation_evaluation_revisions.
+     */
+    data: XOR<probation_evaluation_revisionsUpdateManyMutationInput, probation_evaluation_revisionsUncheckedUpdateManyInput>
+    /**
+     * Filter which probation_evaluation_revisions to update
+     */
+    where?: probation_evaluation_revisionsWhereInput
+    /**
+     * Limit how many probation_evaluation_revisions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * probation_evaluation_revisions upsert
+   */
+  export type probation_evaluation_revisionsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the probation_evaluation_revisions to update in case it exists.
+     */
+    where: probation_evaluation_revisionsWhereUniqueInput
+    /**
+     * In case the probation_evaluation_revisions found by the `where` argument doesn't exist, create a new probation_evaluation_revisions with this data.
+     */
+    create: XOR<probation_evaluation_revisionsCreateInput, probation_evaluation_revisionsUncheckedCreateInput>
+    /**
+     * In case the probation_evaluation_revisions was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<probation_evaluation_revisionsUpdateInput, probation_evaluation_revisionsUncheckedUpdateInput>
+  }
+
+  /**
+   * probation_evaluation_revisions delete
+   */
+  export type probation_evaluation_revisionsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+    /**
+     * Filter which probation_evaluation_revisions to delete.
+     */
+    where: probation_evaluation_revisionsWhereUniqueInput
+  }
+
+  /**
+   * probation_evaluation_revisions deleteMany
+   */
+  export type probation_evaluation_revisionsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which probation_evaluation_revisions to delete
+     */
+    where?: probation_evaluation_revisionsWhereInput
+    /**
+     * Limit how many probation_evaluation_revisions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * probation_evaluation_revisions without action
+   */
+  export type probation_evaluation_revisionsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the probation_evaluation_revisions
+     */
+    select?: probation_evaluation_revisionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the probation_evaluation_revisions
+     */
+    omit?: probation_evaluation_revisionsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: probation_evaluation_revisionsInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -186319,7 +187620,8 @@ export namespace Prisma {
     is_sent_to_management: 'is_sent_to_management',
     created_at: 'created_at',
     updated_at: 'updated_at',
-    score_comments: 'score_comments'
+    score_comments: 'score_comments',
+    return_reason: 'return_reason'
   };
 
   export type Probation_evaluationsScalarFieldEnum = (typeof Probation_evaluationsScalarFieldEnum)[keyof typeof Probation_evaluationsScalarFieldEnum]
@@ -187614,7 +188916,6 @@ export namespace Prisma {
     ticketNumber: 'ticketNumber',
     title: 'title',
     description: 'description',
-    category: 'category',
     attachments: 'attachments',
     urgency: 'urgency',
     status: 'status',
@@ -187625,6 +188926,7 @@ export namespace Prisma {
     resolvedAt: 'resolvedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
+    category: 'category',
     sourceModule: 'sourceModule'
   };
 
@@ -187745,6 +189047,20 @@ export namespace Prisma {
   };
 
   export type ExternalApiKeyScalarFieldEnum = (typeof ExternalApiKeyScalarFieldEnum)[keyof typeof ExternalApiKeyScalarFieldEnum]
+
+
+  export const Probation_evaluation_revisionsScalarFieldEnum: {
+    id: 'id',
+    evaluation_id: 'evaluation_id',
+    emp_id: 'emp_id',
+    supervisor_id: 'supervisor_id',
+    revision_date: 'revision_date',
+    return_reason: 'return_reason',
+    returned_by: 'returned_by',
+    snapshot: 'snapshot'
+  };
+
+  export type Probation_evaluation_revisionsScalarFieldEnum = (typeof Probation_evaluation_revisionsScalarFieldEnum)[keyof typeof Probation_evaluation_revisionsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -193913,6 +195229,8 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"probation_evaluations"> | Date | string
     updated_at?: DateTimeFilter<"probation_evaluations"> | Date | string
     score_comments?: JsonNullableFilter<"probation_evaluations">
+    return_reason?: StringNullableFilter<"probation_evaluations"> | string | null
+    probation_evaluation_revisions?: Probation_evaluation_revisionsListRelationFilter
     employees_probation_evaluations_emp_idToemployees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
     employees_probation_evaluations_supervisor_idToemployees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }
@@ -193958,6 +195276,8 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     score_comments?: SortOrderInput | SortOrder
+    return_reason?: SortOrderInput | SortOrder
+    probation_evaluation_revisions?: probation_evaluation_revisionsOrderByRelationAggregateInput
     employees_probation_evaluations_emp_idToemployees?: employeesOrderByWithRelationInput
     employees_probation_evaluations_supervisor_idToemployees?: employeesOrderByWithRelationInput
   }
@@ -194006,6 +195326,8 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"probation_evaluations"> | Date | string
     updated_at?: DateTimeFilter<"probation_evaluations"> | Date | string
     score_comments?: JsonNullableFilter<"probation_evaluations">
+    return_reason?: StringNullableFilter<"probation_evaluations"> | string | null
+    probation_evaluation_revisions?: Probation_evaluation_revisionsListRelationFilter
     employees_probation_evaluations_emp_idToemployees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
     employees_probation_evaluations_supervisor_idToemployees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }, "id">
@@ -194051,6 +195373,7 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     score_comments?: SortOrderInput | SortOrder
+    return_reason?: SortOrderInput | SortOrder
     _count?: probation_evaluationsCountOrderByAggregateInput
     _avg?: probation_evaluationsAvgOrderByAggregateInput
     _max?: probation_evaluationsMaxOrderByAggregateInput
@@ -194102,6 +195425,7 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"probation_evaluations"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"probation_evaluations"> | Date | string
     score_comments?: JsonNullableWithAggregatesFilter<"probation_evaluations">
+    return_reason?: StringNullableWithAggregatesFilter<"probation_evaluations"> | string | null
   }
 
   export type product_borrowingsWhereInput = {
@@ -200836,7 +202160,6 @@ export namespace Prisma {
     ticketNumber?: StringFilter<"SupportTicket"> | string
     title?: StringFilter<"SupportTicket"> | string
     description?: StringFilter<"SupportTicket"> | string
-    category?: StringFilter<"SupportTicket"> | string
     attachments?: StringNullableListFilter<"SupportTicket">
     urgency?: StringFilter<"SupportTicket"> | string
     status?: StringFilter<"SupportTicket"> | string
@@ -200847,6 +202170,7 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
     createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
     updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    category?: StringFilter<"SupportTicket"> | string
     sourceModule?: StringNullableFilter<"SupportTicket"> | string | null
     assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     reporter?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -200859,7 +202183,6 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
-    category?: SortOrder
     attachments?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
@@ -200870,6 +202193,7 @@ export namespace Prisma {
     resolvedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    category?: SortOrder
     sourceModule?: SortOrderInput | SortOrder
     assignee?: UserOrderByWithRelationInput
     reporter?: UserOrderByWithRelationInput
@@ -200885,7 +202209,6 @@ export namespace Prisma {
     NOT?: SupportTicketWhereInput | SupportTicketWhereInput[]
     title?: StringFilter<"SupportTicket"> | string
     description?: StringFilter<"SupportTicket"> | string
-    category?: StringFilter<"SupportTicket"> | string
     attachments?: StringNullableListFilter<"SupportTicket">
     urgency?: StringFilter<"SupportTicket"> | string
     status?: StringFilter<"SupportTicket"> | string
@@ -200896,6 +202219,7 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
     createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
     updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    category?: StringFilter<"SupportTicket"> | string
     sourceModule?: StringNullableFilter<"SupportTicket"> | string | null
     assignee?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     reporter?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -200908,7 +202232,6 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
-    category?: SortOrder
     attachments?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
@@ -200919,6 +202242,7 @@ export namespace Prisma {
     resolvedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    category?: SortOrder
     sourceModule?: SortOrderInput | SortOrder
     _count?: SupportTicketCountOrderByAggregateInput
     _avg?: SupportTicketAvgOrderByAggregateInput
@@ -200935,7 +202259,6 @@ export namespace Prisma {
     ticketNumber?: StringWithAggregatesFilter<"SupportTicket"> | string
     title?: StringWithAggregatesFilter<"SupportTicket"> | string
     description?: StringWithAggregatesFilter<"SupportTicket"> | string
-    category?: StringWithAggregatesFilter<"SupportTicket"> | string
     attachments?: StringNullableListFilter<"SupportTicket">
     urgency?: StringWithAggregatesFilter<"SupportTicket"> | string
     status?: StringWithAggregatesFilter<"SupportTicket"> | string
@@ -200946,6 +202269,7 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableWithAggregatesFilter<"SupportTicket"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
+    category?: StringWithAggregatesFilter<"SupportTicket"> | string
     sourceModule?: StringNullableWithAggregatesFilter<"SupportTicket"> | string | null
   }
 
@@ -201564,6 +202888,78 @@ export namespace Prisma {
     createdBy?: StringNullableWithAggregatesFilter<"ExternalApiKey"> | string | null
     lastUsedAt?: DateTimeNullableWithAggregatesFilter<"ExternalApiKey"> | Date | string | null
     revokedAt?: DateTimeNullableWithAggregatesFilter<"ExternalApiKey"> | Date | string | null
+  }
+
+  export type probation_evaluation_revisionsWhereInput = {
+    AND?: probation_evaluation_revisionsWhereInput | probation_evaluation_revisionsWhereInput[]
+    OR?: probation_evaluation_revisionsWhereInput[]
+    NOT?: probation_evaluation_revisionsWhereInput | probation_evaluation_revisionsWhereInput[]
+    id?: IntFilter<"probation_evaluation_revisions"> | number
+    evaluation_id?: IntFilter<"probation_evaluation_revisions"> | number
+    emp_id?: StringFilter<"probation_evaluation_revisions"> | string
+    supervisor_id?: StringFilter<"probation_evaluation_revisions"> | string
+    revision_date?: DateTimeFilter<"probation_evaluation_revisions"> | Date | string
+    return_reason?: StringNullableFilter<"probation_evaluation_revisions"> | string | null
+    returned_by?: StringNullableFilter<"probation_evaluation_revisions"> | string | null
+    snapshot?: JsonFilter<"probation_evaluation_revisions">
+    probation_evaluations?: XOR<Probation_evaluationsScalarRelationFilter, probation_evaluationsWhereInput>
+  }
+
+  export type probation_evaluation_revisionsOrderByWithRelationInput = {
+    id?: SortOrder
+    evaluation_id?: SortOrder
+    emp_id?: SortOrder
+    supervisor_id?: SortOrder
+    revision_date?: SortOrder
+    return_reason?: SortOrderInput | SortOrder
+    returned_by?: SortOrderInput | SortOrder
+    snapshot?: SortOrder
+    probation_evaluations?: probation_evaluationsOrderByWithRelationInput
+  }
+
+  export type probation_evaluation_revisionsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: probation_evaluation_revisionsWhereInput | probation_evaluation_revisionsWhereInput[]
+    OR?: probation_evaluation_revisionsWhereInput[]
+    NOT?: probation_evaluation_revisionsWhereInput | probation_evaluation_revisionsWhereInput[]
+    evaluation_id?: IntFilter<"probation_evaluation_revisions"> | number
+    emp_id?: StringFilter<"probation_evaluation_revisions"> | string
+    supervisor_id?: StringFilter<"probation_evaluation_revisions"> | string
+    revision_date?: DateTimeFilter<"probation_evaluation_revisions"> | Date | string
+    return_reason?: StringNullableFilter<"probation_evaluation_revisions"> | string | null
+    returned_by?: StringNullableFilter<"probation_evaluation_revisions"> | string | null
+    snapshot?: JsonFilter<"probation_evaluation_revisions">
+    probation_evaluations?: XOR<Probation_evaluationsScalarRelationFilter, probation_evaluationsWhereInput>
+  }, "id">
+
+  export type probation_evaluation_revisionsOrderByWithAggregationInput = {
+    id?: SortOrder
+    evaluation_id?: SortOrder
+    emp_id?: SortOrder
+    supervisor_id?: SortOrder
+    revision_date?: SortOrder
+    return_reason?: SortOrderInput | SortOrder
+    returned_by?: SortOrderInput | SortOrder
+    snapshot?: SortOrder
+    _count?: probation_evaluation_revisionsCountOrderByAggregateInput
+    _avg?: probation_evaluation_revisionsAvgOrderByAggregateInput
+    _max?: probation_evaluation_revisionsMaxOrderByAggregateInput
+    _min?: probation_evaluation_revisionsMinOrderByAggregateInput
+    _sum?: probation_evaluation_revisionsSumOrderByAggregateInput
+  }
+
+  export type probation_evaluation_revisionsScalarWhereWithAggregatesInput = {
+    AND?: probation_evaluation_revisionsScalarWhereWithAggregatesInput | probation_evaluation_revisionsScalarWhereWithAggregatesInput[]
+    OR?: probation_evaluation_revisionsScalarWhereWithAggregatesInput[]
+    NOT?: probation_evaluation_revisionsScalarWhereWithAggregatesInput | probation_evaluation_revisionsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"probation_evaluation_revisions"> | number
+    evaluation_id?: IntWithAggregatesFilter<"probation_evaluation_revisions"> | number
+    emp_id?: StringWithAggregatesFilter<"probation_evaluation_revisions"> | string
+    supervisor_id?: StringWithAggregatesFilter<"probation_evaluation_revisions"> | string
+    revision_date?: DateTimeWithAggregatesFilter<"probation_evaluation_revisions"> | Date | string
+    return_reason?: StringNullableWithAggregatesFilter<"probation_evaluation_revisions"> | string | null
+    returned_by?: StringNullableWithAggregatesFilter<"probation_evaluation_revisions"> | string | null
+    snapshot?: JsonWithAggregatesFilter<"probation_evaluation_revisions">
   }
 
   export type UserCreateInput = {
@@ -208595,6 +209991,8 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsCreateNestedManyWithoutProbation_evaluationsInput
     employees_probation_evaluations_emp_idToemployees: employeesCreateNestedOneWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput
     employees_probation_evaluations_supervisor_idToemployees: employeesCreateNestedOneWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput
   }
@@ -208640,6 +210038,8 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUncheckedCreateNestedManyWithoutProbation_evaluationsInput
   }
 
   export type probation_evaluationsUpdateInput = {
@@ -208680,6 +210080,8 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUpdateManyWithoutProbation_evaluationsNestedInput
     employees_probation_evaluations_emp_idToemployees?: employeesUpdateOneRequiredWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesNestedInput
     employees_probation_evaluations_supervisor_idToemployees?: employeesUpdateOneRequiredWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesNestedInput
   }
@@ -208725,6 +210127,8 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUncheckedUpdateManyWithoutProbation_evaluationsNestedInput
   }
 
   export type probation_evaluationsCreateManyInput = {
@@ -208768,6 +210172,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
   }
 
   export type probation_evaluationsUpdateManyMutationInput = {
@@ -208808,6 +210213,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type probation_evaluationsUncheckedUpdateManyInput = {
@@ -208851,6 +210257,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type product_borrowingsCreateInput = {
@@ -216229,7 +217636,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -216238,6 +217644,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
     reporter: UserCreateNestedOneWithoutReportedTicketsInput
@@ -216250,7 +217657,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -216261,6 +217667,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
     logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
@@ -216271,7 +217678,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -216280,6 +217686,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
     reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
@@ -216292,7 +217699,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -216303,6 +217709,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
     logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
@@ -216313,7 +217720,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -216324,6 +217730,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
   }
 
@@ -216332,7 +217739,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -216341,6 +217747,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -216349,7 +217756,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -216360,6 +217766,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -217016,6 +218423,79 @@ export namespace Prisma {
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type probation_evaluation_revisionsCreateInput = {
+    emp_id: string
+    supervisor_id: string
+    revision_date?: Date | string
+    return_reason?: string | null
+    returned_by?: string | null
+    snapshot: JsonNullValueInput | InputJsonValue
+    probation_evaluations: probation_evaluationsCreateNestedOneWithoutProbation_evaluation_revisionsInput
+  }
+
+  export type probation_evaluation_revisionsUncheckedCreateInput = {
+    id?: number
+    evaluation_id: number
+    emp_id: string
+    supervisor_id: string
+    revision_date?: Date | string
+    return_reason?: string | null
+    returned_by?: string | null
+    snapshot: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsUpdateInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    supervisor_id?: StringFieldUpdateOperationsInput | string
+    revision_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    returned_by?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: JsonNullValueInput | InputJsonValue
+    probation_evaluations?: probation_evaluationsUpdateOneRequiredWithoutProbation_evaluation_revisionsNestedInput
+  }
+
+  export type probation_evaluation_revisionsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    evaluation_id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    supervisor_id?: StringFieldUpdateOperationsInput | string
+    revision_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    returned_by?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsCreateManyInput = {
+    id?: number
+    evaluation_id: number
+    emp_id: string
+    supervisor_id: string
+    revision_date?: Date | string
+    return_reason?: string | null
+    returned_by?: string | null
+    snapshot: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsUpdateManyMutationInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    supervisor_id?: StringFieldUpdateOperationsInput | string
+    revision_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    returned_by?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    evaluation_id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    supervisor_id?: StringFieldUpdateOperationsInput | string
+    revision_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    returned_by?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: JsonNullValueInput | InputJsonValue
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -221681,6 +223161,16 @@ export namespace Prisma {
     approved_hours?: SortOrder
   }
 
+  export type Probation_evaluation_revisionsListRelationFilter = {
+    every?: probation_evaluation_revisionsWhereInput
+    some?: probation_evaluation_revisionsWhereInput
+    none?: probation_evaluation_revisionsWhereInput
+  }
+
+  export type probation_evaluation_revisionsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type probation_evaluationsCountOrderByAggregateInput = {
     id?: SortOrder
     emp_id?: SortOrder
@@ -221722,6 +223212,7 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     score_comments?: SortOrder
+    return_reason?: SortOrder
   }
 
   export type probation_evaluationsAvgOrderByAggregateInput = {
@@ -221791,6 +223282,7 @@ export namespace Prisma {
     is_sent_to_management?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    return_reason?: SortOrder
   }
 
   export type probation_evaluationsMinOrderByAggregateInput = {
@@ -221833,6 +223325,7 @@ export namespace Prisma {
     is_sent_to_management?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    return_reason?: SortOrder
   }
 
   export type probation_evaluationsSumOrderByAggregateInput = {
@@ -226103,7 +227596,6 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
-    category?: SortOrder
     attachments?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
@@ -226114,6 +227606,7 @@ export namespace Prisma {
     resolvedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    category?: SortOrder
     sourceModule?: SortOrder
   }
 
@@ -226126,7 +227619,6 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
-    category?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
     reporterId?: SortOrder
@@ -226136,6 +227628,7 @@ export namespace Prisma {
     resolvedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    category?: SortOrder
     sourceModule?: SortOrder
   }
 
@@ -226144,7 +227637,6 @@ export namespace Prisma {
     ticketNumber?: SortOrder
     title?: SortOrder
     description?: SortOrder
-    category?: SortOrder
     urgency?: SortOrder
     status?: SortOrder
     reporterId?: SortOrder
@@ -226154,6 +227646,7 @@ export namespace Prisma {
     resolvedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    category?: SortOrder
     sourceModule?: SortOrder
   }
 
@@ -226486,6 +227979,52 @@ export namespace Prisma {
     createdBy?: SortOrder
     lastUsedAt?: SortOrder
     revokedAt?: SortOrder
+  }
+
+  export type Probation_evaluationsScalarRelationFilter = {
+    is?: probation_evaluationsWhereInput
+    isNot?: probation_evaluationsWhereInput
+  }
+
+  export type probation_evaluation_revisionsCountOrderByAggregateInput = {
+    id?: SortOrder
+    evaluation_id?: SortOrder
+    emp_id?: SortOrder
+    supervisor_id?: SortOrder
+    revision_date?: SortOrder
+    return_reason?: SortOrder
+    returned_by?: SortOrder
+    snapshot?: SortOrder
+  }
+
+  export type probation_evaluation_revisionsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    evaluation_id?: SortOrder
+  }
+
+  export type probation_evaluation_revisionsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    evaluation_id?: SortOrder
+    emp_id?: SortOrder
+    supervisor_id?: SortOrder
+    revision_date?: SortOrder
+    return_reason?: SortOrder
+    returned_by?: SortOrder
+  }
+
+  export type probation_evaluation_revisionsMinOrderByAggregateInput = {
+    id?: SortOrder
+    evaluation_id?: SortOrder
+    emp_id?: SortOrder
+    supervisor_id?: SortOrder
+    revision_date?: SortOrder
+    return_reason?: SortOrder
+    returned_by?: SortOrder
+  }
+
+  export type probation_evaluation_revisionsSumOrderByAggregateInput = {
+    id?: SortOrder
+    evaluation_id?: SortOrder
   }
 
   export type BDActivityCreateNestedManyWithoutUserInput = {
@@ -232487,6 +234026,13 @@ export namespace Prisma {
     update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutOt_requestsInput, employeesUpdateWithoutOt_requestsInput>, employeesUncheckedUpdateWithoutOt_requestsInput>
   }
 
+  export type probation_evaluation_revisionsCreateNestedManyWithoutProbation_evaluationsInput = {
+    create?: XOR<probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput, probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput> | probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput[] | probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput[]
+    connectOrCreate?: probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput | probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput[]
+    createMany?: probation_evaluation_revisionsCreateManyProbation_evaluationsInputEnvelope
+    connect?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+  }
+
   export type employeesCreateNestedOneWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput = {
     create?: XOR<employeesCreateWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput, employeesUncheckedCreateWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput>
     connectOrCreate?: employeesCreateOrConnectWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput
@@ -232497,6 +234043,27 @@ export namespace Prisma {
     create?: XOR<employeesCreateWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput, employeesUncheckedCreateWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput>
     connectOrCreate?: employeesCreateOrConnectWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput
     connect?: employeesWhereUniqueInput
+  }
+
+  export type probation_evaluation_revisionsUncheckedCreateNestedManyWithoutProbation_evaluationsInput = {
+    create?: XOR<probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput, probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput> | probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput[] | probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput[]
+    connectOrCreate?: probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput | probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput[]
+    createMany?: probation_evaluation_revisionsCreateManyProbation_evaluationsInputEnvelope
+    connect?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+  }
+
+  export type probation_evaluation_revisionsUpdateManyWithoutProbation_evaluationsNestedInput = {
+    create?: XOR<probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput, probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput> | probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput[] | probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput[]
+    connectOrCreate?: probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput | probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput[]
+    upsert?: probation_evaluation_revisionsUpsertWithWhereUniqueWithoutProbation_evaluationsInput | probation_evaluation_revisionsUpsertWithWhereUniqueWithoutProbation_evaluationsInput[]
+    createMany?: probation_evaluation_revisionsCreateManyProbation_evaluationsInputEnvelope
+    set?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+    disconnect?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+    delete?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+    connect?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+    update?: probation_evaluation_revisionsUpdateWithWhereUniqueWithoutProbation_evaluationsInput | probation_evaluation_revisionsUpdateWithWhereUniqueWithoutProbation_evaluationsInput[]
+    updateMany?: probation_evaluation_revisionsUpdateManyWithWhereWithoutProbation_evaluationsInput | probation_evaluation_revisionsUpdateManyWithWhereWithoutProbation_evaluationsInput[]
+    deleteMany?: probation_evaluation_revisionsScalarWhereInput | probation_evaluation_revisionsScalarWhereInput[]
   }
 
   export type employeesUpdateOneRequiredWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesNestedInput = {
@@ -232513,6 +234080,20 @@ export namespace Prisma {
     upsert?: employeesUpsertWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput
     connect?: employeesWhereUniqueInput
     update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput, employeesUpdateWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput>, employeesUncheckedUpdateWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput>
+  }
+
+  export type probation_evaluation_revisionsUncheckedUpdateManyWithoutProbation_evaluationsNestedInput = {
+    create?: XOR<probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput, probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput> | probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput[] | probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput[]
+    connectOrCreate?: probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput | probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput[]
+    upsert?: probation_evaluation_revisionsUpsertWithWhereUniqueWithoutProbation_evaluationsInput | probation_evaluation_revisionsUpsertWithWhereUniqueWithoutProbation_evaluationsInput[]
+    createMany?: probation_evaluation_revisionsCreateManyProbation_evaluationsInputEnvelope
+    set?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+    disconnect?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+    delete?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+    connect?: probation_evaluation_revisionsWhereUniqueInput | probation_evaluation_revisionsWhereUniqueInput[]
+    update?: probation_evaluation_revisionsUpdateWithWhereUniqueWithoutProbation_evaluationsInput | probation_evaluation_revisionsUpdateWithWhereUniqueWithoutProbation_evaluationsInput[]
+    updateMany?: probation_evaluation_revisionsUpdateManyWithWhereWithoutProbation_evaluationsInput | probation_evaluation_revisionsUpdateManyWithWhereWithoutProbation_evaluationsInput[]
+    deleteMany?: probation_evaluation_revisionsScalarWhereInput | probation_evaluation_revisionsScalarWhereInput[]
   }
 
   export type employeesCreateNestedOneWithoutProduct_borrowingsInput = {
@@ -236257,6 +237838,20 @@ export namespace Prisma {
     push?: string | string[]
   }
 
+  export type probation_evaluationsCreateNestedOneWithoutProbation_evaluation_revisionsInput = {
+    create?: XOR<probation_evaluationsCreateWithoutProbation_evaluation_revisionsInput, probation_evaluationsUncheckedCreateWithoutProbation_evaluation_revisionsInput>
+    connectOrCreate?: probation_evaluationsCreateOrConnectWithoutProbation_evaluation_revisionsInput
+    connect?: probation_evaluationsWhereUniqueInput
+  }
+
+  export type probation_evaluationsUpdateOneRequiredWithoutProbation_evaluation_revisionsNestedInput = {
+    create?: XOR<probation_evaluationsCreateWithoutProbation_evaluation_revisionsInput, probation_evaluationsUncheckedCreateWithoutProbation_evaluation_revisionsInput>
+    connectOrCreate?: probation_evaluationsCreateOrConnectWithoutProbation_evaluation_revisionsInput
+    upsert?: probation_evaluationsUpsertWithoutProbation_evaluation_revisionsInput
+    connect?: probation_evaluationsWhereUniqueInput
+    update?: XOR<XOR<probation_evaluationsUpdateToOneWithWhereWithoutProbation_evaluation_revisionsInput, probation_evaluationsUpdateWithoutProbation_evaluation_revisionsInput>, probation_evaluationsUncheckedUpdateWithoutProbation_evaluation_revisionsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -238273,7 +239868,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -238282,6 +239876,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     reporter: UserCreateNestedOneWithoutReportedTicketsInput
     comments?: TicketCommentCreateNestedManyWithoutTicketInput
@@ -238293,7 +239888,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -238303,6 +239897,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
     logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
@@ -238323,7 +239918,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -238332,6 +239926,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
     comments?: TicketCommentCreateNestedManyWithoutTicketInput
@@ -238343,7 +239938,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -238353,6 +239947,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
     logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
@@ -239900,7 +241495,6 @@ export namespace Prisma {
     ticketNumber?: StringFilter<"SupportTicket"> | string
     title?: StringFilter<"SupportTicket"> | string
     description?: StringFilter<"SupportTicket"> | string
-    category?: StringFilter<"SupportTicket"> | string
     attachments?: StringNullableListFilter<"SupportTicket">
     urgency?: StringFilter<"SupportTicket"> | string
     status?: StringFilter<"SupportTicket"> | string
@@ -239911,6 +241505,7 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableFilter<"SupportTicket"> | Date | string | null
     createdAt?: DateTimeFilter<"SupportTicket"> | Date | string
     updatedAt?: DateTimeFilter<"SupportTicket"> | Date | string
+    category?: StringFilter<"SupportTicket"> | string
     sourceModule?: StringNullableFilter<"SupportTicket"> | string | null
   }
 
@@ -255120,6 +256715,8 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsCreateNestedManyWithoutProbation_evaluationsInput
     employees_probation_evaluations_supervisor_idToemployees: employeesCreateNestedOneWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput
   }
 
@@ -255163,6 +256760,8 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUncheckedCreateNestedManyWithoutProbation_evaluationsInput
   }
 
   export type probation_evaluationsCreateOrConnectWithoutEmployees_probation_evaluations_emp_idToemployeesInput = {
@@ -255213,6 +256812,8 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsCreateNestedManyWithoutProbation_evaluationsInput
     employees_probation_evaluations_emp_idToemployees: employeesCreateNestedOneWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput
   }
 
@@ -255256,6 +256857,8 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUncheckedCreateNestedManyWithoutProbation_evaluationsInput
   }
 
   export type probation_evaluationsCreateOrConnectWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput = {
@@ -256866,6 +258469,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"probation_evaluations"> | Date | string
     updated_at?: DateTimeFilter<"probation_evaluations"> | Date | string
     score_comments?: JsonNullableFilter<"probation_evaluations">
+    return_reason?: StringNullableFilter<"probation_evaluations"> | string | null
   }
 
   export type probation_evaluationsUpsertWithWhereUniqueWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput = {
@@ -260274,6 +261878,35 @@ export namespace Prisma {
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
+  export type probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput = {
+    emp_id: string
+    supervisor_id: string
+    revision_date?: Date | string
+    return_reason?: string | null
+    returned_by?: string | null
+    snapshot: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput = {
+    id?: number
+    emp_id: string
+    supervisor_id: string
+    revision_date?: Date | string
+    return_reason?: string | null
+    returned_by?: string | null
+    snapshot: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsCreateOrConnectWithoutProbation_evaluationsInput = {
+    where: probation_evaluation_revisionsWhereUniqueInput
+    create: XOR<probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput, probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput>
+  }
+
+  export type probation_evaluation_revisionsCreateManyProbation_evaluationsInputEnvelope = {
+    data: probation_evaluation_revisionsCreateManyProbation_evaluationsInput | probation_evaluation_revisionsCreateManyProbation_evaluationsInput[]
+    skipDuplicates?: boolean
+  }
+
   export type employeesCreateWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput = {
     emp_id: string
     name: string
@@ -260646,6 +262279,36 @@ export namespace Prisma {
   export type employeesCreateOrConnectWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput = {
     where: employeesWhereUniqueInput
     create: XOR<employeesCreateWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput, employeesUncheckedCreateWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput>
+  }
+
+  export type probation_evaluation_revisionsUpsertWithWhereUniqueWithoutProbation_evaluationsInput = {
+    where: probation_evaluation_revisionsWhereUniqueInput
+    update: XOR<probation_evaluation_revisionsUpdateWithoutProbation_evaluationsInput, probation_evaluation_revisionsUncheckedUpdateWithoutProbation_evaluationsInput>
+    create: XOR<probation_evaluation_revisionsCreateWithoutProbation_evaluationsInput, probation_evaluation_revisionsUncheckedCreateWithoutProbation_evaluationsInput>
+  }
+
+  export type probation_evaluation_revisionsUpdateWithWhereUniqueWithoutProbation_evaluationsInput = {
+    where: probation_evaluation_revisionsWhereUniqueInput
+    data: XOR<probation_evaluation_revisionsUpdateWithoutProbation_evaluationsInput, probation_evaluation_revisionsUncheckedUpdateWithoutProbation_evaluationsInput>
+  }
+
+  export type probation_evaluation_revisionsUpdateManyWithWhereWithoutProbation_evaluationsInput = {
+    where: probation_evaluation_revisionsScalarWhereInput
+    data: XOR<probation_evaluation_revisionsUpdateManyMutationInput, probation_evaluation_revisionsUncheckedUpdateManyWithoutProbation_evaluationsInput>
+  }
+
+  export type probation_evaluation_revisionsScalarWhereInput = {
+    AND?: probation_evaluation_revisionsScalarWhereInput | probation_evaluation_revisionsScalarWhereInput[]
+    OR?: probation_evaluation_revisionsScalarWhereInput[]
+    NOT?: probation_evaluation_revisionsScalarWhereInput | probation_evaluation_revisionsScalarWhereInput[]
+    id?: IntFilter<"probation_evaluation_revisions"> | number
+    evaluation_id?: IntFilter<"probation_evaluation_revisions"> | number
+    emp_id?: StringFilter<"probation_evaluation_revisions"> | string
+    supervisor_id?: StringFilter<"probation_evaluation_revisions"> | string
+    revision_date?: DateTimeFilter<"probation_evaluation_revisions"> | Date | string
+    return_reason?: StringNullableFilter<"probation_evaluation_revisions"> | string | null
+    returned_by?: StringNullableFilter<"probation_evaluation_revisions"> | string | null
+    snapshot?: JsonFilter<"probation_evaluation_revisions">
   }
 
   export type employeesUpsertWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput = {
@@ -283181,7 +284844,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -283190,6 +284852,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
     reporter: UserCreateNestedOneWithoutReportedTicketsInput
@@ -283201,7 +284864,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -283212,6 +284874,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     logs?: TicketLogUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -283354,7 +285017,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -283363,6 +285025,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
     reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
@@ -283374,7 +285037,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -283385,6 +285047,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -283517,7 +285180,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -283526,6 +285188,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     assignee?: UserCreateNestedOneWithoutAssignedTicketsInput
     reporter: UserCreateNestedOneWithoutReportedTicketsInput
@@ -283537,7 +285200,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -283548,6 +285210,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
     comments?: TicketCommentUncheckedCreateNestedManyWithoutTicketInput
   }
@@ -283690,7 +285353,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -283699,6 +285361,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
     reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
@@ -283710,7 +285373,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -283721,6 +285383,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
   }
@@ -285656,6 +287319,196 @@ export namespace Prisma {
     technicianOrders?: OrderUncheckedUpdateManyWithoutAssignedTechniciansNestedInput
   }
 
+  export type probation_evaluationsCreateWithoutProbation_evaluation_revisionsInput = {
+    evaluation_no?: number
+    evaluation_date?: Date | string
+    period_start: Date | string
+    period_end: Date | string
+    score_work_quality?: number
+    score_work_quantity?: number
+    score_dedication?: number
+    score_knowledge?: number
+    score_learning?: number
+    score_obedience?: number
+    score_responsibility?: number
+    score_creativity?: number
+    score_teamwork?: number
+    score_discipline?: number
+    score_tool_maintenance?: number
+    score_participation?: number
+    score_late?: number
+    score_sick_leave?: number
+    score_personal_leave?: number
+    count_late?: number
+    count_sick_leave?: number
+    count_personal_leave?: number
+    count_activity?: number
+    total_score?: number
+    grade?: string | null
+    comment_supervisor?: string | null
+    comment_improvement?: string | null
+    comment_praise?: string | null
+    decision: string
+    salary_adjust_from?: Decimal | DecimalJsLike | number | string | null
+    salary_adjust_to?: Decimal | DecimalJsLike | number | string | null
+    status?: string
+    hr_remark?: string | null
+    is_sent_to_management?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
+    employees_probation_evaluations_emp_idToemployees: employeesCreateNestedOneWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput
+    employees_probation_evaluations_supervisor_idToemployees: employeesCreateNestedOneWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput
+  }
+
+  export type probation_evaluationsUncheckedCreateWithoutProbation_evaluation_revisionsInput = {
+    id?: number
+    emp_id: string
+    supervisor_id: string
+    evaluation_no?: number
+    evaluation_date?: Date | string
+    period_start: Date | string
+    period_end: Date | string
+    score_work_quality?: number
+    score_work_quantity?: number
+    score_dedication?: number
+    score_knowledge?: number
+    score_learning?: number
+    score_obedience?: number
+    score_responsibility?: number
+    score_creativity?: number
+    score_teamwork?: number
+    score_discipline?: number
+    score_tool_maintenance?: number
+    score_participation?: number
+    score_late?: number
+    score_sick_leave?: number
+    score_personal_leave?: number
+    count_late?: number
+    count_sick_leave?: number
+    count_personal_leave?: number
+    count_activity?: number
+    total_score?: number
+    grade?: string | null
+    comment_supervisor?: string | null
+    comment_improvement?: string | null
+    comment_praise?: string | null
+    decision: string
+    salary_adjust_from?: Decimal | DecimalJsLike | number | string | null
+    salary_adjust_to?: Decimal | DecimalJsLike | number | string | null
+    status?: string
+    hr_remark?: string | null
+    is_sent_to_management?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
+  }
+
+  export type probation_evaluationsCreateOrConnectWithoutProbation_evaluation_revisionsInput = {
+    where: probation_evaluationsWhereUniqueInput
+    create: XOR<probation_evaluationsCreateWithoutProbation_evaluation_revisionsInput, probation_evaluationsUncheckedCreateWithoutProbation_evaluation_revisionsInput>
+  }
+
+  export type probation_evaluationsUpsertWithoutProbation_evaluation_revisionsInput = {
+    update: XOR<probation_evaluationsUpdateWithoutProbation_evaluation_revisionsInput, probation_evaluationsUncheckedUpdateWithoutProbation_evaluation_revisionsInput>
+    create: XOR<probation_evaluationsCreateWithoutProbation_evaluation_revisionsInput, probation_evaluationsUncheckedCreateWithoutProbation_evaluation_revisionsInput>
+    where?: probation_evaluationsWhereInput
+  }
+
+  export type probation_evaluationsUpdateToOneWithWhereWithoutProbation_evaluation_revisionsInput = {
+    where?: probation_evaluationsWhereInput
+    data: XOR<probation_evaluationsUpdateWithoutProbation_evaluation_revisionsInput, probation_evaluationsUncheckedUpdateWithoutProbation_evaluation_revisionsInput>
+  }
+
+  export type probation_evaluationsUpdateWithoutProbation_evaluation_revisionsInput = {
+    evaluation_no?: IntFieldUpdateOperationsInput | number
+    evaluation_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_start?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_end?: DateTimeFieldUpdateOperationsInput | Date | string
+    score_work_quality?: IntFieldUpdateOperationsInput | number
+    score_work_quantity?: IntFieldUpdateOperationsInput | number
+    score_dedication?: IntFieldUpdateOperationsInput | number
+    score_knowledge?: IntFieldUpdateOperationsInput | number
+    score_learning?: IntFieldUpdateOperationsInput | number
+    score_obedience?: IntFieldUpdateOperationsInput | number
+    score_responsibility?: IntFieldUpdateOperationsInput | number
+    score_creativity?: IntFieldUpdateOperationsInput | number
+    score_teamwork?: IntFieldUpdateOperationsInput | number
+    score_discipline?: IntFieldUpdateOperationsInput | number
+    score_tool_maintenance?: IntFieldUpdateOperationsInput | number
+    score_participation?: IntFieldUpdateOperationsInput | number
+    score_late?: IntFieldUpdateOperationsInput | number
+    score_sick_leave?: IntFieldUpdateOperationsInput | number
+    score_personal_leave?: IntFieldUpdateOperationsInput | number
+    count_late?: IntFieldUpdateOperationsInput | number
+    count_sick_leave?: IntFieldUpdateOperationsInput | number
+    count_personal_leave?: IntFieldUpdateOperationsInput | number
+    count_activity?: IntFieldUpdateOperationsInput | number
+    total_score?: IntFieldUpdateOperationsInput | number
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    comment_supervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    comment_improvement?: NullableStringFieldUpdateOperationsInput | string | null
+    comment_praise?: NullableStringFieldUpdateOperationsInput | string | null
+    decision?: StringFieldUpdateOperationsInput | string
+    salary_adjust_from?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    salary_adjust_to?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    hr_remark?: NullableStringFieldUpdateOperationsInput | string | null
+    is_sent_to_management?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    employees_probation_evaluations_emp_idToemployees?: employeesUpdateOneRequiredWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesNestedInput
+    employees_probation_evaluations_supervisor_idToemployees?: employeesUpdateOneRequiredWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesNestedInput
+  }
+
+  export type probation_evaluationsUncheckedUpdateWithoutProbation_evaluation_revisionsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    supervisor_id?: StringFieldUpdateOperationsInput | string
+    evaluation_no?: IntFieldUpdateOperationsInput | number
+    evaluation_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_start?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_end?: DateTimeFieldUpdateOperationsInput | Date | string
+    score_work_quality?: IntFieldUpdateOperationsInput | number
+    score_work_quantity?: IntFieldUpdateOperationsInput | number
+    score_dedication?: IntFieldUpdateOperationsInput | number
+    score_knowledge?: IntFieldUpdateOperationsInput | number
+    score_learning?: IntFieldUpdateOperationsInput | number
+    score_obedience?: IntFieldUpdateOperationsInput | number
+    score_responsibility?: IntFieldUpdateOperationsInput | number
+    score_creativity?: IntFieldUpdateOperationsInput | number
+    score_teamwork?: IntFieldUpdateOperationsInput | number
+    score_discipline?: IntFieldUpdateOperationsInput | number
+    score_tool_maintenance?: IntFieldUpdateOperationsInput | number
+    score_participation?: IntFieldUpdateOperationsInput | number
+    score_late?: IntFieldUpdateOperationsInput | number
+    score_sick_leave?: IntFieldUpdateOperationsInput | number
+    score_personal_leave?: IntFieldUpdateOperationsInput | number
+    count_late?: IntFieldUpdateOperationsInput | number
+    count_sick_leave?: IntFieldUpdateOperationsInput | number
+    count_personal_leave?: IntFieldUpdateOperationsInput | number
+    count_activity?: IntFieldUpdateOperationsInput | number
+    total_score?: IntFieldUpdateOperationsInput | number
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    comment_supervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    comment_improvement?: NullableStringFieldUpdateOperationsInput | string | null
+    comment_praise?: NullableStringFieldUpdateOperationsInput | string | null
+    decision?: StringFieldUpdateOperationsInput | string
+    salary_adjust_from?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    salary_adjust_to?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    hr_remark?: NullableStringFieldUpdateOperationsInput | string | null
+    is_sent_to_management?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type BDActivityCreateManyUserInput = {
     id?: string
     projectId: string
@@ -286274,7 +288127,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -286284,6 +288136,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
   }
 
@@ -286292,7 +288145,6 @@ export namespace Prisma {
     ticketNumber: string
     title: string
     description: string
-    category?: string
     attachments?: SupportTicketCreateattachmentsInput | string[]
     urgency?: string
     status?: string
@@ -286302,6 +288154,7 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    category?: string
     sourceModule?: string | null
   }
 
@@ -288346,7 +290199,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -288355,6 +290207,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     reporter?: UserUpdateOneRequiredWithoutReportedTicketsNestedInput
     comments?: TicketCommentUpdateManyWithoutTicketNestedInput
@@ -288366,7 +290219,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -288376,6 +290228,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
     logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
@@ -288386,7 +290239,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -288396,6 +290248,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -288404,7 +290257,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -288413,6 +290265,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     assignee?: UserUpdateOneWithoutAssignedTicketsNestedInput
     comments?: TicketCommentUpdateManyWithoutTicketNestedInput
@@ -288424,7 +290277,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -288434,6 +290286,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
     comments?: TicketCommentUncheckedUpdateManyWithoutTicketNestedInput
     logs?: TicketLogUncheckedUpdateManyWithoutTicketNestedInput
@@ -288444,7 +290297,6 @@ export namespace Prisma {
     ticketNumber?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
     attachments?: SupportTicketUpdateattachmentsInput | string[]
     urgency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -288454,6 +290306,7 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: StringFieldUpdateOperationsInput | string
     sourceModule?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -292728,6 +294581,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
   }
 
   export type probation_evaluationsCreateManyEmployees_probation_evaluations_supervisor_idToemployeesInput = {
@@ -292770,6 +294624,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: string | null
   }
 
   export type product_borrowingsCreateManyEmployeesInput = {
@@ -294343,6 +296198,8 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUpdateManyWithoutProbation_evaluationsNestedInput
     employees_probation_evaluations_supervisor_idToemployees?: employeesUpdateOneRequiredWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesNestedInput
   }
 
@@ -294386,6 +296243,8 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUncheckedUpdateManyWithoutProbation_evaluationsNestedInput
   }
 
   export type probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput = {
@@ -294428,6 +296287,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type probation_evaluationsUpdateWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput = {
@@ -294468,6 +296328,8 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUpdateManyWithoutProbation_evaluationsNestedInput
     employees_probation_evaluations_emp_idToemployees?: employeesUpdateOneRequiredWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesNestedInput
   }
 
@@ -294511,6 +296373,8 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    probation_evaluation_revisions?: probation_evaluation_revisionsUncheckedUpdateManyWithoutProbation_evaluationsNestedInput
   }
 
   export type probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput = {
@@ -294553,6 +296417,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     score_comments?: NullableJsonNullValueInput | InputJsonValue
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type product_borrowingsUpdateWithoutEmployeesInput = {
@@ -295452,6 +297317,45 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
     meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type probation_evaluation_revisionsCreateManyProbation_evaluationsInput = {
+    id?: number
+    emp_id: string
+    supervisor_id: string
+    revision_date?: Date | string
+    return_reason?: string | null
+    returned_by?: string | null
+    snapshot: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsUpdateWithoutProbation_evaluationsInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    supervisor_id?: StringFieldUpdateOperationsInput | string
+    revision_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    returned_by?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsUncheckedUpdateWithoutProbation_evaluationsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    supervisor_id?: StringFieldUpdateOperationsInput | string
+    revision_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    returned_by?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type probation_evaluation_revisionsUncheckedUpdateManyWithoutProbation_evaluationsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    supervisor_id?: StringFieldUpdateOperationsInput | string
+    revision_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    return_reason?: NullableStringFieldUpdateOperationsInput | string | null
+    returned_by?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: JsonNullValueInput | InputJsonValue
   }
 
   export type product_borrowingsCreateManyProductsInput = {

@@ -1104,7 +1104,8 @@ exports.Prisma.Probation_evaluationsScalarFieldEnum = {
   is_sent_to_management: 'is_sent_to_management',
   created_at: 'created_at',
   updated_at: 'updated_at',
-  score_comments: 'score_comments'
+  score_comments: 'score_comments',
+  return_reason: 'return_reason'
 };
 
 exports.Prisma.Product_borrowingsScalarFieldEnum = {
@@ -2168,7 +2169,6 @@ exports.Prisma.SupportTicketScalarFieldEnum = {
   ticketNumber: 'ticketNumber',
   title: 'title',
   description: 'description',
-  category: 'category',
   attachments: 'attachments',
   urgency: 'urgency',
   status: 'status',
@@ -2179,6 +2179,7 @@ exports.Prisma.SupportTicketScalarFieldEnum = {
   resolvedAt: 'resolvedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  category: 'category',
   sourceModule: 'sourceModule'
 };
 
@@ -2272,6 +2273,17 @@ exports.Prisma.ExternalApiKeyScalarFieldEnum = {
   createdBy: 'createdBy',
   lastUsedAt: 'lastUsedAt',
   revokedAt: 'revokedAt'
+};
+
+exports.Prisma.Probation_evaluation_revisionsScalarFieldEnum = {
+  id: 'id',
+  evaluation_id: 'evaluation_id',
+  emp_id: 'emp_id',
+  supervisor_id: 'supervisor_id',
+  revision_date: 'revision_date',
+  return_reason: 'return_reason',
+  returned_by: 'returned_by',
+  snapshot: 'snapshot'
 };
 
 exports.Prisma.SortOrder = {
@@ -2443,7 +2455,8 @@ exports.Prisma.ModelName = {
   BDWorkflowStepTemplate: 'BDWorkflowStepTemplate',
   BDTask: 'BDTask',
   BDActivity: 'BDActivity',
-  ExternalApiKey: 'ExternalApiKey'
+  ExternalApiKey: 'ExternalApiKey',
+  probation_evaluation_revisions: 'probation_evaluation_revisions'
 };
 
 /**
