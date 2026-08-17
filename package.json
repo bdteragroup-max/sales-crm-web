@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate && prisma generate --schema=prisma/tera.prisma"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
