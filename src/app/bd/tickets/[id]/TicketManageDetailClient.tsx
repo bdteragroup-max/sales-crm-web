@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { getTicketById, addComment, updateResolutionPlan, resolveTicket, reassignTicket, convertTicketToProject, convertTicketToTask, updateTicketCategory } from '@/app/actions/tickets';
+import { getTicketById, addComment, updateResolutionPlan, resolveTicket, reassignTicket, convertTicketToProject, convertTicketToTask, updateTicketCategory, addTicketAttachments } from '@/app/actions/tickets';
 import { getAllUsersForBD, getBDWorkTypes, getAllBDProjects } from '@/app/actions/bd';
-import { LifeBuoy, AlertCircle, Clock, CheckCircle2, Activity, MessageSquare, Paperclip, ChevronLeft, Send, Loader2, Save, UserPlus, FolderSync, X } from 'lucide-react';
+import { LifeBuoy, AlertCircle, Clock, CheckCircle2, Activity, MessageSquare, Paperclip, ChevronLeft, Send, Loader2, Save, UserPlus, FolderSync, X, Upload, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
 
@@ -14,6 +14,11 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
   const [commentText, setCommentText] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // HR-side ticket attachment states
+  const [hrAttachFiles, setHrAttachFiles] = useState<File[]>([]);
+  const [isUploadingAttachments, setIsUploadingAttachments] = useState(false);
+  const hrAttachInputRef = useRef<HTMLInputElement>(null);
 
   const [ticketCategory, setTicketCategory] = useState('');
   const [isUpdatingCategory, setIsUpdatingCategory] = useState(false);
@@ -84,6 +89,31 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
       }
     }
     return urls;
+  };
+
+  const handleAddTicketAttachments = async () => {
+    if (hrAttachFiles.length === 0) return;
+    setIsUploadingAttachments(true);
+    try {
+      const urls = await uploadFiles(hrAttachFiles);
+      if (urls.length === 0) {
+        Swal.fire({ title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอัปโหลดไฟล์ได้', icon: 'error', confirmButtonColor: '#dc2626' });
+        return;
+      }
+      const res = await addTicketAttachments(ticketId, urls);
+      if (res.success) {
+        setHrAttachFiles([]);
+        if (hrAttachInputRef.current) hrAttachInputRef.current.value = '';
+        fetchTicket();
+        Swal.fire({ title: 'แนบไฟล์สำเร็จ', icon: 'success', confirmButtonColor: '#dc2626', timer: 1500, showConfirmButton: false });
+      } else {
+        Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error || 'ไม่สามารถแนบไฟล์ได้', icon: 'error', confirmButtonColor: '#dc2626' });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsUploadingAttachments(false);
+    }
   };
 
   const handleAddComment = async (e: React.FormEvent) => {
@@ -384,13 +414,69 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
 
               {ticket.attachments && ticket.attachments.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">ไฟล์แนบจากผู้แจ้ง</h3>
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">ไฟล์แนบ</h3>
                   <div className="flex flex-wrap gap-2">
                     {ticket.attachments.map((url: string, i: number) => (
                       <a key={i} href={url} target="_blank" rel="noreferrer" className="flex items-center bg-white border border-gray-200 rounded p-2 text-sm text-red-600 hover:bg-red-50 transition">
                         <Paperclip className="w-4 h-4 mr-2" /> ไฟล์แนบ {i + 1}
                       </a>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* HR/BD: Add attachments to ticket */}
+              {ticket.status !== 'RESOLVED' && ticket.status !== 'CONVERTED' && (
+                <div className="border border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
+                  <h3 className="text-sm font-semibold text-gray-600 mb-3 flex items-center">
+                    <Upload className="w-4 h-4 mr-2 text-red-500" /> แนบไฟล์เพิ่มเติม (ทีม BD/HR)
+                  </h3>
+                  <div className="flex flex-col gap-3">
+                    <label className="cursor-pointer">
+                      <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm text-gray-700 hover:border-red-400 hover:text-red-600 transition w-fit">
+                        <Paperclip className="w-4 h-4" />
+                        <span>เลือกไฟล์</span>
+                      </div>
+                      <input
+                        type="file"
+                        multiple
+                        className="hidden"
+                        ref={hrAttachInputRef}
+                        accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                        onChange={(e) => {
+                          if (e.target.files) setHrAttachFiles(Array.from(e.target.files));
+                        }}
+                      />
+                    </label>
+
+                    {hrAttachFiles.length > 0 && (
+                      <div className="space-y-1">
+                        {hrAttachFiles.map((f, i) => (
+                          <div key={i} className="flex items-center justify-between bg-white border border-gray-200 rounded px-3 py-1.5 text-sm">
+                            <span className="text-gray-700 truncate max-w-[200px]">{f.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => setHrAttachFiles(prev => prev.filter((_, idx) => idx !== i))}
+                              className="ml-2 text-gray-400 hover:text-red-500 flex-shrink-0"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {hrAttachFiles.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleAddTicketAttachments}
+                        disabled={isUploadingAttachments}
+                        className="flex items-center px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:bg-red-400 w-fit"
+                      >
+                        {isUploadingAttachments ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                        อัปโหลด {hrAttachFiles.length} ไฟล์
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

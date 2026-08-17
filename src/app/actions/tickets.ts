@@ -717,6 +717,46 @@ export async function convertTicketToTask(ticketId: string, taskDetails: { proje
   }
 }
 
+// Add attachments to ticket (BD/HR side)
+export async function addTicketAttachments(ticketId: string, newAttachmentUrls: string[]) {
+  try {
+    const user = await getUser();
+    if (!user) return { success: false, error: "Unauthorized" };
+
+    const isBD = user.role.includes('Business Development') || user.role === 'BD Intern';
+    const isAdmin = ['SUPER_ADMIN', 'ผู้จัดการ', 'admin'].includes(user.role);
+    if (!isBD && !isAdmin) {
+      return { success: false, error: "Unauthorized to add attachments" };
+    }
+
+    const ticket = await prisma.supportTicket.findUnique({ where: { id: ticketId } });
+    if (!ticket) return { success: false, error: "Ticket not found" };
+
+    const existing = (ticket.attachments as string[]) || [];
+    const updated = await prisma.supportTicket.update({
+      where: { id: ticketId },
+      data: {
+        attachments: [...existing, ...newAttachmentUrls],
+        logs: {
+          create: {
+            userId: user.id,
+            action: "แนบไฟล์",
+            details: `แนบไฟล์เพิ่มเติม ${newAttachmentUrls.length} ไฟล์`,
+          },
+        },
+      },
+    });
+
+    revalidatePath(`/bd/tickets/${ticketId}`);
+    revalidatePath(`/support/tickets/${ticketId}`);
+
+    return { success: true, data: updated };
+  } catch (error: any) {
+    console.error("Error adding ticket attachments:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 // Update ticket category
 export async function updateTicketCategory(ticketId: string, category: string) {
   try {

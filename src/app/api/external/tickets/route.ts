@@ -26,7 +26,7 @@ async function validateApiKey(req: NextRequest) {
   prisma.externalApiKey.update({
     where: { id: keyRecord.id },
     data: { lastUsedAt: new Date() },
-  }).catch(() => {})
+  }).catch(() => { })
 
   return { keyRecord }
 }
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
   // Find real user from email
   const user = await prisma.user.findUnique({ where: { email: reporterEmail } })
-  
+
   try {
     const ticket = await createTicketCore({
       reporterId: user ? user.id : null,
@@ -110,6 +110,7 @@ export async function GET(req: NextRequest) {
       category: true,
       createdAt: true,
       updatedAt: true,
+      attachments: true,
       assignee: {
         select: { fullName: true },
       },
