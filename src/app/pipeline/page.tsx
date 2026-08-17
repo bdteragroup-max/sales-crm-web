@@ -47,35 +47,58 @@ export default async function PipelinePage({
 
   let teamMembers: { id: string; fullName: string }[] = []
   if (isSalesManager) {
-    const userBranch = user.employeeSale?.branch;
-    const branchFilter = (userBranch && !isMarketingManager) ? { employeeSale: { branch: userBranch } } : {};
+    if (isMarketingManager) {
+      // Marketing Managers see everyone
+      teamMembers = await prisma.user.findMany({
+        where: {
+          isActive: true,
+          NOT: {
+            OR: [
+              { role: 'อื่นๆ' },
+              { role: { contains: 'accounting' } },
+              { role: { contains: 'บัญชี' } },
+              { role: { contains: 'purchasing' } },
+              { role: { contains: 'จัดซื้อ' } },
+              { role: { contains: 'warehouse' } },
+              { role: { contains: 'คลังสินค้า' } },
+              { role: { contains: 'service' } },
+              { role: { contains: 'บริการ' } }
+            ]
+          }
+        },
+        select: { id: true, fullName: true },
+        orderBy: { fullName: 'asc' }
+      })
+    } else {
+      // Fetch manager's direct subordinates from HR database
+      let subEmpIds: string[] = [];
+      try {
+        const subordinates = await teraDb.employees.findMany({
+          where: { supervisor_id: user.employeeId, is_active: true },
+          select: { emp_id: true }
+        });
+        subEmpIds = subordinates.map((s) => s.emp_id);
+      } catch (err) {
+        console.warn("Failed to fetch subordinates from HR database:", err);
+      }
 
-    teamMembers = await prisma.user.findMany({
-      where: {
-        isActive: true,
-        ...branchFilter,
-        NOT: {
+      teamMembers = await prisma.user.findMany({
+        where: {
+          isActive: true,
           OR: [
-            { role: 'อื่นๆ' },
-            { role: { contains: 'accounting' } },
-            { role: { contains: 'บัญชี' } },
-            { role: { contains: 'purchasing' } },
-            { role: { contains: 'จัดซื้อ' } },
-            { role: { contains: 'warehouse' } },
-            { role: { contains: 'คลังสินค้า' } },
-            { role: { contains: 'service' } },
-            { role: { contains: 'บริการ' } }
+            { employeeId: { in: subEmpIds } },
+            { id: user.id }
           ]
-        }
-      },
-      select: { id: true, fullName: true },
-      orderBy: { fullName: 'asc' }
-    })
+        },
+        select: { id: true, fullName: true },
+        orderBy: { fullName: 'asc' }
+      })
+    }
   } else {
     teamMembers = [{ id: user.id, fullName: user.fullName }]
   }
 
-  // Managers see their branch's records + unassigned; Reps see their own + any unassigned; Non-sales see everything
+  // Managers see their subordinates' records + their own; Reps see their own; Non-sales see everything
   let whereClause: any = {};
   if (isSalesManager) {
     if (isMarketingManager) {
@@ -84,18 +107,16 @@ export default async function PipelinePage({
     } else {
       const userBranch = user.employeeSale?.branch;
       if (userBranch) {
-        // strictly lock to their branch or unassigned items belonging to their branch
+        // strictly lock to their subordinates
         whereClause = {
           OR: [
-            { salesBranch: userBranch },
+            { salespersonId: { in: teamMembers.map(t => t.id) } },
             {
               AND: [
-                { salesBranch: null },
+                { salespersonId: null },
                 {
                   OR: [
-                    { salespersonId: { in: teamMembers.map(t => t.id) } },
-                    { company: { assignedUserId: user.id } },
-                    { company: { assignedUser: { employeeSale: { branch: userBranch } } } }
+                    { company: { assignedUserId: { in: teamMembers.map(t => t.id) } } }
                   ]
                 }
               ]
