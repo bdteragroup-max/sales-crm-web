@@ -20,7 +20,7 @@ export async function createTicketCore(data: {
   // Generate ticket number: TK-YYYYMMDD-NNN
   const date = new Date();
   const dateStr = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
-  
+
   // Find the latest ticket for today to increment the number
   const latestTicket = await prisma.supportTicket.findFirst({
     where: {
@@ -43,7 +43,7 @@ export async function createTicketCore(data: {
   const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, "0")}`;
 
   const urgency = data.urgency || "MEDIUM";
-  
+
   const validCategories = ['BUG', 'FEATURE_REQUEST', 'QUESTION', 'ACCOUNT_ACCESS', 'OTHER'];
   let category = data.category || 'OTHER';
   if (!validCategories.includes(category)) {
@@ -135,13 +135,16 @@ export async function getMyTickets() {
     const user = await getUser();
     if (!user) return { success: false, error: "Unauthorized" };
 
+    const whereClause = user.role === 'SUPER_ADMIN' ? {} : { reporterId: user.id };
+
     const tickets = await prisma.supportTicket.findMany({
-      where: {
-        reporterId: user.id,
-      },
+      where: whereClause,
       include: {
         assignee: {
           select: { fullName: true, id: true },
+        },
+        reporter: {
+          select: { fullName: true, id: true, role: true },
         },
       },
       orderBy: {
@@ -276,7 +279,7 @@ export async function updateResolutionPlan(ticketId: string, resolutionPlan: str
 
     const isNewPlan = existing.resolutionPlan !== resolutionPlan;
     const isNewProgress = existing.progressPercent !== progressPercent;
-    
+
     let details = [];
     if (isNewPlan) details.push("แผนการแก้ไข");
     if (isNewProgress) details.push(`ความคืบหน้าเป็น ${progressPercent}%`);
@@ -315,7 +318,7 @@ export async function updateResolutionPlan(ticketId: string, resolutionPlan: str
 
     revalidatePath(`/bd/tickets/${ticketId}`);
     revalidatePath(`/support/tickets/${ticketId}`);
-    
+
     return { success: true, data: updated };
   } catch (error: any) {
     console.error("Error updating ticket plan:", error);
@@ -447,15 +450,15 @@ export async function getTicketStats() {
       avgHours = (totalMs / resolvedTickets.length) / (1000 * 60 * 60);
     }
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       data: {
         total,
         new: newTickets,
         inProgress,
         resolved,
         avgResolutionHours: avgHours.toFixed(1)
-      } 
+      }
     };
   } catch (error: any) {
     console.error("Error fetching stats:", error);
@@ -514,7 +517,7 @@ export async function getBdWorkloadSummary() {
         },
         OR: [
           { status: { not: "RESOLVED" } },
-          { 
+          {
             status: "RESOLVED",
             resolvedAt: {
               gte: today
@@ -534,11 +537,11 @@ export async function getBdWorkloadSummary() {
     // 4. Calculate stats per BD
     const summary = bdUsers.map(bd => {
       const bdTickets = tickets.filter(t => t.assigneeId === bd.id);
-      
+
       const waiting = bdTickets.filter(t => t.status === "SUBMITTED" || t.status === "ACKNOWLEDGED").length;
       const inProgress = bdTickets.filter(t => t.status === "IN_PROGRESS").length;
       const completedToday = bdTickets.filter(t => t.status === "RESOLVED").length;
-      
+
       const unresolvedTickets = bdTickets.filter(t => t.status !== "RESOLVED");
       const totalUnresolved = unresolvedTickets.length;
       const sumProgress = unresolvedTickets.reduce((acc, t) => acc + (t.progressPercent || 0), 0);

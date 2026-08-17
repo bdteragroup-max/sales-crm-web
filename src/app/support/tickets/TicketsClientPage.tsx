@@ -179,11 +179,10 @@ export default function TicketsClientPage() {
             <button
               key={status}
               onClick={() => setFilterStatus(status)}
-              className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors ${
-                filterStatus === status 
-                  ? 'bg-red-50 text-red-700 font-medium border border-red-200' 
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors ${filterStatus === status
+                ? 'bg-red-50 text-red-700 font-medium border border-red-200'
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                }`}
             >
               {status === 'ALL' && 'ทั้งหมด'}
               {status === 'PENDING' && 'รอดำเนินการ'}
@@ -218,24 +217,27 @@ export default function TicketsClientPage() {
                   </div>
                   <div>{getStatusBadge(ticket.status)}</div>
                 </div>
-                
+
                 <h3 className="text-lg font-medium text-gray-900 mb-2">{ticket.title}</h3>
                 <p className="text-gray-600 text-sm line-clamp-2 mb-4">{ticket.description}</p>
-                
+
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm text-gray-500 gap-3">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                     <span>แจ้งเมื่อ: {new Date(ticket.createdAt).toLocaleDateString('th-TH')}</span>
+                    <span className="flex items-center text-gray-500">
+                      ผู้แจ้ง: {ticket.reporter?.fullName ?? ticket.reporterName ?? 'Unknown'}
+                    </span>
                     {ticket.assignee && (
                       <span className="flex items-center">
                         ผู้รับผิดชอบ: {ticket.assignee.fullName}
                       </span>
                     )}
                   </div>
-                  
+
                   {ticket.status !== 'SUBMITTED' && (
                     <div className="flex items-center gap-2">
                       <div className="w-24 bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className={`h-2 rounded-full ${ticket.progressPercent === 100 ? 'bg-green-500' : 'bg-red-500'}`}
                           style={{ width: `${ticket.progressPercent}%` }}
                         ></div>
@@ -264,7 +266,7 @@ export default function TicketsClientPage() {
                       <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                         แจ้งปัญหาใหม่
                       </h3>
-                      
+
                       {error && (
                         <div className="mt-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
                           {error}
@@ -274,8 +276,8 @@ export default function TicketsClientPage() {
                       <div className="mt-4 space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">หัวข้อปัญหา <span className="text-red-500">*</span></label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             required
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
@@ -283,10 +285,10 @@ export default function TicketsClientPage() {
                             placeholder="เช่น ไม่สามารถอัปโหลดไฟล์ในระบบ PR ได้"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">รายละเอียด <span className="text-red-500">*</span></label>
-                          <textarea 
+                          <textarea
                             required
                             rows={4}
                             value={description}
@@ -298,7 +300,7 @@ export default function TicketsClientPage() {
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">ประเภทปัญหา <span className="text-red-500">*</span></label>
-                          <select 
+                          <select
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-500 focus:border-red-500 mb-4"
@@ -311,7 +313,7 @@ export default function TicketsClientPage() {
                           </select>
 
                           <label className="block text-sm font-medium text-gray-700 mb-1">ระดับความรุนแรง</label>
-                          <select 
+                          <select
                             value={urgency}
                             onChange={(e) => setUrgency(e.target.value)}
                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-500 focus:border-red-500"
@@ -325,8 +327,8 @@ export default function TicketsClientPage() {
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">แนบไฟล์ / รูปภาพ (ถ้ามี)</label>
-                          <input 
-                            type="file" 
+                          <input
+                            type="file"
                             multiple
                             onChange={handleFileChange}
                             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
@@ -337,15 +339,15 @@ export default function TicketsClientPage() {
                   </div>
                 </div>
                 <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={isSubmitting}
                     className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:bg-red-400"
                   >
                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'บันทึกแจ้งปัญหา'}
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setIsModalOpen(false)}
                     disabled={isSubmitting}
                     className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"

@@ -18,7 +18,7 @@ export default function BdTvDisplayClient() {
   // Auto-rotation state
   const [currentPage, setCurrentPage] = useState(0)
   const [currentIssuePage, setCurrentIssuePage] = useState(0)
-  const ITEMS_PER_PAGE = 8 // Adjust based on TV screen size
+  const ITEMS_PER_PAGE = 10 // Increased to accommodate 10 staff members on one screen
   const ISSUES_PER_PAGE = 4 // Auto-rotate issues
 
   const fetchData = async () => {
@@ -171,16 +171,16 @@ export default function BdTvDisplayClient() {
       </header>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 content-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 xl:gap-6 flex-1 content-start">
         {displayedWorkloads.map((bd) => (
           <div key={bd.userId} className="bg-gray-800 rounded-2xl border border-gray-700 flex flex-col shadow-xl overflow-hidden">
             {/* Header: Name */}
-            <div className="flex items-center gap-4 p-4 border-b border-gray-700 bg-gray-800/80">
-              <div className="bg-gray-700 p-2 rounded-xl">
-                <UserCircle2 className="w-6 h-6 text-gray-300" />
+            <div className="flex items-center gap-3 p-3 border-b border-gray-700 bg-gray-800/80">
+              <div className="bg-gray-700 p-1.5 rounded-xl">
+                <UserCircle2 className="w-5 h-5 text-gray-300" />
               </div>
               <div>
-                <h2 className="text-xl font-bold truncate max-w-[250px]" title={bd.name}>{bd.name}</h2>
+                <h2 className="text-lg font-bold truncate max-w-[200px]" title={bd.name}>{bd.name}</h2>
               </div>
             </div>
 
@@ -188,10 +188,10 @@ export default function BdTvDisplayClient() {
             <div className="flex flex-1 divide-x divide-gray-700">
               
               {/* Left Column: Tickets */}
-              <div className="flex-1 p-4 bg-gray-800/40 flex flex-col">
-                <div className="flex items-center gap-2 mb-4 text-purple-400">
-                  <Ticket className="w-5 h-5" />
-                  <h3 className="font-bold text-sm uppercase tracking-wider">Support Tickets</h3>
+              <div className="flex-1 p-3 bg-gray-800/40 flex flex-col">
+                <div className="flex items-center gap-2 mb-3 text-purple-400">
+                  <Ticket className="w-4 h-4" />
+                  <h3 className="font-bold text-xs uppercase tracking-wider">Support Tickets</h3>
                 </div>
                 
                 <div className="space-y-3 mb-6">
@@ -224,10 +224,10 @@ export default function BdTvDisplayClient() {
               </div>
 
               {/* Right Column: Projects */}
-              <div className="flex-1 p-4 bg-gray-900/40 flex flex-col">
-                <div className="flex items-center gap-2 mb-4 text-sky-400">
-                  <FolderKanban className="w-5 h-5" />
-                  <h3 className="font-bold text-sm uppercase tracking-wider">Projects / Tasks</h3>
+              <div className="flex-1 p-3 bg-gray-900/40 flex flex-col">
+                <div className="flex items-center gap-2 mb-3 text-sky-400">
+                  <FolderKanban className="w-4 h-4" />
+                  <h3 className="font-bold text-xs uppercase tracking-wider">Projects / Tasks</h3>
                 </div>
                 
                 <div className="space-y-3 mb-6">
