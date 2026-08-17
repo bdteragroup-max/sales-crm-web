@@ -299,12 +299,20 @@ export default function TicketsManageClient() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       {ticket.status === 'SUBMITTED' ? (
-                        <button
-                          onClick={(e) => handleAccept(e, ticket.id)}
-                          className="inline-flex items-center text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-md transition"
-                        >
-                          รับงาน
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/bd/tickets/${ticket.id}`}
+                            className="inline-flex items-center text-gray-700 hover:text-gray-900 bg-gray-100 px-3 py-1.5 rounded-md hover:bg-gray-200 transition"
+                          >
+                            ดูรายละเอียด
+                          </Link>
+                          <button
+                            onClick={(e) => handleAccept(e, ticket.id)}
+                            className="inline-flex items-center text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-md transition"
+                          >
+                            รับงาน
+                          </button>
+                        </div>
                       ) : (
                         <Link
                           href={`/bd/tickets/${ticket.id}`}

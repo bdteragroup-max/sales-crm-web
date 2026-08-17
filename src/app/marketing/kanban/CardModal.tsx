@@ -150,10 +150,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = async (file: File) => {
     const isVideo = file.type.startsWith('video/');
     const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -210,6 +207,24 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await processFile(file);
     }
   };
 
@@ -301,7 +316,11 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Header */}

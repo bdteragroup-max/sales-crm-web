@@ -145,9 +145,9 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
     if (activeId === overId) return;
 
     // Are we dragging a card?
-    const isActiveCard = active.data.current?.type === 'Card';
-    const isOverCard = over.data.current?.type === 'Card';
-    const isOverList = over.data.current?.type === 'List';
+    const isActiveCard = active.data?.current?.type === 'Card';
+    const isOverCard = over.data?.current?.type === 'Card';
+    const isOverList = over.data?.current?.type === 'List';
 
     if (!isActiveCard) return;
 
@@ -203,7 +203,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
 
     if (activeId === overId) return;
 
-    const isActiveList = active.data.current?.type === 'List';
+    const isActiveList = active.data?.current?.type === 'List';
 
     // Handle List Reordering (omitted API call for brevity in MVP, but state updates)
     if (isActiveList) {
@@ -216,7 +216,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
     }
 
     // Handle Card Reordering
-    const isActiveCard = active.data.current?.type === 'Card';
+    const isActiveCard = active.data?.current?.type === 'Card';
     if (!isActiveCard) return;
 
     // Find final lists
