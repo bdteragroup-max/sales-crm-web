@@ -2606,7 +2606,7 @@ model SupportTicket {
   attachments     String[]        @default([])
   urgency         String          @default("MEDIUM")
   status          String          @default("SUBMITTED")
-  reporterId      String
+  reporterId      String?
   assigneeId      String?
   resolutionPlan  String?
   progressPercent Int             @default(0)
@@ -2615,8 +2615,10 @@ model SupportTicket {
   updatedAt       DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
   category        String          @default("OTHER")
   sourceModule    String?         @default("general")
+  reporterEmail   String?
+  reporterName    String?
   assignee        User?           @relation("TicketAssignee", fields: [assigneeId], references: [id])
-  reporter        User            @relation("TicketReporter", fields: [reporterId], references: [id])
+  reporter        User?           @relation("TicketReporter", fields: [reporterId], references: [id])
   comments        TicketComment[]
   logs            TicketLog[]
 
@@ -2642,12 +2644,12 @@ model TicketComment {
 model TicketLog {
   id        String        @id @default(cuid())
   ticketId  String
-  userId    String
+  userId    String?
   action    String
   details   String?
   createdAt DateTime      @default(now()) @db.Timestamptz(6)
   ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  user      User          @relation(fields: [userId], references: [id])
+  user      User?         @relation(fields: [userId], references: [id])
 
   @@index([ticketId])
 }

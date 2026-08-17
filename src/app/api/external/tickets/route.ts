@@ -3,14 +3,11 @@ import prisma from '@/app/lib/db'
 import { hashApiKey } from '@/lib/apiKey'
 import { createTicketCore } from '@/app/actions/tickets'
 
-export async function POST(req: NextRequest) {
-  // 1. Check API Key
+async function validateApiKey(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const apiKey = authHeader?.replace('Bearer ', '')
 
-  if (!apiKey) {
-    return NextResponse.json({ error: 'Missing API key' }, { status: 401 })
-  }
+  if (!apiKey) return { error: 'Missing API key', status: 401 }
 
   const hashedKey = hashApiKey(apiKey)
   const keyRecord = await prisma.externalApiKey.findUnique({
@@ -18,14 +15,28 @@ export async function POST(req: NextRequest) {
   })
 
   if (!keyRecord || keyRecord.revokedAt) {
-    return NextResponse.json({ error: 'Invalid or revoked API key' }, { status: 401 })
+    return { error: 'Invalid or revoked API key', status: 401 }
   }
 
   if (!keyRecord.scope.includes('ticket:create')) {
-    return NextResponse.json({ error: 'Key does not have permission' }, { status: 403 })
+    return { error: 'Key does not have permission', status: 403 }
   }
 
-  // 2. Parse body
+  // Fire-and-forget update lastUsedAt
+  prisma.externalApiKey.update({
+    where: { id: keyRecord.id },
+    data: { lastUsedAt: new Date() },
+  }).catch(() => {})
+
+  return { keyRecord }
+}
+
+export async function POST(req: NextRequest) {
+  const auth = await validateApiKey(req)
+  if (auth.error) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
   let body: any
   try {
     body = await req.json()
@@ -33,38 +44,76 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { reporterEmail, title, description, category, sourceModule, urgency } = body
+  const { reporterEmail, reporterName, title, description, category, sourceModule, urgency } = body
 
-  if (!reporterEmail || !title || !description) {
-    return NextResponse.json({ error: 'Missing required fields: reporterEmail, title, description' }, { status: 400 })
+  if (!reporterEmail) return NextResponse.json({ error: 'Missing required field: reporterEmail' }, { status: 400 })
+  if (!reporterName) return NextResponse.json({ error: 'Missing required field: reporterName' }, { status: 400 })
+  if (!title) return NextResponse.json({ error: 'Missing required field: title' }, { status: 400 })
+  if (!description) return NextResponse.json({ error: 'Missing required field: description' }, { status: 400 })
+
+  const validCategories = ['BUG', 'FEATURE_REQUEST', 'QUESTION', 'ACCOUNT_ACCESS', 'OTHER'];
+  let validatedCategory = category ?? 'OTHER';
+  if (!validCategories.includes(validatedCategory)) {
+    validatedCategory = 'OTHER';
   }
 
-  // 3. Find real user from email
+  // Find real user from email
   const user = await prisma.user.findUnique({ where: { email: reporterEmail } })
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
-  // 4. Create ticket using shared core logic (gets all logs and notifications)
+  
   try {
     const ticket = await createTicketCore({
-      reporterId: user.id,
+      reporterId: user ? user.id : null,
+      reporterName: user ? undefined : reporterName,
+      reporterEmail: user ? undefined : reporterEmail,
       title,
       description,
-      category: category ?? 'OTHER',
+      category: validatedCategory,
       sourceModule: sourceModule ?? 'general',
       urgency: urgency ?? 'MEDIUM',
     })
-
-    // 5. Update lastUsedAt (fire-and-forget)
-    prisma.externalApiKey.update({
-      where: { id: keyRecord.id },
-      data: { lastUsedAt: new Date() },
-    }).catch(() => {})
 
     return NextResponse.json({ success: true, ticketId: ticket.id }, { status: 201 })
   } catch (error: any) {
     console.error('Error creating external ticket:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
+}
+
+export async function GET(req: NextRequest) {
+  const auth = await validateApiKey(req)
+  if (auth.error) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  const email = req.nextUrl.searchParams.get('email')
+  if (!email) {
+    return NextResponse.json({ error: 'Missing required query parameter: email' }, { status: 400 })
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } })
+
+  const tickets = await prisma.supportTicket.findMany({
+    where: {
+      OR: [
+        ...(user ? [{ reporterId: user.id }] : []),
+        { reporterEmail: email }
+      ]
+    },
+    select: {
+      ticketNumber: true,
+      title: true,
+      status: true,
+      progressPercent: true,
+      resolutionPlan: true,
+      urgency: true,
+      category: true,
+      createdAt: true,
+      updatedAt: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+
+  return NextResponse.json({ success: true, tickets }, { status: 200 })
 }

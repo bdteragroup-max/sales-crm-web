@@ -7,7 +7,9 @@ import { revalidatePath } from "next/cache";
 // 1. Core ticket creation logic (no session required)
 // Used by both the server action and the external API route
 export async function createTicketCore(data: {
-  reporterId: string;
+  reporterId: string | null;
+  reporterName?: string;
+  reporterEmail?: string;
   title: string;
   description: string;
   category?: string;
@@ -41,6 +43,12 @@ export async function createTicketCore(data: {
   const ticketNumber = `TK-${dateStr}-${String(nextNum).padStart(3, "0")}`;
 
   const urgency = data.urgency || "MEDIUM";
+  
+  const validCategories = ['BUG', 'FEATURE_REQUEST', 'QUESTION', 'ACCOUNT_ACCESS', 'OTHER'];
+  let category = data.category || 'OTHER';
+  if (!validCategories.includes(category)) {
+    category = 'OTHER';
+  }
 
   // Create ticket and initial log
   const ticket = await prisma.supportTicket.create({
@@ -48,15 +56,17 @@ export async function createTicketCore(data: {
       ticketNumber,
       title: data.title,
       description: data.description,
-      category: data.category || 'OTHER',
+      category,
       urgency,
       attachments: data.attachments || [],
       reporterId: data.reporterId,
+      reporterName: data.reporterId ? null : data.reporterName,
+      reporterEmail: data.reporterId ? null : data.reporterEmail,
       sourceModule: data.sourceModule || 'general',
       status: "SUBMITTED",
       logs: {
         create: {
-          userId: data.reporterId,
+          userId: data.reporterId, // if null, it creates an anonymous log
           action: "สร้างรายการแจ้งปัญหา",
           details: `ระดับความสำคัญ: ${urgency}`,
         },
@@ -232,15 +242,17 @@ export async function acceptTicket(ticketId: string) {
     });
 
     // Notify reporter
-    await prisma.notification.create({
-      data: {
-        userId: existing.reporterId,
-        title: "ปัญหาของคุณได้รับการรับทราบแล้ว",
-        message: `ทีมงานรับเรื่อง ${existing.ticketNumber} ของคุณแล้ว`,
-        type: "SUPPORT_TICKET",
-        linkUrl: `/support/tickets/${existing.id}`,
-      },
-    });
+    if (existing.reporterId) {
+      await prisma.notification.create({
+        data: {
+          userId: existing.reporterId,
+          title: "ปัญหาของคุณได้รับการรับทราบแล้ว",
+          message: `ทีมงานรับเรื่อง ${existing.ticketNumber} ของคุณแล้ว`,
+          type: "SUPPORT_TICKET",
+          linkUrl: `/support/tickets/${existing.id}`,
+        },
+      });
+    }
 
     revalidatePath(`/bd/tickets/${ticketId}`);
     revalidatePath(`/support/tickets/${ticketId}`);
@@ -289,15 +301,17 @@ export async function updateResolutionPlan(ticketId: string, resolutionPlan: str
     });
 
     // Notify reporter
-    await prisma.notification.create({
-      data: {
-        userId: existing.reporterId,
-        title: "อัปเดตความคืบหน้าปัญหา",
-        message: `ปัญหา ${existing.ticketNumber} มีการอัปเดตความคืบหน้า: ${progressPercent}%`,
-        type: "SUPPORT_TICKET",
-        linkUrl: `/support/tickets/${existing.id}`,
-      },
-    });
+    if (existing.reporterId) {
+      await prisma.notification.create({
+        data: {
+          userId: existing.reporterId,
+          title: "อัปเดตความคืบหน้าปัญหา",
+          message: `ปัญหา ${existing.ticketNumber} มีการอัปเดตความคืบหน้า: ${progressPercent}%`,
+          type: "SUPPORT_TICKET",
+          linkUrl: `/support/tickets/${existing.id}`,
+        },
+      });
+    }
 
     revalidatePath(`/bd/tickets/${ticketId}`);
     revalidatePath(`/support/tickets/${ticketId}`);
@@ -567,7 +581,7 @@ export async function convertTicketToProject(ticketId: string, projectDetails: {
         objective: projectDetails.objective,
         workTypeId: projectDetails.workTypeId,
         urgency: projectDetails.urgency,
-        requesterId: ticket.reporterId,
+        requesterId: ticket.reporterId || user.id,
         ownerId: user.id,
         supportTicketId: ticketId,
         status: 'PENDING_REVIEW'

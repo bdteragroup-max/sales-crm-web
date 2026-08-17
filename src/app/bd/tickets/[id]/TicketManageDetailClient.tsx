@@ -14,15 +14,15 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
   const [commentText, setCommentText] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const [ticketCategory, setTicketCategory] = useState('');
   const [isUpdatingCategory, setIsUpdatingCategory] = useState(false);
-  
+
   // BD specific states
   const [resolutionPlan, setResolutionPlan] = useState('');
   const [progressPercent, setProgressPercent] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   // Reassign states
   const [showReassign, setShowReassign] = useState(false);
   const [bdUsers, setBdUsers] = useState<any[]>([]);
@@ -34,7 +34,7 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
   const [convertType, setConvertType] = useState<'PROJECT' | 'TASK'>('PROJECT');
   const [workTypes, setWorkTypes] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
-  
+
   const [projectDetails, setProjectDetails] = useState({ name: '', objective: '', workTypeId: '', urgency: 'Normal' });
   const [taskDetails, setTaskDetails] = useState({ projectId: '', name: '' });
   const [isConverting, setIsConverting] = useState(false);
@@ -198,7 +198,7 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
     setShowConvertModal(true);
     setProjectDetails(prev => ({ ...prev, name: ticket.title, objective: ticket.description }));
     setTaskDetails(prev => ({ ...prev, name: ticket.title }));
-    
+
     // Fetch options if not fetched
     if (workTypes.length === 0) {
       const wtRes = await getBDWorkTypes();
@@ -465,7 +465,7 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                 <MessageSquare className="w-5 h-5 mr-2 text-red-600" /> สนทนา / ถาม-ตอบ
               </h3>
             </div>
-            
+
             <div className="p-6 space-y-6 max-h-[500px] overflow-y-auto">
               {ticket.comments.length === 0 ? (
                 <div className="text-center text-gray-500 py-8 italic">ยังไม่มีการสนทนาในรายการนี้</div>
@@ -477,7 +477,7 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                       <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${isMine ? 'bg-red-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none'}`}>
                         {!isMine && <div className="text-xs font-semibold text-red-600 mb-1">{c.user.fullName} ({c.user.role})</div>}
                         <div className="whitespace-pre-wrap text-sm">{c.message}</div>
-                        
+
                         {c.attachments && c.attachments.length > 0 && (
                           <div className="mt-2 space-y-1">
                             {c.attachments.map((url: string, i: number) => (
@@ -518,10 +518,10 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                   <div className="flex items-center gap-2">
                     <label className="cursor-pointer flex items-center text-sm text-gray-600 hover:text-red-600">
                       <Paperclip className="w-4 h-4 mr-1" /> แนบไฟล์รูปภาพ/เอกสาร
-                      <input 
-                        type="file" 
-                        multiple 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        multiple
+                        className="hidden"
                         ref={fileInputRef}
                         onChange={(e) => {
                           if (e.target.files) {
@@ -546,11 +546,18 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">ข้อมูลผู้แจ้ง</h3>
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-red-100 text-red-700 rounded-full flex items-center justify-center font-bold">
-                {ticket.reporter.fullName.charAt(0)}
+                {(ticket.reporter?.fullName ?? ticket.reporterName ?? 'U').charAt(0)}
               </div>
               <div>
-                <div className="text-sm text-gray-900 font-medium">{ticket.reporter.fullName}</div>
-                <div className="text-xs text-gray-500">{ticket.reporter.role}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm text-gray-900 font-medium">{ticket.reporter?.fullName ?? ticket.reporterName ?? 'Unknown'}</div>
+                  {!ticket.reporterId && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800 border border-purple-200" title="Reported from external source (no CRM account)">
+                      External
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500">{ticket.reporter?.role ?? ticket.reporterEmail ?? 'No Role'}</div>
                 <div className="text-xs text-gray-400 mt-1">{new Date(ticket.createdAt).toLocaleString('th-TH')}</div>
               </div>
             </div>
@@ -604,7 +611,7 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                   </time>
                   <h3 className="text-sm font-semibold text-gray-900">{log.action}</h3>
                   {log.details && <p className="text-xs text-gray-500 mt-0.5">{log.details}</p>}
-                  <p className="text-xs text-gray-400 mt-1">โดย {log.user.fullName}</p>
+                  <p className="text-xs text-gray-400 mt-1">โดย {log.user?.fullName ?? 'System / External'}</p>
                 </div>
               ))}
             </div>
@@ -625,25 +632,25 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto">
               <div className="flex gap-4 mb-6">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="radio" 
-                    name="convertType" 
-                    checked={convertType === 'PROJECT'} 
-                    onChange={() => setConvertType('PROJECT')} 
+                  <input
+                    type="radio"
+                    name="convertType"
+                    checked={convertType === 'PROJECT'}
+                    onChange={() => setConvertType('PROJECT')}
                     className="w-4 h-4 text-purple-600 focus:ring-purple-500"
                   />
                   <span className="font-medium text-gray-900">สร้างเป็น Project ใหม่</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="radio" 
-                    name="convertType" 
-                    checked={convertType === 'TASK'} 
-                    onChange={() => setConvertType('TASK')} 
+                  <input
+                    type="radio"
+                    name="convertType"
+                    checked={convertType === 'TASK'}
+                    onChange={() => setConvertType('TASK')}
                     className="w-4 h-4 text-purple-600 focus:ring-purple-500"
                   />
                   <span className="font-medium text-gray-900">เพิ่มเป็น Task ย่อยในโปรเจกต์เดิม</span>
@@ -654,26 +661,26 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อโปรเจกต์</label>
-                    <input 
-                      type="text" 
-                      value={projectDetails.name} 
-                      onChange={e => setProjectDetails({...projectDetails, name: e.target.value})}
+                    <input
+                      type="text"
+                      value={projectDetails.name}
+                      onChange={e => setProjectDetails({ ...projectDetails, name: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">รายละเอียด / วัตถุประสงค์</label>
-                    <textarea 
-                      value={projectDetails.objective} 
-                      onChange={e => setProjectDetails({...projectDetails, objective: e.target.value})}
+                    <textarea
+                      value={projectDetails.objective}
+                      onChange={e => setProjectDetails({ ...projectDetails, objective: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg p-2 h-24 focus:ring-purple-500 focus:border-purple-500 resize-none"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">ประเภทงาน (Work Type)</label>
-                    <select 
-                      value={projectDetails.workTypeId} 
-                      onChange={e => setProjectDetails({...projectDetails, workTypeId: e.target.value})}
+                    <select
+                      value={projectDetails.workTypeId}
+                      onChange={e => setProjectDetails({ ...projectDetails, workTypeId: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
                     >
                       <option value="">-- เลือกประเภทงาน --</option>
@@ -684,9 +691,9 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">ความเร่งด่วน</label>
-                    <select 
-                      value={projectDetails.urgency} 
-                      onChange={e => setProjectDetails({...projectDetails, urgency: e.target.value})}
+                    <select
+                      value={projectDetails.urgency}
+                      onChange={e => setProjectDetails({ ...projectDetails, urgency: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
                     >
                       <option value="Normal">Normal (ปกติ)</option>
@@ -699,9 +706,9 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">เลือกโปรเจกต์เป้าหมาย</label>
-                    <select 
-                      value={taskDetails.projectId} 
-                      onChange={e => setTaskDetails({...taskDetails, projectId: e.target.value})}
+                    <select
+                      value={taskDetails.projectId}
+                      onChange={e => setTaskDetails({ ...taskDetails, projectId: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
                     >
                       <option value="">-- เลือกโปรเจกต์ --</option>
@@ -712,25 +719,25 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">ชื่องาน (Task Name)</label>
-                    <input 
-                      type="text" 
-                      value={taskDetails.name} 
-                      onChange={e => setTaskDetails({...taskDetails, name: e.target.value})}
+                    <input
+                      type="text"
+                      value={taskDetails.name}
+                      onChange={e => setTaskDetails({ ...taskDetails, name: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500"
                     />
                   </div>
                 </div>
               )}
             </div>
-            
+
             <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-              <button 
+              <button
                 onClick={() => setShowConvertModal(false)}
                 className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
               >
                 ยกเลิก
               </button>
-              <button 
+              <button
                 onClick={handleConvert}
                 disabled={isConverting || (convertType === 'PROJECT' && (!projectDetails.name || !projectDetails.workTypeId)) || (convertType === 'TASK' && (!taskDetails.name || !taskDetails.projectId))}
                 className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-purple-300 flex items-center"
