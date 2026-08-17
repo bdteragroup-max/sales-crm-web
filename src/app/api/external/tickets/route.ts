@@ -100,6 +100,7 @@ export async function GET(req: NextRequest) {
       ]
     },
     select: {
+      id: true,
       ticketNumber: true,
       title: true,
       status: true,
@@ -108,12 +109,20 @@ export async function GET(req: NextRequest) {
       urgency: true,
       category: true,
       createdAt: true,
-      updatedAt: true
+      updatedAt: true,
+      assignee: {
+        select: { fullName: true },
+      },
     },
     orderBy: {
       createdAt: 'desc'
     }
   })
 
-  return NextResponse.json({ success: true, tickets }, { status: 200 })
+  const mappedTickets = tickets.map(t => ({
+    ...t,
+    assignee: t.assignee ? { name: t.assignee.fullName } : null
+  }))
+
+  return NextResponse.json({ success: true, tickets: mappedTickets }, { status: 200 })
 }
