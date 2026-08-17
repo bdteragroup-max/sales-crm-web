@@ -121,6 +121,8 @@ export async function GET(req: NextRequest) {
 
   const mappedTickets = tickets.map(t => ({
     ...t,
+    progress: t.progressPercent,
+    solutionPlan: t.resolutionPlan,
     assignee: t.assignee ? { name: t.assignee.fullName } : null
   }))
 
