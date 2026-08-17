@@ -28,11 +28,13 @@ async function validateApiKey(req: NextRequest) {
   return { keyRecord }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { ticketId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ ticketId: string }> }) {
+  const { ticketId } = await params
+
   const auth = await validateApiKey(req)
   if (auth.error) return NextResponse.json({ error: auth.error }, { status: (auth as any).status })
 
-  const ticket = await prisma.supportTicket.findUnique({ where: { id: params.ticketId }, select: { id: true } })
+  const ticket = await prisma.supportTicket.findUnique({ where: { id: ticketId }, select: { id: true } })
   if (!ticket) return NextResponse.json({ error: 'Ticket not found' }, { status: 404 })
 
   let formData: FormData
@@ -52,7 +54,7 @@ export async function POST(req: NextRequest, { params }: { params: { ticketId: s
   const buffer = Buffer.from(arrayBuffer)
   const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-  const storagePath = `tickets/${params.ticketId}/${uniqueSuffix}-${safeName}`
+  const storagePath = `tickets/${ticketId}/${uniqueSuffix}-${safeName}`
 
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from('uploadsService')
@@ -66,7 +68,7 @@ export async function POST(req: NextRequest, { params }: { params: { ticketId: s
   const { data: { publicUrl } } = supabase.storage.from('uploadsService').getPublicUrl(uploadData.path)
 
   await prisma.supportTicket.update({
-    where: { id: params.ticketId },
+    where: { id: ticketId },
     data: { attachments: { push: publicUrl } },
   })
 
