@@ -388,8 +388,12 @@ export async function updateBDProject(id: string, data: {
 
     // Resolve associated support ticket if the project is completed
     if (data.status === 'COMPLETED' && project.supportTicketId) {
-      await prisma.supportTicket.updateMany({
-        where: { id: project.supportTicketId, status: { not: 'RESOLVED' } },
+      const user = await getUser();
+
+    const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: project.supportTicketId } });
+    if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
+      await prisma.supportTicket.update({
+        where: { id: project.supportTicketId },
         data: {
           status: 'RESOLVED',
           progressPercent: 100,
@@ -397,6 +401,77 @@ export async function updateBDProject(id: string, data: {
           resolvedAt: new Date()
         }
       });
+
+      await prisma.ticketLog.create({
+        data: {
+          ticketId: project.supportTicketId,
+          userId: user ? user.id : 'SYSTEM',
+          action: 'RESOLVED',
+          details: 'ปิดงานอัตโนมัติจาก BD Kanban'
+        }
+      });
+
+      if (ticketToResolve.reporterId) {
+        await prisma.notification.create({
+          data: {
+            userId: ticketToResolve.reporterId,
+            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+            message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+            type: 'SUPPORT_TICKET',
+            linkUrl: `/support/tickets/${ticketToResolve.id}`,
+          }
+        });
+      }
+    }
+
+    }
+
+    // Also resolve any tickets attached to the tasks within this project
+    if (data.status === 'COMPLETED') {
+      const tasksWithTickets = await prisma.bDTask.findMany({
+        where: { projectId: id, supportTicketId: { not: null } },
+        select: { supportTicketId: true }
+      });
+      const user = await getUser();
+      for (const t of tasksWithTickets) {
+        if (t.supportTicketId) {
+
+    const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: t.supportTicketId } });
+    if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
+      await prisma.supportTicket.update({
+        where: { id: t.supportTicketId },
+        data: {
+          status: 'RESOLVED',
+          progressPercent: 100,
+          resolutionPlan: 'งานย่อยของโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
+          resolvedAt: new Date()
+        }
+      });
+
+      await prisma.ticketLog.create({
+        data: {
+          ticketId: t.supportTicketId,
+          userId: user ? user.id : 'SYSTEM',
+          action: 'RESOLVED',
+          details: 'ปิดงานอัตโนมัติจาก BD Kanban'
+        }
+      });
+
+      if (ticketToResolve.reporterId) {
+        await prisma.notification.create({
+          data: {
+            userId: ticketToResolve.reporterId,
+            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+            message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+            type: 'SUPPORT_TICKET',
+            linkUrl: `/support/tickets/${ticketToResolve.id}`,
+          }
+        });
+      }
+    }
+
+        }
+      }
     }
 
     return { success: true, data: project };
@@ -505,8 +580,11 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
     });
 
     if (status === 'COMPLETED' && task.supportTicketId) {
-      await prisma.supportTicket.updateMany({
-        where: { id: task.supportTicketId, status: { not: 'RESOLVED' } },
+
+    const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: task.supportTicketId } });
+    if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
+      await prisma.supportTicket.update({
+        where: { id: task.supportTicketId },
         data: {
           status: 'RESOLVED',
           progressPercent: 100,
@@ -514,6 +592,29 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
           resolvedAt: new Date()
         }
       });
+
+      await prisma.ticketLog.create({
+        data: {
+          ticketId: task.supportTicketId,
+          userId: user ? user.id : 'SYSTEM',
+          action: 'RESOLVED',
+          details: 'ปิดงานอัตโนมัติจาก BD Task'
+        }
+      });
+
+      if (ticketToResolve.reporterId) {
+        await prisma.notification.create({
+          data: {
+            userId: ticketToResolve.reporterId,
+            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+            message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+            type: 'SUPPORT_TICKET',
+            linkUrl: `/support/tickets/${ticketToResolve.id}`,
+          }
+        });
+      }
+    }
+
     }
 
     if (status === 'COMPLETED' || status === 'SKIPPED') {
@@ -537,15 +638,41 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
             });
             
             if (project.supportTicketId) {
-              await prisma.supportTicket.updateMany({
-                where: { id: project.supportTicketId, status: { not: 'RESOLVED' } },
-                data: {
-                  status: 'RESOLVED',
-                  progressPercent: 100,
-                  resolutionPlan: 'งานโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
-                  resolvedAt: new Date()
-                }
-              });
+
+    const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: project.supportTicketId } });
+    if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
+      await prisma.supportTicket.update({
+        where: { id: project.supportTicketId },
+        data: {
+          status: 'RESOLVED',
+          progressPercent: 100,
+          resolutionPlan: 'งานโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
+          resolvedAt: new Date()
+        }
+      });
+
+      await prisma.ticketLog.create({
+        data: {
+          ticketId: project.supportTicketId,
+          userId: user ? user.id : 'SYSTEM',
+          action: 'RESOLVED',
+          details: 'ปิดงานอัตโนมัติจาก BD Kanban'
+        }
+      });
+
+      if (ticketToResolve.reporterId) {
+        await prisma.notification.create({
+          data: {
+            userId: ticketToResolve.reporterId,
+            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+            message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+            type: 'SUPPORT_TICKET',
+            linkUrl: `/support/tickets/${ticketToResolve.id}`,
+          }
+        });
+      }
+    }
+
             }
           }
         }
