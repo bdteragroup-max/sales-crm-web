@@ -23,6 +23,8 @@ import {
 import { Loader2, Plus, KanbanSquare, PanelRightClose, PanelRightOpen, Filter, Activity, X, Check } from 'lucide-react';
 import KanbanList from '@/app/marketing/kanban/KanbanList';
 import CardModal from '@/app/marketing/kanban/CardModal';
+import CalendarViewClient from '@/app/marketing/kanban/CalendarViewClient';
+import { Calendar as CalendarIcon } from 'lucide-react';
 
 // Types based on Prisma schema
 export type TKanbanCard = {
@@ -43,6 +45,8 @@ export type TKanbanCard = {
   activityLogs: any[];
   isCompleted?: boolean;
   salespersonId?: string | null;
+  scheduledPostDate?: string | null;
+  postingChannels?: string[];
 };
 
 export type TKanbanList = {
@@ -59,6 +63,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
   const [lists, setLists] = useState<TKanbanList[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewType, setViewType] = useState<'board' | 'calendar'>('board');
 
   const [activeCard, setActiveCard] = useState<TKanbanCard | null>(null);
   const [activeList, setActiveList] = useState<TKanbanList | null>(null);
@@ -476,8 +481,23 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
           <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-[#ff2301]">
             <KanbanSquare size={20} strokeWidth={2.5} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex items-center gap-4">
             <h1 className="font-bold text-base md:text-lg text-gray-900 tracking-tight truncate">{board?.name || 'กระดานการตลาด (Marketing Board)'}</h1>
+            
+            <div className="hidden sm:flex bg-gray-100 p-1 rounded-xl items-center">
+              <button 
+                onClick={() => setViewType('board')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${viewType === 'board' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                <KanbanSquare size={16} /> บอร์ด
+              </button>
+              <button 
+                onClick={() => setViewType('calendar')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${viewType === 'calendar' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                <CalendarIcon size={16} /> ปฏิทิน
+              </button>
+            </div>
             <p className="text-[10px] md:text-xs text-gray-500 font-medium truncate">ระบบจัดการงาน (Task Management System)</p>
           </div>
         </div>
@@ -491,88 +511,98 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
       </header>
 
       <div className="flex-1 flex min-h-0 overflow-hidden relative">
-        <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 custom-scrollbar transition-all duration-300">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-          >
-            <div className="flex gap-6 h-full items-start">
-              <SortableContext items={lists.map(l => l.id)} strategy={horizontalListSortingStrategy}>
-                {lists.map(list => {
-                  const filteredList = {
-                    ...list,
-                    cards: list.cards.filter(card => {
-                      if (!showCompleted && card.isCompleted) return false;
-                      if (filterAssignee && card.assignedToId !== filterAssignee && !(card.engineeringReviewers || []).includes(filterAssignee)) return false;
-                      // Mock label filter for revisionStatus
-                      if (filterLabel === 'needs_revision' && card.revisionStatus !== 'needs_revision') return false;
-                      if (filterLabel === 'pending_review' && card.revisionStatus !== 'pending_review') return false;
-                      return true;
-                    })
-                  };
-                  return (
-                    <KanbanList
-                      key={filteredList.id}
-                      list={filteredList}
-                      users={users}
-                      onAddCard={handleAddCard}
-                      onCardClick={(card: TKanbanCard) => setEditingCard(card)}
-                      onUpdateList={handleUpdateList}
-                      onDeleteList={(id: string) => setListToDelete(lists.find(l => l.id === id) || null)}
-                      onCompleteCard={handleCompleteCard}
-                    />
-                  );
-                })}
-              </SortableContext>
+        {viewType === 'calendar' ? (
+          <CalendarViewClient 
+            boardId={board?.id} 
+            users={users} 
+            lists={lists} 
+            currentUser={currentUser} 
+            onUpdateCard={handleCardUpdate} 
+          />
+        ) : (
+          <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 custom-scrollbar transition-all duration-300">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragEnd={handleDragEnd}
+            >
+              <div className="flex gap-6 h-full items-start">
+                <SortableContext items={lists.map(l => l.id)} strategy={horizontalListSortingStrategy}>
+                  {lists.map(list => {
+                    const filteredList = {
+                      ...list,
+                      cards: list.cards.filter(card => {
+                        if (!showCompleted && card.isCompleted) return false;
+                        if (filterAssignee && card.assignedToId !== filterAssignee && !(card.engineeringReviewers || []).includes(filterAssignee)) return false;
+                        // Mock label filter for revisionStatus
+                        if (filterLabel === 'needs_revision' && card.revisionStatus !== 'needs_revision') return false;
+                        if (filterLabel === 'pending_review' && card.revisionStatus !== 'pending_review') return false;
+                        return true;
+                      })
+                    };
+                    return (
+                      <KanbanList
+                        key={filteredList.id}
+                        list={filteredList}
+                        users={users}
+                        onAddCard={handleAddCard}
+                        onCardClick={(card: TKanbanCard) => setEditingCard(card)}
+                        onUpdateList={handleUpdateList}
+                        onDeleteList={(id: string) => setListToDelete(lists.find(l => l.id === id) || null)}
+                        onCompleteCard={handleCompleteCard}
+                      />
+                    );
+                  })}
+                </SortableContext>
 
-              {/* Add List Button / Form */}
-              {isAddingList ? (
-                <div className="flex-shrink-0 w-72 bg-gray-100 rounded-2xl p-3 shadow-sm border border-gray-200 flex flex-col gap-2">
-                  <input
-                    type="text"
-                    autoFocus
-                    value={newListTitle}
-                    onChange={(e) => setNewListTitle(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleAddList();
-                      if (e.key === 'Escape') setIsAddingList(false);
-                    }}
-                    placeholder="ชื่อรายการใหม่ (New List Name)..."
-                    className="w-full bg-white border-0 ring-1 ring-gray-200 rounded-xl px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#ff2301] shadow-inner"
-                  />
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleAddList}
-                      className="flex-1 bg-[#ff2301] hover:bg-red-600 text-white font-bold py-2 rounded-xl text-sm transition-colors shadow-sm"
-                    >
-                      บันทึก (Save)
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsAddingList(false);
-                        setNewListTitle('');
+                {/* Add List Button / Form */}
+                {isAddingList ? (
+                  <div className="flex-shrink-0 w-72 bg-gray-100 rounded-2xl p-3 shadow-sm border border-gray-200 flex flex-col gap-2">
+                    <input
+                      type="text"
+                      autoFocus
+                      value={newListTitle}
+                      onChange={(e) => setNewListTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleAddList();
+                        if (e.key === 'Escape') setIsAddingList(false);
                       }}
-                      className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 rounded-xl text-sm border border-gray-200 transition-colors shadow-sm"
-                    >
-                      ยกเลิก (Cancel)
-                    </button>
+                      placeholder="ชื่อรายการใหม่ (New List Name)..."
+                      className="w-full bg-white border-0 ring-1 ring-gray-200 rounded-xl px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#ff2301] shadow-inner"
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleAddList}
+                        className="flex-1 bg-[#ff2301] hover:bg-red-600 text-white font-bold py-2 rounded-xl text-sm transition-colors shadow-sm"
+                      >
+                        บันทึก (Save)
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsAddingList(false);
+                          setNewListTitle('');
+                        }}
+                        className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 rounded-xl text-sm border border-gray-200 transition-colors shadow-sm"
+                      >
+                        ยกเลิก (Cancel)
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setIsAddingList(true)}
-                  className="flex-shrink-0 w-72 h-12 bg-gray-200/50 hover:bg-gray-200 rounded-xl flex items-center gap-2 px-4 text-gray-600 font-semibold transition-colors"
-                >
-                  <Plus size={18} />
-                  เพิ่มรายการใหม่ (Add List)
-                </button>
-              )}
-            </div>
-          </DndContext>
-        </div>
+                ) : (
+                  <button
+                    onClick={() => setIsAddingList(true)}
+                    className="flex-shrink-0 w-72 h-12 bg-gray-200/50 hover:bg-gray-200 rounded-xl flex items-center gap-2 px-4 text-gray-600 font-semibold transition-colors"
+                  >
+                    <Plus size={18} />
+                    เพิ่มรายการใหม่ (Add List)
+                  </button>
+                )}
+              </div>
+            </DndContext>
+          </div>
+        )}
 
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (

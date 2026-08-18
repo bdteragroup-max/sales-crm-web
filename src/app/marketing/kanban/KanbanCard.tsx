@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { MessageSquare, Paperclip, AlignLeft, Calendar, Check } from 'lucide-react';
+import { MessageSquare, Paperclip, AlignLeft, Calendar, Check, Send } from 'lucide-react';
 import type { TKanbanCard } from './KanbanBoardClient';
 
 type Props = {
@@ -167,6 +167,27 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard }: Pro
           </div>
         )}
       </div>
+
+      {/* Scheduled Post */}
+      {card.scheduledPostDate && (
+        <div className="mt-2 flex items-center justify-between text-xs font-semibold bg-blue-50 text-blue-700 px-2 py-1 rounded-md border border-blue-100">
+          <div className="flex items-center gap-1.5">
+            <Send size={12} />
+            <span>{new Date(card.scheduledPostDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}</span>
+          </div>
+          {card.postingChannels && card.postingChannels.length > 0 && (
+            <div className="flex items-center gap-1 text-[10px] text-blue-600">
+              {card.postingChannels.map(c => {
+                if (c === 'Facebook') return <span key={c} className="bg-white rounded px-1 shadow-sm">FB</span>;
+                if (c === 'Instagram') return <span key={c} className="bg-white rounded px-1 shadow-sm">IG</span>;
+                if (c === 'TikTok') return <span key={c} className="bg-white rounded px-1 shadow-sm">TK</span>;
+                if (c === 'YouTube') return <span key={c} className="bg-white rounded px-1 shadow-sm">YT</span>;
+                return <span key={c} className="bg-white rounded px-1 shadow-sm">{c.substring(0, 2).toUpperCase()}</span>;
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Cover Image */}
       {coverImage && (

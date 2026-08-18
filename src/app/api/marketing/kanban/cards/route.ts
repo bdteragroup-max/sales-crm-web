@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { listId, title, description, assignedToId, engineeringReviewers, startDate, dueDate, salespersonId } = data;
+    const { listId, title, description, assignedToId, engineeringReviewers, startDate, dueDate, salespersonId, scheduledPostDate, postingChannels } = data;
 
     if (!listId || !title) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
         startDate: startDate ? new Date(startDate) : null,
         dueDate: dueDate ? new Date(dueDate) : null,
         position: newPosition,
-        salespersonId
+        salespersonId,
+        scheduledPostDate: scheduledPostDate ? new Date(scheduledPostDate) : null,
+        postingChannels: postingChannels || []
       },
       include: {
         attachments: true,
@@ -74,7 +76,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { id, listId, position, title, description, assignedToId, engineeringReviewers, startDate, dueDate, revisionStatus, checklist, color, isCompleted, salespersonId } = data;
+    const { id, listId, position, title, description, assignedToId, engineeringReviewers, startDate, dueDate, revisionStatus, checklist, color, isCompleted, salespersonId, scheduledPostDate, postingChannels } = data;
 
     if (!id) {
       return NextResponse.json({ error: 'Missing card ID' }, { status: 400 });
@@ -100,6 +102,8 @@ export async function PUT(request: NextRequest) {
     if (color !== undefined) updateData.color = color;
     if (isCompleted !== undefined) updateData.isCompleted = isCompleted;
     if (salespersonId !== undefined) updateData.salespersonId = salespersonId;
+    if (scheduledPostDate !== undefined) updateData.scheduledPostDate = scheduledPostDate ? new Date(scheduledPostDate) : null;
+    if (postingChannels !== undefined) updateData.postingChannels = postingChannels;
 
     const oldCard = await prisma.kanbanCard.findUnique({ where: { id } });
     if (!oldCard) {

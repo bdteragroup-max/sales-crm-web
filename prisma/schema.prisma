@@ -174,6 +174,7 @@ model Company {
   contacts              Contact[]
   customerSatisfactions CustomerSatisfaction[]
   goodsReturns          GoodsReturn[]
+  marketingLeads        MarketingLead[]
   orders                Order[]
   quotations            Quotation[]
   schedules             Schedule[]
@@ -198,16 +199,17 @@ model CompanyInteraction {
 }
 
 model Contact {
-  id             String      @id @default(cuid())
+  id             String          @id @default(cuid())
   companyId      String
   contactName    String
   position       String?
   mobilePhone    String?
   email          String?
-  isETaxReceiver Boolean     @default(false)
-  createdAt      DateTime    @default(now()) @db.Timestamptz(6)
-  updatedAt      DateTime    @updatedAt @db.Timestamptz(6)
-  company        Company     @relation(fields: [companyId], references: [id])
+  isETaxReceiver Boolean         @default(false)
+  createdAt      DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime        @updatedAt @db.Timestamptz(6)
+  company        Company         @relation(fields: [companyId], references: [id])
+  marketingLeads MarketingLead[]
   quotations     Quotation[]
 
   @@index([companyId])
@@ -1236,24 +1238,29 @@ model monthly_payroll_data {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ot_requests {
-  id                Int       @id @default(autoincrement())
-  emp_id            String    @db.VarChar(20)
-  date_for          DateTime  @db.Date
-  start_time        DateTime  @db.Timestamptz(6)
-  end_time          DateTime  @db.Timestamptz(6)
-  total_hours       Decimal   @db.Decimal(5, 2)
-  reason            String?
-  status            String    @default("pending") @db.VarChar(20)
-  supervisor_id     String?   @db.VarChar(20)
-  approved_at       DateTime? @db.Timestamptz(6)
-  created_at        DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime  @default(now()) @db.Timestamptz(6)
-  approved_hours    Decimal?  @db.Decimal(5, 2)
-  supervisor_remark String?
-  actual_end_at     DateTime? @db.Timestamptz(6)
-  actual_start_at   DateTime? @db.Timestamptz(6)
-  has_discrepancy   Boolean   @default(false)
-  employees         employees @relation(fields: [emp_id], references: [emp_id], onDelete: Cascade)
+  id                  Int       @id @default(autoincrement())
+  emp_id              String    @db.VarChar(20)
+  date_for            DateTime  @db.Date
+  start_time          DateTime  @db.Timestamptz(6)
+  end_time            DateTime  @db.Timestamptz(6)
+  total_hours         Decimal   @db.Decimal(5, 2)
+  reason              String?
+  status              String    @default("pending") @db.VarChar(20)
+  supervisor_id       String?   @db.VarChar(20)
+  approved_at         DateTime? @db.Timestamptz(6)
+  created_at          DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime  @default(now()) @db.Timestamptz(6)
+  approved_hours      Decimal?  @db.Decimal(5, 2)
+  supervisor_remark   String?
+  actual_end_at       DateTime? @db.Timestamptz(6)
+  actual_start_at     DateTime? @db.Timestamptz(6)
+  has_discrepancy     Boolean   @default(false)
+  approved_end_time   DateTime? @db.Timestamptz(6)
+  approved_start_time DateTime? @db.Timestamptz(6)
+  forgot_reason       String?
+  is_forgot_clock     Boolean   @default(false)
+  proof_url           String?
+  employees           employees @relation(fields: [emp_id], references: [emp_id], onDelete: Cascade)
 
   @@index([emp_id, date_for])
   @@index([status])
@@ -1449,6 +1456,12 @@ model employee_trainings {
   assessor_id                                         String?    @db.VarChar(20)
   created_at                                          DateTime   @default(now()) @db.Timestamptz(6)
   updated_at                                          DateTime   @default(now()) @db.Timestamptz(6)
+  certificate_expiry_date                             DateTime?  @db.Date
+  instructor_evaluation_result                        String?
+  refresher_date                                      DateTime?  @db.Date
+  requires_refresher                                  Boolean    @default(false)
+  training_evaluation_result                          String?
+  training_fee                                        Decimal?   @db.Decimal(10, 2)
   employees_employee_trainings_assessor_idToemployees employees? @relation("employee_trainings_assessor_idToemployees", fields: [assessor_id], references: [emp_id])
   employees_employee_trainings_emp_idToemployees      employees  @relation("employee_trainings_emp_idToemployees", fields: [emp_id], references: [emp_id], onDelete: Cascade)
 }
@@ -1940,8 +1953,17 @@ model MarketingLead {
   updatedAt           DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
   assignedToId        String?
   isContacted         Boolean    @default(false)
+  campaignSource      String?
+  companyName         String?
+  email               String?
+  leadSource          String?
+  matchedCompanyId    String?
+  matchedContactId    String?
+  taxId               String?
   assignedTo          User?      @relation("AssignedLeads", fields: [assignedToId], references: [id])
   createdBy           User       @relation(fields: [createdByUserId], references: [id])
+  matchedCompany      Company?   @relation(fields: [matchedCompanyId], references: [id])
+  matchedContact      Contact?   @relation(fields: [matchedContactId], references: [id])
   quotation           Quotation? @relation(fields: [quotationId], references: [id])
 }
 
@@ -2324,36 +2346,36 @@ model wheel_winners {
 }
 
 model CustomerSatisfaction {
-  id              String    @id @default(cuid())
-  surveyRound     Int
-  surveyYear      Int
-  surveyMethod    String
-  surveyBy        String
-  surveyDate      DateTime  @default(now())
-  companyId       String
-  province        String
-  phone           String
-  quotationIds    String[]
-  scorePrice      Int
-  scoreQuality    Int
-  scoreDelivery   Int
-  scoreSales      Int
-  scoreSupport    Int
-  scoreAfterSales Int
-  scoreAverage    Float
-  purchaseReasons String[]
-  suggestions     String?
-  analysisNote    String?
-  actionPlan      String?
-  sharedToSales   Boolean   @default(false)
-  sharedToService Boolean   @default(false)
-  sharedAt        DateTime?
-  callNotes       String?
+  id               String    @id @default(cuid())
+  surveyRound      Int
+  surveyYear       Int
+  surveyMethod     String
+  surveyBy         String
+  surveyDate       DateTime  @default(now())
+  companyId        String
+  province         String
+  phone            String
+  quotationIds     String[]
+  scorePrice       Int
+  scoreQuality     Int
+  scoreDelivery    Int
+  scoreSales       Int
+  scoreSupport     Int
+  scoreAfterSales  Int
+  scoreAverage     Float
+  purchaseReasons  String[]
+  suggestions      String?
+  analysisNote     String?
+  actionPlan       String?
+  sharedToSales    Boolean   @default(false)
+  sharedToService  Boolean   @default(false)
+  sharedAt         DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  callNotes        String?
   criteriaComments Json?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  company         Company   @relation(fields: [companyId], references: [id])
-  surveyor        User      @relation(fields: [surveyBy], references: [id])
+  company          Company   @relation(fields: [companyId], references: [id])
+  surveyor         User      @relation(fields: [surveyBy], references: [id])
 }
 
 model KanbanBoard {
@@ -2397,6 +2419,8 @@ model KanbanCard {
   engineeringReviewers String[]            @default([])
   isCompleted          Boolean             @default(false)
   salespersonId        String?
+  postingChannels      String[]            @default([])
+  scheduledPostDate    DateTime?           @db.Timestamptz(6)
   activityLogs         KanbanActivityLog[]
   attachments          KanbanAttachment[]
   list                 KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
@@ -2661,33 +2685,34 @@ model TicketLog {
 }
 
 model BDProject {
-  id              String       @id @default(cuid())
-  name            String
-  objective       String?
-  workTypeId      String
-  urgency         String       @default("Normal")
-  deadline        DateTime?    @db.Timestamptz(6)
-  status          String       @default("PENDING_REVIEW")
-  requesterId     String
-  ownerId         String?
-  blockedReason   String?
-  waitingOn       String?
-  createdAt       DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt       DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
-  parentId        String?
-  intakeDate      DateTime?    @db.Timestamptz(6)
-  color           String?
-  completedAt     DateTime?    @db.Timestamptz(6)
-  tags            String[]     @default([])
-  supportTicketId String?
-  activities      BDActivity[]
-  owner           User?        @relation("BDOwner", fields: [ownerId], references: [id])
-  parent          BDProject?   @relation("BDSubProjects", fields: [parentId], references: [id])
-  subProjects     BDProject[]  @relation("BDSubProjects")
-  requester       User         @relation("BDRequester", fields: [requesterId], references: [id])
-  workType        BDWorkType   @relation(fields: [workTypeId], references: [id])
-  tasks           BDTask[]
-  members         User[]       @relation("BDProjectMembers")
+  id                 String       @id @default(cuid())
+  name               String
+  objective          String?
+  workTypeId         String
+  urgency            String       @default("Normal")
+  deadline           DateTime?    @db.Timestamptz(6)
+  status             String       @default("PENDING_REVIEW")
+  requesterId        String
+  ownerId            String?
+  blockedReason      String?
+  waitingOn          String?
+  createdAt          DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+  parentId           String?
+  intakeDate         DateTime?    @db.Timestamptz(6)
+  color              String?
+  completedAt        DateTime?    @db.Timestamptz(6)
+  tags               String[]     @default([])
+  supportTicketId    String?
+  deadlineNotifiedAt DateTime?    @db.Timestamptz(6)
+  activities         BDActivity[]
+  owner              User?        @relation("BDOwner", fields: [ownerId], references: [id])
+  parent             BDProject?   @relation("BDSubProjects", fields: [parentId], references: [id])
+  subProjects        BDProject[]  @relation("BDSubProjects")
+  requester          User         @relation("BDRequester", fields: [requesterId], references: [id])
+  workType           BDWorkType   @relation(fields: [workTypeId], references: [id])
+  tasks              BDTask[]
+  members            User[]       @relation("BDProjectMembers")
 }
 
 model BDWorkflowTemplate {
@@ -2708,23 +2733,24 @@ model BDWorkflowStepTemplate {
 }
 
 model BDTask {
-  id              String    @id @default(cuid())
-  projectId       String
-  name            String
-  status          String    @default("PENDING")
-  dueDate         DateTime? @db.Timestamptz(6)
-  orderIndex      Int
-  checklistState  Json?
-  assigneeId      String?
-  blockedReason   String?
-  waitingOn       String?
-  completedAt     DateTime? @db.Timestamptz(6)
-  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
-  blockedAt       DateTime? @db.Timestamptz(6)
-  supportTicketId String?
-  assignee        User?     @relation("BDTaskAssignee", fields: [assigneeId], references: [id])
-  project         BDProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id                 String    @id @default(cuid())
+  projectId          String
+  name               String
+  status             String    @default("PENDING")
+  dueDate            DateTime? @db.Timestamptz(6)
+  orderIndex         Int
+  checklistState     Json?
+  assigneeId         String?
+  blockedReason      String?
+  waitingOn          String?
+  completedAt        DateTime? @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  blockedAt          DateTime? @db.Timestamptz(6)
+  supportTicketId    String?
+  deadlineNotifiedAt DateTime? @db.Timestamptz(6)
+  assignee           User?     @relation("BDTaskAssignee", fields: [assigneeId], references: [id])
+  project            BDProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model BDActivity {

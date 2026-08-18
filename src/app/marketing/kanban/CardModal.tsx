@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Calendar, AlignLeft, CheckSquare, MessageSquare, Paperclip, Send, Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import type { TKanbanCard, TKanbanList } from './KanbanBoardClient';
 import { createClient } from '@/utils/supabase/client';
+import { POSTING_CHANNELS, PostingChannel } from '@/lib/marketingChannels';
 
 type Props = {
   card: TKanbanCard;
@@ -22,6 +23,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   const [cardColor, setCardColor] = useState(card.color || '');
   const [engineeringReviewers, setEngineeringReviewers] = useState<string[]>(card.engineeringReviewers || []);
   const [salespersonId, setSalespersonId] = useState(card.salespersonId || '');
+  const [scheduledPostDate, setScheduledPostDate] = useState(card.scheduledPostDate ? new Date(card.scheduledPostDate).toISOString().split('T')[0] : '');
+  const [postingChannels, setPostingChannels] = useState<string[]>(card.postingChannels || []);
 
   const [checklist, setChecklist] = useState<any[]>(card.checklist || []);
   const [newChecklistItem, setNewChecklistItem] = useState('');
@@ -892,6 +895,42 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                     })()}
                   </div>
                 )}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">วันโพสต์ (Scheduled Post Date)</span>
+              <input
+                type="date"
+                value={scheduledPostDate}
+                onChange={(e) => {
+                  setScheduledPostDate(e.target.value);
+                  handleSave({ scheduledPostDate: e.target.value });
+                }}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-100"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">ช่องทางการโพสต์ (Posting Channels)</span>
+              <div className="flex flex-col gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                {POSTING_CHANNELS.map((channel) => (
+                  <label key={channel} className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={postingChannels.includes(channel)}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        const newChannels = isChecked
+                          ? [...postingChannels, channel]
+                          : postingChannels.filter(c => c !== channel);
+                        setPostingChannels(newChannels);
+                        handleSave({ postingChannels: newChannels });
+                      }}
+                      className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{channel}</span>
+                  </label>
+                ))}
               </div>
             </div>
 

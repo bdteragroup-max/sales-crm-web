@@ -386,6 +386,19 @@ export async function updateBDProject(id: string, data: {
       });
     }
 
+    // Resolve associated support ticket if the project is completed
+    if (data.status === 'COMPLETED' && project.supportTicketId) {
+      await prisma.supportTicket.updateMany({
+        where: { id: project.supportTicketId, status: { not: 'RESOLVED' } },
+        data: {
+          status: 'RESOLVED',
+          progressPercent: 100,
+          resolutionPlan: 'งานโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
+          resolvedAt: new Date()
+        }
+      });
+    }
+
     return { success: true, data: project };
   } catch (error) {
     console.error('Error updating project:', error);
@@ -490,6 +503,54 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
         details: `Task "${task.name}" status updated to ${status}`
       }
     });
+
+    if (status === 'COMPLETED' && task.supportTicketId) {
+      await prisma.supportTicket.updateMany({
+        where: { id: task.supportTicketId, status: { not: 'RESOLVED' } },
+        data: {
+          status: 'RESOLVED',
+          progressPercent: 100,
+          resolutionPlan: 'งานย่อยนี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Task)',
+          resolvedAt: new Date()
+        }
+      });
+    }
+
+    if (status === 'COMPLETED' || status === 'SKIPPED') {
+      const allTasks = await prisma.bDTask.findMany({
+        where: { projectId: task.projectId }
+      });
+      const allFinished = allTasks.every(t => t.status === 'COMPLETED' || t.status === 'SKIPPED');
+      
+      if (allFinished) {
+        const project = await prisma.bDProject.findUnique({
+          where: { id: task.projectId },
+          include: { subProjects: true }
+        });
+        
+        if (project && project.status !== 'COMPLETED' && project.status !== 'ON_HOLD') {
+          const hasIncompleteSubProjects = project.subProjects && project.subProjects.some(sp => sp.status !== 'COMPLETED');
+          if (!hasIncompleteSubProjects) {
+            await prisma.bDProject.update({
+              where: { id: project.id },
+              data: { status: 'COMPLETED', completedAt: new Date() }
+            });
+            
+            if (project.supportTicketId) {
+              await prisma.supportTicket.updateMany({
+                where: { id: project.supportTicketId, status: { not: 'RESOLVED' } },
+                data: {
+                  status: 'RESOLVED',
+                  progressPercent: 100,
+                  resolutionPlan: 'งานโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
+                  resolvedAt: new Date()
+                }
+              });
+            }
+          }
+        }
+      }
+    }
 
     return { success: true, data: task };
   } catch (error) {

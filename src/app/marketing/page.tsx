@@ -99,13 +99,21 @@ export default async function MarketingDashboard({
           </div>
         </div>
         
-        <Link 
-          href="/marketing/new"
-          className="flex items-center gap-2 px-4 py-2 bg-brand-red text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-md active:scale-95"
-        >
-          <PlusCircle size={14} />
-          เพิ่ม Lead ใหม่
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link 
+            href="/marketing/import"
+            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm active:scale-95"
+          >
+            นำเข้าไฟล์ Excel
+          </Link>
+          <Link 
+            href="/marketing/new"
+            className="flex items-center gap-2 px-4 py-2 bg-brand-red text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-md active:scale-95"
+          >
+            <PlusCircle size={14} />
+            เพิ่ม Lead ใหม่
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

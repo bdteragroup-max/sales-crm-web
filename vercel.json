@@ -27,6 +27,10 @@
     {
       "path": "/api/cron/service-call-reminder",
       "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/bd-deadline-alert",
+      "schedule": "0 1 * * *"
     }
   ]
 }
