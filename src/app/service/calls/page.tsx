@@ -7,6 +7,8 @@ export const metadata = {
   title: 'บันทึกแจ้งปัญหาลูกค้า (Service Call Log)',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ServiceCallsPage() {
   const user = await getUser();
   const initialLogs = await getServiceCallLogs({});
