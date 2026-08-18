@@ -107,15 +107,19 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
     return () => clearTimeout(timeout);
   }, [isSidebarOpen]);
 
+  const pointerSensorOptions = React.useMemo(() => ({
+    activationConstraint: {
+      distance: 5,
+    },
+  }), []);
+
+  const keyboardSensorOptions = React.useMemo(() => ({
+    coordinateGetter: sortableKeyboardCoordinates,
+  }), []);
+
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor, pointerSensorOptions),
+    useSensor(KeyboardSensor, keyboardSensorOptions)
   );
 
   const handleDragStart = (event: DragStartEvent) => {

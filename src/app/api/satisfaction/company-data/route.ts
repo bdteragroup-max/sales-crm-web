@@ -36,7 +36,8 @@ export async function GET(req: Request) {
       },
       include: {
         jobs: true,
-        contact: true
+        contact: true,
+        salesperson: { select: { fullName: true } }
       },
       orderBy: { createdAt: 'desc' }
     });

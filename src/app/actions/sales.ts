@@ -92,6 +92,10 @@ export async function searchCompanies(query: string, surveyExcludeFilter?: { rou
 
     const companies = await prisma.company.findMany({
       where: whereClause,
+      include: {
+        assignedUser: { select: { fullName: true } },
+        contacts: { select: { mobilePhone: true } }
+      },
       take: 5
     });
     return companies;

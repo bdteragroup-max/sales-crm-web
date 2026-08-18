@@ -48,6 +48,8 @@ model User {
   pushSubscriptions       PushSubscription[]
   quotations              Quotation[]
   schedules               Schedule[]
+  serviceLogsCreated      ServiceCallLog[]       @relation("ServiceLogCreator")
+  serviceLogsResponsible  ServiceCallLog[]       @relation("ServiceLogResponsible")
   serviceSchedules        ServiceSchedule[]
   estimatedSurveys        SiteSurvey[]           @relation("SurveyEstimator")
   siteSurveys             SiteSurvey[]
@@ -823,26 +825,28 @@ model branches {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model checkins {
-  id           BigInt   @id @default(autoincrement())
-  timestamp    DateTime @default(now()) @db.Timestamptz(6)
-  date_key     DateTime @db.Date
-  time_key     DateTime @db.Time(6)
-  emp_id       String   @db.VarChar(50)
-  name         String   @db.VarChar(200)
-  type         String   @db.VarChar(50)
-  branch_name  String   @db.VarChar(200)
-  lat          Decimal? @db.Decimal(10, 8)
-  lon          Decimal? @db.Decimal(11, 8)
-  accuracy     Int?
-  distance     Int?
-  capture_mode String   @default("webrtc") @db.VarChar(50)
-  late_status  String?  @db.VarChar(50)
-  late_min     Int?
-  photo_url    String?
-  project_name String?  @db.VarChar(200)
-  remark       String?
-  customer_id  Int?
-  is_trip      Boolean? @default(false)
+  id                      BigInt   @id @default(autoincrement())
+  timestamp               DateTime @default(now()) @db.Timestamptz(6)
+  date_key                DateTime @db.Date
+  time_key                DateTime @db.Time(6)
+  emp_id                  String   @db.VarChar(50)
+  name                    String   @db.VarChar(200)
+  type                    String   @db.VarChar(50)
+  branch_name             String   @db.VarChar(200)
+  lat                     Decimal? @db.Decimal(10, 8)
+  lon                     Decimal? @db.Decimal(11, 8)
+  accuracy                Int?
+  distance                Int?
+  capture_mode            String   @default("webrtc") @db.VarChar(50)
+  late_status             String?  @db.VarChar(50)
+  late_min                Int?
+  photo_url               String?
+  project_name            String?  @db.VarChar(200)
+  remark                  String?
+  customer_id             Int?
+  is_trip                 Boolean? @default(false)
+  line_pay_channel_id     String?  @db.VarChar(50)
+  line_pay_channel_secret String?  @db.VarChar(100)
 
   @@index([branch_name], map: "idx_checkins_branch")
   @@index([date_key], map: "idx_checkins_date")
@@ -2344,6 +2348,8 @@ model CustomerSatisfaction {
   sharedToSales   Boolean   @default(false)
   sharedToService Boolean   @default(false)
   sharedAt        DateTime?
+  callNotes       String?
+  criteriaComments Json?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   company         Company   @relation(fields: [companyId], references: [id])
@@ -2758,4 +2764,33 @@ model probation_evaluation_revisions {
   probation_evaluations probation_evaluations @relation(fields: [evaluation_id], references: [id], onDelete: Cascade)
 
   @@index([evaluation_id])
+}
+
+model ServiceCallLog {
+  id                  String    @id @default(cuid())
+  caseNumber          String    @unique
+  legacyNo            Int?
+  receivedDate        DateTime  @db.Date
+  companyName         String
+  contactName         String
+  contactPhone        String?
+  inverterModel       String
+  reportedIssue       String
+  analyzedCause       String?
+  recommendedSolution String?
+  status              String    @default("Received notification")
+  followUpDate        DateTime? @db.Date
+  followUpNotifiedAt  DateTime? @db.Timestamptz(6)
+  responsibleId       String?
+  responsibleName     String?
+  notes               String?
+  createdBy           String
+  createdAt           DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  creator             User      @relation("ServiceLogCreator", fields: [createdBy], references: [id])
+  responsible         User?     @relation("ServiceLogResponsible", fields: [responsibleId], references: [id])
+
+  @@index([status])
+  @@index([followUpDate])
+  @@index([responsibleId])
 }

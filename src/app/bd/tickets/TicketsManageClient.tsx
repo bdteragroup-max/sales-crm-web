@@ -265,7 +265,7 @@ export default function TicketsManageClient() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-gray-900 line-clamp-1">{ticket.title}</div>
-                      {ticket.progressPercent > 0 && ticket.status !== 'RESOLVED' && (
+                      {ticket.progressPercent > 0 && ticket.status !== 'RESOLVED' && ticket.status !== 'CONVERTED' && (
                         <div className="flex items-center gap-2 mt-1">
                           <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-[100px]">
                             <div className="bg-red-600 h-1.5 rounded-full" style={{ width: `${ticket.progressPercent}%` }}></div>

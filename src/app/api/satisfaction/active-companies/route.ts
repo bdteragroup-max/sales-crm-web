@@ -45,7 +45,9 @@ export async function GET(req: Request) {
           select: {
             id: true,
             companyName: true,
-            province: true
+            province: true,
+            assignedUser: { select: { fullName: true } },
+            contacts: { select: { mobilePhone: true } }
           }
         }
       },

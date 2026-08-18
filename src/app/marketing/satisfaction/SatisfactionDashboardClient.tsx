@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, FileText, CheckCircle, Clock, AlertTriangle, ArrowRight, BarChart3, TrendingUp, Filter } from 'lucide-react';
 import { CustomerSatisfaction, Company } from '@/generated/client';
+import { SATISFACTION_SCORE_LEGEND, formatPhoneForTel } from '@/app/lib/satisfactionScore';
 
 type SurveyWithRelations = CustomerSatisfaction & {
-  company: Company;
+  company: Company & { assignedUser?: { fullName: string } | null };
 };
 
 export default function SatisfactionDashboardClient() {
@@ -208,6 +209,18 @@ export default function SatisfactionDashboardClient() {
                 ))}
               </div>
             )}
+            
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">เกณฑ์การให้คะแนน (Scoring Criteria)</h3>
+              <div className="space-y-2 text-xs">
+                {SATISFACTION_SCORE_LEGEND.map(legend => (
+                  <div key={legend.score} className="flex items-center gap-2">
+                    <span className="font-black text-slate-700 bg-slate-100 w-6 h-6 flex items-center justify-center rounded">{legend.score}</span>
+                    <span className="text-slate-600">{legend.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Table Section */}
@@ -220,7 +233,7 @@ export default function SatisfactionDashboardClient() {
                 <thead>
                   <tr className="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider">
                     <th className="p-5 font-bold whitespace-nowrap">วันที่</th>
-                    <th className="p-5 font-bold whitespace-nowrap">บริษัทลูกค้า</th>
+                    <th className="p-5 font-bold whitespace-nowrap">ข้อมูลลูกค้า</th>
                     <th className="p-5 font-bold whitespace-nowrap text-center">คะแนนเฉลี่ย</th>
                     <th className="p-5 font-bold whitespace-nowrap">สถานะ</th>
                     <th className="p-5 font-bold whitespace-nowrap text-right pr-8">จัดการ</th>
@@ -253,8 +266,25 @@ export default function SatisfactionDashboardClient() {
                         <td className="p-5 text-slate-600 font-medium whitespace-nowrap">
                           {new Date(survey.surveyDate).toLocaleDateString('th-TH')}
                         </td>
-                        <td className="p-5 font-bold text-slate-900 min-w-[200px]">
-                          {survey.company.companyName}
+                        <td className="p-5 min-w-[250px]">
+                          <div className="font-bold text-slate-900">{survey.company.companyName}</div>
+                          <div className="text-xs text-slate-500 mt-1 flex items-center gap-2">
+                            {survey.phone ? (
+                              <a href={`tel:${formatPhoneForTel(survey.phone)}`} className="text-blue-600 hover:underline">
+                                {survey.phone}
+                              </a>
+                            ) : (
+                              <span className="text-slate-300">ไม่มีเบอร์โทร</span>
+                            )}
+                            <span className="text-slate-300">|</span>
+                            <span>
+                              ผู้แทนขาย: {survey.company.assignedUser?.fullName ? (
+                                <span className="text-slate-700 font-medium">{survey.company.assignedUser.fullName}</span>
+                              ) : (
+                                <span className="text-slate-300 italic">N/A</span>
+                              )}
+                            </span>
+                          </div>
                         </td>
                         <td className="p-5 text-center">
                           <span className={`inline-flex px-3 py-1.5 rounded-xl font-black text-sm shadow-sm ${survey.scoreAverage >= 4 ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50' :

@@ -22,6 +22,11 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
   const [isRenamingList, setIsRenamingList] = useState(false);
   const [editListName, setEditListName] = useState(list.name);
 
+  const sortableData = React.useMemo(() => ({
+    type: 'List',
+    list
+  }), [list]);
+
   const {
     attributes,
     listeners,
@@ -31,10 +36,7 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
     isDragging
   } = useSortable({
     id: list.id,
-    data: {
-      type: 'List',
-      list
-    }
+    data: sortableData
   });
 
   const style = {

@@ -12,6 +12,11 @@ type Props = {
 };
 
 export default function KanbanCard({ card, users, onClick, onCompleteCard }: Props) {
+  const sortableData = React.useMemo(() => ({
+    type: 'Card',
+    card
+  }), [card]);
+
   const {
     attributes,
     listeners,
@@ -21,10 +26,7 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard }: Pro
     isDragging
   } = useSortable({
     id: card.id,
-    data: {
-      type: 'Card',
-      card
-    }
+    data: sortableData
   });
 
   const style = {

@@ -14,7 +14,13 @@ export async function GET(req: Request) {
     const surveys = await prisma.customerSatisfaction.findMany({
       where,
       include: {
-        company: true,
+        company: {
+          include: {
+            assignedUser: {
+              select: { fullName: true }
+            }
+          }
+        },
         surveyor: true,
       },
       orderBy: { surveyDate: 'desc' },
@@ -47,6 +53,8 @@ export async function POST(req: Request) {
       scoreAfterSales,
       purchaseReasons,
       suggestions,
+      callNotes,
+      criteriaComments,
     } = body;
 
     const scores = [scorePrice, scoreQuality, scoreDelivery, scoreSales, scoreSupport, scoreAfterSales];
@@ -71,6 +79,8 @@ export async function POST(req: Request) {
         scoreAverage,
         purchaseReasons,
         suggestions,
+        callNotes,
+        criteriaComments,
       }
     });
 

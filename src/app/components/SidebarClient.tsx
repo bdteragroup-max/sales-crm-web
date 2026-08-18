@@ -75,6 +75,7 @@ const repNav = [
 
 const serviceNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมฝ่ายบริการ', href: '/service/dashboard' },
+  { icon: PhoneCall, label: 'Service Desk', href: '/service/calls' },
   { icon: Wrench, label: 'ใบรับซ่อม (ซ่อมใน)', href: '/repair-orders' },
   { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
   { icon: FileSignature, label: 'ใบส่งมอบงาน', href: '/repair-deliveries' },
@@ -85,6 +86,10 @@ const serviceNav = [
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
   { icon: Package, label: 'ใบส่งคืนสินค้า', href: '/service/goods-returns' },
+];
+
+const serviceMgrNav = [
+  { icon: LayoutDashboard, label: 'MGR Dashboard & Import', href: '/service-mgr/calls' },
 ];
 
 const technicianNav = [
@@ -176,7 +181,7 @@ export default function SidebarClient(props: SidebarProps) {
 
   // Combine all navs for Super Admin, ensuring no duplicates by href
   const allNavs = [
-    ...executiveNav, ...managerNav, ...repNav, ...serviceNav, ...technicianNav,
+    ...executiveNav, ...managerNav, ...repNav, ...serviceNav, ...serviceMgrNav, ...technicianNav,
     ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...productionNav, ...bdNav
   ];
   const superAdminNav = Array.from(new Map(allNavs.map(item => [item.href, item])).values());
@@ -199,6 +204,9 @@ export default function SidebarClient(props: SidebarProps) {
     nav = technicianNav;
   } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม')) {
     nav = serviceNav; // Service / non-sales departments see repair orders
+    if (roleStr.includes('mgr') || roleStr.includes('manager')) {
+      nav = [...nav, ...serviceMgrNav];
+    }
   } else if (['accounting', 'บัญชี', 'finance', 'การเงิน'].some(r => roleStr.includes(r))) {
     nav = [
       { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี/การเงิน', href: '/accounting/dashboard' },

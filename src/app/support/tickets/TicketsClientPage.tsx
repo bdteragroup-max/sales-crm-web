@@ -234,7 +234,7 @@ export default function TicketsClientPage() {
                     )}
                   </div>
 
-                  {ticket.status !== 'SUBMITTED' && (
+                  {ticket.status !== 'SUBMITTED' && ticket.status !== 'CONVERTED' && (
                     <div className="flex items-center gap-2">
                       <div className="w-24 bg-gray-200 rounded-full h-2">
                         <div
