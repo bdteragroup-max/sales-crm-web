@@ -296,8 +296,8 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
         "Content-Disposition": `attachment; filename="${doc.documentNo}.pdf"`
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating PDF:', error);
-    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate PDF', details: error?.message || String(error) }, { status: 500 });
   }
 }
