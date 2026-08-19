@@ -39,11 +39,22 @@ function generateGoodsReturnHTML(doc: any, logoBase64: string = '') {
   <head>
     <meta charset="utf-8">
     <title>Goods Return Note</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      @font-face {
+        font-family: 'TH Sarabun New';
+        src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'TH Sarabun New';
+        src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
+        font-weight: bold;
+        font-style: normal;
+      }
       body {
-        font-family: 'Sarabun', sans-serif;
-        font-size: 14px;
+        font-family: 'TH Sarabun New', sans-serif;
+        font-size: 16px;
         margin: 0;
         padding: 0;
         color: #000;
