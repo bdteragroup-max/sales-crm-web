@@ -131,8 +131,8 @@ export default function ImportLeadsPage() {
             <h3 className="font-bold text-gray-900">1. โหลดเทมเพลต (Download Template)</h3>
             <p className="text-sm text-gray-500 mt-1">ดาวน์โหลดไฟล์ Excel ต้นแบบเพื่อนำไปกรอกข้อมูล</p>
           </div>
-          <button 
-            onClick={handleDownloadTemplate} 
+          <button
+            onClick={handleDownloadTemplate}
             disabled={isDownloading}
             className="mt-2 px-6 py-2 bg-blue-500 text-white font-bold rounded-xl text-sm shadow-md hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center gap-2"
           >
@@ -152,10 +152,10 @@ export default function ImportLeadsPage() {
           <label className={`mt-2 px-6 py-2 bg-brand-red text-white font-bold rounded-xl text-sm shadow-md hover:bg-red-700 transition-all cursor-pointer flex items-center gap-2 ${isValidating ? 'opacity-50 pointer-events-none' : ''}`}>
             {isValidating ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
             Upload .xlsx
-            <input 
-              type="file" 
-              accept=".xlsx" 
-              className="hidden" 
+            <input
+              type="file"
+              accept=".xlsx"
+              className="hidden"
               onChange={handleFileUpload}
               disabled={isValidating}
             />

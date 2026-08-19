@@ -7,8 +7,8 @@ export async function pushLineMessage(
   messages: LineMessage[],
   botType: 'crm' | 'service' = 'crm'
 ) {
-  const token = botType === 'service' 
-    ? process.env.LINE_SERVICE_CHANNEL_ACCESS_TOKEN 
+  const token = botType === 'service'
+    ? process.env.LINE_SERVICE_CHANNEL_ACCESS_TOKEN
     : process.env.LINE_CRM_CHANNEL_ACCESS_TOKEN;
 
   const res = await fetch('https://api.line.me/v2/bot/message/push', {
@@ -59,9 +59,9 @@ export async function getServiceManagerLineIds(): Promise<string[]> {
   });
 
   // Filter to ensure it's specifically the *Service* manager
-  const actualServiceManagers = serviceManagers.filter(u => 
-    u.role.toLowerCase().includes("service") || 
-    u.role.includes("บริการ") || 
+  const actualServiceManagers = serviceManagers.filter(u =>
+    u.role.toLowerCase().includes("service") ||
+    u.role.includes("บริการ") ||
     u.role.includes("ช่าง")
   );
 
@@ -111,21 +111,21 @@ export function jobStepMessage(job: any, step: string, dept: string) {
   ];
 
   if (job.flowVariant && dept.toLowerCase() === 'store') {
-    const stockStatus = job.flowVariant === 'has_stock' ? 'มีของพร้อมดำเนินการ' : 
-                        job.flowVariant === 'no_stock' ? 'ไม่มีของ (ต้องสั่ง/ผลิต)' : 
-                        job.flowVariant === 'in_house_warranty' ? 'ในประกัน (ซ่อมเอง)' :
-                        job.flowVariant === 'in_house_charged' ? 'นอกประกัน (ซ่อมเอง)' :
-                        job.flowVariant === 'outsource' ? 'ส่งซ่อมนอก (Outsource)' :
-                        job.flowVariant;
-    
+    const stockStatus = job.flowVariant === 'has_stock' ? 'มีของพร้อมดำเนินการ' :
+      job.flowVariant === 'no_stock' ? 'ไม่มีของ (ต้องสั่ง/ผลิต)' :
+        job.flowVariant === 'in_house_warranty' ? 'ในประกัน (ซ่อมเอง)' :
+          job.flowVariant === 'in_house_charged' ? 'นอกประกัน (ซ่อมเอง)' :
+            job.flowVariant === 'outsource' ? 'ส่งซ่อมนอก (Outsource)' :
+              job.flowVariant;
+
     bodyContents.push({ type: 'separator', margin: 'md' });
-    bodyContents.push({ 
-      type: 'text', 
-      text: `ตัวเลือก: ${stockStatus}`, 
-      size: 'sm', 
-      color: job.flowVariant === 'has_stock' ? '#16a34a' : '#ea580c', 
-      weight: 'bold', 
-      margin: 'md' 
+    bodyContents.push({
+      type: 'text',
+      text: `ตัวเลือก: ${stockStatus}`,
+      size: 'sm',
+      color: job.flowVariant === 'has_stock' ? '#16a34a' : '#ea580c',
+      weight: 'bold',
+      margin: 'md'
     });
   }
 
@@ -1080,7 +1080,7 @@ export function estimationAssignedMessage(customerName: string, items: string[],
 export function installationAssignedMessage(order: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
   const installationDate = order.installationDate ? new Date(order.installationDate).toLocaleDateString('th-TH') : 'ยังไม่ระบุวันที่';
-  
+
   return {
     type: 'flex',
     altText: `📅 มอบหมายงานติดตั้ง/ตรวจเช็ค งาน ${order.installationNo}`,
@@ -1126,7 +1126,7 @@ export function installationAssignedMessage(order: any) {
 
 export function newServiceJobMessage(job: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `🚨 งานบริการใหม่: ${job.jobType} - ${job.customerName}`,
@@ -1169,7 +1169,7 @@ export function newServiceJobMessage(job: any) {
 
 export function newPendingInstallationJobMessage(job: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `🚨 แจ้งเตือน: มีงานใหม่รอสร้างใบงาน (ติดตั้ง/ตรวจเช็ค)`,
@@ -1212,7 +1212,7 @@ export function newPendingInstallationJobMessage(job: any) {
 
 export function newInstallationOrderMessage(order: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `🛠️ แจ้งเตือน: มีใบสั่งงานติดตั้ง/ตรวจเช็คใหม่`,
@@ -1255,7 +1255,7 @@ export function newInstallationOrderMessage(order: any) {
 
 export function morningScheduleMessage(orders: any[], dateString: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   if (orders.length === 0) {
     return {
       type: 'text',
@@ -1329,7 +1329,7 @@ export function morningScheduleMessage(orders: any[], dateString: string) {
 export function eveningOutstandingMessage(pendingInstallations: number, pendingJobs: number, pendingRepairs: number, dateString: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
   const total = pendingInstallations + pendingJobs + pendingRepairs;
-  
+
   if (total === 0) {
     return {
       type: 'text',
@@ -1412,7 +1412,7 @@ export function eveningOutstandingMessage(pendingInstallations: number, pendingJ
 
 export function repairAssignedMessage(order: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `🛠️ แจ้งเตือน: มอบหมายงานซ่อม/เคลม`,
@@ -1455,7 +1455,7 @@ export function repairAssignedMessage(order: any) {
 
 export function customMarketingLeadMessage(lead: any, salespersonName: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `🚨 แจ้งเตือน: มี Lead ใหม่จากทีมการตลาด`,
@@ -1502,7 +1502,7 @@ export function customMarketingLeadMessage(lead: any, salespersonName: string) {
 
 export function customAccountingMessage(job: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `📝 งานรอตรวจสอบบัญชี ${job.jobNumber}`,
@@ -1551,3 +1551,176 @@ export function customAccountingMessage(job: any) {
     },
   };
 }
+
+// --- BD Department Notifications ---
+
+export function bdDailyDigestMessage(data: any) {
+  const { date, newTickets, closedTickets, openTicketsHigh, openTicketsMed, openTicketsLow, tasksCompleted, tasksBlocked, tasksOverdue } = data;
+  const totalOpenTickets = openTicketsHigh + openTicketsMed + openTicketsLow;
+
+  return {
+    type: 'flex',
+    altText: `📊 สรุปงาน BD ประจำวัน`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#3b82f6',
+        contents: [
+          { type: 'text', text: '📊 สรุปงาน BD ประจำวัน', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `วันที่: ${date}`, size: 'sm', color: '#666666', margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: '🎫 Tickets', weight: 'bold', size: 'md', margin: 'md' },
+          { type: 'text', text: `🆕 ${newTickets} ticket ใหม่`, size: 'sm' },
+          { type: 'text', text: `✅ ${closedTickets} ticket ปิดแล้ว`, size: 'sm' },
+          { type: 'text', text: `🔴 ${totalOpenTickets} ticket ยังเปิดอยู่ (High: ${openTicketsHigh}, Med: ${openTicketsMed}, Low: ${openTicketsLow})`, size: 'sm' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: '📁 Project/Task', weight: 'bold', size: 'md', margin: 'md' },
+          { type: 'text', text: `✅ ${tasksCompleted} งานเสร็จวันนี้`, size: 'sm' },
+          { type: 'text', text: `🚧 ${tasksBlocked.length} งานติดปัญหา`, size: 'sm' },
+          ...(tasksBlocked.length > 0 ? tasksBlocked.map((t: any) => ({ type: 'text', text: `- ${t.title} (เหตุผล: ${t.blockedReason})`, size: 'xs', color: '#ef4444', wrap: true })) : []),
+          { type: 'text', text: `⏰ ${tasksOverdue.length} งานเกินกำหนด`, size: 'sm' },
+          ...(tasksOverdue.length > 0 ? tasksOverdue.map((t: any) => ({ type: 'text', text: `- ${t.title}`, size: 'xs', color: '#ef4444', wrap: true })) : []),
+        ],
+      }
+    },
+  };
+}
+
+export function bdUrgentTicketMessage(ticket: any, reporterName: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+
+  return {
+    type: 'flex',
+    altText: `🚨 แจ้งเตือน: Ticket ด่วนใหม่`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#dc2626', // red
+        contents: [
+          { type: 'text', text: '🚨 New Urgent Ticket', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หัวข้อ: ${ticket.title}`, weight: 'bold', size: 'md', wrap: true },
+          { type: 'text', text: `ความเร่งด่วน: ${ticket.urgency}`, size: 'sm', color: '#dc2626', weight: 'bold' },
+          { type: 'text', text: `ผู้แจ้ง: ${reporterName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `รายละเอียด:`, size: 'xs', color: '#666666', margin: 'md' },
+          { type: 'text', text: ticket.description || '-', size: 'xs', wrap: true },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#dc2626',
+            action: { type: 'uri', label: 'ดูรายละเอียด Ticket', uri: `${appUrl}/support/tickets/${ticket.id}` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function bdTaskBlockedMessage(task: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+
+  return {
+    type: 'flex',
+    altText: `🚧 แจ้งเตือน: งานติดปัญหา`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#f59e0b', // amber
+        contents: [
+          { type: 'text', text: '🚧 งาน/โปรเจคติดปัญหา', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `งาน: ${task.title}`, weight: 'bold', size: 'md', wrap: true },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `เหตุผลที่ติดปัญหา:`, size: 'sm', color: '#f59e0b', weight: 'bold', margin: 'md' },
+          { type: 'text', text: task.blockedReason || '-', size: 'sm', wrap: true },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#f59e0b',
+            action: { type: 'uri', label: 'ดูรายละเอียด', uri: `${appUrl}/bd-my-work` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function bdDeadlineAlertMessage(task: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  const dueDate = task.endDate || task.targetDate;
+  const overdueDays = Math.floor((new Date().getTime() - new Date(dueDate).getTime()) / (1000 * 3600 * 24));
+
+  return {
+    type: 'flex',
+    altText: `⏰ แจ้งเตือน: งานเกินกำหนด`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#ef4444',
+        contents: [
+          { type: 'text', text: '⏰ งานเกินกำหนด', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `งาน: ${task.title}`, weight: 'bold', size: 'md', wrap: true },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `กำหนดเดิม: ${new Date(dueDate).toLocaleDateString('th-TH')}`, size: 'sm' },
+          { type: 'text', text: `เกินกำหนด: ${overdueDays} วัน`, size: 'sm', color: '#ef4444', weight: 'bold' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#ef4444',
+            action: { type: 'uri', label: 'ดูรายละเอียด', uri: `${appUrl}/bd-my-work` },
+          },
+        ],
+      },
+    },
+  };
+}
+

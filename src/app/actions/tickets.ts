@@ -97,6 +97,28 @@ export async function createTicketCore(data: {
     });
   }
 
+  // --- Real-time LINE Alert for Urgent Tickets ---
+  if (urgency === "HIGH" || urgency === "CRITICAL") {
+    try {
+      const config = await prisma.departmentLineConfig.findUnique({
+        where: { department: "BD" }
+      });
+      if (config && config.isActive && config.lineGroupId) {
+        const { pushLineMessage, bdUrgentTicketMessage } = await import("@/app/lib/lineNotify");
+        let finalReporterName = data.reporterName || "ระบบ / ไม่ทราบชื่อ";
+        if (data.reporterId && !data.reporterName) {
+           const rUser = await prisma.user.findUnique({ where: { id: data.reporterId }, select: { fullName: true }});
+           if (rUser) finalReporterName = rUser.fullName;
+        }
+        
+        const msg = bdUrgentTicketMessage(ticket, finalReporterName);
+        await pushLineMessage(config.lineGroupId, [msg], 'crm');
+      }
+    } catch (err) {
+      console.error("Failed to send real-time ticket alert", err);
+    }
+  }
+
   revalidatePath("/support/tickets");
   revalidatePath("/bd/tickets");
 

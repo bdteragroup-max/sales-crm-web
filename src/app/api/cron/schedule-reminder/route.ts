@@ -5,7 +5,7 @@ import { pushLineMessage, scheduleDailyMessage, teamScheduleSummaryMessage } fro
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization');
-    if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       if (process.env.NODE_ENV === 'production') {
         // return new NextResponse('Unauthorized', { status: 401 });
       }

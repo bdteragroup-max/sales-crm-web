@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/app/lib/dal';
 import SchedulesClient from './SchedulesClient';
 import prisma from '@/app/lib/db';
+import { canViewAll } from "@/app/lib/roleHelper";
 
 export const metadata: Metadata = {
   title: 'ตารางงานเซอร์วิส | Sales CRM',
@@ -30,7 +31,7 @@ export default async function ServiceSchedulesPage() {
   // Basic access check for service users
   const isServiceUser = roleStr === 'ช่าง' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ช่าง') || roleStr === 'แอดมิน' || roleStr.includes('manager') || roleStr.includes('ผู้จัดการ') || roleStr.includes('หัวหน้า') || roleStr.includes('sales') || roleStr.includes('เซล') || roleStr.includes('ขาย');
   
-  if (!isServiceUser) {
+  if (!isServiceUser && !canViewAll(roleStr)) {
     redirect('/dashboard');
   }
   

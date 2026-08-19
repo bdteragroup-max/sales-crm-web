@@ -5,7 +5,7 @@ import { sendPushToUser } from '@/app/lib/pushNotification';
 export async function GET(req: Request) {
   // Verify cron secret
   const secret = req.headers.get('x-cron-secret') || req.headers.get('Authorization')?.replace('Bearer ', '');
-  if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
+  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
     if (process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -511,6 +511,16 @@ model OrderRunningNumber {
   @@map("order_running_numbers")
 }
 
+model DepartmentLineConfig {
+  id               String    @id @default(cuid())
+  department       String    @unique // "BD", "Service", ...
+  lineGroupId      String
+  isActive         Boolean   @default(true)
+  lastDigestSentAt DateTime? @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+
 model JobStepLog {
   id                String   @id @default(cuid())
   jobId             String   @map("job_id")

@@ -35,7 +35,7 @@ export async function seedBDWorkTypes() {
     const existing = await prisma.bDWorkType.findUnique({
       where: { name: type.name }
     });
-    
+
     if (!existing) {
       await prisma.bDWorkType.create({
         data: type
@@ -111,12 +111,12 @@ export async function seedBDWorkflowTemplates() {
             }
           }
         });
-        
+
         // Link to work type
         const workType = await prisma.bDWorkType.findUnique({
           where: { name: t.workTypeName }
         });
-        
+
         if (workType) {
           await prisma.bDWorkType.update({
             where: { id: workType.id },
@@ -171,9 +171,9 @@ export async function createBDProject(data: {
 
     if (data.workTypeId === 'OTHER' && data.customWorkType) {
       const trimmedName = data.customWorkType.trim();
-      let wt = await prisma.bDWorkType.findUnique({ where: { name: trimmedName }});
+      let wt = await prisma.bDWorkType.findUnique({ where: { name: trimmedName } });
       if (!wt) {
-        wt = await prisma.bDWorkType.create({ data: { name: trimmedName }});
+        wt = await prisma.bDWorkType.create({ data: { name: trimmedName } });
       }
       finalWorkTypeId = wt.id;
     }
@@ -280,9 +280,9 @@ export async function getBDKanbanProjects() {
     });
 
     const completedProjects = await prisma.bDProject.findMany({
-      where: { 
+      where: {
         status: 'COMPLETED',
-        parentId: null 
+        parentId: null
       },
       include: {
         workType: true,
@@ -334,9 +334,9 @@ export async function getBDProjectDetails(id: string) {
         }
       }
     });
-    
+
     if (!project) return { success: false, error: 'Project not found' };
-    
+
     return { success: true, data: project };
   } catch (error) {
     console.error('Error fetching project details:', error);
@@ -366,7 +366,7 @@ export async function updateBDProject(id: string, data: {
         ...(memberIds ? { members: { set: memberIds.map(id => ({ id })) } } : {})
       }
     });
-    
+
     // Sync completion date to tasks
     if (data.status === 'COMPLETED' && data.completedAt) {
       await prisma.bDTask.updateMany({
@@ -390,39 +390,39 @@ export async function updateBDProject(id: string, data: {
     if (data.status === 'COMPLETED' && project.supportTicketId) {
       const user = await getUser();
 
-    const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: project.supportTicketId } });
-    if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
-      await prisma.supportTicket.update({
-        where: { id: project.supportTicketId },
-        data: {
-          status: 'RESOLVED',
-          progressPercent: 100,
-          resolutionPlan: 'งานโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
-          resolvedAt: new Date()
-        }
-      });
-
-      await prisma.ticketLog.create({
-        data: {
-          ticketId: project.supportTicketId,
-          userId: user ? user.id : 'SYSTEM',
-          action: 'RESOLVED',
-          details: 'ปิดงานอัตโนมัติจาก BD Kanban'
-        }
-      });
-
-      if (ticketToResolve.reporterId) {
-        await prisma.notification.create({
+      const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: project.supportTicketId } });
+      if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
+        await prisma.supportTicket.update({
+          where: { id: project.supportTicketId },
           data: {
-            userId: ticketToResolve.reporterId,
-            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
-            message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
-            type: 'SUPPORT_TICKET',
-            linkUrl: `/support/tickets/${ticketToResolve.id}`,
+            status: 'RESOLVED',
+            progressPercent: 100,
+            resolutionPlan: 'งานโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
+            resolvedAt: new Date()
           }
         });
+
+        await prisma.ticketLog.create({
+          data: {
+            ticketId: project.supportTicketId,
+            userId: user ? user.id : 'SYSTEM',
+            action: 'RESOLVED',
+            details: 'ปิดงานอัตโนมัติจาก BD Kanban'
+          }
+        });
+
+        if (ticketToResolve.reporterId) {
+          await prisma.notification.create({
+            data: {
+              userId: ticketToResolve.reporterId,
+              title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+              message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+              type: 'SUPPORT_TICKET',
+              linkUrl: `/support/tickets/${ticketToResolve.id}`,
+            }
+          });
+        }
       }
-    }
 
     }
 
@@ -436,39 +436,39 @@ export async function updateBDProject(id: string, data: {
       for (const t of tasksWithTickets) {
         if (t.supportTicketId) {
 
-    const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: t.supportTicketId } });
-    if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
-      await prisma.supportTicket.update({
-        where: { id: t.supportTicketId },
-        data: {
-          status: 'RESOLVED',
-          progressPercent: 100,
-          resolutionPlan: 'งานย่อยของโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
-          resolvedAt: new Date()
-        }
-      });
+          const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: t.supportTicketId } });
+          if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
+            await prisma.supportTicket.update({
+              where: { id: t.supportTicketId },
+              data: {
+                status: 'RESOLVED',
+                progressPercent: 100,
+                resolutionPlan: 'งานย่อยของโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
+                resolvedAt: new Date()
+              }
+            });
 
-      await prisma.ticketLog.create({
-        data: {
-          ticketId: t.supportTicketId,
-          userId: user ? user.id : 'SYSTEM',
-          action: 'RESOLVED',
-          details: 'ปิดงานอัตโนมัติจาก BD Kanban'
-        }
-      });
+            await prisma.ticketLog.create({
+              data: {
+                ticketId: t.supportTicketId,
+                userId: user ? user.id : 'SYSTEM',
+                action: 'RESOLVED',
+                details: 'ปิดงานอัตโนมัติจาก BD Kanban'
+              }
+            });
 
-      if (ticketToResolve.reporterId) {
-        await prisma.notification.create({
-          data: {
-            userId: ticketToResolve.reporterId,
-            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
-            message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
-            type: 'SUPPORT_TICKET',
-            linkUrl: `/support/tickets/${ticketToResolve.id}`,
+            if (ticketToResolve.reporterId) {
+              await prisma.notification.create({
+                data: {
+                  userId: ticketToResolve.reporterId,
+                  title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+                  message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+                  type: 'SUPPORT_TICKET',
+                  linkUrl: `/support/tickets/${ticketToResolve.id}`,
+                }
+              });
+            }
           }
-        });
-      }
-    }
 
         }
       }
@@ -487,7 +487,7 @@ export async function deleteBDProject(id: string) {
     await prisma.bDTask.deleteMany({ where: { projectId: id } });
     await prisma.bDActivity.deleteMany({ where: { projectId: id } });
     await prisma.bDProject.delete({ where: { id } });
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error deleting project:', error);
@@ -508,7 +508,7 @@ export async function acceptBDProject(projectId: string, templateId?: string) {
     if (!project) return { success: false, error: 'Project not found' };
 
     const finalTemplateId = templateId || project.workType?.defaultTemplateId;
-    
+
     // Create the tasks if we have a template
     if (finalTemplateId) {
       const template = await prisma.bDWorkflowTemplate.findUnique({
@@ -564,7 +564,7 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
 
     const task = await prisma.bDTask.update({
       where: { id: taskId },
-      data: { 
+      data: {
         status,
         completedAt: status === 'COMPLETED' ? new Date() : null
       }
@@ -581,39 +581,39 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
 
     if (status === 'COMPLETED' && task.supportTicketId) {
 
-    const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: task.supportTicketId } });
-    if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
-      await prisma.supportTicket.update({
-        where: { id: task.supportTicketId },
-        data: {
-          status: 'RESOLVED',
-          progressPercent: 100,
-          resolutionPlan: 'งานย่อยนี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Task)',
-          resolvedAt: new Date()
-        }
-      });
-
-      await prisma.ticketLog.create({
-        data: {
-          ticketId: task.supportTicketId,
-          userId: user ? user.id : 'SYSTEM',
-          action: 'RESOLVED',
-          details: 'ปิดงานอัตโนมัติจาก BD Task'
-        }
-      });
-
-      if (ticketToResolve.reporterId) {
-        await prisma.notification.create({
+      const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: task.supportTicketId } });
+      if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
+        await prisma.supportTicket.update({
+          where: { id: task.supportTicketId },
           data: {
-            userId: ticketToResolve.reporterId,
-            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
-            message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
-            type: 'SUPPORT_TICKET',
-            linkUrl: `/support/tickets/${ticketToResolve.id}`,
+            status: 'RESOLVED',
+            progressPercent: 100,
+            resolutionPlan: 'งานย่อยนี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Task)',
+            resolvedAt: new Date()
           }
         });
+
+        await prisma.ticketLog.create({
+          data: {
+            ticketId: task.supportTicketId,
+            userId: user ? user.id : 'SYSTEM',
+            action: 'RESOLVED',
+            details: 'ปิดงานอัตโนมัติจาก BD Task'
+          }
+        });
+
+        if (ticketToResolve.reporterId) {
+          await prisma.notification.create({
+            data: {
+              userId: ticketToResolve.reporterId,
+              title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+              message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+              type: 'SUPPORT_TICKET',
+              linkUrl: `/support/tickets/${ticketToResolve.id}`,
+            }
+          });
+        }
       }
-    }
 
     }
 
@@ -622,13 +622,13 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
         where: { projectId: task.projectId }
       });
       const allFinished = allTasks.every(t => t.status === 'COMPLETED' || t.status === 'SKIPPED');
-      
+
       if (allFinished) {
         const project = await prisma.bDProject.findUnique({
           where: { id: task.projectId },
           include: { subProjects: true }
         });
-        
+
         if (project && project.status !== 'COMPLETED' && project.status !== 'ON_HOLD') {
           const hasIncompleteSubProjects = project.subProjects && project.subProjects.some(sp => sp.status !== 'COMPLETED');
           if (!hasIncompleteSubProjects) {
@@ -636,42 +636,42 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
               where: { id: project.id },
               data: { status: 'COMPLETED', completedAt: new Date() }
             });
-            
+
             if (project.supportTicketId) {
 
-    const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: project.supportTicketId } });
-    if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
-      await prisma.supportTicket.update({
-        where: { id: project.supportTicketId },
-        data: {
-          status: 'RESOLVED',
-          progressPercent: 100,
-          resolutionPlan: 'งานโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
-          resolvedAt: new Date()
-        }
-      });
+              const ticketToResolve = await prisma.supportTicket.findUnique({ where: { id: project.supportTicketId } });
+              if (ticketToResolve && ticketToResolve.status !== 'RESOLVED') {
+                await prisma.supportTicket.update({
+                  where: { id: project.supportTicketId },
+                  data: {
+                    status: 'RESOLVED',
+                    progressPercent: 100,
+                    resolutionPlan: 'งานโปรเจกต์นี้ได้รับการดำเนินการเสร็จสิ้นแล้ว (Completed via BD Kanban)',
+                    resolvedAt: new Date()
+                  }
+                });
 
-      await prisma.ticketLog.create({
-        data: {
-          ticketId: project.supportTicketId,
-          userId: user ? user.id : 'SYSTEM',
-          action: 'RESOLVED',
-          details: 'ปิดงานอัตโนมัติจาก BD Kanban'
-        }
-      });
+                await prisma.ticketLog.create({
+                  data: {
+                    ticketId: project.supportTicketId,
+                    userId: user ? user.id : 'SYSTEM',
+                    action: 'RESOLVED',
+                    details: 'ปิดงานอัตโนมัติจาก BD Kanban'
+                  }
+                });
 
-      if (ticketToResolve.reporterId) {
-        await prisma.notification.create({
-          data: {
-            userId: ticketToResolve.reporterId,
-            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
-            message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
-            type: 'SUPPORT_TICKET',
-            linkUrl: `/support/tickets/${ticketToResolve.id}`,
-          }
-        });
-      }
-    }
+                if (ticketToResolve.reporterId) {
+                  await prisma.notification.create({
+                    data: {
+                      userId: ticketToResolve.reporterId,
+                      title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+                      message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+                      type: 'SUPPORT_TICKET',
+                      linkUrl: `/support/tickets/${ticketToResolve.id}`,
+                    }
+                  });
+                }
+              }
 
             }
           }
@@ -737,6 +737,8 @@ export async function blockBDTask(taskId: string, blockedReason: string, waiting
     const user = await getUser();
     if (!user) return { success: false, error: 'Unauthorized' };
 
+    const oldTask = await prisma.bDTask.findUnique({ where: { id: taskId } });
+
     const task = await prisma.bDTask.update({
       where: { id: taskId },
       data: { blockedReason, waitingOn, blockedAt: new Date() }
@@ -750,6 +752,25 @@ export async function blockBDTask(taskId: string, blockedReason: string, waiting
         details: `Task "${task.name}" marked as blocked. Reason: ${blockedReason}. Waiting on: ${waitingOn}`
       }
     });
+
+    // --- Real-time LINE Alert for Blocked Tasks ---
+    if (!oldTask?.blockedReason && blockedReason) {
+      try {
+        const config = await prisma.departmentLineConfig.findUnique({
+          where: { department: "BD" }
+        });
+        if (config && config.isActive && config.lineGroupId) {
+          const { pushLineMessage, bdTaskBlockedMessage } = await import("@/app/lib/lineNotify");
+          const msg = bdTaskBlockedMessage({
+            title: task.name,
+            blockedReason: blockedReason
+          });
+          await pushLineMessage(config.lineGroupId, [msg], 'crm');
+        }
+      } catch (err) {
+        console.error("Failed to send real-time blocked task alert", err);
+      }
+    }
 
     return { success: true, data: task };
   } catch (error) {
@@ -806,7 +827,7 @@ export async function addBDComment(projectId: string, comment: string, mentioned
     if (mentionedUserIds && mentionedUserIds.length > 0 && project) {
       // Snippet for push notification
       const snippet = comment.length > 50 ? comment.substring(0, 50) + '...' : comment;
-      
+
       for (const targetUserId of mentionedUserIds) {
         if (targetUserId !== user.id) { // Don't notify self
           await sendPushToUser(targetUserId, {

@@ -2,6 +2,7 @@ import { getUser } from "@/app/lib/dal";
 import { redirect } from "next/navigation";
 import prisma from "@/app/lib/db";
 import ServiceDashboardClient from "./ServiceDashboardClient";
+import { canViewAll } from "@/app/lib/roleHelper";
 
 export const metadata = {
   title: "ภาพรวมฝ่ายบริการ - TERA",
@@ -29,7 +30,7 @@ export default async function ServiceDashboardPage(props: { searchParams?: Promi
     roleStr.includes("manager") ||
     roleStr.includes("ผู้จัดการ");
 
-  if (!isServiceUser) {
+  if (!isServiceUser && !canViewAll(roleStr)) {
     redirect("/dashboard");
   }
 

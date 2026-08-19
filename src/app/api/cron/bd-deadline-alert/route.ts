@@ -1,12 +1,19 @@
 import prisma from "@/app/lib/db";
 import { NextResponse } from "next/server";
+import { pushLineMessage, bdDeadlineAlertMessage } from "@/app/lib/lineNotify";
 
 export async function GET(req: Request) {
   try {
     const authHeader = req.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const config = await prisma.departmentLineConfig.findUnique({
+      where: { department: "BD" }
+    });
+    const lineGroupId = config?.isActive ? config.lineGroupId : null;
+    const lineMessages: any[] = [];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -49,6 +56,13 @@ export async function GET(req: Request) {
         isRead: false,
         createdAt: now,
       });
+
+      if (lineGroupId && isOverdue) {
+        lineMessages.push(bdDeadlineAlertMessage({
+          title: `[Project] ${project.name}`,
+          targetDate: project.deadline
+        }));
+      }
     }
 
     // 2. Check BD Tasks
@@ -80,6 +94,13 @@ export async function GET(req: Request) {
         isRead: false,
         createdAt: now,
       });
+
+      if (lineGroupId && isOverdue) {
+        lineMessages.push(bdDeadlineAlertMessage({
+          title: `[Task] ${task.name} (ใน ${task.project.name})`,
+          targetDate: task.dueDate
+        }));
+      }
     }
 
     // Insert notifications
@@ -87,6 +108,11 @@ export async function GET(req: Request) {
       await prisma.notification.createMany({
         data: notifications
       });
+    }
+
+    // Send LINE messages
+    if (lineGroupId && lineMessages.length > 0) {
+      await pushLineMessage(lineGroupId, lineMessages, 'crm');
     }
 
     // Update deadlineNotifiedAt
@@ -105,7 +131,7 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json({ 
-      message: `Sent ${notifications.length} deadline notifications`,
+      message: `Sent ${notifications.length} deadline notifications and ${lineMessages.length} LINE alerts`,
       projects: projectsToNotify.map(p => p.id),
       tasks: tasksToNotify.map(t => t.id)
     });
@@ -114,3 +140,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
+
