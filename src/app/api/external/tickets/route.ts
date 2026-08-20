@@ -60,6 +60,27 @@ export async function POST(req: NextRequest) {
   // Find real user from email
   const user = await prisma.user.findUnique({ where: { email: reporterEmail } })
 
+  // Intercept Facility Repair requests from external systems (like HR)
+  if (category === 'FACILITY_REPAIR' || title?.includes('แจ้งซ่อม')) {
+    try {
+      const { createFacilityRepairCore } = await import('@/app/actions/facility-repairs')
+      const repair = await createFacilityRepairCore({
+        equipmentName: title,
+        issueDetail: description,
+        location: 'ระบบ HR (รอยืนยันสถานที่)',
+        reporterId: user ? user.id : undefined,
+        reporterName: user ? undefined : reporterName,
+        reporterEmail: user ? undefined : reporterEmail,
+        sourceModule: sourceModule ?? 'checkin'
+      })
+      
+      return NextResponse.json({ success: true, ticketId: repair.id, isFacilityRepair: true }, { status: 201 })
+    } catch (error: any) {
+      console.error('Error creating external facility repair:', error)
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    }
+  }
+
   try {
     const ticket = await createTicketCore({
       reporterId: user ? user.id : null,
@@ -120,12 +141,54 @@ export async function GET(req: NextRequest) {
     }
   })
 
-  const mappedTickets = tickets.map(t => ({
-    ...t,
-    progress: t.progressPercent,
-    solutionPlan: t.resolutionPlan,
-    assignee: t.assignee ? { name: t.assignee.fullName } : null
-  }))
+  const facilityRepairs = await prisma.facilityRepairRequest.findMany({
+    where: {
+      OR: [
+        ...(user ? [{ reporterId: user.id }] : []),
+        { reporterEmail: email }
+      ]
+    },
+    select: {
+      id: true,
+      requestNumber: true,
+      equipmentName: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      photoUrl: true,
+      assignee: {
+        select: { fullName: true },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+
+  const mappedTickets = [
+    ...tickets.map(t => ({
+      ...t,
+      progress: t.progressPercent,
+      solutionPlan: t.resolutionPlan,
+      assignee: t.assignee ? { name: t.assignee.fullName } : null,
+      type: 'TICKET'
+    })),
+    ...facilityRepairs.map(f => ({
+      id: f.id,
+      ticketNumber: f.requestNumber,
+      title: `[แจ้งซ่อม] ${f.equipmentName}`,
+      status: f.status,
+      progress: 0,
+      solutionPlan: null,
+      urgency: 'MEDIUM',
+      category: 'FACILITY_REPAIR',
+      createdAt: f.createdAt,
+      updatedAt: f.updatedAt,
+      attachments: f.photoUrl ? [f.photoUrl] : [],
+      assignee: f.assignee ? { name: f.assignee.fullName } : null,
+      type: 'FACILITY_REPAIR'
+    }))
+  ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
   return NextResponse.json({ success: true, tickets: mappedTickets }, { status: 200 })
 }

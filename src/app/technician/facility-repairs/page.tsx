@@ -17,6 +17,7 @@ export default async function TechnicianFacilityRepairsPage() {
   const allRepairs = await getFacilityRepairs();
   const unassignedRepairs = allRepairs.filter((r: any) => r.status === 'REPORTED');
   const myRepairs = allRepairs.filter((r: any) => r.assigneeId === user.id && r.status !== 'COMPLETED');
+  const completedRepairs = allRepairs.filter((r: any) => r.status === 'COMPLETED');
 
   return (
     <div className="p-4 sm:p-6 md:p-10 lg:p-12 max-w-7xl mx-auto w-full">
@@ -71,7 +72,7 @@ export default async function TechnicianFacilityRepairsPage() {
                 <td className="px-6 py-4 whitespace-nowrap">{r.location}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{r.status}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Link href={`/technician/facility-repairs/${r.id}/edit`} className="text-red-600 hover:text-red-800 font-medium underline underline-offset-2 transition-colors">
+                  <Link href={`/facility-repairs/${r.id}`} className="text-red-600 hover:text-red-800 font-medium underline underline-offset-2 transition-colors">
                     อัปเดตสถานะ
                   </Link>
                 </td>
@@ -142,6 +143,71 @@ export default async function TechnicianFacilityRepairsPage() {
             ))}
             {unassignedRepairs.length === 0 && (
               <tr><td colSpan={5} className="px-6 py-4 text-center text-gray-500">ไม่มีคำร้องที่รอดำเนินการ</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 className="text-lg sm:text-xl font-semibold mt-8 mb-4 text-gray-800">งานซ่อมที่เสร็จสิ้นแล้ว</h2>
+
+      {/* Mobile view (Cards) */}
+      <div className="md:hidden grid grid-cols-1 gap-4 mb-8">
+        {completedRepairs.map((r: any) => (
+          <div key={r.id} className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col space-y-2 opacity-80">
+            <div className="flex justify-between items-start">
+              <span className="font-bold text-gray-700">{r.requestNumber}</span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">{r.status}</span>
+            </div>
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">อุปกรณ์/ปัญหา:</span> {r.equipmentName}
+            </div>
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">สถานที่:</span> {r.location}
+            </div>
+            <div className="flex justify-end items-center mt-2 pt-3 border-t border-gray-200">
+              <Link href={`/facility-repairs/${r.id}`} className="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors">ดูรายละเอียด</Link>
+            </div>
+          </div>
+        ))}
+        {completedRepairs.length === 0 && (
+          <div className="text-center text-gray-500 py-4 bg-white rounded-lg shadow-sm border border-gray-100">ไม่มีงานที่เสร็จสิ้นแล้ว</div>
+        )}
+      </div>
+
+      {/* Desktop view (Table) */}
+      <div className="hidden md:block bg-white shadow rounded-lg overflow-x-auto border border-gray-100 mb-8 opacity-90">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">เลขที่คำร้อง</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">อุปกรณ์/ปัญหา</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานที่</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ช่างผู้รับผิดชอบ</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {completedRepairs.map((r: any) => (
+              <tr key={r.id} className="bg-gray-50/50">
+                <td className="px-6 py-4 whitespace-nowrap text-gray-600 font-medium hover:text-gray-900 transition-colors">
+                  <Link href={`/facility-repairs/${r.id}`}>{r.requestNumber}</Link>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-gray-600">{r.equipmentName}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-gray-600">{r.location}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">{r.status}</span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-gray-600">{r.assignee?.fullName || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                   <Link href={`/facility-repairs/${r.id}`} className="text-gray-600 hover:text-gray-900 font-medium underline underline-offset-2 transition-colors">
+                     ดูรายละเอียด
+                   </Link>
+                </td>
+              </tr>
+            ))}
+            {completedRepairs.length === 0 && (
+              <tr><td colSpan={6} className="px-6 py-4 text-center text-gray-500">ไม่มีงานที่เสร็จสิ้นแล้ว</td></tr>
             )}
           </tbody>
         </table>
