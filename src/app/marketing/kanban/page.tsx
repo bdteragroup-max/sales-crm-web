@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import KanbanBoardClient from './KanbanBoardClient';
 import { getUser } from '@/app/lib/dal';

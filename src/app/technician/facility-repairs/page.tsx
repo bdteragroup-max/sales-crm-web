@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { getFacilityRepairs } from '@/app/actions/facility-repairs';
 import { getUser } from '@/app/lib/dal';
