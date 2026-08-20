@@ -3,7 +3,7 @@ import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
 
 // Specify protected and public routes in lowercase
-const protectedRoutes = ['/dashboard', '/team', '/sales', '/schedule', '/telesales', '/clients', '/settings']
+const protectedRoutes = ['/dashboard', '/team', '/sales', '/schedule', '/telesales', '/clients', '/settings', '/technician']
 const publicRoutes = ['/', '/login', '/signup', '/forgot-password']
 
 export default async function proxy(req: NextRequest) {
