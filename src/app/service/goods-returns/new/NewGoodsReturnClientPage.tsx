@@ -9,6 +9,8 @@ interface GoodsReturnItem {
   no: number;
   itemCode: string;
   description: string;
+  model: string;
+  serialNumber: string;
   quantity: number;
   unit: string;
   totalAmount: number;
@@ -34,7 +36,7 @@ export default function NewGoodsReturnClientPage({ companies, jobs, quotations, 
   });
 
   const [items, setItems] = useState<GoodsReturnItem[]>([
-    { no: 1, itemCode: "", description: "", quantity: 1, unit: "", totalAmount: 0 }
+    { no: 1, itemCode: "", description: "", model: "", serialNumber: "", quantity: 1, unit: "", totalAmount: 0 }
   ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -104,7 +106,7 @@ export default function NewGoodsReturnClientPage({ companies, jobs, quotations, 
   };
 
   const addItem = () => {
-    setItems([...items, { no: items.length + 1, itemCode: "", description: "", quantity: 1, unit: "", totalAmount: 0 }]);
+    setItems([...items, { no: items.length + 1, itemCode: "", description: "", model: "", serialNumber: "", quantity: 1, unit: "", totalAmount: 0 }]);
   };
 
   const removeItem = (index: number) => {
@@ -338,11 +340,13 @@ export default function NewGoodsReturnClientPage({ companies, jobs, quotations, 
               <thead className="bg-gray-100 text-gray-600">
                 <tr>
                   <th className="px-4 py-2 font-medium w-12 text-center">No.</th>
-                  <th className="px-4 py-2 font-medium w-48">รหัสสินค้า</th>
-                  <th className="px-4 py-2 font-medium min-w-[200px]">รายละเอียด</th>
-                  <th className="px-4 py-2 font-medium w-24">จำนวน</th>
-                  <th className="px-4 py-2 font-medium w-24">หน่วย</th>
-                  <th className="px-4 py-2 font-medium w-32">มูลค่ารวม</th>
+                  <th className="px-4 py-2 font-medium w-40">รหัสสินค้า</th>
+                  <th className="px-4 py-2 font-medium min-w-[180px]">รายละเอียด</th>
+                  <th className="px-4 py-2 font-medium w-36">Model</th>
+                  <th className="px-4 py-2 font-medium w-36">S/N</th>
+                  <th className="px-4 py-2 font-medium w-20">จำนวน</th>
+                  <th className="px-4 py-2 font-medium w-20">หน่วย</th>
+                  <th className="px-4 py-2 font-medium w-28">มูลค่ารวม</th>
                   <th className="px-4 py-2 w-12"></th>
                 </tr>
               </thead>
@@ -363,6 +367,24 @@ export default function NewGoodsReturnClientPage({ companies, jobs, quotations, 
                         type="text"
                         value={item.description}
                         onChange={(e) => handleItemChange(index, "description", e.target.value)}
+                        className="w-full px-2 py-1.5 border border-gray-200 rounded focus:border-[#ff2301] focus:ring-1 focus:ring-red-100 outline-none"
+                      />
+                    </td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="text"
+                        placeholder="Model"
+                        value={item.model}
+                        onChange={(e) => handleItemChange(index, "model", e.target.value)}
+                        className="w-full px-2 py-1.5 border border-gray-200 rounded focus:border-[#ff2301] focus:ring-1 focus:ring-red-100 outline-none"
+                      />
+                    </td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="text"
+                        placeholder="S/N"
+                        value={item.serialNumber}
+                        onChange={(e) => handleItemChange(index, "serialNumber", e.target.value)}
                         className="w-full px-2 py-1.5 border border-gray-200 rounded focus:border-[#ff2301] focus:ring-1 focus:ring-red-100 outline-none"
                       />
                     </td>
@@ -403,7 +425,7 @@ export default function NewGoodsReturnClientPage({ companies, jobs, quotations, 
                 ))}
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="text-center py-6 text-gray-400">ยังไม่มีรายการ</td>
+                    <td colSpan={9} className="text-center py-6 text-gray-400">ยังไม่มีรายการ</td>
                   </tr>
                 )}
               </tbody>

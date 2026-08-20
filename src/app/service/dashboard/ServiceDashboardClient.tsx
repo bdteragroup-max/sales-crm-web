@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Wrench, Clock, CheckCircle, TrendingUp, TrendingDown, Users, AlertTriangle, Package, Activity, DollarSign, FileText } from "lucide-react";
@@ -36,6 +36,8 @@ export default function ServiceDashboardClient({
   const searchParams = useSearchParams();
   const [customStart, setCustomStart] = useState(searchParams.get("startDate") || "");
   const [customEnd, setCustomEnd] = useState(searchParams.get("endDate") || "");
+  const [printDate, setPrintDate] = useState("");
+  useEffect(() => { setPrintDate(new Date().toLocaleString('th-TH')); }, []);
 
   // --- KPI Calculations ---
   // A job is truly pending if it's not closed/returned/accounting (filtered in query) AND doesn't have a sentDate
@@ -300,7 +302,7 @@ export default function ServiceDashboardClient({
       {/* Print Header */}
       <div className="hidden print:block mb-8 text-center border-b pb-4">
         <h1 className="text-3xl font-black text-gray-900">รายงานภาพรวมงานซ่อมบำรุงและบริการ (Service Dashboard)</h1>
-        <p className="text-md text-gray-500 mt-2">พิมพ์เมื่อ: {new Date().toLocaleString('th-TH')}</p>
+        <p className="text-md text-gray-500 mt-2">พิมพ์เมื่อ: {printDate}</p>
       </div>
 
       {/* Header & Filters */}

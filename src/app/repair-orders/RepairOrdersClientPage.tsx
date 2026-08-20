@@ -32,13 +32,16 @@ export default function RepairOrdersClientPage({
     const matchCompany = ro.customerCompany?.toLowerCase().includes(term) || ro.company?.toLowerCase().includes(term) || ro.job?.customerName?.toLowerCase().includes(term);
     const matchTech = ro.technicianName?.toLowerCase().includes(term);
     
-    // Status filter mapping:
     let matchStatus = true;
     const step = ro.job?.currentStep;
-    if (statusFilter === "Pending Repair") matchStatus = ["service_receive", "sales_quote", "customer_approval"].includes(step);
-    else if (statusFilter === "Under Repair") matchStatus = ["service_repair", "service_outsource", "purchase_followup", "service_receive_back", "service_qc"].includes(step);
-    else if (statusFilter === "Completed") matchStatus = ["service_return", "accounting"].includes(step) || !!ro.sentDate;
-    else if (statusFilter === "Returned") matchStatus = !!ro.sentDate;
+    if (statusFilter === "service_receive")         matchStatus = step === "service_receive";
+    else if (statusFilter === "service_check")      matchStatus = step === "service_check";
+    else if (statusFilter === "service_repair")     matchStatus = step === "service_repair";
+    else if (statusFilter === "customer_approval")  matchStatus = step === "customer_approval";
+    else if (statusFilter === "sales_quote")        matchStatus = step === "sales_quote";
+    else if (statusFilter === "awaiting_return")    matchStatus = step === "awaiting_return";
+    else if (statusFilter === "service_outsource")  matchStatus = step === "service_outsource";
+    else if (statusFilter === "service_return")     matchStatus = step === "service_return" || !!ro.sentDate;
 
     return (matchJob || matchCompany || matchTech) && matchStatus;
   });
@@ -153,10 +156,14 @@ export default function RepairOrdersClientPage({
                 className="text-[11px] font-black uppercase tracking-widest border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all"
               >
                 <option value="">สถานะทั้งหมด (All)</option>
-                <option value="Pending Repair">รอซ่อม (Pending Repair)</option>
-                <option value="Under Repair">กำลังซ่อม (Under Repair)</option>
-                <option value="Completed">ซ่อมเสร็จ (Completed)</option>
-                <option value="Returned">ส่งคืนแล้ว (Returned)</option>
+                <option value="service_receive">รอรับแจ้ง</option>
+                <option value="service_check">กำลังตรวจสอบ</option>
+                <option value="service_repair">กำลังซ่อม</option>
+                <option value="customer_approval">รอการอนุมัติจากลูกค้า</option>
+                <option value="sales_quote">รอการอนุมัติซ่อม</option>
+                <option value="awaiting_return">รอส่งคืน</option>
+                <option value="service_outsource">ส่งซ่อมภายนอก</option>
+                <option value="service_return">ส่งคืนแล้ว</option>
               </select>
             </div>
 
@@ -292,18 +299,23 @@ export default function RepairOrdersClientPage({
                                 onChange={(e) => handleStatusChange(record.jobId, e.target.value)}
                                 disabled={isUpdating === record.jobId}
                                 className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider appearance-none cursor-pointer outline-none pr-6 ${
-                                  ["service_return", "accounting", "closed"].includes(record.job?.currentStep) || record.sentDate ? 'bg-emerald-100 text-emerald-600' :
-                                  ["service_repair", "service_outsource", "purchase_followup", "service_receive_back", "service_qc"].includes(record.job?.currentStep) ? 'bg-blue-100 text-blue-600' :
+                                  record.job?.currentStep === "service_return" || record.sentDate ? 'bg-emerald-100 text-emerald-600' :
+                                  record.job?.currentStep === "service_repair" ? 'bg-blue-100 text-blue-600' :
+                                  record.job?.currentStep === "service_outsource" ? 'bg-orange-100 text-orange-600' :
+                                  record.job?.currentStep === "customer_approval" || record.job?.currentStep === "sales_quote" ? 'bg-yellow-100 text-yellow-700' :
+                                  record.job?.currentStep === "awaiting_return" ? 'bg-purple-100 text-purple-600' :
+                                  record.job?.currentStep === "service_check" ? 'bg-cyan-100 text-cyan-600' :
                                   'bg-amber-100 text-amber-600'
                                 } ${isUpdating === record.jobId ? "opacity-50" : ""}`}
                               >
-                                <option value="service_receive">รอรับซ่อม</option>
+                                <option value="service_receive">รอรับแจ้ง</option>
+                                <option value="service_check">กำลังตรวจสอบ</option>
                                 <option value="service_repair">กำลังซ่อม</option>
+                                <option value="customer_approval">รอการอนุมัติจากลูกค้า</option>
+                                <option value="sales_quote">รอการอนุมัติซ่อม</option>
+                                <option value="awaiting_return">รอส่งคืน</option>
                                 <option value="service_outsource">ส่งซ่อมภายนอก</option>
-                                <option value="service_qc">ตรวจสอบคุณภาพ (QC)</option>
                                 <option value="service_return">ส่งคืนแล้ว</option>
-                                <option value="closed">เสร็จสิ้น (Closed)</option>
-                                <option value="accounting">รอบัญชีออกบิล</option>
                               </select>
                               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1 text-gray-500">
                                 <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>

@@ -86,7 +86,7 @@ const serviceNav = [
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
   { icon: Package, label: 'ใบส่งคืนสินค้า', href: '/service/goods-returns' },
-  { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Facility Repairs)', href: '/facility-repairs' },
+
 ];
 
 const serviceMgrNav = [
