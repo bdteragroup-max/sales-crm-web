@@ -55,6 +55,11 @@ model User {
   siteSurveys             SiteSurvey[]
   assignedTickets         SupportTicket[]        @relation("TicketAssignee")
   reportedTickets         SupportTicket[]        @relation("TicketReporter")
+  
+  reportedFacilityRepairs FacilityRepairRequest[] @relation("FacilityRepairReporter")
+  assignedFacilityRepairs FacilityRepairRequest[] @relation("FacilityRepairAssignee")
+  facilityRepairLogs      FacilityRepairLog[]
+
   assignedTechnicianTasks TechnicianTask[]       @relation("TaskAssigner")
   telesales               Telesale[]
   telesalesKPIs           TelesalesKPI[]
@@ -2829,4 +2834,49 @@ model ServiceCallLog {
   @@index([status])
   @@index([followUpDate])
   @@index([responsibleId])
+}
+
+
+model FacilityRepairRequest {
+  id                     String    @id @default(cuid())
+  requestNumber          String    @unique // FR-YYYYMMDD-NNN
+  equipmentName          String
+  issueDetail            String    @db.Text
+  location               String
+  photoUrl               String?
+  status                 String    @default("REPORTED") // REPORTED / ASSIGNED / IN_PROGRESS / COMPLETED
+  reportedDate           DateTime  @default(now()) @db.Timestamptz(6)
+  expectedCompletionDate DateTime? @db.Date
+  completedAt            DateTime? @db.Timestamptz(6)
+
+  reporterId             String?
+  reporterName           String?
+  reporterEmail          String?
+  assigneeId             String?
+
+  sourceModule           String    @default("general") // "general" | "checkin"
+  createdAt              DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  reporter               User?               @relation("FacilityRepairReporter", fields: [reporterId], references: [id])
+  assignee               User?               @relation("FacilityRepairAssignee", fields: [assigneeId], references: [id])
+  logs                   FacilityRepairLog[]
+
+  @@index([status])
+  @@index([assigneeId])
+  @@index([reporterId])
+}
+
+model FacilityRepairLog {
+  id         String   @id @default(cuid())
+  requestId  String
+  userId     String?
+  action     String
+  details    String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  request    FacilityRepairRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user       User?                 @relation(fields: [userId], references: [id])
+
+  @@index([requestId])
 }
