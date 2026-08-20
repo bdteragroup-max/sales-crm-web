@@ -156,7 +156,7 @@ export default function RepairOrdersClientPage({
                 className="text-[11px] font-black uppercase tracking-widest border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all"
               >
                 <option value="">สถานะทั้งหมด (All)</option>
-                <option value="service_receive">รอรับแจ้ง</option>
+                <option value="service_receive">รอรีพอต</option>
                 <option value="service_check">กำลังตรวจสอบ</option>
                 <option value="service_repair">กำลังซ่อม</option>
                 <option value="customer_approval">รอการอนุมัติจากลูกค้า</option>
@@ -308,7 +308,7 @@ export default function RepairOrdersClientPage({
                                   'bg-amber-100 text-amber-600'
                                 } ${isUpdating === record.jobId ? "opacity-50" : ""}`}
                               >
-                                <option value="service_receive">รอรับแจ้ง</option>
+                                <option value="service_receive">รอรีพอต</option>
                                 <option value="service_check">กำลังตรวจสอบ</option>
                                 <option value="service_repair">กำลังซ่อม</option>
                                 <option value="customer_approval">รอการอนุมัติจากลูกค้า</option>
