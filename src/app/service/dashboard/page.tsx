@@ -59,7 +59,7 @@ export default async function ServiceDashboardPage(props: { searchParams?: Promi
     startDate.setHours(0, 0, 0, 0);
     endDate = new Date(customEndDate);
     endDate.setHours(23, 59, 59, 999);
-    
+
     // Previous period roughly same duration
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
     previousEndDate = new Date(startDate.getTime() - 1);
@@ -71,38 +71,39 @@ export default async function ServiceDashboardPage(props: { searchParams?: Promi
     previousEndDate = new Date(2000, 0, 1);
   }
 
-  // Fetch all repair jobs in the selected timeframe
+  // Fetch all repair jobs in the selected timeframe (linked to RepairOrder)
   const currentPeriodJobs = await prisma.job.findMany({
     where: {
-      OR: [{ jobType: { contains: "ซ่อม" } }, { jobType: { contains: "บริการ" } }],
-      createdAt: { gte: startDate, lte: endDate },
-    },
-    include: {
-      quotation: true,
-      installationOrders: true,
-      stepLogs: true,
-    },
-  });
-
-  const previousPeriodJobs = await prisma.job.findMany({
-    where: {
-      OR: [{ jobType: { contains: "ซ่อม" } }, { jobType: { contains: "บริการ" } }],
-      createdAt: { gte: previousStartDate, lte: previousEndDate },
-    },
-    select: { id: true, currentStep: true },
-  });
-
-  // Fetch ALL jobs that are currently pending but constrained by the timeframe for accurate reporting
-  const allPendingRepairJobs = await prisma.job.findMany({
-    where: {
-      OR: [{ jobType: { contains: "ซ่อม" } }, { jobType: { contains: "บริการ" } }],
-      currentStep: { not: "closed" },
+      repairOrder: { isNot: null },
       createdAt: { gte: startDate, lte: endDate },
     },
     include: {
       quotation: true,
       installationOrders: true,
       repairOrder: true,
+      stepLogs: true,
+    },
+  });
+
+  const previousPeriodJobs = await prisma.job.findMany({
+    where: {
+      repairOrder: { isNot: null },
+      createdAt: { gte: previousStartDate, lte: previousEndDate },
+    },
+    select: { id: true, currentStep: true },
+  });
+
+  // Fetch ALL jobs that are currently pending. Removed timeframe constraint so all pending jobs are accurately reflected.
+  const allPendingRepairJobs = await prisma.job.findMany({
+    where: {
+      repairOrder: { isNot: null },
+      currentStep: { notIn: ["closed", "service_return", "accounting"] },
+    },
+    include: {
+      quotation: true,
+      installationOrders: true,
+      repairOrder: true,
+      stepLogs: true,
     },
   });
 

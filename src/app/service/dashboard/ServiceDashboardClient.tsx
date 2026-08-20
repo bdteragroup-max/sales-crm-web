@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Wrench, Clock, CheckCircle, TrendingUp, TrendingDown, Users, AlertTriangle, Package, Activity, DollarSign } from "lucide-react";
+import Link from "next/link";
+import { Wrench, Clock, CheckCircle, TrendingUp, TrendingDown, Users, AlertTriangle, Package, Activity, DollarSign, FileText } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell, PieChart, Pie } from "recharts";
 import * as XLSX from "xlsx";
 
@@ -37,11 +38,17 @@ export default function ServiceDashboardClient({
   const [customEnd, setCustomEnd] = useState(searchParams.get("endDate") || "");
 
   // --- KPI Calculations ---
-  const pendingJobsCount = allPendingRepairJobs.length;
+  // A job is truly pending if it's not closed/returned/accounting (filtered in query) AND doesn't have a sentDate
+  const activePendingJobs = allPendingRepairJobs.filter(j => !(j.repairOrder && !!j.repairOrder.sentDate));
+  const pendingJobsCount = activePendingJobs.length;
   const receivedThisPeriod = currentPeriodJobs.length;
   const receivedPreviousPeriod = previousPeriodJobs.length;
   
-  const completedCurrent = currentPeriodJobs.filter(j => j.currentStep === "closed").length;
+  const completedCurrent = currentPeriodJobs.filter(j => 
+    ["closed", "service_return", "accounting"].includes(j.currentStep) || 
+    (j.repairOrder && !!j.repairOrder.sentDate)
+  ).length;
+  
   const completionRate = receivedThisPeriod > 0 ? (completedCurrent / receivedThisPeriod) * 100 : 0;
   
   // Trend
@@ -70,10 +77,24 @@ export default function ServiceDashboardClient({
   let longestWaitJob: any = null;
   let longestWaitDays = -1;
 
-  allPendingRepairJobs.forEach(job => {
+  activePendingJobs.forEach(job => {
     if (!job.createdAt) return;
-    const daysPending = (now.getTime() - new Date(job.createdAt).getTime()) / (1000 * 3600 * 24);
+
+    let endTime = now.getTime();
+    if (job.stepLogs && job.stepLogs.length > 0) {
+      // Find the first time the job entered 'service_repair' or any subsequent step
+      const repairSteps = ["service_repair", "service_outsource", "purchase_followup", "service_receive_back", "service_qc", "service_return", "accounting"];
+      const sortedLogs = [...job.stepLogs].sort((a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime());
+      const repairLog = sortedLogs.find((log: any) => repairSteps.includes(log.step));
+      
+      if (repairLog && repairLog.completedAt) {
+        endTime = new Date(repairLog.completedAt).getTime();
+      }
+    }
+
+    const daysPending = (endTime - new Date(job.createdAt).getTime()) / (1000 * 3600 * 24);
     
+    // Only flag as SLA Exceeded if it took more than SLA_DAYS to reach repair (or if it hasn't reached it and it's over SLA)
     if (daysPending > SLA_DAYS) {
       slaExceededJobs.push({ ...job, daysPending });
     }
@@ -135,7 +156,7 @@ export default function ServiceDashboardClient({
     }
   };
 
-  allPendingRepairJobs.forEach(job => {
+  activePendingJobs.forEach(job => {
     let counted = false;
     // If it has an installation order with a technician, count it as install
     if (job.installationOrders && job.installationOrders.length > 0) {

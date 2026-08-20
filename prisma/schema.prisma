@@ -8,32 +8,35 @@ datasource db {
 }
 
 model User {
-  id                      String                 @id @default(cuid())
-  employeeId              String                 @unique
-  email                   String?                @unique
+  id                      String                  @id @default(cuid())
+  employeeId              String                  @unique
+  email                   String?                 @unique
   fullName                String
   phoneNumber             String?
-  role                    String                 @default("Sales Representative")
+  role                    String                  @default("Sales Representative")
   position                String?
   password                String
-  createdAt               DateTime               @default(now()) @db.Timestamptz(6)
-  updatedAt               DateTime               @default(now()) @updatedAt @db.Timestamptz(6)
+  createdAt               DateTime                @default(now()) @db.Timestamptz(6)
+  updatedAt               DateTime                @default(now()) @updatedAt @db.Timestamptz(6)
   otpCode                 String?
-  otpExpiresAt            DateTime?              @db.Timestamptz(6)
-  isActive                Boolean                @default(true)
+  otpExpiresAt            DateTime?               @db.Timestamptz(6)
+  isActive                Boolean                 @default(true)
   bdActivities            BDActivity[]
-  bdOwnedProjects         BDProject[]            @relation("BDOwner")
-  bdRequests              BDProject[]            @relation("BDRequester")
-  bdAssignedTasks         BDTask[]               @relation("BDTaskAssignee")
+  bdOwnedProjects         BDProject[]             @relation("BDOwner")
+  bdRequests              BDProject[]             @relation("BDRequester")
+  bdAssignedTasks         BDTask[]                @relation("BDTaskAssignee")
   cabinetAssemblyJobs     CabinetAssemblyJob[]
-  assignedCompanies       Company[]              @relation("AssignedCompany")
+  assignedCompanies       Company[]               @relation("AssignedCompany")
   companyInteractions     CompanyInteraction[]
-  estimatedRequirements   CustomerRequirement[]  @relation("Estimator")
+  estimatedRequirements   CustomerRequirement[]   @relation("Estimator")
   customerRequirements    CustomerRequirement[]
   customerSatisfactions   CustomerSatisfaction[]
+  facilityRepairLogs      FacilityRepairLog[]
+  assignedFacilityRepairs FacilityRepairRequest[] @relation("FacilityRepairAssignee")
+  reportedFacilityRepairs FacilityRepairRequest[] @relation("FacilityRepairReporter")
   installationOrders      InstallationOrder[]
   uploadedDocuments       JobDocument[]
-  assignedMarketingLeads  MarketingLead[]        @relation("AssignedLeads")
+  assignedMarketingLeads  MarketingLead[]         @relation("AssignedLeads")
   marketingLeads          MarketingLead[]
   monthlyTargets          MonthlyTarget[]
   notifications           Notification[]
@@ -41,34 +44,29 @@ model User {
   orderStatusLogs         OrderStatusLog[]
   productionAssignments   ProductionAssignment[]
   productionTimeLogs      ProductionTimeLog[]
-  managedProjects         Project[]              @relation("ProjectManager")
+  managedProjects         Project[]               @relation("ProjectManager")
   reportedDailyLogs       ProjectDailyLog[]
   projectMembers          ProjectMember[]
   assignedTasks           ProjectTask[]
   pushSubscriptions       PushSubscription[]
   quotations              Quotation[]
   schedules               Schedule[]
-  serviceLogsCreated      ServiceCallLog[]       @relation("ServiceLogCreator")
-  serviceLogsResponsible  ServiceCallLog[]       @relation("ServiceLogResponsible")
+  serviceLogsCreated      ServiceCallLog[]        @relation("ServiceLogCreator")
+  serviceLogsResponsible  ServiceCallLog[]        @relation("ServiceLogResponsible")
   serviceSchedules        ServiceSchedule[]
-  estimatedSurveys        SiteSurvey[]           @relation("SurveyEstimator")
+  estimatedSurveys        SiteSurvey[]            @relation("SurveyEstimator")
   siteSurveys             SiteSurvey[]
-  assignedTickets         SupportTicket[]        @relation("TicketAssignee")
-  reportedTickets         SupportTicket[]        @relation("TicketReporter")
-  
-  reportedFacilityRepairs FacilityRepairRequest[] @relation("FacilityRepairReporter")
-  assignedFacilityRepairs FacilityRepairRequest[] @relation("FacilityRepairAssignee")
-  facilityRepairLogs      FacilityRepairLog[]
-
-  assignedTechnicianTasks TechnicianTask[]       @relation("TaskAssigner")
+  assignedTickets         SupportTicket[]         @relation("TicketAssignee")
+  reportedTickets         SupportTicket[]         @relation("TicketReporter")
+  assignedTechnicianTasks TechnicianTask[]        @relation("TaskAssigner")
   telesales               Telesale[]
   telesalesKPIs           TelesalesKPI[]
   ticketComments          TicketComment[]
   ticketLogs              TicketLog[]
   employeeSale            EmployeeSale?
   jobStepLogs             JobStepLog[]
-  bdMemberProjects        BDProject[]            @relation("BDProjectMembers")
-  technicianOrders        Order[]                @relation("OrderTechnicians")
+  bdMemberProjects        BDProject[]             @relation("BDProjectMembers")
+  technicianOrders        Order[]                 @relation("OrderTechnicians")
 }
 
 model MonthlyTarget {
@@ -518,13 +516,12 @@ model OrderRunningNumber {
 
 model DepartmentLineConfig {
   id               String    @id @default(cuid())
-  department       String    @unique // "BD", "Service", ...
+  department       String    @unique
   lineGroupId      String
   isActive         Boolean   @default(true)
   lastDigestSentAt DateTime? @db.Timestamptz(6)
   createdAt        DateTime  @default(now()) @db.Timestamptz(6)
 }
-
 
 model JobStepLog {
   id                String   @id @default(cuid())
@@ -2836,31 +2833,27 @@ model ServiceCallLog {
   @@index([responsibleId])
 }
 
-
 model FacilityRepairRequest {
-  id                     String    @id @default(cuid())
-  requestNumber          String    @unique // FR-YYYYMMDD-NNN
+  id                     String              @id @default(cuid())
+  requestNumber          String              @unique
   equipmentName          String
-  issueDetail            String    @db.Text
+  issueDetail            String
   location               String
   photoUrl               String?
-  status                 String    @default("REPORTED") // REPORTED / ASSIGNED / IN_PROGRESS / COMPLETED
-  reportedDate           DateTime  @default(now()) @db.Timestamptz(6)
-  expectedCompletionDate DateTime? @db.Date
-  completedAt            DateTime? @db.Timestamptz(6)
-
+  status                 String              @default("REPORTED")
+  reportedDate           DateTime            @default(now()) @db.Timestamptz(6)
+  expectedCompletionDate DateTime?           @db.Date
+  completedAt            DateTime?           @db.Timestamptz(6)
   reporterId             String?
   reporterName           String?
   reporterEmail          String?
   assigneeId             String?
-
-  sourceModule           String    @default("general") // "general" | "checkin"
-  createdAt              DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt              DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
-
-  reporter               User?               @relation("FacilityRepairReporter", fields: [reporterId], references: [id])
-  assignee               User?               @relation("FacilityRepairAssignee", fields: [assigneeId], references: [id])
+  sourceModule           String              @default("general")
+  createdAt              DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime            @default(now()) @updatedAt @db.Timestamptz(6)
   logs                   FacilityRepairLog[]
+  assignee               User?               @relation("FacilityRepairAssignee", fields: [assigneeId], references: [id])
+  reporter               User?               @relation("FacilityRepairReporter", fields: [reporterId], references: [id])
 
   @@index([status])
   @@index([assigneeId])
@@ -2868,15 +2861,14 @@ model FacilityRepairRequest {
 }
 
 model FacilityRepairLog {
-  id         String   @id @default(cuid())
-  requestId  String
-  userId     String?
-  action     String
-  details    String?
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
-
-  request    FacilityRepairRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  user       User?                 @relation(fields: [userId], references: [id])
+  id        String                @id @default(cuid())
+  requestId String
+  userId    String?
+  action    String
+  details   String?
+  createdAt DateTime              @default(now()) @db.Timestamptz(6)
+  request   FacilityRepairRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user      User?                 @relation(fields: [userId], references: [id])
 
   @@index([requestId])
 }

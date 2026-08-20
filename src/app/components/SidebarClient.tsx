@@ -86,6 +86,7 @@ const serviceNav = [
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
   { icon: Package, label: 'ใบส่งคืนสินค้า', href: '/service/goods-returns' },
+  { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Facility Repairs)', href: '/facility-repairs' },
 ];
 
 const serviceMgrNav = [
@@ -95,6 +96,7 @@ const serviceMgrNav = [
 const technicianNav = [
   { icon: Wrench, label: 'งานผลิตของฉัน (Cabinet)', href: '/technician/production' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
+  { icon: Building2, label: 'งานซ่อมสถานที่ (Facility Repairs)', href: '/technician/facility-repairs' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];
 
@@ -165,16 +167,19 @@ const bdNav = [
   { icon: TrendingUp, label: 'รายงานพัฒนาธุรกิจ (Reports)', href: '/bd/reports' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: LifeBuoy, label: 'จัดการปัญหาระบบ (Tickets)', href: '/bd/tickets' },
+  { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
   { icon: Tv, label: 'Team Overview (TV)', href: '/bd/tickets/tv' },
 ];
 
 const commonNav = [
-  { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' }
+  { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' },
+  { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' }
 ];
 
 export default function SidebarClient(props: SidebarProps) {
   let nav = repNav;
   const roleStr = (props.userRole || '').toLowerCase();
+  const isTechnician = roleStr.includes('technician') || roleStr === 'ช่าง' || roleStr.includes('ช่างประกอบ') || roleStr.includes('ช่างตู้');
 
   const isExecutive = isReadOnlyExecutive(roleStr);
   const isSuperAdmin = isSuperUser(roleStr);
@@ -201,7 +206,7 @@ export default function SidebarClient(props: SidebarProps) {
     nav = managerNav;
   } else if (roleStr.includes('admin project') || roleStr.includes('project admin')) {
     nav = projectAdminNav;
-  } else if (roleStr.includes('technician') || roleStr === 'ช่าง' || roleStr.includes('ช่างประกอบ') || roleStr.includes('ช่างตู้')) {
+  } else if (isTechnician) {
     nav = technicianNav;
   } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม')) {
     nav = serviceNav; // Service / non-sales departments see repair orders
@@ -238,9 +243,13 @@ export default function SidebarClient(props: SidebarProps) {
     }
   }
 
-  // Ensure commonNav is appended to every role's nav array, except for BD role
   const isBdRole = ['business development', 'bd', 'พัฒนาธุรกิจ'].some(r => roleStr.includes(r));
-  const navToAppend = isBdRole ? [] : commonNav;
+  let navToAppend = isBdRole ? [] : commonNav;
+
+  if (isTechnician) {
+    navToAppend = navToAppend.filter(item => item.href !== '/facility-repairs/new');
+  }
+
   const finalNav = Array.from(new Map([...nav, ...navToAppend].map(item => [item.href, item])).values());
 
   return <ResponsiveSidebar {...props} nav={finalNav} />;
