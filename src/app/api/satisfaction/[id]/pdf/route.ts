@@ -153,7 +153,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const page = await browser.newPage(); 
     await page.setContent(html, { waitUntil: "load" }); 
 
-    await page.evaluateHandle('document.fonts.ready');
+    await page.evaluate(() => document.fonts.ready);
     
     const pdf = await page.pdf({
       format: "A4",

@@ -208,7 +208,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
     await page.setContent(html, { waitUntil: "load" }); 
 
     // Explicitly wait for fonts to load
-    await page.evaluateHandle('document.fonts.ready');
+    await page.evaluate(() => document.fonts.ready);
     
     // Explicitly wait for all images (photos and signatures) to finish loading
     await page.evaluate(async () => {

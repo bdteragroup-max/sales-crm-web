@@ -23,6 +23,8 @@ function generateGoodsReturnHTML(doc: any, logoBase64: string = '') {
       <tr>
         <td class="text-center">${i + 1}</td>
         <td>${item.itemCode ? `<b>${item.itemCode}</b><br/>` : ''}${item.description || ''}</td>
+        <td class="text-center">${item.model || ''}</td>
+        <td class="text-center">${item.serialNumber || ''}</td>
         <td class="text-center">${item.quantity || ''}</td>
         <td class="text-center">${item.unit || ''}</td>
         <td class="text-right">${item.totalAmount ? Number(item.totalAmount).toLocaleString() : ''}</td>
@@ -217,17 +219,19 @@ function generateGoodsReturnHTML(doc: any, logoBase64: string = '') {
       <table class="items-table">
         <thead>
           <tr>
-            <th style="width: 50px;">No.</th>
+            <th style="width: 40px;">No.</th>
             <th>รหัสสินค้า/รายละเอียด</th>
-            <th style="width: 80px;">จำนวน</th>
-            <th style="width: 80px;">หน่วย</th>
-            <th style="width: 100px;">รวม</th>
+            <th style="width: 80px;">Model</th>
+            <th style="width: 100px;">S/N</th>
+            <th style="width: 60px;">จำนวน</th>
+            <th style="width: 60px;">หน่วย</th>
+            <th style="width: 80px;">รวม</th>
           </tr>
         </thead>
         <tbody>
           ${itemsHtml}
           <tr>
-            <td colspan="4" class="text-right" style="font-weight: bold; border-right: none;">รวมทั้งสิ้น</td>
+            <td colspan="6" class="text-right" style="font-weight: bold; border-right: none;">รวมทั้งสิ้น</td>
             <td class="text-right" style="font-weight: bold; border-left: 1px solid #000;">${totalAmount.toLocaleString()}</td>
           </tr>
         </tbody>
@@ -291,7 +295,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "load" });
-    await page.evaluateHandle('document.fonts.ready');
+    await page.evaluate(() => document.fonts.ready);
 
     const pdf = await page.pdf({
       format: "A4",
