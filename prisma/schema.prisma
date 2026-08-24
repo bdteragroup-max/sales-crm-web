@@ -1972,6 +1972,13 @@ model MarketingLead {
   matchedCompanyId    String?
   matchedContactId    String?
   taxId               String?
+  address             String?
+  businessType        String?
+  customerType        String?
+  district            String?
+  postalCode          String?
+  province            String?
+  subDistrict         String?
   assignedTo          User?      @relation("AssignedLeads", fields: [assignedToId], references: [id])
   createdBy           User       @relation(fields: [createdByUserId], references: [id])
   matchedCompany      Company?   @relation(fields: [matchedCompanyId], references: [id])

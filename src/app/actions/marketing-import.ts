@@ -29,22 +29,35 @@ export async function generateExcelTemplate() {
   const worksheet = workbook.addWorksheet('Marketing Leads')
 
   worksheet.columns = [
-    { header: 'Name - Surname', key: 'name', width: 30 },
-    { header: 'Phone Number', key: 'phone', width: 20 },
-    { header: 'Email', key: 'email', width: 30 },
+    { header: 'Customer Type', key: 'customerType', width: 25 },
     { header: 'Company Name', key: 'company', width: 30 },
     { header: 'Tax ID', key: 'taxId', width: 20 },
+    { header: 'Business Type', key: 'businessType', width: 20 },
+    { header: 'Province', key: 'province', width: 20 },
+    { header: 'District/Amphoe', key: 'district', width: 20 },
+    { header: 'Subdistrict/Tambon', key: 'subdistrict', width: 20 },
+    { header: 'Registered Address', key: 'address', width: 40 },
+    { header: 'Postal Code', key: 'postalCode', width: 15 },
+    { header: 'Primary Contact Name', key: 'name', width: 30 },
+    { header: 'Phone Number', key: 'phone', width: 20 },
+    { header: 'Contact Email', key: 'email', width: 30 },
     { header: 'Campaign', key: 'campaign', width: 30 },
     { header: 'Lead Source', key: 'source', width: 20 },
   ]
 
-  // Add a sample row (optional, can just leave headers)
   worksheet.addRow({
+    customerType: 'Juristic Person',
+    company: 'บริษัท ตัวอย่าง จำกัด',
+    taxId: '1234567890123',
+    businessType: 'Retail',
+    province: 'Bangkok',
+    district: 'Phaya Thai',
+    subdistrict: 'Samsen Nai',
+    address: '123 Test St.',
+    postalCode: '10400',
     name: 'สมชาย ใจดี',
     phone: '0812345678',
     email: 'somchai@example.com',
-    company: 'บริษัท ตัวอย่าง จำกัด',
-    taxId: '1234567890123',
     campaign: 'Seminar Q3',
     source: 'Facebook Ads'
   })
@@ -69,11 +82,18 @@ export async function validateImportLeads(rows: any[]) {
 
     const processedRows = await Promise.all(
       rows.map(async (row) => {
-        const rawPhone = row['Phone Number'] || row['Phone'] || row['เบอร์โทรศัพท์'] || ''
-        const rawTaxId = row['Tax ID'] || row['เลขประจำตัวผู้เสียภาษี'] || ''
-        const rawEmail = row['Email'] || row['อีเมล'] || ''
-        const rawCustomerName = row['Name - Surname'] || row['Name'] || row['ชื่อ - นามสกุล'] || ''
+        const rawCustomerType = row['Customer Type'] || row['ประเภทลูกค้า'] || ''
         const rawCompanyName = row['Company Name'] || row['ชื่อบริษัท'] || ''
+        const rawTaxId = row['Tax ID'] || row['เลขประจำตัวผู้เสียภาษี'] || ''
+        const rawBusinessType = row['Business Type'] || row['ประเภทธุรกิจ'] || ''
+        const rawProvince = row['Province'] || row['จังหวัด'] || ''
+        const rawDistrict = row['District/Amphoe'] || row['เขต/อำเภอ'] || row['District'] || ''
+        const rawSubDistrict = row['Subdistrict/Tambon'] || row['แขวง/ตำบล'] || row['Subdistrict'] || ''
+        const rawAddress = row['Registered Address'] || row['ที่อยู่จดทะเบียน'] || row['Address'] || ''
+        const rawPostalCode = row['Postal Code'] || row['รหัสไปรษณีย์'] || ''
+        const rawCustomerName = row['Primary Contact Name'] || row['Name - Surname'] || row['Name'] || row['ชื่อผู้ติดต่อ'] || ''
+        const rawPhone = row['Phone Number'] || row['Phone'] || row['เบอร์โทรศัพท์'] || ''
+        const rawEmail = row['Contact Email'] || row['Email'] || row['อีเมล'] || ''
         const rawCampaign = row['Campaign'] || row['แคมเปญ'] || ''
         const rawLeadSource = row['Lead Source'] || row['แหล่งที่มา'] || ''
 
@@ -81,9 +101,19 @@ export async function validateImportLeads(rows: any[]) {
         const normTaxId = normalizeTaxId(rawTaxId)
 
         let status = 'New'
+        let errorReason = ''
         let matchedContactId: string | null = null
         let matchedCompanyId: string | null = null
         let matchedName = ''
+
+        const isJuristic = rawCustomerType.toLowerCase().includes('juristic') || rawCustomerType.includes('นิติบุคคล')
+
+        if (isJuristic) {
+          if (!rawCompanyName || !rawTaxId || !rawCustomerType) {
+            status = 'Error'
+            errorReason = 'Missing required Juristic fields (Company Name, Tax ID, or Customer Type)'
+          }
+        }
 
         // 1. Check Tax ID (Company)
         if (normTaxId) {
@@ -148,15 +178,23 @@ export async function validateImportLeads(rows: any[]) {
         }
 
         return {
+          customerType: rawCustomerType,
+          companyName: rawCompanyName,
+          taxId: rawTaxId,
+          businessType: rawBusinessType,
+          province: rawProvince,
+          district: rawDistrict,
+          subDistrict: rawSubDistrict,
+          address: rawAddress,
+          postalCode: rawPostalCode,
           customerName: rawCustomerName,
           phoneNumber: rawPhone,
           email: rawEmail,
-          companyName: rawCompanyName,
-          taxId: rawTaxId,
           campaignSource: rawCampaign,
           leadSource: rawLeadSource,
           status,
-          action: status === 'New' ? 'Create' : 'Update Interest', // Default actions
+          errorReason,
+          action: status === 'Error' ? 'Skip' : (status === 'New' ? 'Create' : 'Update Interest'),
           matchedContactId,
           matchedCompanyId,
           matchedName,
@@ -194,11 +232,18 @@ export async function importMarketingLeads(data: any[], idempotencyKey: string) 
     for (const row of rowsToImport) {
       await prisma.marketingLead.create({
         data: {
+          customerType: row.customerType,
+          companyName: row.companyName,
+          taxId: row.taxId,
+          businessType: row.businessType,
+          province: row.province,
+          district: row.district,
+          subDistrict: row.subDistrict,
+          address: row.address,
+          postalCode: row.postalCode,
           customerName: row.customerName || 'Unknown',
           phoneNumber: row.phoneNumber,
           email: row.email,
-          companyName: row.companyName,
-          taxId: row.taxId,
           campaignSource: row.campaignSource,
           leadSource: row.leadSource,
           createdByUserId: payload.userId as string,

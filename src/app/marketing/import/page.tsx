@@ -180,10 +180,10 @@ export default function ImportLeadsPage() {
             <table className="w-full text-left text-sm min-w-[1200px]">
               <thead className="bg-gray-50/50 text-xs uppercase font-black text-gray-500 tracking-wider border-b border-gray-200">
                 <tr>
-                  <th className="px-4 py-3">ชื่อ-นามสกุล</th>
-                  <th className="px-4 py-3">เบอร์โทร</th>
-                  <th className="px-4 py-3">อีเมล</th>
+                  <th className="px-4 py-3">ผู้ติดต่อ</th>
+                  <th className="px-4 py-3">ประเภทลูกค้า / ธุรกิจ</th>
                   <th className="px-4 py-3">บริษัท / เลขผู้เสียภาษี</th>
+                  <th className="px-4 py-3">ที่อยู่</th>
                   <th className="px-4 py-3">แคมเปญ / แหล่งที่มา</th>
                   <th className="px-4 py-3">สถานะ</th>
                   <th className="px-4 py-3">การจัดการ</th>
@@ -192,12 +192,21 @@ export default function ImportLeadsPage() {
               <tbody className="divide-y divide-gray-100">
                 {rows.map((row, idx) => (
                   <tr key={idx} className={row.action === 'Skip' ? 'bg-gray-50 opacity-60' : 'hover:bg-gray-50'}>
-                    <td className="px-4 py-3 font-medium text-gray-900">{row.customerName || '-'}</td>
-                    <td className="px-4 py-3 text-gray-600">{row.phoneNumber || '-'}</td>
-                    <td className="px-4 py-3 text-gray-600">{row.email || '-'}</td>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-gray-900">{row.customerName || '-'}</div>
+                      <div className="text-xs text-gray-500">{row.phoneNumber || '-'}</div>
+                      <div className="text-xs text-gray-500">{row.email || '-'}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-gray-900">{row.customerType || '-'}</div>
+                      <div className="text-xs text-gray-500">{row.businessType || '-'}</div>
+                    </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-gray-900">{row.companyName || '-'}</div>
                       <div className="text-xs text-gray-500">{row.taxId || '-'}</div>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-600">
+                      {row.address || '-'} {row.subDistrict} {row.district} {row.province} {row.postalCode}
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-gray-900">{row.campaignSource || '-'}</div>
@@ -208,6 +217,13 @@ export default function ImportLeadsPage() {
                         <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-100">
                           <CheckCircle size={12} /> ข้อมูลใหม่
                         </span>
+                      ) : row.status === 'Error' ? (
+                        <div className="flex flex-col gap-1">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-lg border border-red-100">
+                            <AlertCircle size={12} /> ข้อผิดพลาด
+                          </span>
+                          <span className="text-[10px] text-red-600 max-w-[150px] leading-tight">{row.errorReason}</span>
+                        </div>
                       ) : (
                         <div className="flex flex-col gap-1">
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg border border-amber-100">
@@ -222,12 +238,15 @@ export default function ImportLeadsPage() {
                     <td className="px-4 py-3">
                       <select
                         value={row.action}
+                        disabled={row.status === 'Error'}
                         onChange={(e) => handleActionChange(idx, e.target.value)}
-                        className={`text-sm rounded-lg border px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-red/20 outline-none
-                          ${row.action === 'Skip' ? 'bg-gray-100 text-gray-500 border-gray-200' : 'bg-white border-gray-200'}
-                        `}
+                        className={`text-xs font-bold rounded-lg border px-2 py-1.5 w-full ${
+                          row.action === 'Skip' ? 'bg-gray-100 text-gray-500 border-gray-200' : 'bg-white text-gray-900 border-gray-300'
+                        }`}
                       >
-                        {row.status === 'New' ? (
+                        {row.status === 'Error' ? (
+                          <option value="Skip">ข้าม (ข้อมูลไม่ถูกต้อง)</option>
+                        ) : row.status === 'New' ? (
                           <>
                             <option value="Create">สร้าง Lead ใหม่</option>
                             <option value="Skip">ข้าม (ไม่นำเข้า)</option>
