@@ -3,6 +3,7 @@
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
+import { sendPushToUser } from "@/app/lib/pushNotification";
 
 export async function createFacilityRepairCore(data: {
   equipmentName: string;
@@ -43,15 +44,18 @@ export async function createFacilityRepairCore(data: {
     }
   });
   if (techAdmins.length > 0) {
-    await prisma.notification.createMany({
-      data: techAdmins.map((u) => ({
-        userId: u.id,
-        title: "แจ้งซ่อมใหม่",
-        message: data.reporterName ? data.reporterName + " แจ้งซ่อม: " + data.equipmentName : "พนักงาน แจ้งซ่อม: " + data.equipmentName,
-        linkUrl: "/facility-repairs/" + req.id,
-        type: "SYSTEM"
-      }))
-    });
+    await Promise.all(
+      techAdmins.map((u) =>
+        sendPushToUser(u.id, {
+          title: "แจ้งซ่อมใหม่",
+          body: data.reporterName
+            ? data.reporterName + " แจ้งซ่อม: " + data.equipmentName
+            : "พนักงาน แจ้งซ่อม: " + data.equipmentName,
+          url: `/facility-repairs/${req.id}`,
+          category: "SYSTEM",
+        })
+      )
+    );
   }
 
   return req;
@@ -122,14 +126,11 @@ export async function assignFacilityRepair(id: string, assigneeId: string) {
   
   const request2 = await prisma.facilityRepairRequest.findUnique({ where: { id } });
   if (request2?.reporterId) {
-    await prisma.notification.create({
-      data: {
-        userId: request2.reporterId,
-        title: "ใบแจ้งซ่อมของคุณได้รับการรับผิดชอบแล้ว",
-        message: "ช่างได้เข้ารับผิดชอบงานซ่อม " + request2.equipmentName + " ของคุณแล้ว",
-        linkUrl: "/tickets",
-        type: "SYSTEM"
-      }
+    await sendPushToUser(request2.reporterId, {
+      title: "ใบแจ้งซ่อมของคุณได้รับการรับผิดชอบแล้ว",
+      body: "ช่างได้เข้ารับผิดชอบงานซ่อม " + request2.equipmentName + " ของคุณแล้ว",
+      url: `/facility-repairs/${request2.id}`,
+      category: "SYSTEM",
     });
   }
 
@@ -174,14 +175,11 @@ export async function updateFacilityRepairStatus(id: string, status: string, exp
   
   const currentReq = await prisma.facilityRepairRequest.findUnique({ where: { id } });
   if (currentReq?.reporterId) {
-    await prisma.notification.create({
-      data: {
-        userId: currentReq.reporterId,
-        title: "อัปเดตสถานะการซ่อม",
-        message: "งานซ่อม " + currentReq.equipmentName + " ของคุณถูกเปลี่ยนสถานะเป็น " + status,
-        linkUrl: "/tickets",
-        type: "SYSTEM"
-      }
+    await sendPushToUser(currentReq.reporterId, {
+      title: "อัปเดตสถานะการซ่อม",
+      body: "งานซ่อม " + currentReq.equipmentName + " ของคุณถูกเปลี่ยนสถานะเป็น " + status,
+      url: `/facility-repairs/${currentReq.id}`,
+      category: "SYSTEM",
     });
   }
 

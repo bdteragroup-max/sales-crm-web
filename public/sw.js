@@ -3,9 +3,9 @@ self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {}; 
   event.waitUntil( 
     self.registration.showNotification(data.title, { 
-      body: data.body, 
-      icon: data.icon || '/logo.png', // Or whichever logo image is available
-      badge: '/logo.png', 
+      body: data.body,
+      icon: data.icon || '/app-icon.jpg',
+      badge: '/app-icon.jpg',
       data: { url: data.url }, 
       vibrate: [200, 100, 200] 
     }) 

@@ -3,6 +3,7 @@
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
+import { sendPushToUser } from "@/app/lib/pushNotification";
 
 // 1. Core ticket creation logic (no session required)
 // Used by both the server action and the external API route
@@ -86,15 +87,16 @@ export async function createTicketCore(data: {
   });
 
   if (bdUsers.length > 0) {
-    await prisma.notification.createMany({
-      data: bdUsers.map((bdUser) => ({
-        userId: bdUser.id,
-        title: "แจ้งปัญหาใหม่",
-        message: `Ticket: ${ticketNumber} - ${data.title} (${urgency})`,
-        type: "SUPPORT_TICKET",
-        linkUrl: `/bd/tickets/${ticket.id}`,
-      })),
-    });
+    await Promise.all(
+      bdUsers.map((bdUser) =>
+        sendPushToUser(bdUser.id, {
+          title: "แจ้งปัญหาใหม่",
+          body: `Ticket: ${ticketNumber} - ${data.title} (${urgency})`,
+          url: `/bd/tickets/${ticket.id}`,
+          category: "SUPPORT_TICKET",
+        })
+      )
+    );
   }
 
   // --- Real-time LINE Alert for Urgent Tickets ---
@@ -107,10 +109,10 @@ export async function createTicketCore(data: {
         const { pushLineMessage, bdUrgentTicketMessage } = await import("@/app/lib/lineNotify");
         let finalReporterName = data.reporterName || "ระบบ / ไม่ทราบชื่อ";
         if (data.reporterId && !data.reporterName) {
-           const rUser = await prisma.user.findUnique({ where: { id: data.reporterId }, select: { fullName: true }});
-           if (rUser) finalReporterName = rUser.fullName;
+          const rUser = await prisma.user.findUnique({ where: { id: data.reporterId }, select: { fullName: true } });
+          if (rUser) finalReporterName = rUser.fullName;
         }
-        
+
         const msg = bdUrgentTicketMessage(ticket, finalReporterName);
         await pushLineMessage(config.lineGroupId, [msg], 'crm');
       }
@@ -268,14 +270,11 @@ export async function acceptTicket(ticketId: string) {
 
     // Notify reporter
     if (existing.reporterId) {
-      await prisma.notification.create({
-        data: {
-          userId: existing.reporterId,
-          title: "ปัญหาของคุณได้รับการรับทราบแล้ว",
-          message: `ทีมงานรับเรื่อง ${existing.ticketNumber} ของคุณแล้ว`,
-          type: "SUPPORT_TICKET",
-          linkUrl: `/support/tickets/${existing.id}`,
-        },
+      await sendPushToUser(existing.reporterId, {
+        title: "ปัญหาของคุณได้รับการรับทราบแล้ว",
+        body: `ทีมงานรับเรื่อง ${existing.ticketNumber} ของคุณแล้ว`,
+        url: `/support/tickets/${existing.id}`,
+        category: "SUPPORT_TICKET",
       });
     }
 
@@ -327,14 +326,11 @@ export async function updateResolutionPlan(ticketId: string, resolutionPlan: str
 
     // Notify reporter
     if (existing.reporterId) {
-      await prisma.notification.create({
-        data: {
-          userId: existing.reporterId,
-          title: "อัปเดตความคืบหน้าปัญหา",
-          message: `ปัญหา ${existing.ticketNumber} มีการอัปเดตความคืบหน้า: ${progressPercent}%`,
-          type: "SUPPORT_TICKET",
-          linkUrl: `/support/tickets/${existing.id}`,
-        },
+      await sendPushToUser(existing.reporterId, {
+        title: "อัปเดตความคืบหน้าปัญหา",
+        body: `ปัญหา ${existing.ticketNumber} มีการอัปเดตความคืบหน้า: ${progressPercent}%`,
+        url: `/support/tickets/${existing.id}`,
+        category: "SUPPORT_TICKET",
       });
     }
 
@@ -379,14 +375,11 @@ export async function addComment(ticketId: string, message: string, attachments:
     const targetUserId = isReporter ? existing.assigneeId : existing.reporterId;
 
     if (targetUserId) {
-      await prisma.notification.create({
-        data: {
-          userId: targetUserId,
-          title: "ความคิดเห็นใหม่ใน Ticket",
-          message: `มีความคิดเห็นใหม่ใน ${existing.ticketNumber}: "${message.substring(0, 30)}..."`,
-          type: "SUPPORT_TICKET",
-          linkUrl: isReporter ? `/bd/tickets/${ticketId}` : `/support/tickets/${ticketId}`,
-        },
+      await sendPushToUser(targetUserId, {
+        title: "ความคิดเห็นใหม่ใน Ticket",
+        body: `มีความคิดเห็นใหม่ใน ${existing.ticketNumber}: "${message.substring(0, 30)}..."`,
+        url: isReporter ? `/bd/tickets/${ticketId}` : `/support/tickets/${ticketId}`,
+        category: "SUPPORT_TICKET",
       });
     }
 
@@ -432,14 +425,11 @@ export async function reassignTicket(ticketId: string, newAssigneeId: string) {
     });
 
     // Notify new assignee
-    await prisma.notification.create({
-      data: {
-        userId: newAssigneeId,
-        title: "คุณได้รับมอบหมายปัญหาใหม่",
-        message: `ผู้ดูแลระบบมอบหมาย Ticket ${existing.ticketNumber} ให้คุณ`,
-        type: "SUPPORT_TICKET",
-        linkUrl: `/bd/tickets/${existing.id}`,
-      },
+    await sendPushToUser(newAssigneeId, {
+      title: "คุณได้รับมอบหมายปัญหาใหม่",
+      body: `ผู้ดูแลระบบมอบหมาย Ticket ${existing.ticketNumber} ให้คุณ`,
+      url: `/bd/tickets/${existing.id}`,
+      category: "SUPPORT_TICKET",
     });
 
     revalidatePath(`/bd/tickets/${ticketId}`);
