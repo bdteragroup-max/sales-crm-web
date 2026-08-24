@@ -513,7 +513,8 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
       where: { status: { in: ['IN_PROGRESS', 'PENDING_REVIEW'] }, ...projectBaseFilter },
       include: {
         tasks: { select: { status: true } },
-        subProjects: { select: { status: true } }
+        subProjects: { select: { status: true } },
+        owner: { select: { fullName: true } }
       }
     });
 
@@ -543,7 +544,8 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
         completedTasks,
         totalSubProjects: totalSub,
         completedSubProjects: completedSub,
-        status: p.status
+        status: p.status,
+        ownerName: p.owner?.fullName || 'Unassigned'
       };
     });
 
