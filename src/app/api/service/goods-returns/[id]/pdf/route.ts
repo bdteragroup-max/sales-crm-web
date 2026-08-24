@@ -5,7 +5,7 @@ import chromium from '@sparticuz/chromium';
 import fs from 'fs';
 import path from 'path';
 
-function generateGoodsReturnHTML(doc: any, logoBase64: string = '') {
+function generateGoodsReturnHTML(doc: any, logoBase64: string = '', fontRegularBase64: string = '', fontBoldBase64: string = '') {
   const items = doc.items ? (typeof doc.items === 'string' ? JSON.parse(doc.items) : doc.items) : [];
 
   // Format Date safely
@@ -43,19 +43,19 @@ function generateGoodsReturnHTML(doc: any, logoBase64: string = '') {
     <title>Goods Return Note</title>
     <style>
       @font-face {
-        font-family: 'TH Sarabun New';
-        src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
+        font-family: 'Sarabun';
+        src: url('data:font/truetype;base64,${fontRegularBase64}') format('truetype');
         font-weight: normal;
         font-style: normal;
       }
       @font-face {
-        font-family: 'TH Sarabun New';
-        src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
+        font-family: 'Sarabun';
+        src: url('data:font/truetype;base64,${fontBoldBase64}') format('truetype');
         font-weight: bold;
         font-style: normal;
       }
       body {
-        font-family: 'TH Sarabun New', sans-serif;
+        font-family: 'Sarabun', sans-serif;
         font-size: 16px;
         margin: 0;
         padding: 0;
@@ -135,6 +135,7 @@ function generateGoodsReturnHTML(doc: any, logoBase64: string = '') {
         border: 1px solid #000;
         padding: 8px;
         font-size: 13px;
+        white-space: nowrap;
       }
       table.items-table th {
         background-color: #f5f5f5;
@@ -220,9 +221,9 @@ function generateGoodsReturnHTML(doc: any, logoBase64: string = '') {
         <thead>
           <tr>
             <th style="width: 40px;">No.</th>
-            <th>รหัสสินค้า/รายละเอียด</th>
-            <th style="width: 80px;">Model</th>
-            <th style="width: 100px;">S/N</th>
+            <th style="white-space: normal;">รหัสสินค้า/รายละเอียด</th>
+            <th style="width: 120px;">Model</th>
+            <th style="width: 170px;">S/N</th>
             <th style="width: 60px;">จำนวน</th>
             <th style="width: 60px;">หน่วย</th>
             <th style="width: 80px;">รวม</th>
@@ -282,7 +283,17 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       logoBase64 = `data:image/png;base64,${imageBuffer.toString('base64')}`;
     }
 
-    const html = generateGoodsReturnHTML(doc, logoBase64);
+    // Embed fonts as base64 so Puppeteer does not need network access
+    const fontRegularPath = path.join(process.cwd(), 'public', 'Sarabun-Regular.ttf');
+    const fontBoldPath = path.join(process.cwd(), 'public', 'Sarabun-Bold.ttf');
+    const fontRegularBase64 = fs.existsSync(fontRegularPath)
+      ? fs.readFileSync(fontRegularPath).toString('base64')
+      : '';
+    const fontBoldBase64 = fs.existsSync(fontBoldPath)
+      ? fs.readFileSync(fontBoldPath).toString('base64')
+      : '';
+
+    const html = generateGoodsReturnHTML(doc, logoBase64, fontRegularBase64, fontBoldBase64);
     const isLocal = process.env.NODE_ENV === 'development';
 
     const browser = await puppeteer.launch({

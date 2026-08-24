@@ -12,6 +12,12 @@ const prompt = Prompt({
 export const metadata: Metadata = {
   title: "Sales CRM Dashboard",
   description: "Modern CRM for tracking sales and quotations",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/app-icon.jpg",
+    apple: "/app-icon.jpg",
+    shortcut: "/app-icon.jpg",
+  },
 };
 
 import { GlobalProgressBar } from "./components/GlobalProgressBar";
