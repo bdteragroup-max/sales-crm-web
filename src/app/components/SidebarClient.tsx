@@ -539,15 +539,21 @@ function ResponsiveSidebar({
       >
         {/* Brand header */}
         <div className="flex flex-col w-full">
-          <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
-            <div className={`w-10 h-10 ${colors.bg} rounded-xl flex items-center justify-center shadow-lg ${colors.shadow}`}>
-              <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
-            </div>
-            <div>
-              <span className="font-sans font-black text-lg text-gray-900 tracking-tight block">TeraSales</span>
-              <span className="text-[9px] font-sans font-bold text-[#ff2301] tracking-wider block -mt-1 uppercase">CRM System</span>
-            </div>
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
+              <div className={`w-10 h-10 ${colors.bg} rounded-xl flex items-center justify-center shadow-lg ${colors.shadow}`}>
+                <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
+              </div>
+              <div>
+                <span className="font-sans font-black text-lg text-gray-900 tracking-tight block">TeraSales</span>
+                <span className="text-[9px] font-sans font-bold text-[#ff2301] tracking-wider block -mt-1 uppercase">CRM System</span>
+              </div>
+            </Link>
+
+            {userRole !== 'อื่นๆ' && (
+              <NotificationBell userId={userId} isMobile={true} />
+            )}
+          </div>
 
           {/* Divider */}
           <div className="w-full h-px bg-gray-100 my-6" />

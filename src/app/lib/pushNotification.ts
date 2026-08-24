@@ -18,20 +18,45 @@ export async function sendPushToUser(userId: string, payload: {
   url?: string; 
   category: string;
 }) { 
-  // Rate limiting (5 minutes debounce for same user and category)
-  // Temporarily bypassed so you can test notifications reliably
-  /*
-  const recentNotif = await prisma.notification.findFirst({
-    where: {
-      userId,
-      type: payload.category, // category maps to type
-      createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) }
+  // 1. Send to the original target user
+  await _sendPushToUserCore(userId, payload);
+
+  // 2. Automatically CC SUPER_ADMIN users for all system operations
+  try {
+    const superAdmins = await prisma.user.findMany({
+      where: { role: { contains: 'SUPER_ADMIN', mode: 'insensitive' }, isActive: true },
+      select: { id: true }
+    });
+
+    for (const sa of superAdmins) {
+      if (sa.id === userId) continue; // Already sent
+
+      // Deduplicate: Prevent spamming SUPER_ADMINs when sendPushToUser is called in a batch loop (e.g. Promise.all)
+      // Check if an identical notification was sent to this SUPER_ADMIN within the last 1 minute
+      const recent = await prisma.notification.findFirst({
+        where: {
+          userId: sa.id,
+          title: payload.title,
+          message: payload.body,
+          createdAt: { gte: new Date(Date.now() - 60 * 1000) }
+        }
+      });
+
+      if (!recent) {
+        await _sendPushToUserCore(sa.id, payload);
+      }
     }
-  });
+  } catch (err) {
+    console.error("Failed to CC super admins", err);
+  }
+}
 
-  if (recentNotif) return; // Prevent duplicate sending
-  */
-
+async function _sendPushToUserCore(userId: string, payload: { 
+  title: string; 
+  body: string; 
+  url?: string; 
+  category: string;
+}) { 
   // Map to existing Notification schema fields
   await prisma.notification.create({
     data: {

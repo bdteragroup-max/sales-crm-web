@@ -5,7 +5,7 @@ import { Bell, CheckCircle, Clock } from 'lucide-react';
 import { getUnreadNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/app/actions/notifications';
 import { useRouter } from 'next/navigation';
 
-export default function NotificationBell({ userId }: { userId?: string }) {
+export default function NotificationBell({ userId, isMobile = false }: { userId?: string, isMobile?: boolean }) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [showPushBanner, setShowPushBanner] = useState(false);
@@ -19,7 +19,7 @@ export default function NotificationBell({ userId }: { userId?: string }) {
       const alreadyAsked = localStorage.getItem('push-permission-asked');
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-      
+
       if (isIOS && !isStandalone) {
         setIsIOSStandalone(false);
       }
@@ -73,7 +73,7 @@ export default function NotificationBell({ userId }: { userId?: string }) {
     };
 
     fetchNotifications();
-    
+
     // Poll every minute
     const interval = setInterval(fetchNotifications, 60000);
     return () => clearInterval(interval);
@@ -150,13 +150,13 @@ export default function NotificationBell({ userId }: { userId?: string }) {
             </div>
           </div>
           <div className="flex gap-2 justify-end mt-1">
-            <button 
+            <button
               onClick={dismissBanner}
               className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
             >
               ไว้คราวหลัง
             </button>
-            <button 
+            <button
               onClick={subscribeToPush}
               disabled={!isIOSStandalone}
               className="px-4 py-2 text-sm font-bold text-white bg-brand-red hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
@@ -168,14 +168,17 @@ export default function NotificationBell({ userId }: { userId?: string }) {
       )}
 
       {isOpen && (
-        <div className="fixed left-[84px] bottom-6 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden transform origin-bottom-left transition-all">
+        <div className={`fixed z-50 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all ${isMobile
+          ? 'left-4 right-4 bottom-20 origin-bottom'
+          : 'left-[84px] bottom-6 w-80 transform origin-bottom-left'
+          }`}>
           <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
             <h3 className="font-bold text-gray-900 flex items-center gap-2">
               <Bell size={16} className="text-brand-red" />
               การแจ้งเตือน
             </h3>
             {notifications.length > 0 && (
-              <button 
+              <button
                 onClick={handleMarkAllRead}
                 className="text-[10px] font-bold text-gray-500 hover:text-brand-red uppercase tracking-wider transition-colors"
               >
@@ -183,7 +186,7 @@ export default function NotificationBell({ userId }: { userId?: string }) {
               </button>
             )}
           </div>
-          
+
           {permission !== 'granted' && (
             <div className="p-3 bg-red-50/50 border-b border-gray-50 flex items-center justify-between">
               <span className="text-xs text-gray-600 font-medium">เปิดรับการแจ้งเตือนบนเบราว์เซอร์</span>
