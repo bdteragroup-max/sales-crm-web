@@ -1,5 +1,6 @@
 import prisma from "@/app/lib/db";
 import { NextResponse } from "next/server";
+import { sendPushToUser } from "@/app/lib/pushNotification";
 
 export async function GET(request: Request) {
   try {
@@ -26,26 +27,23 @@ export async function GET(request: Request) {
     }
 
     const now = new Date();
-    const notifications = [];
+    const pushPromises = [];
 
     for (const log of casesToNotify) {
       if (!log.responsibleId) continue;
       
-      notifications.push({
-        userId: log.responsibleId,
-        title: "แจ้งเตือนติดตามผล Service Call",
-        message: `เคส ${log.caseNumber} ถึงกำหนดติดตามผลลูกค้า: ${log.companyName}`,
-        type: "SERVICE_CALL_REMINDER",
-        linkUrl: `/service/calls/${log.id}`,
-        isRead: false,
-        createdAt: now,
-      });
+      pushPromises.push(
+        sendPushToUser(log.responsibleId, {
+          title: "แจ้งเตือนติดตามผล Service Call",
+          body: `เคส ${log.caseNumber} ถึงกำหนดติดตามผลลูกค้า: ${log.companyName}`,
+          category: "SERVICE_CALL_REMINDER",
+          url: `/service/calls/${log.id}`
+        })
+      );
     }
 
-    if (notifications.length > 0) {
-      await prisma.notification.createMany({
-        data: notifications
-      });
+    if (pushPromises.length > 0) {
+      await Promise.all(pushPromises);
     }
 
     // Update followUpNotifiedAt
@@ -55,7 +53,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({ 
-      message: `Sent ${notifications.length} notifications`,
+      message: `Sent ${pushPromises.length} notifications`,
       cases: casesToNotify.map(c => c.caseNumber)
     });
 

@@ -164,15 +164,7 @@ export async function GET(req: Request) {
                 const title = "ตรวจสอบการเติมน้ำมันผิดปกติ";
                 const body = `พนักงาน ${emp.name} มีการเติมน้ำมันผิดปกติ (${generatedFlag === 'NO_GPS' ? 'ไม่มีพิกัด GPS' : 'จำนวนลิตรสูงกว่าระยะทาง'}) เมื่อวันที่ ${yStr}`;
                 
-                await prisma.notification.create({
-                  data: {
-                    userId: supervisorUser.id,
-                    title,
-                    message: body,
-                    type: 'FUEL_FLAG',
-                    linkUrl: '/department/fuel-report',
-                  }
-                });
+
 
                 await sendPushToUser(supervisorUser.id, {
                   title,

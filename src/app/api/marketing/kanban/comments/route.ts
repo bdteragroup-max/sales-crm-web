@@ -78,16 +78,6 @@ export async function POST(request: NextRequest) {
 
       for (const mentionedId of Array.from(mentionedUserIds)) {
         if (mentionedId !== user.id) {
-          await prisma.notification.create({
-            data: {
-              userId: mentionedId,
-              title: 'มีคนกล่าวถึงคุณ (Mention)',
-              message: `${user.fullName} กล่าวถึงคุณในความคิดเห็นในการ์ด "${comment.card?.title || 'Kanban'}"`,
-              type: 'KANBAN_MENTION',
-              linkUrl: '/marketing/kanban'
-            }
-          });
-
           await sendPushToUser(mentionedId, {
             title: 'มีคนกล่าวถึงคุณ (Mention)',
             body: `${user.fullName} กล่าวถึงคุณในความคิดเห็นในการ์ด "${comment.card?.title || 'Kanban'}"`,

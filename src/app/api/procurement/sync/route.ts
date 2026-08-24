@@ -16,16 +16,7 @@ async function notifyProcurement(title: string, body: string) {
     });
     
     for (const user of procurementUsers) {
-      await prisma.notification.create({
-        data: {
-          userId: user.id,
-          title,
-          message: body,
-          type: 'PROCUREMENT_NEW_ENTRY',
-          linkUrl: '/admin/procurement/dashboard',
-        }
-      });
-      
+
       await sendPushToUser(user.id, {
         title,
         body,

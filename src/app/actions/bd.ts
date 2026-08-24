@@ -412,14 +412,11 @@ export async function updateBDProject(id: string, data: {
         });
 
         if (ticketToResolve.reporterId) {
-          await prisma.notification.create({
-            data: {
-              userId: ticketToResolve.reporterId,
-              title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
-              message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
-              type: 'SUPPORT_TICKET',
-              linkUrl: `/support/tickets/${ticketToResolve.id}`,
-            }
+          await sendPushToUser(ticketToResolve.reporterId, {
+            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+            body: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+            category: 'SUPPORT_TICKET',
+            url: `/support/tickets/${ticketToResolve.id}`,
           });
         }
       }
@@ -458,14 +455,11 @@ export async function updateBDProject(id: string, data: {
             });
 
             if (ticketToResolve.reporterId) {
-              await prisma.notification.create({
-                data: {
-                  userId: ticketToResolve.reporterId,
-                  title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
-                  message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
-                  type: 'SUPPORT_TICKET',
-                  linkUrl: `/support/tickets/${ticketToResolve.id}`,
-                }
+              await sendPushToUser(ticketToResolve.reporterId, {
+                title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+                body: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+                category: 'SUPPORT_TICKET',
+                url: `/support/tickets/${ticketToResolve.id}`,
               });
             }
           }
@@ -603,14 +597,11 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
         });
 
         if (ticketToResolve.reporterId) {
-          await prisma.notification.create({
-            data: {
-              userId: ticketToResolve.reporterId,
-              title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
-              message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
-              type: 'SUPPORT_TICKET',
-              linkUrl: `/support/tickets/${ticketToResolve.id}`,
-            }
+          await sendPushToUser(ticketToResolve.reporterId, {
+            title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+            body: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+            category: 'SUPPORT_TICKET',
+            url: `/support/tickets/${ticketToResolve.id}`,
           });
         }
       }
@@ -661,14 +652,11 @@ export async function updateBDTaskStatus(taskId: string, status: string) {
                 });
 
                 if (ticketToResolve.reporterId) {
-                  await prisma.notification.create({
-                    data: {
-                      userId: ticketToResolve.reporterId,
-                      title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
-                      message: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
-                      type: 'SUPPORT_TICKET',
-                      linkUrl: `/support/tickets/${ticketToResolve.id}`,
-                    }
+                  await sendPushToUser(ticketToResolve.reporterId, {
+                    title: 'ปัญหาของคุณได้รับการแก้ไขแล้ว',
+                    body: `ทิกเก็ต ${ticketToResolve.ticketNumber} ถูกแก้ไขเรียบร้อยแล้ว (Auto-resolved)`,
+                    category: 'SUPPORT_TICKET',
+                    url: `/support/tickets/${ticketToResolve.id}`,
                   });
                 }
               }

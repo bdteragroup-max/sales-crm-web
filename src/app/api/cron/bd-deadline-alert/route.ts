@@ -1,5 +1,6 @@
 import prisma from "@/app/lib/db";
 import { NextResponse } from "next/server";
+import { sendPushToUser } from "@/app/lib/pushNotification";
 import { pushLineMessage, bdDeadlineAlertMessage } from "@/app/lib/lineNotify";
 
 export async function GET(req: Request) {
@@ -24,8 +25,10 @@ export async function GET(req: Request) {
     twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
     twoDaysFromNow.setHours(23, 59, 59, 999);
 
+
+    const pushPromises: any[] = [];
+
     const now = new Date();
-    const notifications = [];
 
     // 1. Check BD Projects
     const projectsToNotify = await prisma.bDProject.findMany({
@@ -47,15 +50,14 @@ export async function GET(req: Request) {
       const title = isOverdue ? "แจ้งเตือนโปรเจกต์เกินกำหนด" : "แจ้งเตือนโปรเจกต์ใกล้ถึงกำหนด";
       const message = `โปรเจกต์ "${project.name}" ${isOverdue ? "เลยกำหนดส่งแล้ว" : "จะถึงกำหนดส่งในเร็วๆ นี้"}`;
 
-      notifications.push({
-        userId: project.ownerId,
-        title,
-        message,
-        type: "BD_PROJECT_DEADLINE",
-        linkUrl: `/bd/projects/${project.id}`,
-        isRead: false,
-        createdAt: now,
-      });
+      pushPromises.push(
+        sendPushToUser(project.ownerId, {
+          title,
+          body: message,
+          category: "BD_PROJECT_DEADLINE",
+          url: `/bd/projects/${project.id}`
+        })
+      );
 
       if (lineGroupId && isOverdue) {
         lineMessages.push(bdDeadlineAlertMessage({
@@ -85,15 +87,14 @@ export async function GET(req: Request) {
       const title = isOverdue ? "แจ้งเตือนงานเกินกำหนด" : "แจ้งเตือนงานใกล้ถึงกำหนด";
       const message = `งาน "${task.name}" ในโปรเจกต์ ${task.project.name} ${isOverdue ? "เลยกำหนดส่งแล้ว" : "จะถึงกำหนดส่งในเร็วๆ นี้"}`;
 
-      notifications.push({
-        userId: task.assigneeId,
-        title,
-        message,
-        type: "BD_TASK_DEADLINE",
-        linkUrl: `/bd/projects/${task.projectId}`,
-        isRead: false,
-        createdAt: now,
-      });
+      pushPromises.push(
+        sendPushToUser(task.assigneeId, {
+          title,
+          body: message,
+          category: "BD_TASK_DEADLINE",
+          url: `/bd/projects/${task.projectId}`
+        })
+      );
 
       if (lineGroupId && isOverdue) {
         lineMessages.push(bdDeadlineAlertMessage({
@@ -104,10 +105,8 @@ export async function GET(req: Request) {
     }
 
     // Insert notifications
-    if (notifications.length > 0) {
-      await prisma.notification.createMany({
-        data: notifications
-      });
+    if (pushPromises.length > 0) {
+      await Promise.all(pushPromises);
     }
 
     // Send LINE messages
@@ -131,7 +130,7 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json({ 
-      message: `Sent ${notifications.length} deadline notifications and ${lineMessages.length} LINE alerts`,
+      message: `Sent ${pushPromises.length} deadline notifications and ${lineMessages.length} LINE alerts`,
       projects: projectsToNotify.map(p => p.id),
       tasks: tasksToNotify.map(t => t.id)
     });
