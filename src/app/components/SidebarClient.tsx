@@ -97,6 +97,7 @@ const technicianNav = [
   { icon: Wrench, label: 'งานผลิตของฉัน (Cabinet)', href: '/technician/production' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: Building2, label: 'งานซ่อมสถานที่ (Facility Repairs)', href: '/technician/facility-repairs' },
+  { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];
 
@@ -115,12 +116,14 @@ const storeNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
+  { icon: Package, label: 'รายการเบิก/ยืมวัสดุอุปกรณ์', href: '/store/requisitions' },
 ];
 
 const storeAndPurchasingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
+  { icon: Package, label: 'รายการเบิก/ยืมวัสดุอุปกรณ์', href: '/store/requisitions' },
   { icon: LayoutDashboard, label: 'แดชบอร์ดจัดซื้อ', href: '/admin/procurement/dashboard' },
   { icon: FileText, label: 'รายการ PR', href: '/admin/procurement/pr' },
   { icon: ClipboardList, label: 'รายการ PO', href: '/admin/procurement/po' },
@@ -154,6 +157,7 @@ const productionNav = [
   { icon: Package, label: 'สถานะคำสั่งผลิต', href: '/orders' },
   { icon: ClipboardList, label: 'ตรวจสอบคุณภาพ (QC)', href: '/production/qc' },
   { icon: Activity, label: 'ทดสอบการทำงาน (FAT)', href: '/production/fat' },
+  { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
   { icon: Boxes, label: 'ผลิตเพื่อสต็อก (Stock)', href: '/production/stock' },
   { icon: Users, label: 'ภาระงานช่าง (Workload)', href: '/production/workload' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
@@ -169,11 +173,13 @@ const bdNav = [
   { icon: LifeBuoy, label: 'จัดการปัญหาระบบ (Tickets)', href: '/bd/tickets' },
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
   { icon: Tv, label: 'Team Overview (TV)', href: '/bd/tickets/tv' },
+  { icon: Package, label: 'เบิก/ยืมวัสดุอุปกรณ์', href: '/requisitions' }
 ];
 
 const commonNav = [
   { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' },
-  { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' }
+  { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
+  { icon: Package, label: 'เบิก/ยืมวัสดุอุปกรณ์', href: '/requisitions' }
 ];
 
 export default function SidebarClient(props: SidebarProps) {

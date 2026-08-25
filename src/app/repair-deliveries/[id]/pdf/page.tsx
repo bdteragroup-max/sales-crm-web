@@ -78,21 +78,11 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
   const currentCompany = companyInfoMap[compCode] || companyInfoMap['TG'];
 
   return (
-    <div className="bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-10 print:bg-white print:p-0" style={{ fontFamily: "'TH Sarabun New', sans-serif" }}>
+    <div className="bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-10 print:bg-white print:p-0" style={{ fontFamily: "'Sarabun', sans-serif" }}>
       <style type="text/css">
         {`
-          @font-face {
-            font-family: 'TH Sarabun New';
-            font-style: normal;
-            font-weight: 400;
-            src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
-          }
-          @font-face {
-            font-family: 'TH Sarabun New';
-            font-style: normal;
-            font-weight: 700;
-            src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
-          }
+          @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+          
           @media print {
             @page {
               size: A4;
@@ -123,7 +113,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
       >
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3mm' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/17f3de5f-9a16-4fdd-8682-6157042b8cfd.png" alt="TERA Logo" style={{ height: '18mm', objectFit: 'contain' }} />
+          <img src="/17f3de5f-9a16-4fdd-8682-6157042b8cfd.png" alt="TERA Logo" style={{ height: '32mm', objectFit: 'contain' }} />
         </div>
 
         <div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '1mm' }}>
@@ -199,7 +189,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', margin: '3mm 0 2mm', fontSize: '13pt' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', margin: '3mm 0 2mm', fontSize: '11.5pt' }}>
           <thead>
             <tr>
               <th style={{ border: '1px solid #000', padding: '1.5mm 3mm', textAlign: 'center', fontWeight: 'bold', background: '#f5f5f5', width: '40%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>รายการ</th>
