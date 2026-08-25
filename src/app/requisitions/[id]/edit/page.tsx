@@ -1,6 +1,7 @@
 import React from 'react';
-import RequisitionEditForm from './RequisitionEditForm';
-import { getUser, getActiveUsers } from '@/app/lib/dal';
+import RequisitionEditForm from '../../RequisitionEditForm';
+import { getUser } from '@/app/lib/dal';
+import prisma from '@/app/lib/db';
 import { getRequisitionById } from '@/app/actions/requisitions';
 import { Edit } from 'lucide-react';
 import Link from 'next/link';
@@ -17,7 +18,11 @@ export default async function EditRequisitionPage({ params }: { params: Promise<
 
   const [res, users] = await Promise.all([
     getRequisitionById(id),
-    getActiveUsers()
+    prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, fullName: true, role: true },
+      orderBy: { fullName: 'asc' }
+    })
   ]);
 
   const requisition = res.success ? res.data : null;
