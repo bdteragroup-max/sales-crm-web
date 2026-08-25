@@ -3,6 +3,7 @@
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
+import { sendPushToUser } from "@/app/lib/pushNotification";
 
 export async function createMaterialRequisition(data: any) {
   try {
@@ -54,15 +55,11 @@ export async function createMaterialRequisition(data: any) {
 
     if (data.approverId) {
       // Optional: Send a notification to the approver
-      await prisma.notification.create({
-        data: {
-          userId: data.approverId,
-          type: 'REQUISITION_APPROVAL',
-          title: 'รออนุมัติใบเบิก/ยืมของ',
-          message: `มีใบเบิก/ยืมของใหม่หมายเลข ${requisition.requisitionNumber} รอการอนุมัติจากคุณ`,
-          isRead: false,
-          linkUrl: `/requisitions/${requisition.id}/approve`,
-        }
+      await sendPushToUser(data.approverId, {
+        title: 'รออนุมัติใบเบิก/ยืมของ',
+        body: `มีใบเบิก/ยืมของใหม่หมายเลข ${requisition.requisitionNumber} รอการอนุมัติจากคุณ`,
+        url: `/requisitions/${requisition.id}/approve`,
+        category: 'REQUISITION_APPROVAL'
       });
     }
 
@@ -111,15 +108,11 @@ export async function updateMaterialRequisition(id: string, data: any) {
         });
       }
 
-      await prisma.notification.create({
-        data: {
-          userId: data.approverId,
-          type: 'REQUISITION_APPROVAL',
-          title: 'รออนุมัติใบเบิก/ยืมของ',
-          message: `มีใบเบิก/ยืมของหมายเลข ${existingReq.requisitionNumber} รอการอนุมัติจากคุณ (แก้ไขใหม่)`,
-          isRead: false,
-          linkUrl: `/requisitions/${id}/approve`,
-        }
+      await sendPushToUser(data.approverId, {
+        title: 'รออนุมัติใบเบิก/ยืมของ',
+        body: `มีใบเบิก/ยืมของหมายเลข ${existingReq.requisitionNumber} รอการอนุมัติจากคุณ (แก้ไขใหม่)`,
+        url: `/requisitions/${id}/approve`,
+        category: 'REQUISITION_APPROVAL'
       });
     }
 
@@ -196,15 +189,16 @@ export async function approveMaterialRequisition(id: string, signatureUrl: strin
     });
 
     if (warehouseUsers.length > 0) {
-      const notifications = warehouseUsers.map(u => ({
-        userId: u.id,
-        type: 'REQUISITION_FULFILL',
-        title: 'ใบเบิก/ยืมของรอจัดเตรียม',
-        message: `มีใบเบิก/ยืมของหมายเลข ${requisition.requisitionNumber} ได้รับการอนุมัติแล้ว รอการจัดเตรียมของ`,
-        isRead: false,
-        linkUrl: `/store/requisitions/${requisition.id}`,
-      }));
-      await prisma.notification.createMany({ data: notifications });
+      await Promise.all(
+        warehouseUsers.map((u) =>
+          sendPushToUser(u.id, {
+            title: 'ใบเบิก/ยืมของรอจัดเตรียม',
+            body: `มีใบเบิก/ยืมของหมายเลข ${requisition.requisitionNumber} ได้รับการอนุมัติแล้ว รอการจัดเตรียมของ`,
+            url: `/store/requisitions/${requisition.id}`,
+            category: 'REQUISITION_FULFILL',
+          })
+        )
+      );
     }
 
     revalidatePath("/requisitions");
@@ -278,6 +272,19 @@ export async function updateRequisitionStatus(id: string, status: string) {
       where: { id },
       data: { status },
     });
+
+    if (requisition.requesterId) {
+      const statusText = status === 'FULFILLED' ? 'จัดเตรียมของเรียบร้อยแล้ว' 
+                       : status === 'REJECTED' ? 'ถูกปฏิเสธการจ่ายของ' 
+                       : `ถูกเปลี่ยนสถานะเป็น ${status}`;
+
+      await sendPushToUser(requisition.requesterId, {
+        title: 'อัปเดตสถานะใบเบิก/ยืมของ',
+        body: `ใบเบิก/ยืมของหมายเลข ${requisition.requisitionNumber} ${statusText}`,
+        url: `/requisitions`,
+        category: 'REQUISITION_UPDATE',
+      });
+    }
 
     revalidatePath("/requisitions");
     revalidatePath("/store/requisitions");
