@@ -177,7 +177,7 @@ export default function PipelineClientPage({
   const [appointmentNote, setAppointmentNote] = useState('')
 
   // Date Filter States
-  const [dateField, setDateField] = useState<string>(initialDateField)
+  const [dateField, setDateField] = useState<string>(initialDateField || 'statusChangedAt')
   const [preset, setPreset] = useState<string>(initialPreset)
   const [dateFrom, setDateFrom] = useState<string>(initialDateFrom)
   const [dateTo, setDateTo] = useState<string>(initialDateTo)
@@ -215,7 +215,7 @@ export default function PipelineClientPage({
   }
 
   const clearFilters = () => {
-    updateFilters({ df: 'updatedAt', pr: '', dFrom: '', dTo: '', search: '' })
+    updateFilters({ df: 'statusChangedAt', pr: '', dFrom: '', dTo: '', search: '' })
   }
 
   const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
@@ -528,6 +528,7 @@ export default function PipelineClientPage({
               onChange={(e) => updateFilters({ df: e.target.value })}
               className="text-xs font-bold border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
             >
+              <option value="statusChangedAt">วันที่สถานะเปลี่ยน</option>
               <option value="quotationDate">วันที่เสนอราคา</option>
               <option value="updatedAt">วันที่อัปเดตล่าสุด</option>
               <option value="createdAt">วันที่สร้าง</option>
@@ -584,7 +585,7 @@ export default function PipelineClientPage({
           )}
 
           {/* Clear Filter */}
-          {(preset !== '' || dateField !== 'updatedAt') && (
+          {(preset !== '' || dateField !== 'statusChangedAt') && (
             <button
               onClick={clearFilters}
               className="ml-auto flex items-center gap-1 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all"

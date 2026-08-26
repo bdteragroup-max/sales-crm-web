@@ -34,7 +34,7 @@ export default function RequisitionForm({ users, currentUser }: { users: UserOpt
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredApprovers = users.filter(u => 
+  const filteredApprovers = users.filter(u =>
     u.fullName.toLowerCase().includes(approverSearch.toLowerCase())
   );
 
@@ -78,20 +78,26 @@ export default function RequisitionForm({ users, currentUser }: { users: UserOpt
     }
 
     setLoading(true);
-    const signatureDataUrl = sigPad.current.getTrimmedCanvas().toDataURL('image/png');
+    try {
+      const signatureDataUrl = sigPad.current.getTrimmedCanvas().toDataURL('image/png');
 
-    const res = await createMaterialRequisition({
-      date,
-      company,
-      items,
-      approverId,
-      requesterSignatureUrl: signatureDataUrl,
-    });
+      const res = await createMaterialRequisition({
+        date,
+        company,
+        items,
+        approverId,
+        requesterSignatureUrl: signatureDataUrl,
+      });
 
-    if (res.success) {
-      router.push('/requisitions');
-    } else {
-      alert("เกิดข้อผิดพลาด: " + res.error);
+      if (res.success) {
+        router.push('/requisitions');
+      } else {
+        alert("เกิดข้อผิดพลาด: " + res.error);
+        setLoading(false);
+      }
+    } catch (error: any) {
+      console.error("Save error:", error);
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง");
       setLoading(false);
     }
   };

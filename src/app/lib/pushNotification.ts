@@ -12,12 +12,14 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY || ''
 );
 
-export async function sendPushToUser(userId: string, payload: { 
+export type PushPayload = {
   title: string; 
   body: string; 
   url?: string; 
   category: string;
-}) { 
+};
+
+export async function sendPushToUser(userId: string, payload: PushPayload) { 
   // 1. Send to the original target user
   await _sendPushToUserCore(userId, payload);
 
@@ -94,4 +96,12 @@ async function _sendPushToUserCore(userId: string, payload: {
       });
     }
   });
+}
+
+export async function notifyUser(userId: string, payload: PushPayload) {
+  return sendPushToUser(userId, payload);
+}
+
+export async function notifyUsers(userIds: string[], payload: PushPayload) {
+  return Promise.all(userIds.map(id => notifyUser(id, payload)));
 }

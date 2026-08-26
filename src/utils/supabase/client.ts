@@ -7,4 +7,9 @@ export const createClient = () =>
   createBrowserClient(
     supabaseUrl!,
     supabaseKey!,
+    {
+      cookieOptions: {
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      },
+    }
   );

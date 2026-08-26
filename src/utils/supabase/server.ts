@@ -9,6 +9,9 @@ export const createClient = (cookieStore: Awaited<ReturnType<typeof cookies>>) =
     supabaseUrl!,
     supabaseKey!,
     {
+      cookieOptions: {
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll()

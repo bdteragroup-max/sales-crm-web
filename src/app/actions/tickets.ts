@@ -372,7 +372,7 @@ export async function addComment(ticketId: string, message: string, attachments:
 
     // Notify the other party
     const isReporter = user.id === existing.reporterId;
-    const targetUserId = isReporter ? existing.assigneeId : existing.reporterId;
+    let targetUserId = isReporter ? existing.assigneeId : existing.reporterId;
 
     if (targetUserId) {
       await sendPushToUser(targetUserId, {
@@ -381,6 +381,30 @@ export async function addComment(ticketId: string, message: string, attachments:
         url: isReporter ? `/bd/tickets/${ticketId}` : `/support/tickets/${ticketId}`,
         category: "SUPPORT_TICKET",
       });
+    } else if (isReporter && !existing.assigneeId) {
+      // If reporter comments but no one has accepted the ticket yet, notify all BD users
+      const bdUsers = await prisma.user.findMany({
+        where: {
+          isActive: true,
+          role: {
+            in: ['Business Development', 'BD Intern'],
+          },
+        },
+        select: { id: true },
+      });
+
+      if (bdUsers.length > 0) {
+        await Promise.all(
+          bdUsers.map((bdUser) =>
+            sendPushToUser(bdUser.id, {
+              title: "ความคิดเห็นใหม่ใน Ticket (ยังไม่มีผู้รับผิดชอบ)",
+              body: `มีความคิดเห็นใหม่ใน ${existing.ticketNumber}: "${message.substring(0, 30)}..."`,
+              url: `/bd/tickets/${ticketId}`,
+              category: "SUPPORT_TICKET",
+            })
+          )
+        );
+      }
     }
 
     revalidatePath(`/bd/tickets/${ticketId}`);

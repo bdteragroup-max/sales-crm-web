@@ -16,6 +16,9 @@ export const createClient = (request: NextRequest) => {
     supabaseUrl!,
     supabaseKey!,
     {
+      cookieOptions: {
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      },
       cookies: {
         getAll() {
           return request.cookies.getAll()

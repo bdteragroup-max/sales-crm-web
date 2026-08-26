@@ -137,7 +137,7 @@ export default async function PipelinePage({
   }
 
   // Parse Date Filters
-  const dateField = (resolvedParams.dateField as string) || 'updatedAt'
+  const dateField = (resolvedParams.dateField as string) || 'statusChangedAt'
   const preset = resolvedParams.preset as string | undefined
   const dateFromParam = resolvedParams.dateFrom as string | undefined
   const dateToParam = resolvedParams.dateTo as string | undefined

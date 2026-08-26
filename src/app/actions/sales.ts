@@ -348,6 +348,7 @@ export async function saveSalesData(formData: FormData) {
         quotationNumber,
         quotationDate: parseDate(quotationDateRaw),
         status,
+        statusChangedAt: new Date(),
         rejectReason,
         subject: productInterest,
         productType,
@@ -627,6 +628,13 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       return { success: false, error: "กรุณาระบุวันเปิด P/O (Please enter PO Date)" };
     }
 
+    // Detect if status actually changed
+    const existingQuotation = await prisma.quotation.findUnique({
+      where: { id: quotationId },
+      select: { status: true }
+    });
+    const statusActuallyChanged = existingQuotation?.status !== status;
+
     const updatedQuotation = await prisma.quotation.update({
       where: { id: quotationId },
       data: {
@@ -638,6 +646,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         quotationNumber,
         quotationDate: parseDate(quotationDateRaw),
         status,
+        ...(statusActuallyChanged ? { statusChangedAt: new Date() } : {}),
         rejectReason,
         subject: productInterest,
         productType,

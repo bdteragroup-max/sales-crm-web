@@ -123,9 +123,11 @@ export default function TicketDetailClient({ ticketId }: { ticketId: string }) {
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto">
-      <Link href="/support/tickets" className="inline-flex items-center text-red-600 hover:text-red-800 mb-6 font-medium">
-        <ChevronLeft className="w-4 h-4 mr-1" /> กลับไปหน้ารายการแจ้งปัญหา
-      </Link>
+      <div className="flex justify-between items-center mb-6">
+        <Link href="/support/tickets" className="inline-flex items-center text-red-600 hover:text-red-800 font-medium">
+          <ChevronLeft className="w-4 h-4 mr-1" /> กลับไปหน้ารายการแจ้งปัญหา
+        </Link>
+      </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         {/* Header */}

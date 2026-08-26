@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import SignatureCanvas from 'react-signature-canvas';
 import { approveMaterialRequisition, updateRequisitionStatus } from '@/app/actions/requisitions';
-import { Save, Loader2, Eraser, XCircle } from 'lucide-react';
+import { Save, Loader2, Eraser, XCircle, Upload } from 'lucide-react';
 import ConfirmModal from '@/app/components/ConfirmModal';
 
 export default function ApproveForm({ requisition, currentUser }: { requisition: any, currentUser: any }) {
@@ -13,20 +13,45 @@ export default function ApproveForm({ requisition, currentUser }: { requisition:
   const [rejecting, setRejecting] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const sigPad = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadedSignature, setUploadedSignature] = useState<string | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setUploadedSignature(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const clearSignature = () => {
-    sigPad.current?.clear();
+    if (uploadedSignature) {
+      setUploadedSignature(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } else {
+      sigPad.current?.clear();
+    }
   };
 
   const handleApprove = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (sigPad.current?.isEmpty()) {
-      alert("กรุณาลงลายมือชื่อผู้อนุมัติ");
-      return;
+    
+    let signatureDataUrl = '';
+    
+    if (uploadedSignature) {
+      signatureDataUrl = uploadedSignature;
+    } else {
+      if (sigPad.current?.isEmpty()) {
+        alert("กรุณาลงลายมือชื่อผู้อนุมัติ หรืออัปโหลดรูปลายเซ็น");
+        return;
+      }
+      signatureDataUrl = sigPad.current.getTrimmedCanvas().toDataURL('image/png');
     }
 
     setLoading(true);
-    const signatureDataUrl = sigPad.current.getTrimmedCanvas().toDataURL('image/png');
 
     const res = await approveMaterialRequisition(requisition.id, signatureDataUrl);
 
@@ -128,21 +153,45 @@ export default function ApproveForm({ requisition, currentUser }: { requisition:
 
         <div className="flex flex-col items-center">
           <label className="block text-sm font-semibold text-gray-700 mb-4 text-center">ลายมือชื่อผู้อนุมัติ</label>
-          <div className="border-2 border-dashed border-gray-300 rounded-2xl overflow-hidden bg-gray-50 relative group">
-            <SignatureCanvas 
-              ref={sigPad}
-              canvasProps={{
-                className: 'w-[300px] h-[120px] cursor-crosshair'
-              }}
+          <div className="border-2 border-dashed border-gray-300 rounded-2xl overflow-hidden bg-gray-50 relative group flex items-center justify-center min-h-[120px] w-[300px]">
+            {uploadedSignature ? (
+              <img src={uploadedSignature} alt="Uploaded Signature" className="max-h-[100px] object-contain" />
+            ) : (
+              <SignatureCanvas 
+                ref={sigPad}
+                canvasProps={{
+                  className: 'w-[300px] h-[120px] cursor-crosshair'
+                }}
+              />
+            )}
+            
+            <div className="absolute top-2 right-2 flex gap-1">
+              {!uploadedSignature && (
+                <button 
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-1 bg-white shadow-sm border border-gray-200 rounded-md text-gray-500 hover:text-blue-600 transition-colors"
+                  title="อัปโหลดรูปลายเซ็น"
+                >
+                  <Upload size={14} />
+                </button>
+              )}
+              <button 
+                type="button"
+                onClick={clearSignature}
+                className="p-1 bg-white shadow-sm border border-gray-200 rounded-md text-gray-500 hover:text-red-600 transition-colors"
+                title="ลบลายเซ็น"
+              >
+                <Eraser size={14} />
+              </button>
+            </div>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileUpload} 
+              accept="image/*" 
+              className="hidden" 
             />
-            <button 
-              type="button"
-              onClick={clearSignature}
-              className="absolute top-2 right-2 p-1 bg-white shadow-sm border border-gray-200 rounded-md text-gray-500 hover:text-red-600 transition-colors"
-              title="ลบลายเซ็น"
-            >
-              <Eraser size={14} />
-            </button>
           </div>
           <div className="mt-3 text-center">
             <p className="text-gray-900 font-medium">({currentUser.fullName})</p>

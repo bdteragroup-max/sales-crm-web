@@ -67,7 +67,8 @@ export async function updateQuotationStatus(
 
     const updateData: any = { 
       status: newStatus,
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      ...(statusChanged ? { statusChangedAt: new Date() } : {}),
     };
 
     // Auto-update dates based on pipeline stage

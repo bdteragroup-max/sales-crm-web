@@ -256,6 +256,7 @@ model Quotation {
   subject              String?
   winLossReason        String?
   siteSurveyId         String?
+  statusChangedAt      DateTime?      @db.Timestamptz(6)
   goodsReturns         GoodsReturn[]
   marketingLead        MarketingLead?
   orders               Order[]
@@ -270,6 +271,7 @@ model Quotation {
   @@index([status])
   @@index([createdAt])
   @@index([companyId, createdAt])
+  @@index([statusChangedAt])
 }
 
 model Telesale {

@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { Package, Search, Filter, CheckCircle, Printer } from 'lucide-react';
 import { getMaterialRequisitions } from '@/app/actions/requisitions';
 import { getUser } from '@/app/lib/dal';
-import PushNotificationButton from '@/app/jobs/PushNotificationButton';
 
 export const metadata = {
   title: 'รายการเบิก/ยืมวัสดุอุปกรณ์ - เวิร์กสเปซคลังสินค้า',
@@ -30,9 +29,6 @@ export default async function StoreRequisitionsPage() {
             รายการเบิก/ยืมวัสดุอุปกรณ์
           </h1>
           <p className="text-gray-500 mt-1">คลังสินค้า: จัดเตรียมและส่งมอบอุปกรณ์ตามคำขอ</p>
-        </div>
-        <div>
-          <PushNotificationButton />
         </div>
       </div>
 

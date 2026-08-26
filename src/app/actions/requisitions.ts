@@ -55,12 +55,12 @@ export async function createMaterialRequisition(data: any) {
 
     if (data.approverId) {
       // Optional: Send a notification to the approver
-      await sendPushToUser(data.approverId, {
+      sendPushToUser(data.approverId, {
         title: 'รออนุมัติใบเบิก/ยืมของ',
         body: `มีใบเบิก/ยืมของใหม่หมายเลข ${requisition.requisitionNumber} รอการอนุมัติจากคุณ`,
         url: `/requisitions/${requisition.id}/approve`,
         category: 'REQUISITION_APPROVAL'
-      });
+      }).catch(console.error);
     }
 
     revalidatePath("/requisitions");
@@ -108,12 +108,12 @@ export async function updateMaterialRequisition(id: string, data: any) {
         });
       }
 
-      await sendPushToUser(data.approverId, {
+      sendPushToUser(data.approverId, {
         title: 'รออนุมัติใบเบิก/ยืมของ',
         body: `มีใบเบิก/ยืมของหมายเลข ${existingReq.requisitionNumber} รอการอนุมัติจากคุณ (แก้ไขใหม่)`,
         url: `/requisitions/${id}/approve`,
         category: 'REQUISITION_APPROVAL'
-      });
+      }).catch(console.error);
     }
 
     revalidatePath("/requisitions");
@@ -189,7 +189,7 @@ export async function approveMaterialRequisition(id: string, signatureUrl: strin
     });
 
     if (warehouseUsers.length > 0) {
-      await Promise.all(
+      Promise.all(
         warehouseUsers.map((u) =>
           sendPushToUser(u.id, {
             title: 'ใบเบิก/ยืมของรอจัดเตรียม',
@@ -198,7 +198,7 @@ export async function approveMaterialRequisition(id: string, signatureUrl: strin
             category: 'REQUISITION_FULFILL',
           })
         )
-      );
+      ).catch(console.error);
     }
 
     revalidatePath("/requisitions");
@@ -278,12 +278,12 @@ export async function updateRequisitionStatus(id: string, status: string) {
                        : status === 'REJECTED' ? 'ถูกปฏิเสธการจ่ายของ' 
                        : `ถูกเปลี่ยนสถานะเป็น ${status}`;
 
-      await sendPushToUser(requisition.requesterId, {
+      sendPushToUser(requisition.requesterId, {
         title: 'อัปเดตสถานะใบเบิก/ยืมของ',
         body: `ใบเบิก/ยืมของหมายเลข ${requisition.requisitionNumber} ${statusText}`,
         url: `/requisitions`,
         category: 'REQUISITION_UPDATE',
-      });
+      }).catch(console.error);
     }
 
     revalidatePath("/requisitions");

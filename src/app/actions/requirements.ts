@@ -136,6 +136,7 @@ export async function saveCustomerRequirementHistory(data: any) {
           contactId: contactId,
           salespersonId: user.id,
           status: "ความสนใจ",
+          statusChangedAt: new Date(),
           subject: `Requirement: ${companyName}`,
           productType: productType || null,
           requirementDate: new Date(data["วัน/เดือน/ปี"] || Date.now()),

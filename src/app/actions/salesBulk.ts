@@ -256,6 +256,7 @@ export async function saveBulkSalesData(records: any[]) {
         quotationNumber,
         quotationDate: parseDate(quotationDateRaw),
         status,
+        statusChangedAt: new Date(),
         rejectReason,
         subject: productInterest,
         productType,
@@ -285,6 +286,10 @@ export async function saveBulkSalesData(records: any[]) {
         });
         
         if (existingQuote) {
+          // Only update statusChangedAt if status actually changed
+          if (existingQuote.status === status) {
+            delete (quotationData as any).statusChangedAt;
+          }
           await prisma.quotation.update({
             where: { id: existingQuote.id },
             data: quotationData

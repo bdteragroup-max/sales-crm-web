@@ -2,6 +2,7 @@
 
 import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
+import { notifyUser } from '@/app/lib/pushNotification'
 
 export async function createMarketingLead(data: {
   customerName: string
@@ -260,32 +261,18 @@ export async function forwardLeadToSales(leadId: string, salesRepId: string) {
         }
       });
 
-      // 2. Create an In-App Notification
-      await tx.notification.create({
-        data: {
-          userId: salesRepId,
-          title: "มี Lead ใหม่จาก Marketing",
-          message: `ลูกค้า ${lead.customerName} สนใจ ${lead.productType || lead.productOfInterest || 'สินค้า'}`,
-          type: "MARKETING_LEAD",
-          linkUrl: "/sales/leads"
-        }
+      // 2. Create an In-App Notification & Push Notification
+      await notifyUser(salesRepId, {
+        title: "มี Lead ใหม่จาก Marketing",
+        body: `ลูกค้า ${lead.customerName} สนใจ ${lead.productType || lead.productOfInterest || 'สินค้า'}`,
+        category: "MARKETING_LEAD",
+        url: "/sales/leads"
       });
 
       return { lead: updatedLead };
     });
 
-    // 2.5 Send Push Notification
-    try {
-      const { sendPushToUser } = await import('@/app/lib/pushNotification');
-      await sendPushToUser(salesRepId, {
-        title: "มี Lead ใหม่จาก Marketing",
-        body: `ลูกค้า ${result.lead.customerName} สนใจ ${result.lead.productType || result.lead.productOfInterest || 'สินค้า'}`,
-        url: "/sales/leads",
-        category: "MARKETING_LEAD",
-      });
-    } catch (e) {
-      console.error("Failed to send push notification for marketing lead:", e);
-    }
+
 
     // 3. Attempt LINE Notification (Outside transaction to not block if LINE fails)
     try {
