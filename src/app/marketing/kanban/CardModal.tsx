@@ -153,58 +153,69 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
     }
   };
 
-  const processFile = async (file: File) => {
-    const isVideo = file.type.startsWith('video/');
+  const processFiles = async (fileList: FileList | File[]) => {
+    const files = Array.from(fileList);
+    if (files.length === 0) return;
+
     const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-    if (isVideo && file.size > MAX_VIDEO_SIZE) {
-      setErrorMsg(`วิดีโอมีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    } else if (!isVideo && file.size > MAX_FILE_SIZE) {
-      setErrorMsg(`ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 10MB)`);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/');
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        setErrorMsg(`วิดีโอ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      } else if (!isVideo && file.size > MAX_FILE_SIZE) {
+        setErrorMsg(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 10MB)`);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
     }
 
     setIsUploading(true);
 
     try {
       const supabase = createClient();
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `kanban/${card.id}/${fileName}`;
+      
+      const uploadPromises = files.map(async (file) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `kanban/${card.id}/${fileName}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('marketing_assets')
-        .upload(filePath, file, {
-          contentType: file.type,
-          upsert: false
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('marketing_assets')
+          .upload(filePath, file, {
+            contentType: file.type,
+            upsert: false
+          });
+
+        if (uploadError) throw new Error(uploadError.message);
+
+        const { data: urlData } = supabase.storage
+          .from('marketing_assets')
+          .getPublicUrl(filePath);
+
+        const res = await fetch('/api/marketing/kanban/attachments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cardId: card.id,
+            fileName: file.name,
+            fileUrl: urlData.publicUrl,
+            fileType: file.type,
+            fileSize: file.size,
+            attachmentType: 'general'
+          })
         });
-
-      if (uploadError) throw new Error(uploadError.message);
-
-      const { data: urlData } = supabase.storage
-        .from('marketing_assets')
-        .getPublicUrl(filePath);
-
-      const res = await fetch('/api/marketing/kanban/attachments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cardId: card.id,
-          fileName: file.name,
-          fileUrl: urlData.publicUrl,
-          fileType: file.type,
-          fileSize: file.size,
-          attachmentType: 'general'
-        })
+        const attachment = await res.json();
+        if (!res.ok) throw new Error(attachment.error);
+        
+        return attachment;
       });
-      const attachment = await res.json();
-      if (!res.ok) throw new Error(attachment.error);
 
-      setAttachments([...attachments, attachment]);
+      const newAttachments = await Promise.all(uploadPromises);
+      setAttachments(prev => [...prev, ...newAttachments]);
     } catch (e: any) {
       setErrorMsg("อัปโหลดล้มเหลว: " + e.message);
     } finally {
@@ -214,9 +225,9 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await processFile(file);
+    if (e.target.files && e.target.files.length > 0) {
+      await processFiles(e.target.files);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -225,9 +236,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      await processFile(file);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      await processFiles(e.dataTransfer.files);
     }
   };
 
@@ -494,6 +504,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                   type="file"
                   ref={fileInputRef}
                   className="hidden"
+                  multiple
                   accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"
                   onChange={handleFileUpload}
                 />
