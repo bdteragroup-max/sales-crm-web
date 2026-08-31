@@ -1,0 +1,1 @@
+﻿import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { const c = await prisma.adCampaign.findFirst({ where: { name: 'tswy' } }); console.log(c); } main();

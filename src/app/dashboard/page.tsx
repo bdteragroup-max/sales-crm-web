@@ -5,6 +5,7 @@ import { teraDb } from '@/app/lib/teraDb';
 import DashboardClientWrapper from '@/app/components/DashboardClientWrapper';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
+import { isSuperUser } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(userRoleStr);
   const isMarketing = ['marketing', 'การตลาด'].some((r) => userRoleStr.includes(r));
 
-  if (user.role === 'อื่นๆ' || !(isMarketingManager || isMarketing) && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'admin', 'project', 'โครงการ'].some((r) => userRoleStr.includes(r))) {
+  if (!isSuperUser(user.role) && (user.role === 'อื่นๆ' || !(isMarketingManager || isMarketing) && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'admin', 'project', 'โครงการ'].some((r) => userRoleStr.includes(r)))) {
     redirect('/department');
   }
 
@@ -103,6 +104,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   }
 
   const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'manager' || (user.role || '').toLowerCase() === 'sales manager' || (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
+  const isSuper = isSuperUser(user.role);
 
   const thirtyDaysAgoFilter = new Date(filterEnd.getTime() - 30 * 24 * 60 * 60 * 1000);
 
@@ -128,17 +130,19 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
   // 0. Fetch subordinates and the manager themselves to allow managers to view and select their own sales
   let salesReps: any[] = [];
-  if (isManager) {
+  if (isManager || isSuper) {
     let subEmpIds: string[] = [];
-    try {
-      const subordinates = await teraDb.employees.findMany({
-        where: { supervisor_id: user.employeeId, is_active: true },
-        select: { emp_id: true }
-      });
-      subEmpIds = subordinates.map((s) => s.emp_id);
-    } catch (err) {
-      console.warn("Failed to fetch subordinates from HR database:", err);
-      // Fallback: Manager will only see their own data if HR db fails
+    if (!isSuper) {
+      try {
+        const subordinates = await teraDb.employees.findMany({
+          where: { supervisor_id: user.employeeId, is_active: true },
+          select: { emp_id: true }
+        });
+        subEmpIds = subordinates.map((s) => s.emp_id);
+      } catch (err) {
+        console.warn("Failed to fetch subordinates from HR database:", err);
+        // Fallback: Manager will only see their own data if HR db fails
+      }
     }
 
     salesReps = await prisma.user.findMany({
@@ -155,7 +159,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
           }
         }
       },
-      where: (isMarketingManager || isMarketing) ? {
+      where: (isSuper || isMarketingManager || isMarketing) ? {
         isActive: true,
         NOT: {
           OR: [
@@ -199,7 +203,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   });
 
   const subordinateIds = salesReps.map((r: {id: string;}) => r.id);
-  const filterIds = isManager ?
+  const filterIds = (isManager || isSuper) ?
   salespersonIds.length > 0 ? salespersonIds : subordinateIds :
   [user.id];
 

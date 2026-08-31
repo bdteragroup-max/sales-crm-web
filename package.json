@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "verify:ads": "tsx src/lib/verify-dashboard.ts",
+    "verify": "npm run verify:ads",
     "postinstall": "prisma generate && prisma generate --schema=prisma/tera.prisma"
   },
   "dependencies": {
@@ -58,6 +60,7 @@
     "prisma": "^7.8.0",
     "server-only": "^0.0.1",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   },
   "prisma": {

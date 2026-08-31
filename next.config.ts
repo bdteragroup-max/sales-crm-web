@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
     '/api/**/*': ['./node_modules/@sparticuz/chromium/**/*'],
   },
   experimental: {
-    serverComponentsExternalPackages: ['@sparticuz/chromium', 'puppeteer-core'],
     serverActions: {
       bodySizeLimit: '10mb',
     },

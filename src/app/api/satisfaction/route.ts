@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
+import { getUser } from '@/app/lib/dal';
 
 export async function GET(req: Request) {
   try {
@@ -35,12 +36,16 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
     const {
       surveyRound,
       surveyYear,
       surveyMethod,
-      surveyBy,
       companyId,
       province,
       phone,
@@ -56,6 +61,8 @@ export async function POST(req: Request) {
       callNotes,
       criteriaComments,
     } = body;
+
+    const surveyBy = user.id;
 
     const scores = [scorePrice, scoreQuality, scoreDelivery, scoreSales, scoreSupport, scoreAfterSales];
     const scoreAverage = scores.reduce((a, b) => a + b, 0) / scores.length;

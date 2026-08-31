@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -139,10 +139,16 @@ const projectNav = [
 
 const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
+  { icon: Tv, label: 'Ads Dashboard', href: '/marketing/ads/dashboard' },
+  { icon: FolderOpen, label: 'Ads Campaigns', href: '/marketing/ads/campaigns' },
   { icon: Users, label: 'Marketing Leads', href: '/marketing' },
   { icon: ClipboardList, label: 'Satisfaction Survey', href: '/marketing/satisfaction' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
+];
+
+const marketingManagerNav = [
+  { icon: Settings, label: 'ตั้งค่าข้อมูลพื้นฐาน (Ads Master Data)', href: '/admin/ads/master-data' }
 ];
 
 const projectAdminNav = [
@@ -161,6 +167,13 @@ const productionNav = [
   { icon: Boxes, label: 'ผลิตเพื่อสต็อก (Stock)', href: '/production/stock' },
   { icon: Users, label: 'ภาระงานช่าง (Workload)', href: '/production/workload' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+];
+
+const accountingNav = [
+  { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี/การเงิน', href: '/accounting/dashboard' },
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+  { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
+  { icon: FileText, label: 'รายงานใช้น้ำมัน & GPS', href: '/department/fuel-report' },
 ];
 
 const bdNav = [
@@ -191,10 +204,9 @@ export default function SidebarClient(props: SidebarProps) {
   const isSuperAdmin = isSuperUser(roleStr);
   const isManager = roleStr === 'ผู้จัดการ' || roleStr === 'manager' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้การจัดการตลาด';
 
-  // Combine all navs for Super Admin, ensuring no duplicates by href
   const allNavs = [
     ...executiveNav, ...managerNav, ...repNav, ...serviceNav, ...serviceMgrNav, ...technicianNav,
-    ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...productionNav, ...bdNav
+    ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...marketingManagerNav, ...productionNav, ...bdNav
   ];
   const superAdminNav = Array.from(new Map(allNavs.map(item => [item.href, item])).values());
 
@@ -204,7 +216,7 @@ export default function SidebarClient(props: SidebarProps) {
     nav = executiveNav;
   } else if (['marketing', 'การตลาด'].some(r => roleStr.includes(r))) {
     if (isManager) {
-      nav = Array.from(new Map([...managerNav, ...marketingNav].map(item => [item.href, item])).values());
+      nav = Array.from(new Map([...managerNav, ...marketingNav, ...marketingManagerNav].map(item => [item.href, item])).values());
     } else {
       nav = marketingNav;
     }
@@ -220,12 +232,7 @@ export default function SidebarClient(props: SidebarProps) {
       nav = [...nav, ...serviceMgrNav];
     }
   } else if (['accounting', 'บัญชี', 'finance', 'การเงิน'].some(r => roleStr.includes(r))) {
-    nav = [
-      { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี/การเงิน', href: '/accounting/dashboard' },
-      { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
-      { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
-      { icon: FileText, label: 'รายงานใช้น้ำมัน & GPS', href: '/department/fuel-report' },
-    ];
+    nav = accountingNav;
   } else if (['project', 'โปรเจค', 'โปรเจกต์'].some(r => roleStr.includes(r))) {
     nav = projectNav; // Project users see their projects
   } else if (roleStr === 'ผู้จัดการคลังสินค้าและจัดซื้อ' || (roleStr.includes('คลังสินค้า') && roleStr.includes('จัดซื้อ'))) {
@@ -258,7 +265,16 @@ export default function SidebarClient(props: SidebarProps) {
 
   const finalNav = Array.from(new Map([...nav, ...navToAppend].map(item => [item.href, item])).values());
 
-  return <ResponsiveSidebar {...props} nav={finalNav} />;
+  const superAdminContexts = isSuperAdmin ? {
+    'All (Default)': superAdminNav,
+    'Executive': executiveNav,
+    'Sales & Marketing': Array.from(new Map([...managerNav, ...repNav, ...marketingNav, ...marketingManagerNav].map(item => [item.href, item])).values()),
+    'Service & Technician': Array.from(new Map([...serviceNav, ...serviceMgrNav, ...technicianNav].map(item => [item.href, item])).values()),
+    'Projects & Production': Array.from(new Map([...projectNav, ...productionNav].map(item => [item.href, item])).values()),
+    'Admin & Finance': Array.from(new Map([...purchasingNav, ...storeNav, ...bdNav, ...accountingNav].map(item => [item.href, item])).values())
+  } : undefined;
+
+  return <ResponsiveSidebar {...props} nav={finalNav} isSuperAdmin={isSuperAdmin} superAdminContexts={superAdminContexts} />;
 }
 
 type NavItem = { icon: React.ElementType; label: string; href: string };
@@ -269,8 +285,10 @@ function ResponsiveSidebar({
   userRole = 'ตัวแทนฝ่ายขาย',
   userId,
   theme,
-  nav,
-}: SidebarProps & { nav: NavItem[] }) {
+  nav: defaultNav,
+  isSuperAdmin,
+  superAdminContexts,
+}: SidebarProps & { nav: NavItem[], isSuperAdmin?: boolean, superAdminContexts?: Record<string, NavItem[]> }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -285,6 +303,33 @@ function ResponsiveSidebar({
   const [pendingOutsourceCount, setPendingOutsourceCount] = useState(0);
   const [pendingDeliveryCount, setPendingDeliveryCount] = useState(0);
   const [pendingEstimationCount, setPendingEstimationCount] = useState(0);
+
+  const [selectedContext, setSelectedContext] = useState<string>('All (Default)');
+  const [isContextSwitcherOpen, setIsContextSwitcherOpen] = useState(false);
+  const contextSwitcherRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      const savedContext = localStorage.getItem('superAdminViewContext');
+      if (savedContext && superAdminContexts && superAdminContexts[savedContext]) {
+        setSelectedContext(savedContext);
+      }
+    }
+  }, [isSuperAdmin, superAdminContexts]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (contextSwitcherRef.current && !contextSwitcherRef.current.contains(event.target as Node)) {
+        setIsContextSwitcherOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const nav = isSuperAdmin && superAdminContexts && superAdminContexts[selectedContext] ? superAdminContexts[selectedContext] : defaultNav;
 
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -370,6 +415,44 @@ function ResponsiveSidebar({
 
           {/* Divider */}
           <div className="w-8 h-px bg-gray-100 my-5 shrink-0" />
+
+          {isSuperAdmin && superAdminContexts && (
+            <div className="relative mb-5" ref={contextSwitcherRef}>
+              <button
+                onClick={() => setIsContextSwitcherOpen(!isContextSwitcherOpen)}
+                onMouseEnter={(e) => !isContextSwitcherOpen && showTooltip(`View Context: ${selectedContext}`, e)}
+                onMouseLeave={hideTooltip}
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${isContextSwitcherOpen
+                  ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
+                  : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+              >
+                <Layers size={20} strokeWidth={isContextSwitcherOpen ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
+              </button>
+
+              {isContextSwitcherOpen && (
+                <div className="absolute left-[70px] top-0 w-56 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 z-50 animate-in fade-in slide-in-from-left-2">
+                  <div className="px-4 py-2 border-b border-gray-100 mb-2">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Select View</span>
+                  </div>
+                  {Object.keys(superAdminContexts).map(ctx => (
+                    <button
+                      key={ctx}
+                      onClick={() => {
+                        setSelectedContext(ctx);
+                        localStorage.setItem('superAdminViewContext', ctx);
+                        setIsContextSwitcherOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold transition-colors ${selectedContext === ctx ? `${colors.text} ${colors.lightBg}` : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      {ctx}
+                      {selectedContext === ctx && <Check size={16} strokeWidth={2.5} />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Nav items */}
           <nav className="flex flex-col gap-4 w-full px-2">
@@ -563,6 +646,27 @@ function ResponsiveSidebar({
 
           {/* Divider */}
           <div className="w-full h-px bg-gray-100 my-6" />
+
+          {isSuperAdmin && superAdminContexts && (
+            <div className="mb-6">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-3">View Context</span>
+              <div className="flex flex-col gap-1.5 bg-gray-50/50 p-2 rounded-xl border border-gray-100">
+                {Object.keys(superAdminContexts).map(ctx => (
+                  <button
+                    key={ctx}
+                    onClick={() => {
+                      setSelectedContext(ctx);
+                      localStorage.setItem('superAdminViewContext', ctx);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${selectedContext === ctx ? `${colors.bg} text-white shadow-md` : 'text-gray-600 hover:bg-gray-100'}`}
+                  >
+                    {ctx}
+                    {selectedContext === ctx && <Check size={16} strokeWidth={2.5} />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Nav items list */}
           <nav className="flex flex-col gap-3 w-full">

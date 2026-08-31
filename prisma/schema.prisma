@@ -831,13 +831,14 @@ model birthday_claims {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model branches {
-  id         String      @id @db.VarChar(10)
-  name       String      @db.VarChar(100)
-  center_lat Decimal     @db.Decimal(10, 8)
-  center_lon Decimal     @db.Decimal(11, 8)
+  id         String       @id @db.VarChar(10)
+  name       String       @db.VarChar(100)
+  center_lat Decimal      @db.Decimal(10, 8)
+  center_lon Decimal      @db.Decimal(11, 8)
   radius_m   Int
-  created_at DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at DateTime    @default(now()) @db.Timestamptz(6)
+  created_at DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at DateTime     @default(now()) @db.Timestamptz(6)
+  AdCampaign AdCampaign[]
   employees  employees[]
 }
 
@@ -1374,6 +1375,7 @@ model products {
   created_at         DateTime             @default(now()) @db.Timestamptz(6)
   updated_at         DateTime             @default(now()) @db.Timestamptz(6)
   stock              Int                  @default(50)
+  AdCampaign         AdCampaign[]
   product_borrowings product_borrowings[]
 }
 
@@ -1636,7 +1638,7 @@ model ProjectEquipment {
   name               String
   registrationNumber String?
   quantity           Int      @default(1)
-  status             String   @default("เนเธเนเธเธฒเธ")
+  status             String   @default("เนƒเธŠเน‰เธ‡เธฒเธ™")
   details            String?
   createdAt          DateTime @default(now()) @db.Timestamptz(6)
   project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -1957,20 +1959,20 @@ model transfer_budgets {
 }
 
 model MarketingLead {
-  id                  String     @id @default(cuid())
+  id                  String      @id @default(cuid())
   customerName        String
   phoneNumber         String?
   productOfInterest   String?
   productType         String?
   conversationContent String?
   createdByUserId     String
-  isForwarded         Boolean    @default(false)
+  isForwarded         Boolean     @default(false)
   forwardedAt         DateTime?
-  quotationId         String?    @unique
-  createdAt           DateTime   @default(now()) @db.Timestamptz(6)
-  updatedAt           DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  quotationId         String?     @unique
+  createdAt           DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
   assignedToId        String?
-  isContacted         Boolean    @default(false)
+  isContacted         Boolean     @default(false)
   campaignSource      String?
   companyName         String?
   email               String?
@@ -1985,11 +1987,13 @@ model MarketingLead {
   postalCode          String?
   province            String?
   subDistrict         String?
-  assignedTo          User?      @relation("AssignedLeads", fields: [assignedToId], references: [id])
-  createdBy           User       @relation(fields: [createdByUserId], references: [id])
-  matchedCompany      Company?   @relation(fields: [matchedCompanyId], references: [id])
-  matchedContact      Contact?   @relation(fields: [matchedContactId], references: [id])
-  quotation           Quotation? @relation(fields: [quotationId], references: [id])
+  adCampaignId        String?
+  adCampaign          AdCampaign? @relation(fields: [adCampaignId], references: [id])
+  assignedTo          User?       @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  createdBy           User        @relation(fields: [createdByUserId], references: [id])
+  matchedCompany      Company?    @relation(fields: [matchedCompanyId], references: [id])
+  matchedContact      Contact?    @relation(fields: [matchedContactId], references: [id])
+  quotation           Quotation?  @relation(fields: [quotationId], references: [id])
 }
 
 model Notification {
@@ -2945,4 +2949,96 @@ model RequisitionRunningNumber {
 
   @@unique([yearBe, month])
   @@map("requisition_running_numbers")
+}
+
+model AdChannel {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+  campaigns AdCampaign[]
+}
+
+model AdAccount {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+  campaigns AdCampaign[]
+}
+
+model AdObjective {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  isActive  Boolean      @default(true)
+  campaigns AdCampaign[]
+}
+
+model AdResultType {
+  id           String          @id @default(cuid())
+  name         String          @unique
+  isActive     Boolean         @default(true)
+  performances AdPerformance[]
+}
+
+model AdCampaign {
+  id             String          @id @default(cuid())
+  campaignId     String          @unique
+  internalCode   String?         @unique
+  name           String
+  channelId      String
+  productId      Int?
+  branchId       String?
+  objectiveId    String?
+  budget         Decimal         @db.Decimal(12, 2)
+  startDate      DateTime        @db.Date
+  endDate        DateTime        @db.Date
+  status         String          @default("ACTIVE")
+  createdBy      String
+  createdAt      DateTime        @default(now()) @db.Timestamptz(6)
+  updatedBy      String?
+  updatedAt      DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
+  deletedAt      DateTime?       @db.Timestamptz(6)
+  accountId      String?
+  artworkUrl     String?
+  notes          String?
+  targetAudience String?
+  account        AdAccount?      @relation(fields: [accountId], references: [id])
+  branch         branches?       @relation(fields: [branchId], references: [id])
+  channel        AdChannel       @relation(fields: [channelId], references: [id])
+  objective      AdObjective?    @relation(fields: [objectiveId], references: [id])
+  product        products?       @relation(fields: [productId], references: [id])
+  performances   AdPerformance[]
+  leads          MarketingLead[]
+
+  @@index([channelId])
+  @@index([status])
+}
+
+model AdPerformance {
+  id           String        @id @default(cuid())
+  campaignId   String
+  adSetId      String?
+  adId         String?
+  dedupeKey    String        @unique
+  dateFrom     DateTime      @db.Date
+  dateTo       DateTime      @db.Date
+  spend        Decimal       @db.Decimal(12, 2)
+  impressions  Int?
+  linkClicks   Int?
+  messageInbox Int?
+  reach        Int?
+  results      Int?
+  resultTypeId String?
+  note         String?
+  createdBy    String
+  createdAt    DateTime      @default(now()) @db.Timestamptz(6)
+  updatedBy    String?
+  updatedAt    DateTime      @default(now()) @updatedAt @db.Timestamptz(6)
+  deletedAt    DateTime?     @db.Timestamptz(6)
+  campaign     AdCampaign    @relation(fields: [campaignId], references: [campaignId])
+  resultType   AdResultType? @relation(fields: [resultTypeId], references: [id])
+
+  @@index([campaignId])
+  @@index([dateFrom, dateTo])
 }

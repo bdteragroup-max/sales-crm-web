@@ -1,14 +1,23 @@
 const { PrismaClient } = require('@prisma/client');
+
 const prisma = new PrismaClient();
 
 async function main() {
-  const job = await prisma.job.findUnique({
-    where: { jobNumber: 'JB69-060041' },
-    include: { quotation: true }
+  const adCampaignStatuses = await prisma.adCampaign.groupBy({
+    by: ['status'],
+    _count: {
+      status: true
+    }
   });
-  console.log(JSON.stringify(job, null, 2));
+  console.log("AdCampaign Statuses:", adCampaignStatuses);
+  
+  const quotationStatuses = await prisma.quotation.groupBy({
+    by: ['status'],
+    _count: {
+      status: true
+    }
+  });
+  console.log("Quotation Statuses:", quotationStatuses);
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+main().finally(() => prisma.$disconnect());
