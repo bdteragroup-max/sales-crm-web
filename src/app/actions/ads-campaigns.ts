@@ -8,7 +8,7 @@ export async function createCampaign(data: {
   campaignId: string
   name: string
   channelId: string
-  productId?: number
+  productCategory?: string
   branchId?: string
   objectiveId?: string
   accountId?: string
@@ -23,7 +23,8 @@ export async function createCampaign(data: {
 }) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role)) {
+  const allowedRoles = ['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor', 'Editor', 'ผู้จัดการฝ่ายการตลาด', 'การตลาด', 'แอดมิน'];
+  if (!allowedRoles.includes(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to create campaigns")
   }
 
@@ -49,7 +50,7 @@ export async function createCampaign(data: {
       campaignId: data.campaignId,
       name: data.name,
       channelId: data.channelId,
-      productId: data.productId,
+      productCategory: data.productCategory,
       branchId: data.branchId,
       objectiveId: data.objectiveId,
       accountId: data.accountId,
@@ -88,7 +89,8 @@ export async function createCampaign(data: {
 export async function updateCampaign(id: string, data: Partial<any>) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role)) {
+  const allowedRoles = ['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor', 'Editor', 'ผู้จัดการฝ่ายการตลาด', 'การตลาด', 'แอดมิน'];
+  if (!allowedRoles.includes(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to edit campaigns")
   }
 
@@ -143,7 +145,6 @@ export async function getCampaigns(filters?: any) {
     include: {
       channel: true,
       objective: true,
-      product: true,
       branch: true,
     },
     orderBy: {
@@ -156,7 +157,8 @@ export async function getCampaigns(filters?: any) {
 export async function deleteCampaign(id: string) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager'].includes(user.role)) {
+  const allowedRoles = ['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor', 'Editor', 'ผู้จัดการฝ่ายการตลาด', 'การตลาด', 'แอดมิน'];
+  if (!allowedRoles.includes(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to delete campaigns")
   }
 

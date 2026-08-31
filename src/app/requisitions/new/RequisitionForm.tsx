@@ -15,6 +15,7 @@ export default function RequisitionForm({ users, currentUser }: { users: UserOpt
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const sigPad = useRef<any>(null);
+  const [signatureFileUrl, setSignatureFileUrl] = useState<string | null>(null);
 
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [company, setCompany] = useState('Group'); // Group, Electric, Power
@@ -60,6 +61,19 @@ export default function RequisitionForm({ users, currentUser }: { users: UserOpt
 
   const clearSignature = () => {
     sigPad.current?.clear();
+    setSignatureFileUrl(null);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setSignatureFileUrl(event.target?.result as string);
+        sigPad.current?.clear();
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,14 +86,14 @@ export default function RequisitionForm({ users, currentUser }: { users: UserOpt
       alert("กรุณาเลือกผู้อนุมัติ");
       return;
     }
-    if (sigPad.current?.isEmpty()) {
-      alert("กรุณาลงลายมือชื่อผู้ขอเบิก");
+    if (!signatureFileUrl && sigPad.current?.isEmpty()) {
+      alert("กรุณาลงลายมือชื่อผู้ขอเบิก หรืออัปโหลดไฟล์ลายเซ็น");
       return;
     }
 
     setLoading(true);
     try {
-      const signatureDataUrl = sigPad.current.getTrimmedCanvas().toDataURL('image/png');
+      const signatureDataUrl = signatureFileUrl || sigPad.current.getTrimmedCanvas().toDataURL('image/png');
 
       const res = await createMaterialRequisition({
         date,
@@ -278,22 +292,45 @@ export default function RequisitionForm({ users, currentUser }: { users: UserOpt
       {/* Signature Section */}
       <div className="pt-4 flex flex-col items-center">
         <label className="block text-sm font-semibold text-gray-700 mb-4 text-center">ลายมือชื่อผู้ขอเบิก</label>
-        <div className="border-2 border-dashed border-gray-300 rounded-2xl overflow-hidden bg-gray-50 relative group">
-          <SignatureCanvas
-            ref={sigPad}
-            canvasProps={{
-              className: 'w-full max-w-[400px] h-[150px] cursor-crosshair'
-            }}
-          />
-          <button
-            type="button"
-            onClick={clearSignature}
-            className="absolute top-2 right-2 p-1.5 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-500 hover:text-red-600 transition-colors"
-            title="ลบลายเซ็น"
-          >
-            <Eraser size={16} />
-          </button>
+        
+        {signatureFileUrl ? (
+          <div className="relative border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 flex items-center justify-center p-2 w-full max-w-[400px] h-[150px]">
+            <img src={signatureFileUrl} alt="Signature" className="max-h-full max-w-full object-contain" />
+            <button
+              type="button"
+              onClick={() => setSignatureFileUrl(null)}
+              className="absolute top-2 right-2 p-1.5 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-500 hover:text-red-600 transition-colors"
+              title="ลบไฟล์"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        ) : (
+          <div className="border-2 border-dashed border-gray-300 rounded-2xl overflow-hidden bg-gray-50 relative group">
+            <SignatureCanvas
+              ref={sigPad}
+              canvasProps={{
+                className: 'w-full max-w-[400px] h-[150px] cursor-crosshair'
+              }}
+            />
+            <button
+              type="button"
+              onClick={clearSignature}
+              className="absolute top-2 right-2 p-1.5 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-500 hover:text-red-600 transition-colors"
+              title="ลบลายเซ็น"
+            >
+              <Eraser size={16} />
+            </button>
+          </div>
+        )}
+
+        <div className="mt-3 flex items-center gap-2">
+          <label className="cursor-pointer text-sm text-red-600 hover:text-red-700 font-medium">
+            อัปโหลดไฟล์ลายเซ็น
+            <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+          </label>
         </div>
+
         <div className="mt-3 text-center">
           <p className="text-gray-900 font-medium">({currentUser.fullName})</p>
           <p className="text-gray-500 text-xs">ผู้ขอเบิก</p>

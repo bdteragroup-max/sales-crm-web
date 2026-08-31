@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getMarketingLeads, getCrmSummaryCards, bindLeadsToCampaign, unbindLeads } from '@/app/actions/ads-crm'
+import { PRODUCT_CATEGORIES } from '../constants'
 
 const STATUS_OPTIONS = [
   'Pending', 'Price Offered', 'Invoiced', 'Paid', 'Closed Lost', 'Open Billing' // Example statuses, we'll let them filter by WITH_QUOTATION as well
@@ -25,8 +26,7 @@ export default function CrmClient({ initialData, initialSummary, campaigns, chan
     dateFrom: '',
     dateTo: '',
     campaignId: '',
-    channelId: '',
-    productId: '',
+    productCategory: '',
     status: ''
   })
 
@@ -165,6 +165,17 @@ export default function CrmClient({ initialData, initialSummary, campaigns, chan
           <select value={filters.campaignId} onChange={e => handleFilterChange('campaignId', e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-sm max-w-[200px] truncate">
             <option value="">ทั้งหมด</option>
             {campaigns.map((c: any) => <option key={c.id} value={c.id}>{c.internalCode} - {c.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold mb-1 text-gray-600">กลุ่มสินค้า:</label>
+          <select
+            value={filters.productCategory}
+            onChange={(e) => handleFilterChange('productCategory', e.target.value)}
+            className="border border-gray-300 rounded px-3 py-1.5 text-sm"
+          >
+            <option value="">ทุกกลุ่มสินค้า</option>
+            {PRODUCT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div>

@@ -41,7 +41,7 @@ export default function PerformanceClient({ campaigns, resultTypes, initialPerfo
 
   const products = useMemo(() => {
     const pr = new Set<string>()
-    campaigns.forEach((c: any) => { if (c.product?.name) pr.add(c.product.name) })
+    campaigns.forEach((c: any) => { if (c.productCategory) pr.add(c.productCategory) })
     return Array.from(pr)
   }, [campaigns])
 
@@ -112,7 +112,7 @@ export default function PerformanceClient({ campaigns, resultTypes, initialPerfo
 
       const campaign = campaigns.find((c: any) => c.campaignId === r.campaignId)
       if (filterChannel !== 'All' && campaign?.channel?.name !== filterChannel) return false;
-      if (filterProduct !== 'All' && campaign?.product?.name !== filterProduct) return false;
+      if (filterProduct !== 'All' && campaign?.productCategory !== filterProduct) return false;
       if (filterCampaign !== 'All' && r.campaignId !== filterCampaign) return false;
 
       if (searchQuery) {
@@ -373,7 +373,7 @@ export default function PerformanceClient({ campaigns, resultTypes, initialPerfo
                 <th className="p-3 font-semibold w-32">วันที่เริ่มต้น (Date From) <span className="text-red-500">*</span></th>
                 <th className="p-3 font-semibold w-32">วันที่สิ้นสุด (Date To) <span className="text-red-500">*</span></th>
                 <th className="p-3 font-semibold">ช่องทาง (Channel)</th>
-                <th className="p-3 font-semibold">สินค้า (Product)</th>
+                <th className="p-3 font-semibold">กลุ่มสินค้า (Category)</th>
                 <th className="p-3 font-semibold min-w-[150px]">แคมเปญ (Campaign) <span className="text-red-500">*</span></th>
                 <th className="p-3 font-semibold min-w-[150px]">รหัส Ad Set (Ad Set ID)</th>
                 <th className="p-3 font-semibold min-w-[150px]">รหัส Ad / Artwork (Ad ID)</th>
@@ -435,7 +435,7 @@ export default function PerformanceClient({ campaigns, resultTypes, initialPerfo
                       />
                     </td>
                     <td className="p-2 text-center text-gray-500 bg-gray-50">{campaign?.channel?.name || '-'}</td>
-                    <td className="p-2 text-center text-gray-500 bg-gray-50">{campaign?.product?.product_name || '-'}</td>
+                    <td className="p-2 text-center text-gray-500 bg-gray-50">{campaign?.productCategory || '-'}</td>
                     <td className="p-2">
                       <select
                         value={row.campaignId}

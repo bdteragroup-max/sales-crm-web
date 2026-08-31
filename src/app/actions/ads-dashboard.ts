@@ -14,12 +14,12 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
     throw new Error("Forbidden")
   }
 
-  const { from, to, channelId, branchId, productId, objective, accountId, campaignIds } = filters
+  const { from, to, channelId, branchId, productCategory, objective, accountId, campaignIds } = filters
 
   // 1. Define Campaign Universe
   const campaignWhere = {
     ...(channelId ? { channelId } : {}),
-    ...(productId ? { productId: parseInt(productId, 10) } : {}),
+    ...(productCategory ? { productCategory } : {}),
     ...(branchId ? { branchId } : {}),
     ...(objective ? { objective: { name: objective } } : {}),
     ...(accountId ? { accountId } : {}),
@@ -38,7 +38,7 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
       startDate: true,
       endDate: true,
       channel: { select: { name: true } },
-      product: { select: { product_name: true } }
+      productCategory: true
     }
   }) as any[]
 
@@ -203,7 +203,7 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
 
   const productDataMap = new Map<string, { spend: number }>()
   for (const campaign of campaigns) {
-    const p = campaign.product?.product_name || 'Uncategorized'
+    const p = campaign.productCategory || 'Uncategorized'
     const campaignRows = included.filter(r => r.campaignId === campaign.campaignId)
     const spend = campaignRows.reduce((sum, r) => sum + Number(r.spend), 0)
     const existing = productDataMap.get(p) || { spend: 0 }

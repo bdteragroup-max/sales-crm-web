@@ -3,7 +3,7 @@ export type DashboardFilters = {
   to: string   // YYYY-MM-DD
   channelId?: string
   branchId?: string
-  productId?: string
+  productCategory?: string
   objective?: string
   accountId?: string
   campaignIds?: string[]

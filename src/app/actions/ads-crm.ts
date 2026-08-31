@@ -31,6 +31,13 @@ export async function getMarketingLeads(
     where.adCampaignId = filters.campaignId
   }
 
+  if (filters.productCategory) {
+    where.adCampaign = {
+      ...(where.adCampaign || {}),
+      productCategory: filters.productCategory
+    }
+  }
+
   if (filters.status) {
     if (filters.status === 'WITH_QUOTATION') {
       where.quotationId = { not: null }
@@ -96,6 +103,13 @@ export async function getCrmSummaryCards(filters: any = {}) {
 
   if (filters.campaignId) {
     where.adCampaignId = filters.campaignId
+  }
+
+  if (filters.productCategory) {
+    where.adCampaign = {
+      ...(where.adCampaign || {}),
+      productCategory: filters.productCategory
+    }
   }
 
   const totalLeads = await prisma.marketingLead.count({ where })

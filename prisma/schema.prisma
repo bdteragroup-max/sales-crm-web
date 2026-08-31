@@ -2988,6 +2988,7 @@ model AdCampaign {
   name           String
   channelId      String
   productId      Int?
+  productCategory String?
   branchId       String?
   objectiveId    String?
   budget         Decimal         @db.Decimal(12, 2)

@@ -18,6 +18,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Verify card exists
+    const card = await prisma.kanbanCard.findUnique({
+      where: { id: cardId }
+    });
+    if (!card) {
+      return NextResponse.json({ error: 'Card not found or has been deleted' }, { status: 404 });
+    }
+
     // Save attachment record in DB
     const attachment = await prisma.kanbanAttachment.create({
       data: {

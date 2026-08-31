@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { Search, ChevronDown } from 'lucide-react'
 import { createCampaign, updateCampaign, deleteCampaign } from '@/app/actions/ads-campaigns'
+
+
+import { PRODUCT_CATEGORIES } from '../constants'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import PerformanceClient from '../performance/PerformanceClient'
@@ -27,7 +30,7 @@ export default function CampaignsClient({ initialCampaigns, channels, objectives
     name: '',
     branchId: '',
     campaignId: '', // Platform ID
-    productId: '',
+    productCategory: '',
     internalCode: '',
     budget: '',
     startDate: '',
@@ -124,7 +127,7 @@ export default function CampaignsClient({ initialCampaigns, channels, objectives
       campaignId: formData.campaignId,
       name: formData.name,
       channelId: formData.channelId,
-      productId: formData.productId ? parseInt(formData.productId) : undefined,
+      productCategory: formData.productCategory || undefined,
       branchId: formData.branchId || undefined,
       objectiveId: formData.objectiveId || undefined,
       accountId: formData.accountId || undefined,
@@ -163,7 +166,7 @@ export default function CampaignsClient({ initialCampaigns, channels, objectives
         name: campaign.name || '',
         branchId: campaign.branchId || '',
         campaignId: campaign.campaignId || '',
-        productId: campaign.productId?.toString() || '',
+        productCategory: campaign.productCategory || '',
         internalCode: campaign.internalCode || '',
         budget: campaign.budget?.toString() || '',
         startDate: campaign.startDate ? new Date(campaign.startDate).toISOString().split('T')[0] : '',
@@ -211,13 +214,13 @@ export default function CampaignsClient({ initialCampaigns, channels, objectives
   const filteredCampaigns = campaigns.filter((c: any) => {
     const matchesSearch = c.name?.toLowerCase().includes(search.toLowerCase()) || c.internalCode?.toLowerCase().includes(search.toLowerCase())
     const matchesChannel = filterChannel ? c.channelId === filterChannel : true
-    const matchesProduct = filterProduct ? c.productId?.toString() === filterProduct : true
+    const matchesProduct = filterProduct ? c.productCategory === filterProduct : true
     const matchesStatus = filterStatus ? c.status === filterStatus : true
     return matchesSearch && matchesChannel && matchesProduct && matchesStatus
   })
 
   // Required fields check for UI validation indicator
-  const requiredComplete = formData.channelId && formData.accountId && formData.productId && formData.objectiveId && formData.name && formData.campaignId && formData.budget && formData.startDate && formData.endDate && formData.status;
+  const requiredComplete = formData.channelId && formData.accountId && formData.productCategory && formData.objectiveId && formData.name && formData.campaignId && formData.budget && formData.startDate && formData.endDate && formData.status;
 
   return (
     <div className="w-full">
@@ -290,13 +293,13 @@ export default function CampaignsClient({ initialCampaigns, channels, objectives
                     <label className="block text-xs font-semibold mb-1 text-gray-600">รหัสแคมเปญในแพลตฟอร์ม <span className="text-red-500">*</span></label>
                     <input type="text" name="campaignId" value={formData.campaignId} onChange={handleInputChange} required disabled={isViewer} className="w-full bg-yellow-50 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-500" />
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-xs font-semibold mb-1 text-gray-600">สินค้า (Product) <span className="text-red-500">*</span></label>
+                  <div className="col-span-1">
+                    <label className="block text-xs font-semibold mb-1 text-gray-600">กลุ่มสินค้า (Product Category) <span className="text-red-500">*</span></label>
                     <SearchableSelect
-                      options={products.map((p: any) => ({ value: p.id, label: p.product_name }))}
-                      value={formData.productId}
+                      options={PRODUCT_CATEGORIES.map(c => ({ value: c, label: c }))}
+                      value={formData.productCategory}
                       onChange={handleInputChange}
-                      name="productId"
+                      name="productCategory"
                       placeholder="เลือก..."
                       disabled={isViewer}
                     />
@@ -394,8 +397,8 @@ export default function CampaignsClient({ initialCampaigns, channels, objectives
                 {channels.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               <select value={filterProduct} onChange={e => setFilterProduct(e.target.value)} className="border border-gray-300 rounded px-3 py-2 text-sm min-w-[150px] focus:outline-none">
-                <option value="">ทุกสินค้า (All Products)</option>
-                {products.map((p: any) => <option key={p.id} value={p.id}>{p.product_name}</option>)}
+                <option value="">ทุกกลุ่มสินค้า (All Categories)</option>
+                {PRODUCT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-gray-300 rounded px-3 py-2 text-sm min-w-[150px] focus:outline-none">
                 <option value="">ทุกสถานะ (All Status)</option>
@@ -426,7 +429,7 @@ export default function CampaignsClient({ initialCampaigns, channels, objectives
                       <td className="px-4 py-3 text-gray-700">{c.internalCode || '-'}</td>
                       <td className="px-4 py-3 text-gray-900 font-medium">{c.name}</td>
                       <td className="px-4 py-3 text-gray-600">{c.channel?.name}</td>
-                      <td className="px-4 py-3 text-gray-600">{c.product?.product_name}</td>
+                      <td className="px-4 py-3 text-gray-600">{c.productCategory || '-'}</td>
                       <td className="px-4 py-3 text-gray-600">{c.objective?.name || '-'}</td>
                       <td className="px-4 py-3 text-gray-600">฿{Number(c.budget).toLocaleString()}</td>
                       <td className="px-4 py-3 text-gray-600">{new Date(c.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>

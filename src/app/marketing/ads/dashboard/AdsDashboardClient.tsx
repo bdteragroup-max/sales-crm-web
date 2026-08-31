@@ -9,6 +9,7 @@ import AdsCharts from './components/AdsCharts'
 import AdsCampaignTable from './components/AdsCampaignTable'
 
 import { useRouter, useSearchParams } from 'next/navigation'
+import { PRODUCT_CATEGORIES } from '../constants'
 
 export default function AdsDashboardClient({ channels, products, branches, campaigns, objectives = [], accounts = [] }: any) {
   const router = useRouter()
@@ -30,7 +31,7 @@ export default function AdsDashboardClient({ channels, products, branches, campa
     from: initialFrom,
     to: initialTo,
     channelId: searchParams.get('channelId') || '',
-    productId: searchParams.get('productId') || '',
+    productCategory: searchParams.get('productCategory') || '',
     branchId: searchParams.get('branchId') || '',
     objective: searchParams.get('objective') || '',
     accountId: searchParams.get('accountId') || '',
@@ -49,7 +50,7 @@ export default function AdsDashboardClient({ channels, products, branches, campa
     if (filters.from) params.set('from', filters.from)
     if (filters.to) params.set('to', filters.to)
     if (filters.channelId) params.set('channelId', filters.channelId)
-    if (filters.productId) params.set('productId', filters.productId)
+    if (filters.productCategory) params.set('productCategory', filters.productCategory)
     if (filters.branchId) params.set('branchId', filters.branchId)
     if (filters.objective) params.set('objective', filters.objective)
     if (filters.accountId) params.set('accountId', filters.accountId)
@@ -118,9 +119,9 @@ export default function AdsDashboardClient({ channels, products, branches, campa
           {accounts.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
 
-        <select name="productId" value={filters.productId} onChange={handleFilterChange} className="border rounded-lg px-3 py-1.5 text-sm min-w-[150px]">
-          <option value="">ทุกสินค้า</option>
-          {products.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        <select name="productCategory" value={filters.productCategory} onChange={handleFilterChange} className="border rounded-lg px-3 py-1.5 text-sm min-w-[150px]">
+          <option value="">ทุกกลุ่มสินค้า (All Categories)</option>
+          {PRODUCT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
 
         <select name="branchId" value={filters.branchId} onChange={handleFilterChange} className="border rounded-lg px-3 py-1.5 text-sm min-w-[150px]">
