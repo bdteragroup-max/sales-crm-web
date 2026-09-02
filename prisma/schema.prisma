@@ -969,7 +969,6 @@ model employees {
   bank_name                                                                   String?                     @db.VarChar(100)
   is_on_trial                                                                 Boolean                     @default(false)
   has_telephone_allowance                                                     Boolean                     @default(false)
-  position_allowance                                                          Decimal?                    @default(0) @db.Decimal(12, 2)
   address                                                                     String?
   national_id_card                                                            String?                     @db.VarChar(20)
   salary_type                                                                 String?                     @default("monthly") @db.VarChar(20)
@@ -980,20 +979,8 @@ model employees {
   secondary_supervisor_id                                                     String?                     @db.VarChar(20)
   nickname                                                                    String?                     @db.VarChar(50)
   email                                                                       String?                     @db.VarChar(100)
-  general_allowance                                                           Decimal?                    @default(0) @db.Decimal(12, 2)
-  probation_accommodation_allowance                                           Boolean                     @default(false)
-  probation_meal_allowance                                                    Boolean                     @default(false)
-  probation_travel_allowance                                                  Boolean                     @default(false)
-  fixed_accommodation_allowance                                               Decimal?                    @default(0) @db.Decimal(12, 2)
-  fixed_meal_allowance                                                        Decimal?                    @default(0) @db.Decimal(12, 2)
-  fixed_travel_allowance                                                      Decimal?                    @default(0) @db.Decimal(12, 2)
   fixed_tax_deduction                                                         Decimal?                    @db.Decimal(10, 2)
   current_streak                                                              Int                         @default(0)
-  sso_include_fixed_accommodation                                             Boolean                     @default(false)
-  sso_include_fixed_meal                                                      Boolean                     @default(false)
-  sso_include_fixed_travel                                                    Boolean                     @default(false)
-  sso_include_general_allowance                                               Boolean                     @default(false)
-  sso_include_position_allowance                                              Boolean                     @default(true)
   car_benefit                                                                 Decimal?                    @db.Decimal(10, 2)
   housing_benefit                                                             Decimal?                    @db.Decimal(10, 2)
   provident_fund_amt                                                          Decimal?                    @db.Decimal(10, 2)
@@ -1001,6 +988,11 @@ model employees {
   tax_deduction_override                                                      Decimal?                    @db.Decimal(10, 2)
   company_accommodation                                                       Boolean                     @default(false)
   company_car                                                                 Boolean                     @default(false)
+  nationality                                                                 String?                     @default("THA") @db.VarChar(3)
+  id_document_type                                                            String                      @default("national_id") @db.VarChar(20)
+  is_onboarding_complete                                                      Boolean                     @default(false)
+  allowance_mode                                                              String                      @default("itemized") @db.VarChar(20)
+  position_allowance                                                          Decimal?                    @default(0) @db.Decimal(12, 2)
   asset_borrowings                                                            asset_borrowings[]
   birthday_claims                                                             birthday_claims[]
   clothing_requests                                                           clothing_requests[]
@@ -1010,6 +1002,7 @@ model employees {
   coin_transfers_coin_transfers_sender_emp_idToemployees                      coin_transfers[]            @relation("coin_transfers_sender_emp_idToemployees")
   commission_claims                                                           commission_claims[]
   daily_work_plans                                                            daily_work_plans[]
+  employee_allowances                                                         employee_allowances[]
   employee_coins                                                              employee_coins[]
   employee_trainings_employee_trainings_assessor_idToemployees                employee_trainings[]        @relation("employee_trainings_assessor_idToemployees")
   employee_trainings_employee_trainings_emp_idToemployees                     employee_trainings[]        @relation("employee_trainings_emp_idToemployees")
@@ -2236,12 +2229,13 @@ model fleetcard_transactions {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model company_settings {
-  id         Int      @id @default(autoincrement())
-  tax_id     String   @db.VarChar(13)
-  name       String   @db.VarChar(200)
-  address    String
-  branch_no  String?  @db.VarChar(50)
-  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  id              Int               @id @default(autoincrement())
+  tax_id          String            @db.VarChar(13)
+  name            String            @db.VarChar(200)
+  address         String
+  branch_no       String?           @db.VarChar(50)
+  updated_at      DateTime          @default(now()) @db.Timestamptz(6)
+  allowance_types allowance_types[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -2982,35 +2976,35 @@ model AdResultType {
 }
 
 model AdCampaign {
-  id             String          @id @default(cuid())
-  campaignId     String          @unique
-  internalCode   String?         @unique
-  name           String
-  channelId      String
-  productId      Int?
+  id              String          @id @default(cuid())
+  campaignId      String          @unique
+  name            String
+  channelId       String
+  productId       Int?
+  branchId        String?
+  objectiveId     String?
+  budget          Decimal         @db.Decimal(12, 2)
+  startDate       DateTime        @db.Date
+  endDate         DateTime        @db.Date
+  status          String          @default("ACTIVE")
+  createdBy       String
+  createdAt       DateTime        @default(now()) @db.Timestamptz(6)
+  updatedBy       String?
+  updatedAt       DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
+  deletedAt       DateTime?       @db.Timestamptz(6)
+  accountId       String?
+  artworkUrl      String?
+  notes           String?
+  targetAudience  String?
+  internalCode    String?         @unique
   productCategory String?
-  branchId       String?
-  objectiveId    String?
-  budget         Decimal         @db.Decimal(12, 2)
-  startDate      DateTime        @db.Date
-  endDate        DateTime        @db.Date
-  status         String          @default("ACTIVE")
-  createdBy      String
-  createdAt      DateTime        @default(now()) @db.Timestamptz(6)
-  updatedBy      String?
-  updatedAt      DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
-  deletedAt      DateTime?       @db.Timestamptz(6)
-  accountId      String?
-  artworkUrl     String?
-  notes          String?
-  targetAudience String?
-  account        AdAccount?      @relation(fields: [accountId], references: [id])
-  branch         branches?       @relation(fields: [branchId], references: [id])
-  channel        AdChannel       @relation(fields: [channelId], references: [id])
-  objective      AdObjective?    @relation(fields: [objectiveId], references: [id])
-  product        products?       @relation(fields: [productId], references: [id])
-  performances   AdPerformance[]
-  leads          MarketingLead[]
+  account         AdAccount?      @relation(fields: [accountId], references: [id])
+  branch          branches?       @relation(fields: [branchId], references: [id])
+  channel         AdChannel       @relation(fields: [channelId], references: [id])
+  objective       AdObjective?    @relation(fields: [objectiveId], references: [id])
+  product         products?       @relation(fields: [productId], references: [id])
+  performances    AdPerformance[]
+  leads           MarketingLead[]
 
   @@index([channelId])
   @@index([status])
@@ -3031,15 +3025,61 @@ model AdPerformance {
   reach        Int?
   results      Int?
   resultTypeId String?
-  note         String?
   createdBy    String
   createdAt    DateTime      @default(now()) @db.Timestamptz(6)
   updatedBy    String?
   updatedAt    DateTime      @default(now()) @updatedAt @db.Timestamptz(6)
   deletedAt    DateTime?     @db.Timestamptz(6)
+  note         String?
   campaign     AdCampaign    @relation(fields: [campaignId], references: [campaignId])
   resultType   AdResultType? @relation(fields: [resultTypeId], references: [id])
 
   @@index([campaignId])
   @@index([dateFrom, dateTo])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model allowance_types {
+  id                   Int                   @id @default(autoincrement())
+  company_id           Int
+  name                 String                @db.VarChar(100)
+  default_sso_included Boolean               @default(false)
+  default_tax_included Boolean               @default(true)
+  is_active            Boolean               @default(true)
+  created_at           DateTime              @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime              @default(now()) @db.Timestamptz(6)
+  company_settings     company_settings      @relation(fields: [company_id], references: [id])
+  employee_allowances  employee_allowances[]
+
+  @@unique([company_id, name])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model employee_allowances {
+  id                Int             @id @default(autoincrement())
+  employee_id       String          @db.VarChar(20)
+  allowance_type_id Int
+  amount            Decimal         @db.Decimal(12, 2)
+  applies_to        String          @db.VarChar(20)
+  sso_included      Boolean         @default(false)
+  tax_included      Boolean         @default(false)
+  created_at        DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime        @default(now()) @db.Timestamptz(6)
+  allowance_types   allowance_types @relation(fields: [allowance_type_id], references: [id])
+  employees         employees       @relation(fields: [employee_id], references: [emp_id])
+
+  @@unique([employee_id, allowance_type_id, applies_to], map: "employee_allowances_employee_id_allowance_type_id_applies_to_ke")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sso_configs {
+  id             Int       @id @default(autoincrement())
+  effective_from DateTime  @db.Date
+  effective_to   DateTime? @db.Date
+  wage_ceiling   Decimal   @db.Decimal(10, 2)
+  min_wage       Decimal   @default(1650) @db.Decimal(10, 2)
+  rate_employee  Decimal   @db.Decimal(5, 2)
+  rate_employer  Decimal   @db.Decimal(5, 2)
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime  @default(now()) @db.Timestamptz(6)
 }
