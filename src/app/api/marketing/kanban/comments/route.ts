@@ -39,10 +39,10 @@ export async function POST(request: NextRequest) {
 
     // Parse mentions and create notifications
     try {
-      const usersList = await prisma.user.findMany({ 
-        select: { id: true, fullName: true, employeeId: true, employeeSale: { select: { nickname: true } } } 
+      const usersList = await prisma.user.findMany({
+        select: { id: true, fullName: true, employeeId: true, employeeSale: { select: { nickname: true } } }
       });
-      
+
       const employeeIds = usersList.map(u => u.employeeId).filter(Boolean);
       let nicknameMap = new Map<string, string>();
       try {
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       } catch (e) {
         console.warn('Could not fetch from employees table', e);
       }
-      
+
       const usersWithNicknames = usersList.map(u => {
         const nickname = nicknameMap.get(u.employeeId) || u.employeeSale?.nickname;
         return {
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
       const sortedUsers = usersWithNicknames.filter(u => u.fullName).sort((a, b) => b.fullName.length - a.fullName.length);
       const mentionedUserIds = new Set<string>();
-      
+
       let tempMessage = message;
       for (const u of sortedUsers) {
         if (tempMessage.includes(`@${u.fullName}`)) {
@@ -96,3 +96,90 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const body = await request.json();
+    const id = searchParams.get('id') || body.id;
+    const message = body.message;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing comment ID' }, { status: 400 });
+    }
+    if (!message || !message.trim()) {
+      return NextResponse.json({ error: 'Comment message cannot be empty' }, { status: 400 });
+    }
+
+    const existingComment = await prisma.kanbanComment.findUnique({ where: { id } });
+    if (!existingComment) {
+      return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
+    }
+
+    const updatedComment = await prisma.kanbanComment.update({
+      where: { id },
+      data: {
+        message: message.trim(),
+        updatedAt: new Date()
+      }
+    });
+
+    await prisma.kanbanActivityLog.create({
+      data: {
+        cardId: existingComment.cardId,
+        userId: user.id,
+        actionType: 'EDITED_COMMENT',
+        details: `Edited comment`
+      }
+    });
+
+    return NextResponse.json(updatedComment);
+  } catch (error: any) {
+    console.error('Error in PATCH /api/marketing/kanban/comments:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const body = await request.json().catch(() => ({}));
+    const id = searchParams.get('id') || body?.id;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing comment ID' }, { status: 400 });
+    }
+
+    const existingComment = await prisma.kanbanComment.findUnique({ where: { id } });
+    if (!existingComment) {
+      return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
+    }
+
+    await prisma.kanbanComment.delete({ where: { id } });
+
+    await prisma.kanbanActivityLog.create({
+      data: {
+        cardId: existingComment.cardId,
+        userId: user.id,
+        actionType: 'DELETED_COMMENT',
+        details: `Deleted comment`
+      }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Error in DELETE /api/marketing/kanban/comments:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
+

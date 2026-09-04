@@ -781,6 +781,16 @@ model asset_borrowings {
   overnight_required       Boolean   @default(false)
   nights_count             Int?
   trip_fee_status          String?   @db.VarChar(20)
+  claim_cost               Decimal?  @db.Decimal(10, 2)
+  claim_details            String?
+  claim_doc_no             String?   @db.VarChar(100)
+  claim_is_billed          Boolean?
+  claim_photo_url          String?
+  is_claim                 Boolean   @default(false)
+  is_maintenance           Boolean   @default(false)
+  maintenance_cost         Decimal?  @db.Decimal(10, 2)
+  maintenance_doc_url      String?
+  maintenance_mileage      Int?
   assets                   assets    @relation(fields: [asset_id], references: [id], onDelete: Cascade)
   employees                employees @relation(fields: [emp_id], references: [emp_id], onDelete: Cascade)
 
@@ -988,11 +998,15 @@ model employees {
   tax_deduction_override                                                      Decimal?                    @db.Decimal(10, 2)
   company_accommodation                                                       Boolean                     @default(false)
   company_car                                                                 Boolean                     @default(false)
-  nationality                                                                 String?                     @default("THA") @db.VarChar(3)
-  id_document_type                                                            String                      @default("national_id") @db.VarChar(20)
+  nationality                                                                 String?                     @default("THA") @db.VarChar(50)
+  id_document_type                                                            String                      @default("national_id") @db.VarChar(50)
   is_onboarding_complete                                                      Boolean                     @default(false)
   allowance_mode                                                              String                      @default("itemized") @db.VarChar(20)
   position_allowance                                                          Decimal?                    @default(0) @db.Decimal(12, 2)
+  company_id                                                                  Int?
+  title_prefix                                                                String?                     @db.VarChar(20)
+  first_name                                                                  String?                     @db.VarChar(50)
+  last_name                                                                   String?                     @db.VarChar(50)
   asset_borrowings                                                            asset_borrowings[]
   birthday_claims                                                             birthday_claims[]
   clothing_requests                                                           clothing_requests[]
@@ -2911,6 +2925,8 @@ model sales_depreciation_claims {
   claim_month                                                 DateTime                             @db.Date
   created_at                                                  DateTime                             @default(now()) @db.Timestamptz(6)
   updated_at                                                  DateTime                             @default(now()) @db.Timestamptz(6)
+  initial_approved_by                                         String?                              @db.VarChar(20)
+  initial_approved_at                                         DateTime?                            @db.Timestamptz(6)
   sales_depreciation_claim_revisions                          sales_depreciation_claim_revisions[]
   employees_sales_depreciation_claims_emp_idToemployees       employees                            @relation("sales_depreciation_claims_emp_idToemployees", fields: [emp_id], references: [emp_id], onDelete: Cascade)
   employees_sales_depreciation_claims_submitted_byToemployees employees                            @relation("sales_depreciation_claims_submitted_byToemployees", fields: [submitted_by], references: [emp_id], onDelete: Cascade)
@@ -3065,6 +3081,8 @@ model employee_allowances {
   tax_included      Boolean         @default(false)
   created_at        DateTime        @default(now()) @db.Timestamptz(6)
   updated_at        DateTime        @default(now()) @db.Timestamptz(6)
+  calc_basis        String          @default("fixed_monthly") @db.VarChar(50)
+  void_on_warning   Boolean         @default(false)
   allowance_types   allowance_types @relation(fields: [allowance_type_id], references: [id])
   employees         employees       @relation(fields: [employee_id], references: [emp_id])
 
@@ -3082,4 +3100,17 @@ model sso_configs {
   rate_employer  Decimal   @db.Decimal(5, 2)
   created_at     DateTime  @default(now()) @db.Timestamptz(6)
   updated_at     DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model employee_co_evaluators {
+  id           Int      @id @default(autoincrement())
+  employee_id  String   @db.VarChar(20)
+  evaluator_id String   @db.VarChar(20)
+  order_no     Int      @default(1)
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([employee_id, evaluator_id], map: "uq_employee_evaluator")
+  @@index([employee_id], map: "idx_employee_co_evaluators_emp")
+  @@index([evaluator_id], map: "idx_employee_co_evaluators_eval")
 }

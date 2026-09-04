@@ -3,6 +3,7 @@ import React from 'react';
 import KanbanBoardClient from './KanbanBoardClient';
 import { getUser } from '@/app/lib/dal';
 import { redirect } from 'next/navigation';
+import { getMarketingBoardData } from '@/app/actions/marketingKanban';
 
 export default async function KanbanPage() {
   const session = await getUser();
@@ -24,9 +25,16 @@ export default async function KanbanPage() {
     );
   }
 
+  const { board, users } = await getMarketingBoardData(session.id);
+
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
-      <KanbanBoardClient currentUser={session} />
+      <KanbanBoardClient 
+        currentUser={session} 
+        initialBoard={board}
+        initialUsers={users}
+      />
     </div>
   );
 }
+

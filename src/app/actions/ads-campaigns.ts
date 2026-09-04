@@ -68,7 +68,8 @@ export async function createCampaign(data: {
       channel: true,
       objective: true,
       product: true,
-      branch: true
+      branch: true,
+      account: true
     }
   })
 
@@ -118,7 +119,8 @@ export async function updateCampaign(id: string, data: Partial<any>) {
       channel: true,
       objective: true,
       product: true,
-      branch: true
+      branch: true,
+      account: true
     }
   })
 
@@ -146,6 +148,8 @@ export async function getCampaigns(filters?: any) {
       channel: true,
       objective: true,
       branch: true,
+      account: true,
+      product: true
     },
     orderBy: {
       createdAt: 'desc'

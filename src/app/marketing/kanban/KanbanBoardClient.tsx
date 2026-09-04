@@ -58,11 +58,20 @@ export type TKanbanList = {
   cards: TKanbanCard[];
 };
 
-export default function KanbanBoardClient({ currentUser }: { currentUser: any }) {
-  const [board, setBoard] = useState<any>(null);
-  const [lists, setLists] = useState<TKanbanList[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function KanbanBoardClient({ 
+  currentUser,
+  initialBoard,
+  initialUsers
+}: { 
+  currentUser: any;
+  initialBoard?: any;
+  initialUsers?: any[];
+}) {
+  const [board, setBoard] = useState<any>(initialBoard || null);
+  const [lists, setLists] = useState<TKanbanList[]>(initialBoard?.lists || []);
+  const [users, setUsers] = useState<any[]>(initialUsers || []);
+  const [loading, setLoading] = useState(!initialBoard);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [viewType, setViewType] = useState<'board' | 'calendar'>('board');
 
   const [activeCard, setActiveCard] = useState<TKanbanCard | null>(null);
@@ -87,22 +96,33 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
 
   const fetchBoard = useCallback(async () => {
     try {
+      setLoadError(null);
       const res = await fetch('/api/marketing/kanban/boards');
-      if (!res.ok) throw new Error('Failed to fetch board');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to fetch board');
+      }
       const data = await res.json();
-      setBoard(data.board);
-      setLists(data.board.lists || []);
-      setUsers(data.users || []);
-    } catch (error) {
+      if (data.board) {
+        setBoard(data.board);
+        setLists(data.board.lists || []);
+      }
+      if (data.users) {
+        setUsers(data.users || []);
+      }
+    } catch (error: any) {
       console.error(error);
+      setLoadError(error.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลบอร์ด');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchBoard();
-  }, [fetchBoard]);
+    if (!initialBoard) {
+      fetchBoard();
+    }
+  }, [fetchBoard, initialBoard]);
 
   // Trigger resize event for dnd-kit when sidebar opens/closes to recalculate droppables
   useEffect(() => {
@@ -468,8 +488,32 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex flex-col items-center justify-center gap-3">
         <Loader2 className="animate-spin text-[#ff2301]" size={40} />
+        <p className="text-sm font-semibold text-gray-500">กำลังโหลดข้อมูลกระดานการตลาด...</p>
+      </div>
+    );
+  }
+
+  if (loadError && !board) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-xl">
+          !
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-gray-800">ไม่สามารถโหลดข้อมูลกระดานได้</h2>
+          <p className="text-sm text-gray-500 mt-1 max-w-md">{loadError}</p>
+        </div>
+        <button
+          onClick={() => {
+            setLoading(true);
+            fetchBoard();
+          }}
+          className="px-4 py-2 bg-[#ff2301] hover:bg-red-600 text-white text-sm font-bold rounded-xl transition-all shadow-sm"
+        >
+          ลองใหม่อีกครั้ง (Retry)
+        </button>
       </div>
     );
   }

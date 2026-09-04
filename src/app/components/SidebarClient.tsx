@@ -139,10 +139,10 @@ const projectNav = [
 
 const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
-  { icon: Tv, label: 'Ads Dashboard', href: '/marketing/ads/dashboard' },
-  { icon: FolderOpen, label: 'Ads Campaigns', href: '/marketing/ads/campaigns' },
+  { icon: Tv, label: 'แดชบอร์ดโฆษณา (Ads Dashboard)', href: '/marketing/ads/dashboard' },
+  { icon: FolderOpen, label: 'แคมเปญโฆษณา (Ads Campaigns)', href: '/marketing/ads/campaigns' },
   { icon: Users, label: 'Marketing Leads', href: '/marketing' },
-  { icon: ClipboardList, label: 'Satisfaction Survey', href: '/marketing/satisfaction' },
+  { icon: ClipboardList, label: 'แบบสอบถามความพึงพอใจ', href: '/marketing/satisfaction' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
 ];

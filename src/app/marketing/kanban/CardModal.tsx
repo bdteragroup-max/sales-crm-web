@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Calendar, AlignLeft, CheckSquare, MessageSquare, Paperclip, Send, Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { X, Calendar, AlignLeft, CheckSquare, MessageSquare, Paperclip, Send, Loader2, AlertCircle, Plus, Trash2, Download, UploadCloud, FileArchive, Pencil, Check } from 'lucide-react';
 import type { TKanbanCard, TKanbanList } from './KanbanBoardClient';
 import { createClient } from '@/utils/supabase/client';
 import { POSTING_CHANNELS, PostingChannel } from '@/lib/marketingChannels';
+import JSZip from 'jszip';
 
 type Props = {
   card: TKanbanCard;
@@ -32,9 +33,20 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
   const [comments, setComments] = useState<any[]>(card.comments || []);
   const [newComment, setNewComment] = useState('');
+  const [isAddingComment, setIsAddingComment] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+  const [isSavingCommentEdit, setIsSavingCommentEdit] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<any | null>(null);
+  const [isDeletingComment, setIsDeletingComment] = useState(false);
   const [showMentions, setShowMentions] = useState(false);
   const [mentionFilter, setMentionFilter] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [uploadStatusMsg, setUploadStatusMsg] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; percent: number; fileName: string } | null>(null);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [downloadProgressMsg, setDownloadProgressMsg] = useState<string | null>(null);
+  const [isDragOverDropzone, setIsDragOverDropzone] = useState(false);
 
   const [attachments, setAttachments] = useState<any[]>(card.attachments || []);
 
@@ -136,91 +148,494 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   };
 
   const handleAddComment = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || isAddingComment) return;
+    setIsAddingComment(true);
+    setErrorMsg(null);
     try {
       const res = await fetch('/api/marketing/kanban/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cardId: card.id, message: newComment.trim() })
       });
-      const comment = await res.json();
-      const newComments = [comment, ...comments];
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'ส่งความคิดเห็นล้มเหลว');
+      }
+      const newComments = [data, ...comments];
       setComments(newComments);
       setNewComment('');
       onUpdate({ ...card, comments: newComments });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setErrorMsg(e.message || 'ส่งความคิดเห็นล้มเหลว');
+    } finally {
+      setIsAddingComment(false);
     }
   };
 
-  const processFiles = async (fileList: FileList | File[]) => {
-    const files = Array.from(fileList);
-    if (files.length === 0) return;
+  const handleStartEditComment = (comment: any) => {
+    setEditingCommentId(comment.id);
+    setEditingCommentText(comment.message);
+  };
 
-    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditingCommentText('');
+  };
 
-    for (const file of files) {
-      const isVideo = file.type.startsWith('video/');
-      if (isVideo && file.size > MAX_VIDEO_SIZE) {
-        setErrorMsg(`วิดีโอ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        return;
-      } else if (!isVideo && file.size > MAX_FILE_SIZE) {
-        setErrorMsg(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 10MB)`);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        return;
+  const handleSaveEditComment = async (commentId: string) => {
+    if (!editingCommentText.trim() || isSavingCommentEdit) return;
+    setIsSavingCommentEdit(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`/api/marketing/kanban/comments/${commentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: editingCommentText.trim() })
+      });
+      const updated = await res.json();
+      if (!res.ok) {
+        throw new Error(updated.error || 'บันทึกการแก้ไขล้มเหลว');
       }
+      const updatedComments = comments.map(c => c.id === commentId ? { ...c, message: editingCommentText.trim(), updatedAt: updated.updatedAt || new Date().toISOString() } : c);
+      setComments(updatedComments);
+      onUpdate({ ...card, comments: updatedComments });
+      setEditingCommentId(null);
+      setEditingCommentText('');
+    } catch (e: any) {
+      console.error(e);
+      setErrorMsg('แก้ไขความคิดเห็นล้มเหลว: ' + e.message);
+    } finally {
+      setIsSavingCommentEdit(false);
     }
+  };
 
+  const handleDeleteCommentClick = (e: React.MouseEvent, comment: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCommentToDelete(comment);
+  };
+
+  const confirmDeleteComment = async () => {
+    if (!commentToDelete || isDeletingComment) return;
+    setIsDeletingComment(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`/api/marketing/kanban/comments/${commentToDelete.id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'ลบความคิดเห็นล้มเหลว');
+      }
+      const updatedComments = comments.filter(c => c.id !== commentToDelete.id);
+      setComments(updatedComments);
+      onUpdate({ ...card, comments: updatedComments });
+      setCommentToDelete(null);
+    } catch (e: any) {
+      console.error(e);
+      setErrorMsg('ลบความคิดเห็นล้มเหลว: ' + e.message);
+    } finally {
+      setIsDeletingComment(false);
+    }
+  };
+
+  const isVideoFile = (file: { name: string; type?: string }) => {
+    if (file.type && file.type.startsWith('video/')) return true;
+    return /\.(mp4|mov|m4v|avi|wmv|flv|mkv|webm)$/i.test(file.name);
+  };
+
+  const getFileMimeType = (file: File) => {
+    if (file.type && file.type !== 'application/octet-stream') return file.type;
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const mimeMap: Record<string, string> = {
+      mp4: 'video/mp4',
+      mov: 'video/quicktime',
+      m4v: 'video/mp4',
+      avi: 'video/x-msvideo',
+      wmv: 'video/x-ms-wmv',
+      mkv: 'video/x-matroska',
+      webm: 'video/webm',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp',
+      pdf: 'application/pdf',
+      doc: 'application/msword',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      xls: 'application/vnd.ms-excel',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      csv: 'text/csv',
+      txt: 'text/plain',
+    };
+    return (ext && mimeMap[ext]) || file.type || 'application/octet-stream';
+  };
+
+  const isZipFile = (file: { name: string; type?: string }) => {
+    if (file.type && (file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || file.type === 'multipart/x-zip')) return true;
+    return /\.zip$/i.test(file.name);
+  };
+
+  const processFiles = async (fileList: FileList | File[]) => {
+    const rawFiles = Array.from(fileList);
+    if (rawFiles.length === 0) return;
+
+    setErrorMsg(null);
+    setUploadStatusMsg(null);
+    setUploadProgress(null);
+
+    // Step 1: Extract any ZIP archives in the browser
+    let expandedFiles: File[] = [];
+    let zipExtractedCount = 0;
     setIsUploading(true);
 
     try {
-      const supabase = createClient();
-      
-      const uploadPromises = files.map(async (file) => {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `kanban/${card.id}/${fileName}`;
+      for (const file of rawFiles) {
+        if (isZipFile(file)) {
+          setUploadStatusMsg(`กำลังแตกไฟล์ ZIP "${file.name}"...`);
+          try {
+            // Convert to ArrayBuffer for maximum stability across browsers
+            const fileData = file instanceof File ? await file.arrayBuffer() : file;
+            const zip = await JSZip.loadAsync(fileData);
+            const entries = Object.values(zip.files);
+            let localCount = 0;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('marketing_assets')
-          .upload(filePath, file, {
-            contentType: file.type,
-            upsert: false
-          });
+            for (const entry of entries) {
+              // Ignore directories and folders (including paths ending with '/')
+              if (entry.dir || entry.name.endsWith('/')) continue;
+              const baseName = entry.name.split('/').filter(Boolean).pop() || entry.name;
+              // Skip hidden files, system files & macOS resource forks
+              if (!baseName || baseName.startsWith('.') || entry.name.includes('__MACOSX') || baseName.toLowerCase() === 'thumbs.db') {
+                continue;
+              }
 
-        if (uploadError) throw new Error(uploadError.message);
+              // Workaround for JSZip upstream bug: "uncompressed data size mismatch"
+              // Filters the strict header-length check that fails on streaming/Windows/Mac archives
+              try {
+                const proto = (entry as any)._data?.__proto__;
+                if (proto && !proto.__patchedForSizeMismatch) {
+                  proto.__patchedForSizeMismatch = true;
+                  const origGetContentWorker = proto.getContentWorker;
+                  proto.getContentWorker = function () {
+                    const worker = origGetContentWorker.call(this);
+                    if (worker?._listeners?.end) {
+                      worker._listeners.end = worker._listeners.end.filter((fn: any) => {
+                        const fnStr = fn ? fn.toString() : '';
+                        return !fnStr.includes('uncompressed data size mismatch');
+                      });
+                    }
+                    return worker;
+                  };
+                }
+              } catch (patchErr) {
+                console.warn('Could not patch JSZip worker:', patchErr);
+              }
 
-        const { data: urlData } = supabase.storage
-          .from('marketing_assets')
-          .getPublicUrl(filePath);
+              try {
+                const blob = await entry.async('blob');
+                if (!blob || blob.size === 0) continue;
+                const mimeType = getFileMimeType({ name: baseName, type: '' } as any);
+                const extractedFile = new File([blob], baseName, { type: mimeType });
+                expandedFiles.push(extractedFile);
+                localCount++;
+                zipExtractedCount++;
+              } catch (entryErr: any) {
+                console.warn(`Failed to extract entry "${entry.name}":`, entryErr);
+              }
+            }
 
-        const res = await fetch('/api/marketing/kanban/attachments', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            cardId: card.id,
-            fileName: file.name,
-            fileUrl: urlData.publicUrl,
-            fileType: file.type,
-            fileSize: file.size,
-            attachmentType: 'general'
-          })
-        });
-        const attachment = await res.json();
-        if (!res.ok) throw new Error(attachment.error);
-        
-        return attachment;
+            if (localCount === 0) {
+              setErrorMsg(`ไม่พบไฟล์ที่รองรับในไฟล์ ZIP "${file.name}"`);
+            }
+          } catch (zipErr: any) {
+            console.error('ZIP extraction error:', zipErr);
+            setErrorMsg(`แตกไฟล์ ZIP "${file.name}" ล้มเหลว: ${zipErr.message || 'ไฟล์อาจชำรุด'}`);
+          }
+        } else {
+          expandedFiles.push(file);
+        }
+      }
+    } catch (e: any) {
+      setErrorMsg(`เกิดข้อผิดพลาดในการประมวลผลไฟล์: ${e.message}`);
+      setIsUploading(false);
+      return;
+    }
+
+    if (expandedFiles.length === 0) {
+      setIsUploading(false);
+      setUploadStatusMsg(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // Step 2: Validate file size limits
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB (Supabase Storage standard tier)
+    const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB for images/docs
+
+    const validFiles: File[] = [];
+    const skippedFiles: { name: string; reason: string }[] = [];
+
+    for (const file of expandedFiles) {
+      const isVideo = isVideoFile(file);
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        const sizeMb = (file.size / 1024 / 1024).toFixed(1);
+        skippedFiles.push({ name: file.name, reason: `วิดีโอ (${sizeMb}MB) เกิน 50MB` });
+      } else if (!isVideo && file.size > MAX_FILE_SIZE) {
+        const sizeMb = (file.size / 1024 / 1024).toFixed(1);
+        skippedFiles.push({ name: file.name, reason: `ไฟล์ (${sizeMb}MB) เกิน 15MB` });
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    if (validFiles.length === 0) {
+      setIsUploading(false);
+      setUploadStatusMsg(null);
+      const reasons = skippedFiles.map(s => `${s.name} (${s.reason})`).join(', ');
+      setErrorMsg(`ไม่สามารถอัปโหลดได้: ${reasons}`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    if (zipExtractedCount > 0) {
+      setUploadStatusMsg(`แตกไฟล์ ZIP สำเร็จ: ${zipExtractedCount} ไฟล์ — กำลังเริ่มอัปโหลด...`);
+    } else {
+      setUploadStatusMsg(`กำลังเตรียมอัปโหลด ${validFiles.length} ไฟล์...`);
+    }
+
+    // Step 3: Batch Upload with controlled concurrency (2 workers)
+    const supabase = createClient();
+    const newlyAddedAttachments: any[] = [];
+    const failedUploads: string[] = [];
+    let completedCount = 0;
+    const totalCount = validFiles.length;
+
+    const uploadWorker = async (file: File) => {
+      setUploadProgress({
+        current: Math.min(completedCount + 1, totalCount),
+        total: totalCount,
+        percent: Math.round((completedCount / totalCount) * 100),
+        fileName: file.name
       });
 
-      const newAttachments = await Promise.all(uploadPromises);
-      setAttachments(prev => [...prev, ...newAttachments]);
-    } catch (e: any) {
-      setErrorMsg("อัปโหลดล้มเหลว: " + e.message);
+      const isVideo = isVideoFile(file);
+      const mimeType = getFileMimeType(file);
+      const fileExt = file.name.split('.').pop() || (isVideo ? 'mp4' : 'bin');
+      const storageFileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `kanban/${card.id}/${storageFileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('marketing_assets')
+        .upload(filePath, file, {
+          contentType: mimeType,
+          upsert: false
+        });
+
+      if (uploadError) {
+        if (uploadError.message.includes('exceeded the maximum allowed size') || (uploadError as any).statusCode === '413') {
+          throw new Error(`ขนาดไฟล์เกิน 50MB`);
+        }
+        throw new Error(uploadError.message);
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('marketing_assets')
+        .getPublicUrl(filePath);
+
+      const res = await fetch('/api/marketing/kanban/attachments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: card.id,
+          fileName: file.name,
+          fileUrl: urlData.publicUrl,
+          fileType: mimeType,
+          fileSize: file.size,
+          attachmentType: isVideo ? 'video' : 'general'
+        })
+      });
+
+      const attachment = await res.json();
+      if (!res.ok) throw new Error(attachment.error || 'บันทึกข้อมูลไฟล์แนบล้มเหลว');
+
+      newlyAddedAttachments.push(attachment);
+      // Immediately update local attachments state so user sees cards dynamically
+      setAttachments(prev => [...prev, attachment]);
+      completedCount++;
+      setUploadProgress({
+        current: completedCount,
+        total: totalCount,
+        percent: Math.round((completedCount / totalCount) * 100),
+        fileName: file.name
+      });
+    };
+
+    const queue = [...validFiles];
+    const concurrency = Math.min(2, queue.length);
+    const workers = Array.from({ length: concurrency }, async () => {
+      while (queue.length > 0) {
+        const nextFile = queue.shift();
+        if (!nextFile) break;
+        try {
+          await uploadWorker(nextFile);
+        } catch (err: any) {
+          console.error(`Failed to upload ${nextFile.name}:`, err);
+          failedUploads.push(`${nextFile.name} (${err.message || 'ล้มเหลว'})`);
+          completedCount++;
+          setUploadProgress({
+            current: completedCount,
+            total: totalCount,
+            percent: Math.round((completedCount / totalCount) * 100),
+            fileName: nextFile.name
+          });
+        }
+      }
+    });
+
+    await Promise.all(workers);
+
+    // Sync full attachments list with parent card & board
+    if (newlyAddedAttachments.length > 0) {
+      const finalAttachments = [...attachments, ...newlyAddedAttachments];
+      setAttachments(finalAttachments);
+      onUpdate({ ...card, attachments: finalAttachments });
+    }
+
+    setIsUploading(false);
+    setUploadStatusMsg(null);
+    setUploadProgress(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    const allErrors = [
+      ...skippedFiles.map(s => `${s.name}: ${s.reason}`),
+      ...failedUploads
+    ];
+    if (allErrors.length > 0) {
+      setErrorMsg(`อัปโหลดสำเร็จ ${newlyAddedAttachments.length} ไฟล์ | ไม่สามารถอัปโหลด: ${allErrors.join(', ')}`);
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    if (attachments.length === 0 || isDownloadingAll) return;
+
+    setIsDownloadingAll(true);
+    setErrorMsg(null);
+    setDownloadProgressMsg('กำลังเตรียมดาวน์โหลด...');
+
+    try {
+      const zip = new JSZip();
+      const nameCountMap: Record<string, number> = {};
+      const supabase = createClient();
+      let downloadedCount = 0;
+
+      for (let i = 0; i < attachments.length; i++) {
+        const att = attachments[i];
+        setDownloadProgressMsg(`กำลังดาวน์โหลดไฟล์ ${i + 1} จาก ${attachments.length} (${att.fileName})...`);
+
+        let blob: Blob | null = null;
+
+        // Try direct fetch
+        try {
+          const response = await fetch(att.fileUrl);
+          if (response.ok) {
+            blob = await response.blob();
+          }
+        } catch (fetchErr) {
+          console.warn(`Direct fetch failed for ${att.fileName}, attempting Supabase download:`, fetchErr);
+        }
+
+        // Fallback to Supabase SDK download
+        if (!blob) {
+          try {
+            const urlParts = att.fileUrl.split('/marketing_assets/');
+            if (urlParts.length > 1) {
+              const storagePath = decodeURIComponent(urlParts[1]);
+              const { data, error } = await supabase.storage
+                .from('marketing_assets')
+                .download(storagePath);
+              if (data && !error) {
+                blob = data;
+              }
+            }
+          } catch (sdkErr) {
+            console.error(`Supabase download failed for ${att.fileName}:`, sdkErr);
+          }
+        }
+
+        if (!blob) {
+          console.warn(`Skipping unreadable attachment: ${att.fileName}`);
+          continue;
+        }
+
+        // Ensure unique file name in ZIP
+        let safeName = att.fileName || `file_${i + 1}`;
+        if (nameCountMap[safeName] !== undefined) {
+          nameCountMap[safeName]++;
+          const dotIndex = safeName.lastIndexOf('.');
+          if (dotIndex !== -1) {
+            safeName = `${safeName.substring(0, dotIndex)} (${nameCountMap[safeName]})${safeName.substring(dotIndex)}`;
+          } else {
+            safeName = `${safeName} (${nameCountMap[safeName]})`;
+          }
+        } else {
+          nameCountMap[safeName] = 0;
+        }
+
+        zip.file(safeName, blob);
+        downloadedCount++;
+      }
+
+      if (downloadedCount === 0) {
+        throw new Error('ไม่สามารถดาวน์โหลดไฟล์ใดๆ ได้ กรุณาลองใหม่อีกครั้ง');
+      }
+
+      setDownloadProgressMsg('กำลังบีบอัดไฟล์ ZIP...');
+      const zipBlob = await zip.generateAsync(
+        { type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } },
+        (metadata) => {
+          setDownloadProgressMsg(`กำลังบีบอัดไฟล์ ZIP ${Math.round(metadata.percent)}%...`);
+        }
+      );
+
+      const cleanTitle = (card.title || 'attachments')
+        .replace(/[\\/:*?"<>|]/g, '_')
+        .trim()
+        .substring(0, 50);
+      const downloadUrl = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `${cleanTitle || 'attachments'}_files.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(downloadUrl);
+    } catch (err: any) {
+      console.error('Download all error:', err);
+      setErrorMsg('ดาวน์โหลดไฟล์ทั้งหมดล้มเหลว: ' + (err.message || 'เกิดข้อผิดพลาด'));
     } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      setIsDownloadingAll(false);
+      setDownloadProgressMsg(null);
+    }
+  };
+
+  const handleDownloadSingle = async (e: React.MouseEvent, att: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const res = await fetch(att.fileUrl);
+      if (!res.ok) throw new Error('Fetch failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = att.fileName || 'download';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open(att.fileUrl, '_blank');
     }
   };
 
@@ -258,7 +673,9 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
         const data = await res.json();
         throw new Error(data.error || 'Failed to delete');
       }
-      setAttachments(attachments.filter(att => att.id !== attachmentToDelete.id));
+      const updatedAttachments = attachments.filter(att => att.id !== attachmentToDelete.id);
+      setAttachments(updatedAttachments);
+      onUpdate({ ...card, attachments: updatedAttachments });
       setAttachmentToDelete(null);
     } catch (e: any) {
       setErrorMsg("ลบไฟล์ล้มเหลว: " + e.message);
@@ -310,12 +727,35 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
   const renderCommentText = (text: string) => {
     if (!text) return null;
-    if (!users || users.length === 0) return <span className="whitespace-pre-wrap">{text}</span>;
+
+    const renderWithUrls = (str: string, keyPrefix: string) => {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const parts = str.split(urlRegex);
+      return parts.map((part, idx) => {
+        if (part.match(urlRegex)) {
+          return (
+            <a
+              key={`${keyPrefix}-${idx}`}
+              href={part}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 hover:underline break-all inline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {part}
+            </a>
+          );
+        }
+        return <span key={`${keyPrefix}-${idx}`} className="whitespace-pre-wrap">{part}</span>;
+      });
+    };
+
+    if (!users || users.length === 0) return renderWithUrls(text, 'plain');
 
     const sortedUsers = [...users].filter(u => u.fullName).sort((a, b) => b.fullName.length - a.fullName.length);
     const namesRegexStr = sortedUsers.map(u => u.fullName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
 
-    if (!namesRegexStr) return <span className="whitespace-pre-wrap">{text}</span>;
+    if (!namesRegexStr) return renderWithUrls(text, 'plain');
 
     const mentionRegex = new RegExp(`@(${namesRegexStr})`, 'g');
     const parts = text.split(mentionRegex);
@@ -324,12 +764,12 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
       if (i % 2 === 1) {
         return <span key={i} className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md font-semibold text-xs mx-0.5 inline-block">@{part}</span>;
       }
-      return <span key={i} className="whitespace-pre-wrap">{part}</span>;
+      return renderWithUrls(part, `m-${i}`);
     });
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
@@ -487,32 +927,135 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
             </section>
 
             {/* Attachments */}
-            <section>
-              <div className="flex items-center justify-between mb-3">
+            <section
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragOverDropzone(true);
+              }}
+              onDragLeave={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setIsDragOverDropzone(false);
+                }
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragOverDropzone(false);
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                  processFiles(e.dataTransfer.files);
+                }
+              }}
+              className={`transition-all duration-200 rounded-2xl p-3 -m-3 ${isDragOverDropzone ? 'bg-red-50/70 border-2 border-dashed border-red-400 ring-4 ring-red-100' : ''
+                }`}
+            >
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                 <div className="flex items-center gap-3">
-                  <Paperclip size={20} className="text-gray-400" />
-                  <h3 className="text-lg font-bold text-gray-800">ไฟล์แนบ (Attachments)</h3>
+                  <Paperclip size={20} className="text-gray-400 shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-gray-800">ไฟล์แนบ (Attachments)</h3>
+                      {attachments.length > 0 && (
+                        <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full">
+                          {attachments.length}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      รองรับภาพ/เอกสาร (สูงสุด 15MB), วิดีโอ (สูงสุด 50MB) และไฟล์ .ZIP (แตกไฟล์อัตโนมัติ)
+                    </p>
+                  </div>
                 </div>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
-                >
-                  {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-                  แนบไฟล์
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  multiple
-                  accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"
-                  onChange={handleFileUpload}
-                />
+
+                <div className="flex items-center gap-2">
+                  {attachments.length > 0 && (
+                    <button
+                      onClick={handleDownloadAll}
+                      disabled={isDownloadingAll || isUploading}
+                      className="bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700 hover:text-blue-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                      title="ดาวน์โหลดไฟล์ทั้งหมดเป็นไฟล์ ZIP"
+                    >
+                      {isDownloadingAll ? (
+                        <Loader2 size={16} className="animate-spin text-blue-600" />
+                      ) : (
+                        <Download size={16} className="text-blue-600" />
+                      )}
+                      <span>ดาวน์โหลดทั้งหมด (ZIP)</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading || isDownloadingAll}
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    {isUploading ? <Loader2 size={16} className="animate-spin text-[#ff2301]" /> : <Plus size={16} />}
+                    <span>แนบไฟล์</span>
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    multiple
+                    accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,application/zip,application/x-zip-compressed"
+                    onChange={handleFileUpload}
+                  />
+                </div>
               </div>
+
+              {/* Download All Progress banner */}
+              {downloadProgressMsg && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-700 font-semibold mb-3 flex items-center gap-2.5 animate-in fade-in">
+                  <Loader2 size={16} className="animate-spin shrink-0 text-blue-600" />
+                  <span>{downloadProgressMsg}</span>
+                </div>
+              )}
+
+              {/* Batch Upload Progress banner */}
+              {uploadProgress && (
+                <div className="p-3 bg-red-50/70 border border-red-200 rounded-xl text-sm mb-3 animate-in fade-in">
+                  <div className="flex justify-between items-center text-xs font-semibold text-gray-700 mb-1.5">
+                    <span className="flex items-center gap-1.5 truncate mr-2">
+                      <Loader2 size={14} className="animate-spin shrink-0 text-[#ff2301]" />
+                      <span>กำลังอัปโหลด ({uploadProgress.current}/{uploadProgress.total}): {uploadProgress.fileName}</span>
+                    </span>
+                    <span className="text-[#ff2301] font-bold shrink-0">{uploadProgress.percent}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                    <div
+                      className="bg-[#ff2301] h-full transition-all duration-300 rounded-full"
+                      style={{ width: `${uploadProgress.percent}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {uploadStatusMsg && !uploadProgress && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-700 font-semibold mb-3 flex items-center gap-2 animate-in fade-in">
+                  <Loader2 size={16} className="animate-spin shrink-0 text-blue-600" />
+                  <span>{uploadStatusMsg}</span>
+                </div>
+              )}
+
+              {/* Drag over dropzone hint */}
+              {isDragOverDropzone && (
+                <div className="p-4 mb-3 bg-red-50 border-2 border-dashed border-red-400 rounded-xl text-center text-red-700 text-sm font-bold flex items-center justify-center gap-2 animate-in fade-in">
+                  <UploadCloud size={20} className="animate-bounce text-[#ff2301]" />
+                  <span>ปล่อยไฟล์ตรงนี้เพื่ออัปโหลดทันที (หรือแตกไฟล์ ZIP อัตโนมัติ)</span>
+                </div>
+              )}
+
+              {errorMsg && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-bold mb-3 flex items-start gap-2 shadow-sm animate-in fade-in">
+                  <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600" />
+                  <span className="leading-tight flex-1">{errorMsg}</span>
+                  <button onClick={() => setErrorMsg(null)} className="text-red-400 hover:text-red-600">
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {attachments.map(att => {
-                  const isVideo = att.fileType?.startsWith('video/');
+                  const isVideo = att.fileType?.startsWith('video/') || att.attachmentType === 'video' || /\.(mp4|mov|m4v|avi|wmv|flv|mkv|webm)$/i.test(att.fileName || '');
 
                   return (
                     <div key={att.id} className={`relative group ${isVideo ? 'col-span-1 sm:col-span-2' : ''}`}>
@@ -522,8 +1065,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                             <track kind="captions" />
                           </video>
                           <div className="flex justify-between items-center px-1">
-                            <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
-                            <span className="text-xs text-gray-500">{(att.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                            <span className="text-sm font-bold text-gray-800 truncate mr-2">{att.fileName}</span>
+                            <span className="text-xs text-gray-500 shrink-0">{((att.fileSize || 0) / 1024 / 1024).toFixed(2)} MB</span>
                           </div>
                         </div>
                       ) : (
@@ -537,19 +1080,30 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                           </div>
                           <div className="flex flex-col overflow-hidden">
                             <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
-                            <span className="text-xs text-gray-500">{(att.fileSize / 1024).toFixed(1)} KB</span>
+                            <span className="text-xs text-gray-500">{((att.fileSize || 0) / 1024).toFixed(1)} KB</span>
                           </div>
                         </a>
                       )}
-                      <button
-                        onClick={(e) => handleDeleteAttachment(e, att)}
-                        className="absolute -top-2 -right-2 bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 p-1.5 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all z-10"
-                        title="ลบไฟล์แนบ"
-                      >
-                        <X size={14} strokeWidth={3} />
-                      </button>
+
+                      {/* Action buttons on hover */}
+                      <div className="absolute -top-2 -right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
+                        <button
+                          onClick={(e) => handleDownloadSingle(e, att)}
+                          className="bg-white border border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 p-1.5 rounded-full shadow-md transition-all"
+                          title="ดาวน์โหลดไฟล์นี้"
+                        >
+                          <Download size={14} strokeWidth={2.5} />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteAttachment(e, att)}
+                          className="bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 p-1.5 rounded-full shadow-md transition-all"
+                          title="ลบไฟล์แนบ"
+                        >
+                          <X size={14} strokeWidth={3} />
+                        </button>
+                      </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
             </section>
@@ -562,25 +1116,92 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               </div>
 
               <div className="flex flex-col gap-5 mb-8">
-                {comments.map(comment => {
-                  const author = users.find(u => u.id === comment.userId);
-                  return (
-                    <div key={comment.id} className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 text-gray-600 font-bold flex items-center justify-center flex-shrink-0 uppercase text-xs">
-                        {author?.fullName?.[0] || 'U'}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-baseline gap-2 mb-1.5">
-                          <span className="font-bold text-gray-800 text-sm">{author?.fullName || 'ผู้ใช้ที่ไม่รู้จัก'}</span>
-                          <span className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleString()}</span>
+                {comments.length === 0 ? (
+                  <div className="text-xs text-gray-400 italic py-2">ยังไม่มีความคิดเห็น</div>
+                ) : (
+                  comments.map(comment => {
+                    const author = users.find(u => u.id === comment.userId);
+                    const isEditing = editingCommentId === comment.id;
+                    const isEdited = comment.updatedAt && new Date(comment.updatedAt).getTime() > new Date(comment.createdAt).getTime() + 2000;
+
+                    return (
+                      <div key={comment.id} className="flex gap-3 group/comment relative">
+                        <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 text-gray-600 font-bold flex items-center justify-center flex-shrink-0 uppercase text-xs mt-0.5">
+                          {author?.fullName?.[0] || 'U'}
                         </div>
-                        <div className="bg-gray-50 border border-gray-100 shadow-sm px-4 py-3 rounded-tr-2xl rounded-b-2xl text-sm text-gray-700 inline-block min-w-[200px]">
-                          {renderCommentText(comment.message)}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              <span className="font-bold text-gray-800 text-sm">{author?.fullName || 'ผู้ใช้ที่ไม่รู้จัก'}</span>
+                              <span className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleString('th-TH')}</span>
+                              {isEdited && (
+                                <span className="text-[11px] text-gray-400 font-normal italic">(แก้ไขแล้ว)</span>
+                              )}
+                            </div>
+
+                            {/* Action Buttons: Edit / Delete */}
+                            {!isEditing && (
+                              <div className="flex items-center gap-1 opacity-90 sm:opacity-0 group-hover/comment:opacity-100 transition-opacity">
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEditComment(comment)}
+                                  className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="แก้ไขข้อความ"
+                                >
+                                  <Pencil size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDeleteCommentClick(e, comment)}
+                                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                  title="ลบความคิดเห็น"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          {isEditing ? (
+                            <div className="bg-white border-2 border-red-300 rounded-xl p-3 shadow-sm space-y-2 mt-1">
+                              <textarea
+                                value={editingCommentText}
+                                onChange={(e) => setEditingCommentText(e.target.value)}
+                                rows={3}
+                                className="w-full text-sm outline-none resize-y text-gray-800 focus:ring-0"
+                                placeholder="แก้ไขความคิดเห็น..."
+                                autoFocus
+                              />
+                              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                                <button
+                                  type="button"
+                                  onClick={handleCancelEditComment}
+                                  disabled={isSavingCommentEdit}
+                                  className="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                  ยกเลิก
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveEditComment(comment.id)}
+                                  disabled={isSavingCommentEdit || !editingCommentText.trim()}
+                                  className="px-3 py-1.5 text-xs font-bold text-white bg-[#ff2301] hover:bg-red-600 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                                >
+                                  {isSavingCommentEdit ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+                                  <span>บันทึก</span>
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-gray-50 border border-gray-100 shadow-sm px-4 py-3 rounded-tr-2xl rounded-b-2xl text-sm text-gray-700 inline-block min-w-[200px] max-w-full break-words">
+                              {renderCommentText(comment.message)}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
 
               {/* Comment Input Box */}
@@ -591,6 +1212,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                 <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-visible relative focus-within:border-red-300 focus-within:ring-2 focus-within:ring-red-100 transition-all shadow-sm">
                   <textarea
                     value={newComment}
+                    disabled={isAddingComment}
                     onChange={(e) => {
                       const val = e.target.value;
                       setNewComment(val);
@@ -603,7 +1225,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                       }
                     }}
                     placeholder="เขียนความคิดเห็นใหม่ที่นี่ (พิมพ์ @ เพื่อกล่าวถึง)..."
-                    className="w-full p-4 text-sm outline-none resize-none min-h-[100px] rounded-t-xl"
+                    className="w-full p-4 text-sm outline-none resize-none min-h-[100px] rounded-t-xl disabled:bg-gray-50 disabled:cursor-not-allowed"
                   />
 
                   {showMentions && filteredMentionUsers.length > 0 && (
@@ -634,10 +1256,20 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
                   <div className="bg-gray-50 px-4 py-3 flex justify-end border-t border-gray-100 rounded-b-xl">
                     <button
+                      type="button"
                       onClick={handleAddComment}
-                      className="bg-[#ff2301] hover:bg-red-600 text-white font-bold px-5 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 shadow-sm"
+                      disabled={isAddingComment || !newComment.trim()}
+                      className="bg-[#ff2301] hover:bg-red-600 text-white font-bold px-5 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Send size={14} /> บันทึกความคิดเห็น
+                      {isAddingComment ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" /> บันทึกความคิดเห็น...
+                        </>
+                      ) : (
+                        <>
+                          <Send size={14} /> บันทึกความคิดเห็น
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -1070,6 +1702,39 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                 className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2"
               >
                 {isDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />} ลบไฟล์
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Comment Confirmation Modal */}
+      {commentToDelete && (
+        <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/40 backdrop-blur-sm" onPointerDown={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">ลบความคิดเห็น (Delete Comment)</h3>
+            <p className="text-xs text-gray-500 mb-3">
+              คุณแน่ใจหรือไม่ว่าต้องการลบความคิดเห็นนี้? การกระทำนี้ไม่สามารถย้อนกลับได้
+            </p>
+            <div className="text-xs text-gray-700 bg-gray-50 border border-gray-100 p-3 rounded-xl mb-6 max-h-28 overflow-y-auto break-words italic">
+              "{commentToDelete.message}"
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setCommentToDelete(null)}
+                disabled={isDeletingComment}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                ยกเลิก (Cancel)
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteComment}
+                disabled={isDeletingComment}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {isDeletingComment ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />} ลบความคิดเห็น
               </button>
             </div>
           </div>
