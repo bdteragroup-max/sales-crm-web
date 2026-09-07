@@ -46,8 +46,8 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
   const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
   // Metrics
-  const pendingPOsCount = filteredPos.filter(po => po.receiveStatus !== 'Received').length;
-  const totalFilteredSpending = filteredPos.reduce((sum, po) => sum + Number(po.totalAmount || 0), 0);
+  const pendingPOsCount = filteredPos.filter(po => po.receiveStatus !== 'Received' && po.receiveStatus !== 'Cancelled').length;
+  const totalFilteredSpending = filteredPos.filter(po => po.receiveStatus !== 'Cancelled').reduce((sum, po) => sum + Number(po.totalAmount || 0), 0);
   
   const spendingLabel = selectedMonth === 'ALL' 
     ? (selectedYear === 'ALL' ? 'ยอดใช้จ่ายรวมทั้งหมด' : `ยอดใช้จ่ายรวม (ปี ${selectedYear})`)
@@ -67,6 +67,7 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
     });
 
     filteredPos.forEach(po => {
+      if (po.receiveStatus === 'Cancelled') return;
       const { month } = extractDateFromPO(po);
       const amt = Number(po.totalAmount || 0);
       if (po.poNumber) {
@@ -180,11 +181,11 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
         'ผู้ขาย': po.vendorName || '-',
         'ยอดรวม (บาท)': Number(po.totalAmount) || 0,
         'วันส่งมอบ': po.deliveryDate ? new Date(po.deliveryDate).toLocaleDateString('th-TH') : '-',
-        'สถานะ': po.receiveStatus === 'Received' ? `รับโดย ${po.receivedBy}` : 'รอรับสินค้า',
+        'สถานะ': po.receiveStatus === 'Cancelled' ? 'ยกเลิกแล้ว' : (po.receiveStatus === 'Received' ? `รับโดย ${po.receivedBy}` : 'รอรับสินค้า'),
       }));
 
       // Add summary row
-      const totalAmount = filteredPos.reduce((sum, po) => sum + (Number(po.totalAmount) || 0), 0);
+      const totalAmount = filteredPos.filter(po => po.receiveStatus !== 'Cancelled').reduce((sum, po) => sum + (Number(po.totalAmount) || 0), 0);
       exportData.push({
         'เลขที่ PO': 'รวมทั้งหมด',
         'อ้างอิง PR': '',

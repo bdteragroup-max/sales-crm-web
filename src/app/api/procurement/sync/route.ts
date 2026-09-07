@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { sendPushToUser } from '@/app/lib/pushNotification';
+import { isRetroactivePO, getRetroactiveReceivedBy } from '@/app/lib/poHelper';
 
 const SYNC_SECRET = process.env.SYNC_SECRET || 'YOUR_SECRET_HERE';
 
@@ -197,36 +198,79 @@ export async function POST(req: NextRequest) {
     const type = payload.type; // "PR" or "PO"
 
     if (type === 'PR') {
-      const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'เลขที่ PR', 'เลข PR']);
-      if (!prNumber) {
+      const rawPrNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'เลขที่ PR', 'เลข PR']);
+      if (!rawPrNumber) {
         return NextResponse.json({ error: 'Missing PR Number' }, { status: 400 });
       }
+      const prNumber = String(rawPrNumber).replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '').trim().toUpperCase();
 
-      const existingPR = await prisma.purchaseRequest.findUnique({ where: { prNumber: String(prNumber) } });
+      const rowNo = parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ']));
+      const projectName = findValue(payload, ['Project Name', 'Project', 'ชื่อโครงการ', 'โครงการ']);
+      const requestedBy = findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก', 'ผู้ขอจัดซื้อ']);
+      const itemList = findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']);
+      const note = findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']);
+      const recordedAt = parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก']));
+      const reportedBy = findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง', 'ผู้แจ้ง สถานะ / เลขที่ PO', 'ผู้แจ้งสถานะ/เลขที่po']);
+
+      // Smart Matching to overwrite existing PR instead of creating duplicate entries:
+      // 1. Exact match on normalized prNumber
+      let existingPR = await prisma.purchaseRequest.findUnique({ where: { prNumber } });
+
+      // 2. Match by sheet row sequence 'no' if prNumber was changed/corrected in the sheet
+      if (!existingPR && rowNo) {
+        existingPR = await prisma.purchaseRequest.findFirst({ where: { no: rowNo } });
+      }
+
+      // 3. Match by Project + Requestor + ItemList if entered as a revision/correction
+      if (!existingPR && projectName && requestedBy) {
+        const candidate = await prisma.purchaseRequest.findFirst({
+          where: {
+            projectName: { contains: projectName.trim(), mode: 'insensitive' },
+            requestedBy: { contains: requestedBy.trim(), mode: 'insensitive' },
+            ...(itemList ? { itemList: { contains: itemList.trim().slice(0, 30), mode: 'insensitive' } } : {})
+          }
+        });
+        if (candidate) {
+          existingPR = candidate;
+        }
+      }
+
       const isNewPR = !existingPR;
 
-      await prisma.purchaseRequest.upsert({
-        where: { prNumber: String(prNumber) },
-        update: {
-          no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก'])),
-          projectName: findValue(payload, ['Project Name', 'Project', 'ชื่อโครงการ', 'โครงการ']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']),
-          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก', 'ผู้ขอจัดซื้อ']),
-          note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง', 'ผู้แจ้ง สถานะ / เลขที่ PO', 'ผู้แจ้งสถานะ/เลขที่po']),
-        },
-        create: {
-          prNumber: String(prNumber),
-          no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก'])),
-          projectName: findValue(payload, ['Project Name', 'Project', 'ชื่อโครงการ', 'โครงการ']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']),
-          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก', 'ผู้ขอจัดซื้อ']),
-          note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง', 'ผู้แจ้ง สถานะ / เลขที่ PO', 'ผู้แจ้งสถานะ/เลขที่po']),
+      const prData = {
+        no: rowNo,
+        recordedAt,
+        projectName,
+        itemList,
+        requestedBy,
+        note,
+        reportedBy,
+      };
+
+      if (existingPR) {
+        // If PR number changed, update referencing PurchaseOrders
+        if (existingPR.prNumber !== prNumber) {
+          await prisma.purchaseOrder.updateMany({
+            where: { prNumber: existingPR.prNumber },
+            data: { prNumber }
+          });
         }
-      });
+
+        await prisma.purchaseRequest.update({
+          where: { id: existingPR.id },
+          data: {
+            prNumber,
+            ...prData
+          }
+        });
+      } else {
+        await prisma.purchaseRequest.create({
+          data: {
+            prNumber,
+            ...prData
+          }
+        });
+      }
 
       if (isNewPR) {
         await notifyProcurement('มี PR ใหม่เข้าสู่ระบบ', `เลขที่ PR: ${prNumber}`);
@@ -235,63 +279,141 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: `PR ${prNumber} synced` });
 
     } else if (type === 'PO') {
-      const poNumber = findValue(payload, ['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ PO', 'เลข PO']);
-      if (!poNumber) {
+      const rawPoNumber = findValue(payload, ['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ PO', 'เลข PO']);
+      if (!rawPoNumber) {
         return NextResponse.json({ error: 'Missing PO Number' }, { status: 400 });
       }
+      const poNumber = String(rawPoNumber).replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '').trim().toUpperCase();
 
-      const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR', 'เลขที่ PR (ref)']);
+      const rawPrNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR', 'เลขที่ PR (ref)']);
+      const prNumber = rawPrNumber ? String(rawPrNumber).replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '').trim().toUpperCase() : null;
       
-      const existingPO = await prisma.purchaseOrder.findUnique({ where: { poNumber: String(poNumber) } });
-      const isNewPO = !existingPO;
+      const rowNo = parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ']));
+      const vendorName = findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์', 'บริษัทผู้ขาย']);
+      const totalAmount = parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน', 'ยอด']));
 
-      // Upsert PR first to prevent FK constraint failure
-      if (prNumber) {
-        await prisma.purchaseRequest.upsert({
-          where: { prNumber: String(prNumber) },
-          update: {},
-          create: { prNumber: String(prNumber) }
-        });
+      // Smart Matching to overwrite existing PO instead of creating duplicate entries:
+      // 1. Exact match on normalized poNumber
+      let existingPO = await prisma.purchaseOrder.findUnique({ where: { poNumber } });
+
+      // 2. Match by sheet row sequence 'no' if poNumber was changed/corrected in the sheet
+      if (!existingPO && rowNo) {
+        existingPO = await prisma.purchaseOrder.findFirst({ where: { no: rowNo } });
       }
 
-      await prisma.purchaseOrder.upsert({
-        where: { poNumber: String(poNumber) },
-        update: {
-          no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก'])),
-          prNumber: prNumber ? String(prNumber) : null,
-          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์', 'บริษัทผู้ขาย']),
-          accountNumber: findValue(payload, ['Account Number', 'Account', 'เลขที่บัญชี', 'บัญชี']),
-          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน', 'ยอด'])),
-          depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ'])),
-          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ', 'ส่วนที่เหลือ'])),
-          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1', 'จ่ายงวดที่1'])),
-          creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
-          jobName: findValue(payload, ['Job Name', 'Job', 'ชื่องาน', 'รหัสงาน']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']),
-          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง', 'วันจัดส่ง'])),
-          note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
-        },
-        create: {
-          poNumber: String(poNumber),
-          no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก'])),
-          prNumber: prNumber ? String(prNumber) : null,
-          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์', 'บริษัทผู้ขาย']),
-          accountNumber: findValue(payload, ['Account Number', 'Account', 'เลขที่บัญชี', 'บัญชี']),
-          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน', 'ยอด'])),
-          depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ'])),
-          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ', 'ส่วนที่เหลือ'])),
-          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1', 'จ่ายงวดที่1'])),
-          creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
-          jobName: findValue(payload, ['Job Name', 'Job', 'ชื่องาน', 'รหัสงาน']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']),
-          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง', 'วันจัดส่ง'])),
-          note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
+      // 3. Match by PR + Vendor + exact totalAmount if entered as a revision/correction
+      if (!existingPO && prNumber && vendorName && totalAmount && totalAmount > 0) {
+        const candidate = await prisma.purchaseOrder.findFirst({
+          where: {
+            prNumber,
+            vendorName: { contains: vendorName.trim(), mode: 'insensitive' },
+            totalAmount,
+          }
+        });
+        if (candidate) {
+          existingPO = candidate;
         }
-      });
+      }
+
+      const isNewPO = !existingPO;
+
+      const note = findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']);
+      const recordedAt = parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก']));
+      const deliveryDate = parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง', 'วันจัดส่ง']));
+      const reportedBy = findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']);
+      const jobName = findValue(payload, ['Job Name', 'Job', 'ชื่องาน', 'รหัสงาน']);
+      const itemList = findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']);
+
+      // Upsert PR first to prevent FK constraint failure, and ensure PR has project/item info
+      if (prNumber) {
+        const existingPR = await prisma.purchaseRequest.findUnique({
+          where: { prNumber: String(prNumber) }
+        });
+
+        if (!existingPR) {
+          await prisma.purchaseRequest.create({
+            data: {
+              prNumber: String(prNumber),
+              projectName: jobName || null,
+              itemList: itemList || null,
+              recordedAt: recordedAt || null,
+              requestedBy: (reportedBy && reportedBy !== 'ไม่ทราบชื่อ') ? reportedBy : null,
+              note: note ? `[สร้างอัตโนมัติจาก PO ${poNumber}] ${note}` : `[สร้างอัตโนมัติจาก PO ${poNumber}]`
+            }
+          });
+        } else if (!existingPR.projectName && !existingPR.itemList) {
+          await prisma.purchaseRequest.update({
+            where: { id: existingPR.id },
+            data: {
+              projectName: existingPR.projectName || jobName || null,
+              itemList: existingPR.itemList || itemList || null,
+              recordedAt: existingPR.recordedAt || recordedAt || null,
+              requestedBy: existingPR.requestedBy || ((reportedBy && reportedBy !== 'ไม่ทราบชื่อ') ? reportedBy : null),
+              note: existingPR.note || (note ? `[ข้อมูลจาก PO ${poNumber}] ${note}` : null)
+            }
+          });
+        }
+      }
+
+      const isRetroactive = isRetroactivePO(note);
+
+      // Auto-set receiveStatus to 'Received' if retroactive and not already marked received
+      const autoReceiveUpdate = isRetroactive && existingPO?.receiveStatus !== 'Received' ? {
+        receiveStatus: 'Received',
+        receivedBy: getRetroactiveReceivedBy(reportedBy),
+        receivedAt: deliveryDate || recordedAt || new Date()
+      } : {};
+
+      const createReceiveFields = isRetroactive ? {
+        receiveStatus: 'Received',
+        receivedBy: getRetroactiveReceivedBy(reportedBy),
+        receivedAt: deliveryDate || recordedAt || new Date()
+      } : {};
+
+      const poData = {
+        no: rowNo,
+        recordedAt,
+        prNumber: prNumber ? String(prNumber) : null,
+        vendorName,
+        accountNumber: findValue(payload, ['Account Number', 'Account', 'เลขที่บัญชี', 'บัญชี']),
+        totalAmount,
+        depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ'])),
+        remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ', 'ส่วนที่เหลือ'])),
+        payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1', 'จ่ายงวดที่1'])),
+        creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
+        jobName,
+        itemList,
+        deliveryDate,
+        note,
+        reportedBy,
+      };
+
+      if (existingPO) {
+        // If PO number changed, update related GoodsReceipts
+        if (existingPO.poNumber !== poNumber) {
+          await prisma.goodsReceipt.updateMany({
+            where: { poNumber: existingPO.poNumber },
+            data: { poNumber }
+          });
+        }
+
+        await prisma.purchaseOrder.update({
+          where: { id: existingPO.id },
+          data: {
+            poNumber,
+            ...poData,
+            ...autoReceiveUpdate
+          }
+        });
+      } else {
+        await prisma.purchaseOrder.create({
+          data: {
+            poNumber,
+            ...poData,
+            ...createReceiveFields
+          }
+        });
+      }
 
       if (isNewPO) {
         await notifyProcurement('มี PO ใหม่เข้าสู่ระบบ', `เลขที่ PO: ${poNumber}`);
@@ -300,10 +422,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: `PO ${poNumber} synced` });
 
     } else if (type === 'GR') {
-      const poNumber = findValue(payload, ['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ใบสั่งซื้อ', 'เลขที่สั่งซื้อ', 'เลข PO']);
-      if (!poNumber) {
+      const rawPoNumber = findValue(payload, ['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ใบสั่งซื้อ', 'เลขที่สั่งซื้อ', 'เลข PO']);
+      if (!rawPoNumber) {
         return NextResponse.json({ error: 'Missing PO Number for GR' }, { status: 400 });
       }
+      const poNumber = String(rawPoNumber).replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '').trim().toUpperCase();
 
       const sequenceNo = parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ', 'ลำดับที่']));
       const seqVal = sequenceNo || 0; // Default to 0 if no sequence is provided

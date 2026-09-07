@@ -198,13 +198,23 @@ function JobProcurementStatus({ customerName, projectName }: { customerName: str
             </div>
             {pr.purchaseOrders?.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
-                {pr.purchaseOrders.map((po: any) => (
-                  <div key={po.id} className={`flex items-center gap-1.5 px-2 py-1 rounded border text-[10px] font-medium ${po.receiveStatus === 'Received' ? 'bg-green-50 border-green-100 text-green-700' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
-                    <span>{po.poNumber}</span>
-                    <span className="text-gray-300">|</span>
-                    <span>{po.receiveStatus === 'Received' ? 'รับแล้ว' : 'รอรับ'}</span>
-                  </div>
-                ))}
+                {pr.purchaseOrders.map((po: any) => {
+                  const isCancelled = po.receiveStatus === 'Cancelled';
+                  const isReceived = po.receiveStatus === 'Received';
+                  const chipClass = isCancelled
+                    ? 'bg-red-50 border-red-200 text-red-700 line-through opacity-75'
+                    : isReceived
+                    ? 'bg-green-50 border-green-100 text-green-700'
+                    : 'bg-amber-50 border-amber-100 text-amber-700';
+                  const statusText = isCancelled ? 'ยกเลิก' : (isReceived ? 'รับแล้ว' : 'รอรับ');
+                  return (
+                    <div key={po.id} className={`flex items-center gap-1.5 px-2 py-1 rounded border text-[10px] font-medium ${chipClass}`}>
+                      <span>{po.poNumber}</span>
+                      <span className="text-gray-300">|</span>
+                      <span>{statusText}</span>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-[10px] text-gray-400">รอเปิด PO (Purchase Order)</div>

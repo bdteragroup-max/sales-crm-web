@@ -2,6 +2,7 @@ import { getUser } from '@/app/lib/dal';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/db';
 import StoreReceiveClient from './StoreReceiveClient';
+import { getRetroactiveReceivedBy } from '@/app/lib/poHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,12 +17,49 @@ export default async function StoreReceivePage() {
     redirect('/dashboard');
   }
 
-  // Fetch pending POs (receiveStatus != 'Received')
+  // Auto-resolve pending retroactive POs (goods were already received at site)
+  const pendingRetroPOs = await prisma.purchaseOrder.findMany({
+    where: {
+      AND: [
+        {
+          OR: [
+            { receiveStatus: null },
+            { receiveStatus: { notIn: ['Received', 'Cancelled'] } }
+          ]
+        },
+        {
+          OR: [
+            { note: { contains: 'ย้อนหลัง', mode: 'insensitive' } },
+            { note: { contains: 'ซื้อเองหน้างาน', mode: 'insensitive' } },
+            { note: { contains: 'เอาของมาแล้ว', mode: 'insensitive' } }
+          ]
+        }
+      ]
+    },
+    select: { id: true, reportedBy: true, deliveryDate: true, recordedAt: true, createdAt: true }
+  });
+
+  if (pendingRetroPOs.length > 0) {
+    await Promise.all(
+      pendingRetroPOs.map(po =>
+        prisma.purchaseOrder.update({
+          where: { id: po.id },
+          data: {
+            receiveStatus: 'Received',
+            receivedBy: getRetroactiveReceivedBy(po.reportedBy),
+            receivedAt: po.deliveryDate || po.recordedAt || po.createdAt || new Date()
+          }
+        })
+      )
+    );
+  }
+
+  // Fetch pending POs (receiveStatus != 'Received' and != 'Cancelled')
   const pendingPOs = await prisma.purchaseOrder.findMany({
     where: {
       OR: [
         { receiveStatus: null },
-        { receiveStatus: { not: 'Received' } }
+        { receiveStatus: { notIn: ['Received', 'Cancelled'] } }
       ]
     },
     include: {

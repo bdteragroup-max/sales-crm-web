@@ -16,12 +16,12 @@ export default async function StoreDashboardPage() {
     redirect('/dashboard');
   }
 
-  // Fetch pending POs
+  // Fetch pending POs (excluding Received and Cancelled)
   const pendingPOs = await prisma.purchaseOrder.findMany({
     where: {
       OR: [
         { receiveStatus: null },
-        { receiveStatus: { not: 'Received' } }
+        { receiveStatus: { notIn: ['Received', 'Cancelled'] } }
       ]
     },
     include: {

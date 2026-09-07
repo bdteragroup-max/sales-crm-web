@@ -46,18 +46,25 @@ export default function StoreReceiveClient({ initialPos, initialReceivedPos, use
     { value: '12', label: 'ธันวาคม' },
   ];
 
-  const handleReceive = async (poNumber: string) => {
+  const isSiteOrRetro = (po: any) => {
+    const r = (po.receivedBy || '').toLowerCase();
+    const n = (po.note || '').toLowerCase();
+    return r.includes('หน้างาน') || r.includes('ย้อนหลัง') || n.includes('ย้อนหลัง') || n.includes('ซื้อเองหน้างาน') || n.includes('เอาของมาแล้ว');
+  };
+
+  const handleReceive = async (poNumber: string, customReceivedBy?: string) => {
+    const finalReceivedBy = customReceivedBy || userName;
     setLoadingMap(prev => ({ ...prev, [poNumber]: true }));
     try {
       const res = await fetch(`/api/store/receive/${encodeURIComponent(poNumber)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ receivedBy: userName })
+        body: JSON.stringify({ receivedBy: finalReceivedBy })
       });
       if (res.ok) {
         const receivedPo = pos.find(p => p.poNumber === poNumber);
         if (receivedPo) {
-          setReceivedPos(prev => [{...receivedPo, receiveStatus: 'Received', receivedBy: userName, receivedAt: new Date().toISOString()}, ...prev]);
+          setReceivedPos(prev => [{...receivedPo, receiveStatus: 'Received', receivedBy: finalReceivedBy, receivedAt: new Date().toISOString()}, ...prev]);
         }
         setPos(prev => prev.filter(po => po.poNumber !== poNumber));
         router.refresh();
@@ -279,13 +286,21 @@ export default function StoreReceiveClient({ initialPos, initialReceivedPos, use
                 <div className="text-sm text-gray-600 truncate">
                   {po.itemList || '-'}
                 </div>
-                <div className="mt-2 pt-2 border-t">
+                <div className="mt-2 pt-2 border-t flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={() => handleReceive(po.poNumber)}
                     disabled={loadingMap[po.poNumber]}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow transition-colors disabled:opacity-50"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium shadow transition-colors disabled:opacity-50 text-sm"
                   >
-                    {loadingMap[po.poNumber] ? 'กำลังดำเนินการ...' : 'ยืนยันรับสินค้า'}
+                    {loadingMap[po.poNumber] ? 'กำลังดำเนินการ...' : 'ยืนยันรับเข้าสโตร์'}
+                  </button>
+                  <button
+                    onClick={() => handleReceive(po.poNumber, 'รับเข้าหน้างานแล้ว (เปิด PO ย้อนหลัง)')}
+                    disabled={loadingMap[po.poNumber]}
+                    className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg font-medium shadow transition-colors disabled:opacity-50 text-sm"
+                    title="กรณีสินค้าถูกส่งหรือรับที่หน้างานโดยตรงแล้ว"
+                  >
+                    รับที่หน้างาน (ย้อนหลัง)
                   </button>
                 </div>
               </div>
@@ -308,8 +323,13 @@ export default function StoreReceiveClient({ initialPos, initialReceivedPos, use
                 <div className="text-sm text-gray-600 truncate">
                   {po.itemList || '-'}
                 </div>
-                <div className="text-sm text-green-700 font-medium mt-1 pt-2 border-t">
-                  รับโดย: {po.receivedBy || '-'}
+                <div className="text-sm text-green-700 font-medium mt-1 pt-2 border-t flex flex-wrap items-center gap-2">
+                  <span>รับโดย: {po.receivedBy || '-'}</span>
+                  {isSiteOrRetro(po) && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                      เปิด PO ย้อนหลัง (รับที่หน้างาน)
+                    </span>
+                  )}
                 </div>
               </div>
             ))
@@ -359,13 +379,23 @@ export default function StoreReceiveClient({ initialPos, initialReceivedPos, use
                       {po.deliveryDate ? new Date(po.deliveryDate).toLocaleDateString('th-TH') : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleReceive(po.poNumber)}
-                        disabled={loadingMap[po.poNumber]}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow transition-colors disabled:opacity-50"
-                      >
-                        {loadingMap[po.poNumber] ? 'กำลังดำเนินการ...' : 'ยืนยันรับสินค้า'}
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleReceive(po.poNumber)}
+                          disabled={loadingMap[po.poNumber]}
+                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg font-medium shadow transition-colors disabled:opacity-50 text-xs"
+                        >
+                          {loadingMap[po.poNumber] ? 'กำลังดำเนินการ...' : 'ยืนยันรับเข้าสโตร์'}
+                        </button>
+                        <button
+                          onClick={() => handleReceive(po.poNumber, 'รับเข้าหน้างานแล้ว (เปิด PO ย้อนหลัง)')}
+                          disabled={loadingMap[po.poNumber]}
+                          className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg font-medium shadow transition-colors disabled:opacity-50 text-xs"
+                          title="กรณีสินค้าถูกส่งหรือรับที่หน้างานโดยตรงแล้ว"
+                        >
+                          รับที่หน้างาน (ย้อนหลัง)
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -380,7 +410,14 @@ export default function StoreReceiveClient({ initialPos, initialReceivedPos, use
                       {po.receivedAt ? new Date(po.receivedAt).toLocaleString('th-TH') : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-600">
-                      {po.receivedBy || '-'}
+                      <div className="flex flex-col items-end gap-1">
+                        <span>{po.receivedBy || '-'}</span>
+                        {isSiteOrRetro(po) && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                            เปิด PO ย้อนหลัง (รับที่หน้างาน)
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
