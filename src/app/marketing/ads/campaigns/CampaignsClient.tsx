@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import {
   Search,
   ChevronDown,
@@ -49,13 +49,14 @@ import {
   createCreativeRecord,
   addCreativeVersion,
   toggleArchiveCreative,
+  deleteCreativeRecord,
+  deleteAllCreatives,
   CreativeItem,
   CreativeVersionItem
 } from '@/app/actions/ads-creatives'
 import { PRODUCT_CATEGORIES } from '../constants'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import PerformanceClient from '../performance/PerformanceClient'
 
 export interface AdItem {
   id: string
@@ -208,11 +209,17 @@ export default function CampaignsClient({
 
     // Short product abbreviation
     let prodCode = 'SP'
-    if (product.toLowerCase().includes('inverter') || product.toLowerCase().includes('vsd')) prodCode = 'VSD'
-    else if (product.toLowerCase().includes('roof')) prodCode = 'SR'
-    else if (product.toLowerCase().includes('pump')) prodCode = 'SP'
-    else if (product.toLowerCase().includes('battery')) prodCode = 'BAT'
-    else if (product.toLowerCase().includes('motor')) prodCode = 'MOT'
+    const p = (product || '').toLowerCase().trim()
+    if (p === 'inverter veichi') prodCode = 'INV-V'
+    else if (p === 'inverter other') prodCode = 'INV-O'
+    else if (p.includes('inverter') || p.includes('vsd')) prodCode = 'INV'
+    else if (p === 'motor' || p.includes('motor')) prodCode = 'MOT'
+    else if (p === 'pump' || (p.includes('pump') && !p.includes('solar'))) prodCode = 'PUMP'
+    else if (p === 'part' || p.includes('part')) prodCode = 'PART'
+    else if (p === 'mdb/db' || p.includes('mdb') || p.includes('db')) prodCode = 'MDB'
+    else if (p === 'solar roof' || p.includes('roof')) prodCode = 'SR'
+    else if (p === 'solar pump') prodCode = 'SP'
+    else if (p === 'other') prodCode = 'OTH'
 
     const count = campaigns.length + 1
     const seq = String(count).padStart(3, '0')
@@ -511,1029 +518,1037 @@ export default function CampaignsClient({
   }
 
   return (
-    <div className="w-full space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-black text-gray-900 tracking-tight">
-          ระบบจัดการข้อมูลโฆษณา TERA
-        </h1>
-        <p className="text-sm font-medium text-gray-500 mt-1">
-          ตั้งค่าแคมเปญโฆษณาหลัก (Campaign Master Setup)
-        </p>
-      </div>
+    <div className="w-full">
+      {/* Top Header & Breadcrumb (Thai Language) */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold tracking-wider text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded border border-rose-100">
+                  ระบบการตลาด (Marketing)
+                </span>
+                <span className="text-xs text-slate-400">/</span>
+                <h1 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                  ระบบจัดการข้อมูลโฆษณา TERA
+                  <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                    ส่วนที่ 1: ตั้งค่าแคมเปญ
+                  </span>
+                </h1>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                ตั้งค่าแคมเปญโฆษณาหลักและโครงสร้างการนำส่ง (Campaign Master Setup & Structure)
+              </p>
+            </div>
 
-      {/* Main 4-Section Step Navigation Bar */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-2">
-        {/* Section 1: Campaign Setup (Active) */}
-        <button
-          onClick={() => setMainTab('setup')}
-          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${mainTab === 'setup'
-            ? 'text-red-600 bg-red-50/70 border-b-2 border-red-600'
-            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-        >
-          <span
-            className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-black ${mainTab === 'setup' ? 'bg-[#ff2301] text-white shadow-sm' : 'bg-gray-200 text-gray-600'
-              }`}
-          >
-            1
-          </span>
-          <span>1. ตั้งค่าแคมเปญ (Campaign Setup)</span>
-        </button>
-
-        {/* Section 2: Ads Performance */}
-        <Link
-          href="/marketing/ads/performance"
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl font-bold text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all"
-        >
-          <span className="w-5 h-5 rounded-full text-xs flex items-center justify-center font-black bg-gray-200 text-gray-600">
-            2
-          </span>
-          <span>2. ผลการโฆษณา (Ads Performance)</span>
-        </Link>
-
-        {/* Section 3: CRM Results */}
-        <Link
-          href="/marketing/ads/crm"
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl font-bold text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all"
-        >
-          <span className="w-5 h-5 rounded-full text-xs flex items-center justify-center font-black bg-gray-200 text-gray-600">
-            3
-          </span>
-          <span>3. ผลลัพธ์ CRM (CRM Results)</span>
-        </Link>
-
-        {/* Section 4: Dashboard */}
-        <Link
-          href="/marketing/ads/dashboard"
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl font-bold text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all"
-        >
-          <span className="w-5 h-5 rounded-full text-xs flex items-center justify-center font-black bg-gray-200 text-gray-600">
-            4
-          </span>
-          <span>4. แดชบอร์ดภาพรวม (Dashboard)</span>
-        </Link>
-      </div>
-
-      {mainTab === 'setup' && (
-        <div className="space-y-6">
-          {/* Sub-tabs under Campaign Setup */}
-          <div className="flex items-center gap-6 border-b border-gray-100 pt-1 text-sm font-bold">
-            <button
-              onClick={() => setSubTab('info')}
-              className={`pb-3 relative transition-colors ${subTab === 'info' ? 'text-red-600' : 'text-gray-400 hover:text-gray-700'
-                }`}
-            >
-              <span>ข้อมูลแคมเปญ (Campaign Information)</span>
-              {subTab === 'info' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff2301] rounded-full"></span>
-              )}
-            </button>
-            <button
-              onClick={() => setSubTab('adsets')}
-              className={`pb-3 relative transition-colors ${subTab === 'adsets' ? 'text-red-600' : 'text-gray-400 hover:text-gray-700'
-                }`}
-            >
-              <span>ชุดโฆษณาและชิ้นงาน (Ad Sets & Ads)</span>
-              {subTab === 'adsets' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff2301] rounded-full"></span>
-              )}
-            </button>
-            <button
-              onClick={() => setSubTab('creative')}
-              className={`pb-3 relative transition-colors ${subTab === 'creative' ? 'text-red-600' : 'text-gray-400 hover:text-gray-700'
-                }`}
-            >
-              <span>คลังสื่อโฆษณา (Creative Library)</span>
-              {subTab === 'creative' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff2301] rounded-full"></span>
-              )}
-            </button>
+            {/* Step Navigation Pill Switcher */}
+            <div className="flex items-center gap-1 bg-slate-900/5 p-1 rounded-xl border border-slate-200/80 shadow-xs">
+              <button
+                type="button"
+                onClick={() => setMainTab('setup')}
+                title="ส่วนที่ 1: ตั้งค่าแคมเปญ (Campaign Setup)"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-rose-600 shadow-sm border border-slate-200/60 transition-all"
+              >
+                <span className="w-5 h-5 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-[10px] font-bold border border-rose-100">1</span>
+                <span>ตั้งค่าแคมเปญ</span>
+              </button>
+              <Link
+                href="/marketing/ads/performance"
+                title="ส่วนที่ 2: ผลการโฆษณา (Ads Performance)"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all"
+              >
+                <span className="w-5 h-5 rounded-full bg-slate-200/70 text-slate-600 flex items-center justify-center text-[10px] font-medium">2</span>
+                <span>ผลการโฆษณา</span>
+              </Link>
+              <Link
+                href="/marketing/ads/crm"
+                title="ส่วนที่ 3: ผลลัพธ์ CRM (CRM Results)"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all"
+              >
+                <span className="w-5 h-5 rounded-full bg-slate-200/70 text-slate-600 flex items-center justify-center text-[10px] font-medium">3</span>
+                <span>ผลลัพธ์ CRM</span>
+              </Link>
+              <Link
+                href="/marketing/ads/dashboard"
+                title="ส่วนที่ 4: แดชบอร์ดภาพรวม (Dashboard)"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all"
+              >
+                <span className="w-5 h-5 rounded-full bg-slate-200/70 text-slate-600 flex items-center justify-center text-[10px] font-medium">4</span>
+                <span>แดชบอร์ด</span>
+              </Link>
+            </div>
           </div>
+        </div>
+      </header>
 
-          {/* Feedback messages */}
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-sm flex items-center gap-2 animate-in fade-in">
-              <AlertCircle size={18} className="shrink-0" />
-              <span>{error}</span>
+      {/* Main Content Area */}
+      <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {mainTab === 'setup' && (
+          <div className="space-y-6">
+            {/* Sub-tabs under Campaign Setup */}
+            <div className="flex items-center gap-6 border-b border-gray-200 bg-white px-5 py-1 rounded-xl border shadow-xs text-xs sm:text-sm font-bold">
+              <button
+                onClick={() => setSubTab('info')}
+                className={`py-2.5 relative transition-colors ${subTab === 'info' ? 'text-rose-600' : 'text-gray-400 hover:text-gray-700'
+                  }`}
+              >
+                <span>ข้อมูลแคมเปญ (Campaign Information)</span>
+                {subTab === 'info' && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-rose-600 rounded-full"></span>
+                )}
+              </button>
+              <button
+                onClick={() => setSubTab('adsets')}
+                className={`py-2.5 relative transition-colors ${subTab === 'adsets' ? 'text-rose-600' : 'text-gray-400 hover:text-gray-700'
+                  }`}
+              >
+                <span>ชุดโฆษณาและชิ้นงาน (Ad Sets & Ads)</span>
+                {subTab === 'adsets' && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-rose-600 rounded-full"></span>
+                )}
+              </button>
+              <button
+                onClick={() => setSubTab('creative')}
+                className={`py-2.5 relative transition-colors ${subTab === 'creative' ? 'text-rose-600' : 'text-gray-400 hover:text-gray-700'
+                  }`}
+              >
+                <span>คลังสื่อโฆษณา (Creative Library)</span>
+                {subTab === 'creative' && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-rose-600 rounded-full"></span>
+                )}
+              </button>
             </div>
-          )}
-          {successMsg && (
-            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 font-bold text-sm flex items-center gap-2 animate-in fade-in">
-              <CheckCircle2 size={18} className="shrink-0" />
-              <span>{successMsg}</span>
-            </div>
-          )}
 
-          {/* SUBTAB 1: Campaign Information */}
-          {subTab === 'info' && (
-            <div className="space-y-6">
-              {/* Form Card */}
-              <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-6">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                  <h2 className="text-base font-black text-gray-900 tracking-wider">
-                    ข้อมูลแคมเปญ (CAMPAIGN INFORMATION)
-                  </h2>
-                  {formData.id && (
-                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-                      กำลังแก้ไข: {formData.internalCode || formData.name}
-                    </span>
-                  )}
-                </div>
+            {/* Feedback messages */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-sm flex items-center gap-2 animate-in fade-in">
+                <AlertCircle size={18} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            {successMsg && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 font-bold text-sm flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 size={18} className="shrink-0" />
+                <span>{successMsg}</span>
+              </div>
+            )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                  {/* Column A: รายละเอียดแคมเปญ */}
-                  <div className="space-y-4">
-                    <div className="pb-1 border-b border-gray-100">
-                      <h3 className="text-xs font-black text-gray-800 tracking-wider">
-                        A. รายละเอียดแคมเปญ (CAMPAIGN DETAILS)
-                      </h3>
-                    </div>
-
-                    <div className="space-y-3.5">
-                      {/* Row 1: Channel */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          ช่องทางโฆษณา (Channel) <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          name="channelId"
-                          value={formData.channelId}
-                          onChange={handleInputChange}
-                          disabled={isViewer}
-                          className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                        >
-                          <option value="">เลือกช่องทางโฆษณา...</option>
-                          {channels?.map((c: any) => (
-                            <option key={c.id} value={c.id}>
-                              {c.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Row 2: Account */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          บัญชี / เพจ / โครงการ (Account) <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          name="accountId"
-                          value={formData.accountId}
-                          onChange={handleInputChange}
-                          disabled={isViewer}
-                          className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                        >
-                          <option value="">เลือกบัญชี / เพจ...</option>
-                          {accounts?.map((a: any) => (
-                            <option key={a.id} value={a.id}>
-                              {a.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Row 3: Branch */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          สาขา (Branch)
-                        </label>
-                        <select
-                          name="branchId"
-                          value={formData.branchId}
-                          onChange={handleInputChange}
-                          disabled={isViewer}
-                          className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                        >
-                          <option value="">ทุกสาขา / สำนักงานใหญ่ (Head Office)</option>
-                          {branches?.map((b: any) => (
-                            <option key={b.id} value={b.id}>
-                              {b.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Row 4: Product */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          กลุ่มสินค้า (Product) <span className="text-red-500">*</span>
-                        </label>
-                        <SearchableSelect
-                          options={PRODUCT_CATEGORIES.map(c => ({ value: c, label: c }))}
-                          value={formData.productCategory}
-                          onChange={handleInputChange}
-                          name="productCategory"
-                          placeholder="ค้นหาและเลือกกลุ่มสินค้า..."
-                          disabled={isViewer}
-                        />
-                      </div>
-
-                      {/* Row 5: Objective */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          วัตถุประสงค์ (Objective) <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          name="objectiveId"
-                          value={formData.objectiveId}
-                          onChange={handleInputChange}
-                          disabled={isViewer}
-                          className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                        >
-                          <option value="">เลือกวัตถุประสงค์...</option>
-                          {objectives?.map((o: any) => (
-                            <option key={o.id} value={o.id}>
-                              {o.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+            {/* SUBTAB 1: Campaign Information */}
+            {subTab === 'info' && (
+              <div className="space-y-6">
+                {/* Form Card */}
+                <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-6">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <h2 className="text-base font-black text-gray-900 tracking-wider">
+                      ข้อมูลแคมเปญ (CAMPAIGN INFORMATION)
+                    </h2>
+                    {formData.id && (
+                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+                        กำลังแก้ไข: {formData.internalCode || formData.name}
+                      </span>
+                    )}
                   </div>
 
-                  {/* Column B: ข้อมูลเฉพาะแคมเปญ */}
-                  <div className="space-y-4">
-                    <div className="pb-1 border-b border-gray-100">
-                      <h3 className="text-xs font-black text-gray-800 tracking-wider">
-                        B. ข้อมูลเฉพาะแคมเปญ (CAMPAIGN IDENTITY)
-                      </h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+                    {/* Column A: รายละเอียดแคมเปญ */}
+                    <div className="space-y-4">
+                      <div className="pb-1 border-b border-gray-100">
+                        <h3 className="text-xs font-black text-gray-800 tracking-wider">
+                          A. รายละเอียดแคมเปญ (CAMPAIGN DETAILS)
+                        </h3>
+                      </div>
+
+                      <div className="space-y-3.5">
+                        {/* Row 1: Channel */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            ช่องทางโฆษณา (Channel) <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            name="channelId"
+                            value={formData.channelId}
+                            onChange={handleInputChange}
+                            disabled={isViewer}
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
+                          >
+                            <option value="">เลือกช่องทางโฆษณา...</option>
+                            {channels?.map((c: any) => (
+                              <option key={c.id} value={c.id}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Row 2: Account */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            บัญชี / เพจ / โครงการ (Account) <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            name="accountId"
+                            value={formData.accountId}
+                            onChange={handleInputChange}
+                            disabled={isViewer}
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
+                          >
+                            <option value="">เลือกบัญชี / เพจ...</option>
+                            {accounts?.map((a: any) => (
+                              <option key={a.id} value={a.id}>
+                                {a.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Row 3: Branch */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            สาขา (Branch)
+                          </label>
+                          <select
+                            name="branchId"
+                            value={formData.branchId}
+                            onChange={handleInputChange}
+                            disabled={isViewer}
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
+                          >
+                            <option value="">ทุกสาขา / สำนักงานใหญ่ (Head Office)</option>
+                            {branches?.map((b: any) => (
+                              <option key={b.id} value={b.id}>
+                                {b.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Row 4: Product */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            ประเภทสินค้า (Product Category) <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            name="productCategory"
+                            value={formData.productCategory}
+                            onChange={handleInputChange}
+                            disabled={isViewer}
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all font-medium"
+                          >
+                            <option value="">- เลือก -</option>
+                            {PRODUCT_CATEGORIES.map(c => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Row 5: Objective */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            วัตถุประสงค์ (Objective) <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            name="objectiveId"
+                            value={formData.objectiveId}
+                            onChange={handleInputChange}
+                            disabled={isViewer}
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
+                          >
+                            <option value="">เลือกวัตถุประสงค์...</option>
+                            {objectives?.map((o: any) => (
+                              <option key={o.id} value={o.id}>
+                                {o.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-3.5">
-                      {/* Row 1: Campaign Name */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          ชื่อแคมเปญ (Campaign Name) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          placeholder="เช่น SP Aug Lead"
-                          disabled={isViewer}
-                          className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                        />
+                    {/* Column B: ข้อมูลเฉพาะแคมเปญ */}
+                    <div className="space-y-4">
+                      <div className="pb-1 border-b border-gray-100">
+                        <h3 className="text-xs font-black text-gray-800 tracking-wider">
+                          B. ข้อมูลเฉพาะแคมเปญ (CAMPAIGN IDENTITY)
+                        </h3>
                       </div>
 
-                      {/* Row 2: Platform Campaign ID */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          รหัสบนแพลตฟอร์ม (Platform Campaign ID) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="campaignId"
-                          value={formData.campaignId}
-                          onChange={handleInputChange}
-                          placeholder="เช่น 120209834001"
-                          disabled={isViewer}
-                          className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                        />
-                      </div>
-
-                      {/* Row 3: Internal Code */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          รหัสแคมเปญภายใน (Internal Code)
-                        </label>
-                        <div className="relative">
+                      <div className="space-y-3.5">
+                        {/* Row 1: Campaign Name */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            ชื่อแคมเปญ (Campaign Name) <span className="text-red-500">*</span>
+                          </label>
                           <input
                             type="text"
-                            name="internalCode"
-                            value={formData.internalCode}
+                            name="name"
+                            value={formData.name}
                             onChange={handleInputChange}
-                            placeholder="CMP-202608-SP-001"
+                            placeholder="เช่น SP Aug Lead"
                             disabled={isViewer}
-                            className="w-full h-10 bg-gray-100 border border-gray-300 rounded-xl px-3 pr-28 text-sm text-gray-800 font-mono"
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
                           />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const gen = generateCampaignCode(formData.channelId, formData.productCategory, formData.startDate)
-                              setFormData(prev => ({ ...prev, internalCode: gen }))
-                              setIsDirty(true)
-                            }}
-                            className="absolute right-1.5 top-1.5 bottom-1.5 px-2.5 text-[11px] font-bold text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors"
-                            title="สร้างรหัสอัตโนมัติ"
+                        </div>
+
+                        {/* Row 2: Platform Campaign ID */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            รหัสบนแพลตฟอร์ม (Platform Campaign ID) <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="campaignId"
+                            value={formData.campaignId}
+                            onChange={handleInputChange}
+                            placeholder="เช่น 120209834001"
+                            disabled={isViewer}
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
+                          />
+                        </div>
+
+                        {/* Row 3: Internal Code */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            รหัสแคมเปญภายใน (Internal Code)
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              name="internalCode"
+                              value={formData.internalCode}
+                              onChange={handleInputChange}
+                              placeholder="CMP-202608-SP-001"
+                              disabled={isViewer}
+                              className="w-full h-10 bg-gray-100 border border-gray-300 rounded-xl px-3 pr-28 text-sm text-gray-800 font-mono"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const gen = generateCampaignCode(formData.channelId, formData.productCategory, formData.startDate)
+                                setFormData(prev => ({ ...prev, internalCode: gen }))
+                                setIsDirty(true)
+                              }}
+                              className="absolute right-1.5 top-1.5 bottom-1.5 px-2.5 text-[11px] font-bold text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors"
+                              title="สร้างรหัสอัตโนมัติ"
+                            >
+                              <Sparkles size={11} /> อัตโนมัติ
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Row 4: Status */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            สถานะ (Status) <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            name="status"
+                            value={formData.status}
+                            onChange={handleInputChange}
+                            disabled={isViewer}
+                            className={`w-full h-10 border rounded-xl px-3 text-sm font-bold focus:ring-2 focus:ring-[#ff2301] outline-none transition-colors ${formData.status === 'ACTIVE'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              : formData.status === 'DRAFT'
+                                ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                : formData.status === 'PAUSED'
+                                  ? 'bg-gray-100 text-gray-800 border-gray-300'
+                                  : formData.status === 'COMPLETED'
+                                    ? 'bg-blue-50 text-blue-800 border-blue-300'
+                                    : 'bg-slate-100 text-slate-800 border-slate-300'
+                              }`}
                           >
-                            <Sparkles size={11} /> อัตโนมัติ
-                          </button>
+                            <option value="ACTIVE">กำลังใช้งาน (Active)</option>
+                            <option value="DRAFT">ฉบับร่าง (Draft)</option>
+                            <option value="PAUSED">หยุดชั่วคราว (Paused)</option>
+                            <option value="COMPLETED">เสร็จสิ้น (Completed)</option>
+                            <option value="ARCHIVED">เก็บถาวร (Archived)</option>
+                          </select>
                         </div>
-                      </div>
 
-                      {/* Row 4: Status */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          สถานะ (Status) <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          name="status"
-                          value={formData.status}
-                          onChange={handleInputChange}
-                          disabled={isViewer}
-                          className={`w-full h-10 border rounded-xl px-3 text-sm font-bold focus:ring-2 focus:ring-[#ff2301] outline-none transition-colors ${formData.status === 'ACTIVE'
-                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                            : formData.status === 'DRAFT'
-                              ? 'bg-amber-50 text-amber-800 border-amber-300'
-                              : formData.status === 'PAUSED'
-                                ? 'bg-gray-100 text-gray-800 border-gray-300'
-                                : formData.status === 'COMPLETED'
-                                  ? 'bg-blue-50 text-blue-800 border-blue-300'
-                                  : 'bg-slate-100 text-slate-800 border-slate-300'
-                            }`}
-                        >
-                          <option value="ACTIVE">กำลังใช้งาน (Active)</option>
-                          <option value="DRAFT">ฉบับร่าง (Draft)</option>
-                          <option value="PAUSED">หยุดชั่วคราว (Paused)</option>
-                          <option value="COMPLETED">เสร็จสิ้น (Completed)</option>
-                          <option value="ARCHIVED">เก็บถาวร (Archived)</option>
-                        </select>
-                      </div>
-
-                      {/* Row 5: Notes */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          หมายเหตุแคมเปญ (Campaign Notes)
-                        </label>
-                        <input
-                          type="text"
-                          name="notes"
-                          value={formData.notes}
-                          onChange={handleInputChange}
-                          placeholder="ระบุหมายเหตุ เช่น แคมเปญโซล่าปั๊ม..."
-                          disabled={isViewer}
-                          className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                        />
-                      </div>
-
-                      {/* Row 6: Legacy Artwork Link (Read Only) */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <label className="block text-xs font-bold text-gray-700">
-                            ลิงก์ Artwork เดิม (Legacy Artwork Link)
+                        {/* Row 5: Notes */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            หมายเหตุแคมเปญ (Campaign Notes)
                           </label>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                            กำลังย้ายข้อมูล (Read Only)
-                          </span>
+                          <input
+                            type="text"
+                            name="notes"
+                            value={formData.notes}
+                            onChange={handleInputChange}
+                            placeholder="ระบุหมายเหตุ เช่น แคมเปญโซล่าปั๊ม..."
+                            disabled={isViewer}
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
+                          />
                         </div>
-                        <input
-                          type="text"
-                          name="artworkUrl"
-                          value={formData.artworkUrl || ''}
-                          readOnly
-                          disabled
-                          placeholder="ย้ายไปใช้คลังสื่อโฆษณา (Creative Library) ในแท็บที่ 3"
-                          className="w-full h-10 bg-gray-100/90 border border-gray-300 rounded-xl px-3 text-xs text-gray-500 font-mono cursor-not-allowed"
-                        />
-                        <p className="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
-                          <Info size={12} className="text-blue-500 shrink-0" />
-                          <span>
-                            ระบบเปลี่ยนมาใช้ <strong>คลังสื่อโฆษณา (Creative Library)</strong> ในแท็บที่ 3 แทนการแนบลิงก์
-                          </span>
-                        </p>
+
+                        {/* Row 6: Legacy Artwork Link (Read Only) */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-gray-700">
+                              ลิงก์ Artwork เดิม (Legacy Artwork Link)
+                            </label>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                              กำลังย้ายข้อมูล (Read Only)
+                            </span>
+                          </div>
+                          <input
+                            type="text"
+                            name="artworkUrl"
+                            value={formData.artworkUrl || ''}
+                            readOnly
+                            disabled
+                            placeholder="ย้ายไปใช้คลังสื่อโฆษณา (Creative Library) ในแท็บที่ 3"
+                            className="w-full h-10 bg-gray-100/90 border border-gray-300 rounded-xl px-3 text-xs text-gray-500 font-mono cursor-not-allowed"
+                          />
+                          <p className="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
+                            <Info size={12} className="text-blue-500 shrink-0" />
+                            <span>
+                              ระบบเปลี่ยนมาใช้ <strong>คลังสื่อโฆษณา (Creative Library)</strong> ในแท็บที่ 3 แทนการแนบลิงก์
+                            </span>
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Column C: งบประมาณและกำหนดการ */}
-                  <div className="space-y-4">
-                    <div className="pb-1 border-b border-gray-100">
-                      <h3 className="text-xs font-black text-gray-800 tracking-wider">
-                        C. งบประมาณและกำหนดการ (BUDGET & SCHEDULE)
-                      </h3>
-                    </div>
-
-                    <div className="space-y-3.5">
-                      {/* Row 1: Budget Strategy */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          กลยุทธ์งบประมาณ (Budget Strategy) <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          name="budgetStrategy"
-                          value={formData.budgetStrategy}
-                          onChange={handleInputChange}
-                          disabled={isViewer}
-                          className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 font-semibold transition-all"
-                        >
-                          <option value="ABO">ABO — กระจายงบตามชุดโฆษณา (Ad Set Budget)</option>
-                          <option value="CBO">CBO — งบประมาณรวมระดับแคมเปญ (Campaign Budget)</option>
-                        </select>
+                    {/* Column C: งบประมาณและกำหนดการ */}
+                    <div className="space-y-4">
+                      <div className="pb-1 border-b border-gray-100">
+                        <h3 className="text-xs font-black text-gray-800 tracking-wider">
+                          C. งบประมาณและกำหนดการ (BUDGET & SCHEDULE)
+                        </h3>
                       </div>
 
-                      {/* Row 2: Planned Budget */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          งบประมาณที่วางแผนไว้ (Planned Budget) <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3.5 top-2.5 text-gray-500 font-bold text-sm">
-                            ฿
-                          </span>
-                          <input
-                            type="number"
-                            step="100"
-                            name="budget"
-                            value={formData.budget}
-                            onChange={handleInputChange}
-                            placeholder="เช่น 110,000"
-                            disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 pl-8 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-[#ff2301] outline-none transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Row 3: Schedule (Start & End Date) */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          กำหนดการโฆษณา (Start - End Date) <span className="text-red-500">*</span>
-                        </label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <input
-                            type="date"
-                            name="startDate"
-                            value={formData.startDate}
-                            onChange={handleInputChange}
-                            disabled={isViewer}
-                            className="w-full h-10 bg-white border border-gray-300 rounded-xl px-2.5 text-xs focus:ring-2 focus:ring-[#ff2301] outline-none"
-                            title="วันที่เริ่มต้น"
-                          />
-                          <input
-                            type="date"
-                            name="endDate"
-                            value={formData.endDate}
-                            onChange={handleInputChange}
-                            disabled={isViewer}
-                            className="w-full h-10 bg-white border border-gray-300 rounded-xl px-2.5 text-xs focus:ring-2 focus:ring-[#ff2301] outline-none"
-                            title="วันที่สิ้นสุด"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Row 4: Budget Allocated Widget */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <label className="block text-xs font-bold text-gray-700">
-                            งบประมาณที่จัดสรร (Budget Allocated)
+                      <div className="space-y-3.5">
+                        {/* Row 1: Budget Strategy */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            กลยุทธ์งบประมาณ (Budget Strategy) <span className="text-red-500">*</span>
                           </label>
-                          <span className={`text-[11px] font-bold ${isOverBudget ? 'text-red-600' : 'text-gray-500'}`}>
-                            {budgetRatio.toFixed(0)}% ({formAdSets.length} ชุดโฆษณา)
-                          </span>
+                          <select
+                            name="budgetStrategy"
+                            value={formData.budgetStrategy}
+                            onChange={handleInputChange}
+                            disabled={isViewer}
+                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 font-semibold transition-all"
+                          >
+                            <option value="ABO">ABO — กระจายงบตามชุดโฆษณา (Ad Set Budget)</option>
+                            <option value="CBO">CBO — งบประมาณรวมระดับแคมเปญ (Campaign Budget)</option>
+                          </select>
                         </div>
-                        <div className="h-10 bg-white border border-gray-300 rounded-xl px-3 flex items-center justify-between relative overflow-hidden">
-                          <span className={`font-mono font-black text-xs ${isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
-                            ฿{formAllocatedBudget.toLocaleString()} / ฿{plannedBudgetNum.toLocaleString()}
-                          </span>
-                          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-100">
-                            <div
-                              className={`h-full transition-all duration-300 ${isOverBudget ? 'bg-red-600' : 'bg-emerald-500'
-                                }`}
-                              style={{ width: `${Math.min(budgetRatio, 100)}%` }}
+
+                        {/* Row 2: Planned Budget */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            งบประมาณที่วางแผนไว้ (Planned Budget) <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-2.5 text-gray-500 font-bold text-sm">
+                              ฿
+                            </span>
+                            <input
+                              type="number"
+                              step="100"
+                              name="budget"
+                              value={formData.budget}
+                              onChange={handleInputChange}
+                              placeholder="เช่น 110,000"
+                              disabled={isViewer}
+                              className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 pl-8 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-[#ff2301] outline-none transition-all"
                             />
                           </div>
                         </div>
-                      </div>
 
-                      {/* Row 5: Budget Status / Alert */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          สถานะการจัดสรรงบประมาณ
-                        </label>
-                        {isOverBudget ? (
-                          <div className="h-10 px-3 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700 flex items-center gap-1.5 animate-pulse">
-                            <AlertCircle size={15} className="shrink-0 text-red-600" />
-                            <span className="truncate">
-                              เกินงบ ฿{(formAllocatedBudget - plannedBudgetNum).toLocaleString()}! กรุณาปรับลดงบ Ad Set
+                        {/* Row 3: Schedule (Start & End Date) */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            กำหนดการโฆษณา (Start - End Date) <span className="text-red-500">*</span>
+                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <input
+                              type="date"
+                              name="startDate"
+                              value={formData.startDate}
+                              onChange={handleInputChange}
+                              disabled={isViewer}
+                              className="w-full h-10 bg-white border border-gray-300 rounded-xl px-2.5 text-xs focus:ring-2 focus:ring-[#ff2301] outline-none"
+                              title="วันที่เริ่มต้น"
+                            />
+                            <input
+                              type="date"
+                              name="endDate"
+                              value={formData.endDate}
+                              onChange={handleInputChange}
+                              disabled={isViewer}
+                              className="w-full h-10 bg-white border border-gray-300 rounded-xl px-2.5 text-xs focus:ring-2 focus:ring-[#ff2301] outline-none"
+                              title="วันที่สิ้นสุด"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Row 4: Budget Allocated Widget */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-gray-700">
+                              งบประมาณที่จัดสรร (Budget Allocated)
+                            </label>
+                            <span className={`text-[11px] font-bold ${isOverBudget ? 'text-red-600' : 'text-gray-500'}`}>
+                              {budgetRatio.toFixed(0)}% ({formAdSets.length} ชุดโฆษณา)
                             </span>
                           </div>
+                          <div className="h-10 bg-white border border-gray-300 rounded-xl px-3 flex items-center justify-between relative overflow-hidden">
+                            <span className={`font-mono font-black text-xs ${isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
+                              ฿{formAllocatedBudget.toLocaleString()} / ฿{plannedBudgetNum.toLocaleString()}
+                            </span>
+                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-100">
+                              <div
+                                className={`h-full transition-all duration-300 ${isOverBudget ? 'bg-red-600' : 'bg-emerald-500'
+                                  }`}
+                                style={{ width: `${Math.min(budgetRatio, 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Row 5: Budget Status / Alert */}
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                            สถานะการจัดสรรงบประมาณ
+                          </label>
+                          {isOverBudget ? (
+                            <div className="h-10 px-3 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700 flex items-center gap-1.5 animate-pulse">
+                              <AlertCircle size={15} className="shrink-0 text-red-600" />
+                              <span className="truncate">
+                                เกินงบ ฿{(formAllocatedBudget - plannedBudgetNum).toLocaleString()}! กรุณาปรับลดงบ Ad Set
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="h-10 px-3 bg-blue-50/70 border border-blue-200/70 rounded-xl text-xs text-blue-700 flex items-center gap-1.5 font-medium">
+                              <Info size={14} className="shrink-0 text-blue-600" />
+                              <span className="truncate">
+                                {formData.budgetStrategy === 'ABO'
+                                  ? 'ระบบ ABO: จัดสรรงบในระดับชุดโฆษณา'
+                                  : 'ระบบ CBO: งบรวมจัดการระดับแคมเปญ'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form Action Footer */}
+                  <div className="pt-6 border-t border-gray-100 space-y-3">
+                    <div className="flex flex-col xl:flex-row items-center justify-between gap-4">
+                      {/* Left: Symmetrical, compact status indicator */}
+                      <div className="flex items-center gap-3 w-full xl:w-auto">
+                        {isFormComplete ? (
+                          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 shadow-xs">
+                            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                            <span>ข้อมูลที่จำเป็นครบถ้วนแล้ว พร้อมบันทึก</span>
+                          </div>
                         ) : (
-                          <div className="h-10 px-3 bg-blue-50/70 border border-blue-200/70 rounded-xl text-xs text-blue-700 flex items-center gap-1.5 font-medium">
-                            <Info size={14} className="shrink-0 text-blue-600" />
-                            <span className="truncate">
-                              {formData.budgetStrategy === 'ABO'
-                                ? 'ระบบ ABO: จัดสรรงบในระดับชุดโฆษณา'
-                                : 'ระบบ CBO: งบรวมจัดการระดับแคมเปญ'}
+                          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-amber-800 bg-amber-50/80 border border-amber-200 shadow-xs">
+                            <Info size={16} className="text-amber-600 shrink-0" />
+                            <span className="font-bold">กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วน</span>
+                            <span className="bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded-md font-bold text-[11px]">
+                              ยังขาดอีก {missingFields.length} ช่อง
                             </span>
                           </div>
                         )}
                       </div>
+
+                      {/* Right: Symmetrical 4 Action Buttons in a clean horizontal row */}
+                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto justify-end shrink-0">
+                        <button
+                          type="button"
+                          onClick={handleClear}
+                          disabled={isSubmitting}
+                          className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-xs active:scale-[0.98] whitespace-nowrap"
+                        >
+                          ล้างข้อมูล (Clear)
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSaveInternal('DRAFT')}
+                          disabled={isSubmitting || !formData.name}
+                          className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-xs active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
+                        >
+                          บันทึกฉบับร่าง (Save Draft)
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSaveInternal()}
+                          disabled={isSubmitting || !isFormComplete}
+                          className="px-5 py-2 text-xs font-bold text-white bg-[#ff2301] hover:bg-red-600 rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
+                        >
+                          {isSubmitting ? 'กำลังบันทึก...' : 'บันทึกแคมเปญ (Save Campaign)'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSaveInternal(undefined, true)}
+                          disabled={isSubmitting || !isFormComplete}
+                          className="px-5 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 whitespace-nowrap flex items-center gap-1.5"
+                        >
+                          <span>บันทึกและไปจัดการ Ad Sets</span>
+                          <ChevronRight size={13} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Sub-row: Missing field chips on left, guideline note on right */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-gray-400 font-medium pt-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {!isFormComplete && (
+                          <>
+                            <span className="text-gray-500 font-semibold">ช่องที่ยังขาด:</span>
+                            {missingFields.map((field, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md text-[10px] font-medium border border-gray-200/60"
+                              >
+                                {field}
+                              </span>
+                            ))}
+                          </>
+                        )}
+                      </div>
+                      <div className="text-right text-gray-400 sm:ml-auto">
+                        สร้างแคมเปญก่อน จากนั้นจึงเพิ่มชุดโฆษณา (Ad Sets), โฆษณา (Ads) และชิ้นงาน (Creative)
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Form Action Footer */}
-                <div className="pt-6 border-t border-gray-100 space-y-3">
-                  <div className="flex flex-col xl:flex-row items-center justify-between gap-4">
-                    {/* Left: Symmetrical, compact status indicator */}
-                    <div className="flex items-center gap-3 w-full xl:w-auto">
-                      {isFormComplete ? (
-                        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 shadow-xs">
-                          <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                          <span>ข้อมูลที่จำเป็นครบถ้วนแล้ว พร้อมบันทึก</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-amber-800 bg-amber-50/80 border border-amber-200 shadow-xs">
-                          <Info size={16} className="text-amber-600 shrink-0" />
-                          <span className="font-bold">กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วน</span>
-                          <span className="bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded-md font-bold text-[11px]">
-                            ยังขาดอีก {missingFields.length} ช่อง
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                {/* CAMPAIGN STRUCTURE SUMMARY Section */}
+                <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <h2 className="text-xs font-black text-gray-800 tracking-wider">
+                      สรุปโครงสร้างแคมเปญ (CAMPAIGN STRUCTURE SUMMARY)
+                    </h2>
 
-                    {/* Right: Symmetrical 4 Action Buttons in a clean horizontal row */}
-                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto justify-end shrink-0">
+                    <div className="flex items-center gap-2.5">
                       <button
-                        type="button"
-                        onClick={handleClear}
-                        disabled={isSubmitting}
-                        className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-xs active:scale-[0.98] whitespace-nowrap"
+                        onClick={() => setSubTab('adsets')}
+                        className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
                       >
-                        ล้างข้อมูล (Clear)
+                        จัดการชุดโฆษณา (Manage Ad Sets & Ads)
                       </button>
-
                       <button
-                        type="button"
-                        onClick={() => handleSaveInternal('DRAFT')}
-                        disabled={isSubmitting || !formData.name}
-                        className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-xs active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
+                        onClick={() => setSubTab('creative')}
+                        className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
                       >
-                        บันทึกฉบับร่าง (Save Draft)
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleSaveInternal()}
-                        disabled={isSubmitting || !isFormComplete}
-                        className="px-5 py-2 text-xs font-bold text-white bg-[#ff2301] hover:bg-red-600 rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
-                      >
-                        {isSubmitting ? 'กำลังบันทึก...' : 'บันทึกแคมเปญ (Save Campaign)'}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleSaveInternal(undefined, true)}
-                        disabled={isSubmitting || !isFormComplete}
-                        className="px-5 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 whitespace-nowrap flex items-center gap-1.5"
-                      >
-                        <span>บันทึกและไปจัดการ Ad Sets</span>
-                        <ChevronRight size={13} />
+                        เปิดคลังสื่อโฆษณา (Open Creative Library)
                       </button>
                     </div>
                   </div>
 
-                  {/* Sub-row: Missing field chips on left, guideline note on right */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-gray-400 font-medium pt-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {!isFormComplete && (
-                        <>
-                          <span className="text-gray-500 font-semibold">ช่องที่ยังขาด:</span>
-                          {missingFields.map((field, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md text-[10px] font-medium border border-gray-200/60"
-                            >
-                              {field}
-                            </span>
-                          ))}
-                        </>
-                      )}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
+                      <span className="text-xs font-semibold text-gray-500">ชุดโฆษณา (Ad Sets)</span>
+                      <p className="text-2xl font-black text-gray-900 mt-1">
+                        {structureSummary.totalAdSets}
+                      </p>
                     </div>
-                    <div className="text-right text-gray-400 sm:ml-auto">
-                      สร้างแคมเปญก่อน จากนั้นจึงเพิ่มชุดโฆษณา (Ad Sets), โฆษณา (Ads) และชิ้นงาน (Creative)
+                    <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
+                      <span className="text-xs font-semibold text-gray-500">ชิ้นงานโฆษณา (Ads)</span>
+                      <p className="text-2xl font-black text-gray-900 mt-1">
+                        {structureSummary.totalAds}
+                      </p>
                     </div>
+                    <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
+                      <span className="text-xs font-semibold text-gray-500">ไฟล์สื่อโฆษณา (Creative Files)</span>
+                      <p className="text-2xl font-black text-gray-900 mt-1">
+                        {structureSummary.totalCreatives}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
+                      <span className="text-xs font-semibold text-gray-500">งบประมาณที่จัดสรรแล้ว (Allocated)</span>
+                      <p className="text-2xl font-black text-gray-900 mt-1">
+                        ฿{structureSummary.totalAllocated.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] text-blue-600 flex items-center gap-1.5 pt-1">
+                    <Info size={13} className="shrink-0" />
+                    <span>ข้อมูลผลการโฆษณาจริงจะถูกอัปเดตและบันทึกแยกต่างหากในหน้า "2. ผลการโฆษณา (Ads Performance)"</span>
                   </div>
                 </div>
-              </div>
 
-              {/* CAMPAIGN STRUCTURE SUMMARY Section */}
-              <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <h2 className="text-xs font-black text-gray-800 tracking-wider">
-                    สรุปโครงสร้างแคมเปญ (CAMPAIGN STRUCTURE SUMMARY)
-                  </h2>
+                {/* CAMPAIGN MASTER LIST (Table) */}
+                <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-4">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <h2 className="text-xs font-black text-gray-800 tracking-wider">
+                      รายการแคมเปญหลัก (CAMPAIGN MASTER LIST)
+                    </h2>
 
-                  <div className="flex items-center gap-2.5">
                     <button
-                      onClick={() => setSubTab('adsets')}
-                      className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+                      onClick={handleExportCSV}
+                      className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
                     >
-                      จัดการชุดโฆษณา (Manage Ad Sets & Ads)
-                    </button>
-                    <button
-                      onClick={() => setSubTab('creative')}
-                      className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
-                    >
-                      เปิดคลังสื่อโฆษณา (Open Creative Library)
+                      <Download size={13} />
+                      <span>ส่งออกข้อมูล (Export CSV)</span>
                     </button>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                    <span className="text-xs font-semibold text-gray-500">ชุดโฆษณา (Ad Sets)</span>
-                    <p className="text-2xl font-black text-gray-900 mt-1">
-                      {structureSummary.totalAdSets}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                    <span className="text-xs font-semibold text-gray-500">ชิ้นงานโฆษณา (Ads)</span>
-                    <p className="text-2xl font-black text-gray-900 mt-1">
-                      {structureSummary.totalAds}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                    <span className="text-xs font-semibold text-gray-500">ไฟล์สื่อโฆษณา (Creative Files)</span>
-                    <p className="text-2xl font-black text-gray-900 mt-1">
-                      {structureSummary.totalCreatives}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                    <span className="text-xs font-semibold text-gray-500">งบประมาณที่จัดสรรแล้ว (Allocated)</span>
-                    <p className="text-2xl font-black text-gray-900 mt-1">
-                      ฿{structureSummary.totalAllocated.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
+                  {/* Filters Bar */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="relative">
+                      <Search
+                        size={14}
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                      />
+                      <input
+                        type="text"
+                        value={search}
+                        onChange={e => {
+                          setSearch(e.target.value)
+                          setCurrentPage(1)
+                        }}
+                        placeholder="ค้นหาชื่อแคมเปญ หรือรหัสแคมเปญ..."
+                        className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#ff2301]"
+                      />
+                    </div>
 
-                <div className="text-[11px] text-blue-600 flex items-center gap-1.5 pt-1">
-                  <Info size={13} className="shrink-0" />
-                  <span>ข้อมูลผลการโฆษณาจริงจะถูกอัปเดตและบันทึกแยกต่างหากในหน้า "2. ผลการโฆษณา (Ads Performance)"</span>
-                </div>
-              </div>
-
-              {/* CAMPAIGN MASTER LIST (Table) */}
-              <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-4">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <h2 className="text-xs font-black text-gray-800 tracking-wider">
-                    รายการแคมเปญหลัก (CAMPAIGN MASTER LIST)
-                  </h2>
-
-                  <button
-                    onClick={handleExportCSV}
-                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
-                  >
-                    <Download size={13} />
-                    <span>ส่งออกข้อมูล (Export CSV)</span>
-                  </button>
-                </div>
-
-                {/* Filters Bar */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div className="relative">
-                    <Search
-                      size={14}
-                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
-                    <input
-                      type="text"
-                      value={search}
+                    <select
+                      value={filterChannel}
                       onChange={e => {
-                        setSearch(e.target.value)
+                        setFilterChannel(e.target.value)
                         setCurrentPage(1)
                       }}
-                      placeholder="ค้นหาชื่อแคมเปญ หรือรหัสแคมเปญ..."
-                      className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#ff2301]"
-                    />
+                      className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
+                    >
+                      <option value="">ทุกช่องทาง (All Channels)</option>
+                      {channels?.map((c: any) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={filterProduct}
+                      onChange={e => {
+                        setFilterProduct(e.target.value)
+                        setCurrentPage(1)
+                      }}
+                      className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
+                    >
+                      <option value="">ทุกกลุ่มสินค้า (All Products)</option>
+                      {PRODUCT_CATEGORIES.map(p => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={filterStatus}
+                      onChange={e => {
+                        setFilterStatus(e.target.value)
+                        setCurrentPage(1)
+                      }}
+                      className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
+                    >
+                      <option value="">ทุกสถานะ (All Status)</option>
+                      <option value="ACTIVE">กำลังใช้งาน (Active)</option>
+                      <option value="DRAFT">ฉบับร่าง (Draft)</option>
+                      <option value="PAUSED">หยุดชั่วคราว (Paused)</option>
+                      <option value="COMPLETED">เสร็จสิ้น (Completed)</option>
+                      <option value="ARCHIVED">เก็บถาวร (Archived)</option>
+                    </select>
                   </div>
 
-                  <select
-                    value={filterChannel}
-                    onChange={e => {
-                      setFilterChannel(e.target.value)
-                      setCurrentPage(1)
-                    }}
-                    className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
-                  >
-                    <option value="">ทุกช่องทาง (All Channels)</option>
-                    {channels?.map((c: any) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={filterProduct}
-                    onChange={e => {
-                      setFilterProduct(e.target.value)
-                      setCurrentPage(1)
-                    }}
-                    className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
-                  >
-                    <option value="">ทุกกลุ่มสินค้า (All Products)</option>
-                    {PRODUCT_CATEGORIES.map(p => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={filterStatus}
-                    onChange={e => {
-                      setFilterStatus(e.target.value)
-                      setCurrentPage(1)
-                    }}
-                    className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
-                  >
-                    <option value="">ทุกสถานะ (All Status)</option>
-                    <option value="ACTIVE">กำลังใช้งาน (Active)</option>
-                    <option value="DRAFT">ฉบับร่าง (Draft)</option>
-                    <option value="PAUSED">หยุดชั่วคราว (Paused)</option>
-                    <option value="COMPLETED">เสร็จสิ้น (Completed)</option>
-                    <option value="ARCHIVED">เก็บถาวร (Archived)</option>
-                  </select>
-                </div>
-
-                {/* Table */}
-                <div className="overflow-x-auto border border-gray-100 rounded-xl">
-                  <table className="w-full text-left text-xs text-gray-600 whitespace-nowrap">
-                    <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-800">
-                      <tr>
-                        <th className="px-3 py-3 font-bold">รหัสแคมเปญ</th>
-                        <th className="px-3 py-3 font-bold">ชื่อแคมเปญ</th>
-                        <th className="px-3 py-3 font-bold">ช่องทาง</th>
-                        <th className="px-3 py-3 font-bold">กลุ่มสินค้า</th>
-                        <th className="px-3 py-3 font-bold">วัตถุประสงค์</th>
-                        <th className="px-3 py-3 font-bold">กลยุทธ์งบ</th>
-                        <th className="px-3 py-3 font-bold text-right">งบที่วางแผนไว้</th>
-                        <th className="px-3 py-3 font-bold text-center">ชุดโฆษณา</th>
-                        <th className="px-3 py-3 font-bold text-center">ชิ้นงาน</th>
-                        <th className="px-3 py-3 font-bold text-center">สื่อโฆษณา</th>
-                        <th className="px-3 py-3 font-bold text-right">งบที่จัดสรร</th>
-                        <th className="px-3 py-3 font-bold">ระยะเวลา</th>
-                        <th className="px-3 py-3 font-bold text-center">สถานะ</th>
-                        <th className="px-3 py-3 font-bold">อัปเดตล่าสุด</th>
-                        <th className="px-3 py-3 font-bold text-center">จัดการ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {paginatedCampaigns.length > 0 ? (
-                        paginatedCampaigns.map((c: any) => {
-                          const parsed = getParsedCampaignData(c)
-                          const sets = parsed.adSets || []
-                          const adsCount = sets.reduce((sum, s) => sum + (s.ads?.length || 0), 0)
-                          const allocated = sets.reduce((sum, s) => sum + (Number(s.budget) || 0), 0)
-                          const scheduleStr = `${c.startDate ? new Date(c.startDate).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' }) : '-'} - ${c.endDate ? new Date(c.endDate).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }) : '-'}`
-                          const statusUpper = (c.status || 'ACTIVE').toUpperCase()
-
-                          return (
-                            <tr key={c.id} className="hover:bg-gray-50/70 transition-colors">
-                              <td className="px-3 py-3 font-mono font-bold text-gray-900">
-                                {c.internalCode || '-'}
-                              </td>
-                              <td className="px-3 py-3 font-semibold text-gray-900 max-w-[200px] truncate" title={c.name}>
-                                {c.name}
-                              </td>
-                              <td className="px-3 py-3 text-gray-700">
-                                {c.channel?.name || '-'}
-                              </td>
-                              <td className="px-3 py-3 text-gray-700 max-w-[150px] truncate" title={c.productCategory}>
-                                {c.productCategory || '-'}
-                              </td>
-                              <td className="px-3 py-3 text-gray-700">
-                                {c.objective?.name || '-'}
-                              </td>
-                              <td className="px-3 py-3 font-semibold text-gray-800">
-                                {parsed.budgetStrategy}
-                              </td>
-                              <td className="px-3 py-3 font-bold text-gray-900 text-right">
-                                ฿{Number(c.budget || 0).toLocaleString()}
-                              </td>
-                              <td className="px-3 py-3 text-center font-bold text-gray-800">
-                                {sets.length}
-                              </td>
-                              <td className="px-3 py-3 text-center font-bold text-gray-800">
-                                {adsCount}
-                              </td>
-                              <td className="px-3 py-3 text-center font-bold text-gray-800">
-                                {adsCount}
-                              </td>
-                              <td className={`px-3 py-3 font-bold text-right ${allocated > (c.budget || 0) ? 'text-red-600' : 'text-gray-900'}`}>
-                                ฿{allocated.toLocaleString()}
-                              </td>
-                              <td className="px-3 py-3 text-gray-600">
-                                {scheduleStr}
-                              </td>
-                              <td className="px-3 py-3 text-center">
-                                <span
-                                  className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusUpper === 'ACTIVE'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                    : statusUpper === 'DRAFT'
-                                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                      : statusUpper === 'PAUSED'
-                                        ? 'bg-gray-100 text-gray-700 border-gray-300'
-                                        : statusUpper === 'COMPLETED'
-                                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                          : 'bg-slate-100 text-slate-700 border-slate-300'
-                                    }`}
-                                >
-                                  {statusUpper === 'ACTIVE'
-                                    ? 'ใช้งาน'
-                                    : statusUpper === 'DRAFT'
-                                      ? 'ฉบับร่าง'
-                                      : statusUpper === 'PAUSED'
-                                        ? 'หยุดชั่วคราว'
-                                        : statusUpper === 'COMPLETED'
-                                          ? 'เสร็จสิ้น'
-                                          : 'เก็บถาวร'}
-                                </span>
-                              </td>
-                              <td className="px-3 py-3 text-gray-500">
-                                {new Date(c.updatedAt || c.createdAt).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })},{' '}
-                                {new Date(c.updatedAt || c.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
-                              </td>
-                              <td className="px-3 py-3 text-center">
-                                <div className="flex items-center justify-center gap-1">
-                                  <button
-                                    onClick={() => handleEdit(c)}
-                                    className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                    title="แก้ไขแคมเปญ"
-                                  >
-                                    <Pencil size={14} />
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      handleEdit(c)
-                                      setSubTab('adsets')
-                                    }}
-                                    className="p-1 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                                    title="จัดการชุดโฆษณา (Ad Sets & Ads)"
-                                  >
-                                    <Layers size={14} />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDuplicate(c)}
-                                    className="p-1 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                                    title="คัดลอกแคมเปญ"
-                                  >
-                                    <Copy size={14} />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDelete(c.id)}
-                                    className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                    title="ลบแคมเปญ"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          )
-                        })
-                      ) : (
+                  {/* Table */}
+                  <div className="overflow-x-auto border border-gray-100 rounded-xl">
+                    <table className="w-full text-left text-xs text-gray-600 whitespace-nowrap">
+                      <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-800">
                         <tr>
-                          <td colSpan={15} className="px-4 py-8 text-center text-gray-400 font-medium">
-                            ไม่พบข้อมูลแคมเปญตามเงื่อนไขที่ค้นหา
-                          </td>
+                          <th className="px-3 py-3 font-bold">รหัสแคมเปญ</th>
+                          <th className="px-3 py-3 font-bold">ชื่อแคมเปญ</th>
+                          <th className="px-3 py-3 font-bold">ช่องทาง</th>
+                          <th className="px-3 py-3 font-bold">กลุ่มสินค้า</th>
+                          <th className="px-3 py-3 font-bold">วัตถุประสงค์</th>
+                          <th className="px-3 py-3 font-bold">กลยุทธ์งบ</th>
+                          <th className="px-3 py-3 font-bold text-right">งบที่วางแผนไว้</th>
+                          <th className="px-3 py-3 font-bold text-center">ชุดโฆษณา</th>
+                          <th className="px-3 py-3 font-bold text-center">ชิ้นงาน</th>
+                          <th className="px-3 py-3 font-bold text-center">สื่อโฆษณา</th>
+                          <th className="px-3 py-3 font-bold text-right">งบที่จัดสรร</th>
+                          <th className="px-3 py-3 font-bold">ระยะเวลา</th>
+                          <th className="px-3 py-3 font-bold text-center">สถานะ</th>
+                          <th className="px-3 py-3 font-bold">อัปเดตล่าสุด</th>
+                          <th className="px-3 py-3 font-bold text-center">จัดการ</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {paginatedCampaigns.length > 0 ? (
+                          paginatedCampaigns.map((c: any) => {
+                            const parsed = getParsedCampaignData(c)
+                            const sets = parsed.adSets || []
+                            const adsCount = sets.reduce((sum, s) => sum + (s.ads?.length || 0), 0)
+                            const allocated = sets.reduce((sum, s) => sum + (Number(s.budget) || 0), 0)
+                            const scheduleStr = `${c.startDate ? new Date(c.startDate).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' }) : '-'} - ${c.endDate ? new Date(c.endDate).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }) : '-'}`
+                            const statusUpper = (c.status || 'ACTIVE').toUpperCase()
 
-                {/* Pagination */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500 pt-2">
-                  <span>
-                    แสดง {filteredCampaigns.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}-
-                    {Math.min(currentPage * pageSize, filteredCampaigns.length)} จากทั้งหมด {filteredCampaigns.length} แคมเปญ
-                  </span>
+                            return (
+                              <tr key={c.id} className="hover:bg-gray-50/70 transition-colors">
+                                <td className="px-3 py-3 font-mono font-bold text-gray-900">
+                                  {c.internalCode || '-'}
+                                </td>
+                                <td className="px-3 py-3 font-semibold text-gray-900 max-w-[200px] truncate" title={c.name}>
+                                  {c.name}
+                                </td>
+                                <td className="px-3 py-3 text-gray-700">
+                                  {c.channel?.name || '-'}
+                                </td>
+                                <td className="px-3 py-3 text-gray-700 max-w-[150px] truncate" title={c.productCategory}>
+                                  {c.productCategory || '-'}
+                                </td>
+                                <td className="px-3 py-3 text-gray-700">
+                                  {c.objective?.name || '-'}
+                                </td>
+                                <td className="px-3 py-3 font-semibold text-gray-800">
+                                  {parsed.budgetStrategy}
+                                </td>
+                                <td className="px-3 py-3 font-bold text-gray-900 text-right">
+                                  ฿{Number(c.budget || 0).toLocaleString()}
+                                </td>
+                                <td className="px-3 py-3 text-center font-bold text-gray-800">
+                                  {sets.length}
+                                </td>
+                                <td className="px-3 py-3 text-center font-bold text-gray-800">
+                                  {adsCount}
+                                </td>
+                                <td className="px-3 py-3 text-center font-bold text-gray-800">
+                                  {adsCount}
+                                </td>
+                                <td className={`px-3 py-3 font-bold text-right ${allocated > (c.budget || 0) ? 'text-red-600' : 'text-gray-900'}`}>
+                                  ฿{allocated.toLocaleString()}
+                                </td>
+                                <td className="px-3 py-3 text-gray-600">
+                                  {scheduleStr}
+                                </td>
+                                <td className="px-3 py-3 text-center">
+                                  <span
+                                    className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusUpper === 'ACTIVE'
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                      : statusUpper === 'DRAFT'
+                                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                        : statusUpper === 'PAUSED'
+                                          ? 'bg-gray-100 text-gray-700 border-gray-300'
+                                          : statusUpper === 'COMPLETED'
+                                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                            : 'bg-slate-100 text-slate-700 border-slate-300'
+                                      }`}
+                                  >
+                                    {statusUpper === 'ACTIVE'
+                                      ? 'ใช้งาน'
+                                      : statusUpper === 'DRAFT'
+                                        ? 'ฉบับร่าง'
+                                        : statusUpper === 'PAUSED'
+                                          ? 'หยุดชั่วคราว'
+                                          : statusUpper === 'COMPLETED'
+                                            ? 'เสร็จสิ้น'
+                                            : 'เก็บถาวร'}
+                                  </span>
+                                </td>
+                                <td className="px-3 py-3 text-gray-500">
+                                  {new Date(c.updatedAt || c.createdAt).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })},{' '}
+                                  {new Date(c.updatedAt || c.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                                </td>
+                                <td className="px-3 py-3 text-center">
+                                  <div className="flex items-center justify-center gap-1">
+                                    <button
+                                      onClick={() => handleEdit(c)}
+                                      className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                      title="แก้ไขแคมเปญ"
+                                    >
+                                      <Pencil size={14} />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleEdit(c)
+                                        setSubTab('adsets')
+                                      }}
+                                      className="p-1 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                      title="จัดการชุดโฆษณา (Ad Sets & Ads)"
+                                    >
+                                      <Layers size={14} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDuplicate(c)}
+                                      className="p-1 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                      title="คัดลอกแคมเปญ"
+                                    >
+                                      <Copy size={14} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDelete(c.id)}
+                                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                      title="ลบแคมเปญ"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          })
+                        ) : (
+                          <tr>
+                            <td colSpan={15} className="px-4 py-8 text-center text-gray-400 font-medium">
+                              ไม่พบข้อมูลแคมเปญตามเงื่อนไขที่ค้นหา
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
-                      className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
-                      title="หน้าก่อนหน้า"
-                    >
-                      <ChevronLeft size={14} />
-                    </button>
+                  {/* Pagination */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500 pt-2">
+                    <span>
+                      แสดง {filteredCampaigns.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}-
+                      {Math.min(currentPage * pageSize, filteredCampaigns.length)} จากทั้งหมด {filteredCampaigns.length} แคมเปญ
+                    </span>
 
-                    {Array.from({ length: totalPages }).map((_, idx) => {
-                      const p = idx + 1
-                      return (
-                        <button
-                          key={p}
-                          onClick={() => setCurrentPage(p)}
-                          className={`w-7 h-7 rounded-lg font-bold text-xs ${currentPage === p
-                            ? 'bg-[#ff2301] text-white'
-                            : 'hover:bg-gray-100 text-gray-700'
-                            }`}
-                        >
-                          {p}
-                        </button>
-                      )
-                    })}
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+                        title="หน้าก่อนหน้า"
+                      >
+                        <ChevronLeft size={14} />
+                      </button>
 
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                      className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
-                      title="หน้าถัดไป"
-                    >
-                      <ChevronRight size={14} />
-                    </button>
+                      {Array.from({ length: totalPages }).map((_, idx) => {
+                        const p = idx + 1
+                        return (
+                          <button
+                            key={p}
+                            onClick={() => setCurrentPage(p)}
+                            className={`w-7 h-7 rounded-lg font-bold text-xs ${currentPage === p
+                              ? 'bg-[#ff2301] text-white'
+                              : 'hover:bg-gray-100 text-gray-700'
+                              }`}
+                          >
+                            {p}
+                          </button>
+                        )
+                      })}
+
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+                        title="หน้าถัดไป"
+                      >
+                        <ChevronRight size={14} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* SUBTAB 2: Ad Sets & Ads Management */}
-          {subTab === 'adsets' && (
-            <AdSetsManager
-              campaigns={campaigns}
-              selectedCampaignId={selectedCampaignId || formData.id || campaigns[0]?.id || ''}
-              onSelectCampaign={(id: string) => {
-                setSelectedCampaignId(id)
-                const c = campaigns.find(item => item.id === id)
-                if (c) {
-                  const parsed = getParsedCampaignData(c)
-                  setFormAdSets(parsed.adSets || [])
-                }
-              }}
-              onEditCampaign={(campaign: any) => {
-                handleEdit(campaign)
-              }}
-              adSets={formAdSets}
-              setAdSets={setFormAdSets}
-              onSaveStructure={async (updatedSets: AdSetItem[]) => {
-                const targetId = selectedCampaignId || formData.id || campaigns[0]?.id
-                if (!targetId) return
-                const c = campaigns.find(item => item.id === targetId)
-                if (!c) return
-
-                const parsed = getParsedCampaignData(c)
-                const targetPayload = JSON.stringify({
-                  budgetStrategy: parsed.budgetStrategy || 'ABO',
-                  adSets: updatedSets
-                })
-
-                try {
-                  const res = await updateCampaign(targetId, { targetAudience: targetPayload })
-                  setCampaigns(prev => prev.map(item => (item.id === targetId ? res.data : item)))
-                  setSuccessMsg('บันทึกโครงสร้าง Ad Sets & Ads สำเร็จ!')
-                } catch (e: any) {
-                  setError('บันทึกล้มเหลว: ' + e.message)
-                }
-              }}
-              onBack={() => setSubTab('info')}
-              onOpenCreativeLibrary={() => setSubTab('creative')}
-            />
-          )}
-
-          {/* SUBTAB 3: Creative Library */}
-          {subTab === 'creative' && (
-            <CreativeLibraryView
-              campaigns={campaigns}
-              onSelectAdSet={(campId?: string, adCode?: string) => {
-                if (campId) {
-                  const targetCampaign = campaigns.find(c => c.id === campId || c.name === campId)
-                  if (targetCampaign) {
-                    setSelectedCampaignId(targetCampaign.id)
-                    const parsed = getParsedCampaignData(targetCampaign)
+            {/* SUBTAB 2: Ad Sets & Ads Management */}
+            {subTab === 'adsets' && (
+              <AdSetsManager
+                campaigns={campaigns}
+                selectedCampaignId={selectedCampaignId || formData.id || campaigns[0]?.id || ''}
+                onSelectCampaign={(id: string) => {
+                  setSelectedCampaignId(id)
+                  const c = campaigns.find(item => item.id === id)
+                  if (c) {
+                    const parsed = getParsedCampaignData(c)
                     setFormAdSets(parsed.adSets || [])
                   }
-                }
-                setSubTab('adsets')
-              }}
-            />
-          )}
-        </div>
-      )}
+                }}
+                onEditCampaign={(campaign: any) => {
+                  handleEdit(campaign)
+                }}
+                adSets={formAdSets}
+                setAdSets={setFormAdSets}
+                onSaveStructure={async (updatedSets: AdSetItem[]) => {
+                  const targetId = selectedCampaignId || formData.id || campaigns[0]?.id
+                  if (!targetId) return
+                  const c = campaigns.find(item => item.id === targetId)
+                  if (!c) return
 
-      {/* Confirmation Modal */}
-      {confirmModal.isOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          onPointerDown={e => e.stopPropagation()}
-        >
-          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center animate-in fade-in zoom-in-95">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">ยืนยันการดำเนินการ</h3>
-            <p className="text-sm text-gray-600 mb-6">{confirmModal.message}</p>
-            <div className="flex justify-center space-x-3">
-              <button
-                type="button"
-                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-                className="px-4 py-2 border border-gray-200 rounded-xl text-gray-700 bg-white hover:bg-gray-50 text-sm font-semibold transition-colors"
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="button"
-                onClick={confirmModal.onConfirm}
-                className="px-4 py-2 bg-[#ff2301] text-white rounded-xl hover:bg-red-600 text-sm font-bold shadow-sm transition-colors"
-              >
-                ยืนยัน
-              </button>
+                  const parsed = getParsedCampaignData(c)
+                  const targetPayload = JSON.stringify({
+                    budgetStrategy: parsed.budgetStrategy || 'ABO',
+                    adSets: updatedSets
+                  })
+
+                  try {
+                    const res = await updateCampaign(targetId, { targetAudience: targetPayload })
+                    setCampaigns(prev => prev.map(item => (item.id === targetId ? res.data : item)))
+                    setSuccessMsg('บันทึกโครงสร้าง Ad Sets & Ads สำเร็จ!')
+                  } catch (e: any) {
+                    setError('บันทึกล้มเหลว: ' + e.message)
+                  }
+                }}
+                onBack={() => setSubTab('info')}
+                onOpenCreativeLibrary={() => setSubTab('creative')}
+              />
+            )}
+
+            {/* SUBTAB 3: Creative Library */}
+            {subTab === 'creative' && (
+              <CreativeLibraryView
+                campaigns={campaigns}
+                onSelectAdSet={(campId?: string, adCode?: string) => {
+                  if (campId) {
+                    const targetCampaign = campaigns.find(c => c.id === campId || c.name === campId)
+                    if (targetCampaign) {
+                      setSelectedCampaignId(targetCampaign.id)
+                      const parsed = getParsedCampaignData(targetCampaign)
+                      setFormAdSets(parsed.adSets || [])
+                    }
+                  }
+                  setSubTab('adsets')
+                }}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Confirmation Modal */}
+        {confirmModal.isOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            onPointerDown={e => e.stopPropagation()}
+          >
+            <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center animate-in fade-in zoom-in-95">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">ยืนยันการดำเนินการ</h3>
+              <p className="text-sm text-gray-600 mb-6">{confirmModal.message}</p>
+              <div className="flex justify-center space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                  className="px-4 py-2 border border-gray-200 rounded-xl text-gray-700 bg-white hover:bg-gray-50 text-sm font-semibold transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmModal.onConfirm}
+                  className="px-4 py-2 bg-[#ff2301] text-white rounded-xl hover:bg-red-600 text-sm font-bold shadow-sm transition-colors"
+                >
+                  ยืนยัน
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   )
 }
@@ -1625,16 +1640,59 @@ function AdSetsManager({
     isForAdModal?: boolean
   }>({ isOpen: false, targetAdIndex: null })
   const [libraryItems, setLibraryItems] = useState<CreativeItem[]>([])
+  const [isPickerLoading, setIsPickerLoading] = useState(false)
   const [pickerSearch, setPickerSearch] = useState('')
   const [pickerProduct, setPickerProduct] = useState('All')
 
+  // Load creative library items on mount so thumbnails and media URLs display immediately
+  useEffect(() => {
+    getCreativesList().then(res => {
+      if (res.success && res.creatives) setLibraryItems(res.creatives)
+    }).catch(console.error)
+  }, [])
+
   useEffect(() => {
     if (libraryPickerModal.isOpen) {
+      setIsPickerLoading(true)
       getCreativesList().then(res => {
         if (res.success && res.creatives) setLibraryItems(res.creatives)
+      }).finally(() => {
+        setIsPickerLoading(false)
       })
     }
   }, [libraryPickerModal.isOpen])
+
+  // Resolve media URL from ad's own creativeUrl or fallback to matching creative in libraryItems
+  const getAdMediaUrl = useCallback((adItem: AdItem | null | undefined): string => {
+    if (!adItem) return ''
+    if (adItem.creativeUrl && adItem.creativeUrl.trim() !== '') return adItem.creativeUrl
+    if (!adItem.creativeName) return ''
+
+    const rawName = adItem.creativeName.trim()
+    if (rawName.startsWith('http://') || rawName.startsWith('https://') || rawName.startsWith('/')) {
+      return rawName
+    }
+
+    const cleanName = rawName.toLowerCase()
+    const cleanBase = cleanName.replace(/\.[^/.]+$/, '')
+
+    // Match against libraryItems
+    const matched = libraryItems.find(c => {
+      const cFilename = (c.filename || '').toLowerCase()
+      const cFileBase = cFilename.replace(/\.[^/.]+$/, '')
+      const cName = (c.name || '').toLowerCase()
+      const cCode = (c.code || '').toLowerCase()
+      return (
+        cFilename === cleanName ||
+        cFileBase === cleanBase ||
+        cName === cleanName ||
+        cCode === cleanName ||
+        (cleanBase.length >= 6 && (cFilename.includes(cleanBase) || cName.includes(cleanBase) || cleanBase.includes(cFileBase)))
+      )
+    })
+
+    return matched?.fileUrl || matched?.thumbnailUrl || ''
+  }, [libraryItems])
 
   const [isSaving, setIsSaving] = useState(false)
   const [localFeedback, setLocalFeedback] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
@@ -1652,10 +1710,17 @@ function AdSetsManager({
     : (typeof currentCampaign?.product === 'object' && currentCampaign?.product?.name ? currentCampaign.product.name : 'Solar')
 
   const getProductAbbr = () => {
-    const prod = (productDisplayName || 'SP').toString()
-    if (prod.toLowerCase().includes('inverter') || prod.toLowerCase().includes('vsd')) return 'VSD'
-    if (prod.toLowerCase().includes('roof')) return 'SR'
-    if (prod.toLowerCase().includes('battery')) return 'BAT'
+    const prod = (productDisplayName || 'SP').toString().toLowerCase().trim()
+    if (prod === 'inverter veichi') return 'INV-V'
+    if (prod === 'inverter other') return 'INV-O'
+    if (prod.includes('inverter') || prod.includes('vsd')) return 'INV'
+    if (prod === 'motor' || prod.includes('motor')) return 'MOT'
+    if (prod === 'pump' || (prod.includes('pump') && !prod.includes('solar'))) return 'PUMP'
+    if (prod === 'part' || prod.includes('part')) return 'PART'
+    if (prod === 'mdb/db' || prod.includes('mdb') || prod.includes('db')) return 'MDB'
+    if (prod === 'solar roof' || prod.includes('roof')) return 'SR'
+    if (prod === 'solar pump') return 'SP'
+    if (prod === 'other') return 'OTH'
     return 'SP'
   }
 
@@ -1892,6 +1957,8 @@ function AdSetsManager({
         primaryText: adModal.data.primaryText || '',
         cta: adModal.data.cta || 'Send Message',
         creativeName: adModal.data.creativeName || '',
+        creativeUrl: adModal.data.creativeUrl || '',
+        dimensions: adModal.data.dimensions || '1080x1080',
         creativeVersion: adModal.data.creativeVersion || 'V1 • Current',
         status: adModal.data.status || 'ACTIVE',
         updatedAt: new Date().toISOString()
@@ -1969,10 +2036,16 @@ function AdSetsManager({
     const fname = uploadModal.fileName.trim() || 'New_Creative.jpg'
     const isVideo = fname.toLowerCase().endsWith('.mp4') || fname.toLowerCase().endsWith('.mov')
 
+    const matched = libraryItems.find(c => c.filename === fname || c.name === fname || c.code === fname)
+    const mediaUrl = matched?.fileUrl || (fname.startsWith('http') ? fname : '')
+    const mediaDims = matched?.dimensions || '1080x1080'
+
     if (setAds[uploadModal.adIndex]) {
       setAds[uploadModal.adIndex] = {
         ...setAds[uploadModal.adIndex],
         creativeName: fname,
+        creativeUrl: mediaUrl || setAds[uploadModal.adIndex]?.creativeUrl || '',
+        dimensions: mediaDims,
         format: isVideo ? 'VIDEO' : 'IMAGE',
         creativeVersion: 'V1 • Current',
         updatedAt: new Date().toISOString()
@@ -2726,25 +2799,79 @@ function AdSetsManager({
 
                         {/* Creative Media Preview */}
                         <td className="py-3 px-3">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 text-gray-400">
-                              {isVideo ? (
-                                <Film size={18} className="text-purple-600" />
-                              ) : (
-                                <ImageIcon size={18} className="text-blue-600" />
-                              )}
-                            </div>
-                            <div className="min-w-0 truncate max-w-[130px]">
-                              <div className="font-semibold text-gray-800 text-xs truncate" title={ad.creativeName}>
-                                {ad.creativeName || 'ยังไม่ได้ผูกไฟล์'}
+                          {(() => {
+                            const mediaUrl = getAdMediaUrl(ad)
+                            return (
+                              <div className="flex items-center gap-2.5">
+                                <div
+                                  onClick={(e) => {
+                                    if (mediaUrl) {
+                                      e.stopPropagation()
+                                      setPreviewModal({ isOpen: true, ad })
+                                    }
+                                  }}
+                                  className={`w-11 h-11 rounded-xl border border-gray-200 overflow-hidden shrink-0 relative group shadow-2xs transition-all ${mediaUrl ? 'cursor-pointer hover:ring-2 hover:ring-red-400 hover:shadow-md' : 'bg-gray-100'
+                                    }`}
+                                  title={mediaUrl ? 'คลิกเพื่อดูตัวอย่างโฆษณา (Preview)' : 'ยังไม่ได้ผูกไฟล์สื่อ'}
+                                >
+                                  {mediaUrl ? (
+                                    isVideo ? (
+                                      <div className="relative w-full h-full bg-slate-900 flex items-center justify-center">
+                                        <video
+                                          src={mediaUrl}
+                                          className="w-full h-full object-cover pointer-events-none"
+                                          muted
+                                          playsInline
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
+                                          <Play size={14} className="text-white fill-white drop-shadow" />
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
+                                        <img
+                                          src={mediaUrl}
+                                          alt={ad.creativeName || 'creative thumbnail'}
+                                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
+                                          onError={(e: any) => {
+                                            e.currentTarget.style.display = 'none'
+                                            const fb = e.currentTarget.parentElement?.nextElementSibling
+                                            if (fb) (fb as HTMLElement).style.display = 'flex'
+                                          }}
+                                        />
+                                      </div>
+                                    )
+                                  ) : null}
+
+                                  {/* Fallback Icon */}
+                                  <div
+                                    className={`w-full h-full items-center justify-center ${mediaUrl ? 'hidden' : 'flex'
+                                      } ${isVideo ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}
+                                  >
+                                    {isVideo ? <Film size={18} /> : <ImageIcon size={18} />}
+                                  </div>
+
+                                  {/* Hover eye icon overlay */}
+                                  {mediaUrl && (
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                      <Eye size={14} className="drop-shadow" />
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="min-w-0 truncate max-w-[130px]">
+                                  <div className="font-semibold text-gray-800 text-xs truncate" title={ad.creativeName}>
+                                    {ad.creativeName || 'ยังไม่ได้ผูกไฟล์'}
+                                  </div>
+                                  <div className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                    <span>{ad.dimensions || '1080x1080'}</span>
+                                    <span>•</span>
+                                    <span className="text-emerald-700 font-bold">{ad.creativeVersion || 'V1'}</span>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                                <span>{ad.dimensions || '1080x1080'}</span>
-                                <span>•</span>
-                                <span className="text-emerald-700 font-bold">{ad.creativeVersion || 'V1'}</span>
-                              </div>
-                            </div>
-                          </div>
+                            )
+                          })()}
                         </td>
 
                         {/* Name, Code & Format */}
@@ -3082,6 +3209,56 @@ function AdSetsManager({
                 </div>
               </div>
 
+              {/* Creative Media Preview Card in Modal */}
+              {(() => {
+                const modalMediaUrl = adModal.data.creativeUrl || libraryItems.find(c =>
+                  c.filename === adModal.data.creativeName ||
+                  c.name === adModal.data.creativeName ||
+                  c.code === adModal.data.creativeName
+                )?.fileUrl
+                const isModalVid = adModal.data.format === 'VIDEO' || adModal.data.creativeName?.toLowerCase().endsWith('.mp4')
+
+                return (
+                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-lg bg-slate-900 border border-gray-200 overflow-hidden shrink-0 flex items-center justify-center text-white relative shadow-2xs">
+                      {modalMediaUrl ? (
+                        isModalVid ? (
+                          <div className="relative w-full h-full">
+                            <video src={modalMediaUrl} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                              <Play size={14} className="fill-white text-white" />
+                            </div>
+                          </div>
+                        ) : (
+                          <img
+                            src={modalMediaUrl}
+                            alt="selected creative"
+                            className="w-full h-full object-cover"
+                          />
+                        )
+                      ) : (
+                        <ImageIcon size={22} className="text-gray-400" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold text-gray-800 truncate" title={adModal.data.creativeName}>
+                        {adModal.data.creativeName || 'ยังไม่ได้เลือกไฟล์สื่อ'}
+                      </div>
+                      <div className="text-[10px] text-gray-500 font-mono mt-0.5">
+                        {adModal.data.dimensions || '1080x1080'} • {adModal.data.creativeVersion || 'V1 • Current'}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setLibraryPickerModal({ isOpen: true, targetAdIndex: null, isForAdModal: true })}
+                        className="mt-1 text-[11px] font-bold text-red-600 hover:text-red-700 flex items-center gap-1"
+                      >
+                        <FolderOpen size={12} /> {modalMediaUrl ? 'เปลี่ยนชิ้นงานจากคลังสื่อ' : 'เลือกจากคลังสื่อโฆษณา'}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })()}
+
               <div>
                 <label className="block font-bold text-gray-600 mb-1">สถานะชิ้นงาน (Status)</label>
                 <select
@@ -3155,28 +3332,76 @@ function AdSetsManager({
               </p>
 
               {/* Media box */}
-              <div className="aspect-square bg-gradient-to-tr from-slate-900 to-slate-700 rounded-xl relative overflow-hidden flex flex-col items-center justify-center text-white p-4 shadow-inner">
-                {previewModal.ad.format === 'VIDEO' ? (
-                  <>
-                    <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mb-2">
-                      <Play size={24} className="text-white ml-1" />
+              {(() => {
+                const previewMediaUrl = getAdMediaUrl(previewModal.ad)
+                const isPreviewVideo = previewModal.ad.format === 'VIDEO' || previewModal.ad.creativeName?.toLowerCase().endsWith('.mp4')
+
+                return (
+                  <div className="aspect-square bg-slate-950 rounded-xl relative overflow-hidden flex flex-col items-center justify-center text-white shadow-inner group">
+                    {previewMediaUrl ? (
+                      isPreviewVideo ? (
+                        <video
+                          src={previewMediaUrl}
+                          controls
+                          autoPlay
+                          playsInline
+                          className="w-full h-full object-contain bg-black"
+                        />
+                      ) : (
+                        <img
+                          src={previewMediaUrl}
+                          alt={previewModal.ad.creativeName || 'Creative'}
+                          className="w-full h-full object-contain bg-black/90"
+                          onError={(e: any) => {
+                            e.currentTarget.style.display = 'none'
+                            const fb = e.currentTarget.parentElement?.querySelector('.preview-fallback')
+                            if (fb) (fb as HTMLElement).style.display = 'flex'
+                          }}
+                        />
+                      )
+                    ) : null}
+
+                    {/* Fallback placeholder if no media or failed to load */}
+                    <div
+                      className={`preview-fallback w-full h-full flex flex-col items-center justify-center p-4 ${previewMediaUrl ? 'hidden' : 'flex'
+                        }`}
+                    >
+                      {isPreviewVideo ? (
+                        <>
+                          <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mb-2">
+                            <Play size={24} className="text-white ml-1" />
+                          </div>
+                          <div className="text-xs font-mono text-gray-200 text-center px-4">
+                            {previewModal.ad.creativeName || 'Sample_Video.mp4'}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon size={48} className="text-white/40 mb-2" />
+                          <div className="text-xs font-mono text-gray-200 text-center px-4">
+                            {previewModal.ad.creativeName || 'Sample_KV.jpg'}
+                          </div>
+                        </>
+                      )}
                     </div>
-                    <div className="text-xs font-mono text-gray-200">
-                      {previewModal.ad.creativeName || 'Sample_Video.mp4'}
+
+                    <div className="absolute bottom-2 right-2 text-[10px] font-mono bg-black/70 px-2 py-0.5 rounded text-white/90 backdrop-blur-xs">
+                      {previewModal.ad.dimensions || '1080x1080'}
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <ImageIcon size={48} className="text-white/40 mb-2" />
-                    <div className="text-xs font-mono text-gray-200">
-                      {previewModal.ad.creativeName || 'Sample_KV.jpg'}
-                    </div>
-                  </>
-                )}
-                <div className="absolute bottom-2 right-2 text-[10px] font-mono bg-black/60 px-2 py-0.5 rounded text-white/80">
-                  {previewModal.ad.dimensions || '1080x1080'}
-                </div>
-              </div>
+
+                    {previewMediaUrl && !isPreviewVideo && (
+                      <a
+                        href={previewMediaUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white text-[10px] font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 backdrop-blur-xs"
+                      >
+                        <ExternalLink size={11} /> ดูภาพขนาดเต็ม
+                      </a>
+                    )}
+                  </div>
+                )
+              })()}
 
               {/* Bottom bar with headline and CTA */}
               <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between gap-2">
@@ -3306,22 +3531,27 @@ function AdSetsManager({
               <select
                 value={pickerProduct}
                 onChange={e => setPickerProduct(e.target.value)}
-                className="text-xs py-1.5 px-3 bg-gray-50 border border-gray-200 rounded-xl outline-none w-full sm:w-auto"
+                className="text-xs py-1.5 px-3 bg-gray-50 border border-gray-200 rounded-xl outline-none w-full sm:w-auto font-medium"
               >
-                <option value="All">ทุกกลุ่มสินค้า (All Products)</option>
-                <option value="Solar Pump">Solar Pump</option>
-                <option value="Solar Rooftop">Solar Rooftop</option>
-                <option value="Inverter / VSD">Inverter / VSD</option>
-                <option value="Battery Storage">Battery Storage</option>
+                <option value="All">ทุกประเภทสินค้า (All Categories)</option>
+                {PRODUCT_CATEGORIES.map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
               </select>
             </div>
 
             {/* Assets Grid */}
             <div className="p-4 overflow-y-auto flex-1 custom-scrollbar">
-              {libraryItems.length === 0 ? (
+              {isPickerLoading ? (
                 <div className="py-16 text-center text-gray-400">
                   <RefreshCw size={24} className="mx-auto mb-2 animate-spin text-red-500" />
                   <p className="text-xs">กำลังโหลดคลังสื่อโฆษณา...</p>
+                </div>
+              ) : libraryItems.length === 0 ? (
+                <div className="py-16 text-center text-gray-400 space-y-2">
+                  <ImageIcon size={32} className="mx-auto text-gray-300" />
+                  <p className="text-xs font-bold text-gray-600">ยังไม่มีสื่อโฆษณาในคลัง</p>
+                  <p className="text-[11px] text-gray-400">กรุณาไปที่คลังสื่อ (Creative Library) เพื่ออัปโหลดไฟล์ใหม่</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
@@ -3436,7 +3666,7 @@ function CreativeLibraryView({
   const [isLoading, setIsLoading] = useState(true)
 
   // Filters & State
-  const [selectedId, setSelectedId] = useState<string>('cr_001')
+  const [selectedId, setSelectedId] = useState<string>('')
   const [search, setSearch] = useState('')
   const [filterProduct, setFilterProduct] = useState('All Products')
   const [filterFileType, setFilterFileType] = useState('All File Types')
@@ -3451,6 +3681,12 @@ function CreativeLibraryView({
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [versionModalOpen, setVersionModalOpen] = useState(false)
   const [previewModalOpen, setPreviewModalOpen] = useState(false)
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean
+    creative?: CreativeItem | null
+    isAll?: boolean
+  }>({ isOpen: false })
+  const [isDeleting, setIsDeleting] = useState(false)
   const [previewData, setPreviewData] = useState<{
     url: string
     title: string
@@ -3487,8 +3723,10 @@ function CreativeLibraryView({
       if (res.success && res.creatives) {
         setCreatives(res.creatives)
         if (res.adUsageMap) setAdUsageMap(res.adUsageMap)
-        if (res.creatives.length > 0 && !selectedId) {
-          setSelectedId(res.creatives[0].id)
+        if (res.creatives.length > 0) {
+          setSelectedId(prev => (prev && res.creatives.some(c => c.id === prev) ? prev : res.creatives[0].id))
+        } else {
+          setSelectedId('')
         }
       }
     } catch (e: any) {
@@ -3512,6 +3750,7 @@ function CreativeLibraryView({
 
   // Currently selected creative item
   const selectedCreative = useMemo(() => {
+    if (!creatives || creatives.length === 0) return null
     return creatives.find(c => c.id === selectedId) || creatives[0] || null
   }, [creatives, selectedId])
 
@@ -3690,6 +3929,44 @@ function CreativeLibraryView({
     }
   }
 
+  // Delete Creative handler
+  const handleDeleteCreative = async (cr: CreativeItem) => {
+    setIsDeleting(true)
+    try {
+      const res = await deleteCreativeRecord(cr.id)
+      if (res.success) {
+        setCreatives(prev => prev.filter(c => c.id !== cr.id))
+        if (selectedId === cr.id) {
+          setSelectedId('')
+        }
+        setToast({ text: `ลบสื่อโฆษณา ${cr.code} สำเร็จแล้ว`, type: 'success' })
+        setDeleteModal({ isOpen: false })
+      }
+    } catch (err: any) {
+      setToast({ text: `เกิดข้อผิดพลาดในการลบ: ${err.message}`, type: 'error' })
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  // Delete All Creatives handler
+  const handleDeleteAllCreatives = async () => {
+    setIsDeleting(true)
+    try {
+      const res = await deleteAllCreatives()
+      if (res.success) {
+        setCreatives([])
+        setSelectedId('')
+        setToast({ text: 'ลบข้อมูลสื่อโฆษณาทั้งหมดในคลังเรียบร้อยแล้ว', type: 'success' })
+        setDeleteModal({ isOpen: false })
+      }
+    } catch (err: any) {
+      setToast({ text: `เกิดข้อผิดพลาดในการลบ: ${err.message}`, type: 'error' })
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   // Download handler
   const handleDownloadFile = (url: string, filename: string) => {
     const a = document.createElement('a')
@@ -3802,6 +4079,17 @@ function CreativeLibraryView({
             <Archive size={14} className={manageArchivedMode ? 'text-white' : 'text-gray-500'} />
             {manageArchivedMode ? 'ออกจากโหมดไฟล์เก็บถาวร' : 'จัดการไฟล์ที่เก็บถาวร'}
           </button>
+
+          {creatives.length > 0 && (
+            <button
+              onClick={() => setDeleteModal({ isOpen: true, isAll: true })}
+              className="h-9.5 px-3.5 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 whitespace-nowrap"
+              title="ลบข้อมูลสื่อทั้งหมดในคลัง"
+            >
+              <Trash2 size={14} />
+              ลบทั้งหมด
+            </button>
+          )}
         </div>
       </div>
 
@@ -3891,11 +4179,10 @@ function CreativeLibraryView({
             }}
             className="h-8.5 text-xs px-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-gray-700 font-medium shrink-0"
           >
-            <option value="All Products">กลุ่มสินค้าทั้งหมด (All Products)</option>
-            <option value="Solar Pump">ปั๊มน้ำโซล่าเซลล์ (Solar Pump)</option>
-            <option value="Solar Rooftop">โซล่ารูฟท็อป (Solar Rooftop)</option>
-            <option value="Inverter / VSD">อินเวอร์เตอร์ / VSD</option>
-            <option value="Battery Storage">แบตเตอรี่กักเก็บพลังงาน (Battery Storage)</option>
+            <option value="All Products">ทุกประเภทสินค้า (All Categories)</option>
+            {PRODUCT_CATEGORIES.map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
           </select>
 
           {/* File Types */}
@@ -3989,10 +4276,25 @@ function CreativeLibraryView({
           </div>
 
           {filteredCreatives.length === 0 ? (
-            <div className="py-20 text-center text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl space-y-2">
-              <ImageIcon size={36} className="mx-auto text-gray-300" />
-              <p className="text-xs font-bold">ไม่พบชิ้นงานที่ตรงกับเงื่อนไขการค้นหา</p>
-              <p className="text-[11px] text-gray-400">ลองล้างตัวกรองหรืออัปโหลดชิ้นงานใหม่</p>
+            <div className="py-20 text-center text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto text-gray-300">
+                <ImageIcon size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-700">ไม่มีสื่อโฆษณาในคลัง</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">
+                  {creatives.length === 0
+                    ? 'คลังสื่อโฆษณาว่างเปล่า คุณสามารถเริ่มต้นอัปโหลดภาพหรือวิดีโอได้ทันที'
+                    : 'ไม่พบชิ้นงานที่ตรงกับเงื่อนไขการค้นหา'}
+                </p>
+              </div>
+              <button
+                onClick={() => setUploadModalOpen(true)}
+                className="h-8 px-3.5 bg-[#ff2301] hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5"
+              >
+                <Plus size={13} />
+                + อัปโหลดสื่อใหม่
+              </button>
             </div>
           ) : viewMode === 'grid' ? (
             /* 3-Column Grid for Assets matching screenshot */
@@ -4091,10 +4393,20 @@ function CreativeLibraryView({
                                 handleToggleArchive(cr)
                                 setActiveMenuId(null)
                               }}
-                              className="w-full px-3 py-1.5 text-left hover:bg-red-50 flex items-center gap-2 text-red-600 border-t border-gray-100 mt-1 pt-1"
+                              className="w-full px-3 py-1.5 text-left hover:bg-gray-50 flex items-center gap-2 text-gray-700 border-t border-gray-100 mt-1 pt-1"
                             >
                               <Archive size={13} />
                               {cr.status === 'Archived' ? 'กู้คืน (Restore)' : 'เก็บถาวร (Archive)'}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setActiveMenuId(null)
+                                setDeleteModal({ isOpen: true, creative: cr, isAll: false })
+                              }}
+                              className="w-full px-3 py-1.5 text-left hover:bg-red-50 flex items-center gap-2 text-red-600"
+                            >
+                              <Trash2 size={13} />
+                              ลบชิ้นงาน (Delete)
                             </button>
                           </div>
                         )}
@@ -4242,6 +4554,16 @@ function CreativeLibraryView({
                           >
                             <Eye size={13} />
                           </button>
+                          <button
+                            onClick={e => {
+                              e.stopPropagation()
+                              setDeleteModal({ isOpen: true, creative: cr, isAll: false })
+                            }}
+                            className="p-1 text-gray-400 hover:text-red-600 rounded ml-1"
+                            title="ลบชิ้นงาน (Delete)"
+                          >
+                            <Trash2 size={13} />
+                          </button>
                         </td>
                       </tr>
                     )
@@ -4296,10 +4618,20 @@ function CreativeLibraryView({
 
         {/* RIGHT PANEL: CREATIVE DETAILS (col-span-5) */}
         <div className="lg:col-span-5 bg-white border border-gray-200 rounded-2xl p-5 shadow-xs space-y-5">
-          <div className="pb-1 border-b border-gray-100">
+          <div className="pb-1 border-b border-gray-100 flex items-center justify-between">
             <h3 className="text-xs font-black text-gray-800 uppercase tracking-wider">
               รายละเอียดสื่อโฆษณา (CREATIVE DETAILS)
             </h3>
+            {selectedCreative && (
+              <button
+                onClick={() => setDeleteModal({ isOpen: true, creative: selectedCreative, isAll: false })}
+                className="text-red-500 hover:text-red-700 px-2 py-0.5 hover:bg-red-50 rounded-lg text-xs flex items-center gap-1 transition-colors font-bold"
+                title="ลบสื่อโฆษณานี้"
+              >
+                <Trash2 size={12} />
+                <span>ลบสื่อนี้</span>
+              </button>
+            )}
           </div>
 
           {selectedCreative ? (
@@ -4608,8 +4940,27 @@ function CreativeLibraryView({
               </div>
             </div>
           ) : (
-            <div className="py-20 text-center text-gray-400">
-              กรุณาเลือกชิ้นงานจากแกลเลอรีสื่อด้านซ้าย
+            <div className="py-24 text-center text-gray-400 space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto text-gray-300">
+                <ImageIcon size={24} />
+              </div>
+              <p className="text-xs font-bold text-gray-600">
+                {creatives.length === 0 ? 'ยังไม่มีสื่อโฆษณาในคลัง' : 'กรุณาเลือกชิ้นงานจากแกลเลอรีสื่อด้านซ้าย'}
+              </p>
+              <p className="text-[11px] text-gray-400 max-w-xs mx-auto">
+                {creatives.length === 0
+                  ? 'อัปโหลดรูปภาพหรือวิดีโอเพื่อเริ่มต้นจัดเก็บและนำไปผูกกับชุดโฆษณา'
+                  : 'คลิกเลือกการ์ดสื่อเพื่อดูรายละเอียด ไฟล์ต้นฉบับ และประวัติเวอร์ชั่น'}
+              </p>
+              {creatives.length === 0 && (
+                <button
+                  onClick={() => setUploadModalOpen(true)}
+                  className="mt-2 h-8.5 px-3.5 bg-[#ff2301] hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  + อัปโหลดสื่อชิ้นแรก
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -4720,16 +5071,15 @@ function CreativeLibraryView({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">กลุ่มสินค้า (Product Category)</label>
+                  <label className="block font-bold text-gray-700 mb-1">ประเภทสินค้า (Product Category)</label>
                   <select
                     value={uploadProduct}
                     onChange={e => setUploadProduct(e.target.value)}
-                    className="w-full h-9.5 px-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full h-9.5 px-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-red-500 font-medium"
                   >
-                    <option value="Solar Pump">ปั๊มน้ำโซล่าเซลล์ (Solar Pump)</option>
-                    <option value="Solar Rooftop">โซล่ารูฟท็อป (Solar Rooftop)</option>
-                    <option value="Inverter / VSD">อินเวอร์เตอร์ / VSD</option>
-                    <option value="Battery Storage">แบตเตอรี่กักเก็บพลังงาน (Battery Storage)</option>
+                    {PRODUCT_CATEGORIES.map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -4933,6 +5283,53 @@ function CreativeLibraryView({
                 className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold"
               >
                 ปิดหน้าต่างตัวอย่าง
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: DELETE CONFIRMATION */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-gray-100 p-6 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 mx-auto">
+              <Trash2 size={24} />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="font-black text-gray-900 text-base">
+                {deleteModal.isAll ? 'ยืนยันลบสื่อทั้งหมดในคลัง?' : `ยืนยันลบสื่อ ${deleteModal.creative?.code}?`}
+              </h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                {deleteModal.isAll
+                  ? 'การดำเนินการนี้จะลบสื่อโฆษณาทั้งหมดในคลังอย่างถาวร และไม่สามารถกู้คืนได้'
+                  : `คุณต้องการลบชิ้นงาน "${deleteModal.creative?.name}" (${deleteModal.creative?.filename}) ใช่หรือไม่?`}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeleteModal({ isOpen: false })}
+                className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => {
+                  if (deleteModal.isAll) {
+                    handleDeleteAllCreatives()
+                  } else if (deleteModal.creative) {
+                    handleDeleteCreative(deleteModal.creative)
+                  }
+                }}
+                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isDeleting ? <RefreshCw size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                {isDeleting ? 'กำลังลบ...' : deleteModal.isAll ? 'ยืนยันลบทั้งหมด' : 'ยืนยันการลบ'}
               </button>
             </div>
           </div>

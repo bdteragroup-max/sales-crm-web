@@ -11,6 +11,9 @@ export async function createMarketingLead(data: {
   productType?: string
   conversationContent?: string
   createdByUserId: string
+  leadSource?: string | null
+  campaignSource?: string | null
+  adCampaignId?: string | null
 }) {
   try {
     const lead = await (prisma as any).marketingLead.create({
@@ -21,6 +24,9 @@ export async function createMarketingLead(data: {
         productType: data.productType,
         conversationContent: data.conversationContent,
         createdByUserId: data.createdByUserId,
+        leadSource: data.leadSource || null,
+        campaignSource: data.campaignSource || null,
+        adCampaignId: data.adCampaignId || null,
       }
     })
     revalidatePath('/marketing')
@@ -54,6 +60,21 @@ export async function getMarketingLeads() {
         assignedTo: {
           select: {
             fullName: true,
+          }
+        },
+        adCampaign: {
+          select: {
+            id: true,
+            name: true,
+            internalCode: true,
+            campaignId: true,
+            targetAudience: true,
+            channel: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
           }
         }
       }
@@ -104,6 +125,21 @@ export async function getAssignedLeads(userId: string) {
           select: {
             fullName: true,
           }
+        },
+        adCampaign: {
+          select: {
+            id: true,
+            name: true,
+            internalCode: true,
+            campaignId: true,
+            targetAudience: true,
+            channel: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
+          }
         }
       }
     })
@@ -149,6 +185,21 @@ export async function getMarketingLeadById(id: string) {
           select: {
             fullName: true,
           }
+        },
+        adCampaign: {
+          select: {
+            id: true,
+            name: true,
+            internalCode: true,
+            campaignId: true,
+            targetAudience: true,
+            channel: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
+          }
         }
       }
     })
@@ -190,6 +241,9 @@ export async function updateMarketingLead(id: string, data: {
   productType?: string
   conversationContent?: string
   assignedToId?: string | null
+  leadSource?: string | null
+  campaignSource?: string | null
+  adCampaignId?: string | null
 }) {
   try {
     const lead = await (prisma as any).marketingLead.update({

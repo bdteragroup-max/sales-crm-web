@@ -1,0 +1,32 @@
+[
+  {
+    "id": "cr_1788756143610",
+    "code": "CR-VSD-001",
+    "name": "244c39d2-3039-42d9-8fbb-c0fb6085ed61",
+    "filename": "244c39d2-3039-42d9-8fbb-c0fb6085ed61.jpg",
+    "fileType": "JPG Image",
+    "fileSize": "0.2 MB",
+    "fileUrl": "https://uvbnlqwcdzlygykbhwhv.supabase.co/storage/v1/object/public/uploadsService/creatives/1788756141992_g7dpl_244c39d2-3039-42d9-8fbb-c0fb6085ed61.jpg",
+    "thumbnailUrl": "https://uvbnlqwcdzlygykbhwhv.supabase.co/storage/v1/object/public/uploadsService/creatives/1788756141992_g7dpl_244c39d2-3039-42d9-8fbb-c0fb6085ed61.jpg",
+    "dimensions": "1080 x 1080 px",
+    "product": "Inverter / VSD",
+    "version": "V1 • Current",
+    "isPrimary": true,
+    "status": "Active",
+    "uploadedBy": "นางสาวสุภกาญจน์ กลิ่นทิพย์",
+    "uploadedAt": "2026-09-07T04:42:23.610Z",
+    "createdAt": "2026-09-07T04:42:23.610Z",
+    "updatedAt": "2026-09-07T04:42:23.610Z",
+    "archivedAt": null,
+    "versionHistory": [
+      {
+        "version": "V1 • Current",
+        "updatedAt": "7 Sept 2026",
+        "fileSize": "0.2 MB",
+        "fileUrl": "https://uvbnlqwcdzlygykbhwhv.supabase.co/storage/v1/object/public/uploadsService/creatives/1788756141992_g7dpl_244c39d2-3039-42d9-8fbb-c0fb6085ed61.jpg",
+        "filename": "244c39d2-3039-42d9-8fbb-c0fb6085ed61.jpg",
+        "status": "Active"
+      }
+    ]
+  }
+]

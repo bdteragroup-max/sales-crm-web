@@ -188,12 +188,19 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
   // Fetch branch info from the HR system's employees table for each rep
   const empIds = salesReps.map((r: any) => r.employeeId).filter(Boolean);
-  const hrEmployees = await teraDb.employees.findMany({
-    where: { emp_id: { in: empIds } },
-    select: { emp_id: true, branch_id: true }
-  });
+  let hrEmployees: any[] = [];
+  if (empIds.length > 0) {
+    try {
+      hrEmployees = await teraDb.employees.findMany({
+        where: { emp_id: { in: empIds } },
+        select: { emp_id: true, branch_id: true }
+      });
+    } catch (err) {
+      console.warn("Failed to fetch hrEmployees branch info from HR database:", err);
+    }
+  }
 
-  // Inject hrBranch into salesReps
+  // Inject hrBranch into salesReps with fallback to branch or Head Office
   salesReps = salesReps.map((r: any) => {
     const hrEmp = hrEmployees.find((h) => h.emp_id === r.employeeId);
     return {

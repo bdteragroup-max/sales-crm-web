@@ -2,10 +2,52 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Loader2, ArrowLeft, Building2, Package, CheckCircle, Sparkles, MessageSquare } from 'lucide-react';
+import { 
+  Search, 
+  Loader2, 
+  ArrowLeft, 
+  Building2, 
+  Package, 
+  CheckCircle, 
+  Sparkles, 
+  MessageSquare,
+  ShieldCheck,
+  AlertTriangle,
+  FileText,
+  Receipt,
+  Calendar,
+  DollarSign,
+  Info,
+  CheckCircle2,
+  Tag
+} from 'lucide-react';
 import { searchCompanies } from "@/app/actions/sales";
 import Link from 'next/link';
 import { SATISFACTION_SCORE_LEGEND, formatPhoneForTel } from '@/app/lib/satisfactionScore';
+
+const formatDate = (dateStr: string | Date | null | undefined) => {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  } catch {
+    return '-';
+  }
+};
+
+const formatCurrency = (amount: number | null | undefined) => {
+  if (amount === null || amount === undefined || isNaN(amount)) return '-';
+  return new Intl.NumberFormat('th-TH', {
+    style: 'currency',
+    currency: 'THB',
+    maximumFractionDigits: 0
+  }).format(amount);
+};
 
 type CriteriaComments = Partial<Record<
   'scorePrice' | 'scoreQuality' | 'scoreDelivery' | 'scoreSales' | 'scoreSupport' | 'scoreAfterSales',
@@ -20,6 +62,9 @@ export default function NewSatisfactionSurvey() {
   const [year, setYear] = useState(currentYearBE.toString());
   const [method, setMethod] = useState('PHONE');
 
+  // Closed Sales vs All Companies filter
+  const [closedOnlyFilter, setClosedOnlyFilter] = useState(true);
+
   const [search, setSearch] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [companies, setCompanies] = useState<any[]>([]);
@@ -30,7 +75,20 @@ export default function NewSatisfactionSurvey() {
   const [loadingActiveCompanies, setLoadingActiveCompanies] = useState(false);
 
   const [loadingData, setLoadingData] = useState(false);
-  const [salesData, setSalesData] = useState<{ quotations: any[], productSummary: any[] } | null>(null);
+  const [salesData, setSalesData] = useState<{ 
+    quotations: any[];
+    closedQuotations?: any[];
+    openQuotations?: any[];
+    productSummary: any[];
+    isClosedSale?: boolean;
+    latestPoNumber?: string | null;
+    latestInvoiceNumber?: string | null;
+    latestClosedDate?: string | null;
+    latestQuotationNumber?: string | null;
+    closedStatus?: string | null;
+    totalClosedAmount?: number;
+    salespersonName?: string | null;
+  } | null>(null);
 
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -65,7 +123,12 @@ export default function NewSatisfactionSurvey() {
     searchTimeout.current = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const results = await searchCompanies(search, { round, year, method });
+        const results = await searchCompanies(search, { 
+          round, 
+          year, 
+          method, 
+          onlyClosedSales: closedOnlyFilter 
+        });
         setCompanies(results);
       } catch (error) {
         console.error(error);
@@ -73,7 +136,7 @@ export default function NewSatisfactionSurvey() {
         setIsSearching(false);
       }
     }, 500);
-  }, [search, round, year, method]);
+  }, [search, round, year, method, closedOnlyFilter]);
 
   // Fetch active companies based on round, year, and method
   useEffect(() => {
@@ -289,23 +352,65 @@ export default function NewSatisfactionSurvey() {
             <Building2 size={160} className="text-gray-800" />
           </div>
           
-          <h2 className="text-lg font-bold mb-6 flex items-center gap-2 text-gray-800">
-            <Sparkles size={20} className="text-[#ff2301]" />
-            ข้อมูลลูกค้าและบริษัท
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <h2 className="text-lg font-bold flex items-center gap-2 text-gray-800">
+              <Sparkles size={20} className="text-[#ff2301]" />
+              ข้อมูลลูกค้าและบริษัท
+            </h2>
+
+            {/* Filter Toggle: Closed Sales Only vs All */}
+            <div className="inline-flex p-1 bg-gray-100 rounded-2xl border border-gray-200">
+              <button
+                type="button"
+                onClick={() => setClosedOnlyFilter(true)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  closedOnlyFilter 
+                    ? 'bg-emerald-600 text-white shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <ShieldCheck size={14} />
+                <span>เฉพาะลูกค้าที่ปิดการขายแล้ว (Closed Sales)</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  closedOnlyFilter ? 'bg-emerald-700 text-white' : 'bg-gray-200 text-gray-700'
+                }`}>
+                  {activeCompanies.filter(c => c.isClosedSale).length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setClosedOnlyFilter(false)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  !closedOnlyFilter 
+                    ? 'bg-gray-800 text-white shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Building2 size={14} />
+                <span>ทั้งหมด ({activeCompanies.length})</span>
+              </button>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
             {/* Search / Select Company */}
             <div className="space-y-4 lg:col-span-1">
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">เลือกบริษัท</label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">เลือกบริษัท</label>
+                  {closedOnlyFilter && (
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                      <ShieldCheck size={11} /> กรองเฉพาะที่มี PO/เปิดบิล
+                    </span>
+                  )}
+                </div>
                 {loadingActiveCompanies ? (
                   <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-200">
                     <Loader2 size={16} className="animate-spin" /> กำลังโหลดข้อมูล...
                   </div>
                 ) : (
                   <select
-                    className="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#ff2301] outline-none"
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#ff2301] outline-none text-sm font-medium"
                     value={selectedCompany?.id || ""}
                     onChange={(e) => {
                       const compId = e.target.value;
@@ -318,10 +423,18 @@ export default function NewSatisfactionSurvey() {
                       }
                     }}
                   >
-                    <option value="" disabled>-- เลือกบริษัท --</option>
-                    {activeCompanies.map(company => (
+                    <option value="" disabled>-- เลือกบริษัท ({
+                      (closedOnlyFilter ? activeCompanies.filter(c => c.isClosedSale) : activeCompanies).length
+                    } รายการ) --</option>
+                    {(closedOnlyFilter ? activeCompanies.filter(c => c.isClosedSale) : activeCompanies).map(company => (
                       <option key={company.id} value={company.id}>
+                        {company.isClosedSale ? '✓ [ปิดการขาย] ' : ''}
                         {company.companyName}
+                        {company.latestPoNumber 
+                          ? ` (PO: ${company.latestPoNumber})` 
+                          : company.closedStatus 
+                            ? ` (${company.closedStatus})` 
+                            : ''}
                       </option>
                     ))}
                   </select>
@@ -347,7 +460,7 @@ export default function NewSatisfactionSurvey() {
                 </div>
 
                 {companies.length > 0 && !selectedCompany && (
-                  <div className="absolute z-50 w-full mt-2 bg-white text-gray-800 rounded-xl shadow-xl max-h-[250px] overflow-y-auto border border-gray-200">
+                  <div className="absolute z-50 w-full mt-2 bg-white text-gray-800 rounded-xl shadow-xl max-h-[280px] overflow-y-auto border border-gray-200 divide-y divide-gray-100">
                     {companies.map(company => (
                       <div
                         key={company.id}
@@ -356,10 +469,37 @@ export default function NewSatisfactionSurvey() {
                           setSearch(company.companyName);
                           setCompanies([]);
                         }}
-                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
+                        className="p-3 hover:bg-gray-50 cursor-pointer transition-colors"
                       >
-                        <div className="font-bold">{company.companyName}</div>
-                        {company.province && <div className="text-xs text-gray-500">{company.province}</div>}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="font-bold text-sm text-gray-800">
+                            {company.companyName}
+                          </div>
+                          {company.isClosedSale ? (
+                            <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <ShieldCheck size={11} className="text-emerald-600" /> ปิดการขาย
+                            </span>
+                          ) : (
+                            <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                              ยังไม่ปิดการขาย
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                          {company.province && <span>{company.province}</span>}
+                          {company.assignedUser?.fullName && <span>• เซลล์: {company.assignedUser.fullName}</span>}
+                          {company.latestPoNumber && (
+                            <span className="font-mono font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-300 px-1.5 py-0.5 rounded">
+                              PO: {company.latestPoNumber}
+                            </span>
+                          )}
+                          {company.latestInvoiceNumber && !company.latestPoNumber && (
+                            <span className="font-mono text-blue-800 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">
+                              บิล: {company.latestInvoiceNumber}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -378,7 +518,7 @@ export default function NewSatisfactionSurvey() {
                       value={phone}
                       onChange={e => setPhone(e.target.value)}
                       placeholder="กรอกเบอร์โทรศัพท์..."
-                      className="flex-1 bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none"
+                      className="flex-1 bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none font-medium"
                     />
                     {phone && (
                       <a
@@ -401,6 +541,113 @@ export default function NewSatisfactionSurvey() {
                     )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Caller Assurance Banner (แถบยืนยันการรับ PO / สถานะการสั่งซื้อ) */}
+            {selectedCompany && (
+              <div className="lg:col-span-3 pt-4 border-t border-gray-100">
+                {(salesData?.isClosedSale ?? selectedCompany?.isClosedSale) ? (
+                  <div className="rounded-2xl bg-gradient-to-br from-emerald-50/90 to-teal-50/90 border-2 border-emerald-300 p-5 shadow-sm space-y-4">
+                    {/* Top header */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-emerald-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 shrink-0">
+                          <ShieldCheck size={24} />
+                        </div>
+                        <div>
+                          <div className="text-emerald-950 font-black text-base flex items-center gap-2">
+                            <span>ยืนยันสถานะ: ปิดการขายแล้ว (Closed Sale)</span>
+                            <CheckCircle2 size={16} className="text-emerald-600" />
+                          </div>
+                          <div className="text-xs text-emerald-700 font-medium">
+                            ลูกค้ารายนี้มีประวัติการรับ Purchase Order (PO) หรือเปิดบิลเรียบร้อยแล้ว
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-emerald-600 text-white rounded-full text-xs font-bold shadow-sm">
+                          {salesData?.closedStatus || selectedCompany.closedStatus || 'เปิดบิลแล้ว'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Metrics Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {/* PO Number */}
+                      <div className="bg-white/95 p-3 rounded-xl border border-emerald-200 shadow-xs">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-1.5">
+                          <FileText size={13} className="text-emerald-600" />
+                          เลขที่ PO / ใบสั่งซื้อ
+                        </div>
+                        <div className="text-sm font-black font-mono text-emerald-800 mt-1 truncate">
+                          {salesData?.latestPoNumber || selectedCompany.latestPoNumber || 'เปิดบิลตามใบเสนอราคา'}
+                        </div>
+                      </div>
+
+                      {/* Invoice or Quotation Number */}
+                      <div className="bg-white/95 p-3 rounded-xl border border-emerald-200 shadow-xs">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-1.5">
+                          <Receipt size={13} className="text-emerald-600" />
+                          เลขที่ใบกำกับ / ใบเสนอราคา
+                        </div>
+                        <div className="text-sm font-black font-mono text-gray-800 mt-1 truncate">
+                          {salesData?.latestInvoiceNumber || selectedCompany.latestInvoiceNumber || salesData?.latestQuotationNumber || selectedCompany.latestQuotationNumber || '-'}
+                        </div>
+                      </div>
+
+                      {/* Date */}
+                      <div className="bg-white/95 p-3 rounded-xl border border-emerald-200 shadow-xs">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-1.5">
+                          <Calendar size={13} className="text-emerald-600" />
+                          วันที่รับ PO / เปิดบิล
+                        </div>
+                        <div className="text-sm font-bold text-gray-800 mt-1 truncate">
+                          {formatDate(salesData?.latestClosedDate || selectedCompany.latestClosedDate)}
+                        </div>
+                      </div>
+
+                      {/* Total Closed Amount */}
+                      <div className="bg-white/95 p-3 rounded-xl border border-emerald-200 shadow-xs">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-1.5">
+                          <DollarSign size={13} className="text-emerald-600" />
+                          ยอดเงินปิดการขาย
+                        </div>
+                        <div className="text-sm font-black text-emerald-700 mt-1 truncate">
+                          {formatCurrency(salesData?.totalClosedAmount || selectedCompany.actualClosingAmount)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Caller Guidance Tip */}
+                    <div className="bg-emerald-100/70 border border-emerald-200/80 rounded-xl p-3 flex items-start gap-2.5 text-xs text-emerald-900 leading-relaxed">
+                      <Info size={16} className="text-emerald-700 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-bold text-emerald-950">คำแนะนำสำหรับผู้โทรสอบถาม: </strong>
+                        {(salesData?.latestPoNumber || selectedCompany.latestPoNumber) ? (
+                          <span>
+                            ลูกค้ารายนี้มีใบสั่งซื้อทางการ เลขที่ PO: <strong className="font-mono underline text-emerald-950 px-1.5 py-0.5 bg-white/80 rounded border border-emerald-200">{salesData?.latestPoNumber || selectedCompany.latestPoNumber}</strong> สามารถอ้างอิงเลข PO นี้เพื่อให้ลูกค้ามั่นใจว่าเป็นการโทรติดตามความพึงพอใจจากการสั่งซื้อจริง
+                          </span>
+                        ) : (
+                          <span>
+                            ลูกค้ารายนี้เปิดบิลเรียบร้อยแล้ว อ้างอิงใบเสนอราคาเลขที่ <strong className="font-mono text-emerald-950 px-1.5 py-0.5 bg-white/80 rounded border border-emerald-200">{salesData?.latestQuotationNumber || selectedCompany.latestQuotationNumber}</strong> หรือใบกำกับภาษีในการสนทนาได้
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl bg-amber-50 border-2 border-amber-300 p-4 shadow-sm space-y-2">
+                    <div className="flex items-center gap-2.5 text-amber-900 font-bold text-sm">
+                      <AlertTriangle size={18} className="text-amber-600 shrink-0" />
+                      <span>คำเตือนสำหรับผู้โทร: ยังไม่ปิดการขาย (อยู่ระหว่างเสนอราคา / ยังไม่มี PO)</span>
+                    </div>
+                    <p className="text-xs text-amber-800 leading-relaxed pl-7">
+                      ลูกค้ารายนี้ยังไม่มีประวัติการรับ Purchase Order (PO) หรือเปิดบิลในช่วงเวลานี้ (พบเฉพาะใบเสนอราคาที่ยังไม่ปิดการขาย) 
+                      หากโทรประเมินความพึงพอใจ อาจทำให้ลูกค้าสับสน กรุณาตรวจสอบกับพนักงานขายก่อนดำเนินการ
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -484,37 +731,156 @@ export default function NewSatisfactionSurvey() {
 
             {/* Right Column: Context/Sales Data */}
             <div className="xl:col-span-1">
-              <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-200 sticky top-24">
-                <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  <Package className="text-gray-400" size={18} /> 
-                  ข้อมูลประกอบการขาย
-                </h3>
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-200 sticky top-24 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                    <Package className="text-gray-400" size={18} /> 
+                    ข้อมูลประกอบการขาย
+                  </h3>
+                  {salesData && salesData.isClosedSale && (
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                      <ShieldCheck size={12} className="text-emerald-600" />
+                      ปิดการขายแล้ว
+                    </span>
+                  )}
+                </div>
 
                 {loadingData ? (
                   <div className="flex items-center gap-2 text-sm text-gray-500 py-8 justify-center">
                     <Loader2 className="animate-spin text-[#ff2301]" size={16} /> กำลังโหลดข้อมูล...
                   </div>
                 ) : salesData && salesData.quotations.length > 0 ? (
-                  <div className="space-y-4">
-                    <div className="text-sm text-red-700 bg-red-50 border border-red-100 p-3 rounded-xl flex items-start gap-2">
-                      <CheckCircle className="shrink-0 mt-0.5 text-[#ff2301]" size={16} />
-                      <p>พบใบเสนอราคา <strong>{salesData.quotations.length}</strong> รายการ ({salesData.productSummary.length} สินค้า)</p>
-                    </div>
+                  (() => {
+                    const closedQuotes = salesData.closedQuotations || salesData.quotations.filter((q: any) => q.isClosedSale);
+                    const openQuotes = salesData.openQuotations || salesData.quotations.filter((q: any) => !q.isClosedSale);
 
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                      {salesData.productSummary.map((prod, idx) => (
-                        <div key={idx} className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                          <div className="font-bold text-gray-700 text-sm line-clamp-2" title={prod.item}>
-                            {prod.item || 'ไม่ทราบชื่อสินค้า'}
-                          </div>
-                          <div className="mt-2 flex justify-between items-center text-xs">
-                            <span className="text-gray-500 font-mono bg-white px-1.5 py-0.5 rounded border border-gray-200">{prod.quotationNumber}</span>
-                            <span className="font-bold text-[#ff2301]">{prod.jobType}</span>
-                          </div>
+                    return (
+                      <div className="space-y-4">
+                        {/* Summary Header */}
+                        <div className="space-y-1.5">
+                          {closedQuotes.length > 0 ? (
+                            <div className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex items-start gap-2">
+                              <CheckCircle className="shrink-0 mt-0.5 text-emerald-600" size={16} />
+                              <div>
+                                <p>พบรายการปิดการขาย <strong>{closedQuotes.length}</strong> รายการ</p>
+                                <p className="text-[11px] font-normal text-emerald-700 mt-0.5">
+                                  สินค้าสั่งซื้อ {salesData.productSummary.filter((p: any) => p.isClosedSale).length} รายการ
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-xs font-medium text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-start gap-2">
+                              <AlertTriangle className="shrink-0 mt-0.5 text-amber-600" size={16} />
+                              <p>ไม่มีประวัติปิดการขาย (พบใบเสนอราคาค้างท่อ {openQuotes.length} รายการ)</p>
+                            </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  </div>
+
+                        {/* Closed Sales Section */}
+                        {closedQuotes.length > 0 && (
+                          <div className="space-y-2.5">
+                            <div className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                              <ShieldCheck size={14} className="text-emerald-600" />
+                              <span>รายการสั่งซื้อ / PO ที่ปิดการขายแล้ว ({closedQuotes.length})</span>
+                            </div>
+
+                            <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
+                              {closedQuotes.map((q: any, idx: number) => {
+                                const qProducts = salesData.productSummary.filter((p: any) => p.quotationNumber === q.quotationNumber);
+                                return (
+                                  <div key={idx} className="bg-emerald-50/40 border border-emerald-200/90 rounded-2xl p-3.5 space-y-2 transition-all">
+                                    {/* PO Header Badge */}
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex flex-col">
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-xs font-mono font-black text-emerald-900 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-lg">
+                                            {q.poNumber ? `PO: ${q.poNumber}` : 'เปิดบิลแล้ว'}
+                                          </span>
+                                          <span className="text-[11px] font-bold px-1.5 py-0.5 rounded bg-emerald-600 text-white">
+                                            {q.status}
+                                          </span>
+                                        </div>
+                                        {q.invoiceNumber && (
+                                          <span className="text-[11px] font-mono text-blue-700 mt-1">
+                                            เลขที่บิล: {q.invoiceNumber}
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      <div className="text-right shrink-0">
+                                        <div className="text-xs font-black text-emerald-800">
+                                          {formatCurrency(q.actualClosingAmount ?? q.totalAmountBeforeVat)}
+                                        </div>
+                                        <div className="text-[10px] text-gray-500">
+                                          {formatDate(q.billingDate || q.poDate || q.quotationDate)}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Quotation No */}
+                                    <div className="text-[11px] text-gray-500 font-mono flex items-center gap-1">
+                                      <FileText size={11} className="text-gray-400" />
+                                      <span>อ้างอิง: {q.quotationNumber}</span>
+                                    </div>
+
+                                    {/* Items */}
+                                    <div className="space-y-1.5 pt-1 border-t border-emerald-100">
+                                      {qProducts.map((prod: any, pIdx: number) => (
+                                        <div key={pIdx} className="bg-white p-2 rounded-xl border border-emerald-100/80 text-xs">
+                                          <div className="font-bold text-gray-800 line-clamp-2">
+                                            {prod.item || 'ไม่ทราบชื่อสินค้า'}
+                                          </div>
+                                          {prod.jobType && prod.jobType !== 'N/A' && (
+                                            <div className="mt-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded w-fit">
+                                              {prod.jobType}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Open Quotations Section (If any) */}
+                        {openQuotes.length > 0 && (
+                          <div className="space-y-2 pt-2 border-t border-gray-100">
+                            <div className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                              <FileText size={13} className="text-amber-500" />
+                              <span>ใบเสนอราคาอื่นๆ ที่ยังไม่ปิดการขาย ({openQuotes.length})</span>
+                            </div>
+
+                            <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                              {openQuotes.map((q: any, idx: number) => {
+                                const qProducts = salesData.productSummary.filter((p: any) => p.quotationNumber === q.quotationNumber);
+                                return (
+                                  <div key={idx} className="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-1 text-xs">
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-mono font-bold text-gray-700">{q.quotationNumber}</span>
+                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                                        {q.status || 'เสนอราคา'}
+                                      </span>
+                                    </div>
+                                    <div className="text-[11px] text-gray-500">
+                                      {formatDate(q.quotationDate)} • {formatCurrency(q.totalAmountBeforeVat)}
+                                    </div>
+                                    {qProducts.length > 0 && (
+                                      <div className="text-[11px] text-gray-600 line-clamp-1 pt-1 border-t border-gray-200/60">
+                                        {qProducts.map(p => p.item).join(', ')}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()
                 ) : (
                   <div className="text-center py-8">
                     <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">

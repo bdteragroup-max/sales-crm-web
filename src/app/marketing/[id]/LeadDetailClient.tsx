@@ -2,8 +2,10 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { forwardLeadToSales } from '@/app/actions/marketing'
-import { ArrowLeft, UserSquare, Calendar, Phone, Package, FileText, Send, AlertTriangle, Loader2, CheckCircle2, Search } from 'lucide-react'
+import { ArrowLeft, UserSquare, Calendar, Phone, Package, FileText, Send, AlertTriangle, Loader2, CheckCircle2, Search, Edit3, Radio, Megaphone, Layers } from 'lucide-react'
+import { parseLeadAttribution, getChannelBadgeStyle } from '../components/LeadSourceBadge'
 
 export default function LeadDetailClient({ lead, salesReps }: { lead: any, salesReps: any[] }) {
   const router = useRouter()
@@ -11,6 +13,13 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any, sales
   const [isForwarding, setIsForwarding] = useState(false)
   const [error, setError] = useState('')
   
+  // Attribution info
+  const { channel, campaignName, campaignCode, adSetName, adSetCode } = parseLeadAttribution(lead)
+  const channelStyle = getChannelBadgeStyle(channel)
+  const formattedAdSet = adSetCode && adSetName && adSetCode !== adSetName 
+    ? `${adSetCode} • ${adSetName}` 
+    : (adSetCode || adSetName)
+
   // Combobox state
   const [searchRepQuery, setSearchRepQuery] = useState('')
   const [showRepDropdown, setShowRepDropdown] = useState(false)
@@ -51,12 +60,20 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any, sales
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <button
-          onClick={() => router.push('/marketing')}
-          className="px-4 py-2 rounded-xl text-xs font-black text-gray-500 bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2 uppercase tracking-widest"
-        >
-          <ArrowLeft size={14} /> กลับหน้ารวม
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push('/marketing')}
+            className="px-4 py-2 rounded-xl text-xs font-black text-gray-500 bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2 uppercase tracking-widest"
+          >
+            <ArrowLeft size={14} /> กลับหน้ารวม
+          </button>
+          <Link
+            href={`/marketing/${lead.id}/edit`}
+            className="px-4 py-2 rounded-xl text-xs font-black text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-1.5 shadow-xs uppercase tracking-widest"
+          >
+            <Edit3 size={13} /> แก้ไขข้อมูล
+          </Link>
+        </div>
 
         {lead.isForwarded && (
           <div className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-black flex items-center gap-2 border border-emerald-100 shadow-sm">
@@ -101,6 +118,49 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any, sales
                     <Phone size={14} className="text-gray-400" />
                     {lead.phoneNumber || '-'}
                   </p>
+                </div>
+              </div>
+
+              {/* Attribution Section */}
+              <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <Radio size={13} className="text-brand-red" /> ช่องทางและที่มาของ Lead (Attribution)
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-400 block mb-1">ช่องทาง (Channel)</span>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${channelStyle.bg}`}>
+                      {channelStyle.icon}
+                      {channelStyle.label}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-400 block mb-1">แคมเปญโฆษณา (Campaign)</span>
+                    {campaignName || campaignCode ? (
+                      <span className="text-xs font-bold text-gray-800 flex items-center gap-1 truncate" title={campaignName || ''}>
+                        <Megaphone size={12} className="text-gray-400 shrink-0" />
+                        <span className="truncate">{campaignCode ? `${campaignCode} • ` : ''}{campaignName || '-'}</span>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400 font-medium">-</span>
+                    )}
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-400 block mb-1">ชุดโฆษณา (Ad Set)</span>
+                    {formattedAdSet ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white text-slate-800 border border-slate-200 text-xs font-bold shadow-xs truncate max-w-full" title={formattedAdSet}>
+                        <Layers size={11} className="text-brand-red shrink-0" />
+                        <span className="truncate">{formattedAdSet}</span>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400 font-medium">-</span>
+                    )}
+                  </div>
                 </div>
               </div>
 

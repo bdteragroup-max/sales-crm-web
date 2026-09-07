@@ -66,12 +66,12 @@ export default function AdsCharts({ data }: { data: DashboardData }) {
   
   const funnelAllNull = funnelData.every(item => item.value === null)
   
-  const cplData = spendByChannel.map(c => ({
+  const cplData = spendByChannel.map((c: any) => ({
     name: c.channel,
     cpl: c.leads > 0 ? c.spend / c.leads : 0,
     leads: c.leads
   }))
-  const cplAllNull = cplData.every(c => c.leads === null || isNaN(c.leads))
+  const cplAllNull = cplData.every((c: any) => c.leads === null || isNaN(c.leads))
 
   return (
     <div className="space-y-6 mb-8">
@@ -91,12 +91,12 @@ export default function AdsCharts({ data }: { data: DashboardData }) {
                   <Tooltip content={<CustomTooltip />} />
                   <Legend verticalAlign="top" height={36} />
                   <Bar dataKey="budget" name="งบโฆษณา" fill="#e11d48" barSize={12}>
-                    {spendByChannel.map((entry, index) => (
+                    {spendByChannel.map((entry: any, index: number) => (
                       <Cell key={`budget-${index}`} fill={theme.getChannelColor(entry.channel, index)} opacity={0.6} />
                     ))}
                   </Bar>
                   <Bar dataKey="spend" name="ยอดใช้จ่าย" fill="#111827" barSize={12}>
-                    {spendByChannel.map((entry, index) => (
+                    {spendByChannel.map((entry: any, index: number) => (
                       <Cell key={`spend-${index}`} fill={theme.getChannelColor(entry.channel, index)} />
                     ))}
                   </Bar>
@@ -200,7 +200,7 @@ export default function AdsCharts({ data }: { data: DashboardData }) {
                   <YAxis />
                   <Tooltip cursor={{fill: '#f3f4f6'}} content={<CustomTooltip />} />
                   <Bar dataKey="cpl" name="CPL (฿)" barSize={40}>
-                    {cplData.map((entry, index) => (
+                    {cplData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={theme.getChannelColor(entry.name, index)} />
                     ))}
                   </Bar>
@@ -219,7 +219,7 @@ export default function AdsCharts({ data }: { data: DashboardData }) {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={spendByProduct.sort((a,b)=>b.spend-a.spend).slice(0,5)}
+                    data={spendByProduct.sort((a: any, b: any) => b.spend - a.spend).slice(0, 5)}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -227,10 +227,10 @@ export default function AdsCharts({ data }: { data: DashboardData }) {
                     paddingAngle={2}
                     dataKey="spend"
                     nameKey="product"
-                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                    label={({ name, percent }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                     labelLine={false}
                   >
-                    {spendByProduct.map((entry, index) => (
+                    {spendByProduct.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={theme.getChannelColor(entry.product, index)} />
                     ))}
                   </Pie>

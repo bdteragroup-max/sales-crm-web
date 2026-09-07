@@ -29,10 +29,18 @@ const prismaClientSingleton = () => {
 
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 50, // Increased to prevent slow loading with multi-tabs
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 10000,
+    max: 20, // Prevents exhausting PostgreSQL server connection limits
+    idleTimeoutMillis: 30000, // 30s before dropping idle connection
+    connectionTimeoutMillis: 15000, // 15s to establish connection
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000,
   })
+
+  // Prevent unhandled errors on idle clients from terminating the connection or app
+  pool.on('error', (err) => {
+    console.warn('Unexpected error on idle client (teraDb pool):', err.message)
+  })
+
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })
 }

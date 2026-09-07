@@ -4,6 +4,36 @@ import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/app/lib/dal'
 
+function isAllowedCampaignRole(role: string | null | undefined): boolean {
+  if (!role) return false
+  const r = role.toUpperCase().trim()
+  const allowedKeywords = [
+    'ADMIN',
+    'SUPER_ADMIN',
+    'MARKETING',
+    'MANAGER',
+    'EDITOR',
+    'PROJECT',
+    'SERVICE',
+    'SALES',
+    'SALE',
+    'SELLER',
+    'USER',
+    'ผู้จัดการ',
+    'การตลาด',
+    'แอดมิน',
+    'โปรเจค',
+    'โครงการ',
+    'ตัวแทนฝ่ายขาย',
+    'ฝ่ายขาย',
+    'บริการ',
+    'ช่าง',
+    'BD',
+    'BUSINESS DEVELOPMENT'
+  ]
+  return allowedKeywords.some(keyword => r.includes(keyword))
+}
+
 export async function createCampaign(data: {
   campaignId: string
   name: string
@@ -23,8 +53,7 @@ export async function createCampaign(data: {
 }) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  const allowedRoles = ['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor', 'Editor', 'ผู้จัดการฝ่ายการตลาด', 'การตลาด', 'แอดมิน'];
-  if (!allowedRoles.includes(user.role)) {
+  if (!isAllowedCampaignRole(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to create campaigns")
   }
 
@@ -90,8 +119,7 @@ export async function createCampaign(data: {
 export async function updateCampaign(id: string, data: Partial<any>) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  const allowedRoles = ['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor', 'Editor', 'ผู้จัดการฝ่ายการตลาด', 'การตลาด', 'แอดมิน'];
-  if (!allowedRoles.includes(user.role)) {
+  if (!isAllowedCampaignRole(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to edit campaigns")
   }
 
@@ -161,8 +189,7 @@ export async function getCampaigns(filters?: any) {
 export async function deleteCampaign(id: string) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  const allowedRoles = ['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor', 'Editor', 'ผู้จัดการฝ่ายการตลาด', 'การตลาด', 'แอดมิน'];
-  if (!allowedRoles.includes(user.role)) {
+  if (!isAllowedCampaignRole(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to delete campaigns")
   }
 

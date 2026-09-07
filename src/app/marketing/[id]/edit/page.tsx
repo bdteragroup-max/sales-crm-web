@@ -26,6 +26,24 @@ export default async function EditLeadPage({ params }: { params: { id: string } 
     role: u.role || 'Sales'
   }))
 
+  const campaigns = await (prisma as any).adCampaign.findMany({
+    where: { deletedAt: null },
+    select: {
+      id: true,
+      name: true,
+      internalCode: true,
+      campaignId: true,
+      targetAudience: true,
+      channel: {
+        select: {
+          id: true,
+          name: true,
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] pb-24">
       {/* Top Navigation */}
@@ -50,7 +68,7 @@ export default async function EditLeadPage({ params }: { params: { id: string } 
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-          <EditLeadClient lead={lead} salesReps={salesReps} />
+          <EditLeadClient lead={lead} salesReps={salesReps} campaigns={campaigns} />
         </div>
       </div>
     </div>

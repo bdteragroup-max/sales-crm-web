@@ -50,7 +50,7 @@ export function nextDay(dateStr: string): string {
   let day = parseInt(dStr, 10);
 
   const lastDay = lastDayOfMonth(year, month);
-  
+
   if (day < lastDay) {
     day += 1;
   } else {
@@ -137,7 +137,7 @@ export function aggregateReach(rows: { campaignId: string, reach: number | null 
   if (rows.length === 0) {
     return { value: null, isCombined: false }
   }
-  
+
   if (rows.length === 1) {
     return { value: rows[0].reach, isCombined: false }
   }

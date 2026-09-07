@@ -675,12 +675,12 @@ function readLocalCreatives(): CreativeItem[] {
     if (fs.existsSync(file)) {
       const content = fs.readFileSync(file, 'utf-8')
       const parsed = JSON.parse(content)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      if (Array.isArray(parsed)) return parsed
     }
   } catch (e) {
     console.error('Error reading local creatives:', e)
   }
-  return DEFAULT_INITIAL_CREATIVES
+  return []
 }
 
 function writeLocalCreatives(data: CreativeItem[]) {
@@ -784,12 +784,14 @@ export async function getCreativesList() {
   await ensureCreativesTable()
 
   let list: CreativeItem[] = []
+  let dbQueried = false
 
   // Try fetching from PostgreSQL ad_creatives
   try {
     const rows = await prisma.$queryRawUnsafe<any[]>(`
       SELECT * FROM "ad_creatives" ORDER BY "createdAt" DESC
     `)
+    dbQueried = true
     if (rows && rows.length > 0) {
       list = rows.map(r => ({
         id: r.id,
@@ -817,8 +819,14 @@ export async function getCreativesList() {
     console.warn('Fallback to local file storage for creatives:', err.message)
   }
 
+  // If DB query didn't return rows or failed, check local storage
   if (list.length === 0) {
-    list = readLocalCreatives()
+    const file = getLocalCachePath()
+    if (fs.existsSync(file)) {
+      list = readLocalCreatives()
+    } else if (!dbQueried) {
+      list = []
+    }
   }
 
   // Calculate dynamic used in ads by reading all active campaigns
@@ -828,79 +836,6 @@ export async function getCreativesList() {
       select: { id: true, name: true, internalCode: true, targetAudience: true }
     })
 
-    const defaultUsageEntries: Record<string, Array<{
-      campaignName: string
-      campaignId?: string
-      adSetName: string
-      adName: string
-      adCode: string
-      status: string
-    }>> = {
-      'CR-SP-001': [
-        { campaignName: 'SP Aug Lead', adSetName: '01 Agriculture Broad', adName: 'Water Strong V1 • AD-SP-001', adCode: 'AD-SP-001', status: 'Active' },
-        { campaignName: 'SP Sep Lead', adSetName: '01 Broad', adName: 'Water Strong Retest • AD-SP-021', adCode: 'AD-SP-021', status: 'Draft' }
-      ],
-      'SP_WaterStrong_V1.jpg': [
-        { campaignName: 'SP Aug Lead', adSetName: '01 Agriculture Broad', adName: 'Water Strong V1 • AD-SP-001', adCode: 'AD-SP-001', status: 'Active' },
-        { campaignName: 'SP Sep Lead', adSetName: '01 Broad', adName: 'Water Strong Retest • AD-SP-021', adCode: 'AD-SP-021', status: 'Draft' }
-      ],
-      'CR-SP-002': [
-        { campaignName: 'SP Aug Lead', adSetName: '02 High Head Farm', adName: 'No Electricity V2 • AD-SP-002', adCode: 'AD-SP-002', status: 'Active' }
-      ],
-      'SP_NoElectricity_V2.mp4': [
-        { campaignName: 'SP Aug Lead', adSetName: '02 High Head Farm', adName: 'No Electricity V2 • AD-SP-002', adCode: 'AD-SP-002', status: 'Active' }
-      ],
-      'CR-SP-003': [
-        { campaignName: 'SP Aug Lead', adSetName: '03 Retargeting Visit', adName: 'Installation Review V1 • AD-SP-003', adCode: 'AD-SP-003', status: 'Active' }
-      ],
-      'SP_InstallReview_V1.jpg': [
-        { campaignName: 'SP Aug Lead', adSetName: '03 Retargeting Visit', adName: 'Installation Review V1 • AD-SP-003', adCode: 'AD-SP-003', status: 'Active' }
-      ],
-      'CR-SR-004': [
-        { campaignName: 'SR Lead Gen', adSetName: '01 Factory Zone BKK', adName: 'Factory Roof Saving • AD-SR-001', adCode: 'AD-SR-001', status: 'Active' },
-        { campaignName: 'SR Lead Gen', adSetName: '02 Industrial Estate', adName: 'Factory Roof Tier 2 • AD-SR-002', adCode: 'AD-SR-002', status: 'Active' }
-      ],
-      'SR_FactoryRoof_V2.jpg': [
-        { campaignName: 'SR Lead Gen', adSetName: '01 Factory Zone BKK', adName: 'Factory Roof Saving • AD-SR-001', adCode: 'AD-SR-001', status: 'Active' },
-        { campaignName: 'SR Lead Gen', adSetName: '02 Industrial Estate', adName: 'Factory Roof Tier 2 • AD-SR-002', adCode: 'AD-SR-002', status: 'Active' }
-      ],
-      'CR-VSD-005': [
-        { campaignName: 'VSD Search', adSetName: '01 Smart Farming VSD', adName: 'VSD Energy Saving • AD-VSD-001', adCode: 'AD-VSD-001', status: 'Active' },
-        { campaignName: 'VSD Search', adSetName: '02 Industrial Pump', adName: 'VSD Heavy Duty • AD-VSD-002', adCode: 'AD-VSD-002', status: 'Active' }
-      ],
-      'VSD_EnergySaving_V1.mp4': [
-        { campaignName: 'VSD Search', adSetName: '01 Smart Farming VSD', adName: 'VSD Energy Saving • AD-VSD-001', adCode: 'AD-VSD-001', status: 'Active' },
-        { campaignName: 'VSD Search', adSetName: '02 Industrial Pump', adName: 'VSD Heavy Duty • AD-VSD-002', adCode: 'AD-VSD-002', status: 'Active' }
-      ],
-      'CR-SP-007': [
-        { campaignName: 'SP Aug Lead', adSetName: '01 Agriculture Broad', adName: 'Deep Well Submersible • AD-SP-007', adCode: 'AD-SP-007', status: 'Active' }
-      ],
-      'CR-SR-008': [
-        { campaignName: 'SR Lead Gen', adSetName: '03 Home Owner Focus', adName: 'Home Rooftop Drone • AD-SR-008', adCode: 'AD-SR-008', status: 'Active' }
-      ],
-      'CR-VSD-009': [
-        { campaignName: 'VSD Search', adSetName: '01 Smart Farming VSD', adName: 'Smart Controller • AD-VSD-009', adCode: 'AD-VSD-009', status: 'Active' }
-      ],
-      'CR-SP-011': [
-        { campaignName: 'SP Aug Lead', adSetName: '02 High Head Farm', adName: 'Agricultural Flow • AD-SP-011', adCode: 'AD-SP-011', status: 'Active' }
-      ],
-      'CR-SP-012': [
-        { campaignName: 'SP Aug Lead', adSetName: '03 Retargeting Visit', adName: 'Farmer Testimonial • AD-SP-012', adCode: 'AD-SP-012', status: 'Active' }
-      ],
-      'CR-SR-016': [
-        { campaignName: 'SR Lead Gen', adSetName: '03 Home Owner Focus', adName: 'Residential Bill Reduction • AD-SR-016', adCode: 'AD-SR-016', status: 'Active' }
-      ],
-      'CR-SR-017': [
-        { campaignName: 'SR Lead Gen', adSetName: '01 Factory Zone BKK', adName: 'Industrial 3D Roof • AD-SR-017', adCode: 'AD-SR-017', status: 'Active' }
-      ],
-      'CR-VSD-020': [
-        { campaignName: 'VSD Search', adSetName: '02 Industrial Pump', adName: 'Multi-Pump Sync • AD-VSD-020', adCode: 'AD-VSD-020', status: 'Active' }
-      ],
-      'CR-BAT-021': [
-        { campaignName: 'Battery Aug', adSetName: '01 Solar + Battery', adName: 'Night Storage • AD-BAT-021', adCode: 'AD-BAT-021', status: 'Active' }
-      ]
-    }
-
     const adUsageMap = new Map<string, Array<{
       campaignName: string
       campaignId?: string
@@ -908,7 +843,7 @@ export async function getCreativesList() {
       adName: string
       adCode: string
       status: string
-    }>>(Object.entries(defaultUsageEntries))
+    }>>()
 
     campaigns.forEach(c => {
       let adSets: any[] = []
@@ -1157,3 +1092,41 @@ export async function toggleArchiveCreative(creativeId: string, archive: boolean
 
   return { success: true, creative: target }
 }
+
+/**
+ * Delete a Creative record permanently
+ */
+export async function deleteCreativeRecord(creativeId: string) {
+  await ensureCreativesTable()
+  try {
+    await prisma.$executeRawUnsafe(`
+      DELETE FROM "ad_creatives" WHERE "id" = $1 OR "code" = $1
+    `, creativeId)
+  } catch (err: any) {
+    console.warn('Could not delete creative from DB:', err.message)
+  }
+
+  const creatives = readLocalCreatives().filter(c => c.id !== creativeId && c.code !== creativeId)
+  writeLocalCreatives(creatives)
+  revalidatePath('/marketing/ads/campaigns')
+
+  return { success: true }
+}
+
+/**
+ * Delete ALL Creative records permanently
+ */
+export async function deleteAllCreatives() {
+  await ensureCreativesTable()
+  try {
+    await prisma.$executeRawUnsafe(`DELETE FROM "ad_creatives"`)
+  } catch (err: any) {
+    console.warn('Could not delete all creatives from DB:', err.message)
+  }
+
+  writeLocalCreatives([])
+  revalidatePath('/marketing/ads/campaigns')
+
+  return { success: true }
+}
+

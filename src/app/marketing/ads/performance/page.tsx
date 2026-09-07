@@ -1,6 +1,7 @@
 import prisma from '@/app/lib/db'
 import { getUser } from '@/app/lib/dal'
 import PerformanceClient from './PerformanceClient'
+import { getActiveAdsWithPerformance } from '@/app/actions/ads-performance'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,25 +28,20 @@ export default async function PerformancePage() {
     } : null
   }))
 
-  const resultTypes = await prisma.adResultType.findMany({ where: { isActive: true } })
-
-  const performances = (await prisma.adPerformance.findMany({
-    include: { campaign: true, resultType: true },
-    orderBy: { createdAt: 'desc' },
-    take: 100
-  })).map(p => ({
-    ...p,
-    spend: p.spend ? p.spend.toNumber() : 0,
-    campaign: p.campaign ? { ...p.campaign, budget: p.campaign.budget ? p.campaign.budget.toNumber() : 0 } : null
-  }))
+  const adsRes = await getActiveAdsWithPerformance()
+  const activeAds = adsRes.success ? adsRes.ads : []
+  const initialSnapshots = adsRes.success ? adsRes.snapshots : []
 
   return (
-    <div className="p-8 space-y-8 bg-gray-50 min-h-screen">
+    <div className="bg-slate-50 min-h-screen">
       <PerformanceClient
         campaigns={campaigns}
-        resultTypes={resultTypes}
-        initialPerformances={performances}
-        userRole={user.role}
+        initialActiveAds={activeAds}
+        initialSnapshots={initialSnapshots}
+        currentUser={{
+          name: user.fullName || user.email || 'Marketing Specialist',
+          role: user.role || 'MARKETING'
+        }}
       />
     </div>
   )

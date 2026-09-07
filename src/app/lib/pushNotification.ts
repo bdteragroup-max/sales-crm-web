@@ -6,11 +6,17 @@ const formattedSubject = vapidSubject.includes('@') && !vapidSubject.startsWith(
   ? `mailto:${vapidSubject}` 
   : vapidSubject;
 
-webpush.setVapidDetails(
-  formattedSubject,
-  process.env.VAPID_PUBLIC_KEY || '',
-  process.env.VAPID_PRIVATE_KEY || ''
-);
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  try {
+    webpush.setVapidDetails(
+      formattedSubject,
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+  } catch (err) {
+    console.warn("Failed to initialize webpush VAPID details:", err);
+  }
+}
 
 export type PushPayload = {
   title: string; 

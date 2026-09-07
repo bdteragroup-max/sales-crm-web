@@ -25,8 +25,12 @@ export async function GET(req: Request) {
     const quotations = await prisma.quotation.findMany({
       where: {
         companyId,
-        status: {
-          notIn: ["Pending", "Lost", "Rejected", "Cancelled", "ยกเลิก", "ไม่ผ่าน"]
+        NOT: {
+          OR: [
+            { status: { startsWith: 'ปฏิเสธ' } },
+            { status: { startsWith: 'ยกเลิก' } },
+            { status: { in: ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'] } }
+          ]
         },
         OR: [
           { quotationDate: { gte: startDate, lte: endDate } },
@@ -39,15 +43,43 @@ export async function GET(req: Request) {
         contact: true,
         salesperson: { select: { fullName: true } }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: [
+        { billingDate: 'desc' },
+        { poDate: 'desc' },
+        { createdAt: 'desc' }
+      ]
     });
 
-    const productSummary = quotations.flatMap(q => {
+    const closedStatuses = ["เปิดบิลแล้ว", "PO แล้วรอเงินโอน", "PO แล้วรอสินค้า"];
+
+    const enrichedQuotations = quotations.map(q => {
+      const cleanPo = q.poNumber?.trim() || null;
+      const cleanInvoice = q.invoiceNumber?.trim() || null;
+      const isRejected = q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก') || ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'].includes(q.status);
+      const isClosed = !isRejected && (closedStatuses.includes(q.status) || !!cleanPo || !!q.billingDate);
+      return {
+        ...q,
+        poNumber: cleanPo,
+        invoiceNumber: cleanInvoice,
+        isClosedSale: isClosed
+      };
+    });
+
+    const closedQuotations = enrichedQuotations.filter(q => q.isClosedSale);
+    const openQuotations = enrichedQuotations.filter(q => !q.isClosedSale);
+
+    const productSummary = enrichedQuotations.flatMap(q => {
       if (q.jobs && q.jobs.length > 0) {
         return q.jobs.map(j => ({
           quotationNumber: q.quotationNumber,
           item: j.item,
-          jobType: j.jobType
+          jobType: j.jobType,
+          isClosedSale: q.isClosedSale,
+          poNumber: q.poNumber,
+          invoiceNumber: q.invoiceNumber,
+          status: q.status,
+          billingDate: q.billingDate,
+          poDate: q.poDate
         }));
       }
       
@@ -55,11 +87,38 @@ export async function GET(req: Request) {
       return [{
         quotationNumber: q.quotationNumber,
         item: q.subject || q.productType || 'Unknown Item',
-        jobType: q.productType || 'N/A'
+        jobType: q.productType || 'N/A',
+        isClosedSale: q.isClosedSale,
+        poNumber: q.poNumber,
+        invoiceNumber: q.invoiceNumber,
+        status: q.status,
+        billingDate: q.billingDate,
+        poDate: q.poDate
       }];
     });
 
-    return NextResponse.json({ quotations, productSummary });
+    const latestPoNumber = closedQuotations.find(q => q.poNumber)?.poNumber || null;
+    const latestInvoiceNumber = closedQuotations.find(q => q.invoiceNumber)?.invoiceNumber || null;
+    const latestClosedDate = closedQuotations[0]?.billingDate || closedQuotations[0]?.poDate || closedQuotations[0]?.quotationDate || null;
+    const latestQuotationNumber = closedQuotations[0]?.quotationNumber || quotations[0]?.quotationNumber || null;
+    const closedStatus = closedQuotations[0]?.status || (quotations[0]?.status ?? null);
+    const totalClosedAmount = closedQuotations.reduce((sum, q) => sum + (q.actualClosingAmount ?? q.totalAmountBeforeVat ?? 0), 0);
+    const salespersonName = closedQuotations[0]?.salesperson?.fullName || quotations[0]?.salesperson?.fullName || null;
+
+    return NextResponse.json({
+      quotations: enrichedQuotations,
+      closedQuotations,
+      openQuotations,
+      productSummary,
+      isClosedSale: closedQuotations.length > 0,
+      latestPoNumber,
+      latestInvoiceNumber,
+      latestClosedDate,
+      latestQuotationNumber,
+      closedStatus,
+      totalClosedAmount,
+      salespersonName
+    });
   } catch (error) {
     console.error('Error fetching company data:', error);
     return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });

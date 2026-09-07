@@ -3,16 +3,16 @@ import assert from 'assert'
 
 function testAdsMetrics() {
   console.log("Running verify-adsMetrics...")
-  
+
   // 1. Quotation Exhaustive Test
   // Ensure the DB list matches these constants exactly (with trim)
   const dbStatuses = [
-    '', 'WON', 'ความสนใจ', 'ช่วงนี้ยังไม่ได้ใช้', 'ชะลอโครงการ', 
-    'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 
-    'ยกเลิก-Revise', 'รอจัดทำ PO', 'รอใบประเมินราคา', 'สินค้าฝากขาย', 
+    '', 'WON', 'ความสนใจ', 'ช่วงนี้ยังไม่ได้ใช้', 'ชะลอโครงการ',
+    'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ',
+    'ยกเลิก-Revise', 'รอจัดทำ PO', 'รอใบประเมินราคา', 'สินค้าฝากขาย',
     'เสนอราคา', 'เปิดบิลแล้ว', 'PO แล้วรอสินค้า', 'PO แล้วรอเงินโอน'
   ];
-  
+
   for (const status of dbStatuses) {
     const trimmed = status.trim();
     const isKnown = CLOSED_SALE_STATUSES.includes(trimmed) || NOT_CLOSED_STATUSES.includes(trimmed) || IGNORED_STATUSES.includes(trimmed);

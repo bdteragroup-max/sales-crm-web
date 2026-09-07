@@ -51,7 +51,7 @@ export default async function CampaignsPage() {
   }))
 
   return (
-    <div className="p-8 space-y-8 bg-gray-50 min-h-screen">
+    <div className="bg-[#F8FAFC] min-h-screen text-slate-900 pb-24">
       <CampaignsClient 
         initialCampaigns={campaigns} 
         channels={channels}

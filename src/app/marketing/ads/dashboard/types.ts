@@ -1,84 +1,228 @@
-export type DashboardFilters = {
-  from: string // YYYY-MM-DD
-  to: string   // YYYY-MM-DD
-  channelId?: string
-  branchId?: string
-  productCategory?: string
-  objective?: string
-  accountId?: string
-  campaignIds?: string[]
+export type DashboardPeriodFilter = '01-31 Aug 2026' | 'This Month' | 'Last 30 Days' | 'Last 7 Days' | 'Custom'
+
+export type DataFreshnessLevel = 'GREEN' | 'YELLOW' | 'RED'
+
+export interface TeraDashboardFilters {
+  reportingPeriod: string
+  dateFrom: string
+  dateTo: string
+  compareWith: string // 'Previous Period' | 'None'
+  channel: string     // 'All' | 'Facebook' | 'TikTok' | 'Google' | 'LINE'
+  productCategory: string // 'All' | 'Solar Pump' | 'Solar Rooftop'
+  campaignId: string  // 'All' | specific ID
+  adSetId: string     // 'All' | specific ID
+  adId: string        // 'All' | specific ID
+  creative: string    // 'All' | specific file
+  status: string      // 'All' | 'Active' | 'Paused'
+  search?: string
 }
 
-export type DashboardMeta = {
-  excludedRowCount: number
-  orphanRowCount: number
-  partialLifetimeCampaignCount: number
-}
-
-export type WarningFlag = {
-  type: 'REACH_COMBINED' | 'ORPHAN_ROWS' | 'PARTIAL_LIFETIME'
-  message: string
-}
-
-export type DashboardData = {
-  kpiMetrics: {
-    budget: number
-    spend: number
-    impressions: number | null
-    reach: { value: number | null, isCombined: boolean }
-    linkClicks: number | null
-    messageInbox: number | null
-    results: number | null
-    leads: number | null
-    qualifiedLeads: number | null
-    closedSales: number | null
-    sale: number | null
-    remainingBudget: number
-    budgetUsedPct: number | null
-    cpc: number | null
-    cpm: number | null
-    ctr: number | null
-    costPerResult: number | null
-    cpl: number | null
-    costPerQualifiedLead: number | null
-    costPerSale: number | null
-    qualifiedRate: number | null
-    closingRate: number | null
-    roas: number | null
+export interface KpiMetricItem {
+  key: string
+  label: string
+  sublabel?: string
+  value: number | null
+  displayValue: string
+  delta?: {
+    value: number
+    percent: number | null
+    isPositiveGood: boolean
+    direction: 'up' | 'down' | 'neutral'
   }
-  tableRows: {
-    internalId: string
-    platformCampaignId: string
-    campaignName: string
-    status: string
-    channelName: string
-    budget: number
-    spend: number
-    impressions: number | null
-    reach: number | null
-    linkClicks: number | null
-    messageInbox: number | null
-    results: number | null
-    leads: number | null
-    qualifiedLeads: number | null
-    closedSales: number | null
-    sale: number | null
-    cpc: number | null
-    cpm: number | null
-    ctr: number | null
-    costPerResult: number | null
-    cpl: number | null
-    costPerQualifiedLead: number | null
-    costPerSale: number | null
-    roas: number | null
-  }[]
-  meta: DashboardMeta
-  warnings: WarningFlag[]
-  lastUpdatedAt: string
-  isEmpty: boolean
-  chartData: {
-    spendByChannel: { channel: string; spend: number; budget: number; leads: number }[]
-    spendAndLeadsTrend: { date: string; spend: number; leads: number }[]
-    spendByProduct: { product: string; spend: number }[]
+  subtitle?: string
+  format: 'currency' | 'number' | 'percent'
+  badge?: string
+}
+
+export interface PrimaryBusinessKpis {
+  plannedBudget: KpiMetricItem
+  totalSpend: KpiMetricItem
+  remainingBudget: KpiMetricItem
+  budgetUsedPct: KpiMetricItem
+  messageInbox: KpiMetricItem
+  leads: KpiMetricItem
+  qualifiedLeads: KpiMetricItem
+  closedSales: KpiMetricItem
+  sale: KpiMetricItem
+  roi: KpiMetricItem
+}
+
+export interface DeliveryTrafficKpis {
+  reach: KpiMetricItem
+  impressions: KpiMetricItem
+  clicks: KpiMetricItem
+  ctr: KpiMetricItem
+  cpc: KpiMetricItem
+  cpm: KpiMetricItem
+  costPerResult: KpiMetricItem
+  costPerLead: KpiMetricItem
+  costPerSale: KpiMetricItem
+  leadConversionRate: KpiMetricItem
+  salesCloseRate: KpiMetricItem
+}
+
+export interface DailyTrendPoint {
+  date: string
+  formattedDate: string
+  spend: number
+  leads: number
+  messageInbox: number
+  costPerResult: number | null
+  reach: number
+  impressions: number
+}
+
+export interface FunnelStageItem {
+  stageNumber: number
+  stageKey: string
+  stageName: string
+  count: number
+  percentageFromInitial: number
+  percentageFromPrevious: number | null
+  colorClass: string
+}
+
+export interface CampaignBreakdownRow {
+  campaignId: string
+  campaignName: string
+  channel: string
+  budget: number
+  spend: number
+  messageInbox: number
+  leads: number
+  qualifiedLeads: number
+  appointments: number
+  quotations: number
+  closedSales: number
+  sale: number
+  costPerLead: number | null
+  costPerSale: number | null
+  roi: number | null
+  adCount: number
+}
+
+export interface AdSetBreakdownRow {
+  adSetId: string
+  adSetName: string
+  campaignId?: string
+  campaignName: string
+  adCount?: number
+  spend: number
+  messageInbox: number
+  leads: number
+  closedSales: number
+  sale: number
+  roi: number | null
+}
+
+export interface ChannelBreakdownRow {
+  channel: string
+  campaignCount: number
+  adCount: number
+  spend: number
+  messageInbox: number
+  leads: number
+  closedSales: number
+  sale: number
+  roi: number | null
+}
+
+export interface AdBreakdownRow {
+  adId: string
+  adName: string
+  campaignId: string
+  campaignName: string
+  adSetId: string
+  adSetName: string
+  channel: string
+  status: 'Active' | 'Paused' | 'Archived' | 'Draft'
+  format: 'Image' | 'Video' | 'Carousel'
+  creativeFile: string
+  creativeVersion: string
+  creativeUrl: string
+  spend: number
+  messageInbox: number
+  reach: number
+  impressions: number
+  clicks: number
+  ctr: number | null
+  cpc: number | null
+  leads: number
+  qualifiedLeads: number
+  appointments: number
+  quotations: number
+  closedSales: number
+  sale: number
+  costPerLead: number | null
+  costPerSale: number | null
+  roi: number | null
+  lastUpdated: string
+  hoursSinceUpdate: number
+  freshness: DataFreshnessLevel
+}
+
+export interface CreativePerformanceRow {
+  creativeId: string
+  creativeFile: string
+  creativeVersion: string
+  creativeUrl: string
+  format: 'Image' | 'Video' | 'Carousel'
+  adCount: number
+  spend: number
+  messageInbox: number
+  leads: number
+  closedSales: number
+  sale: number
+  roi: number | null
+  costPerLead: number | null
+}
+
+export interface TopAdInsightItem {
+  adId: string
+  adName: string
+  creativeFile: string
+  roi: number
+  spend: number
+  sale: number
+  leads: number
+  badgeText: string
+}
+
+export interface DashboardAlertItem {
+  id: string
+  severity: 'WARNING' | 'ALERT' | 'INFO' | 'SUCCESS'
+  title: string
+  description?: string
+  actionLabel?: string
+  actionUrl?: string
+}
+
+export interface TeraDashboardData {
+  filters: TeraDashboardFilters
+  lastRefreshedAt: string
+  lastUpdatedBy: string
+  businessKpis: PrimaryBusinessKpis
+  deliveryKpis: DeliveryTrafficKpis
+  trendSeries: DailyTrendPoint[]
+  funnelStages: FunnelStageItem[]
+  campaignBreakdown: CampaignBreakdownRow[]
+  adSetBreakdown: AdSetBreakdownRow[]
+  channelBreakdown: ChannelBreakdownRow[]
+  adsBreakdown: AdBreakdownRow[]
+  creativeBreakdown: CreativePerformanceRow[]
+  topAdsByRoi: TopAdInsightItem[]
+  adsNeedingImprovement: TopAdInsightItem[]
+  alerts: DashboardAlertItem[]
+  dataFreshnessSummary: {
+    greenCount: number
+    yellowCount: number
+    redCount: number
+    totalAds: number
   }
 }
+
+// Backward compatibility types for legacy imports if any
+export type DashboardFilters = any
+export type DashboardData = any
+export type WarningFlag = any
+

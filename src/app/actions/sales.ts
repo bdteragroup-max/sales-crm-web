@@ -54,7 +54,10 @@ export async function generateNextQuotationNumber(companyAbbr: string) {
   }
 }
 
-export async function searchCompanies(query: string, surveyExcludeFilter?: { round: string, year: string, method: string }) {
+export async function searchCompanies(
+  query: string, 
+  surveyExcludeFilter?: { round: string, year: string, method: string, onlyClosedSales?: boolean }
+) {
   if (!query || query.length < 2) return [];
   
   try {
@@ -96,8 +99,82 @@ export async function searchCompanies(query: string, surveyExcludeFilter?: { rou
         assignedUser: { select: { fullName: true } },
         contacts: { select: { mobilePhone: true } }
       },
-      take: 5
+      take: surveyExcludeFilter ? 15 : 5
     });
+
+    if (surveyExcludeFilter) {
+      const closedStatuses = ["เปิดบิลแล้ว", "PO แล้วรอเงินโอน", "PO แล้วรอสินค้า"];
+      const companyIds = companies.map(c => c.id);
+
+      const quotations = await prisma.quotation.findMany({
+        where: {
+          companyId: { in: companyIds },
+          salespersonId: { not: 'cmq7iv42y000004l496tyrofk' },
+          NOT: {
+            OR: [
+              { status: { startsWith: 'ปฏิเสธ' } },
+              { status: { startsWith: 'ยกเลิก' } },
+              { status: { in: ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'] } }
+            ]
+          }
+        },
+        select: {
+          companyId: true,
+          quotationNumber: true,
+          status: true,
+          poNumber: true,
+          invoiceNumber: true,
+          poDate: true,
+          billingDate: true,
+          quotationDate: true,
+          actualClosingAmount: true,
+          totalAmountBeforeVat: true,
+          createdAt: true
+        },
+        orderBy: [
+          { billingDate: 'desc' },
+          { poDate: 'desc' },
+          { createdAt: 'desc' }
+        ]
+      });
+
+      const enrichedCompanies = companies.map(comp => {
+        const compQuotes = quotations.filter(q => q.companyId === comp.id);
+        const closedQ = compQuotes.find(q => {
+          const isRejected = q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก') || ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'].includes(q.status);
+          return !isRejected && (closedStatuses.includes(q.status) || !!q.poNumber?.trim() || !!q.billingDate);
+        });
+        const anyQ = compQuotes[0];
+
+        const isClosedSale = !!closedQ;
+        const cleanPo = closedQ?.poNumber?.trim() || null;
+        const cleanInvoice = closedQ?.invoiceNumber?.trim() || null;
+        const closedStatus = closedQ?.status || (anyQ?.status ?? 'ไม่มีประวัติการขาย');
+        const latestPoNumber = cleanPo;
+        const latestInvoiceNumber = cleanInvoice;
+        const latestQuotationNumber = closedQ?.quotationNumber || anyQ?.quotationNumber || null;
+        const latestClosedDate = closedQ?.billingDate || closedQ?.poDate || closedQ?.quotationDate || null;
+        const actualClosingAmount = closedQ?.actualClosingAmount ?? closedQ?.totalAmountBeforeVat ?? null;
+
+        return {
+          ...comp,
+          isClosedSale,
+          closedStatus,
+          latestPoNumber,
+          latestInvoiceNumber,
+          latestQuotationNumber,
+          latestClosedDate,
+          actualClosingAmount
+        };
+      });
+
+      if (surveyExcludeFilter.onlyClosedSales) {
+        return enrichedCompanies.filter(c => c.isClosedSale).slice(0, 8);
+      }
+
+      return enrichedCompanies.slice(0, 8);
+    }
+
     return companies;
   } catch (error) {
     console.error("Error searching companies:", error);

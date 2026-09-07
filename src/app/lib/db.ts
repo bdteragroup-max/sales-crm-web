@@ -29,10 +29,18 @@ const prismaClientSingleton = () => {
   }
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 50,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 10000,
+    max: 30,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 15000,
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000,
   })
+
+  // Prevent unhandled errors on idle clients from terminating the connection or app
+  pool.on('error', (err) => {
+    console.warn('Unexpected error on idle client (primary db pool):', err.message)
+  })
+
   const adapter = new PrismaPg(pool)
   const client = new PrismaClient({
     adapter,

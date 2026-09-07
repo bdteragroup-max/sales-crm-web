@@ -39,7 +39,7 @@ export default function AdsCampaignTable({ data }: { data: DashboardData }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {data.tableRows.map(row => {
+            {data?.tableRows?.map((row: any) => {
               const remaining = row.budget - row.spend
               // Use remaining <= budget * 0.1 instead of budgetUsedPct to be resilient against 0 budget and partial months
               const isOverBudget = row.budget > 0 && remaining <= row.budget * 0.1

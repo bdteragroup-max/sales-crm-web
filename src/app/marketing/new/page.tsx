@@ -45,6 +45,24 @@ export default async function NewMarketingLeadPage() {
     }))
   }
 
+  const campaigns = await (prisma as any).adCampaign.findMany({
+    where: { deletedAt: null },
+    select: {
+      id: true,
+      name: true,
+      internalCode: true,
+      campaignId: true,
+      targetAudience: true,
+      channel: {
+        select: {
+          id: true,
+          name: true,
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="mb-6">
@@ -53,7 +71,7 @@ export default async function NewMarketingLeadPage() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <NewLeadClient userId={payload.userId as string} salesReps={salesReps} />
+        <NewLeadClient userId={payload.userId as string} salesReps={salesReps} campaigns={campaigns} />
       </div>
     </div>
   )
