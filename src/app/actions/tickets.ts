@@ -502,13 +502,17 @@ export async function getTicketStats() {
   }
 }
 
-// 11. BD TV Display Data
-export async function getBdWorkloadSummary() {
+// 11. BD TV Display Data & Reports Monthly Workload
+export async function getBdWorkloadSummary(filterOptions?: { startDate?: Date, endDate?: Date }) {
   try {
     // 1. Verify user role instead of token
     const user = await getUser();
-    if (!user || (!user.role.includes('Business Development') && user.role !== 'BD Intern')) {
-      return { success: false, error: "Unauthorized role for TV dashboard" };
+    if (!user) return { success: false, error: "Unauthorized" };
+
+    const isExecutive = ['SUPER_ADMIN', 'ผู้จัดการ', 'Admin'].includes(user.role) || user.role?.toLowerCase().includes('mgr') || user.role?.toLowerCase().includes('manager');
+    const isBD = user.role?.includes('Business Development') || user.role === 'BD Intern';
+    if (!isBD && !isExecutive) {
+      return { success: false, error: "Unauthorized role for TV dashboard / reports" };
     }
 
     // 2. Fetch all users involved in BD (role OR project members/owners)
@@ -542,10 +546,25 @@ export async function getBdWorkloadSummary() {
       }
     });
 
-    // 3. Fetch all active or recently resolved tickets for these users
+    // 3. Date boundary calculations for monthly and today
+    const now = new Date();
+    let monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    monthStart.setHours(0, 0, 0, 0);
+
+    let monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    monthEnd.setHours(23, 59, 59, 999);
+
+    if (filterOptions?.startDate && filterOptions?.endDate) {
+      monthStart = new Date(filterOptions.startDate);
+      monthStart.setHours(0, 0, 0, 0);
+      monthEnd = new Date(filterOptions.endDate);
+      monthEnd.setHours(23, 59, 59, 999);
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // 4. Fetch tickets: all active, resolved today, and tickets in selected month/period
     const tickets = await prisma.supportTicket.findMany({
       where: {
         assigneeId: {
@@ -558,6 +577,19 @@ export async function getBdWorkloadSummary() {
             resolvedAt: {
               gte: today
             }
+          },
+          {
+            status: "RESOLVED",
+            resolvedAt: {
+              gte: monthStart,
+              lte: monthEnd
+            }
+          },
+          {
+            createdAt: {
+              gte: monthStart,
+              lte: monthEnd
+            }
           }
         ]
       },
@@ -567,16 +599,45 @@ export async function getBdWorkloadSummary() {
         status: true,
         progressPercent: true,
         resolvedAt: true,
+        createdAt: true
       }
     });
 
-    // 4. Calculate stats per BD
+    // Also fetch unassigned tickets for accurate team-wide ticket counts
+    const unassignedTickets = await prisma.supportTicket.findMany({
+      where: {
+        assigneeId: null,
+        OR: [
+          { status: { not: "RESOLVED" } },
+          { createdAt: { gte: monthStart, lte: monthEnd } }
+        ]
+      },
+      select: { id: true, status: true, createdAt: true }
+    });
+    const unassignedWaiting = unassignedTickets.filter(t => t.status === "SUBMITTED" || t.status === "ACKNOWLEDGED").length;
+    const unassignedAssignedThisMonth = unassignedTickets.filter(t => t.createdAt && new Date(t.createdAt) >= monthStart && new Date(t.createdAt) <= monthEnd).length;
+
+    // 5. Calculate stats per BD including monthly metrics
     const summary = bdUsers.map(bd => {
       const bdTickets = tickets.filter(t => t.assigneeId === bd.id);
 
       const waiting = bdTickets.filter(t => t.status === "SUBMITTED" || t.status === "ACKNOWLEDGED").length;
       const inProgress = bdTickets.filter(t => t.status === "IN_PROGRESS").length;
-      const completedToday = bdTickets.filter(t => t.status === "RESOLVED").length;
+      const completedToday = bdTickets.filter(t => t.status === "RESOLVED" && t.resolvedAt && new Date(t.resolvedAt) >= today).length;
+
+      // Monthly metrics
+      const completedThisMonth = bdTickets.filter(t => 
+        t.status === "RESOLVED" && 
+        t.resolvedAt && 
+        new Date(t.resolvedAt) >= monthStart && 
+        new Date(t.resolvedAt) <= monthEnd
+      ).length;
+
+      const assignedThisMonth = bdTickets.filter(t => 
+        t.createdAt && 
+        new Date(t.createdAt) >= monthStart && 
+        new Date(t.createdAt) <= monthEnd
+      ).length;
 
       const unresolvedTickets = bdTickets.filter(t => t.status !== "RESOLVED");
       const totalUnresolved = unresolvedTickets.length;
@@ -590,11 +651,30 @@ export async function getBdWorkloadSummary() {
         waiting,
         inProgress,
         completedToday,
+        completedThisMonth,
+        assignedThisMonth,
         averageProgress
       };
     });
 
-    return { success: true, data: summary };
+    const teamMonthlyTotals = {
+      completedThisMonth: summary.reduce((acc, s) => acc + s.completedThisMonth, 0),
+      assignedThisMonth: summary.reduce((acc, s) => acc + s.assignedThisMonth, 0) + unassignedAssignedThisMonth,
+      waiting: summary.reduce((acc, s) => acc + s.waiting, 0) + unassignedWaiting,
+      inProgress: summary.reduce((acc, s) => acc + s.inProgress, 0),
+      completedToday: summary.reduce((acc, s) => acc + s.completedToday, 0),
+      unassignedCount: unassignedWaiting
+    };
+
+    return { 
+      success: true, 
+      data: summary,
+      meta: {
+        teamMonthlyTotals,
+        monthStart,
+        monthEnd
+      }
+    };
   } catch (error: any) {
     console.error("Error fetching BD workload summary:", error);
     return { success: false, error: error.message };

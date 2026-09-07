@@ -26,6 +26,11 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
   const [teamTaskStatus, setTeamTaskStatus] = useState<any[]>([]);
   const [ganttProjects, setGanttProjects] = useState<any[]>([]);
   const [projectProgress, setProjectProgress] = useState<any[]>([]);
+  const [teamTicketSummary, setTeamTicketSummary] = useState<{
+    completedThisMonth: number;
+    assignedThisMonth: number;
+    active: number;
+  } | null>(null);
 
   const [liveWorkload, setLiveWorkload] = useState<any[]>([]);
   const [liveWorkloadLoading, setLiveWorkloadLoading] = useState(false);
@@ -60,10 +65,10 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
     return { minStart, maxEnd, totalDuration: maxEnd - minStart };
   }, [ganttProjects]);
 
-  const loadLiveWorkload = async () => {
+  const loadLiveWorkload = async (filterOpts?: { startDate?: Date, endDate?: Date, dateType?: 'ASSIGNED' | 'COMPLETED' }) => {
     setLiveWorkloadLoading(true);
     try {
-      const res = await getBdCombinedWorkload();
+      const res = await getBdCombinedWorkload(filterOpts);
       if (res.success && res.data) {
         setLiveWorkload(res.data.userWorkloads);
       }
@@ -89,7 +94,8 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
           setTeamTaskStatus(res.data.teamTaskStatus || []);
           setGanttProjects(res.data.ganttProjects || []);
           setProjectProgress(res.data.projectProgress || []);
-          loadLiveWorkload();
+          setTeamTicketSummary(res.data.teamTicketSummary || null);
+          loadLiveWorkload(filterOpts);
         } else {
           console.error("getBDTeamOverview failed:", res.error);
         }
@@ -119,10 +125,29 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
           'Blocked Tasks': t.blockedTasks || 0,
           'Completed Tasks': t.completedThisMonth || 0,
           'Completed Projects': t.completedProjectsThisMonth || 0,
+          'Tickets Completed (Month)': t.ticketsCompletedThisMonth || 0,
+          'Tickets Assigned (Month)': t.ticketsAssignedThisMonth || 0,
+          'Tickets Active': t.ticketsActive || 0,
           'Completion Rate (%)': t.completionPercentage || 0
         }));
         const wsStats = XLSX.utils.json_to_sheet(statsData);
         XLSX.utils.book_append_sheet(wb, wsStats, "Team Stats");
+      }
+
+      if (liveWorkload && liveWorkload.length > 0) {
+        const liveWorkloadExportData = liveWorkload.map((bd: any) => ({
+          'Name': bd.name || 'Unknown',
+          'Tickets Waiting': bd.tickets?.waiting || 0,
+          'Tickets In Progress': bd.tickets?.inProgress || 0,
+          'Tickets Completed (Month)': bd.tickets?.completedThisMonth || 0,
+          'Tickets Completed (Today)': bd.tickets?.completedToday || 0,
+          'Tickets Assigned (Month)': bd.tickets?.assignedThisMonth || 0,
+          'Projects In Progress': bd.projects?.inProgress || 0,
+          'Projects Remaining': bd.projects?.remaining || 0,
+          'Project Progress (%)': bd.projects?.avgProgress || 0,
+        }));
+        const wsLive = XLSX.utils.json_to_sheet(liveWorkloadExportData);
+        XLSX.utils.book_append_sheet(wb, wsLive, "Live Workload");
       }
 
       if (teamTaskStatus && teamTaskStatus.length > 0) {
@@ -157,12 +182,16 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
         XLSX.utils.book_append_sheet(wb, wsProjectProgress, "Project Progress");
       }
     } else {
-      if (reportData && reportData.summary) {
+      if (reportData && reportData.kpi) {
         const summaryData = [{
-          'Total Assigned Tasks': reportData.summary.totalAssignedTasks || 0,
-          'Total Completed Tasks': reportData.summary.totalCompletedTasks || 0,
-          'Completion Rate (%)': reportData.summary.completionRate || 0,
-          'Avg Days to Complete': reportData.summary.avgCompletionDays || 0
+          'User': reportData.targetUser?.fullName || 'Unknown',
+          'Active Projects': reportData.kpi.activeProjects || 0,
+          'Active Tasks': reportData.kpi.activeTasks || 0,
+          'Blocked Tasks': reportData.kpi.blockedTasks || 0,
+          'Completed Tasks': reportData.kpi.completedThisMonth || 0,
+          'Tickets Completed (Month)': reportData.kpi.completedTicketsThisMonth || 0,
+          'Tickets Assigned (Month)': reportData.kpi.assignedTicketsThisMonth || 0,
+          'Tickets Active': reportData.kpi.activeTickets || 0,
         }];
         const wsSummary = XLSX.utils.json_to_sheet(summaryData);
         XLSX.utils.book_append_sheet(wb, wsSummary, "Performance Summary");
@@ -193,9 +222,15 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
         const workload = liveWorkload.find(w => w.userId === selectedUserId);
         if (workload) {
           const wlData = [{
-            'Active Projects': workload.activeProjectsCount || 0,
-            'Pending Tasks': workload.pendingTasksCount || 0,
-            'Support Tickets': workload.assignedTicketsCount || 0
+            'User': workload.name || 'Unknown',
+            'Tickets Waiting': workload.tickets?.waiting || 0,
+            'Tickets In Progress': workload.tickets?.inProgress || 0,
+            'Tickets Completed (Month)': workload.tickets?.completedThisMonth || 0,
+            'Tickets Completed (Today)': workload.tickets?.completedToday || 0,
+            'Tickets Assigned (Month)': workload.tickets?.assignedThisMonth || 0,
+            'Projects In Progress': workload.projects?.inProgress || 0,
+            'Projects Remaining': workload.projects?.remaining || 0,
+            'Project Progress (%)': workload.projects?.avgProgress || 0,
           }];
           const wsWorkload = XLSX.utils.json_to_sheet(wlData);
           XLSX.utils.book_append_sheet(wb, wsWorkload, "Current Workload");
@@ -454,7 +489,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
               <div className="space-y-6">
 
                 {teamSummaryStats && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                       <div className="text-xs text-gray-500 mb-1">งานทั้งหมด</div>
                       <div className="text-2xl font-bold text-gray-900">{teamSummaryStats.totalTasks}</div>
@@ -485,6 +520,16 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                       <div className="text-2xl font-bold text-gray-900">{teamSummaryStats.blocked}</div>
                       <div className="text-xs text-gray-400 mt-1">รายการ</div>
                     </div>
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-purple-200 border-l-4 border-l-purple-600">
+                      <div className="text-xs text-purple-700 font-semibold mb-1 flex items-center justify-between">
+                        <span>Tickets เสร็จสิ้น</span>
+                        <Ticket className="w-3.5 h-3.5 text-purple-500" />
+                      </div>
+                      <div className="text-2xl font-bold text-gray-900">{teamTicketSummary?.completedThisMonth ?? 0}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        รับเข้า {teamTicketSummary?.assignedThisMonth ?? 0} {(startDate && endDate) ? '(ช่วงเวลา)' : '(เดือนนี้)'}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -497,7 +542,14 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                     </div>
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={loadLiveWorkload}
+                        onClick={() => {
+                          const filterOpts = (startDate && endDate) ? {
+                            dateType,
+                            startDate: new Date(startDate),
+                            endDate: new Date(endDate)
+                          } : undefined;
+                          loadLiveWorkload(filterOpts);
+                        }}
                         disabled={liveWorkloadLoading}
                         className="text-gray-500 hover:text-gray-800 flex items-center gap-1.5 text-sm font-medium transition-colors"
                       >
@@ -519,7 +571,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                       <thead>
                         <tr className="bg-white border-b border-gray-200 text-sm text-gray-500 font-medium">
                           <th className="px-6 py-4 whitespace-nowrap" rowSpan={2}>ชื่อพนักงาน</th>
-                          <th className="px-6 py-4 text-center whitespace-nowrap border-l border-gray-200" colSpan={3}>
+                          <th className="px-6 py-4 text-center whitespace-nowrap border-l border-gray-200" colSpan={4}>
                             <div className="flex items-center justify-center gap-2 text-purple-600">
                               <Ticket className="w-4 h-4" /> Support Tickets
                             </div>
@@ -531,9 +583,10 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                           </th>
                         </tr>
                         <tr className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500">
-                          <th className="px-4 py-3 text-center text-orange-600 border-l border-gray-200">รอดำเนินการ</th>
-                          <th className="px-4 py-3 text-center text-blue-600">กำลังดำเนินการ</th>
-                          <th className="px-4 py-3 text-center text-green-600">เสร็จสิ้นวันนี้</th>
+                          <th className="px-3 py-3 text-center text-orange-600 border-l border-gray-200">รอดำเนินการ</th>
+                          <th className="px-3 py-3 text-center text-blue-600">กำลังทำ</th>
+                          <th className="px-3 py-3 text-center text-emerald-600">เสร็จสิ้น{(startDate && endDate) ? 'ช่วงนี้' : 'เดือนนี้'}</th>
+                          <th className="px-3 py-3 text-center text-indigo-600">รับมอบหมาย</th>
                           <th className="px-4 py-3 text-center text-blue-600 border-l border-gray-200">กำลังดำเนินการ</th>
                           <th className="px-4 py-3 text-center text-orange-600">คงเหลือ</th>
                           <th className="px-4 py-3 text-center">ความคืบหน้า</th>
@@ -542,33 +595,43 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                       <tbody className="divide-y divide-gray-100">
                         {liveWorkloadLoading && liveWorkload.length === 0 ? (
                           <tr>
-                            <td colSpan={7} className="text-center py-8 text-gray-500">กำลังโหลดข้อมูลเรียลไทม์...</td>
+                            <td colSpan={8} className="text-center py-8 text-gray-500">กำลังโหลดข้อมูลเรียลไทม์...</td>
                           </tr>
                         ) : liveWorkload.length > 0 ? (
                           liveWorkload.map((bd: any) => (
                             <tr key={bd.userId} className="hover:bg-gray-50 transition-colors">
                               <td className="px-6 py-4 text-sm font-medium text-gray-900">{bd.name}</td>
-                              <td className="px-4 py-4 text-sm text-center text-orange-600 font-medium border-l border-gray-100 bg-orange-50/30">{bd.tickets.waiting}</td>
-                              <td className="px-4 py-4 text-sm text-center text-blue-600 font-medium bg-blue-50/30">{bd.tickets.inProgress}</td>
-                              <td className="px-4 py-4 text-sm text-center text-green-600 font-medium bg-green-50/30">{bd.tickets.completedToday}</td>
-                              <td className="px-4 py-4 text-sm text-center text-blue-600 font-medium border-l border-gray-100 bg-blue-50/30">{bd.projects.inProgress}</td>
-                              <td className="px-4 py-4 text-sm text-center text-orange-600 font-medium bg-orange-50/30">{bd.projects.remaining}</td>
+                              <td className="px-3 py-4 text-sm text-center text-orange-600 font-medium border-l border-gray-100 bg-orange-50/30">{bd.tickets?.waiting || 0}</td>
+                              <td className="px-3 py-4 text-sm text-center text-blue-600 font-medium bg-blue-50/30">{bd.tickets?.inProgress || 0}</td>
+                              <td className="px-3 py-4 text-sm text-center font-medium bg-emerald-50/30">
+                                <div className="flex flex-col items-center justify-center">
+                                  <span className="text-emerald-700 font-semibold">{bd.tickets?.completedThisMonth || 0}</span>
+                                  {(bd.tickets?.completedToday || 0) > 0 && (
+                                    <span className="text-[10px] text-emerald-600 bg-emerald-100/80 px-1.5 py-0.5 rounded-full mt-0.5 whitespace-nowrap">
+                                      วันนี้ +{bd.tickets.completedToday}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-3 py-4 text-sm text-center text-indigo-600 font-medium bg-indigo-50/30">{bd.tickets?.assignedThisMonth || 0}</td>
+                              <td className="px-4 py-4 text-sm text-center text-blue-600 font-medium border-l border-gray-100 bg-blue-50/30">{bd.projects?.inProgress || 0}</td>
+                              <td className="px-4 py-4 text-sm text-center text-orange-600 font-medium bg-orange-50/30">{bd.projects?.remaining || 0}</td>
                               <td className="px-4 py-4 text-center bg-gray-50/50">
                                 <div className="flex items-center justify-center gap-2">
                                   <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
                                     <div
                                       className="h-full bg-sky-500 rounded-full"
-                                      style={{ width: `${bd.projects.avgProgress}%` }}
+                                      style={{ width: `${bd.projects?.avgProgress || 0}%` }}
                                     />
                                   </div>
-                                  <span className="text-sm font-medium text-gray-700 min-w-[2.5rem]">{bd.projects.avgProgress}%</span>
+                                  <span className="text-sm font-medium text-gray-700 min-w-[2.5rem]">{bd.projects?.avgProgress || 0}%</span>
                                 </div>
                               </td>
                             </tr>
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={7} className="text-center py-8 text-gray-500">ไม่มีข้อมูลภาระงาน</td>
+                            <td colSpan={8} className="text-center py-8 text-gray-500">ไม่มีข้อมูลภาระงาน</td>
                           </tr>
                         )}
                       </tbody>
@@ -870,7 +933,7 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                 </div>
 
                 {/* KPI Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <p className="text-sm font-medium text-gray-500">โครงการที่กำลังดำเนินการ</p>
                     <p className="text-3xl font-bold text-gray-900 mt-2">{reportData.kpi.activeProjects}</p>
@@ -886,6 +949,16 @@ export default function ReportsClientPage({ currentUserId, canViewTeam }: Props)
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <p className="text-sm font-medium text-gray-500">งานที่เสร็จสิ้น {(startDate && endDate) ? '(ช่วงเวลาที่เลือก)' : '(เดือนนี้)'}</p>
                     <p className="text-3xl font-bold text-green-600 mt-2">{reportData.kpi.completedThisMonth}</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-purple-200 border-b-4 border-b-purple-500">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-purple-700">Tickets ที่เสร็จสิ้น</p>
+                      <Ticket className="w-4 h-4 text-purple-500" />
+                    </div>
+                    <p className="text-3xl font-bold text-purple-600 mt-2">{reportData.kpi.completedTicketsThisMonth || 0}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      รับมอบหมาย {reportData.kpi.assignedTicketsThisMonth || 0} รายการ {(startDate && endDate) ? '(ช่วงเวลา)' : '(เดือนนี้)'}
+                    </p>
                   </div>
                 </div>
 

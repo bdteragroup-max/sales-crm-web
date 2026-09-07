@@ -11,6 +11,8 @@ export type BdCombinedWorkload = {
     waiting: number;
     inProgress: number;
     completedToday: number;
+    completedThisMonth: number;
+    assignedThisMonth: number;
     avgProgress: number;
   };
   projects: {
@@ -20,11 +22,11 @@ export type BdCombinedWorkload = {
   };
 };
 
-export async function getBdCombinedWorkload() {
+export async function getBdCombinedWorkload(filterOptions?: { startDate?: Date, endDate?: Date, dateType?: 'ASSIGNED' | 'COMPLETED' }) {
   try {
     const [ticketsRes, reportsRes] = await Promise.all([
-      getBdWorkloadSummary(),
-      getBDTeamOverview()
+      getBdWorkloadSummary(filterOptions ? { startDate: filterOptions.startDate, endDate: filterOptions.endDate } : undefined),
+      getBDTeamOverview(filterOptions ? { dateType: filterOptions.dateType || 'ASSIGNED', startDate: filterOptions.startDate, endDate: filterOptions.endDate } : undefined)
     ]);
 
     if (!ticketsRes.success || !ticketsRes.data) {
@@ -50,6 +52,8 @@ export async function getBdCombinedWorkload() {
           waiting: t.waiting || 0,
           inProgress: t.inProgress || 0,
           completedToday: t.completedToday || 0,
+          completedThisMonth: t.completedThisMonth || 0,
+          assignedThisMonth: t.assignedThisMonth || 0,
           avgProgress: t.averageProgress || 0,
         },
         projects: {
@@ -73,7 +77,14 @@ export async function getBdCombinedWorkload() {
         userMap.set(p.userId, {
           userId: p.userId,
           name: p.fullName,
-          tickets: { waiting: 0, inProgress: 0, completedToday: 0, avgProgress: 0 },
+          tickets: { 
+            waiting: 0, 
+            inProgress: 0, 
+            completedToday: 0, 
+            completedThisMonth: 0, 
+            assignedThisMonth: 0, 
+            avgProgress: 0 
+          },
           projects: {
             inProgress: p.inProgressTasks || 0,
             remaining: (p.pendingTasks || 0) + (p.blockedTasks || 0),
@@ -91,13 +102,8 @@ export async function getBdCombinedWorkload() {
     // Calculate team averages
     let totalTicketProgress = 0;
     let totalProjectProgress = 0;
-    let validTicketUsers = 0;
-    let validProjectUsers = 0;
     
     combined.forEach(w => {
-      // Only count users who actually have tickets or projects for a truer average, 
-      // or just average across all users. Let's average across all to match original logic,
-      // but maybe it's better. We'll stick to simple average across all users.
       totalTicketProgress += w.tickets.avgProgress;
       totalProjectProgress += w.projects.avgProgress;
     });
@@ -132,7 +138,8 @@ export async function getBdCombinedWorkload() {
       data: {
         userWorkloads: combined,
         teamAverages,
-        identifiedIssues
+        identifiedIssues,
+        teamMonthlyTotals: (ticketsRes as any).meta?.teamMonthlyTotals || null
       } 
     };
   } catch (error: any) {

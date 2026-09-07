@@ -142,6 +142,38 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
       statusMap[st] = (statusMap[st] || 0) + 1;
     });
 
+    let periodStart = startOfMonth;
+    let periodEnd = endOfMonth;
+    if (filterOptions?.startDate && filterOptions?.endDate) {
+      periodStart = new Date(filterOptions.startDate);
+      periodStart.setHours(0, 0, 0, 0);
+      periodEnd = new Date(filterOptions.endDate);
+      periodEnd.setHours(23, 59, 59, 999);
+    }
+
+    // Monthly Support Tickets for this user
+    const completedTicketsThisMonth = await prisma.supportTicket.count({
+      where: {
+        assigneeId: effectiveUserId,
+        status: 'RESOLVED',
+        resolvedAt: { gte: periodStart, lte: periodEnd }
+      }
+    });
+
+    const assignedTicketsThisMonth = await prisma.supportTicket.count({
+      where: {
+        assigneeId: effectiveUserId,
+        createdAt: { gte: periodStart, lte: periodEnd }
+      }
+    });
+
+    const activeTicketsCount = await prisma.supportTicket.count({
+      where: {
+        assigneeId: effectiveUserId,
+        status: { not: 'RESOLVED' }
+      }
+    });
+
     // 2. Trend Data (last 6 months or custom range)
     let trendStartDate = new Date();
     trendStartDate.setMonth(trendStartDate.getMonth() - 5);
@@ -181,10 +213,21 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
       select: { completedAt: true }
     });
 
-    // Merge taskless project completions into the trend completed list
+    // Also fetch completed support tickets for trend data
+    const recentlyCompletedTickets = await prisma.supportTicket.findMany({
+      where: {
+        assigneeId: effectiveUserId,
+        status: 'RESOLVED',
+        resolvedAt: { gte: trendStartDate, lte: trendEndDate }
+      },
+      select: { resolvedAt: true }
+    });
+
+    // Merge taskless project and ticket completions into the trend completed list
     const allRecentlyCompleted = [
       ...recentlyCompletedTasks,
-      ...recentlyCompletedTasklessProjects
+      ...recentlyCompletedTasklessProjects,
+      ...recentlyCompletedTickets.map(t => ({ completedAt: t.resolvedAt }))
     ];
 
     const recentlyAssignedTasks = await prisma.bDTask.findMany({
@@ -210,9 +253,19 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
       select: { createdAt: true }
     });
 
+    // Also fetch tickets assigned in trend range
+    const recentlyAssignedTickets = await prisma.supportTicket.findMany({
+      where: {
+        assigneeId: effectiveUserId,
+        createdAt: { gte: trendStartDate, lte: trendEndDate }
+      },
+      select: { createdAt: true }
+    });
+
     const allRecentlyAssigned = [
       ...recentlyAssignedTasks,
-      ...recentlyCreatedTasklessProjects
+      ...recentlyCreatedTasklessProjects,
+      ...recentlyAssignedTickets.map(t => ({ createdAt: t.createdAt }))
     ];
 
     // 3. Projects by Work Type (Active) - for existing pie chart
@@ -273,7 +326,10 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
           activeProjects: activeProjects.length,
           activeTasks: activeTasksCount + tasklessActive.length,
           blockedTasks: blockedTasks.length,
-          completedThisMonth: completedTasksThisMonth + completedTasklessThisMonth
+          completedThisMonth: completedTasksThisMonth + completedTasklessThisMonth,
+          completedTicketsThisMonth,
+          assignedTicketsThisMonth,
+          activeTickets: activeTicketsCount
         },
         blockedTasksList: blockedTasks.map(t => {
           const daysBlocked = t.blockedAt ? Math.floor((now.getTime() - t.blockedAt.getTime()) / (1000 * 3600 * 24)) : 0;
@@ -352,6 +408,11 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
     });
 
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    let periodStart = startOfMonth;
+    let periodEnd = endOfMonth;
 
     let projectBaseFilter: any = {};
     let taskBaseFilter: any = {};
@@ -361,6 +422,10 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
       const s = new Date(filterOptions.startDate);
       const e = new Date(filterOptions.endDate);
       e.setHours(23, 59, 59, 999);
+      periodStart = new Date(s);
+      periodStart.setHours(0, 0, 0, 0);
+      periodEnd = new Date(e);
+
       if (filterOptions.dateType === 'ASSIGNED') {
         projectBaseFilter = { createdAt: { gte: s, lte: e } };
         taskBaseFilter = { createdAt: { gte: s, lte: e } };
@@ -450,6 +515,28 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
       const completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
       const blockedPercentage = totalItems > 0 ? Math.round((blockedCount / totalItems) * 100) : 0;
 
+      const ticketsCompletedThisMonth = await prisma.supportTicket.count({
+        where: {
+          assigneeId: u.id,
+          status: 'RESOLVED',
+          resolvedAt: { gte: periodStart, lte: periodEnd }
+        }
+      });
+
+      const ticketsAssignedThisMonth = await prisma.supportTicket.count({
+        where: {
+          assigneeId: u.id,
+          createdAt: { gte: periodStart, lte: periodEnd }
+        }
+      });
+
+      const ticketsActive = await prisma.supportTicket.count({
+        where: {
+          assigneeId: u.id,
+          status: { not: 'RESOLVED' }
+        }
+      });
+
       return {
         userId: u.id,
         fullName: u.fullName,
@@ -460,6 +547,9 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
         pendingTasks: pendingTasks + tasklessPending,
         blockedTasks,
         completedThisMonth: completedThisMonth + completedTasklessThisMonth,
+        ticketsCompletedThisMonth,
+        ticketsAssignedThisMonth,
+        ticketsActive,
         completionPercentage,
         blockedPercentage
       };
@@ -549,7 +639,40 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
       };
     });
 
-    return { success: true, data: { userStats: overview, teamTaskStatus, ganttProjects, projectProgress } };
+    // Team-wide support ticket summary
+    const teamTicketsCompletedThisMonth = await prisma.supportTicket.count({
+      where: {
+        status: 'RESOLVED',
+        resolvedAt: { gte: periodStart, lte: periodEnd }
+      }
+    });
+
+    const teamTicketsAssignedThisMonth = await prisma.supportTicket.count({
+      where: {
+        createdAt: { gte: periodStart, lte: periodEnd }
+      }
+    });
+
+    const teamTicketsActive = await prisma.supportTicket.count({
+      where: {
+        status: { not: 'RESOLVED' }
+      }
+    });
+
+    return { 
+      success: true, 
+      data: { 
+        userStats: overview, 
+        teamTaskStatus, 
+        ganttProjects, 
+        projectProgress,
+        teamTicketSummary: {
+          completedThisMonth: teamTicketsCompletedThisMonth,
+          assignedThisMonth: teamTicketsAssignedThisMonth,
+          active: teamTicketsActive
+        }
+      } 
+    };
   } catch (error) {
     console.error('Error fetching team overview:', error);
     return { success: false, error: 'Failed to fetch team overview' };
