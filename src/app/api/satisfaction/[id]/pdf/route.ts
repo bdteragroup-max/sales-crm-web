@@ -65,6 +65,8 @@ function generateSatisfactionPDFHTML(survey: any): string {
     <div class="section-title">1. ข้อมูลลูกค้าและการสำรวจ (Customer & Survey Info)</div>
     <table>
       <tr><td class="td-label">ชื่อบริษัทลูกค้า (Company Name)</td><td><strong>${survey.company.companyName}</strong></td></tr>
+      <tr><td class="td-label">ชื่อผู้ติดต่อ / ลูกค้า (Contact Person)</td><td><strong>${survey.contactName || '-'}</strong></td></tr>
+      <tr><td class="td-label">เบอร์โทรศัพท์ (Phone)</td><td>${survey.phone || '-'}</td></tr>
       <tr><td class="td-label">จังหวัด (Province)</td><td>${survey.province || '-'}</td></tr>
       <tr><td class="td-label">รอบประเมิน (Survey Round/Year)</td><td>รอบที่ ${survey.surveyRound} / ${survey.surveyYear}</td></tr>
       <tr><td class="td-label">วันที่ประเมิน (Survey Date)</td><td>${new Date(survey.surveyDate).toLocaleDateString('th-TH')}</td></tr>

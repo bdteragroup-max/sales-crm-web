@@ -17,6 +17,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
     }
 
+    const contactText = survey.contactName ? ` (ผู้ติดต่อ: ${survey.contactName})` : '';
+
     if (target === "SALES") {
       const relatedUsers = await prisma.quotation.findMany({
         where: { companyId: survey.companyId },
@@ -26,8 +28,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       for (const user of relatedUsers) {
         if (user.salespersonId) {
           await sendPushToUser(user.salespersonId, {
-            title: "📊 New satisfaction survey results",
-            body: `${survey.company.companyName} — Average score ${survey.scoreAverage.toFixed(1)}/5`,
+            title: "📊 ผลการประเมินความพึงพอใจลูกค้าใหม่",
+            body: `${survey.company.companyName}${contactText} — คะแนนเฉลี่ย ${survey.scoreAverage.toFixed(1)}/5`,
             url: `/marketing/satisfaction/${survey.id}`,
             category: "SATISFACTION"
           });
@@ -42,8 +44,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       for (const install of relatedInstalls) {
         if (install.technicianUserId) {
           await sendPushToUser(install.technicianUserId, {
-            title: "📊 New satisfaction survey results",
-            body: `${survey.company.companyName} — Average score ${survey.scoreAverage.toFixed(1)}/5`,
+            title: "📊 ผลการประเมินความพึงพอใจลูกค้าใหม่",
+            body: `${survey.company.companyName}${contactText} — คะแนนเฉลี่ย ${survey.scoreAverage.toFixed(1)}/5`,
             url: `/marketing/satisfaction/${survey.id}`,
             category: "SATISFACTION"
           });

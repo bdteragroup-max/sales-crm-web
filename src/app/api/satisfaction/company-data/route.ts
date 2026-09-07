@@ -97,6 +97,51 @@ export async function GET(req: Request) {
       }];
     });
 
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      include: {
+        contacts: {
+          select: {
+            id: true,
+            contactName: true,
+            position: true,
+            mobilePhone: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    // Merge and deduplicate contacts from company records and quotation relations
+    const contactsMap = new Map<string, any>();
+    if (company?.contacts) {
+      for (const c of company.contacts) {
+        if (c.contactName) contactsMap.set(c.contactName.trim().toLowerCase(), c);
+      }
+    }
+    for (const q of enrichedQuotations) {
+      if (q.contact?.contactName) {
+        const key = q.contact.contactName.trim().toLowerCase();
+        if (!contactsMap.has(key)) {
+          contactsMap.set(key, {
+            id: q.contact.id,
+            contactName: q.contact.contactName,
+            position: q.contact.position,
+            mobilePhone: q.contact.mobilePhone,
+            email: q.contact.email
+          });
+        }
+      }
+    }
+    const allContacts = Array.from(contactsMap.values());
+
+    const defaultContact = closedQuotations.find(q => q.contact?.contactName)?.contact 
+      || quotations.find(q => q.contact?.contactName)?.contact 
+      || allContacts[0] 
+      || null;
+    const defaultContactName = defaultContact?.contactName || null;
+    const defaultPhone = defaultContact?.mobilePhone || null;
+
     const latestPoNumber = closedQuotations.find(q => q.poNumber)?.poNumber || null;
     const latestInvoiceNumber = closedQuotations.find(q => q.invoiceNumber)?.invoiceNumber || null;
     const latestClosedDate = closedQuotations[0]?.billingDate || closedQuotations[0]?.poDate || closedQuotations[0]?.quotationDate || null;
@@ -110,6 +155,9 @@ export async function GET(req: Request) {
       closedQuotations,
       openQuotations,
       productSummary,
+      contacts: allContacts,
+      defaultContactName,
+      defaultPhone,
       isClosedSale: closedQuotations.length > 0,
       latestPoNumber,
       latestInvoiceNumber,

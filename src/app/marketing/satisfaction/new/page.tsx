@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Search, 
@@ -19,11 +19,38 @@ import {
   DollarSign,
   Info,
   CheckCircle2,
-  Tag
+  Tag,
+  User,
+  Phone,
+  ChevronDown,
+  X,
+  Check,
+  ArrowRight,
+  RotateCcw,
+  MapPin,
+  Briefcase
 } from 'lucide-react';
 import { searchCompanies } from "@/app/actions/sales";
 import Link from 'next/link';
 import { SATISFACTION_SCORE_LEGEND, formatPhoneForTel } from '@/app/lib/satisfactionScore';
+
+const formatContactName = (name?: string | null) => {
+  if (!name) return '';
+  let trimmed = name.trim();
+  while (trimmed.startsWith('คุณคุณ')) {
+    trimmed = trimmed.replace(/^คุณคุณ/, 'คุณ');
+  }
+  if (trimmed.startsWith('คุณนาย')) {
+    trimmed = trimmed.replace(/^คุณนาย\s*/, 'นาย ');
+  }
+  if (trimmed.startsWith('คุณนาง')) {
+    trimmed = trimmed.replace(/^คุณนาง\s*/, 'นาง ');
+  }
+  if (/^(คุณ|นาย|นาง|น\.ส\.|ดร\.|ช่าง)/.test(trimmed)) {
+    return trimmed;
+  }
+  return `คุณ${trimmed}`;
+};
 
 const formatDate = (dateStr: string | Date | null | undefined) => {
   if (!dateStr) return '-';
@@ -70,9 +97,49 @@ export default function NewSatisfactionSurvey() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<any | null>(null);
   const [phone, setPhone] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [availableContacts, setAvailableContacts] = useState<Array<{
+    id?: string;
+    contactName: string;
+    position?: string | null;
+    mobilePhone?: string | null;
+  }>>([]);
 
   const [activeCompanies, setActiveCompanies] = useState<any[]>([]);
   const [loadingActiveCompanies, setLoadingActiveCompanies] = useState(false);
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Click outside listener for company dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // Auto-focus search input when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+    }
+  }, [isDropdownOpen]);
 
   const [loadingData, setLoadingData] = useState(false);
   const [salesData, setSalesData] = useState<{ 
@@ -80,6 +147,9 @@ export default function NewSatisfactionSurvey() {
     closedQuotations?: any[];
     openQuotations?: any[];
     productSummary: any[];
+    contacts?: any[];
+    defaultContactName?: string | null;
+    defaultPhone?: string | null;
     isClosedSale?: boolean;
     latestPoNumber?: string | null;
     latestInvoiceNumber?: string | null;
@@ -91,6 +161,36 @@ export default function NewSatisfactionSurvey() {
   } | null>(null);
 
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const displayedCompanies = useMemo(() => {
+    const baseList = closedOnlyFilter ? activeCompanies.filter(c => c.isClosedSale) : activeCompanies;
+    
+    if (!search.trim()) {
+      return baseList;
+    }
+
+    const query = search.trim().toLowerCase();
+    const inMemoryMatches = baseList.filter(c => {
+      const matchName = c.companyName?.toLowerCase().includes(query);
+      const matchContact = c.primaryContactName?.toLowerCase().includes(query);
+      const matchPo = c.latestPoNumber?.toLowerCase().includes(query);
+      const matchInvoice = c.latestInvoiceNumber?.toLowerCase().includes(query);
+      const matchProvince = c.province?.toLowerCase().includes(query);
+      const matchSales = c.assignedUser?.fullName?.toLowerCase().includes(query);
+      return Boolean(matchName || matchContact || matchPo || matchInvoice || matchProvince || matchSales);
+    });
+
+    const existingIds = new Set(inMemoryMatches.map(c => c.id));
+    const extraMatches = companies.filter(c => !existingIds.has(c.id));
+
+    return [...inMemoryMatches, ...extraMatches];
+  }, [activeCompanies, closedOnlyFilter, search, companies]);
+
+  const handleSelectCompany = (company: any) => {
+    setSelectedCompany(company);
+    setIsDropdownOpen(false);
+    setSearch('');
+  };
 
   const [scores, setScores] = useState({
     scorePrice: 0,
@@ -161,14 +261,25 @@ export default function NewSatisfactionSurvey() {
   useEffect(() => {
     if (selectedCompany) {
       fetchSalesData(selectedCompany.id, round, year);
-      if (selectedCompany.contacts && selectedCompany.contacts.length > 0 && selectedCompany.contacts[0].mobilePhone) {
-        setPhone(selectedCompany.contacts[0].mobilePhone);
-      } else {
-        setPhone('');
+
+      const initialContacts: any[] = [];
+      if (selectedCompany.contacts && Array.isArray(selectedCompany.contacts)) {
+        selectedCompany.contacts.forEach((c: any) => {
+          if (c?.contactName) initialContacts.push(c);
+        });
       }
+      setAvailableContacts(initialContacts);
+
+      const initContactName = selectedCompany.primaryContactName || initialContacts[0]?.contactName || '';
+      setContactName(initContactName);
+
+      const initPhone = selectedCompany.primaryContactPhone || initialContacts[0]?.mobilePhone || selectedCompany.phone || '';
+      setPhone(initPhone);
     } else {
       setSalesData(null);
+      setContactName('');
       setPhone('');
+      setAvailableContacts([]);
     }
   }, [selectedCompany, round, year]);
 
@@ -179,12 +290,37 @@ export default function NewSatisfactionSurvey() {
       if (res.ok) {
         const data = await res.json();
         setSalesData(data);
-        
-        // Fallback phone from quotation contact if not set
+
+        // Merge contacts from company-data
+        if (data.contacts && Array.isArray(data.contacts)) {
+          setAvailableContacts(prev => {
+            const map = new Map<string, any>();
+            prev.forEach(c => {
+              if (c?.contactName) map.set(c.contactName.trim().toLowerCase(), c);
+            });
+            data.contacts.forEach((c: any) => {
+              if (c?.contactName) map.set(c.contactName.trim().toLowerCase(), c);
+            });
+            return Array.from(map.values());
+          });
+        }
+
+        // Auto-fill contactName if empty
+        setContactName(prev => {
+          if (!prev && data.defaultContactName) {
+            return data.defaultContactName;
+          }
+          return prev;
+        });
+
+        // Fallback phone from quotation contact or defaultPhone if not set
         setPhone(prev => {
-          if (!prev && data.quotations && data.quotations.length > 0) {
-            const quoteWithPhone = data.quotations.find((q: any) => q.contact?.mobilePhone || q.contact?.phone);
-            return quoteWithPhone?.contact?.mobilePhone || quoteWithPhone?.contact?.phone || '';
+          if (!prev) {
+            if (data.defaultPhone) return data.defaultPhone;
+            if (data.quotations && data.quotations.length > 0) {
+              const quoteWithPhone = data.quotations.find((q: any) => q.contact?.mobilePhone || q.contact?.phone);
+              return quoteWithPhone?.contact?.mobilePhone || quoteWithPhone?.contact?.phone || '';
+            }
           }
           return prev;
         });
@@ -199,6 +335,7 @@ export default function NewSatisfactionSurvey() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCompany) return alert('กรุณาเลือกบริษัท');
+    if (!contactName.trim()) return alert('กรุณาระบุชื่อลูกค้า / ผู้ติดต่อ เพื่อให้สะดวกต่อการประสานงานกับฝ่ายขาย');
     if (Object.values(scores).some(s => s === 0)) return alert('กรุณาให้คะแนนให้ครบทุกด้าน');
 
     setSubmitting(true);
@@ -209,6 +346,7 @@ export default function NewSatisfactionSurvey() {
         surveyMethod: method,
         surveyBy: 'MARKETING', // Using placeholder for marketing user
         companyId: selectedCompany.id,
+        contactName: contactName.trim(),
         province: selectedCompany.province || '',
         phone: phone,
         quotationIds: salesData?.quotations.map(q => q.quotationNumber) || [],
@@ -347,9 +485,11 @@ export default function NewSatisfactionSurvey() {
       <div className="p-6 max-w-5xl mx-auto space-y-6">
         
         {/* Customer & Company Profile Card */}
-        <div className="bg-white text-gray-800 rounded-3xl p-6 shadow-sm border border-gray-200 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-            <Building2 size={160} className="text-gray-800" />
+        <div className="bg-white text-gray-800 rounded-3xl p-6 shadow-sm border border-gray-200 relative">
+          <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+              <Building2 size={160} className="text-gray-800" />
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -393,159 +533,346 @@ export default function NewSatisfactionSurvey() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
-            {/* Search / Select Company */}
-            <div className="space-y-4 lg:col-span-1">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">เลือกบริษัท</label>
-                  {closedOnlyFilter && (
-                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-                      <ShieldCheck size={11} /> กรองเฉพาะที่มี PO/เปิดบิล
-                    </span>
-                  )}
-                </div>
-                {loadingActiveCompanies ? (
-                  <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                    <Loader2 size={16} className="animate-spin" /> กำลังโหลดข้อมูล...
+            {(!selectedCompany || isDropdownOpen) ? (
+              /* Unified Company Search & Select Station */
+              <div className="col-span-1 lg:col-span-3 space-y-4" ref={dropdownRef}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-gray-100">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-800 flex items-center gap-2">
+                      <Building2 size={18} className="text-[#ff2301]" />
+                      <span>{selectedCompany ? 'ค้นหาและเลือกเปลี่ยนบริษัทลูกค้า' : 'เลือกบริษัทลูกค้าเพื่อเริ่มต้นประเมินความพึงพอใจ'}</span>
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {selectedCompany 
+                        ? 'คลิกเลือกบริษัทใหม่ที่ต้องการประเมิน หรือกดยกเลิกเพื่อคงบริษัทเดิม' 
+                        : 'ค้นหาจากรายชื่อลูกค้าที่มีการปิดการขาย (มี PO/เปิดบิล) หรือเลือกจากบริษัททั้งหมด'}
+                    </p>
                   </div>
-                ) : (
-                  <select
-                    className="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#ff2301] outline-none text-sm font-medium"
-                    value={selectedCompany?.id || ""}
-                    onChange={(e) => {
-                      const compId = e.target.value;
-                      if (!compId) return;
-                      const company = activeCompanies.find(c => c.id === compId);
-                      if (company) {
-                        setSelectedCompany(company);
-                        setSearch(company.companyName);
-                        setCompanies([]);
-                      }
-                    }}
-                  >
-                    <option value="" disabled>-- เลือกบริษัท ({
-                      (closedOnlyFilter ? activeCompanies.filter(c => c.isClosedSale) : activeCompanies).length
-                    } รายการ) --</option>
-                    {(closedOnlyFilter ? activeCompanies.filter(c => c.isClosedSale) : activeCompanies).map(company => (
-                      <option key={company.id} value={company.id}>
-                        {company.isClosedSale ? '✓ [ปิดการขาย] ' : ''}
-                        {company.companyName}
-                        {company.latestPoNumber 
-                          ? ` (PO: ${company.latestPoNumber})` 
-                          : company.closedStatus 
-                            ? ` (${company.closedStatus})` 
-                            : ''}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
 
-              <div className="relative">
-                <div className="relative group">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <input
-                    type="text"
-                    placeholder="ค้นหาบริษัทอื่น..."
-                    value={search}
-                    onChange={(e) => {
-                      setSearch(e.target.value);
-                      setSelectedCompany(null);
-                    }}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 placeholder-gray-400 text-sm"
-                  />
-                  {isSearching && (
-                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#ff2301] animate-spin" size={16} />
+                  {selectedCompany && (
+                    <button
+                      type="button"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="self-start sm:self-auto px-3 py-1.5 rounded-xl text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
+                    >
+                      <X size={14} />
+                      <span>ยกเลิก (ใช้บริษัทเดิม)</span>
+                    </button>
                   )}
                 </div>
 
-                {companies.length > 0 && !selectedCompany && (
-                  <div className="absolute z-50 w-full mt-2 bg-white text-gray-800 rounded-xl shadow-xl max-h-[280px] overflow-y-auto border border-gray-200 divide-y divide-gray-100">
-                    {companies.map(company => (
-                      <div
-                        key={company.id}
-                        onClick={() => {
-                          setSelectedCompany(company);
-                          setSearch(company.companyName);
-                          setCompanies([]);
-                        }}
-                        className="p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                {/* Prominent Search Bar */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-gray-400">
+                    <Search size={18} />
+                  </div>
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="พิมพ์ชื่อบริษัท, ผู้ติดต่อ, เลข PO, เลขที่บิล, หรือจังหวัดเพื่อค้นหา..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-11 pr-32 py-3 bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-[#ff2301] focus:bg-white focus:border-transparent outline-none transition-all shadow-2xs placeholder-gray-400"
+                  />
+                  <div className="absolute inset-y-0 right-3 flex items-center gap-2">
+                    {isSearching && (
+                      <Loader2 size={16} className="text-[#ff2301] animate-spin" />
+                    )}
+                    {search && (
+                      <button
+                        type="button"
+                        onClick={() => setSearch('')}
+                        className="p-1 text-gray-400 hover:text-gray-600 rounded-md"
+                        title="ล้างคำค้นหา"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="font-bold text-sm text-gray-800">
-                            {company.companyName}
-                          </div>
-                          {company.isClosedSale ? (
-                            <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              <ShieldCheck size={11} className="text-emerald-600" /> ปิดการขาย
-                            </span>
-                          ) : (
-                            <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                              ยังไม่ปิดการขาย
-                            </span>
-                          )}
-                        </div>
+                        <X size={16} />
+                      </button>
+                    )}
+                    <span className="text-xs font-bold text-[#ff2301] bg-red-50 border border-red-100 px-2.5 py-1 rounded-xl">
+                      {displayedCompanies.length} บริษัท
+                    </span>
+                  </div>
+                </div>
 
-                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                          {company.province && <span>{company.province}</span>}
-                          {company.assignedUser?.fullName && <span>• เซลล์: {company.assignedUser.fullName}</span>}
-                          {company.latestPoNumber && (
-                            <span className="font-mono font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-300 px-1.5 py-0.5 rounded">
-                              PO: {company.latestPoNumber}
-                            </span>
+                {/* Clean Scrollable Company List */}
+                <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-xs">
+                  <div className="max-h-[360px] overflow-y-auto divide-y divide-gray-100">
+                    {loadingActiveCompanies ? (
+                      <div className="p-12 text-center text-gray-400 flex flex-col items-center gap-3">
+                        <Loader2 size={24} className="animate-spin text-[#ff2301]" />
+                        <span className="text-sm font-medium">กำลังโหลดข้อมูลบริษัท...</span>
+                      </div>
+                    ) : displayedCompanies.length === 0 ? (
+                      <div className="p-12 text-center text-gray-400 text-sm space-y-2">
+                        <Building2 size={36} className="mx-auto mb-2 text-gray-300" />
+                        <div className="font-bold text-gray-700">ไม่พบบริษัทที่ตรงกับเงื่อนไขการค้นหา</div>
+                        <div className="text-xs text-gray-400">
+                          {search.trim() ? `ไม่พบผลลัพธ์สำหรับ "${search}"` : 'ไม่มีข้อมูลบริษัทในรอบนี้'}
+                        </div>
+                        <div className="pt-2 flex items-center justify-center gap-2">
+                          {search && (
+                            <button
+                              type="button"
+                              onClick={() => setSearch('')}
+                              className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
+                            >
+                              ล้างคำค้นหา
+                            </button>
                           )}
-                          {company.latestInvoiceNumber && !company.latestPoNumber && (
-                            <span className="font-mono text-blue-800 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">
-                              บิล: {company.latestInvoiceNumber}
-                            </span>
+                          {closedOnlyFilter && (
+                            <button
+                              type="button"
+                              onClick={() => setClosedOnlyFilter(false)}
+                              className="text-xs px-3 py-1.5 bg-red-50 hover:bg-red-100 text-[#ff2301] font-bold rounded-xl transition-colors"
+                            >
+                              แสดงบริษัททั้งหมด ({activeCompanies.length})
+                            </button>
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+                    ) : (
+                      displayedCompanies.map((company) => {
+                        const isSelected = selectedCompany?.id === company.id;
+                        return (
+                          <div
+                            key={company.id}
+                            onClick={() => handleSelectCompany(company)}
+                            className={`p-3.5 transition-all cursor-pointer flex items-center justify-between gap-4 group ${
+                              isSelected 
+                                ? 'bg-red-50/90 border-l-4 border-l-[#ff2301]' 
+                                : 'hover:bg-red-50/40 border-l-4 border-l-transparent'
+                            }`}
+                          >
+                            <div className="min-w-0 flex-1 space-y-1.5">
+                              <div className="flex items-center gap-2.5 flex-wrap">
+                                <span className={`text-sm font-bold leading-tight group-hover:text-[#ff2301] transition-colors ${
+                                  isSelected ? 'text-[#ff2301]' : 'text-gray-900'
+                                }`}>
+                                  {company.companyName}
+                                </span>
+                                {company.isClosedSale ? (
+                                  <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <ShieldCheck size={11} className="text-emerald-600" /> ปิดการขายแล้ว
+                                  </span>
+                                ) : (
+                                  <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                    ยังไม่ปิดการขาย
+                                  </span>
+                                )}
+                              </div>
 
-            {/* Selected Details */}
-            {selectedCompany && (
-              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 lg:pt-0 lg:pl-8 lg:border-l border-gray-200">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">เบอร์โทรศัพท์ติดต่อ</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={phone}
-                      onChange={e => setPhone(e.target.value)}
-                      placeholder="กรอกเบอร์โทรศัพท์..."
-                      className="flex-1 bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none font-medium"
-                    />
-                    {phone && (
-                      <a
-                        href={`tel:${formatPhoneForTel(phone)}`}
-                        className="shrink-0 bg-[#ff2301] hover:bg-red-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm"
-                      >
-                        โทร
-                      </a>
+                              <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+                                {company.primaryContactName && (
+                                  <span className="inline-flex items-center gap-1 font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded text-xs">
+                                    <User size={11} className="text-[#ff2301]" />
+                                    {formatContactName(company.primaryContactName)}
+                                  </span>
+                                )}
+                                {company.latestPoNumber && (
+                                  <span className="font-mono font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-300 px-2 py-0.5 rounded text-[11px]">
+                                    PO: {company.latestPoNumber}
+                                  </span>
+                                )}
+                                {company.latestInvoiceNumber && !company.latestPoNumber && (
+                                  <span className="font-mono text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded text-[11px]">
+                                    บิล: {company.latestInvoiceNumber}
+                                  </span>
+                                )}
+                                {company.province && (
+                                  <span className="inline-flex items-center gap-1 text-gray-500">
+                                    <MapPin size={11} className="text-gray-400" />
+                                    <span>{company.province}</span>
+                                  </span>
+                                )}
+                                {company.assignedUser?.fullName && (
+                                  <span className="inline-flex items-center gap-1 text-gray-400">
+                                    <Briefcase size={11} className="text-gray-400" />
+                                    <span>เซลล์: {company.assignedUser.fullName}</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="shrink-0">
+                              {isSelected ? (
+                                <div className="flex items-center gap-1 text-xs font-bold text-[#ff2301] bg-white px-3 py-1.5 rounded-xl border border-red-200 shadow-xs">
+                                  <Check size={14} />
+                                  <span>กำลังเลือก</span>
+                                </div>
+                              ) : (
+                                <div className="hidden sm:flex items-center gap-1 text-xs font-semibold text-gray-400 group-hover:text-[#ff2301] group-hover:translate-x-0.5 transition-all">
+                                  <span>เลือกบริษัทนี้</span>
+                                  <ArrowRight size={14} />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">พนักงานขาย</label>
-                  <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium h-[42px] flex items-center">
-                    {selectedCompany.assignedUser?.fullName || salesData?.quotations?.[0]?.salesperson?.fullName ? (
-                      <span className="text-gray-800 font-bold">{selectedCompany.assignedUser?.fullName || salesData?.quotations?.[0]?.salesperson?.fullName}</span>
+              </div>
+            ) : (
+              /* Selected Company Summary Card (Left Column) */
+              <div className="lg:col-span-1 p-4 rounded-2xl border border-gray-200 bg-gray-50/80 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0 border border-red-100">
+                      <Building2 size={20} />
+                    </div>
+                    {selectedCompany.isClosedSale ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <ShieldCheck size={11} className="text-emerald-600" /> ปิดการขายแล้ว
+                      </span>
                     ) : (
-                      <span className="text-gray-400 italic">ไม่มีข้อมูลพนักงานขาย</span>
+                      <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        ยังไม่ปิดการขาย
+                      </span>
                     )}
+                  </div>
+
+                  <div>
+                    <div className="text-base font-black text-gray-900 leading-snug">
+                      {selectedCompany.companyName}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500 mt-1.5">
+                      {selectedCompany.latestPoNumber && (
+                        <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-300">
+                          PO: {selectedCompany.latestPoNumber}
+                        </span>
+                      )}
+                      {selectedCompany.province && (
+                        <span className="text-gray-500 inline-flex items-center gap-1">
+                          <MapPin size={12} className="text-gray-400" />
+                          <span>{selectedCompany.province}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(true)}
+                  className="w-full py-2 px-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                >
+                  <RotateCcw size={13} className="text-[#ff2301]" />
+                  <span>ค้นหา / เปลี่ยนบริษัทอื่น</span>
+                </button>
+              </div>
+            )}
+
+            {/* Selected Details */}
+            {selectedCompany && !isDropdownOpen && (
+              <div className="lg:col-span-2 flex flex-col justify-between gap-5 pt-2 lg:pt-0 lg:pl-8 lg:border-l border-gray-200">
+                {/* Contact Name & Quick Pick */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <User size={14} className="text-[#ff2301]" />
+                      <span>ชื่อลูกค้า / ผู้ติดต่อ (Contact Person)</span>
+                      <span className="text-[#ff2301]">*</span>
+                    </label>
+                    <span className="text-[11px] text-gray-400">ผู้ให้ข้อมูลการประเมิน</span>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+                      <User size={16} />
+                    </div>
+                    <input
+                      type="text"
+                      value={contactName}
+                      onChange={e => setContactName(e.target.value)}
+                      placeholder="ระบุชื่อผู้ติดต่อ / ลูกค้า (เช่น คุณสมชาย จัดซื้อ)..."
+                      className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-800 rounded-xl text-sm focus:ring-2 focus:ring-[#ff2301] focus:bg-white outline-none font-semibold transition-all"
+                    />
+                  </div>
+
+                  {/* Quick-select chips if company has contacts */}
+                  {availableContacts.length > 0 && (
+                    <div className="pt-1">
+                      <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                        <span>เลือกจากผู้ติดต่อในระบบ:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {availableContacts.map((c, idx) => {
+                          const isSelected = contactName === c.contactName;
+                          return (
+                            <button
+                              key={c.id || idx}
+                              type="button"
+                              onClick={() => {
+                                setContactName(c.contactName);
+                                if (c.mobilePhone) {
+                                  setPhone(c.mobilePhone);
+                                }
+                              }}
+                              className={`text-xs px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${
+                                isSelected
+                                  ? 'bg-red-50 border-[#ff2301] text-[#ff2301] font-bold shadow-xs'
+                                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300'
+                              }`}
+                            >
+                              <User size={12} className={isSelected ? 'text-[#ff2301]' : 'text-gray-400'} />
+                              <span>{c.contactName}</span>
+                              {c.position && <span className="text-[10px] text-gray-400">({c.position})</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Phone & Salesperson Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                      <Phone size={13} className="text-gray-400" />
+                      <span>เบอร์โทรศัพท์ติดต่อ</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        placeholder="กรอกเบอร์โทรศัพท์..."
+                        className="flex-1 bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#ff2301] focus:bg-white outline-none font-medium"
+                      />
+                      {phone && (
+                        <a
+                          href={`tel:${formatPhoneForTel(phone)}`}
+                          className="shrink-0 bg-[#ff2301] hover:bg-red-600 text-white px-3.5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-1.5"
+                        >
+                          <Phone size={14} />
+                          <span>โทร</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                      พนักงานขายผู้รับผิดชอบ
+                    </label>
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-medium h-[42px] flex items-center">
+                      {selectedCompany.assignedUser?.fullName || salesData?.quotations?.[0]?.salesperson?.fullName ? (
+                        <span className="text-gray-800 font-bold">
+                          {selectedCompany.assignedUser?.fullName || salesData?.quotations?.[0]?.salesperson?.fullName}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">ไม่มีข้อมูลพนักงานขาย</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
             {/* Caller Assurance Banner (แถบยืนยันการรับ PO / สถานะการสั่งซื้อ) */}
-            {selectedCompany && (
+            {selectedCompany && !isDropdownOpen && (
               <div className="lg:col-span-3 pt-4 border-t border-gray-100">
                 {(salesData?.isClosedSale ?? selectedCompany?.isClosedSale) ? (
                   <div className="rounded-2xl bg-gradient-to-br from-emerald-50/90 to-teal-50/90 border-2 border-emerald-300 p-5 shadow-sm space-y-4">

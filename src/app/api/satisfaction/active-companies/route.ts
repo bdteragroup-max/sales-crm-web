@@ -71,7 +71,22 @@ export async function GET(req: Request) {
             companyName: true,
             province: true,
             assignedUser: { select: { fullName: true } },
-            contacts: { select: { mobilePhone: true } }
+            contacts: {
+              select: {
+                id: true,
+                contactName: true,
+                position: true,
+                mobilePhone: true
+              }
+            }
+          }
+        },
+        contact: {
+          select: {
+            id: true,
+            contactName: true,
+            position: true,
+            mobilePhone: true
           }
         }
       },
@@ -104,9 +119,14 @@ export async function GET(req: Request) {
       const isRejected = q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก') || ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'].includes(q.status);
       const isClosed = !isRejected && (closedStatuses.includes(q.status) || !!cleanPo || !!q.billingDate);
 
+      const contactName = q.contact?.contactName || q.company.contacts?.[0]?.contactName || null;
+      const contactPhone = q.contact?.mobilePhone || q.company.contacts?.[0]?.mobilePhone || null;
+
       if (!companyMap.has(q.companyId)) {
         companyMap.set(q.companyId, {
           ...q.company,
+          primaryContactName: contactName,
+          primaryContactPhone: contactPhone,
           isClosedSale: isClosed,
           closedStatus: q.status || 'เปิดบิลแล้ว',
           latestPoNumber: cleanPo,
@@ -120,6 +140,10 @@ export async function GET(req: Request) {
         const existing = companyMap.get(q.companyId);
         if (isClosed) {
           existing.closedQuotationsCount += 1;
+        }
+        if (!existing.primaryContactName && contactName) {
+          existing.primaryContactName = contactName;
+          existing.primaryContactPhone = contactPhone;
         }
         // If existing record did not have a PO number but current one does, prioritize PO
         if (!existing.latestPoNumber && cleanPo) {

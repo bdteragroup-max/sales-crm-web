@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle, Share2, FileText, Download, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Share2, FileText, Download, Loader2, Save, User as UserIcon, Phone } from 'lucide-react';
 import { CustomerSatisfaction, Company, User } from '@/generated/client';
 
 type SurveyData = CustomerSatisfaction & {
@@ -106,7 +106,20 @@ export default function SatisfactionDetailClient({ id }: { id: string }) {
           </Link>
           <div>
             <h1 className="text-2xl font-black text-gray-900">{survey.company.companyName}</h1>
-            <p className="text-gray-500">รอบประเมินที่ {survey.surveyRound} / ปี {survey.surveyYear}</p>
+            <div className="flex flex-wrap items-center gap-2.5 mt-1.5 text-sm text-gray-600">
+              {survey.contactName && (
+                <span className="inline-flex items-center gap-1.5 font-bold text-[#ff2301] bg-red-50 px-2.5 py-0.5 rounded-lg border border-red-100">
+                  <UserIcon size={14} /> ผู้ติดต่อ: {survey.contactName}
+                </span>
+              )}
+              {survey.phone && (
+                <span className="inline-flex items-center gap-1 text-gray-600">
+                  <Phone size={14} className="text-gray-400" /> {survey.phone}
+                </span>
+              )}
+              <span className="text-gray-300">•</span>
+              <span className="text-gray-500">รอบประเมินที่ {survey.surveyRound} / ปี {survey.surveyYear}</span>
+            </div>
           </div>
         </div>
 

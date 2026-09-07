@@ -97,7 +97,14 @@ export async function searchCompanies(
       where: whereClause,
       include: {
         assignedUser: { select: { fullName: true } },
-        contacts: { select: { mobilePhone: true } }
+        contacts: {
+          select: {
+            id: true,
+            contactName: true,
+            position: true,
+            mobilePhone: true
+          }
+        }
       },
       take: surveyExcludeFilter ? 15 : 5
     });
@@ -129,7 +136,15 @@ export async function searchCompanies(
           quotationDate: true,
           actualClosingAmount: true,
           totalAmountBeforeVat: true,
-          createdAt: true
+          createdAt: true,
+          contact: {
+            select: {
+              id: true,
+              contactName: true,
+              position: true,
+              mobilePhone: true
+            }
+          }
         },
         orderBy: [
           { billingDate: 'desc' },
@@ -156,8 +171,13 @@ export async function searchCompanies(
         const latestClosedDate = closedQ?.billingDate || closedQ?.poDate || closedQ?.quotationDate || null;
         const actualClosingAmount = closedQ?.actualClosingAmount ?? closedQ?.totalAmountBeforeVat ?? null;
 
+        const primaryContactName = closedQ?.contact?.contactName || comp.contacts?.[0]?.contactName || null;
+        const primaryContactPhone = closedQ?.contact?.mobilePhone || comp.contacts?.[0]?.mobilePhone || null;
+
         return {
           ...comp,
+          primaryContactName,
+          primaryContactPhone,
           isClosedSale,
           closedStatus,
           latestPoNumber,

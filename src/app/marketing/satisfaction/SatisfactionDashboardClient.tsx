@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, FileText, CheckCircle, Clock, AlertTriangle, ArrowRight, BarChart3, TrendingUp, Filter } from 'lucide-react';
+import { Plus, FileText, CheckCircle, Clock, AlertTriangle, ArrowRight, BarChart3, TrendingUp, Filter, User } from 'lucide-react';
 import { CustomerSatisfaction, Company } from '@/generated/client';
 import { SATISFACTION_SCORE_LEGEND, formatPhoneForTel } from '@/app/lib/satisfactionScore';
 
@@ -268,6 +268,10 @@ export default function SatisfactionDashboardClient() {
                         </td>
                         <td className="p-5 min-w-[250px]">
                           <div className="font-bold text-slate-900">{survey.company.companyName}</div>
+                          <div className="text-xs text-slate-600 mt-0.5 flex items-center gap-1.5 font-medium">
+                            <User size={12} className="text-[#ff2301]" />
+                            <span>ผู้ติดต่อ: {survey.contactName || <span className="text-slate-400 font-normal">ไม่ระบุ</span>}</span>
+                          </div>
                           <div className="text-xs text-slate-500 mt-1 flex items-center gap-2">
                             {survey.phone ? (
                               <a href={`tel:${formatPhoneForTel(survey.phone)}`} className="text-blue-600 hover:underline">
