@@ -588,9 +588,40 @@ export default function JobsClientPage({
   const [filterDeptStatus, setFilterDeptStatus] = useState("");
   const [isPending, startTransition] = useTransition();
 
+  const isSuperAdmin = useMemo(() => {
+    const roleLower = String(userRole || "").toLowerCase().trim();
+    return (
+      userRole === "SUPER_ADMIN" ||
+      roleLower === "super_admin" ||
+      roleLower === "super admin" ||
+      roleLower.includes("super_admin") ||
+      roleLower.includes("superadmin") ||
+      roleLower === "admin" ||
+      roleLower === "administrator" ||
+      roleLower.includes("ผู้ดูแลระบบ") ||
+      roleLower === "executive" ||
+      roleLower === "ผู้บริหาร"
+    );
+  }, [userRole]);
+
   const normalizedDept = useMemo(() => {
     const roleLower = String(userRole || "").toLowerCase().trim();
     const d = userDept.toLowerCase().trim();
+
+    if (isSuperAdmin) {
+      return [
+        "all",
+        "sales",
+        "accounting",
+        "service",
+        "purchase",
+        "production",
+        "project",
+        "delivery",
+        "store",
+      ];
+    }
+
     const depts: string[] = [];
 
     const isSales =
@@ -660,10 +691,10 @@ export default function JobsClientPage({
 
     if (depts.length === 0) depts.push(d);
     return depts;
-  }, [userDept, userRole]);
+  }, [userDept, userRole, isSuperAdmin]);
 
   const [filterStatus, setFilterStatus] = useState<"all" | "pending">(
-    normalizedDept.includes("sales") ? "all" : "pending"
+    isSuperAdmin || normalizedDept.includes("sales") ? "all" : "pending"
   );
   const [statusTab, setStatusTab] = useState<string>("all");
 
@@ -1277,7 +1308,9 @@ export default function JobsClientPage({
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
               <User2 size={11} className="text-slate-500" />
               <span>
-                {isManager
+                {isSuperAdmin
+                  ? "ผู้ดูแลระบบ (SUPER ADMIN - ทุกงานในระบบ)"
+                  : isManager
                   ? "ผู้บริหาร (ทุกงานในระบบ)"
                   : `พนักงาน: ${currentUser}`}
               </span>

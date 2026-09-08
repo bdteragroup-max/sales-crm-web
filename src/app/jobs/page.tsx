@@ -29,11 +29,21 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   }
 
   const roleStr = (user.role || '').toLowerCase();
+  const isSuperAdmin = 
+    user.role === 'SUPER_ADMIN' || 
+    roleStr === 'super_admin' || 
+    roleStr === 'super admin' || 
+    roleStr.includes('super_admin') || 
+    roleStr.includes('superadmin') ||
+    roleStr === 'admin' ||
+    roleStr === 'administrator' ||
+    roleStr.includes('ผู้ดูแลระบบ');
+  const isExecutive = roleStr === 'ผู้บริหาร' || roleStr === 'executive';
   const isMarketingManager = roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด');
   const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager');
   const isServiceManager = roleStr.includes('service engineer mgr');
   const isOpsManager = roleStr.includes('warehouse, transport & purchasing manager') || roleStr.includes('ผู้จัดการฝ่ายคลังสินค้า') || roleStr.includes('คลังสินค้า') || roleStr.includes('จัดส่ง') || roleStr.includes('จัดซื้อ') || roleStr.includes('warehouse') || roleStr.includes('transport') || roleStr.includes('purchasing');
-  const isManager = isSalesManager || isServiceManager || isMarketingManager || isOpsManager; 
+  const isManager = isSuperAdmin || isExecutive || isSalesManager || isServiceManager || isMarketingManager || isOpsManager; 
   
   const teraEmployee = await teraDb.employees.findUnique({
     where: { emp_id: user.employeeId },
@@ -43,11 +53,13 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   const resolvedDept = user.employeeSale?.department || teraEmployee?.departments?.name || "sales";
   const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย') || resolvedDept.includes('เซลส์') || resolvedDept.includes('เซลล์');
   const isSalesRole = roleStr.includes('sale') || roleStr.includes('ขาย') || roleStr.includes('เซลส์') || roleStr.includes('เซลล์');
-  const isSales = isSalesDept || isSalesRole;
+  const isSales = !isSuperAdmin && !isExecutive && (isSalesDept || isSalesRole);
 
   let whereClause: any = {}; // Default to all jobs for non-sales (like Store, Accounting)
   
-  if (isMarketingManager) {
+  if (isSuperAdmin || isExecutive) {
+    whereClause = {}; // Super Admin & Executive see ALL jobs
+  } else if (isMarketingManager) {
     whereClause = {}; // Marketing Manager sees all jobs
   } else if (isSalesManager) {
     const subordinates = await teraDb.employees.findMany({
