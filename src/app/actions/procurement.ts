@@ -10,6 +10,8 @@ export async function createPurchaseRequest(data: {
   itemList: string;
   note?: string;
   orderId?: string;
+  requestedBy?: string;
+  recordedAt?: string | null;
 }) {
   const user = await getUser();
   if (!user) return { success: false, error: "Unauthorized" };
@@ -20,6 +22,9 @@ export async function createPurchaseRequest(data: {
       where: { prNumber: cleanPrNumber }
     });
 
+    const requester = data.requestedBy?.trim() || user.fullName || user.email || 'Unknown';
+    const docDate = data.recordedAt ? new Date(data.recordedAt) : new Date();
+
     if (existing) {
       // In-place overwrite existing PR instead of failing or creating duplicate entries
       const updated = await prisma.purchaseRequest.update({
@@ -28,9 +33,9 @@ export async function createPurchaseRequest(data: {
           projectName: data.projectName,
           itemList: data.itemList,
           note: data.note ? (existing.note ? `${existing.note}\n${data.note}` : data.note) : existing.note,
-          requestedBy: user.fullName || user.email || existing.requestedBy || 'Unknown',
+          requestedBy: requester || existing.requestedBy || 'Unknown',
           orderId: data.orderId || existing.orderId,
-          recordedAt: existing.recordedAt || new Date()
+          recordedAt: data.recordedAt ? docDate : (existing.recordedAt || docDate)
         }
       });
 
@@ -52,9 +57,9 @@ export async function createPurchaseRequest(data: {
         projectName: data.projectName,
         itemList: data.itemList,
         note: data.note,
-        requestedBy: user.fullName || user.email || 'Unknown',
+        requestedBy: requester,
         orderId: data.orderId || null,
-        recordedAt: new Date()
+        recordedAt: docDate
       }
     });
 

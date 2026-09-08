@@ -59,6 +59,13 @@ export default async function StoreDashboardPage() {
     }
   });
 
+  // Fetch pending approved requisitions waiting for warehouse dispatch
+  const pendingRequisitionsCount = await prisma.materialRequisition.count({
+    where: {
+      status: 'APPROVED'
+    }
+  }).catch(() => 0);
+
   const serializePOs = (pos: any[]) => pos.map(po => ({
     ...po,
     totalAmount: po.totalAmount ? Number(po.totalAmount) : null,
@@ -69,9 +76,12 @@ export default async function StoreDashboardPage() {
   }));
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">แดชบอร์ดสโตร์ (Store Dashboard)</h1>
-      <StoreDashboardClient pendingPOs={serializePOs(pendingPOs)} receivedPOs={serializePOs(receivedPOs)} />
+    <div className="p-4 sm:p-6 lg:p-8 bg-slate-50/50 min-h-screen">
+      <StoreDashboardClient 
+        pendingPOs={serializePOs(pendingPOs)} 
+        receivedPOs={serializePOs(receivedPOs)} 
+        pendingRequisitionsCount={pendingRequisitionsCount}
+      />
     </div>
   );
 }

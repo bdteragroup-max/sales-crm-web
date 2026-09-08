@@ -6,7 +6,11 @@ import { isSuperUser } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PRListPage() {
+export default async function PRListPage(props: { searchParams?: Promise<any> | any }) {
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const initialSearch = typeof searchParams.search === 'string' ? searchParams.search : '';
+  const initialStatus = typeof searchParams.status === 'string' ? searchParams.status : 'ALL';
+
   const user = await getUser();
   if (!user) redirect('/');
 
@@ -20,10 +24,20 @@ export default async function PRListPage() {
   }
 
   const prs = await prisma.purchaseRequest.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: [
+      { recordedAt: 'desc' },
+      { createdAt: 'desc' }
+    ],
     include: {
       purchaseOrders: {
-        select: { poNumber: true, receiveStatus: true }
+        select: {
+          id: true,
+          poNumber: true,
+          vendorName: true,
+          totalAmount: true,
+          receiveStatus: true,
+          recordedAt: true
+        }
       }
     }
   });
@@ -39,10 +53,27 @@ export default async function PRListPage() {
     orderBy: { updatedAt: 'desc' }
   });
 
+  const serializedPrs = prs.map(pr => ({
+    ...pr,
+    purchaseOrders: pr.purchaseOrders?.map((po: any) => ({
+      ...po,
+      totalAmount: po.totalAmount ? Number(po.totalAmount) : null
+    }))
+  }));
+
+  const serializedPendingOrders = pendingPrOrders.map(order => ({
+    ...order,
+    orderTotal: (order as any).orderTotal ? Number((order as any).orderTotal) : null
+  }));
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">รายการขอซื้อ (Purchase Requests - PR)</h1>
-      <PRListClient initialPrs={prs} pendingPrOrders={pendingPrOrders} />
+    <div className="p-4 md:p-6 lg:p-8 bg-gray-50/50 min-h-screen">
+      <PRListClient 
+        initialPrs={serializedPrs} 
+        pendingPrOrders={serializedPendingOrders}
+        initialSearch={initialSearch}
+        initialStatus={initialStatus}
+      />
     </div>
   );
 }

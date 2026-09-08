@@ -21,10 +21,25 @@ export default async function ProcurementDashboardPage() {
     select: {
       id: true,
       poNumber: true,
+      prNumber: true,
       receiveStatus: true,
       totalAmount: true,
       creditTerm: true,
-      createdAt: true
+      recordedAt: true,
+      createdAt: true,
+      vendorName: true,
+      jobName: true,
+      itemList: true,
+      deliveryDate: true,
+      receivedBy: true,
+      purchaseRequest: {
+        select: {
+          projectName: true
+        }
+      }
+    },
+    orderBy: {
+      recordedAt: 'desc'
     }
   });
 
@@ -44,8 +59,7 @@ export default async function ProcurementDashboardPage() {
   });
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">แดชบอร์ดจัดซื้อ (Procurement Dashboard)</h1>
+    <div className="p-4 md:p-6 lg:p-8 bg-gray-50/50 min-h-screen">
       <DashboardClient pos={serializedPos} prs={prs} />
     </div>
   );

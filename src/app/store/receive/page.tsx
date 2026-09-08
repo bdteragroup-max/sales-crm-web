@@ -12,7 +12,7 @@ export default async function StoreReceivePage() {
 
   const userRoleStr = (user.role || '').toLowerCase();
   const isStore = ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin'].some((r) => userRoleStr.includes(r));
-  
+
   if (!isStore) {
     redirect('/dashboard');
   }
@@ -65,7 +65,10 @@ export default async function StoreReceivePage() {
     include: {
       purchaseRequest: {
         select: {
-          projectName: true
+          projectName: true,
+          prNumber: true,
+          requestedBy: true,
+          reportedBy: true
         }
       }
     },
@@ -81,9 +84,10 @@ export default async function StoreReceivePage() {
     remainingAmount: po.remainingAmount ? Number(po.remainingAmount) : null,
     payment1: po.payment1 ? Number(po.payment1) : null,
     projectName: po.purchaseRequest?.projectName || po.jobName || '-',
+    prRequestedBy: po.purchaseRequest?.requestedBy || null,
   }));
 
-  // Fetch received POs (limit to recent 100)
+  // Fetch received POs (recent 200)
   const receivedPOs = await prisma.purchaseOrder.findMany({
     where: {
       receiveStatus: 'Received'
@@ -91,14 +95,17 @@ export default async function StoreReceivePage() {
     include: {
       purchaseRequest: {
         select: {
-          projectName: true
+          projectName: true,
+          prNumber: true,
+          requestedBy: true,
+          reportedBy: true
         }
       }
     },
     orderBy: {
       receivedAt: 'desc'
     },
-    take: 100
+    take: 200
   });
 
   const serializedReceivedPOs = receivedPOs.map(po => ({
@@ -108,12 +115,16 @@ export default async function StoreReceivePage() {
     remainingAmount: po.remainingAmount ? Number(po.remainingAmount) : null,
     payment1: po.payment1 ? Number(po.payment1) : null,
     projectName: po.purchaseRequest?.projectName || po.jobName || '-',
+    prRequestedBy: po.purchaseRequest?.requestedBy || null,
   }));
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">รายการรับสินค้าเข้าสโตร์ (Store Receiving)</h1>
-      <StoreReceiveClient initialPos={serializedPOs} initialReceivedPos={serializedReceivedPOs} userName={user.fullName} />
+    <div className="p-4 sm:p-6 lg:p-8 bg-slate-50/50 min-h-screen">
+      <StoreReceiveClient
+        initialPos={serializedPOs}
+        initialReceivedPos={serializedReceivedPOs}
+        userName={user.fullName || 'เจ้าหน้าที่สโตร์'}
+      />
     </div>
   );
 }

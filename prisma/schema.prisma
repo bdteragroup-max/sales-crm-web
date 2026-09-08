@@ -2392,7 +2392,6 @@ model CustomerSatisfaction {
   companyId        String
   province         String
   phone            String
-  contactName      String?
   quotationIds     String[]
   scorePrice       Int
   scoreQuality     Int
@@ -2412,6 +2411,7 @@ model CustomerSatisfaction {
   updatedAt        DateTime  @updatedAt
   callNotes        String?
   criteriaComments Json?
+  contactName      String?
   company          Company   @relation(fields: [companyId], references: [id])
   surveyor         User      @relation(fields: [surveyBy], references: [id])
 }

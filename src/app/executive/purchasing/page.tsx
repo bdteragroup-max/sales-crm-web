@@ -21,9 +21,25 @@ export default async function ExecutivePurchasingDashboard() {
     select: {
       id: true,
       poNumber: true,
+      prNumber: true,
       receiveStatus: true,
       totalAmount: true,
-      createdAt: true
+      creditTerm: true,
+      recordedAt: true,
+      createdAt: true,
+      vendorName: true,
+      jobName: true,
+      itemList: true,
+      deliveryDate: true,
+      receivedBy: true,
+      purchaseRequest: {
+        select: {
+          projectName: true
+        }
+      }
+    },
+    orderBy: {
+      recordedAt: 'desc'
     }
   });
 

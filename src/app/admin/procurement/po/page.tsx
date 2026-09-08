@@ -28,7 +28,10 @@ export default async function POListPage(props: { searchParams?: Promise<any> | 
         select: { projectName: true }
       }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: [
+      { recordedAt: 'desc' },
+      { createdAt: 'desc' }
+    ]
   });
 
   const serializedPos = pos.map(po => ({
@@ -40,8 +43,7 @@ export default async function POListPage(props: { searchParams?: Promise<any> | 
   }));
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">รายการสั่งซื้อ (Purchase Orders - PO)</h1>
+    <div className="p-4 md:p-6 lg:p-8 bg-gray-50/50 min-h-screen">
       <POListClient initialPos={serializedPos} initialSearch={initialSearch} />
     </div>
   );
