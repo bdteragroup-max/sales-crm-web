@@ -61,25 +61,81 @@ export default async function ProjectDetailPage(props: { params: Promise<{ id: s
     select: { id: true, fullName: true, role: true }
   });
 
-  const projectName = project.name.replace('Project: ', '').trim();
-  const searchTerms = [project.projectNumber, projectName];
-  if (project.clientName) searchTerms.push(project.clientName);
+function extractSearchKeywords(project: any): { keywords: string[]; primaryKeyword: string } {
+  const terms = new Set<string>();
+  let primaryKeyword = "";
+
+  if (project.projectNumber) {
+    terms.add(project.projectNumber);
+    const numOnly = project.projectNumber.replace(/[-_\s]/g, "");
+    if (numOnly.length >= 4) terms.add(numOnly);
+  }
+
+  if (project.job?.jobNumber) {
+    terms.add(project.job.jobNumber);
+    const jobNumOnly = project.job.jobNumber.replace(/[-_\s]/g, "");
+    if (jobNumOnly.length >= 4) terms.add(jobNumOnly);
+  }
+
+  if (project.contractNumber && project.contractNumber.length >= 4) {
+    terms.add(project.contractNumber);
+  }
+
+  if (project.name) {
+    terms.add(project.name);
+    // Strip common Thai & English prefixes like "โครงการ", "งาน", "Project:"
+    const clean = project.name
+      .replace(/^(Project|PJ|โครงการ|งานติดตั้ง|ติดตั้งระบบ|งาน|ก่อสร้าง|ระบบ)\s*[:\-\s]*/gi, "")
+      .replace(/\s*(จำกัด|มหาชน|\(มหาชน\))\s*$/gi, "")
+      .trim();
+    if (clean.length >= 3) {
+      terms.add(clean);
+      primaryKeyword = clean;
+    }
+  }
+
+  if (!primaryKeyword && project.name) {
+    primaryKeyword = project.name;
+  }
+
+  if (project.clientName) {
+    terms.add(project.clientName);
+    const cleanClient = project.clientName
+      .replace(/^(บริษัท|บจก\.|หจก\.|ห้างหุ้นส่วนจำกัด)\s*/gi, "")
+      .replace(/\s*(จำกัด|มหาชน|\(มหาชน\))\s*$/gi, "")
+      .trim();
+    if (cleanClient.length >= 4) {
+      terms.add(cleanClient);
+    }
+  }
+
+  const list = Array.from(terms).filter((t) => t && t.length >= 3);
+  return { keywords: list, primaryKeyword: primaryKeyword || project.name || "" };
+}
+
+  const { keywords: searchTerms, primaryKeyword } = extractSearchKeywords(project);
 
   const pos = await prisma.purchaseOrder.findMany({
     where: {
-      OR: searchTerms.map(term => ({ jobName: { contains: term, mode: 'insensitive' } }))
+      OR: searchTerms.flatMap((term) => [
+        { jobName: { contains: term, mode: "insensitive" } },
+        { purchaseRequest: { projectName: { contains: term, mode: "insensitive" } } },
+      ]),
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: [
+      { recordedAt: "desc" },
+      { createdAt: "desc" },
+    ],
   });
 
   const prs = await prisma.purchaseRequest.findMany({
     where: {
-      OR: searchTerms.map(term => ({ projectName: { contains: term, mode: 'insensitive' } }))
+      OR: searchTerms.map((term) => ({ projectName: { contains: term, mode: "insensitive" } })),
     },
     include: {
-      purchaseOrders: true
+      purchaseOrders: true,
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: "desc" },
   });
 
   const serializedProject = JSON.parse(JSON.stringify(project));
@@ -91,15 +147,19 @@ export default async function ProjectDetailPage(props: { params: Promise<{ id: s
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Sidebar activeRoute="/projects" userFullName={user.fullName} userId={user.employeeId} userRole={user.role} />
-      <main className="flex-1 overflow-hidden relative custom-scrollbar flex flex-col h-full bg-gray-50/50 pt-16 md:pt-0">
-        <ProjectDetailClient 
-          project={serializedProject} 
-          currentUser={serializedUser} 
-          isManager={isManager} 
-          allUsers={serializedUsers} 
-          pos={serializedPos}
-          prs={serializedPrs}
-        />
+      <main className="flex-1 overflow-hidden relative flex flex-col h-full bg-gray-50/50 pt-16 md:pt-0">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <ProjectDetailClient 
+            project={serializedProject} 
+            currentUser={serializedUser} 
+            isManager={isManager} 
+            allUsers={serializedUsers} 
+            pos={serializedPos}
+            prs={serializedPrs}
+            searchKeywords={searchTerms}
+            primarySearchKeyword={primaryKeyword}
+          />
+        </div>
       </main>
     </div>
   )

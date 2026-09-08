@@ -16,7 +16,7 @@ const base64ToUint8Array = (base64: string) => {
   return outputArray;
 };
 
-export default function PushNotificationButton() {
+export default function PushNotificationButton({ className }: { className?: string }) {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,24 +92,26 @@ export default function PushNotificationButton() {
 
   if (!isSupported) return null;
 
+  const defaultClasses = `flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border shadow-xs ${
+    isSubscribed
+      ? "bg-emerald-50/80 text-emerald-700 border-emerald-200 cursor-default"
+      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+  }`;
+
   return (
     <button
       onClick={subscribeButtonOnClick}
       disabled={isLoading || isSubscribed}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-        isSubscribed
-          ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
-          : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 shadow-sm"
-      }`}
+      className={className ?? defaultClasses}
     >
       {isLoading ? (
-        <Loader2 size={16} className="animate-spin text-gray-400" />
+        <Loader2 size={14} className="animate-spin text-slate-400" />
       ) : isSubscribed ? (
-        <Bell size={16} />
+        <Bell size={14} className="text-emerald-600" />
       ) : (
-        <BellOff size={16} />
+        <BellOff size={14} className="text-slate-400" />
       )}
-      {isLoading ? "กำลังตรวจสอบ..." : isSubscribed ? "เปิดแจ้งเตือนแล้ว" : "รับการแจ้งเตือน"}
+      <span>{isLoading ? "กำลังตรวจ..." : isSubscribed ? "เปิดแจ้งเตือนแล้ว" : "รับการแจ้งเตือน"}</span>
     </button>
   );
 }
