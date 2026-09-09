@@ -23,7 +23,7 @@ export async function ensureRelationalAdsSchema() {
   try {
     // 1. Create relational tables if not present
     await prisma.$executeRawUnsafe(`
-      CREATE OR REPLACE VIEW "ad_campaigns" AS SELECT * FROM "AdCampaign";
+      CREATE OR REPLACE VIEW "ad_campaigns" WITH (security_invoker = true) AS SELECT * FROM "AdCampaign";
 
       CREATE TABLE IF NOT EXISTS "ad_sets" (
         "id" TEXT PRIMARY KEY,
