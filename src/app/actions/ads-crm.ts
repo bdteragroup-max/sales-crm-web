@@ -402,17 +402,17 @@ export async function getActiveAdsWithCrm(filters?: {
 
     // 3. Map CRM snapshots to active ads
     const items: ActiveAdCrmItem[] = perfAds.map(ad => {
-      // Find snapshots for this ad
+      // Find snapshots for this ad, scoped strictly to its campaign
       const adSnaps = allSnapshots
-        .filter(s => s.adId === ad.adId)
+        .filter(s => s.adId === ad.adId && (!s.campaignId || s.campaignId === ad.campaignId))
         .sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime())
 
       const latest = adSnaps[0] || null
       const previous = adSnaps[1] || null
 
       // Always pull live spend and messageInbox from the latest Performance snapshot (Section 2)
-      const currentSpend = ad.spend || latest?.spend || 0
-      const currentInbox = ad.messageInbox || latest?.messageInbox || 0
+      const currentSpend = typeof ad.spend === 'number' ? ad.spend : (latest?.spend || 0)
+      const currentInbox = typeof ad.messageInbox === 'number' ? ad.messageInbox : (latest?.messageInbox || 0)
 
       const currentLeads = latest?.leads || 0
       const currentQualified = latest?.qualifiedLeads || 0

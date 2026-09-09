@@ -40,12 +40,18 @@ import {
   ArrowRight,
   Video,
   FileText,
-  RotateCcw
+  RotateCcw,
+  Link2,
+  Globe,
+  ChevronUp,
+  UploadCloud,
+  FileSpreadsheet
 } from 'lucide-react'
-import { createCampaign, updateCampaign, deleteCampaign } from '@/app/actions/ads-campaigns'
+import { createCampaign, updateCampaign, deleteCampaign, importCampaignsBatch } from '@/app/actions/ads-campaigns'
 import {
   getCreativesList,
   uploadCreativeToObjectStorage,
+  uploadCreativeFromUrl,
   createCreativeRecord,
   addCreativeVersion,
   toggleArchiveCreative,
@@ -57,6 +63,7 @@ import {
 import { PRODUCT_CATEGORIES } from '../constants'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+
 
 export interface AdItem {
   id: string
@@ -170,6 +177,16 @@ export default function CampaignsClient({
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 5
 
+  // CSV Import Modal State
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [importDragActive, setImportDragActive] = useState(false)
+  const [parsedCampaigns, setParsedCampaigns] = useState<any[]>([])
+  const [importParseErrors, setImportParseErrors] = useState<string[]>([])
+  const [isImporting, setIsImporting] = useState(false)
+  const [expandedPreviewIdx, setExpandedPreviewIdx] = useState<number | null>(0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   // Helper to parse adSets and budgetStrategy from campaign record
   const getParsedCampaignData = (c: any): CampaignData => {
     try {
@@ -199,6 +216,23 @@ export default function CampaignsClient({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [isDirty])
 
+  // Automatically sync formAdSets with the currently active campaign when on adsets tab
+  useEffect(() => {
+    if (subTab === 'adsets') {
+      const activeId = selectedCampaignId || formData.id || campaigns[0]?.id
+      if (activeId) {
+        if (!selectedCampaignId) {
+          setSelectedCampaignId(activeId)
+        }
+        const activeCamp = campaigns.find(c => c.id === activeId)
+        if (activeCamp) {
+          const parsed = getParsedCampaignData(activeCamp)
+          setFormAdSets(parsed.adSets || [])
+        }
+      }
+    }
+  }, [subTab, selectedCampaignId, campaigns])
+
   // Auto-generate internal code when product, channel, or date changes
   const generateCampaignCode = (channelId: string, product: string, dateStr: string) => {
     const dateObj = dateStr ? new Date(dateStr) : new Date()
@@ -221,9 +255,23 @@ export default function CampaignsClient({
     else if (p === 'solar pump') prodCode = 'SP'
     else if (p === 'other') prodCode = 'OTH'
 
-    const count = campaigns.length + 1
-    const seq = String(count).padStart(3, '0')
-    return `CMP-${yyyy}${mm}-${prodCode}-${seq}`
+    let nextSeq = 1
+    const prefix = `CMP-${yyyy}${mm}-${prodCode}-`
+    const existingSeqs = campaigns
+      .map((c: any) => c.internalCode)
+      .filter((code: any) => typeof code === 'string' && code.startsWith(prefix))
+      .map((code: string) => {
+        const numPart = parseInt(code.replace(prefix, ''), 10)
+        return isNaN(numPart) ? 0 : numPart
+      })
+
+    if (existingSeqs.length > 0) {
+      nextSeq = Math.max(...existingSeqs) + 1
+    } else {
+      nextSeq = campaigns.length + 1
+    }
+    const seq = String(nextSeq).padStart(3, '0')
+    return `${prefix}${seq}`
   }
 
   const handleInputChange = (
@@ -314,7 +362,11 @@ export default function CampaignsClient({
       onConfirm: async () => {
         setConfirmModal(prev => ({ ...prev, isOpen: false }))
         try {
-          await deleteCampaign(id)
+          const res = await deleteCampaign(id)
+          if (res && !res.success) {
+            setError(res.error || 'ลบแคมเปญไม่สำเร็จ')
+            return
+          }
           setCampaigns(prev => prev.filter(c => c.id !== id))
           if (formData.id === id) handleClear()
           setSuccessMsg('ลบแคมเปญเรียบร้อยแล้ว')
@@ -387,11 +439,19 @@ export default function CampaignsClient({
       let savedCampaign: any
       if (formData.id) {
         const res = await updateCampaign(formData.id, payload)
+        if (res && !res.success) {
+          setError(res.error || 'อัปเดตข้อมูลแคมเปญล้มเหลว')
+          return
+        }
         savedCampaign = res.data
         setCampaigns(prev => prev.map(c => (c.id === formData.id ? savedCampaign : c)))
         setSuccessMsg('อัปเดตข้อมูลแคมเปญสำเร็จ')
       } else {
         const res = await createCampaign(payload as any)
+        if (res && !res.success) {
+          setError(res.error || 'บันทึกแคมเปญใหม่ล้มเหลว')
+          return
+        }
         savedCampaign = res.data
         setCampaigns(prev => [savedCampaign, ...prev])
         setSuccessMsg('บันทึกแคมเปญใหม่สำเร็จ')
@@ -516,6 +576,464 @@ export default function CampaignsClient({
     link.click()
     document.body.removeChild(link)
   }
+
+  // Campaign Template CSV Definitions
+  const CAMPAIGN_TEMPLATE_HEADERS = [
+    'ชื่อแคมเปญ (Campaign Name)*',
+    'รหัสแพลตฟอร์ม (Platform Campaign ID)',
+    'รหัสภายใน (Internal Code)',
+    'ช่องทาง (Channel)',
+    'บัญชี (Account)',
+    'สาขา (Branch)',
+    'กลุ่มสินค้า (Product Category)',
+    'วัตถุประสงค์ (Objective)',
+    'กลยุทธ์งบประมาณ (Budget Strategy)',
+    'งบประมาณแคมเปญ (Campaign Budget)*',
+    'วันที่เริ่ม (Start Date YYYY-MM-DD)*',
+    'วันที่สิ้นสุด (End Date YYYY-MM-DD)*',
+    'สถานะ (Status)',
+    'หมายเหตุ (Notes)',
+    'ชื่อชุดโฆษณา (Ad Set Name)',
+    'กลุ่มเป้าหมาย (Target Audience)',
+    'พื้นที่ (Location)',
+    'ช่วงอายุ (Age)',
+    'งบประมาณชุดโฆษณา (Ad Set Budget)',
+    'ชื่อโฆษณา (Ad Name)',
+    'รูปแบบ (Format)',
+    'หัวเรื่อง (Headline)',
+    'ข้อความหลัก (Primary Text)',
+    'ปุ่มกระตุ้น (CTA)',
+    'ชื่อไฟล์ภาพ (Creative Name)',
+    'ลิงก์รูปภาพ (Creative URL)'
+  ]
+
+  const CAMPAIGN_TEMPLATE_SAMPLE_ROWS = [
+    [
+      'แคมเปญปั๊มน้ำโซล่าเซลล์ Q4',
+      'CAMP-FB-2026-001',
+      'CMP-202609-SP-001',
+      'Facebook',
+      'TERA MAIN ADS',
+      'สำนักงานใหญ่',
+      'Solar Pump',
+      'ข้อความ (Messages)',
+      'ABO',
+      '15000',
+      '2026-09-01',
+      '2026-09-30',
+      'ACTIVE',
+      'เน้นกลุ่มเกษตรกรและสวนผลไม้',
+      'AdSet 01 - เกษตรกรภาคอีสานและเหนือ',
+      'เกษตรกร, โซล่าเซลล์, บาดาล',
+      'ขอนแก่น, เชียงใหม่, นครราชสีมา',
+      '28-55',
+      '7500',
+      'Ad 01 - ซับเมิร์สโซล่าเซลล์รุ่นทนทาน',
+      'IMAGE',
+      'ปั๊มน้ำโซล่าเซลล์ สูบน้ำแรง ทนทาน ไม่ง้อไฟหลวง',
+      'ลดต้นทุนค่าไฟ ประกันศูนย์ไทย 2 ปีเต็ม จัดส่งฟรีทั่วประเทศ',
+      'ส่งข้อความ',
+      'Poster Solar Pump Blue',
+      'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800'
+    ],
+    [
+      'แคมเปญปั๊มน้ำโซล่าเซลล์ Q4',
+      'CAMP-FB-2026-001',
+      'CMP-202609-SP-001',
+      'Facebook',
+      'TERA MAIN ADS',
+      'สำนักงานใหญ่',
+      'Solar Pump',
+      'ข้อความ (Messages)',
+      'ABO',
+      '15000',
+      '2026-09-01',
+      '2026-09-30',
+      'ACTIVE',
+      'เน้นกลุ่มเกษตรกรและสวนผลไม้',
+      'AdSet 01 - เกษตรกรภาคอีสานและเหนือ',
+      'เกษตรกร, โซล่าเซลล์, บาดาล',
+      'ขอนแก่น, เชียงใหม่, นครราชสีมา',
+      '28-55',
+      '7500',
+      'Ad 02 - โปรโมชั่นชุดพร้อมติดตั้ง',
+      'IMAGE',
+      'ชุดปั๊มโซล่าเซลล์พร้อมแผง ครบชุดพร้อมใช้',
+      'ติดตั้งง่าย ทีมช่างให้คำปรึกษาฟรี สอบถามราคาพิเศษทักแชทเลย',
+      'ติดต่อเรา',
+      'Solar Pump Inverter Set',
+      'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800'
+    ],
+    [
+      'แคมเปญ Veichi Inverter ขับมอเตอร์โรงงาน',
+      'CAMP-FB-2026-002',
+      'CMP-202609-INV-001',
+      'Facebook',
+      'TERA MAIN ADS',
+      'สำนักงานใหญ่',
+      'Inverter Veichi',
+      'ข้อความ (Messages)',
+      'ABO',
+      '20000',
+      '2026-09-05',
+      '2026-10-05',
+      'ACTIVE',
+      'เจาะกลุ่มช่างและวิศวกรโรงงานอุตสาหกรรม',
+      'AdSet 01 - ช่างและวิศวกรโรงงาน',
+      'วิศวกรโรงงาน, ช่างไฟฟ้า, อุตสาหกรรม',
+      'ชลบุรี, ระยอง, สมุทรปราการ, กรุงเทพฯ',
+      '25-50',
+      '10000',
+      'Ad 01 - Inverter Veichi AC310 เสถียรสูง',
+      'IMAGE',
+      'Inverter Veichi คุมรอบมอเตอร์แม่นยำ ทนทาน ประหยัดไฟ',
+      'มีสต็อกพร้อมส่งทุกรุ่น บริการเซ็ตพารามิเตอร์ฟรีโดยทีมวิศวกร',
+      'ส่งข้อความ',
+      'Veichi AC310 Product Showcase',
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800'
+    ]
+  ]
+
+  // CSV Parsing function
+  const parseRawCSVLines = (text: string): string[][] => {
+    if (text.charCodeAt(0) === 0xfeff) {
+      text = text.slice(1)
+    }
+    const lines: string[][] = []
+    let row: string[] = []
+    let inQuotes = false
+    let currentField = ''
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i]
+      const nextChar = text[i + 1]
+
+      if (inQuotes) {
+        if (char === '"') {
+          if (nextChar === '"') {
+            currentField += '"'
+            i++
+          } else {
+            inQuotes = false
+          }
+        } else {
+          currentField += char
+        }
+      } else {
+        if (char === '"') {
+          inQuotes = true
+        } else if (char === ',') {
+          row.push(currentField.trim())
+          currentField = ''
+        } else if (char === '\r') {
+          if (nextChar === '\n') i++
+          row.push(currentField.trim())
+          if (row.some(field => field.length > 0)) {
+            lines.push(row)
+          }
+          row = []
+          currentField = ''
+        } else if (char === '\n') {
+          row.push(currentField.trim())
+          if (row.some(field => field.length > 0)) {
+            lines.push(row)
+          }
+          row = []
+          currentField = ''
+        } else {
+          currentField += char
+        }
+      }
+    }
+
+    if (currentField.length > 0 || row.length > 0) {
+      row.push(currentField.trim())
+      if (row.some(field => field.length > 0)) {
+        lines.push(row)
+      }
+    }
+
+    return lines
+  }
+
+  const parseCampaignCSVContent = (csvText: string): { campaigns: any[]; errors: string[] } => {
+    const rows = parseRawCSVLines(csvText)
+    if (rows.length < 2) {
+      return { campaigns: [], errors: ['ไฟล์ CSV ว่างเปล่า หรือไม่มีข้อมูลแถว'] }
+    }
+
+    const rawHeaders = rows[0]
+    const headerIndices: Record<string, number> = {}
+
+    rawHeaders.forEach((h, idx) => {
+      const clean = h.toLowerCase().replace(/[\s_\-()（）*]/g, '')
+      if (clean.includes('ชื่อแคมเปญ') || clean.includes('campaignname') || (clean.includes('name') && !clean.includes('ad') && !clean.includes('set'))) {
+        if (headerIndices.campaignName === undefined) headerIndices.campaignName = idx
+      } else if (clean.includes('แพลตฟอร์ม') || clean.includes('platformid') || clean.includes('platformcampaignid')) {
+        if (headerIndices.campaignId === undefined) headerIndices.campaignId = idx
+      } else if (clean.includes('รหัสภายใน') || clean.includes('internalcode') || (clean.includes('code') && !clean.includes('ad'))) {
+        if (headerIndices.internalCode === undefined) headerIndices.internalCode = idx
+      } else if (clean.includes('ช่องทาง') || clean.includes('channel')) {
+        if (headerIndices.channel === undefined) headerIndices.channel = idx
+      } else if (clean.includes('บัญชี') || clean.includes('account')) {
+        if (headerIndices.account === undefined) headerIndices.account = idx
+      } else if (clean.includes('สาขา') || clean.includes('branch')) {
+        if (headerIndices.branch === undefined) headerIndices.branch = idx
+      } else if (clean.includes('กลุ่มสินค้า') || clean.includes('สินค้า') || clean.includes('product') || clean.includes('category')) {
+        if (headerIndices.productCategory === undefined) headerIndices.productCategory = idx
+      } else if (clean.includes('วัตถุประสงค์') || clean.includes('objective')) {
+        if (headerIndices.objective === undefined) headerIndices.objective = idx
+      } else if (clean.includes('กลยุทธ์') || clean.includes('strategy')) {
+        if (headerIndices.budgetStrategy === undefined) headerIndices.budgetStrategy = idx
+      } else if (clean.includes('งบประมาณแคมเปญ') || clean.includes('campaignbudget') || clean.includes('plannedbudget') || (clean.includes('budget') && !clean.includes('ชุด') && !clean.includes('adset') && !clean.includes('set'))) {
+        if (headerIndices.campaignBudget === undefined) headerIndices.campaignBudget = idx
+      } else if (clean.includes('วันที่เริ่ม') || clean.includes('startdate') || clean.includes('start')) {
+        if (headerIndices.startDate === undefined) headerIndices.startDate = idx
+      } else if (clean.includes('วันที่สิ้นสุด') || clean.includes('enddate') || clean.includes('end')) {
+        if (headerIndices.endDate === undefined) headerIndices.endDate = idx
+      } else if (clean.includes('สถานะ') || clean.includes('status')) {
+        if (headerIndices.status === undefined) headerIndices.status = idx
+      } else if (clean.includes('หมายเหตุ') || clean.includes('notes') || clean.includes('note')) {
+        if (headerIndices.notes === undefined) headerIndices.notes = idx
+      } else if (clean.includes('ชื่อชุดโฆษณา') || clean.includes('adsetname') || clean.includes('adset') || clean.includes('ชุดโฆษณา')) {
+        if (headerIndices.adSetName === undefined) headerIndices.adSetName = idx
+      } else if (clean.includes('กลุ่มเป้าหมาย') || clean.includes('targetaudience') || clean.includes('audience')) {
+        if (headerIndices.targetAudience === undefined) headerIndices.targetAudience = idx
+      } else if (clean.includes('พื้นที่') || clean.includes('location')) {
+        if (headerIndices.location === undefined) headerIndices.location = idx
+      } else if (clean.includes('ช่วงอายุ') || clean.includes('อายุ') || clean.includes('age')) {
+        if (headerIndices.age === undefined) headerIndices.age = idx
+      } else if (clean.includes('งบประมาณชุดโฆษณา') || clean.includes('adsetbudget') || clean.includes('งบชุด')) {
+        if (headerIndices.adSetBudget === undefined) headerIndices.adSetBudget = idx
+      } else if (clean.includes('ชื่อโฆษณา') || clean.includes('adname') || clean.includes('โฆษณา')) {
+        if (headerIndices.adName === undefined) headerIndices.adName = idx
+      } else if (clean.includes('รูปแบบ') || clean.includes('format')) {
+        if (headerIndices.format === undefined) headerIndices.format = idx
+      } else if (clean.includes('หัวเรื่อง') || clean.includes('headline')) {
+        if (headerIndices.headline === undefined) headerIndices.headline = idx
+      } else if (clean.includes('ข้อความหลัก') || clean.includes('primarytext') || clean.includes('caption') || clean.includes('ข้อความ')) {
+        if (headerIndices.primaryText === undefined) headerIndices.primaryText = idx
+      } else if (clean.includes('ปุ่มกระตุ้น') || clean.includes('cta') || clean.includes('calltoaction') || clean.includes('ปุ่ม')) {
+        if (headerIndices.cta === undefined) headerIndices.cta = idx
+      } else if (clean.includes('ชื่อไฟล์ภาพ') || clean.includes('ชื่อภาพ') || clean.includes('creativename') || clean.includes('creative')) {
+        if (headerIndices.creativeName === undefined) headerIndices.creativeName = idx
+      } else if (clean.includes('ลิงก์รูปภาพ') || clean.includes('creativeurl') || clean.includes('imageurl') || clean.includes('url')) {
+        if (headerIndices.creativeUrl === undefined) headerIndices.creativeUrl = idx
+      }
+    })
+
+    if (headerIndices.campaignName === undefined) {
+      headerIndices.campaignName = 0
+    }
+
+    const errors: string[] = []
+    const campaignMap = new Map<string, any>()
+    let currentCampaignKey = ''
+
+    for (let r = 1; r < rows.length; r++) {
+      const row = rows[r]
+      if (!row || row.length === 0 || row.every(cell => !cell || !cell.trim())) continue
+
+      const getVal = (key: string): string => {
+        const idx = headerIndices[key]
+        if (idx !== undefined && row[idx] !== undefined) {
+          return row[idx].trim()
+        }
+        return ''
+      }
+
+      let rawCampName = getVal('campaignName')
+      if (!rawCampName) {
+        if (currentCampaignKey) {
+          rawCampName = currentCampaignKey
+        } else {
+          errors.push(`แถวที่ ${r + 1}: ไม่พบชื่อแคมเปญ`)
+          continue
+        }
+      } else {
+        currentCampaignKey = rawCampName
+      }
+
+      const campKey = rawCampName.toLowerCase().trim()
+
+      let camp = campaignMap.get(campKey)
+      if (!camp) {
+        const budgetNum = parseFloat(getVal('campaignBudget').replace(/[^0-9.]/g, '')) || 0
+        const strat = getVal('budgetStrategy').toUpperCase().includes('CBO') ? 'CBO' : 'ABO'
+        camp = {
+          name: rawCampName,
+          campaignId: getVal('campaignId'),
+          internalCode: getVal('internalCode'),
+          channelName: getVal('channel'),
+          accountName: getVal('account'),
+          branchName: getVal('branch'),
+          productCategory: getVal('productCategory'),
+          objectiveName: getVal('objective'),
+          budgetStrategy: strat,
+          budget: budgetNum,
+          startDate: getVal('startDate'),
+          endDate: getVal('endDate'),
+          status: getVal('status').toUpperCase() || 'ACTIVE',
+          notes: getVal('notes'),
+          adSetsMap: new Map<string, any>()
+        }
+        campaignMap.set(campKey, camp)
+      }
+
+      // Process Ad Set
+      let rawSetName = getVal('adSetName')
+      if (!rawSetName) {
+        rawSetName = `ชุดโฆษณา ${camp.adSetsMap.size + 1}`
+      }
+      const setKey = rawSetName.toLowerCase().trim()
+
+      let adSet = camp.adSetsMap.get(setKey)
+      if (!adSet) {
+        const setBudgetNum = parseFloat(getVal('adSetBudget').replace(/[^0-9.]/g, '')) || 0
+        adSet = {
+          name: rawSetName,
+          targetAudience: getVal('targetAudience'),
+          location: getVal('location'),
+          age: getVal('age'),
+          budget: setBudgetNum,
+          ads: []
+        }
+        camp.adSetsMap.set(setKey, adSet)
+      }
+
+      // Process Ad
+      const adName = getVal('adName')
+      const headline = getVal('headline')
+      const creativeUrl = getVal('creativeUrl')
+      const creativeName = getVal('creativeName')
+      const primaryText = getVal('primaryText')
+      const cta = getVal('cta')
+      let format = getVal('format').toUpperCase()
+      if (!['IMAGE', 'VIDEO', 'CAROUSEL'].includes(format)) {
+        format = 'IMAGE'
+      }
+
+      if (adName || headline || creativeUrl || creativeName || primaryText) {
+        adSet.ads.push({
+          name: adName || `โฆษณา ${adSet.ads.length + 1}`,
+          format,
+          headline,
+          primaryText,
+          cta: cta || 'ส่งข้อความ',
+          creativeName,
+          creativeUrl
+        })
+      }
+    }
+
+    const parsedList: any[] = []
+    campaignMap.forEach(camp => {
+      const adSets: any[] = []
+      camp.adSetsMap.forEach((s: any) => {
+        adSets.push(s)
+      })
+      delete camp.adSetsMap
+      camp.adSets = adSets
+      parsedList.push(camp)
+    })
+
+    return { campaigns: parsedList, errors }
+  }
+
+  // Template Download Handler
+  const handleDownloadTemplate = () => {
+    const csvContent =
+      '\uFEFF' +
+      [
+        CAMPAIGN_TEMPLATE_HEADERS.map(h => `"${h.replace(/"/g, '""')}"`).join(','),
+        ...CAMPAIGN_TEMPLATE_SAMPLE_ROWS.map(row =>
+          row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+        )
+      ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'tera-campaign-import-template.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  // Process selected file
+  const processCSVFile = async (file: File) => {
+    if (!file) return
+    setImportFile(file)
+    setImportParseErrors([])
+    setParsedCampaigns([])
+
+    try {
+      const text = await file.text()
+      const { campaigns: parsed, errors } = parseCampaignCSVContent(text)
+      if (errors.length > 0) {
+        setImportParseErrors(errors)
+      }
+      if (parsed.length === 0 && errors.length === 0) {
+        setImportParseErrors(['ไม่พบข้อมูลแคมเปญที่ถูกต้องในไฟล์ กรุณาตรวจสอบรูปแบบเทมเพลต'])
+      } else {
+        setParsedCampaigns(parsed)
+      }
+    } catch (err: any) {
+      console.error(err)
+      setImportParseErrors([`อ่านไฟล์ล้มเหลว: ${err.message || 'รูปแบบไฟล์ไม่ถูกต้อง'}`])
+    }
+  }
+
+  // Batch import submission
+  const handleImportSubmit = async () => {
+    if (parsedCampaigns.length === 0) return
+    setIsImporting(true)
+    setImportParseErrors([])
+
+    try {
+      const res = await importCampaignsBatch(parsedCampaigns)
+      if (!res.success) {
+        setImportParseErrors([res.error || 'นำเข้าข้อมูลแคมเปญล้มเหลว'])
+        return
+      }
+
+      if (res.data && res.data.length > 0) {
+        setCampaigns(prev => [...res.data, ...prev])
+      }
+      setSuccessMsg(`นำเข้าข้อมูลสำเร็จเรียบร้อย ${res.count} แคมเปญ`)
+      setIsImportModalOpen(false)
+      setImportFile(null)
+      setParsedCampaigns([])
+    } catch (err: any) {
+      console.error(err)
+      setImportParseErrors([`เกิดข้อผิดพลาด: ${err.message || 'นำเข้าข้อมูลล้มเหลว'}`])
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
+  // Computed summary for import modal
+  const importSummary = useMemo(() => {
+    let totalAdSets = 0
+    let totalAds = 0
+    let totalBudget = 0
+    parsedCampaigns.forEach(c => {
+      totalBudget += Number(c.budget) || 0
+      const sets = c.adSets || []
+      totalAdSets += sets.length
+      sets.forEach((s: any) => {
+        totalAds += (s.ads || []).length
+      })
+    })
+    return {
+      campaignCount: parsedCampaigns.length,
+      adSetCount: totalAdSets,
+      adCount: totalAds,
+      totalBudget
+    }
+  }, [parsedCampaigns])
 
   return (
     <div className="w-full">
@@ -1186,13 +1704,41 @@ export default function CampaignsClient({
                       รายการแคมเปญหลัก (CAMPAIGN MASTER LIST)
                     </h2>
 
-                    <button
-                      onClick={handleExportCSV}
-                      className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
-                    >
-                      <Download size={13} />
-                      <span>ส่งออกข้อมูล (Export CSV)</span>
-                    </button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={handleDownloadTemplate}
+                        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+                        title="ดาวน์โหลดไฟล์เทมเพลต CSV ตัวอย่างสำหรับกรอกข้อมูล"
+                      >
+                        <FileSpreadsheet size={14} className="text-emerald-600" />
+                        <span>ดาวน์โหลดเทมเพลต (Download Template)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsImportModalOpen(true)
+                          setImportFile(null)
+                          setParsedCampaigns([])
+                          setImportParseErrors([])
+                        }}
+                        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#ff2301] hover:bg-[#e01f01] rounded-xl transition-all shadow-sm"
+                        title="อัปโหลดไฟล์เทมเพลต CSV เพื่อเพิ่มแคมเปญและโฆษณา"
+                      >
+                        <Upload size={14} />
+                        <span>นำเข้าข้อมูล (Import CSV)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleExportCSV}
+                        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+                      >
+                        <Download size={14} />
+                        <span>ส่งออกข้อมูล (Export CSV)</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Filters Bar */}
@@ -1489,6 +2035,10 @@ export default function CampaignsClient({
 
                   try {
                     const res = await updateCampaign(targetId, { targetAudience: targetPayload })
+                    if (res && !res.success) {
+                      setError('บันทึกล้มเหลว: ' + (res.error || 'เกิดข้อผิดพลาดในการอัปเดต'))
+                      return
+                    }
                     setCampaigns(prev => prev.map(item => (item.id === targetId ? res.data : item)))
                     setSuccessMsg('บันทึกโครงสร้าง Ad Sets & Ads สำเร็จ!')
                   } catch (e: any) {
@@ -1548,6 +2098,336 @@ export default function CampaignsClient({
             </div>
           </div>
         )}
+
+        {/* MODAL: CSV IMPORT */}
+        {isImportModalOpen && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in">
+            <div className="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+              {/* Header */}
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-[#ff2301] shadow-xs">
+                    <Upload size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">
+                      นำเข้าข้อมูลแคมเปญ (Import Campaigns via CSV)
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      อัปโหลดไฟล์เทมเพลต CSV เพื่อเพิ่มแคมเปญ ชุดโฆษณา และโฆษณาจำนวนมากพร้อมกัน
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsImportModalOpen(false)}
+                  className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  onChange={e => {
+                    if (e.target.files && e.target.files[0]) {
+                      processCSVFile(e.target.files[0])
+                    }
+                  }}
+                />
+
+                {/* Upload Dropzone */}
+                {!importFile ? (
+                  <div
+                    onDragOver={e => {
+                      e.preventDefault()
+                      setImportDragActive(true)
+                    }}
+                    onDragLeave={() => setImportDragActive(false)}
+                    onDrop={e => {
+                      e.preventDefault()
+                      setImportDragActive(false)
+                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        processCSVFile(e.dataTransfer.files[0])
+                      }
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${
+                      importDragActive
+                        ? 'border-[#ff2301] bg-red-50/50 scale-[0.99]'
+                        : 'border-gray-200 bg-gray-50/60 hover:bg-gray-50 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 shadow-sm group-hover:scale-105 transition-transform">
+                      <UploadCloud size={28} className="text-[#ff2301]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-800">
+                        คลิกเพื่อเลือกไฟล์ หรือ ลากไฟล์ .CSV มาวางที่นี่
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        รองรับไฟล์ .CSV พร้อมการเข้ารหัส UTF-8 (แนะนำดาวน์โหลดเทมเพลตมาตรฐาน)
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 pt-2">
+                      <span className="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg shadow-xs">
+                        เลือกไฟล์ CSV
+                      </span>
+                      <button
+                        type="button"
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleDownloadTemplate()
+                        }}
+                        className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors flex items-center gap-1"
+                      >
+                        <Download size={12} />
+                        <span>ยังไม่มีไฟล์? ดาวน์โหลดเทมเพลตที่นี่</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* File Selected Banner */
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                        <FileSpreadsheet size={20} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-gray-800 truncate">{importFile.name}</p>
+                        <p className="text-[11px] text-gray-400">
+                          {(importFile.size / 1024).toFixed(1)} KB • แคมเปญที่พบ {parsedCampaigns.length} รายการ
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all shadow-xs"
+                      >
+                        เปลี่ยนไฟล์
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImportFile(null)
+                          setParsedCampaigns([])
+                          setImportParseErrors([])
+                        }}
+                        className="w-7 h-7 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
+                      >
+                        <X size={15} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Error messages if any */}
+                {importParseErrors.length > 0 && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-red-800">
+                      <AlertCircle size={14} className="shrink-0" />
+                      <span>พบข้อผิดพลาดหรือข้อควรระวัง:</span>
+                    </div>
+                    <ul className="list-disc list-inside space-y-0.5 text-red-600 pl-1">
+                      {importParseErrors.map((err, idx) => (
+                        <li key={idx}>{err}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Parsed Summary Cards */}
+                {parsedCampaigns.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3.5 bg-blue-50/60 border border-blue-100 rounded-2xl">
+                        <p className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">แคมเปญ (Campaigns)</p>
+                        <p className="text-xl font-black text-blue-900 mt-1">{importSummary.campaignCount}</p>
+                      </div>
+                      <div className="p-3.5 bg-purple-50/60 border border-purple-100 rounded-2xl">
+                        <p className="text-[11px] font-bold text-purple-600 uppercase tracking-wider">ชุดโฆษณา (Ad Sets)</p>
+                        <p className="text-xl font-black text-purple-900 mt-1">{importSummary.adSetCount}</p>
+                      </div>
+                      <div className="p-3.5 bg-amber-50/60 border border-amber-100 rounded-2xl">
+                        <p className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">โฆษณา (Ads)</p>
+                        <p className="text-xl font-black text-amber-900 mt-1">{importSummary.adCount}</p>
+                      </div>
+                      <div className="p-3.5 bg-emerald-50/60 border border-emerald-100 rounded-2xl">
+                        <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">งบประมาณรวม</p>
+                        <p className="text-xl font-black text-emerald-900 mt-1">฿{importSummary.totalBudget.toLocaleString()}</p>
+                      </div>
+                    </div>
+
+                    {/* Preview Table / List */}
+                    <div className="space-y-2">
+                      <p className="text-xs font-bold text-gray-700 flex items-center justify-between">
+                        <span>รายการข้อมูลแคมเปญที่จะถูกสร้าง ({parsedCampaigns.length} รายการ):</span>
+                        <span className="text-[11px] text-gray-400 font-normal">คลิกเพื่อดูชุดโฆษณาและโฆษณาด้านใน</span>
+                      </p>
+
+                      <div className="space-y-2.5 max-h-[340px] overflow-y-auto custom-scrollbar pr-1">
+                        {parsedCampaigns.map((c, idx) => {
+                          const isExpanded = expandedPreviewIdx === idx
+                          return (
+                            <div
+                              key={idx}
+                              className="border border-gray-200 rounded-2xl p-3.5 bg-white hover:border-gray-300 transition-all shadow-xs"
+                            >
+                              <div
+                                className="flex items-start justify-between gap-3 cursor-pointer"
+                                onClick={() => setExpandedPreviewIdx(isExpanded ? null : idx)}
+                              >
+                                <div className="space-y-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs font-bold text-gray-900">{c.name}</span>
+                                    {c.channelName && (
+                                      <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+                                        {c.channelName}
+                                      </span>
+                                    )}
+                                    {c.productCategory && (
+                                      <span className="px-2 py-0.5 text-[10px] font-bold bg-rose-50 text-rose-700 rounded-full border border-rose-100">
+                                        {c.productCategory}
+                                      </span>
+                                    )}
+                                    <span className="px-2 py-0.5 text-[10px] font-bold bg-gray-100 text-gray-600 rounded-full">
+                                      {c.budgetStrategy || 'ABO'}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-3 text-[11px] text-gray-500">
+                                    <span>งบประมาณ: <strong className="text-gray-800">฿{Number(c.budget || 0).toLocaleString()}</strong></span>
+                                    <span>•</span>
+                                    <span>{c.adSets?.length || 0} ชุดโฆษณา</span>
+                                    <span>•</span>
+                                    <span>
+                                      {(c.adSets || []).reduce((sum: number, s: any) => sum + (s.ads?.length || 0), 0)} โฆษณา
+                                    </span>
+                                    {c.startDate && (
+                                      <>
+                                        <span>•</span>
+                                        <span>{c.startDate} ถึง {c.endDate || 'ไม่มีกำหนด'}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="text-gray-400 hover:text-gray-600 p-1">
+                                  {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                </div>
+                              </div>
+
+                              {/* Expanded Details: Ad Sets & Ads */}
+                              {isExpanded && c.adSets && c.adSets.length > 0 && (
+                                <div className="mt-3 pt-3 border-t border-gray-100 space-y-2.5">
+                                  {c.adSets.map((s: any, sIdx: number) => (
+                                    <div key={sIdx} className="bg-gray-50/80 rounded-xl p-2.5 border border-gray-100 text-xs">
+                                      <div className="flex items-center justify-between font-bold text-gray-800 mb-1.5">
+                                        <span className="flex items-center gap-1.5">
+                                          <Layers size={13} className="text-indigo-600" />
+                                          <span>{s.name}</span>
+                                        </span>
+                                        <span className="text-gray-600 font-semibold">
+                                          งบชุด: ฿{Number(s.budget || 0).toLocaleString()}
+                                        </span>
+                                      </div>
+                                      <div className="text-[11px] text-gray-500 mb-2">
+                                        เป้าหมาย: {s.targetAudience || '-'} | พื้นที่: {s.location || '-'} | อายุ: {s.age || '-'}
+                                      </div>
+
+                                      {/* Ads in this Set */}
+                                      {s.ads && s.ads.length > 0 && (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1.5">
+                                          {s.ads.map((ad: any, aIdx: number) => (
+                                            <div key={aIdx} className="bg-white p-2 rounded-lg border border-gray-200 flex items-center gap-2">
+                                              {ad.creativeUrl ? (
+                                                <img
+                                                  src={ad.creativeUrl}
+                                                  alt=""
+                                                  referrerPolicy="no-referrer"
+                                                  className="w-10 h-10 object-cover rounded shrink-0 border border-gray-100"
+                                                  onError={e => {
+                                                    (e.target as HTMLElement).style.display = 'none'
+                                                  }}
+                                                />
+                                              ) : (
+                                                <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400 shrink-0">
+                                                  <ImageIcon size={16} />
+                                                </div>
+                                              )}
+                                              <div className="min-w-0 flex-1 text-[11px]">
+                                                <p className="font-bold text-gray-800 truncate">{ad.name}</p>
+                                                <p className="text-gray-500 truncate">{ad.headline || ad.primaryText || '-'}</p>
+                                                <div className="flex items-center gap-1.5 text-[10px] text-gray-400 mt-0.5">
+                                                  <span className="bg-gray-100 px-1 rounded">{ad.format || 'IMAGE'}</span>
+                                                  <span>•</span>
+                                                  <span className="text-blue-600">{ad.cta || 'ส่งข้อความ'}</span>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 border-t border-gray-100 bg-slate-50 flex items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={handleDownloadTemplate}
+                  className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                >
+                  <Download size={13} />
+                  <span>ดาวน์โหลดแบบฟอร์มเทมเพลต (.CSV)</span>
+                </button>
+
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsImportModalOpen(false)}
+                    disabled={isImporting}
+                    className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-200/70 rounded-xl transition-all"
+                  >
+                    ยกเลิก
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={parsedCampaigns.length === 0 || isImporting}
+                    onClick={handleImportSubmit}
+                    className="px-5 py-2 text-xs font-bold text-white bg-[#ff2301] hover:bg-[#e01f01] rounded-xl transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isImporting ? <RefreshCw size={13} className="animate-spin" /> : <Upload size={13} />}
+                    <span>
+                      {isImporting
+                        ? 'กำลังนำเข้าข้อมูล...'
+                        : `ยืนยันนำเข้าข้อมูล (${parsedCampaigns.length} แคมเปญ)`}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )
@@ -1599,13 +2479,17 @@ function AdSetsManager({
   const [activeSetId, setActiveSetId] = useState<string>(adSets[0]?.id || '')
 
   useEffect(() => {
-    if (!adSets.some(s => s.id === activeSetId) && adSets.length > 0) {
+    if ((!activeSetId || !adSets.some(s => s.id === activeSetId)) && adSets.length > 0) {
       setActiveSetId(adSets[0].id)
     }
   }, [adSets, activeSetId])
 
   const activeSetIndex = adSets.findIndex(s => s.id === activeSetId)
-  const activeSet: AdSetItem | null = activeSetIndex >= 0 ? adSets[activeSetIndex] : null
+  const activeSet: AdSetItem | null = activeSetIndex >= 0 ? adSets[activeSetIndex] : (adSets[0] || null)
+
+  const uploadFileInputRef = useRef<HTMLInputElement>(null)
+  const adModalFileInputRef = useRef<HTMLInputElement>(null)
+  const [isUploadingAdModal, setIsUploadingAdModal] = useState(false)
 
   const [searchSet, setSearchSet] = useState('')
   const [searchAds, setSearchAds] = useState('')
@@ -1631,14 +2515,20 @@ function AdSetsManager({
   const [uploadModal, setUploadModal] = useState<{
     isOpen: boolean
     adIndex?: number
+    adId?: string
     fileName: string
-  }>({ isOpen: false, fileName: '' })
+    fileUrl?: string
+    isUploading?: boolean
+    uploadType?: 'file' | 'url'
+    urlInput?: string
+  }>({ isOpen: false, fileName: '', uploadType: 'file' })
 
   const [libraryPickerModal, setLibraryPickerModal] = useState<{
     isOpen: boolean
-    targetAdIndex: number | null
+    targetAdIndex?: number | null
+    targetAdId?: string | null
     isForAdModal?: boolean
-  }>({ isOpen: false, targetAdIndex: null })
+  }>({ isOpen: false, targetAdIndex: null, targetAdId: null })
   const [libraryItems, setLibraryItems] = useState<CreativeItem[]>([])
   const [isPickerLoading, setIsPickerLoading] = useState(false)
   const [pickerSearch, setPickerSearch] = useState('')
@@ -1687,7 +2577,7 @@ function AdSetsManager({
         cFileBase === cleanBase ||
         cName === cleanName ||
         cCode === cleanName ||
-        (cleanBase.length >= 6 && (cFilename.includes(cleanBase) || cName.includes(cleanBase) || cleanBase.includes(cFileBase)))
+        (cleanBase.length >= 3 && (cFilename.includes(cleanBase) || cName.includes(cleanBase) || cleanBase.includes(cFileBase)))
       )
     })
 
@@ -1976,6 +2866,7 @@ function AdSetsManager({
     targetSet.ads = setAds
     updatedSets[activeSetIndex] = targetSet
     setAdSets(updatedSets)
+    onSaveStructure(updatedSets).catch(console.error)
     setAdModal({ isOpen: false, mode: 'create', data: {} })
     setLocalFeedback({ text: 'บันทึกข้อมูลโฆษณาเรียบร้อยแล้ว', type: 'success' })
   }
@@ -2029,33 +2920,99 @@ function AdSetsManager({
   }
 
   const handleApplyUploadedCreative = () => {
-    if (activeSetIndex < 0 || uploadModal.adIndex === undefined) return
+    if (!activeSet && adSets.length === 0) return
+    const currentActiveIdx = activeSetIndex >= 0 ? activeSetIndex : 0
     const updatedSets = [...adSets]
-    const targetSet = { ...updatedSets[activeSetIndex] }
+    const targetSet = { ...(updatedSets[currentActiveIdx] || activeSet) }
     const setAds = [...(targetSet.ads || [])]
-    const fname = uploadModal.fileName.trim() || 'New_Creative.jpg'
-    const isVideo = fname.toLowerCase().endsWith('.mp4') || fname.toLowerCase().endsWith('.mov')
+    const rawInputUrl = (
+      uploadModal.urlInput ||
+      (uploadModal.fileName?.startsWith('http') ? uploadModal.fileName : '') ||
+      uploadModal.fileUrl ||
+      ''
+    ).trim()
+    const isUrl = rawInputUrl.startsWith('http://') || rawInputUrl.startsWith('https://')
 
+    let fname = uploadModal.fileName.trim()
+    if (!fname || fname.startsWith('http')) {
+      if (isUrl) {
+        try {
+          const urlObj = new URL(rawInputUrl)
+          const pathname = urlObj.pathname
+          const lastSeg = pathname.split('/').pop()
+          if (lastSeg && (lastSeg.endsWith('.jpg') || lastSeg.endsWith('.jpeg') || lastSeg.endsWith('.png') || lastSeg.endsWith('.webp') || lastSeg.endsWith('.mp4'))) {
+            fname = decodeURIComponent(lastSeg)
+          } else {
+            fname = 'Facebook_Creative.jpg'
+          }
+        } catch {
+          fname = 'Facebook_Creative.jpg'
+        }
+      } else {
+        fname = 'New_Creative.jpg'
+      }
+    }
+
+    const isVideo = fname.toLowerCase().endsWith('.mp4') || fname.toLowerCase().endsWith('.mov') || rawInputUrl.toLowerCase().includes('.mp4')
     const matched = libraryItems.find(c => c.filename === fname || c.name === fname || c.code === fname)
-    const mediaUrl = matched?.fileUrl || (fname.startsWith('http') ? fname : '')
+    const mediaUrl = rawInputUrl || uploadModal.fileUrl || matched?.fileUrl || ''
     const mediaDims = matched?.dimensions || '1080x1080'
 
-    if (setAds[uploadModal.adIndex]) {
-      setAds[uploadModal.adIndex] = {
-        ...setAds[uploadModal.adIndex],
+    let targetIdx = -1
+    if (uploadModal.adId) {
+      targetIdx = setAds.findIndex(a => a.id === uploadModal.adId)
+    }
+    if (targetIdx === -1 && uploadModal.adIndex !== undefined && uploadModal.adIndex >= 0) {
+      targetIdx = uploadModal.adIndex
+    }
+    if (targetIdx === -1 && expandedAdId) {
+      targetIdx = setAds.findIndex(a => a.id === expandedAdId)
+    }
+    if (targetIdx === -1 && setAds.length > 0 && uploadModal.adIndex !== -1) {
+      targetIdx = 0
+    }
+
+    if (targetIdx >= 0 && setAds[targetIdx]) {
+      setAds[targetIdx] = {
+        ...setAds[targetIdx],
         creativeName: fname,
-        creativeUrl: mediaUrl || setAds[uploadModal.adIndex]?.creativeUrl || '',
+        creativeUrl: mediaUrl || setAds[targetIdx]?.creativeUrl || '',
         dimensions: mediaDims,
-        format: isVideo ? 'VIDEO' : 'IMAGE',
+        format: isVideo ? 'VIDEO' : (setAds[targetIdx].format || 'IMAGE'),
         creativeVersion: 'V1 • Current',
         updatedAt: new Date().toISOString()
       }
-      targetSet.ads = setAds
-      updatedSets[activeSetIndex] = targetSet
-      setAdSets(updatedSets)
-      setLocalFeedback({ text: `อัปโหลดและผูกไฟล์ ${fname} เข้ากับชิ้นงานเรียบร้อยแล้ว`, type: 'success' })
+    } else {
+      // Auto-create new Ad in the Ad Set!
+      const nextSeq = setAds.length + 1
+      const cleanName = fname.replace(/\.[^/.]+$/, '').replace(/_/g, ' ')
+      const newAd: AdItem = {
+        id: `ad_${Date.now()}`,
+        code: generateAdCode(nextSeq),
+        name: cleanName ? `ชิ้นงาน ${cleanName}` : `ชิ้นงาน V${nextSeq}`,
+        platformAdId: `${targetSet.platformAdSetId || 'AS01'}-AD${String(nextSeq).padStart(2, '0')}`,
+        adSetId: targetSet.id,
+        format: isVideo ? 'VIDEO' : 'IMAGE',
+        headline: 'โปรโมชั่นพิเศษ',
+        primaryText: 'ติดตั้งมาตรฐานสากล บริการระดับมืออาชีพ',
+        cta: 'Send Message',
+        creativeName: fname,
+        creativeUrl: mediaUrl,
+        dimensions: mediaDims,
+        creativeVersion: 'V1 • Current',
+        status: 'ACTIVE',
+        updatedAt: new Date().toISOString()
+      }
+      setAds.push(newAd)
+      setExpandedAdId(newAd.id)
     }
-    setUploadModal({ isOpen: false, fileName: '' })
+
+    targetSet.ads = setAds
+    updatedSets[currentActiveIdx] = targetSet
+    setAdSets(updatedSets)
+    onSaveStructure(updatedSets).catch(console.error)
+    setLocalFeedback({ text: `เชื่อมโยงสื่อ "${fname}" เข้ากับชิ้นงานเรียบร้อยแล้ว`, type: 'success' })
+    setUploadModal({ isOpen: false, fileName: '', fileUrl: '', urlInput: '' })
   }
 
   const handleSelectCreativeForAd = (creative: CreativeItem) => {
@@ -2064,34 +3021,84 @@ function AdSetsManager({
         ...prev,
         data: {
           ...prev.data,
-          creativeName: creative.filename,
-          creativeUrl: creative.fileUrl,
-          creativeVersion: creative.version,
-          dimensions: creative.dimensions,
-          format: creative.fileType.includes('Video') ? 'VIDEO' : 'IMAGE'
+          creativeName: creative.filename || creative.name,
+          creativeUrl: creative.fileUrl || creative.thumbnailUrl || '',
+          creativeVersion: creative.version || 'V1 • Current',
+          dimensions: creative.dimensions || '1080x1080',
+          format: (creative.fileType || '').toLowerCase().includes('video') || (creative.filename || '').toLowerCase().endsWith('.mp4') ? 'VIDEO' : 'IMAGE'
         }
       }))
-    } else if (libraryPickerModal.targetAdIndex !== null && activeSetIndex >= 0) {
+      setLibraryPickerModal({ isOpen: false, targetAdIndex: null, targetAdId: null, isForAdModal: false })
+      return
+    }
+
+    if (activeSetIndex >= 0) {
       const updatedSets = [...adSets]
       const targetSet = { ...updatedSets[activeSetIndex] }
       const setAds = [...(targetSet.ads || [])]
-      if (setAds[libraryPickerModal.targetAdIndex]) {
-        setAds[libraryPickerModal.targetAdIndex] = {
-          ...setAds[libraryPickerModal.targetAdIndex],
-          creativeName: creative.filename,
-          creativeUrl: creative.fileUrl,
-          creativeVersion: creative.version,
-          dimensions: creative.dimensions,
-          format: creative.fileType.includes('Video') ? 'VIDEO' : 'IMAGE',
+
+      // Determine which ad to attach the creative to
+      let targetIdx = -1
+      if (libraryPickerModal.targetAdId) {
+        targetIdx = setAds.findIndex(a => a.id === libraryPickerModal.targetAdId)
+      }
+      if (targetIdx === -1 && libraryPickerModal.targetAdIndex !== null && libraryPickerModal.targetAdIndex !== undefined && libraryPickerModal.targetAdIndex >= 0) {
+        targetIdx = libraryPickerModal.targetAdIndex
+      }
+      if (targetIdx === -1 && expandedAdId) {
+        targetIdx = setAds.findIndex(a => a.id === expandedAdId)
+      }
+      if (targetIdx === -1 && setAds.length > 0) {
+        targetIdx = 0
+      }
+
+      const isVideo = (creative.fileType || '').toLowerCase().includes('video') || (creative.filename || '').toLowerCase().endsWith('.mp4')
+      const targetUrl = creative.fileUrl || creative.thumbnailUrl || ''
+
+      if (targetIdx >= 0 && setAds[targetIdx]) {
+        setAds[targetIdx] = {
+          ...setAds[targetIdx],
+          creativeName: creative.filename || creative.name,
+          creativeUrl: targetUrl,
+          creativeVersion: creative.version || 'V1 • Current',
+          dimensions: creative.dimensions || '1080x1080',
+          format: isVideo ? 'VIDEO' : (setAds[targetIdx].format || 'IMAGE'),
           updatedAt: new Date().toISOString()
         }
         targetSet.ads = setAds
         updatedSets[activeSetIndex] = targetSet
         setAdSets(updatedSets)
-        setLocalFeedback({ text: `เชื่อมโยงสื่อ ${creative.name} (${creative.code}) เข้ากับชิ้นงานเรียบร้อยแล้ว`, type: 'success' })
+        onSaveStructure(updatedSets).catch(console.error)
+        setLocalFeedback({ text: `เชื่อมโยงสื่อ "${creative.name || creative.filename}" เข้ากับชิ้นงานเรียบร้อยแล้ว`, type: 'success' })
+      } else if (setAds.length === 0) {
+        const nextAdSeq = 1
+        const newAd: AdItem = {
+          id: `ad_${Date.now()}`,
+          code: generateAdCode(nextAdSeq),
+          name: creative.name ? `ชิ้นงาน: ${creative.name}` : `ชิ้นงาน #${nextAdSeq}`,
+          platformAdId: `${activeSet?.platformAdSetId || 'AS01'}-AD01`,
+          adSetId: activeSet?.id,
+          format: isVideo ? 'VIDEO' : 'IMAGE',
+          headline: 'โปรโมชั่นโซล่าเซลล์ ลดต้นทุนค่าไฟ',
+          primaryText: 'ติดตั้งโซล่าเซลล์มาตรฐานสากล บริการระดับมืออาชีพ',
+          cta: 'Send Message',
+          creativeName: creative.filename || creative.name,
+          creativeUrl: targetUrl,
+          dimensions: creative.dimensions || '1080x1080',
+          creativeVersion: creative.version || 'V1 • Current',
+          status: 'ACTIVE',
+          updatedAt: new Date().toISOString()
+        }
+        setAds.push(newAd)
+        targetSet.ads = setAds
+        updatedSets[activeSetIndex] = targetSet
+        setAdSets(updatedSets)
+        setExpandedAdId(newAd.id)
+        onSaveStructure(updatedSets).catch(console.error)
+        setLocalFeedback({ text: `สร้างชิ้นงานใหม่พร้อมผูกสื่อ "${creative.name || creative.filename}" เรียบร้อยแล้ว`, type: 'success' })
       }
     }
-    setLibraryPickerModal({ isOpen: false, targetAdIndex: null, isForAdModal: false })
+    setLibraryPickerModal({ isOpen: false, targetAdIndex: null, targetAdId: null, isForAdModal: false })
   }
 
   if (!currentCampaign) {
@@ -2697,14 +3704,16 @@ function AdSetsManager({
 
             <button
               onClick={() => {
-                if (currentAds.length > 0) {
-                  setUploadModal({ isOpen: true, adIndex: 0, fileName: '' })
-                } else {
-                  handleOpenCreateAdModal()
-                }
+                setUploadModal({
+                  isOpen: true,
+                  adIndex: currentAds.length > 0 ? (expandedAdId ? currentAds.findIndex(a => a.id === expandedAdId) : 0) : -1,
+                  adId: expandedAdId || (currentAds.length > 0 ? currentAds[0]?.id : undefined),
+                  fileName: '',
+                  uploadType: 'file'
+                })
               }}
               disabled={!activeSet}
-              className="h-9 px-3.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 disabled:opacity-50 whitespace-nowrap shrink-0"
+              className="h-9 px-3.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 disabled:opacity-50 whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Upload size={13} className="text-red-500" />
               อัปโหลดสื่อใหม่
@@ -2712,9 +3721,12 @@ function AdSetsManager({
 
             <button
               onClick={() => {
-                setLibraryPickerModal({ isOpen: true, targetAdIndex: null })
+                const targetId = expandedAdId || currentAds[0]?.id || null
+                const targetIdx = currentAds.length > 0 ? 0 : null
+                setLibraryPickerModal({ isOpen: true, targetAdIndex: targetIdx, targetAdId: targetId })
               }}
-              className="h-9 px-3.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              disabled={!activeSet}
+              className="h-9 px-3.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 disabled:opacity-50 whitespace-nowrap shrink-0"
             >
               <FolderOpen size={13} className="text-amber-500" />
               เลือกจากคลังสื่อ (Creative Library)
@@ -2775,10 +3787,48 @@ function AdSetsManager({
             <tbody className="divide-y divide-gray-100">
               {filteredAds.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-gray-400 font-medium">
-                    {!activeSet
-                      ? 'กรุณาเลือกชุดโฆษณาก่อน'
-                      : 'ยังไม่มีชิ้นงานโฆษณาในชุดนี้ คลิก "+ เพิ่มโฆษณา" เพื่อสร้างชิ้นงานแรก'}
+                  <td colSpan={6} className="py-12 text-center text-gray-400 font-medium">
+                    {!activeSet ? (
+                      <p>กรุณาเลือกชุดโฆษณาก่อน</p>
+                    ) : (
+                      <div className="space-y-3">
+                        <p className="text-gray-600 font-bold text-sm">
+                          ยังไม่มีชิ้นงานโฆษณาในชุด {activeSet.name}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          คุณสามารถสร้างชิ้นงานแรก หรืออัปโหลดรูปภาพเพื่อสร้างชิ้นงานได้ทันที
+                        </p>
+                        <div className="flex items-center justify-center gap-2 pt-2">
+                          <button
+                            onClick={handleOpenCreateAdModal}
+                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                          >
+                            <Plus size={14} /> + สร้างชิ้นงานแรก
+                          </button>
+                          <button
+                            onClick={() => {
+                              setUploadModal({
+                                isOpen: true,
+                                adIndex: -1,
+                                fileName: '',
+                                uploadType: 'file'
+                              })
+                            }}
+                            className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                          >
+                            <Upload size={14} className="text-red-500" /> อัปโหลดสื่อใหม่
+                          </button>
+                          <button
+                            onClick={() => {
+                              setLibraryPickerModal({ isOpen: true, targetAdIndex: null, targetAdId: null })
+                            }}
+                            className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                          >
+                            <FolderOpen size={14} className="text-amber-500" /> เลือกจากคลังสื่อ
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -2805,14 +3855,25 @@ function AdSetsManager({
                               <div className="flex items-center gap-2.5">
                                 <div
                                   onClick={(e) => {
+                                    e.stopPropagation()
                                     if (mediaUrl) {
-                                      e.stopPropagation()
                                       setPreviewModal({ isOpen: true, ad })
+                                    } else {
+                                      const exactIdx = activeSet?.ads ? activeSet.ads.findIndex(a => a.id === ad.id) : idx
+                                      setUploadModal({
+                                        isOpen: true,
+                                        adIndex: exactIdx >= 0 ? exactIdx : idx,
+                                        adId: ad.id,
+                                        fileName: ad.creativeName || '',
+                                        urlInput: ad.creativeUrl || (ad.creativeName?.startsWith('http') ? ad.creativeName : ''),
+                                        fileUrl: ad.creativeUrl || (ad.creativeName?.startsWith('http') ? ad.creativeName : ''),
+                                        uploadType: 'url'
+                                      })
                                     }
                                   }}
-                                  className={`w-11 h-11 rounded-xl border border-gray-200 overflow-hidden shrink-0 relative group shadow-2xs transition-all ${mediaUrl ? 'cursor-pointer hover:ring-2 hover:ring-red-400 hover:shadow-md' : 'bg-gray-100'
+                                  className={`w-11 h-11 rounded-xl border border-gray-200 overflow-hidden shrink-0 relative group shadow-2xs transition-all cursor-pointer hover:ring-2 hover:ring-red-400 hover:shadow-md ${mediaUrl ? '' : 'bg-gray-100'
                                     }`}
-                                  title={mediaUrl ? 'คลิกเพื่อดูตัวอย่างโฆษณา (Preview)' : 'ยังไม่ได้ผูกไฟล์สื่อ'}
+                                  title={mediaUrl ? 'คลิกเพื่อดูตัวอย่างโฆษณา (Preview)' : 'คลิกเพื่อระบุ URL หรืออัปโหลดรูปภาพ'}
                                 >
                                   {mediaUrl ? (
                                     isVideo ? (
@@ -2833,7 +3894,13 @@ function AdSetsManager({
                                           src={mediaUrl}
                                           alt={ad.creativeName || 'creative thumbnail'}
                                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
+                                          referrerPolicy="no-referrer"
                                           onError={(e: any) => {
+                                            if (!e.currentTarget.dataset.proxied && mediaUrl && mediaUrl.startsWith('http')) {
+                                              e.currentTarget.dataset.proxied = 'true'
+                                              e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(mediaUrl)}`
+                                              return
+                                            }
                                             e.currentTarget.style.display = 'none'
                                             const fb = e.currentTarget.parentElement?.nextElementSibling
                                             if (fb) (fb as HTMLElement).style.display = 'flex'
@@ -2978,7 +4045,8 @@ function AdSetsManager({
                                 <button
                                   onClick={e => {
                                     e.stopPropagation()
-                                    setLibraryPickerModal({ isOpen: true, targetAdIndex: idx })
+                                    const exactIdx = activeSet?.ads ? activeSet.ads.findIndex(a => a.id === ad.id) : idx
+                                    setLibraryPickerModal({ isOpen: true, targetAdIndex: exactIdx >= 0 ? exactIdx : idx, targetAdId: ad.id })
                                   }}
                                   className="h-7.5 px-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap"
                                 >
@@ -2989,9 +4057,30 @@ function AdSetsManager({
                                 <button
                                   onClick={e => {
                                     e.stopPropagation()
-                                    setUploadModal({ isOpen: true, adIndex: idx, fileName: '' })
+                                    const exactIdx = activeSet?.ads ? activeSet.ads.findIndex(a => a.id === ad.id) : idx
+                                    setUploadModal({
+                                      isOpen: true,
+                                      adIndex: exactIdx >= 0 ? exactIdx : idx,
+                                      adId: ad.id,
+                                      fileName: ad.creativeName || '',
+                                      urlInput: ad.creativeUrl || (ad.creativeName?.startsWith('http') ? ad.creativeName : ''),
+                                      fileUrl: ad.creativeUrl || (ad.creativeName?.startsWith('http') ? ad.creativeName : ''),
+                                      uploadType: 'url'
+                                    })
                                   }}
-                                  className="h-7.5 px-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap"
+                                  className="h-7.5 px-2.5 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap cursor-pointer"
+                                >
+                                  <Link2 size={12} className="text-blue-600" />
+                                  ใส่ URL รูปภาพ
+                                </button>
+
+                                <button
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    const exactIdx = activeSet?.ads ? activeSet.ads.findIndex(a => a.id === ad.id) : idx
+                                    setUploadModal({ isOpen: true, adIndex: exactIdx >= 0 ? exactIdx : idx, adId: ad.id, fileName: ad.creativeName || '', uploadType: 'file' })
+                                  }}
+                                  className="h-7.5 px-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap cursor-pointer"
                                 >
                                   <Upload size={12} className="text-blue-500" />
                                   เปลี่ยนไฟล์สื่อ
@@ -3177,35 +4266,150 @@ function AdSetsManager({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block font-bold text-gray-600">ชื่อไฟล์สื่อ (Creative File)</label>
+              {/* Creative Media Selection & Upload */}
+              <div className="p-3.5 bg-gray-50 border border-gray-200 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block font-black text-gray-700 text-xs">
+                    สื่อโฆษณา (Creative Asset)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={adModalFileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        setIsUploadingAdModal(true)
+                        try {
+                          const fd = new FormData()
+                          fd.append('file', file)
+                          const res = await uploadCreativeToObjectStorage(fd)
+                          if (res.success && res.fileUrl) {
+                            setAdModal(prev => ({
+                              ...prev,
+                              data: {
+                                ...prev.data,
+                                creativeName: file.name,
+                                creativeUrl: res.fileUrl,
+                                format: file.type.startsWith('video') ? 'VIDEO' : 'IMAGE'
+                              }
+                            }))
+                            getCreativesList().then(listRes => {
+                              if (listRes.success && listRes.creatives) setLibraryItems(listRes.creatives)
+                            }).catch(console.error)
+                          } else {
+                            alert(res.error || 'อัปโหลดล้มเหลว')
+                          }
+                        } catch (err: any) {
+                          alert(err?.message || 'เกิดข้อผิดพลาดในการอัปโหลด')
+                        } finally {
+                          setIsUploadingAdModal(false)
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => adModalFileInputRef.current?.click()}
+                      disabled={isUploadingAdModal}
+                      className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-2xs cursor-pointer transition-all disabled:opacity-50"
+                    >
+                      {isUploadingAdModal ? <RefreshCw size={11} className="animate-spin" /> : <Upload size={11} />}
+                      {isUploadingAdModal ? 'กำลังอัปโหลด...' : 'อัปโหลดไฟล์'}
+                    </button>
                     <button
                       type="button"
                       onClick={() => setLibraryPickerModal({ isOpen: true, targetAdIndex: null, isForAdModal: true })}
-                      className="text-[10px] font-bold text-red-600 hover:text-red-700 flex items-center gap-1"
+                      className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
                     >
-                      <FolderOpen size={11} /> เลือกจากคลังสื่อ
+                      <FolderOpen size={11} className="text-amber-500" /> เลือกจากคลังสื่อ
                     </button>
                   </div>
-                  <input
-                    type="text"
-                    value={adModal.data.creativeName || ''}
-                    onChange={e => setAdModal({ ...adModal, data: { ...adModal.data, creativeName: e.target.value } })}
-                    placeholder="เช่น Solar_Pump_KV.jpg"
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl font-mono"
-                  />
                 </div>
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1">เวอร์ชั่น (Version)</label>
-                  <input
-                    type="text"
-                    value={adModal.data.creativeVersion || 'V1 • Current'}
-                    onChange={e => setAdModal({ ...adModal, data: { ...adModal.data, creativeVersion: e.target.value } })}
-                    placeholder="เช่น V1 • Current"
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl font-mono"
-                  />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 mb-1">ชื่อไฟล์สื่อ (Creative File)</label>
+                    <input
+                      type="text"
+                      value={adModal.data.creativeName || ''}
+                      onChange={e => setAdModal({ ...adModal, data: { ...adModal.data, creativeName: e.target.value } })}
+                      placeholder="เช่น Solar_Pump_KV.jpg"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl font-mono text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 mb-1">ลิงก์รูปภาพ / URL (Facebook / CDN URL)</label>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        value={adModal.data.creativeUrl || ''}
+                        onChange={e => setAdModal({ ...adModal, data: { ...adModal.data, creativeUrl: e.target.value } })}
+                        placeholder="วาง URL รูปภาพ เช่น https://scontent..."
+                        className="flex-1 px-3 py-1.5 bg-white border border-gray-200 rounded-xl font-mono text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const url = adModal.data.creativeUrl?.trim()
+                          if (!url || !url.startsWith('http')) {
+                            alert('กรุณาระบุ URL รูปภาพที่ขึ้นต้นด้วย http:// หรือ https://')
+                            return
+                          }
+                          setIsUploadingAdModal(true)
+                          try {
+                            const res = await uploadCreativeFromUrl(url, adModal.data.creativeName)
+                            if (res.success && res.fileUrl) {
+                              setAdModal(prev => ({
+                                ...prev,
+                                data: {
+                                  ...prev.data,
+                                  creativeUrl: res.fileUrl,
+                                  creativeName: prev.data.creativeName || res.filename
+                                }
+                              }))
+                              getCreativesList().then(listRes => {
+                                if (listRes.success && listRes.creatives) setLibraryItems(listRes.creatives)
+                              }).catch(console.error)
+                            }
+                          } catch (err: any) {
+                            alert(err?.message || 'ไม่สามารถดึงรูปภาพจาก URL ได้')
+                          } finally {
+                            setIsUploadingAdModal(false)
+                          }
+                        }}
+                        disabled={isUploadingAdModal || !adModal.data.creativeUrl}
+                        className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-[10px] font-bold whitespace-nowrap cursor-pointer disabled:opacity-50"
+                        title="บันทึกรูปภาพจาก URL ลงในระบบ"
+                      >
+                        นำเข้า URL
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 mb-1">ขนาดสื่อ (Dimensions)</label>
+                    <input
+                      type="text"
+                      value={adModal.data.dimensions || '1080x1080'}
+                      onChange={e => setAdModal({ ...adModal, data: { ...adModal.data, dimensions: e.target.value } })}
+                      placeholder="เช่น 1080x1080 หรือ 1080x1920"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl font-mono text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 mb-1">เวอร์ชั่น (Version)</label>
+                    <input
+                      type="text"
+                      value={adModal.data.creativeVersion || 'V1 • Current'}
+                      onChange={e => setAdModal({ ...adModal, data: { ...adModal.data, creativeVersion: e.target.value } })}
+                      placeholder="เช่น V1 • Current"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl font-mono text-xs"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -3234,6 +4438,15 @@ function AdSetsManager({
                             src={modalMediaUrl}
                             alt="selected creative"
                             className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                            onError={(e: any) => {
+                              if (!e.currentTarget.dataset.proxied && modalMediaUrl && modalMediaUrl.startsWith('http')) {
+                                e.currentTarget.dataset.proxied = 'true'
+                                e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(modalMediaUrl)}`
+                                return
+                              }
+                              e.currentTarget.style.display = 'none'
+                            }}
                           />
                         )
                       ) : (
@@ -3352,7 +4565,13 @@ function AdSetsManager({
                           src={previewMediaUrl}
                           alt={previewModal.ad.creativeName || 'Creative'}
                           className="w-full h-full object-contain bg-black/90"
+                          referrerPolicy="no-referrer"
                           onError={(e: any) => {
+                            if (!e.currentTarget.dataset.proxied && previewMediaUrl && previewMediaUrl.startsWith('http')) {
+                              e.currentTarget.dataset.proxied = 'true'
+                              e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(previewMediaUrl)}`
+                              return
+                            }
                             e.currentTarget.style.display = 'none'
                             const fb = e.currentTarget.parentElement?.querySelector('.preview-fallback')
                             if (fb) (fb as HTMLElement).style.display = 'flex'
@@ -3430,66 +4649,356 @@ function AdSetsManager({
       )}
 
       {/* MODAL: UPLOAD CREATIVE */}
-      {uploadModal.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-gray-100">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-black text-gray-900 text-sm">
-                อัปโหลดสื่อโฆษณาใหม่ (Upload Creative)
-              </h3>
-              <button
-                onClick={() => setUploadModal({ isOpen: false, fileName: '' })}
-                className="text-gray-400 hover:text-gray-600 p-1"
-              >
-                <X size={18} />
-              </button>
-            </div>
+      {uploadModal.isOpen && (() => {
+        const targetAd = uploadModal.adId
+          ? currentAds.find(a => a.id === uploadModal.adId)
+          : (uploadModal.adIndex !== undefined && uploadModal.adIndex >= 0 ? currentAds[uploadModal.adIndex] : null)
+        const isUrlMode = uploadModal.uploadType === 'url'
 
-            <div className="p-5 space-y-4 text-xs">
-              <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-red-400 transition-colors bg-gray-50/50">
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <div className="font-bold text-gray-700">ลากไฟล์มาวางที่นี่ หรือพิมพ์ระบุชื่อไฟล์</div>
-                <div className="text-[10px] text-gray-400 mt-1">
-                  รองรับ JPG, PNG, MP4 ขนาดแนะนำ 1080x1080 หรือ 1080x1920
+        const handleProcessFile = async (file: File) => {
+          if (!file) return
+          setUploadModal(prev => ({ ...prev, isUploading: true, fileName: file.name }))
+          try {
+            const fd = new FormData()
+            fd.append('file', file)
+            const res = await uploadCreativeToObjectStorage(fd)
+            if (res.success && res.fileUrl) {
+              setUploadModal(prev => ({
+                ...prev,
+                fileName: file.name,
+                fileUrl: res.fileUrl,
+                isUploading: false
+              }))
+              getCreativesList().then(listRes => {
+                if (listRes.success && listRes.creatives) setLibraryItems(listRes.creatives)
+              }).catch(console.error)
+            } else {
+              alert(res.error || 'อัปโหลดล้มเหลว')
+              setUploadModal(prev => ({ ...prev, isUploading: false }))
+            }
+          } catch (err: any) {
+            alert(err?.message || 'เกิดข้อผิดพลาดในการอัปโหลด')
+            setUploadModal(prev => ({ ...prev, isUploading: false }))
+          }
+        }
+
+        const handleImportFromUrl = async () => {
+          const rawUrl = uploadModal.urlInput?.trim()
+          if (!rawUrl || !rawUrl.startsWith('http')) {
+            alert('กรุณาระบุ URL รูปภาพที่ขึ้นต้นด้วย http:// หรือ https://')
+            return
+          }
+          setUploadModal(prev => ({ ...prev, isUploading: true }))
+          try {
+            const res = await uploadCreativeFromUrl(rawUrl, uploadModal.fileName)
+            if (res.success && res.fileUrl) {
+              setUploadModal(prev => ({
+                ...prev,
+                fileUrl: res.fileUrl,
+                fileName: prev.fileName || res.filename || 'Facebook_Creative.jpg',
+                isUploading: false
+              }))
+              getCreativesList().then(listRes => {
+                if (listRes.success && listRes.creatives) setLibraryItems(listRes.creatives)
+              }).catch(console.error)
+            } else {
+              alert(res.error || 'ไม่สามารถดึงภาพจาก URL ได้')
+              setUploadModal(prev => ({ ...prev, isUploading: false }))
+            }
+          } catch (err: any) {
+            alert(err?.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลจาก URL')
+            setUploadModal(prev => ({ ...prev, isUploading: false }))
+          }
+        }
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh]">
+              {/* Header */}
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/70">
+                <div>
+                  <h3 className="font-black text-gray-900 text-sm flex items-center gap-1.5">
+                    <Upload size={16} className="text-red-600" />
+                    อัปโหลดสื่อโฆษณาใหม่ (Upload Creative)
+                  </h3>
+                  <p className="text-[11px] text-gray-500 mt-0.5">
+                    {targetAd
+                      ? `ผูกเข้ากับชิ้นงาน: ${targetAd.name} (${targetAd.code || 'AD'})`
+                      : `สร้างชิ้นงานใหม่ในชุดโฆษณา: ${activeSet?.name || 'ชุดโฆษณาปัจจุบัน'}`}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setUploadModal({ isOpen: false, fileName: '', fileUrl: '', urlInput: '' })}
+                  className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 space-y-4 text-xs overflow-y-auto custom-scrollbar">
+                {/* Mode Selector Tabs */}
+                <div className="flex rounded-xl bg-gray-100 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setUploadModal(prev => ({ ...prev, uploadType: 'file' }))}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${!isUrlMode
+                      ? 'bg-white text-gray-900 shadow-xs'
+                      : 'text-gray-500 hover:text-gray-800'
+                      }`}
+                  >
+                    <Upload size={13} />
+                    อัปโหลดไฟล์จากเครื่อง (Upload File)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUploadModal(prev => ({ ...prev, uploadType: 'url' }))}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${isUrlMode
+                      ? 'bg-white text-gray-900 shadow-xs'
+                      : 'text-gray-500 hover:text-gray-800'
+                      }`}
+                  >
+                    <Link2 size={13} />
+                    ระบุลิงก์รูปภาพ / Facebook URL
+                  </button>
+                </div>
+
+                {!isUrlMode ? (
+                  /* TAB 1: FILE UPLOAD */
+                  <div className="space-y-3">
+                    <input
+                      ref={uploadFileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime"
+                      className="hidden"
+                      onChange={e => {
+                        const file = e.target.files?.[0]
+                        if (file) handleProcessFile(file)
+                      }}
+                    />
+
+                    <div
+                      onClick={() => uploadFileInputRef.current?.click()}
+                      onDragOver={e => e.preventDefault()}
+                      onDrop={e => {
+                        e.preventDefault()
+                        const file = e.dataTransfer.files?.[0]
+                        if (file) handleProcessFile(file)
+                      }}
+                      className="border-2 border-dashed border-gray-300 hover:border-red-400 rounded-2xl p-6 text-center transition-all bg-gray-50/50 hover:bg-red-50/20 cursor-pointer space-y-2.5"
+                    >
+                      <Upload className="w-9 h-9 text-gray-400 mx-auto transition-colors" />
+                      <div>
+                        <div className="font-bold text-gray-800 text-sm">
+                          คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่
+                        </div>
+                        <div className="text-[10px] text-gray-400 mt-1">
+                          รองรับ JPG, PNG, WEBP, MP4, MOV (ขนาดแนะนำ 1080x1080 หรือ 1080x1920)
+                        </div>
+                      </div>
+
+                      <div>
+                        <button
+                          type="button"
+                          onClick={e => {
+                            e.stopPropagation()
+                            uploadFileInputRef.current?.click()
+                          }}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Upload size={13} />
+                          เลือกไฟล์จากคอมพิวเตอร์
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* TAB 2: URL INPUT */
+                  <div className="space-y-3">
+                    <div className="bg-blue-50/70 border border-blue-100 rounded-xl p-3 text-blue-800">
+                      <div className="font-bold text-xs flex items-center gap-1.5">
+                        <Globe size={14} className="text-blue-600" />
+                        ระบุ URL รูปภาพจาก Facebook Ads หรือ CDN
+                      </div>
+                      <p className="text-[10px] text-blue-600 mt-0.5 leading-relaxed">
+                        วาง URL รูปภาพที่คัดลอกจาก Facebook หรือเว็บไซต์ เช่น https://scontent... ระบบจะนำเข้าและเชื่อมต่อกับชิ้นงานทันที
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-gray-700 mb-1">
+                        URL ของรูปภาพ (Image URL) <span className="text-red-500">*</span>
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={uploadModal.urlInput || ''}
+                          onChange={e => {
+                            const val = e.target.value
+                            setUploadModal(prev => ({
+                              ...prev,
+                              urlInput: val,
+                              fileUrl: val.startsWith('http') ? val : prev.fileUrl,
+                              fileName: prev.fileName || 'Facebook_Creative.jpg'
+                            }))
+                          }}
+                          placeholder="เช่น https://scontent.fbkk12-2.fna.fbcdn.net/v/..."
+                          className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl font-mono text-xs focus:bg-white focus:ring-2 focus:ring-red-500 outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleImportFromUrl}
+                          disabled={uploadModal.isUploading || !uploadModal.urlInput}
+                          className="px-3.5 py-2 bg-gray-900 hover:bg-black text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-xs disabled:opacity-50 transition-all cursor-pointer flex items-center gap-1"
+                        >
+                          {uploadModal.isUploading ? <RefreshCw size={12} className="animate-spin" /> : <Check size={12} />}
+                          นำเข้าภาพ
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Status / Progress Indicator */}
+                {uploadModal.isUploading && (
+                  <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 font-bold flex items-center justify-center gap-2">
+                    <RefreshCw size={14} className="animate-spin" /> กำลังประมวลผลและอัปโหลดสื่อ...
+                  </div>
+                )}
+
+                {/* Live Media Preview if Available */}
+                {(() => {
+                  const modalPreviewUrl = uploadModal.fileUrl || uploadModal.urlInput || (uploadModal.fileName?.startsWith('http') ? uploadModal.fileName : '')
+                  if (!modalPreviewUrl) return null
+                  const isVid = uploadModal.fileName?.toLowerCase().endsWith('.mp4') || modalPreviewUrl.toLowerCase().includes('.mp4')
+
+                  return (
+                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <div className="text-emerald-700 font-bold text-xs flex items-center gap-1.5">
+                          <Check size={14} className="text-emerald-600" />
+                          <span>ตัวอย่างรูปภาพจาก URL (Image Preview)</span>
+                        </div>
+                        <span className="text-[10px] font-mono font-bold text-gray-500 bg-white px-2 py-0.5 rounded border border-gray-200">
+                          {isVid ? 'VIDEO' : 'IMAGE READY'}
+                        </span>
+                      </div>
+
+                      {/* Prominent Preview Container */}
+                      <div className="w-full h-48 rounded-xl bg-slate-950 border border-slate-200 overflow-hidden flex items-center justify-center relative shadow-inner">
+                        {isVid ? (
+                          <video
+                            src={modalPreviewUrl}
+                            controls
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <img
+                            src={modalPreviewUrl}
+                            alt="preview"
+                            className="w-full h-full object-contain"
+                            referrerPolicy="no-referrer"
+                            onError={(e: any) => {
+                              if (!e.currentTarget.dataset.proxied && modalPreviewUrl.startsWith('http')) {
+                                e.currentTarget.dataset.proxied = 'true'
+                                e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(modalPreviewUrl)}`
+                                return
+                              }
+                              e.currentTarget.style.display = 'none'
+                              const errEl = e.currentTarget.parentElement?.querySelector('.preview-err')
+                              if (errEl) (errEl as HTMLElement).style.display = 'flex'
+                            }}
+                          />
+                        )}
+                        <div className="preview-err hidden w-full h-full flex-col items-center justify-center text-rose-400 p-4 text-center">
+                          <AlertCircle size={28} className="mb-1 text-rose-500" />
+                          <span className="text-xs font-semibold">ไม่สามารถโหลดตัวอย่างรูปภาพจาก URL นี้ได้</span>
+                          <span className="text-[10px] text-gray-400 mt-1 max-w-xs truncate">{modalPreviewUrl}</span>
+                        </div>
+                      </div>
+
+                      {/* Info bar */}
+                      <div className="flex items-center justify-between text-[11px] text-gray-600 bg-white p-2.5 rounded-lg border border-gray-200">
+                        <div className="min-w-0 flex-1 mr-2 truncate">
+                          <span className="font-bold text-gray-700">ชื่อไฟล์: </span>
+                          <span className="font-mono text-gray-900">
+                            {uploadModal.fileName?.startsWith('http') ? 'Facebook_Creative.jpg' : (uploadModal.fileName || 'Creative_Image.jpg')}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono truncate max-w-[200px]" title={modalPreviewUrl}>
+                          {modalPreviewUrl}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
+
+                {/* Creative File Name */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-bold text-gray-700">
+                      ชื่อไฟล์สื่อ (Creative File Name)
+                    </label>
+                    <span className="text-[10px] text-gray-400">
+                      (สามารถพิมพ์ชื่อไฟล์ หรือวาง URL รูปภาพลงในช่องนี้ได้)
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={uploadModal.fileName}
+                    onChange={e => {
+                      const val = e.target.value
+                      const isValUrl = val.trim().startsWith('http://') || val.trim().startsWith('https://')
+                      if (isValUrl) {
+                        setUploadModal(prev => ({
+                          ...prev,
+                          fileName: val,
+                          urlInput: val.trim(),
+                          fileUrl: val.trim(),
+                          uploadType: 'url'
+                        }))
+                      } else {
+                        setUploadModal(prev => ({ ...prev, fileName: val }))
+                      }
+                    }}
+                    placeholder="เช่น Solar_Agri_2026_KV.jpg หรือวาง https://scontent..."
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl font-mono text-xs focus:bg-white focus:ring-2 focus:ring-red-500 outline-none"
+                  />
+                </div>
+
+                <div className="text-[11px] text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex items-center gap-2">
+                  <Info size={14} className="text-blue-600 shrink-0" />
+                  <span>
+                    สื่อจะถูกผูกเข้ากับชุดโฆษณานี้ และจัดเก็บเข้าคลังสื่อ (Creative Library) โดยอัตโนมัติ
+                  </span>
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-gray-600 mb-1">
-                  ชื่อไฟล์สื่อ (Creative File Name)
-                </label>
-                <input
-                  type="text"
-                  value={uploadModal.fileName}
-                  onChange={e => setUploadModal({ ...uploadModal, fileName: e.target.value })}
-                  placeholder="เช่น Solar_Agri_2026_KV.jpg หรือ Clip_Demo.mp4"
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl font-mono text-xs"
-                />
+              {/* Footer Buttons */}
+              <div className="p-4 border-t border-gray-100 flex items-center justify-end gap-2 bg-gray-50/80">
+                <button
+                  type="button"
+                  onClick={() => setUploadModal({ isOpen: false, fileName: '', fileUrl: '', urlInput: '' })}
+                  className="px-4 py-2 border border-gray-200 hover:bg-white text-gray-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApplyUploadedCreative}
+                  disabled={uploadModal.isUploading || (!uploadModal.fileUrl && !uploadModal.fileName && !uploadModal.urlInput)}
+                  className="px-5 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
+                >
+                  <Check size={14} />
+                  {uploadModal.isUploading
+                    ? 'กำลังประมวลผล...'
+                    : (targetAd ? 'ยืนยันการบันทึกสื่อ' : '+ บันทึกและสร้างชิ้นงาน')}
+                </button>
               </div>
-
-              <div className="text-[11px] text-gray-500 bg-blue-50 p-2.5 rounded-xl border border-blue-100 flex items-center gap-2">
-                <Info size={14} className="text-blue-600 shrink-0" />
-                <span>ไฟล์ที่ระบุจะถูกผูกเข้ากับชิ้นงานนี้ และบันทึกลงในคลังสื่อโฆษณา (Creative Library) ให้ทันที</span>
-              </div>
-            </div>
-
-            <div className="p-4 border-t border-gray-100 flex items-center justify-end gap-2 bg-gray-50">
-              <button
-                onClick={() => setUploadModal({ isOpen: false, fileName: '' })}
-                className="px-4 py-2 border border-gray-200 hover:bg-white text-gray-700 rounded-xl text-xs font-bold transition-all"
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={handleApplyUploadedCreative}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
-              >
-                ยืนยันการบันทึกสื่อ
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* MODAL: SELECT FROM CREATIVE LIBRARY */}
       {libraryPickerModal.isOpen && (
@@ -3503,12 +5012,17 @@ function AdSetsManager({
                     เลือกสื่อจากคลังสื่อโฆษณา (Select from Creative Library)
                   </h3>
                   <p className="text-[11px] text-gray-500">
-                    เลือกชิ้นงาน Creative ที่ต้องการเพื่อนำมาใช้กับโฆษณานี้ทันที
+                    {libraryPickerModal.isForAdModal
+                      ? 'เลือกชิ้นงานเพื่อนำไปใส่ในแบบฟอร์มโฆษณา'
+                      : (() => {
+                        const targetAd = activeSet?.ads?.find(a => a.id === libraryPickerModal.targetAdId) || (libraryPickerModal.targetAdIndex !== null && libraryPickerModal.targetAdIndex !== undefined ? activeSet?.ads?.[libraryPickerModal.targetAdIndex] : activeSet?.ads?.[0])
+                        return targetAd ? `จะนำไปผูกกับ: ${targetAd.name} (${targetAd.code || 'AD'})` : 'เลือกชิ้นงาน Creative ที่ต้องการเพื่อนำมาใช้กับโฆษณานี้ทันที'
+                      })()}
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => setLibraryPickerModal({ isOpen: false, targetAdIndex: null })}
+                onClick={() => setLibraryPickerModal({ isOpen: false, targetAdIndex: null, targetAdId: null })}
                 className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100"
               >
                 <X size={18} />
@@ -3577,7 +5091,14 @@ function AdSetsManager({
                               src={item.thumbnailUrl || item.fileUrl}
                               alt={item.name}
                               className="w-full h-full object-cover opacity-85"
+                              referrerPolicy="no-referrer"
                               onError={(e: any) => {
+                                const targetUrl = item.thumbnailUrl || item.fileUrl
+                                if (!e.currentTarget.dataset.proxied && targetUrl && targetUrl.startsWith('http')) {
+                                  e.currentTarget.dataset.proxied = 'true'
+                                  e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(targetUrl)}`
+                                  return
+                                }
                                 e.target.onerror = null
                                 e.target.src = '/uploads/creatives/SP_WaterStrong_V1.jpg'
                               }}
@@ -4319,7 +5840,14 @@ function CreativeLibraryView({
                         src={cr.thumbnailUrl || cr.fileUrl}
                         alt={cr.name}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-90"
+                        referrerPolicy="no-referrer"
                         onError={(e: any) => {
+                          const targetUrl = cr.thumbnailUrl || cr.fileUrl
+                          if (!e.currentTarget.dataset.proxied && targetUrl && targetUrl.startsWith('http')) {
+                            e.currentTarget.dataset.proxied = 'true'
+                            e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(targetUrl)}`
+                            return
+                          }
                           e.target.onerror = null
                           e.target.src = '/uploads/creatives/SP_WaterStrong_V1.jpg'
                         }}
@@ -4510,7 +6038,14 @@ function CreativeLibraryView({
                                 src={cr.thumbnailUrl || cr.fileUrl}
                                 alt={cr.name}
                                 className="w-full h-full object-cover"
+                                referrerPolicy="no-referrer"
                                 onError={(e: any) => {
+                                  const targetUrl = cr.thumbnailUrl || cr.fileUrl
+                                  if (!e.currentTarget.dataset.proxied && targetUrl && targetUrl.startsWith('http')) {
+                                    e.currentTarget.dataset.proxied = 'true'
+                                    e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(targetUrl)}`
+                                    return
+                                  }
                                   e.target.onerror = null
                                   e.target.src = '/uploads/creatives/SP_WaterStrong_V1.jpg'
                                 }}
@@ -4643,7 +6178,14 @@ function CreativeLibraryView({
                     src={selectedCreative.thumbnailUrl || selectedCreative.fileUrl}
                     alt={selectedCreative.name}
                     className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
                     onError={(e: any) => {
+                      const targetUrl = selectedCreative.thumbnailUrl || selectedCreative.fileUrl
+                      if (!e.currentTarget.dataset.proxied && targetUrl && targetUrl.startsWith('http')) {
+                        e.currentTarget.dataset.proxied = 'true'
+                        e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(targetUrl)}`
+                        return
+                      }
                       e.target.onerror = null
                       e.target.src = '/uploads/creatives/SP_WaterStrong_V1.jpg'
                     }}

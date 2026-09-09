@@ -68,7 +68,7 @@ export default function PerformanceClient({
   // Filters
   const [reportingPeriod, setReportingPeriod] = useState<string>('This Month')
   const [dateFrom, setDateFrom] = useState<string>('2026-08-01')
-  const [dateTo, setDateTo] = useState<string>('2026-08-05')
+  const [dateTo, setDateTo] = useState<string>('2026-08-31')
   const [filterChannel, setFilterChannel] = useState<string>('All')
   const [filterCampaign, setFilterCampaign] = useState<string>('All')
   const [filterAdSet, setFilterAdSet] = useState<string>('All')
@@ -145,7 +145,25 @@ export default function PerformanceClient({
       if (filterChannel !== 'All' && ad.channel !== filterChannel) return false
       if (filterCampaign !== 'All' && ad.campaignId !== filterCampaign) return false
       if (filterAdSet !== 'All' && ad.adSetName !== filterAdSet) return false
-      if (filterStatus !== 'All' && ad.status !== filterStatus) return false
+      if (filterStatus !== 'All' && (ad.status || '').toLowerCase() !== filterStatus.toLowerCase()) return false
+
+      if (reportingPeriod === 'Custom') {
+        const adDate = (ad.lastUpdated || ad.latestSnapshot?.capturedAt || '').slice(0, 10)
+        const pStart = ad.latestSnapshot?.periodStart || ''
+        const pEnd = ad.latestSnapshot?.periodEnd || ''
+        if (dateFrom && dateTo) {
+          const effectiveDate = pEnd || adDate
+          if (effectiveDate && (effectiveDate < dateFrom || (pStart && pStart > dateTo))) {
+            return false
+          }
+        } else if (dateFrom) {
+          const effectiveDate = pEnd || adDate
+          if (effectiveDate && effectiveDate < dateFrom) return false
+        } else if (dateTo) {
+          const effectiveDate = pStart || adDate
+          if (effectiveDate && effectiveDate > dateTo) return false
+        }
+      }
 
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim()
@@ -157,7 +175,7 @@ export default function PerformanceClient({
       }
       return true
     })
-  }, [ads, filterChannel, filterCampaign, filterAdSet, filterStatus, searchQuery])
+  }, [ads, filterChannel, filterCampaign, filterAdSet, filterStatus, searchQuery, reportingPeriod, dateFrom, dateTo])
 
   // Check if any filter is active from default
   const isFilterActive =
@@ -165,11 +183,53 @@ export default function PerformanceClient({
     filterChannel !== 'All' ||
     filterCampaign !== 'All' ||
     filterAdSet !== 'All' ||
-    filterStatus !== 'Active' ||
+    filterStatus.toLowerCase() !== 'active' ||
     searchQuery.trim() !== ''
+
+  const handlePeriodChange = (val: string) => {
+    setReportingPeriod(val)
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = String(now.getMonth() + 1).padStart(2, '0')
+    const d = String(now.getDate()).padStart(2, '0')
+    const todayStr = `${y}-${m}-${d}`
+
+    if (val === 'Today') {
+      setDateFrom(todayStr)
+      setDateTo(todayStr)
+    } else if (val === 'Yesterday') {
+      const yest = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+      const yStr = `${yest.getFullYear()}-${String(yest.getMonth() + 1).padStart(2, '0')}-${String(yest.getDate()).padStart(2, '0')}`
+      setDateFrom(yStr)
+      setDateTo(yStr)
+    } else if (val === 'Last 7 Days') {
+      const prev = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+      setDateFrom(`${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}-${String(prev.getDate()).padStart(2, '0')}`)
+      setDateTo(todayStr)
+    } else if (val === 'Last 14 Days') {
+      const prev = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
+      setDateFrom(`${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}-${String(prev.getDate()).padStart(2, '0')}`)
+      setDateTo(todayStr)
+    } else if (val === 'This Month') {
+      setDateFrom(`${y}-${m}-01`)
+      const lastDay = new Date(y, now.getMonth() + 1, 0).getDate()
+      setDateTo(`${y}-${m}-${String(lastDay).padStart(2, '0')}`)
+    } else if (val === '01-31 Aug 2026') {
+      setDateFrom('2026-08-01')
+      setDateTo('2026-08-31')
+    } else if (val === 'All Time') {
+      setDateFrom('')
+      setDateTo('')
+    } else if (val === 'Custom') {
+      if (!dateFrom) setDateFrom('2026-08-01')
+      if (!dateTo) setDateTo('2026-08-31')
+    }
+  }
 
   const handleResetFilters = () => {
     setReportingPeriod('This Month')
+    setDateFrom('2026-08-01')
+    setDateTo('2026-08-31')
     setFilterChannel('All')
     setFilterCampaign('All')
     setFilterAdSet('All')
@@ -216,7 +276,7 @@ export default function PerformanceClient({
     })
 
     const remainingBudget = Math.max(0, totalPlannedBudget - totalSpend)
-    const activeAdsCount = filteredAds.filter(a => a.status === 'Active').length
+    const activeAdsCount = filteredAds.filter(a => (a.status || '').toLowerCase() === 'active').length
 
     let dataFreshness = 'ข้อมูลล่าสุด'
     if (latestTimestamp) {
@@ -826,15 +886,17 @@ export default function PerformanceClient({
               </label>
               <select
                 value={reportingPeriod}
-                onChange={e => setReportingPeriod(e.target.value)}
+                onChange={e => handlePeriodChange(e.target.value)}
                 className="w-full text-xs bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:bg-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all cursor-pointer"
               >
+                <option value="This Month">เดือนนี้ (This Month)</option>
+                <option value="01-31 Aug 2026">01-31 ส.ค. 2026 (01-31 Aug 2026)</option>
                 <option value="Today">วันนี้ (Today)</option>
                 <option value="Yesterday">เมื่อวาน (Yesterday)</option>
                 <option value="Last 7 Days">7 วันล่าสุด (Last 7 Days)</option>
                 <option value="Last 14 Days">14 วันล่าสุด (Last 14 Days)</option>
-                <option value="This Month">เดือนนี้ (This Month)</option>
                 <option value="All Time">ทั้งหมด (All Time)</option>
+                <option value="Custom">กำหนดเอง (Custom)</option>
               </select>
             </div>
 
@@ -887,6 +949,33 @@ export default function PerformanceClient({
                 )}
               </div>
             </div>
+
+            {/* Custom Date Range Row */}
+            {reportingPeriod === 'Custom' && (
+              <div className="md:col-span-2 lg:col-span-4 bg-rose-50/70 border border-rose-200/80 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-2xs">
+                <div className="flex items-center gap-2 text-rose-900 font-bold text-xs">
+                  <Calendar className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>กำหนดช่วงเวลารายงานเอง (Custom Date Range):</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs">
+                  <label className="text-[11px] font-semibold text-slate-600">ตั้งแต่วันที่</label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={e => setDateFrom(e.target.value)}
+                    className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 font-medium focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none shadow-2xs"
+                  />
+                  <span className="text-slate-400 font-medium">ถึง</span>
+                  <label className="text-[11px] font-semibold text-slate-600">ถึงวันที่</label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={e => setDateTo(e.target.value)}
+                    className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 font-medium focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none shadow-2xs"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Symmetrical Helper & Filter Summary Bar */}
@@ -1140,7 +1229,13 @@ export default function PerformanceClient({
                                       src={ad.creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg'}
                                       alt={ad.creativeFile || 'Creative'}
                                       className="w-full h-full object-cover"
+                                      referrerPolicy="no-referrer"
                                       onError={(e: any) => {
+                                        if (!e.currentTarget.dataset.proxied && ad.creativeUrl && ad.creativeUrl.startsWith('http')) {
+                                          e.currentTarget.dataset.proxied = 'true'
+                                          e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(ad.creativeUrl)}`
+                                          return
+                                        }
                                         e.currentTarget.src = 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=100&auto=format&fit=crop&q=60'
                                       }}
                                     />
@@ -1187,12 +1282,12 @@ export default function PerformanceClient({
                               {/* 4. Status */}
                               <td className="px-3 py-3 text-center">
                                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
-                                  ad.status === 'Active'
+                                  (ad.status || '').toLowerCase() === 'active'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                     : 'bg-slate-100 text-slate-600 border border-slate-200'
                                 }`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${ad.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
-                                  {ad.status === 'Active' ? 'เปิดใช้งาน' : (ad.status === 'Paused' ? 'หยุดชั่วคราว' : ad.status)}
+                                  <span className={`w-1.5 h-1.5 rounded-full ${(ad.status || '').toLowerCase() === 'active' ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
+                                  {(ad.status || '').toLowerCase() === 'active' ? 'เปิดใช้งาน' : ((ad.status || '').toLowerCase() === 'paused' ? 'หยุดชั่วคราว' : ad.status)}
                                 </span>
                               </td>
 
@@ -1363,7 +1458,13 @@ export default function PerformanceClient({
                                               src={ad.creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg'}
                                               alt={ad.creativeFile}
                                               className="w-full h-full object-cover"
+                                              referrerPolicy="no-referrer"
                                               onError={(e: any) => {
+                                                if (!e.currentTarget.dataset.proxied && ad.creativeUrl && ad.creativeUrl.startsWith('http')) {
+                                                  e.currentTarget.dataset.proxied = 'true'
+                                                  e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(ad.creativeUrl)}`
+                                                  return
+                                                }
                                                 e.currentTarget.src = 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=100&auto=format&fit=crop&q=60'
                                               }}
                                             />
@@ -2140,7 +2241,13 @@ export default function PerformanceClient({
               src={previewImage}
               alt="Preview"
               className="max-h-[80vh] w-auto object-contain rounded-xl"
+              referrerPolicy="no-referrer"
               onError={(e: any) => {
+                if (!e.currentTarget.dataset.proxied && previewImage && previewImage.startsWith('http')) {
+                  e.currentTarget.dataset.proxied = 'true'
+                  e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(previewImage)}`
+                  return
+                }
                 e.currentTarget.src = 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800&auto=format&fit=crop&q=80'
               }}
             />

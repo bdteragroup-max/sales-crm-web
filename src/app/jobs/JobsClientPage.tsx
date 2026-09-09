@@ -586,6 +586,7 @@ export default function JobsClientPage({
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [filterDeptStatus, setFilterDeptStatus] = useState("");
+  const [filterPo, setFilterPo] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const isSuperAdmin = useMemo(() => {
@@ -745,6 +746,10 @@ export default function JobsClientPage({
       isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)
     ).length;
   }, [jobs]);
+
+  const inProgressCount = useMemo(() => {
+    return Math.max(0, jobs.length - completedOverallCount);
+  }, [jobs.length, completedOverallCount]);
 
   const waitingOtherCount = useMemo(() => {
     return Math.max(
@@ -1082,6 +1087,9 @@ export default function JobsClientPage({
         const m = now.getMonth() + 1;
         const y = (now.getFullYear() + 543) % 100;
         if (j.month !== m || j.yearBe !== y) return false;
+      } else if (statusTab === "in_progress") {
+        if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
+          return false;
       } else if (statusTab === "with_po") {
         if (!j.poNumber) return false;
       } else if (statusTab === "without_po") {
@@ -1132,6 +1140,8 @@ export default function JobsClientPage({
         );
         if (!stepDef?.department.includes(filterDeptStatus as any)) return false;
       }
+      if (filterPo === "with_po" && !j.poNumber) return false;
+      if (filterPo === "without_po" && j.poNumber) return false;
       if (filterStatus === "pending") {
         if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
           return false;
@@ -1269,6 +1279,7 @@ export default function JobsClientPage({
       filterStartDate ||
       filterEndDate ||
       filterDeptStatus ||
+      filterPo ||
       filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending") ||
       search
   );
@@ -1282,6 +1293,7 @@ export default function JobsClientPage({
     setFilterStartDate("");
     setFilterEndDate("");
     setFilterDeptStatus("");
+    setFilterPo("");
     setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending");
     setSearch("");
     setCurrentPage(1);
@@ -1433,43 +1445,17 @@ export default function JobsClientPage({
 
             <div
               onClick={() =>
-                setStatusTab(statusTab === "with_po" ? "all" : "with_po")
+                setStatusTab(statusTab === "in_progress" ? "all" : "in_progress")
               }
               className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-                statusTab === "with_po"
-                  ? "border-emerald-400 ring-2 ring-emerald-100"
-                  : "border-slate-200/80 hover:border-emerald-300"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
-                  มีเลข PO แล้ว
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <CheckCircle2 size={16} />
-                </div>
-              </div>
-              <div className="mt-3 flex items-baseline gap-2">
-                <span className="text-2xl font-black text-emerald-600">
-                  {withPO}
-                </span>
-                <span className="text-xs text-slate-500 font-medium">รายการ</span>
-              </div>
-            </div>
-
-            <div
-              onClick={() =>
-                setStatusTab(statusTab === "without_po" ? "all" : "without_po")
-              }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-                statusTab === "without_po"
+                statusTab === "in_progress"
                   ? "border-amber-400 ring-2 ring-amber-100"
                   : "border-slate-200/80 hover:border-amber-300"
               }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
-                  ยังไม่มี PO
+                  กำลังดำเนินการ
                 </span>
                 <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
                   <Clock size={16} />
@@ -1477,7 +1463,33 @@ export default function JobsClientPage({
               </div>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-amber-600">
-                  {withoutPO}
+                  {inProgressCount}
+                </span>
+                <span className="text-xs text-slate-500 font-medium">รายการ</span>
+              </div>
+            </div>
+
+            <div
+              onClick={() =>
+                setStatusTab(statusTab === "completed" ? "all" : "completed")
+              }
+              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
+                statusTab === "completed"
+                  ? "border-emerald-400 ring-2 ring-emerald-100"
+                  : "border-slate-200/80 hover:border-emerald-300"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                  เสร็จสมบูรณ์แล้ว
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <CheckCircle2 size={16} />
+                </div>
+              </div>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-black text-emerald-600">
+                  {completedOverallCount}
                 </span>
                 <span className="text-xs text-slate-500 font-medium">รายการ</span>
               </div>
@@ -1708,6 +1720,16 @@ export default function JobsClientPage({
             <option value="delivery">จัดส่ง (Delivery)</option>
             <option value="production">ฝ่ายผลิต (Production)</option>
             <option value="project">โปรเจค (Project)</option>
+          </select>
+
+          <select
+            value={filterPo}
+            onChange={(e) => setFilterPo(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          >
+            <option value="">สถานะ PO ทั้งหมด</option>
+            <option value="with_po">มีเลข PO แล้ว ({withPO})</option>
+            <option value="without_po">ยังไม่มี PO ({withoutPO})</option>
           </select>
 
           {isFiltered && (

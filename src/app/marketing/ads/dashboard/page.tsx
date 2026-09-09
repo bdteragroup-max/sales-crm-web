@@ -17,6 +17,9 @@ export default async function AdsDashboardPage(props: {
   const campaign = typeof searchParams?.campaign === 'string' ? searchParams.campaign : undefined
   const adSet = typeof searchParams?.adSet === 'string' ? searchParams.adSet : undefined
   const status = typeof searchParams?.status === 'string' ? searchParams.status : undefined
+  const compareWith = typeof searchParams?.compareWith === 'string' ? searchParams.compareWith : undefined
+  const compareFrom = typeof searchParams?.compareFrom === 'string' ? searchParams.compareFrom : undefined
+  const compareTo = typeof searchParams?.compareTo === 'string' ? searchParams.compareTo : undefined
 
   let reportingPeriod = '01-31 Aug 2026'
   if (from === '2026-09-01' && to === '2026-09-30') {
@@ -55,6 +58,9 @@ export default async function AdsDashboardPage(props: {
       dateFrom: from,
       dateTo: to,
       reportingPeriod,
+      compareWith,
+      compareDateFrom: compareFrom,
+      compareDateTo: compareTo,
       channel: channel || 'All',
       campaignId: campaign || 'All',
       adSetId: adSet || 'All',

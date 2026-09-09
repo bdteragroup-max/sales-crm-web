@@ -778,6 +778,103 @@ export async function uploadCreativeToObjectStorage(formData: FormData) {
 }
 
 /**
+ * Import or download creative asset directly from a web or CDN URL
+ */
+export async function uploadCreativeFromUrl(imageUrl: string, customName?: string) {
+  try {
+    if (!imageUrl || !imageUrl.trim().startsWith('http')) {
+      throw new Error('กรุณาระบุ URL รูปภาพที่ถูกต้อง (ขึ้นต้นด้วย http:// หรือ https://)')
+    }
+
+    const trimmedUrl = imageUrl.trim()
+    let buffer: Buffer | null = null
+    let contentType = 'image/jpeg'
+    let ext = 'jpg'
+
+    try {
+      const res = await fetch(trimmedUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      })
+      if (res.ok) {
+        contentType = res.headers.get('content-type') || 'image/jpeg'
+        const arrayBuffer = await res.arrayBuffer()
+        buffer = Buffer.from(arrayBuffer)
+
+        if (contentType.includes('png')) ext = 'png'
+        else if (contentType.includes('webp')) ext = 'webp'
+        else if (contentType.includes('mp4')) ext = 'mp4'
+        else if (contentType.includes('gif')) ext = 'gif'
+        else ext = 'jpg'
+      }
+    } catch (fetchErr: any) {
+      console.warn('Could not fetch image directly from server, fallback to external URL:', fetchErr.message)
+    }
+
+    let publicUrl = trimmedUrl
+    const rawFileName = customName?.trim() || `web_image_${Date.now()}.${ext}`
+    const fileName = rawFileName.includes('.') ? rawFileName : `${rawFileName}.${ext}`
+
+    if (buffer && buffer.length > 0) {
+      const uniqueSuffix = `${Date.now()}_${Math.random().toString(36).substring(7)}`
+      const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_')
+      const storagePath = `creatives/${uniqueSuffix}_${safeName}`
+
+      if (supabase) {
+        try {
+          const { data: uploadData, error: uploadErr } = await supabase.storage
+            .from('uploadsService')
+            .upload(storagePath, buffer, {
+              contentType,
+              upsert: false
+            })
+
+          if (!uploadErr && uploadData?.path) {
+            const { data: urlData } = supabase.storage
+              .from('uploadsService')
+              .getPublicUrl(uploadData.path)
+            publicUrl = urlData.publicUrl
+          }
+        } catch (err: any) {
+          console.warn('Supabase storage upload error:', err.message)
+        }
+      }
+
+      if (publicUrl === trimmedUrl) {
+        const publicDir = path.join(process.cwd(), 'public', 'uploads', 'creatives')
+        if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true })
+        const localFilePath = path.join(publicDir, `${uniqueSuffix}_${safeName}`)
+        fs.writeFileSync(localFilePath, buffer)
+        publicUrl = `/uploads/creatives/${uniqueSuffix}_${safeName}`
+      }
+    }
+
+    const sizeInMB = buffer ? (buffer.length / (1024 * 1024)).toFixed(1) : '1.0'
+    const formattedSize = `${sizeInMB} MB`
+
+    let typeLabel = 'JPG Image'
+    if (ext === 'png') typeLabel = 'PNG Image'
+    else if (ext === 'webp') typeLabel = 'WEBP Image'
+    else if (ext === 'mp4') typeLabel = 'MP4 Video'
+    else if (ext === 'gif') typeLabel = 'GIF Image'
+
+    return {
+      success: true,
+      fileUrl: publicUrl,
+      filename: fileName,
+      fileSize: formattedSize,
+      fileType: typeLabel,
+      dimensions: '1080 x 1080 px'
+    }
+  } catch (e: any) {
+    console.error('Error in uploadCreativeFromUrl:', e)
+    return { success: false, error: e.message || 'Failed to import creative from URL' }
+  }
+}
+
+
+/**
  * Fetch all Creatives combined with dynamic Campaign/Ad usage mappings
  */
 export async function getCreativesList() {

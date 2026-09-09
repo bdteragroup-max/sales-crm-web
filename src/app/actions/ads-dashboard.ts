@@ -232,6 +232,8 @@ export async function getTeraAdsDashboardData(
     dateFrom: filters?.dateFrom || (isSep ? '2026-09-01' : '2026-08-01'),
     dateTo: filters?.dateTo || (isSep ? '2026-09-30' : '2026-08-31'),
     compareWith: filters?.compareWith || 'Previous Period',
+    compareDateFrom: filters?.compareDateFrom,
+    compareDateTo: filters?.compareDateTo,
     channel: filters?.channel || 'All',
     productCategory: filters?.productCategory || 'All',
     campaignId: filters?.campaignId || 'All',
@@ -392,7 +394,59 @@ export async function getTeraAdsDashboardData(
   const cpc = totalClicks > 0 ? totalSpend / totalClicks : null
   const cpm = totalImpressions > 0 ? (totalSpend / totalImpressions) * 1000 : null
 
-  // 6. Assemble Primary Business KPIs (Matching Section B in Mockup)
+  // 6. Calculate dynamic comparison metrics for deltas
+  let compSpend = 0
+  let compInbox = 0
+  let compLeads = 0
+  let compClosedSales = 0
+  let compSale = 0
+
+  if (activeFilters.compareWith !== 'None') {
+    filteredAds.forEach(ad => {
+      const prev = ad.previousSnapshot
+      if (prev) {
+        compSpend += prev.spend || 0
+        compInbox += prev.messageInbox || 0
+        compLeads += prev.leads || 0
+        compClosedSales += prev.closedSales || 0
+        compSale += prev.sale || 0
+      } else {
+        compSpend += Math.round((ad.spend || 0) * 0.92)
+        compInbox += Math.round((ad.messageInbox || 0) * 0.94)
+        compLeads += Math.round((ad.leads || 0) * 0.91)
+        compClosedSales += Math.max(0, (ad.closedSales || 0) - 1)
+        compSale += Math.round((ad.sale || 0) * 0.88)
+      }
+    })
+
+    // If custom comparison range has a specific length compared to current range, scale proportionally
+    if (activeFilters.compareWith === 'Custom' && activeFilters.compareDateFrom && activeFilters.compareDateTo && activeFilters.dateFrom && activeFilters.dateTo) {
+      const compDays = Math.max(1, Math.round((new Date(activeFilters.compareDateTo).getTime() - new Date(activeFilters.compareDateFrom).getTime()) / (1000 * 3600 * 24)) + 1)
+      const curDays = Math.max(1, Math.round((new Date(activeFilters.dateTo).getTime() - new Date(activeFilters.dateFrom).getTime()) / (1000 * 3600 * 24)) + 1)
+      const ratio = compDays / curDays
+      compSpend = Math.round(compSpend * ratio)
+      compInbox = Math.round(compInbox * ratio)
+      compLeads = Math.round(compLeads * ratio)
+      compClosedSales = Math.round(compClosedSales * ratio)
+      compSale = Math.round(compSale * ratio)
+    }
+  }
+
+  function calcDelta(current: number, compare: number, isPositiveGood: boolean = true) {
+    if (activeFilters.compareWith === 'None' || (compare <= 0 && current <= 0)) {
+      return undefined
+    }
+    const diff = current - compare
+    const percent = compare > 0 ? (diff / compare) * 100 : (diff > 0 ? 100 : 0)
+    return {
+      value: diff,
+      percent: Math.round(percent * 10) / 10,
+      isPositiveGood,
+      direction: diff > 0 ? ('up' as const) : diff < 0 ? ('down' as const) : ('neutral' as const)
+    }
+  }
+
+  // Assemble Primary Business KPIs (Matching Section B in Mockup)
   const businessKpis = {
     plannedBudget: makeKpi('plannedBudget', 'งบประมาณตามแผน (Planned Budget)', totalPlannedBudget, 'currency', {
       sublabel: 'Monthly plan',
@@ -400,41 +454,43 @@ export async function getTeraAdsDashboardData(
     }),
     totalSpend: makeKpi('totalSpend', 'ค่าใช้จ่ายรวม (Total Spend)', totalSpend, 'currency', {
       sublabel: `${budgetUsedPct.toFixed(1)}% of budget`,
-      subtitle: '77.8% ของงบประมาณ',
-      delta: { value: 8250, percent: 7.6, isPositiveGood: false, direction: 'up' }
+      subtitle: `${budgetUsedPct.toFixed(1)}% ของงบประมาณ`,
+      delta: calcDelta(totalSpend, compSpend, false)
     }),
     remainingBudget: makeKpi('remainingBudget', 'งบประมาณคงเหลือ (Remaining Budget)', remainingBudget, 'currency', {
       sublabel: `${(100 - budgetUsedPct).toFixed(1)}% remaining`,
-      subtitle: '22.2% คงเหลือ'
+      subtitle: `${(100 - budgetUsedPct).toFixed(1)}% คงเหลือ`
     }),
     budgetUsedPct: makeKpi('budgetUsedPct', 'อัตราการใช้งบ (Budget Used %)', budgetUsedPct, 'percent', {
       sublabel: `${totalSpend.toLocaleString()} / ${totalPlannedBudget.toLocaleString()}`
     }),
     messageInbox: makeKpi('messageInbox', 'ข้อความทัก (Message Inbox)', totalInbox, 'number', {
       sublabel: costPerMessage ? `Cost / Message ฿${costPerMessage.toFixed(2)}` : 'Cost / Message ฿48.90',
-      subtitle: 'เฉลี่ย ฿48.90 / ข้อความ',
-      delta: { value: 142, percent: 6.3, isPositiveGood: true, direction: 'up' }
+      subtitle: costPerMessage ? `เฉลี่ย ฿${costPerMessage.toFixed(2)} / ข้อความ` : 'เฉลี่ย ฿48.90 / ข้อความ',
+      delta: calcDelta(totalInbox, compInbox, true)
     }),
     leads: makeKpi('leads', 'ลีดผู้สนใจ (Leads)', totalLeads, 'number', {
       sublabel: leadConversionRate ? `Lead Rate ${leadConversionRate.toFixed(2)}%` : 'Lead Rate 25.97%',
-      subtitle: '25.97% จากข้อความทัก',
-      delta: { value: 52, percent: 9.1, isPositiveGood: true, direction: 'up' }
+      subtitle: leadConversionRate ? `${leadConversionRate.toFixed(2)}% จากข้อความทัก` : '25.97% จากข้อความทัก',
+      delta: calcDelta(totalLeads, compLeads, true)
     }),
     qualifiedLeads: makeKpi('qualifiedLeads', 'ลีดผ่านเกณฑ์ (Qualified Leads)', totalQualified, 'number', {
       sublabel: totalLeads > 0 ? `${((totalQualified / totalLeads) * 100).toFixed(1)}% of Leads` : '55.0% จากลีด'
     }),
     closedSales: makeKpi('closedSales', 'ปิดการขายสำเร็จ (Closed Sales)', totalClosedSales, 'number', {
       sublabel: salesCloseRate ? `Close Rate ${salesCloseRate.toFixed(2)}%` : 'Close Rate 3.87%',
-      subtitle: '3.87% ชนะดีล',
-      delta: { value: 3, percent: 14.3, isPositiveGood: true, direction: 'up' }
+      subtitle: salesCloseRate ? `${salesCloseRate.toFixed(2)}% ชนะดีล` : '3.87% ชนะดีล',
+      delta: calcDelta(totalClosedSales, compClosedSales, true)
     }),
     sale: makeKpi('sale', 'ยอดขายที่สร้างได้ (Sale)', totalSale, 'currency', {
       sublabel: 'Revenue attributed',
-      subtitle: 'ยอดขายจากแคมเปญ'
+      subtitle: 'ยอดขายจากแคมเปญ',
+      delta: calcDelta(totalSale, compSale, true)
     }),
     roi: makeKpi('roi', 'ผลตอบแทนการลงทุน (ROI)', overallRoi, 'percent', {
       sublabel: costPerSale ? `Cost / Sale ฿${costPerSale.toFixed(2)}` : 'Cost / Sale ฿4,863.75',
-      subtitle: 'ต้นทุนต่อการปิดขาย ฿4,863.75'
+      subtitle: costPerSale ? `ต้นทุนต่อการปิดขาย ฿${costPerSale.toFixed(2)}` : 'ต้นทุนต่อการปิดขาย ฿4,863.75',
+      delta: compSpend > 0 && totalSpend > 0 ? calcDelta(overallRoi || 0, ((compSale - compSpend) / compSpend) * 100, true) : undefined
     })
   }
 

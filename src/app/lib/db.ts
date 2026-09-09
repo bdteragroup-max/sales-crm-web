@@ -29,8 +29,8 @@ const prismaClientSingleton = () => {
   }
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 30,
-    idleTimeoutMillis: 30000,
+    max: 5,
+    idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 15000,
     keepAlive: true,
     keepAliveInitialDelayMillis: 10000,
@@ -57,4 +57,5 @@ const prisma = globalThis.prisma_instance_v26 ?? prismaClientSingleton()
 
 export default prisma
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma_instance_v26 = prisma
+globalThis.prisma_instance_v26 = prisma
+

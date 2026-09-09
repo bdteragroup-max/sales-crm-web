@@ -6,7 +6,9 @@ export interface TeraDashboardFilters {
   reportingPeriod: string
   dateFrom: string
   dateTo: string
-  compareWith: string // 'Previous Period' | 'None'
+  compareWith: string // 'Previous Period' | 'None' | 'Custom'
+  compareDateFrom?: string
+  compareDateTo?: string
   channel: string     // 'All' | 'Facebook' | 'TikTok' | 'Google' | 'LINE'
   productCategory: string // 'All' | 'Solar Pump' | 'Solar Rooftop'
   campaignId: string  // 'All' | specific ID

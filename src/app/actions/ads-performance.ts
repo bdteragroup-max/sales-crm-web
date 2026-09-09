@@ -405,14 +405,27 @@ export async function getActiveAdsWithPerformance(filters?: {
       }
     }
 
-    // Index snapshots by adId (sorted desc by capturedAt)
+    function normalizeAdStatus(rawStatus?: string): 'Active' | 'Paused' | 'Archived' | 'Draft' {
+      const s = (rawStatus || '').toLowerCase().trim()
+      if (s === 'active') return 'Active'
+      if (s === 'paused') return 'Paused'
+      if (s === 'archived') return 'Archived'
+      if (s === 'draft') return 'Draft'
+      return 'Active'
+    }
+
+    // Index snapshots by adId and by compound key `${campaignId}_${adId}` (sorted desc by capturedAt)
     const snapshotsByAd: Record<string, PerformanceSnapshot[]> = {}
     allSnapshots.forEach(snap => {
+      const compoundKey = `${snap.campaignId}_${snap.adId}`
+      if (!snapshotsByAd[compoundKey]) snapshotsByAd[compoundKey] = []
+      snapshotsByAd[compoundKey].push(snap)
+
       if (!snapshotsByAd[snap.adId]) snapshotsByAd[snap.adId] = []
       snapshotsByAd[snap.adId].push(snap)
     })
-    Object.keys(snapshotsByAd).forEach(adId => {
-      snapshotsByAd[adId].sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime())
+    Object.keys(snapshotsByAd).forEach(key => {
+      snapshotsByAd[key].sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime())
     })
 
     // 3. Extract ads from Campaign Setup targetAudience structures
@@ -464,7 +477,11 @@ export async function getActiveAdsWithPerformance(filters?: {
         }
         for (const ad of adsList) {
           const adCode = ad.code || ad.id
-          const adSnaps = snapshotsByAd[adCode] || snapshotsByAd[ad.id] || []
+          const campKey = camp.campaignId || camp.id
+          const compoundKey = `${campKey}_${adCode}`
+          const adSnaps = (snapshotsByAd[compoundKey] && snapshotsByAd[compoundKey].length > 0)
+            ? snapshotsByAd[compoundKey]
+            : (snapshotsByAd[adCode]?.filter(s => s.campaignId === campKey || s.campaignId === camp.id || s.campaignId === camp.campaignId) || [])
           const latest = adSnaps[0] || null
           const previous = adSnaps.length > 1 ? adSnaps[1] : null
 
@@ -490,9 +507,10 @@ export async function getActiveAdsWithPerformance(filters?: {
             ? ((spend - previous.spend) / previous.spend) * 100
             : null
 
-          const creativeFileName = ad.creativeFile || (latest ? latest.creativeFile : 'SP_WaterStrong_V1.jpg')
+          const creativeFileName = ad.creativeFile || ad.creativeName || (latest ? latest.creativeFile : 'SP_WaterStrong_V1.jpg')
           const creativeVer = ad.creativeVersion || (latest ? latest.creativeVersion : 'V1')
           const creativeUrl = ad.creativeUrl || (latest ? latest.creativeUrl : `/uploads/creatives/${creativeFileName}`)
+          const normalizedStatus = normalizeAdStatus(ad.status || set.status || camp.status || 'Active')
 
           extractedAds.push({
             adId: adCode,
@@ -504,7 +522,7 @@ export async function getActiveAdsWithPerformance(filters?: {
             channel: channelName,
             productCategory: productCat,
             plannedBudget,
-            status: (ad.status || 'Active') as any,
+            status: normalizedStatus,
             format: ad.format || 'Image',
             creativeFile: creativeFileName,
             creativeVersion: creativeVer,
@@ -533,10 +551,12 @@ export async function getActiveAdsWithPerformance(filters?: {
       }
     }
 
-    // Include baseline demo snapshots if demo campaign is not in database
-    const hasDemoCampaign = extractedAds.some(a => a.campaignId === 'CMP-202608-SP-001' || a.adId === 'AD-SP-001')
-    if (!hasDemoCampaign) {
+    // Include baseline demo snapshots only if there are no campaigns in the database
+    const hasRealCampaigns = campaigns.length > 0
+    const hasDemoCampaign = extractedAds.some(a => a.campaignId === 'CMP-202608-SP-001')
+    if (!hasDemoCampaign && !hasRealCampaigns) {
       DEFAULT_DEMO_SNAPSHOTS.filter(s => s.id.includes('latest')).forEach(s => {
+
         const adSnaps = snapshotsByAd[s.adId] || [s]
         const latest = adSnaps[0] || s
         const previous = adSnaps.length > 1 ? adSnaps[1] : null
@@ -648,75 +668,75 @@ export async function savePerformanceSnapshot(payload: {
 
     await ensurePerformanceSnapshotsTable()
 
-  // Get previous snapshot to validate correction safeguard
-  let previous: any = null
-  try {
-    const existing = await prisma.$queryRawUnsafe<any[]>(`
+    // Get previous snapshot to validate correction safeguard
+    let previous: any = null
+    try {
+      const existing = await prisma.$queryRawUnsafe<any[]>(`
       SELECT * FROM "ad_performance_snapshots" 
       WHERE "adId" = $1 
       ORDER BY "capturedAt" DESC 
       LIMIT 1
     `, payload.adId)
-    if (existing && existing.length > 0) previous = existing[0]
-  } catch (e) {
-    const local = readLocalSnapshots().filter(s => s.adId === payload.adId)
-    if (local.length > 0) previous = local[local.length - 1]
-  }
+      if (existing && existing.length > 0) previous = existing[0]
+    } catch (e) {
+      const local = readLocalSnapshots().filter(s => s.adId === payload.adId)
+      if (local.length > 0) previous = local[local.length - 1]
+    }
 
-  // Correction safeguard: if latest value is less than previous, require Correction type and reason
-  const isDecrease = previous && (
-    Number(payload.spend) < Number(previous.spend) ||
-    Number(payload.impressions) < Number(previous.impressions) ||
-    Number(payload.clicks) < Number(previous.clicks)
-  )
-
-  if (isDecrease && payload.updateType !== 'Correction') {
-    throw new Error(
-      'ยอดสะสมล่าสุดน้อยกว่ายอดก่อนหน้า กรุณาเลือกประเภทเป็น Correction (แก้ไขข้อมูล) พร้อมระบุเหตุผล'
+    // Correction safeguard: if latest value is less than previous, require Correction type and reason
+    const isDecrease = previous && (
+      Number(payload.spend) < Number(previous.spend) ||
+      Number(payload.impressions) < Number(previous.impressions) ||
+      Number(payload.clicks) < Number(previous.clicks)
     )
-  }
 
-  if (payload.updateType === 'Correction' && !payload.correctionReason?.trim()) {
-    throw new Error('กรุณาระบุเหตุผลการแก้ไข (Correction Reason)')
-  }
+    if (isDecrease && payload.updateType !== 'Correction') {
+      throw new Error(
+        'ยอดสะสมล่าสุดน้อยกว่ายอดก่อนหน้า กรุณาเลือกประเภทเป็น Correction (แก้ไขข้อมูล) พร้อมระบุเหตุผล'
+      )
+    }
 
-  const now = new Date()
-  const dateKey = now.toISOString().slice(0, 10).replace(/-/g, '')
-  const randomSeq = String(Math.floor(Math.random() * 900) + 100)
-  const snapshotId = `SNP-${dateKey}-${randomSeq}`
-  const id = `snp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+    if (payload.updateType === 'Correction' && !payload.correctionReason?.trim()) {
+      throw new Error('กรุณาระบุเหตุผลการแก้ไข (Correction Reason)')
+    }
 
-  const newSnapshot: PerformanceSnapshot = {
-    id,
-    snapshotId,
-    adId: payload.adId,
-    campaignId: payload.campaignId,
-    adSetId: payload.adSetId,
-    creativeId: payload.creativeId || '',
-    creativeFile: payload.creativeFile || '',
-    creativeVersion: payload.creativeVersion || 'V1',
-    creativeUrl: payload.creativeUrl || '',
-    periodStart: payload.periodStart || undefined,
-    periodEnd: payload.periodEnd || undefined,
-    capturedAt: payload.capturedAt || now.toISOString(),
-    updateMode: payload.updateMode || 'CUMULATIVE_SNAPSHOT',
-    spend: Number(payload.spend || 0),
-    messageInbox: Number(payload.messageInbox || 0),
-    reach: Number(payload.reach || 0),
-    impressions: Number(payload.impressions || 0),
-    clicks: Number(payload.clicks || 0),
-    dataSource: payload.dataSource || 'Ads Manager',
-    notes: payload.notes || '',
-    enteredBy: (user as any).fullName || user.email || 'Marketing Editor',
-    updateType: payload.updateType || 'Regular Update',
-    correctionReason: payload.correctionReason || null,
-    status: payload.status || 'SAVED',
-    createdAt: now.toISOString()
-  }
+    const now = new Date()
+    const dateKey = now.toISOString().slice(0, 10).replace(/-/g, '')
+    const randomSeq = String(Math.floor(Math.random() * 900) + 100)
+    const snapshotId = `SNP-${dateKey}-${randomSeq}`
+    const id = `snp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
 
-  // Insert to PostgreSQL
-  try {
-    await prisma.$executeRawUnsafe(`
+    const newSnapshot: PerformanceSnapshot = {
+      id,
+      snapshotId,
+      adId: payload.adId,
+      campaignId: payload.campaignId,
+      adSetId: payload.adSetId,
+      creativeId: payload.creativeId || '',
+      creativeFile: payload.creativeFile || '',
+      creativeVersion: payload.creativeVersion || 'V1',
+      creativeUrl: payload.creativeUrl || '',
+      periodStart: payload.periodStart || undefined,
+      periodEnd: payload.periodEnd || undefined,
+      capturedAt: payload.capturedAt || now.toISOString(),
+      updateMode: payload.updateMode || 'CUMULATIVE_SNAPSHOT',
+      spend: Number(payload.spend || 0),
+      messageInbox: Number(payload.messageInbox || 0),
+      reach: Number(payload.reach || 0),
+      impressions: Number(payload.impressions || 0),
+      clicks: Number(payload.clicks || 0),
+      dataSource: payload.dataSource || 'Ads Manager',
+      notes: payload.notes || '',
+      enteredBy: (user as any).fullName || user.email || 'Marketing Editor',
+      updateType: payload.updateType || 'Regular Update',
+      correctionReason: payload.correctionReason || null,
+      status: payload.status || 'SAVED',
+      createdAt: now.toISOString()
+    }
+
+    // Insert to PostgreSQL
+    try {
+      await prisma.$executeRawUnsafe(`
       INSERT INTO "ad_performance_snapshots" (
         "id", "snapshotId", "adId", "campaignId", "adSetId", "creativeId", "creativeFile",
         "creativeVersion", "creativeUrl", "periodStart", "periodEnd", "capturedAt",
@@ -727,49 +747,49 @@ export async function savePerformanceSnapshot(payload: {
         $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25::timestamptz
       )
     `,
-      newSnapshot.id,
-      newSnapshot.snapshotId,
-      newSnapshot.adId,
-      newSnapshot.campaignId,
-      newSnapshot.adSetId,
-      newSnapshot.creativeId || null,
-      newSnapshot.creativeFile || null,
-      newSnapshot.creativeVersion || null,
-      newSnapshot.creativeUrl || null,
-      newSnapshot.periodStart || null,
-      newSnapshot.periodEnd || null,
-      newSnapshot.capturedAt,
-      newSnapshot.updateMode,
-      newSnapshot.spend,
-      newSnapshot.messageInbox,
-      newSnapshot.reach,
-      newSnapshot.impressions,
-      newSnapshot.clicks,
-      newSnapshot.dataSource,
-      newSnapshot.notes || null,
-      newSnapshot.enteredBy,
-      newSnapshot.updateType,
-      newSnapshot.correctionReason || null,
-      newSnapshot.status,
-      newSnapshot.createdAt
-    )
-  } catch (e) {
-    console.warn('Postgres insert failed for ad_performance_snapshots, writing local fallback:', e)
+        newSnapshot.id,
+        newSnapshot.snapshotId,
+        newSnapshot.adId,
+        newSnapshot.campaignId,
+        newSnapshot.adSetId,
+        newSnapshot.creativeId || null,
+        newSnapshot.creativeFile || null,
+        newSnapshot.creativeVersion || null,
+        newSnapshot.creativeUrl || null,
+        newSnapshot.periodStart || null,
+        newSnapshot.periodEnd || null,
+        newSnapshot.capturedAt,
+        newSnapshot.updateMode,
+        newSnapshot.spend,
+        newSnapshot.messageInbox,
+        newSnapshot.reach,
+        newSnapshot.impressions,
+        newSnapshot.clicks,
+        newSnapshot.dataSource,
+        newSnapshot.notes || null,
+        newSnapshot.enteredBy,
+        newSnapshot.updateType,
+        newSnapshot.correctionReason || null,
+        newSnapshot.status,
+        newSnapshot.createdAt
+      )
+    } catch (e) {
+      console.warn('Postgres insert failed for ad_performance_snapshots, writing local fallback:', e)
+    }
+
+    // Sync to local file storage for reliability
+    const currentLocal = readLocalSnapshots()
+    writeLocalSnapshots([newSnapshot, ...currentLocal])
+
+    revalidatePath('/marketing/ads/performance')
+    revalidatePath('/marketing/ads/campaigns')
+    revalidatePath('/marketing/ads/dashboard')
+
+    return { success: true, snapshot: newSnapshot }
+  } catch (error: any) {
+    console.error('savePerformanceSnapshot error:', error)
+    return { success: false, error: error.message }
   }
-
-  // Sync to local file storage for reliability
-  const currentLocal = readLocalSnapshots()
-  writeLocalSnapshots([newSnapshot, ...currentLocal])
-
-  revalidatePath('/marketing/ads/performance')
-  revalidatePath('/marketing/ads/campaigns')
-  revalidatePath('/marketing/ads/dashboard')
-
-  return { success: true, snapshot: newSnapshot }
-} catch (error: any) {
-  console.error('savePerformanceSnapshot error:', error)
-  return { success: false, error: error.message }
-}
 }
 
 /**
@@ -959,7 +979,7 @@ export async function getCRMResultsForCampaign(campaignId: string) {
   return {
     leads: leads.length,
     // Setting qualifiedLeads to null as a placeholder until the business clarifies what 'Qualified' means.
-    qualifiedLeads: null, 
+    qualifiedLeads: null,
     closedSales: leads.filter(l => l.quotation?.status === 'WON').length,
     sale: leads.reduce((sum, l) => sum + (l.quotation?.status === 'WON' ? Number(l.quotation.totalAmountBeforeVat || 0) : 0), 0),
   }
@@ -976,7 +996,7 @@ export async function getDistinctAdSetsAndAds(campaignId: string) {
     select: { adId: true },
     distinct: ['adId']
   })
-  
+
   return {
     adSets: adSets.map(a => a.adSetId as string),
     ads: ads.map(a => a.adId as string)
@@ -991,7 +1011,7 @@ export async function bulkSavePerformanceEntries(entries: any[], overwrite: bool
   }
 
   const { toDateString } = await import('@/lib/adsAggregate');
-  
+
   // 1. Fetch campaigns for channelId mapping
   const campaignIds = [...new Set(entries.map(e => e.campaignId))]
   const campaigns = await prisma.adCampaign.findMany({
@@ -1007,7 +1027,7 @@ export async function bulkSavePerformanceEntries(entries: any[], overwrite: bool
     }
     const channelId = channelMap[data.campaignId]
     if (!channelId) throw new Error(`Campaign ${data.campaignId} not found or missing channel`)
-    
+
     const dedupeKey = buildDedupeKey({
       dateFrom: toDateString(new Date(data.dateFrom)),
       dateTo: toDateString(new Date(data.dateTo)),
@@ -1016,7 +1036,7 @@ export async function bulkSavePerformanceEntries(entries: any[], overwrite: bool
       adSetId: data.adSetId || null,
       adId: data.adId || null
     })
-    
+
     return { ...data, dedupeKey }
   })
 
@@ -1028,10 +1048,10 @@ export async function bulkSavePerformanceEntries(entries: any[], overwrite: bool
       select: { dedupeKey: true }
     })
     if (existing.length > 0) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         duplicateCount: existing.length,
-        message: `${existing.length} duplicate rows found in database.` 
+        message: `${existing.length} duplicate rows found in database.`
       }
     }
   }
@@ -1040,17 +1060,17 @@ export async function bulkSavePerformanceEntries(entries: any[], overwrite: bool
   await prisma.$transaction(async (tx) => {
     for (const entry of preparedEntries) {
       const { id, dedupeKey, dateFrom, dateTo, spend, impressions, linkClicks, messageInbox, reach, results, resultTypeId, campaignId, adSetId, adId, note } = entry
-      
+
       const updateData = {
-        dateFrom: new Date(dateFrom), 
-        dateTo: new Date(dateTo), 
-        spend, impressions, linkClicks, messageInbox, reach, results, resultTypeId, campaignId, 
-        adSetId: adSetId || null, 
-        adId: adId || null, 
+        dateFrom: new Date(dateFrom),
+        dateTo: new Date(dateTo),
+        spend, impressions, linkClicks, messageInbox, reach, results, resultTypeId, campaignId,
+        adSetId: adSetId || null,
+        adId: adId || null,
         note: note || null,
         updatedBy: user.id
       }
-      
+
       await tx.adPerformance.upsert({
         where: { dedupeKey },
         create: {
@@ -1073,7 +1093,7 @@ export async function deletePerformanceEntry(id: string) {
   if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager'].includes(user.role)) {
     throw new Error("Forbidden: Insufficient privileges")
   }
-  
+
   await prisma.adPerformance.delete({ where: { id } })
   revalidatePath('/marketing/ads/campaigns')
   return { success: true }

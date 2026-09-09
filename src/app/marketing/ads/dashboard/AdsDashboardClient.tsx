@@ -78,6 +78,9 @@ export default function AdsDashboardClient({
   const queryChannel = searchParams?.get('channel') || ''
   const queryCampaign = searchParams?.get('campaign') || ''
   const queryStatus = searchParams?.get('status') || ''
+  const queryCompareWith = searchParams?.get('compareWith') || ''
+  const queryCompareFrom = searchParams?.get('compareFrom') || ''
+  const queryCompareTo = searchParams?.get('compareTo') || ''
 
   const isQuerySeptember = queryFrom.includes('2026-09') || queryTo.includes('2026-09')
 
@@ -91,7 +94,9 @@ export default function AdsDashboardClient({
       reportingPeriod: isQuerySeptember ? '01-30 Sep 2026' : '01-31 Aug 2026',
       dateFrom: queryFrom || (isQuerySeptember ? '2026-09-01' : '2026-08-01'),
       dateTo: queryTo || (isQuerySeptember ? '2026-09-30' : '2026-08-31'),
-      compareWith: 'Previous Period',
+      compareWith: queryCompareWith || 'Previous Period',
+      compareDateFrom: queryCompareFrom || '2026-07-01',
+      compareDateTo: queryCompareTo || '2026-07-31',
       channel: queryChannel || 'Facebook',
       productCategory: 'All',
       campaignId: queryCampaign || 'All',
@@ -105,7 +110,10 @@ export default function AdsDashboardClient({
 
   // Custom date range visibility
   const [showCustomDate, setShowCustomDate] = useState(
-    Boolean((queryFrom && queryTo) && (queryFrom !== '2026-08-01' || queryTo !== '2026-08-31') && (queryFrom !== '2026-09-01' || queryTo !== '2026-09-30'))
+    Boolean((queryFrom && queryTo) && (queryFrom !== '2026-08-01' || queryTo !== '2026-08-31') && (queryFrom !== '2026-09-01' || queryTo !== '2026-09-30')) || (initialData?.filters?.reportingPeriod === 'Custom')
+  )
+  const [showCustomCompareDate, setShowCustomCompareDate] = useState(
+    Boolean(queryCompareWith === 'Custom' || queryCompareFrom || queryCompareTo || initialData?.filters?.compareWith === 'Custom')
   )
 
   // Active Tab for Deep-Dive Section E
@@ -162,8 +170,25 @@ export default function AdsDashboardClient({
         next.dateFrom = '2026-08-01'
         next.dateTo = '2026-08-31'
         setShowCustomDate(false)
+      } else if (value === 'Last 7 Days') {
+        next.dateFrom = '2026-08-25'
+        next.dateTo = '2026-08-31'
+        setShowCustomDate(false)
       } else if (value === 'Custom') {
         setShowCustomDate(true)
+      }
+    }
+
+    // Handle Comparison selection presets
+    if (key === 'compareWith') {
+      if (value === 'Custom') {
+        setShowCustomCompareDate(true)
+        if (!next.compareDateFrom || !next.compareDateTo) {
+          next.compareDateFrom = '2026-07-01'
+          next.compareDateTo = '2026-07-31'
+        }
+      } else {
+        setShowCustomCompareDate(false)
       }
     }
 
@@ -180,6 +205,11 @@ export default function AdsDashboardClient({
       if (next.channel !== 'All') params.set('channel', next.channel)
       if (next.campaignId !== 'All') params.set('campaign', next.campaignId)
       if (next.status !== 'All') params.set('status', next.status)
+      if (next.compareWith !== 'Previous Period') params.set('compareWith', next.compareWith)
+      if (next.compareWith === 'Custom') {
+        if (next.compareDateFrom) params.set('compareFrom', next.compareDateFrom)
+        if (next.compareDateTo) params.set('compareTo', next.compareDateTo)
+      }
       router.replace(`/marketing/ads/dashboard?${params.toString()}`, { scroll: false })
     } catch (err) {
       console.error('Failed to apply filters:', err)
@@ -196,6 +226,8 @@ export default function AdsDashboardClient({
       dateFrom: isSep ? '2026-09-01' : '2026-08-01',
       dateTo: isSep ? '2026-09-30' : '2026-08-31',
       compareWith: 'Previous Period',
+      compareDateFrom: '2026-07-01',
+      compareDateTo: '2026-07-31',
       channel: 'Facebook',
       productCategory: 'All',
       campaignId: 'All',
@@ -206,6 +238,7 @@ export default function AdsDashboardClient({
       search: ''
     }
     setShowCustomDate(false)
+    setShowCustomCompareDate(false)
     setFilters(reset)
     setIsRefreshing(true)
     try {
@@ -408,7 +441,8 @@ export default function AdsDashboardClient({
       value: kpis?.plannedBudget.displayValue || '฿150,000',
       subtitle: 'งบประมาณรายเดือน',
       valueColor: 'text-slate-900',
-      tag: 'งบประมาณ'
+      tag: 'งบประมาณ',
+      delta: kpis?.plannedBudget.delta
     },
     {
       id: 'totalSpend',
@@ -417,7 +451,8 @@ export default function AdsDashboardClient({
       subtitle: kpis?.totalSpend.subtitle || '77.8% ของงบประมาณ',
       valueColor: 'text-slate-900',
       tag: 'ใช้จ่ายจริง',
-      progress: 77.8
+      progress: 77.8,
+      delta: kpis?.totalSpend.delta
     },
     {
       id: 'remainingBudget',
@@ -425,7 +460,8 @@ export default function AdsDashboardClient({
       value: kpis?.remainingBudget.displayValue || '฿33,270',
       subtitle: kpis?.remainingBudget.subtitle || '22.2% คงเหลือ',
       valueColor: 'text-slate-900',
-      tag: 'คงเหลือ'
+      tag: 'คงเหลือ',
+      delta: kpis?.remainingBudget.delta
     },
     {
       id: 'sale',
@@ -433,7 +469,8 @@ export default function AdsDashboardClient({
       value: kpis?.sale.displayValue || '฿1,120,000',
       subtitle: 'ยอดขายจากแคมเปญ',
       valueColor: 'text-emerald-700',
-      tag: 'ยอดขาย'
+      tag: 'ยอดขาย',
+      delta: kpis?.sale.delta
     },
     {
       id: 'messageInbox',
@@ -441,7 +478,8 @@ export default function AdsDashboardClient({
       value: kpis?.messageInbox.displayValue || '2,387',
       subtitle: kpis?.messageInbox.subtitle || 'เฉลี่ย ฿48.90 / ข้อความ',
       valueColor: 'text-slate-900',
-      tag: 'การทักแชท'
+      tag: 'การทักแชท',
+      delta: kpis?.messageInbox.delta
     },
     {
       id: 'leads',
@@ -449,7 +487,8 @@ export default function AdsDashboardClient({
       value: kpis?.leads.displayValue || '620',
       subtitle: kpis?.leads.subtitle || 'อัตราลีด 25.97%',
       valueColor: 'text-slate-900',
-      tag: 'ผู้สนใจ'
+      tag: 'ผู้สนใจ',
+      delta: kpis?.leads.delta
     },
     {
       id: 'closedSales',
@@ -457,7 +496,8 @@ export default function AdsDashboardClient({
       value: kpis?.closedSales.displayValue || '24',
       subtitle: kpis?.closedSales.subtitle || 'อัตราปิดการขาย 3.87%',
       valueColor: 'text-slate-900',
-      tag: 'ชนะดีล'
+      tag: 'ชนะดีล',
+      delta: kpis?.closedSales.delta
     },
     {
       id: 'roi',
@@ -465,7 +505,8 @@ export default function AdsDashboardClient({
       value: kpis?.roi.displayValue || '859.4%',
       subtitle: kpis?.roi.subtitle || 'ต้นทุน/การปิด ฿4,863.75',
       valueColor: 'text-emerald-600',
-      tag: 'กำไร/ROI'
+      tag: 'กำไร/ROI',
+      delta: kpis?.roi.delta
     }
   ]
 
@@ -639,6 +680,7 @@ export default function AdsDashboardClient({
                 className="w-full text-xs font-medium bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 outline-none cursor-pointer h-9 shadow-2xs truncate"
               >
                 <option value="Previous Period">ช่วงเวลาก่อนหน้า</option>
+                <option value="Custom">กำหนดเอง</option>
                 <option value="None">ไม่เปรียบเทียบ</option>
               </select>
             </div>
@@ -719,24 +761,54 @@ export default function AdsDashboardClient({
           </div>
 
           {/* Optional Custom Date Range Row */}
-          {showCustomDate && (
-            <div className="flex items-center gap-3 pt-2 border-t border-slate-100 text-xs">
-              <span className="font-semibold text-slate-700">กำหนดช่วงวันที่:</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  value={filters.dateFrom}
-                  onChange={e => handleFilterChange('dateFrom', e.target.value)}
-                  className="bg-white border border-slate-200 rounded-md px-2 py-1 text-xs text-slate-800 outline-none focus:border-rose-500"
-                />
-                <span className="text-slate-400">ถึง</span>
-                <input
-                  type="date"
-                  value={filters.dateTo}
-                  onChange={e => handleFilterChange('dateTo', e.target.value)}
-                  className="bg-white border border-slate-200 rounded-md px-2 py-1 text-xs text-slate-800 outline-none focus:border-rose-500"
-                />
-              </div>
+          {(showCustomDate || showCustomCompareDate) && (
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs animate-in fade-in duration-200">
+              {showCustomDate && (
+                <div className="flex flex-wrap items-center gap-2 bg-rose-50/60 border border-rose-100 px-3 py-1.5 rounded-xl shadow-2xs">
+                  <span className="font-bold text-rose-900 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-rose-500" />
+                    <span>ช่วงเวลารายงาน:</span>
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="date"
+                      value={filters.dateFrom}
+                      onChange={e => handleFilterChange('dateFrom', e.target.value)}
+                      className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 outline-none focus:border-rose-500 font-medium"
+                    />
+                    <span className="text-slate-400 font-medium">ถึง</span>
+                    <input
+                      type="date"
+                      value={filters.dateTo}
+                      onChange={e => handleFilterChange('dateTo', e.target.value)}
+                      className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 outline-none focus:border-rose-500 font-medium"
+                    />
+                  </div>
+                </div>
+              )}
+              {showCustomCompareDate && (
+                <div className="flex flex-wrap items-center gap-2 bg-blue-50/60 border border-blue-100 px-3 py-1.5 rounded-xl shadow-2xs">
+                  <span className="font-bold text-blue-900 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                    <span>ช่วงเวลาเปรียบเทียบ:</span>
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="date"
+                      value={filters.compareDateFrom || '2026-07-01'}
+                      onChange={e => handleFilterChange('compareDateFrom', e.target.value)}
+                      className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 outline-none focus:border-blue-500 font-medium"
+                    />
+                    <span className="text-slate-400 font-medium">ถึง</span>
+                    <input
+                      type="date"
+                      value={filters.compareDateTo || '2026-07-31'}
+                      onChange={e => handleFilterChange('compareDateTo', e.target.value)}
+                      className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 outline-none focus:border-blue-500 font-medium"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -798,6 +870,18 @@ export default function AdsDashboardClient({
                   <div className={`text-2xl font-black font-mono tracking-tight ${card.valueColor}`}>
                     {card.value}
                   </div>
+                  {card.delta && card.delta.percent != null && filters.compareWith !== 'None' && (
+                    <span className={`inline-flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
+                      card.delta.direction === 'up'
+                        ? (card.delta.isPositiveGood ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-rose-50 text-rose-700 border border-rose-200/60')
+                        : card.delta.direction === 'down'
+                        ? (card.delta.isPositiveGood ? 'bg-rose-50 text-rose-700 border border-rose-200/60' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60')
+                        : 'bg-slate-50 text-slate-600 border border-slate-200/60'
+                    }`}>
+                      <span>{card.delta.direction === 'up' ? '▲' : card.delta.direction === 'down' ? '▼' : '•'}</span>
+                      <span>{Math.abs(card.delta.percent).toFixed(1)}%</span>
+                    </span>
+                  )}
                 </div>
 
                 <div>

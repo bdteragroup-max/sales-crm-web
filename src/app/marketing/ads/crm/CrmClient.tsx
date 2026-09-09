@@ -74,6 +74,8 @@ export default function CrmClient({
 
   // Filters
   const [reportingPeriod, setReportingPeriod] = useState<string>('01-31 Aug 2026')
+  const [dateFrom, setDateFrom] = useState<string>('2026-08-01')
+  const [dateTo, setDateTo] = useState<string>('2026-08-31')
   const [filterChannel, setFilterChannel] = useState<string>('All')
   const [filterCampaign, setFilterCampaign] = useState<string>('All')
   const [filterAdSet, setFilterAdSet] = useState<string>('All')
@@ -168,6 +170,24 @@ export default function CrmClient({
         if (filterCrmStatus === 'Has Leads' && ad.leads <= 0) return false
       }
 
+      if (reportingPeriod === 'Custom') {
+        const adDate = (ad.lastUpdated || ad.latestSnapshot?.capturedAt || '').slice(0, 10)
+        const pStart = ad.latestSnapshot?.periodStart || ''
+        const pEnd = ad.latestSnapshot?.periodEnd || ''
+        if (dateFrom && dateTo) {
+          const effectiveDate = pEnd || adDate
+          if (effectiveDate && (effectiveDate < dateFrom || (pStart && pStart > dateTo))) {
+            return false
+          }
+        } else if (dateFrom) {
+          const effectiveDate = pEnd || adDate
+          if (effectiveDate && effectiveDate < dateFrom) return false
+        } else if (dateTo) {
+          const effectiveDate = pStart || adDate
+          if (effectiveDate && effectiveDate > dateTo) return false
+        }
+      }
+
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim()
         const matchName = ad.adName.toLowerCase().includes(q)
@@ -178,7 +198,7 @@ export default function CrmClient({
       }
       return true
     })
-  }, [ads, filterChannel, filterCampaign, filterAdSet, filterStatus, filterCrmStatus, searchQuery])
+  }, [ads, filterChannel, filterCampaign, filterAdSet, filterStatus, filterCrmStatus, searchQuery, reportingPeriod, dateFrom, dateTo])
 
   // Check if any filter is active from default
   const isFilterActive =
@@ -190,8 +210,47 @@ export default function CrmClient({
     filterCrmStatus !== 'All' ||
     searchQuery.trim() !== ''
 
+  const handlePeriodChange = (val: string) => {
+    setReportingPeriod(val)
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = String(now.getMonth() + 1).padStart(2, '0')
+    const d = String(now.getDate()).padStart(2, '0')
+    const todayStr = `${y}-${m}-${d}`
+
+    if (val === '01-31 Aug 2026') {
+      setDateFrom('2026-08-01')
+      setDateTo('2026-08-31')
+    } else if (val === '01-30 Sep 2026') {
+      setDateFrom('2026-09-01')
+      setDateTo('2026-09-30')
+    } else if (val === 'This Month') {
+      setDateFrom(`${y}-${m}-01`)
+      const lastDay = new Date(y, now.getMonth() + 1, 0).getDate()
+      setDateTo(`${y}-${m}-${String(lastDay).padStart(2, '0')}`)
+    } else if (val === 'Last Month') {
+      const prevM = new Date(y, now.getMonth() - 1, 1)
+      const prevMStr = String(prevM.getMonth() + 1).padStart(2, '0')
+      const lastDay = new Date(prevM.getFullYear(), prevM.getMonth() + 1, 0).getDate()
+      setDateFrom(`${prevM.getFullYear()}-${prevMStr}-01`)
+      setDateTo(`${prevM.getFullYear()}-${prevMStr}-${String(lastDay).padStart(2, '0')}`)
+    } else if (val === 'Last 7 Days') {
+      const prev = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+      setDateFrom(`${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}-${String(prev.getDate()).padStart(2, '0')}`)
+      setDateTo(todayStr)
+    } else if (val === 'All Time') {
+      setDateFrom('')
+      setDateTo('')
+    } else if (val === 'Custom') {
+      if (!dateFrom) setDateFrom('2026-08-01')
+      if (!dateTo) setDateTo('2026-08-31')
+    }
+  }
+
   const handleResetFilters = () => {
     setReportingPeriod('01-31 Aug 2026')
+    setDateFrom('2026-08-01')
+    setDateTo('2026-08-31')
     setFilterChannel('All')
     setFilterCampaign('All')
     setFilterAdSet('All')
@@ -905,14 +964,16 @@ export default function CrmClient({
               </label>
               <select
                 value={reportingPeriod}
-                onChange={e => setReportingPeriod(e.target.value)}
+                onChange={e => handlePeriodChange(e.target.value)}
                 className="w-full text-xs bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:bg-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all cursor-pointer"
               >
                 <option value="01-31 Aug 2026">01-31 ส.ค. 2026 (01-31 Aug 2026)</option>
+                <option value="01-30 Sep 2026">01-30 ก.ย. 2026 (01-30 Sep 2026)</option>
                 <option value="This Month">เดือนนี้ (This Month)</option>
                 <option value="Last Month">เดือนที่แล้ว (Last Month)</option>
                 <option value="Last 7 Days">7 วันล่าสุด (Last 7 Days)</option>
                 <option value="All Time">ทั้งหมด (All Time)</option>
+                <option value="Custom">กำหนดเอง (Custom)</option>
               </select>
             </div>
 
@@ -965,6 +1026,33 @@ export default function CrmClient({
                 )}
               </div>
             </div>
+
+            {/* Custom Date Range Row */}
+            {reportingPeriod === 'Custom' && (
+              <div className="md:col-span-2 lg:col-span-4 bg-rose-50/70 border border-rose-200/80 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-2xs">
+                <div className="flex items-center gap-2 text-rose-900 font-bold text-xs">
+                  <Calendar className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>กำหนดช่วงเวลารายงานเอง (Custom Date Range):</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs">
+                  <label className="text-[11px] font-semibold text-slate-600">ตั้งแต่วันที่</label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={e => setDateFrom(e.target.value)}
+                    className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 font-medium focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none shadow-2xs"
+                  />
+                  <span className="text-slate-400 font-medium">ถึง</span>
+                  <label className="text-[11px] font-semibold text-slate-600">ถึงวันที่</label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={e => setDateTo(e.target.value)}
+                    className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 font-medium focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none shadow-2xs"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Symmetrical Helper & Filter Summary Bar */}
