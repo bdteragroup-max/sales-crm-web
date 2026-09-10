@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, FileText, CheckCircle, CheckCircle2, Wrench, Clock, AlertTriangle, ArrowRight, BarChart3, TrendingUp, Filter, User } from 'lucide-react';
+import { Plus, FileText, FileSpreadsheet, CheckCircle, CheckCircle2, Wrench, Clock, AlertTriangle, ArrowRight, BarChart3, TrendingUp, Filter, User, Download, ChevronDown } from 'lucide-react';
 import { CustomerSatisfaction, Company } from '@/generated/client';
 import { SATISFACTION_SCORE_LEGEND, formatPhoneForTel } from '@/app/lib/satisfactionScore';
 import { InstallationStatusInfo } from '@/app/lib/satisfactionHelper';
+import * as XLSX from 'xlsx';
 
 type SurveyWithRelations = CustomerSatisfaction & {
   company: Company & { assignedUser?: { fullName: string } | null };
@@ -20,11 +21,24 @@ export default function SatisfactionDashboardClient() {
   const [installFilter, setInstallFilter] = useState<'ALL' | 'COMPLETED' | 'IN_PROGRESS' | 'NO_INSTALLATION'>('ALL');
   const [surveys, setSurveys] = useState<SurveyWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Set current year on mount
     const currentYearBE = new Date().getFullYear() + 543;
     setYear(currentYearBE.toString());
+  }, []);
+
+  // Click outside listener for export dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportDropdownRef.current && !exportDropdownRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -104,6 +118,99 @@ export default function SatisfactionDashboardClient() {
     );
   };
 
+  const handleExport = (format: 'xlsx' | 'csv') => {
+    if (displayedSurveys.length === 0) {
+      alert('ไม่มีข้อมูลสำหรับส่งออกตามเงื่อนไขที่เลือก');
+      return;
+    }
+
+    const exportData = displayedSurveys.map((survey, index) => {
+      let ratingCategory = 'ปานกลาง';
+      if (survey.scoreAverage >= 4.5) ratingCategory = 'ดีมาก (มากที่สุด)';
+      else if (survey.scoreAverage >= 3.5) ratingCategory = 'ดี (มาก)';
+      else if (survey.scoreAverage >= 2.5) ratingCategory = 'ปานกลาง';
+      else if (survey.scoreAverage >= 1.5) ratingCategory = 'น้อย (ต้องปรับปรุง)';
+      else ratingCategory = 'น้อยที่สุด (เร่งด่วน)';
+
+      return {
+        'ลำดับ': index + 1,
+        'วันที่ประเมิน': new Date(survey.surveyDate).toLocaleDateString('th-TH'),
+        'รอบการประเมิน': `รอบที่ ${survey.surveyRound}`,
+        'ปี (พ.ศ.)': survey.surveyYear,
+        'ช่องทางการประเมิน': survey.surveyMethod === 'PHONE' ? 'โทรศัพท์ (Phone)' : survey.surveyMethod === 'ONSITE' ? 'ลงพื้นที่ (On-site)' : (survey.surveyMethod || '-'),
+        'ชื่อบริษัท / ลูกค้า': survey.company?.companyName || '-',
+        'ผู้ติดต่อ': survey.contactName || '-',
+        'เบอร์โทรศัพท์': survey.phone || '-',
+        'จังหวัด': survey.province || survey.company?.province || '-',
+        'ผู้แทนขายที่ดูแล': survey.company?.assignedUser?.fullName || '-',
+        'สถานะงานติดตั้ง': survey.installationStatus?.label || 'ไม่มีข้อมูลงานติดตั้ง',
+        'เลขที่ใบงานติดตั้ง': survey.installationStatus?.orderNo || '-',
+        'ช่างผู้รับผิดชอบ': survey.installationStatus?.technician || '-',
+        'เลขที่ใบเสนอราคา': Array.isArray(survey.quotationIds) ? survey.quotationIds.join(', ') : (survey.quotationIds || '-'),
+        'คะแนน: ราคา (Price)': survey.scorePrice,
+        'คะแนน: คุณภาพสินค้า (Quality)': survey.scoreQuality,
+        'คะแนน: การจัดส่ง (Delivery)': survey.scoreDelivery,
+        'คะแนน: พนักงานขาย (Sales Staff)': survey.scoreSales,
+        'คะแนน: การแก้ปัญหา (Support)': survey.scoreSupport,
+        'คะแนน: บริการหลังการขาย (After-sales)': survey.scoreAfterSales,
+        'คะแนนเฉลี่ยรวม': Number(survey.scoreAverage.toFixed(2)),
+        'เกณฑ์ประเมิน': ratingCategory,
+        'เหตุผลที่ตัดสินใจซื้อ': Array.isArray(survey.purchaseReasons) ? survey.purchaseReasons.join(', ') : (survey.purchaseReasons || '-'),
+        'ข้อเสนอแนะเพิ่มเติมจากลูกค้า': survey.suggestions || '-',
+        'บันทึกการสนทนา (Call Notes)': survey.callNotes || '-',
+        'สถานะการวิเคราะห์': survey.analysisNote ? 'วิเคราะห์แล้ว' : 'รอดำเนินการ',
+        'บันทึกการวิเคราะห์ (Marketing Analysis)': survey.analysisNote || '-',
+        'แผนงานแก้ไข/ปรับปรุง (Action Plan)': survey.actionPlan || '-'
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths for comfortable reading
+    const colWidths = [
+      { wch: 6 },  // ลำดับ
+      { wch: 14 }, // วันที่
+      { wch: 14 }, // รอบ
+      { wch: 10 }, // ปี
+      { wch: 20 }, // ช่องทาง
+      { wch: 32 }, // ชื่อบริษัท
+      { wch: 20 }, // ผู้ติดต่อ
+      { wch: 16 }, // เบอร์โทร
+      { wch: 16 }, // จังหวัด
+      { wch: 22 }, // ผู้แทนขาย
+      { wch: 20 }, // สถานะติดตั้ง
+      { wch: 18 }, // เลขที่ใบงานติดตั้ง
+      { wch: 20 }, // ช่าง
+      { wch: 22 }, // เลขที่ใบเสนอราคา
+      { wch: 14 }, // ราคา
+      { wch: 14 }, // คุณภาพ
+      { wch: 14 }, // การจัดส่ง
+      { wch: 14 }, // พนักงานขาย
+      { wch: 14 }, // การแก้ปัญหา
+      { wch: 14 }, // บริการหลังการขาย
+      { wch: 14 }, // คะแนนเฉลี่ย
+      { wch: 20 }, // เกณฑ์ประเมิน
+      { wch: 30 }, // เหตุผลตัดสินใจซื้อ
+      { wch: 35 }, // ข้อเสนอแนะ
+      { wch: 35 }, // บันทึกสนทนา
+      { wch: 16 }, // สถานะวิเคราะห์
+      { wch: 35 }, // บันทึกวิเคราะห์
+      { wch: 35 }, // แผนงานแก้ไข
+    ];
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'แบบประเมินความพึงพอใจ');
+
+    const roundLabel = round === 'all' ? 'AllRounds' : `Round${round}`;
+    const installLabel = installFilter !== 'ALL' ? `_${installFilter}` : '';
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const fileName = `Customer_Satisfaction_${year}_${roundLabel}${installLabel}_${dateStr}.${format}`;
+
+    XLSX.writeFile(wb, fileName, { bookType: format });
+    setShowExportMenu(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20 font-sans">
       <div className="p-6 max-w-7xl mx-auto space-y-8 pt-8">
@@ -117,7 +224,7 @@ export default function SatisfactionDashboardClient() {
             <p className="text-slate-500 font-medium mt-1">สรุปข้อมูลการประเมินจากลูกค้าและการวิเคราะห์ของฝ่ายการตลาด</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+          <div className="flex flex-wrap items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex items-center gap-2 pl-3">
               <Filter size={18} className="text-slate-400" />
             </div>
@@ -138,9 +245,48 @@ export default function SatisfactionDashboardClient() {
               {years.map(y => <option key={y} value={y}>ปี {y}</option>)}
             </select>
 
+            {/* Export Dropdown */}
+            <div className="relative" ref={exportDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                disabled={displayedSurveys.length === 0}
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2.5 rounded-xl font-bold shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all text-sm"
+                title="ส่งออกไฟล์"
+              >
+                <Download size={16} />
+                <span>ส่งออกไฟล์</span>
+                <ChevronDown size={14} className={`transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showExportMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-50 animate-in fade-in zoom-in-95">
+                  <div className="px-3 py-1.5 text-xs font-semibold text-slate-400 border-b border-slate-50">
+                    เลือกรูปแบบไฟล์ ({displayedSurveys.length} รายการ)
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleExport('xlsx')}
+                    className="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors"
+                  >
+                    <FileSpreadsheet size={16} className="text-emerald-600" />
+                    <span>Excel (.xlsx)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleExport('csv')}
+                    className="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors"
+                  >
+                    <FileText size={16} className="text-blue-600" />
+                    <span>CSV (.csv)</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
             <Link
               href="/marketing/satisfaction/new"
-              className="flex items-center gap-2 bg-[#ff2301] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/30 transition-all ml-2"
+              className="flex items-center gap-2 bg-[#ff2301] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/30 transition-all ml-1"
             >
               <Plus size={18} />
               <span>เพิ่มแบบประเมิน</span>
@@ -250,53 +396,66 @@ export default function SatisfactionDashboardClient() {
                 </p>
               </div>
 
-              {/* Installation Filter Pills */}
-              <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs font-bold overflow-x-auto">
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Installation Filter Pills */}
+                <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs font-bold overflow-x-auto">
+                  <button
+                    type="button"
+                    onClick={() => setInstallFilter('ALL')}
+                    className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                      installFilter === 'ALL'
+                        ? 'bg-white text-slate-900 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    ทั้งหมด ({surveys.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInstallFilter('COMPLETED')}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                      installFilter === 'COMPLETED'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-emerald-700 hover:bg-emerald-50'
+                    }`}
+                  >
+                    <CheckCircle2 size={12} />
+                    <span>ติดตั้งเสร็จแล้ว ({completedInstallCount})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInstallFilter('IN_PROGRESS')}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                      installFilter === 'IN_PROGRESS'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-blue-700 hover:bg-blue-50'
+                    }`}
+                  >
+                    <Wrench size={12} />
+                    <span>กำลังติดตั้ง ({inProgressInstallCount})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInstallFilter('NO_INSTALLATION')}
+                    className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                      installFilter === 'NO_INSTALLATION'
+                        ? 'bg-white text-slate-800 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    ไม่มีติดตั้ง ({noInstallCount})
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  onClick={() => setInstallFilter('ALL')}
-                  className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-                    installFilter === 'ALL'
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                  onClick={() => handleExport('xlsx')}
+                  disabled={displayedSurveys.length === 0}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                  title="ส่งออก Excel เฉพาะรายการที่กำลังแสดงผล"
                 >
-                  ทั้งหมด ({surveys.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setInstallFilter('COMPLETED')}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-                    installFilter === 'COMPLETED'
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'text-emerald-700 hover:bg-emerald-50'
-                  }`}
-                >
-                  <CheckCircle2 size={12} />
-                  <span>ติดตั้งเสร็จแล้ว ({completedInstallCount})</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setInstallFilter('IN_PROGRESS')}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-                    installFilter === 'IN_PROGRESS'
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-blue-700 hover:bg-blue-50'
-                  }`}
-                >
-                  <Wrench size={12} />
-                  <span>กำลังติดตั้ง ({inProgressInstallCount})</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setInstallFilter('NO_INSTALLATION')}
-                  className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-                    installFilter === 'NO_INSTALLATION'
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  ไม่มีติดตั้ง ({noInstallCount})
+                  <FileSpreadsheet size={14} className="text-emerald-600" />
+                  <span>Excel</span>
                 </button>
               </div>
             </div>
