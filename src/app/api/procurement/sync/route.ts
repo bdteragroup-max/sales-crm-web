@@ -317,8 +317,14 @@ type RowResult = {
   error?: string;
 };
 
+type SyncContext = {
+  syncedPrs: Set<string>;
+  poMap: Map<string, any>;
+  prMap: Map<string, any>;
+};
+
 /* ========== PR ========== */
-async function syncPR(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
+async function syncPR(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promise<RowResult> {
   const r = makeReader(payload);
 
   const rawPr = r.read(['PR Number', 'PR', 'PRNumber', 'pr_number', 'เลขที่ PR', 'เลข PR'], ['เลขที่pr']);
@@ -338,7 +344,11 @@ async function syncPR(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
     reportedBy: r.read(['Notifier', 'Reported By', 'ผู้แจ้ง', 'ผู้แจ้ง สถานะ / เลขที่ PO']),
   };
 
-  let existing = await prisma.purchaseRequest.findUnique({ where: { prNumber } });
+  let existing = ctx?.prMap?.get(prNumber);
+  if (!existing) {
+    existing = await prisma.purchaseRequest.findUnique({ where: { prNumber } });
+    if (existing && ctx?.prMap) ctx.prMap.set(prNumber, existing);
+  }
 
   if (!existing && ALLOW_ROW_NO_REMATCH && rowNo) {
     const candidate = await prisma.purchaseRequest.findFirst({ where: { no: rowNo } });
@@ -353,13 +363,15 @@ async function syncPR(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
 
   if (!existing) {
     try {
-      await prisma.purchaseRequest.create({ data: { prNumber, ...data } });
+      const created = await prisma.purchaseRequest.create({ data: { prNumber, ...data } });
+      if (ctx?.prMap) ctx.prMap.set(prNumber, created);
       newDocs.push({ type: 'PR', number: prNumber });
       return { ok: true, row: r.rowNumber, key: prNumber, action: 'created' };
     } catch (e: any) {
       if (e?.code !== 'P2002') throw e;
       existing = await prisma.purchaseRequest.findUnique({ where: { prNumber } });
       if (!existing) throw e;
+      if (ctx?.prMap) ctx.prMap.set(prNumber, existing);
     }
   }
 
@@ -368,12 +380,13 @@ async function syncPR(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
     return { ok: true, row: r.rowNumber, key: prNumber, action: 'unchanged' };
   }
 
-  await prisma.purchaseRequest.update({ where: { id: existing.id }, data: changed });
+  const updated = await prisma.purchaseRequest.update({ where: { id: existing.id }, data: changed });
+  if (ctx?.prMap) ctx.prMap.set(prNumber, updated);
   return { ok: true, row: r.rowNumber, key: prNumber, action: 'updated' };
 }
 
 /* ========== PO ========== */
-async function syncPO(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
+async function syncPO(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promise<RowResult> {
   const r = makeReader(payload);
 
   const rawPo = r.read(['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ PO', 'เลข PO'], ['เลขที่po']);
@@ -470,24 +483,23 @@ async function syncPO(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
 
   // สร้าง PR ตั้งต้นก่อน กัน FK พัง — ใช้ upsert เพราะหลายแถวอาจอ้าง PR ใบเดียวกัน
   if (prNumber) {
-    await prisma.purchaseRequest.upsert({
-      where: { prNumber },
-      update: {},
-      create: {
-        prNumber,
-        projectName: jobName ?? null,
-        itemList: itemList ?? null,
-        recordedAt: recordedAt ?? null,
-        requestedBy: reportedBy && reportedBy !== 'ไม่ทราบชื่อ' ? reportedBy : null,
-        note: note
-          ? `[สร้างอัตโนมัติจาก PO ${poNumber}] ${note}`
-          : `[สร้างอัตโนมัติจาก PO ${poNumber}]`,
-      },
-    });
+    if (!ctx?.syncedPrs?.has(prNumber)) {
+      const pr = await prisma.purchaseRequest.upsert({
+        where: { prNumber },
+        update: {},
+        create: {
+          prNumber,
+          projectName: jobName ?? null,
+          itemList: itemList ?? null,
+          recordedAt: recordedAt ?? null,
+          requestedBy: reportedBy && reportedBy !== 'ไม่ทราบชื่อ' ? reportedBy : null,
+          note: note
+            ? `[สร้างอัตโนมัติจาก PO ${poNumber}] ${note}`
+            : `[สร้างอัตโนมัติจาก PO ${poNumber}]`,
+        },
+      });
 
-    // เติมข้อมูลให้ PR ที่ยังว่าง — เฉพาะฟิลด์ที่ว่างจริง ไม่ทับของที่คนกรอกไว้
-    const pr = await prisma.purchaseRequest.findUnique({ where: { prNumber } });
-    if (pr) {
+      // เติมข้อมูลให้ PR ที่ยังว่าง — เฉพาะฟิลด์ที่ว่างจริง ไม่ทับของที่คนกรอกไว้
       const fill: Record<string, any> = {};
       if (!pr.projectName && jobName) fill.projectName = jobName;
       if (!pr.itemList && itemList) fill.itemList = itemList;
@@ -496,10 +508,16 @@ async function syncPO(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
       if (Object.keys(fill).length > 0) {
         await prisma.purchaseRequest.update({ where: { id: pr.id }, data: fill });
       }
+
+      ctx?.syncedPrs?.add(prNumber);
     }
   }
 
-  let existing = await prisma.purchaseOrder.findUnique({ where: { poNumber } });
+  let existing = ctx?.poMap?.get(poNumber);
+  if (!existing) {
+    existing = await prisma.purchaseOrder.findUnique({ where: { poNumber } });
+    if (existing && ctx?.poMap) ctx.poMap.set(poNumber, existing);
+  }
 
   if (!existing && ALLOW_ROW_NO_REMATCH && rowNo) {
     const candidate = await prisma.purchaseOrder.findFirst({ where: { no: rowNo } });
@@ -523,13 +541,15 @@ async function syncPO(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
       }
       : {};
     try {
-      await prisma.purchaseOrder.create({ data: { poNumber, ...data, ...receiveFields } });
+      const created = await prisma.purchaseOrder.create({ data: { poNumber, ...data, ...receiveFields } });
+      if (ctx?.poMap) ctx.poMap.set(poNumber, created);
       newDocs.push({ type: 'PO', number: poNumber });
       return { ok: true, row: r.rowNumber, key: poNumber, action: 'created' };
     } catch (e: any) {
       if (e?.code !== 'P2002') throw e;
       existing = await prisma.purchaseOrder.findUnique({ where: { poNumber } });
       if (!existing) throw e;
+      if (ctx?.poMap) ctx.poMap.set(poNumber, existing);
     }
   }
 
@@ -548,7 +568,8 @@ async function syncPO(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
     return { ok: true, row: r.rowNumber, key: poNumber, action: 'unchanged' };
   }
 
-  await prisma.purchaseOrder.update({ where: { id: existing.id }, data: changed });
+  const updated = await prisma.purchaseOrder.update({ where: { id: existing.id }, data: changed });
+  if (ctx?.poMap) ctx.poMap.set(poNumber, updated);
   return { ok: true, row: r.rowNumber, key: poNumber, action: 'updated' };
 }
 
@@ -614,11 +635,11 @@ async function syncGR(payload: any): Promise<RowResult> {
 }
 
 /* ========== router ต่อแถว ========== */
-async function syncRow(payload: any, newDocs: NewDoc[]): Promise<RowResult> {
+async function syncRow(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promise<RowResult> {
   try {
     switch (payload?.type) {
-      case 'PR': return await syncPR(payload, newDocs);
-      case 'PO': return await syncPO(payload, newDocs);
+      case 'PR': return await syncPR(payload, newDocs, ctx);
+      case 'PO': return await syncPO(payload, newDocs, ctx);
       case 'GR': return await syncGR(payload);
       default:
         return { ok: false, row: payload?.__row, error: `Invalid type: ${payload?.type}` };
@@ -662,10 +683,37 @@ export async function POST(req: NextRequest) {
   const newDocs: NewDoc[] = [];
   const results: RowResult[] = [];
 
+  // Pre-fetch existing POs and PRs for this batch to drastically reduce DB round-trips
+  const poKeys: string[] = [];
+  const prKeys: string[] = [];
+  for (const row of rows) {
+    const r = makeReader(row);
+    if (row?.type === 'PO') {
+      const rawPo = r.read(['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ PO', 'เลข PO'], ['เลขที่po']);
+      if (rawPo) poKeys.push(cleanDocNo(rawPo));
+      const rawPr = r.read(['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR', 'เลขที่ PR (ref)']);
+      if (rawPr) prKeys.push(cleanDocNo(rawPr));
+    } else if (row?.type === 'PR') {
+      const rawPr = r.read(['PR Number', 'PR', 'PRNumber', 'pr_number', 'เลขที่ PR', 'เลข PR'], ['เลขที่pr']);
+      if (rawPr) prKeys.push(cleanDocNo(rawPr));
+    }
+  }
+
+  const [existingPOs, existingPRs] = await Promise.all([
+    poKeys.length > 0 ? prisma.purchaseOrder.findMany({ where: { poNumber: { in: Array.from(new Set(poKeys)) } } }) : Promise.resolve([]),
+    prKeys.length > 0 ? prisma.purchaseRequest.findMany({ where: { prNumber: { in: Array.from(new Set(prKeys)) } } }) : Promise.resolve([])
+  ]);
+
+  const ctx: SyncContext = {
+    syncedPrs: new Set<string>(),
+    poMap: new Map<string, any>(existingPOs.map(p => [p.poNumber, p])),
+    prMap: new Map<string, any>(existingPRs.map(p => [p.prNumber, p]))
+  };
+
   // เรียงลำดับทีละแถวโดยตั้งใจ — การยิงขนานคือต้นเหตุที่ create ชน unique
   // constraint ตอนหลายแถวอ้าง PR ใบเดียวกัน
   for (const row of rows) {
-    results.push(await syncRow(row, newDocs));
+    results.push(await syncRow(row, newDocs, ctx));
   }
 
   await notifyNewDocs(newDocs);
