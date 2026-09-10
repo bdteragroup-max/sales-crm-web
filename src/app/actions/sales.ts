@@ -70,22 +70,21 @@ export async function searchCompanies(
       }
     };
     
-    if (user) {
+    if (user && !surveyExcludeFilter) {
       if (!whereClause.AND) whereClause.AND = [];
       whereClause.AND.push(getCompanyWhereClause(user as any));
     }
 
     if (surveyExcludeFilter) {
-      const { round, year, method } = surveyExcludeFilter;
+      const { round, year } = surveyExcludeFilter;
       const evaluated = await prisma.customerSatisfaction.findMany({
         where: {
           surveyRound: parseInt(round),
-          surveyYear: parseInt(year),
-          surveyMethod: method
+          surveyYear: parseInt(year)
         },
         select: { companyId: true }
       });
-      const evaluatedIds = evaluated.map(s => s.companyId);
+      const evaluatedIds = Array.from(new Set(evaluated.map(s => s.companyId).filter(Boolean)));
       if (evaluatedIds.length > 0) {
         if (!whereClause.AND) whereClause.AND = [];
         whereClause.AND.push({

@@ -84,16 +84,15 @@ export async function GET(req: Request) {
       ]
     });
 
-    // Find companies that have already been evaluated in this round/year/method
+    // Find companies that have already been evaluated in this round/year
     const existingSurveys = await prisma.customerSatisfaction.findMany({
       where: {
         surveyRound: parseInt(round),
-        surveyYear: parseInt(year),
-        ...(method ? { surveyMethod: method } : {})
+        surveyYear: parseInt(year)
       },
       select: { companyId: true }
     });
-    const evaluatedCompanyIds = new Set(existingSurveys.map(s => s.companyId));
+    const evaluatedCompanyIds = new Set(existingSurveys.map(s => s.companyId).filter(Boolean));
 
     // Aggregate by companyId with closed-sale metadata & PO reference
     const companyMap = new Map<string, any>();
@@ -174,7 +173,10 @@ export async function GET(req: Request) {
       };
     }
 
-    return NextResponse.json({ companies });
+    return NextResponse.json({
+      companies,
+      evaluatedCompanyIds: Array.from(evaluatedCompanyIds)
+    });
   } catch (error) {
     console.error('Error fetching active companies:', error);
     return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });

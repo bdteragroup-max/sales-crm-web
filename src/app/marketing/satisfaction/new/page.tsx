@@ -108,6 +108,7 @@ export default function NewSatisfactionSurvey() {
   }>>([]);
 
   const [activeCompanies, setActiveCompanies] = useState<any[]>([]);
+  const [evaluatedCompanyIds, setEvaluatedCompanyIds] = useState<Set<string>>(new Set());
   const [loadingActiveCompanies, setLoadingActiveCompanies] = useState(false);
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -167,13 +168,14 @@ export default function NewSatisfactionSurvey() {
 
   const displayedCompanies = useMemo(() => {
     const baseList = closedOnlyFilter ? activeCompanies.filter(c => c.isClosedSale) : activeCompanies;
+    const unEvaluatedBase = baseList.filter(c => !evaluatedCompanyIds.has(c.id));
     
     if (!search.trim()) {
-      return baseList;
+      return unEvaluatedBase;
     }
 
     const query = search.trim().toLowerCase();
-    const inMemoryMatches = baseList.filter(c => {
+    const inMemoryMatches = unEvaluatedBase.filter(c => {
       const matchName = c.companyName?.toLowerCase().includes(query);
       const matchContact = c.primaryContactName?.toLowerCase().includes(query);
       const matchPo = c.latestPoNumber?.toLowerCase().includes(query);
@@ -184,10 +186,10 @@ export default function NewSatisfactionSurvey() {
     });
 
     const existingIds = new Set(inMemoryMatches.map(c => c.id));
-    const extraMatches = companies.filter(c => !existingIds.has(c.id));
+    const extraMatches = companies.filter(c => !existingIds.has(c.id) && !evaluatedCompanyIds.has(c.id));
 
     return [...inMemoryMatches, ...extraMatches];
-  }, [activeCompanies, closedOnlyFilter, search, companies]);
+  }, [activeCompanies, closedOnlyFilter, search, companies, evaluatedCompanyIds]);
 
   const handleSelectCompany = (company: any) => {
     setSelectedCompany(company);
@@ -250,6 +252,7 @@ export default function NewSatisfactionSurvey() {
         if (res.ok) {
           const data = await res.json();
           setActiveCompanies(data.companies || []);
+          setEvaluatedCompanyIds(new Set(data.evaluatedCompanyIds || []));
         }
       } catch (e) {
         console.error(e);
@@ -545,10 +548,18 @@ export default function NewSatisfactionSurvey() {
                       <Building2 size={18} className="text-[#ff2301]" />
                       <span>{selectedCompany ? 'ค้นหาและเลือกเปลี่ยนบริษัทลูกค้า' : 'เลือกบริษัทลูกค้าเพื่อเริ่มต้นประเมินความพึงพอใจ'}</span>
                     </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {selectedCompany 
-                        ? 'คลิกเลือกบริษัทใหม่ที่ต้องการประเมิน หรือกดยกเลิกเพื่อคงบริษัทเดิม' 
-                        : 'ค้นหาจากรายชื่อลูกค้าที่มีการปิดการขาย (มี PO/เปิดบิล) หรือเลือกจากบริษัททั้งหมด'}
+                    <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-2 flex-wrap">
+                      <span>
+                        {selectedCompany 
+                          ? 'คลิกเลือกบริษัทใหม่ที่ต้องการประเมิน หรือกดยกเลิกเพื่อคงบริษัทเดิม' 
+                          : 'ค้นหาจากรายชื่อลูกค้าที่มีการปิดการขาย (มี PO/เปิดบิล) หรือเลือกจากบริษัททั้งหมด'}
+                      </span>
+                      {evaluatedCompanyIds.size > 0 && (
+                        <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 text-[11px] font-semibold">
+                          <CheckCircle2 size={12} className="text-emerald-600" />
+                          คัดกรองบริษัทที่ประเมินในรอบนี้แล้วออก ({evaluatedCompanyIds.size} บริษัท)
+                        </span>
+                      )}
                     </p>
                   </div>
 
@@ -610,7 +621,7 @@ export default function NewSatisfactionSurvey() {
                         <Building2 size={36} className="mx-auto mb-2 text-gray-300" />
                         <div className="font-bold text-gray-700">ไม่พบบริษัทที่ตรงกับเงื่อนไขการค้นหา</div>
                         <div className="text-xs text-gray-400">
-                          {search.trim() ? `ไม่พบผลลัพธ์สำหรับ "${search}"` : 'ไม่มีข้อมูลบริษัทในรอบนี้'}
+                          {search.trim() ? `ไม่พบผลลัพธ์สำหรับ "${search}" (ระบบคัดกรองบริษัทที่ได้รับการประเมินในรอบนี้ออกแล้ว)` : 'ไม่มีข้อมูลบริษัทที่ยังไม่ได้รับการประเมินในรอบนี้'}
                         </div>
                         <div className="pt-2 flex items-center justify-center gap-2">
                           {search && (
