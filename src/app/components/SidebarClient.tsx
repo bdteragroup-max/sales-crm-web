@@ -27,6 +27,8 @@ type SidebarProps = {
   theme?: 'red' | 'blue' | 'purple' | 'green';
 };
 
+type NavItem = { icon: React.ElementType; label: string; href: string };
+
 const executiveNav = [
   { icon: LayoutDashboard, label: 'Executive KPI', href: '/executive/kpi' },
   { icon: GitCommit, label: 'Pipeline Forecast', href: '/executive/pipeline' },
@@ -210,7 +212,8 @@ export default function SidebarClient(props: SidebarProps) {
 
   const allNavs = [
     ...executiveNav, ...managerNav, ...repNav, ...serviceNav, ...serviceMgrNav, ...technicianNav,
-    ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...marketingManagerNav, ...productionNav, ...bdNav
+    ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...marketingManagerNav, ...productionNav, ...bdNav,
+    ...commonNav
   ];
   const superAdminNav = Array.from(new Map(allNavs.map(item => [item.href, item])).values());
 
@@ -273,19 +276,20 @@ export default function SidebarClient(props: SidebarProps) {
 
   const finalNav = Array.from(new Map([...nav, ...navToAppend].map(item => [item.href, item])).values());
 
+  const appendCommon = (items: NavItem[]) =>
+    Array.from(new Map([...items, ...commonNav].map(item => [item.href, item])).values());
+
   const superAdminContexts = isSuperAdmin ? {
     'All (Default)': superAdminNav,
-    'Executive': executiveNav,
-    'Sales & Marketing': Array.from(new Map([...managerNav, ...repNav, ...marketingNav, ...marketingManagerNav].map(item => [item.href, item])).values()),
-    'Service & Technician': Array.from(new Map([...serviceNav, ...serviceMgrNav, ...technicianNav].map(item => [item.href, item])).values()),
-    'Projects & Production': Array.from(new Map([...projectNav, ...productionNav].map(item => [item.href, item])).values()),
-    'Admin & Finance': Array.from(new Map([...purchasingNav, ...storeNav, ...bdNav, ...accountingNav].map(item => [item.href, item])).values())
+    'Executive': appendCommon(executiveNav),
+    'Sales & Marketing': appendCommon([...managerNav, ...repNav, ...marketingNav, ...marketingManagerNav]),
+    'Service & Technician': appendCommon([...serviceNav, ...serviceMgrNav, ...technicianNav]),
+    'Projects & Production': appendCommon([...projectNav, ...productionNav]),
+    'Admin & Finance': appendCommon([...purchasingNav, ...storeNav, ...bdNav, ...accountingNav])
   } : undefined;
 
   return <ResponsiveSidebar {...props} nav={finalNav} isSuperAdmin={isSuperAdmin} superAdminContexts={superAdminContexts} />;
 }
-
-type NavItem = { icon: React.ElementType; label: string; href: string };
 
 function ResponsiveSidebar({
   activeRoute = '/dashboard',
