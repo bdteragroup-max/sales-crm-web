@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -15,6 +15,7 @@ import { getPendingRepairOrderCount } from '@/app/actions/repairOrders';
 import { getPendingOutsourceRepairCount } from '@/app/actions/outsourceRepairs';
 import { getPendingRepairDeliveryCount } from '@/app/actions/repairDeliveries';
 import { getPendingEstimationCount } from '@/app/actions/estimations';
+import { getPendingMarketingRequestCount } from '@/app/actions/marketingRequests';
 import CoinMiniWidget from './CoinMiniWidget';
 import NotificationBell from './NotificationBell'; // HMR flush
 
@@ -139,6 +140,7 @@ const projectNav = [
 
 const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
+  { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests' },
   { icon: Tv, label: 'แดชบอร์ดโฆษณา (Ads Dashboard)', href: '/marketing/ads/dashboard' },
   { icon: FolderOpen, label: 'แคมเปญโฆษณา (Ads Campaigns)', href: '/marketing/ads/campaigns' },
   { icon: Users, label: 'Marketing Leads', href: '/marketing' },
@@ -178,6 +180,7 @@ const accountingNav = [
 
 const bdNav = [
   { icon: LayoutDashboard, label: 'BD Dashboard', href: '/bd/dashboard' },
+  { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests/new' },
   { icon: UserCircle, label: 'งานของฉัน (My Work)', href: '/bd/my-work' },
   { icon: FileText, label: 'BD Intake', href: '/bd/intake' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/bd/kanban' },
@@ -190,6 +193,7 @@ const bdNav = [
 ];
 
 const commonNav = [
+  { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests/new' },
   { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' },
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
   { icon: Package, label: 'เบิก/ยืมวัสดุอุปกรณ์', href: '/requisitions' }
@@ -257,10 +261,14 @@ export default function SidebarClient(props: SidebarProps) {
   }
 
   const isBdRole = ['business development', 'bd', 'พัฒนาธุรกิจ'].some(r => roleStr.includes(r));
+  const isMarketingRole = ['marketing', 'การตลาด', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด'].some(r => roleStr.includes(r));
   let navToAppend = isBdRole ? [] : commonNav;
 
   if (isTechnician) {
     navToAppend = navToAppend.filter(item => item.href !== '/facility-repairs/new');
+  }
+  if (isMarketingRole) {
+    navToAppend = navToAppend.filter(item => item.href !== '/marketing/requests/new');
   }
 
   const finalNav = Array.from(new Map([...nav, ...navToAppend].map(item => [item.href, item])).values());
@@ -303,6 +311,7 @@ function ResponsiveSidebar({
   const [pendingOutsourceCount, setPendingOutsourceCount] = useState(0);
   const [pendingDeliveryCount, setPendingDeliveryCount] = useState(0);
   const [pendingEstimationCount, setPendingEstimationCount] = useState(0);
+  const [pendingMarketingRequestCount, setPendingMarketingRequestCount] = useState(0);
 
   const [selectedContext, setSelectedContext] = useState<string>('All (Default)');
   const [isContextSwitcherOpen, setIsContextSwitcherOpen] = useState(false);
@@ -356,6 +365,8 @@ function ResponsiveSidebar({
       getPendingRepairDeliveryCount().then(setPendingDeliveryCount).catch(() => { });
       getPendingEstimationCount().then(setPendingEstimationCount).catch(() => { });
     }
+
+    getPendingMarketingRequestCount().then(setPendingMarketingRequestCount).catch(() => { });
   }, [router, nav, userRole]);
 
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -382,7 +393,12 @@ function ResponsiveSidebar({
   // Find the most specific active route
   const currentFullPath = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
   const sortedNav = [...nav].sort((a, b) => b.href.length - a.href.length);
-  const bestMatchHref = sortedNav.find(n => currentFullPath === n.href || pathname === n.href || pathname.startsWith(n.href + '/'))?.href || activeRoute;
+  const bestMatchHref = sortedNav.find(n =>
+    currentFullPath === n.href ||
+    pathname === n.href ||
+    pathname.startsWith(n.href + '/') ||
+    (pathname.startsWith('/marketing/requests') && n.href.startsWith('/marketing/requests'))
+  )?.href || activeRoute;
 
   const currentTheme = theme || 'red';
 
@@ -514,6 +530,11 @@ function ResponsiveSidebar({
                   {href === '/service/estimations' && pendingEstimationCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
                       {pendingEstimationCount > 99 ? '99+' : pendingEstimationCount}
+                    </span>
+                  )}
+                  {(href === '/marketing/requests' || href === '/marketing/requests/new') && pendingMarketingRequestCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
+                      {pendingMarketingRequestCount > 99 ? '99+' : pendingMarketingRequestCount}
                     </span>
                   )}
                 </Link>
@@ -723,6 +744,11 @@ function ResponsiveSidebar({
                     {href === '/service/estimations' && pendingEstimationCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
                         {pendingEstimationCount > 99 ? '99+' : pendingEstimationCount}
+                      </span>
+                    )}
+                    {(href === '/marketing/requests' || href === '/marketing/requests/new') && pendingMarketingRequestCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingMarketingRequestCount > 99 ? '99+' : pendingMarketingRequestCount}
                       </span>
                     )}
                   </div>

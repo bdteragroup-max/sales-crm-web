@@ -1724,3 +1724,285 @@ export function bdDeadlineAlertMessage(task: any) {
   };
 }
 
+export function marketingRequestCreatedFlexMessage(request: {
+  requestNo: string;
+  title: string;
+  requestTypeLabel: string;
+  requesterName: string;
+  requesterDepartment: string;
+  requesterBranch: string;
+  requiredDate: Date | string;
+  statusLabel?: string;
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  const reqDate = new Date(request.requiredDate).toLocaleDateString('th-TH', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
+  return {
+    type: 'flex',
+    altText: `📢 มีคำขอการตลาดใหม่: ${request.requestNo} - ${request.title}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#ff2301',
+        contents: [
+          {
+            type: 'text',
+            text: '📢 New Marketing Request',
+            color: '#ffffff',
+            weight: 'bold',
+            size: 'md'
+          }
+        ]
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        spacing: 'sm',
+        contents: [
+          {
+            type: 'box',
+            layout: 'horizontal',
+            contents: [
+              { type: 'text', text: 'Request:', color: '#888888', size: 'xs', flex: 2 },
+              { type: 'text', text: request.requestNo, weight: 'bold', size: 'xs', color: '#ff2301', flex: 5 }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'vertical',
+            margin: 'sm',
+            contents: [
+              { type: 'text', text: 'Subject:', color: '#888888', size: 'xs' },
+              { type: 'text', text: request.title, weight: 'bold', size: 'sm', wrap: true, color: '#1f2937' }
+            ]
+          },
+          {
+            type: 'separator',
+            margin: 'md'
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'md',
+            contents: [
+              { type: 'text', text: 'Type:', color: '#888888', size: 'xs', flex: 2 },
+              { type: 'text', text: request.requestTypeLabel, size: 'xs', color: '#1f2937', weight: 'bold', flex: 5 }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            contents: [
+              { type: 'text', text: 'Requester:', color: '#888888', size: 'xs', flex: 2 },
+              { type: 'text', text: `${request.requesterName} | ${request.requesterDepartment}`, size: 'xs', color: '#1f2937', flex: 5 }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            contents: [
+              { type: 'text', text: 'Branch:', color: '#888888', size: 'xs', flex: 2 },
+              { type: 'text', text: request.requesterBranch, size: 'xs', color: '#1f2937', flex: 5 }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            contents: [
+              { type: 'text', text: 'Required Date:', color: '#888888', size: 'xs', flex: 2 },
+              { type: 'text', text: reqDate, size: 'xs', color: '#d97706', weight: 'bold', flex: 5 }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            contents: [
+              { type: 'text', text: 'Status:', color: '#888888', size: 'xs', flex: 2 },
+              { type: 'text', text: request.statusLabel || 'Backlog', size: 'xs', color: '#2563eb', weight: 'bold', flex: 5 }
+            ]
+          }
+        ]
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#ff2301',
+            action: {
+              type: 'uri',
+              label: 'View Request Details',
+              uri: `${appUrl}/marketing/requests/${request.requestNo}`
+            }
+          }
+        ]
+      }
+    }
+  };
+}
+
+export function marketingRequestAssignedFlexMessage(request: {
+  requestNo: string;
+  title: string;
+  requiredDate: Date | string;
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  const reqDate = new Date(request.requiredDate).toLocaleDateString('th-TH', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
+  return {
+    type: 'flex',
+    altText: `🎯 คุณได้รับมอบหมายงาน Marketing Request: ${request.requestNo}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#2563eb',
+        contents: [
+          {
+            type: 'text',
+            text: '🎯 You have received a new Marketing Request',
+            color: '#ffffff',
+            weight: 'bold',
+            size: 'sm',
+            wrap: true
+          }
+        ]
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        spacing: 'sm',
+        contents: [
+          { type: 'text', text: request.requestNo, weight: 'bold', size: 'md', color: '#2563eb' },
+          { type: 'text', text: request.title, weight: 'bold', size: 'sm', wrap: true, color: '#1f2937' },
+          { type: 'separator', margin: 'md' },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'md',
+            contents: [
+              { type: 'text', text: 'Target Date:', color: '#888888', size: 'xs', flex: 2 },
+              { type: 'text', text: reqDate, size: 'xs', color: '#d97706', weight: 'bold', flex: 3 }
+            ]
+          }
+        ]
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#2563eb',
+            action: {
+              type: 'uri',
+              label: 'Open Task',
+              uri: `${appUrl}/marketing/requests/${request.requestNo}`
+            }
+          }
+        ]
+      }
+    }
+  };
+}
+
+export function marketingRequestStatusChangedFlexMessage(request: {
+  requestNo: string;
+  title: string;
+  status: string;
+  statusLabel: string;
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  const isDone = request.status === 'DONE';
+  const headerColor = isDone ? '#10b981' : '#0284c7';
+  const headerText = isDone
+    ? '✅ Your Marketing Request has been completed'
+    : 'ℹ️ Marketing has accepted your request';
+
+  return {
+    type: 'flex',
+    altText: `📢 แจ้งเตือนสถานะคำขอ ${request.requestNo}: ${request.statusLabel}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: headerColor,
+        contents: [
+          {
+            type: 'text',
+            text: headerText,
+            color: '#ffffff',
+            weight: 'bold',
+            size: 'sm',
+            wrap: true
+          }
+        ]
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        spacing: 'sm',
+        contents: [
+          { type: 'text', text: request.requestNo, weight: 'bold', size: 'md', color: headerColor },
+          { type: 'text', text: request.title, size: 'sm', wrap: true, color: '#1f2937' },
+          { type: 'separator', margin: 'md' },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'md',
+            contents: [
+              { type: 'text', text: 'Status:', color: '#888888', size: 'xs', flex: 1 },
+              { type: 'text', text: request.statusLabel, size: 'xs', color: headerColor, weight: 'bold', flex: 2 }
+            ]
+          }
+        ]
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: headerColor,
+            action: {
+              type: 'uri',
+              label: 'View Details',
+              uri: `${appUrl}/marketing/requests/${request.requestNo}`
+            }
+          }
+        ]
+      }
+    }
+  };
+}
+
+export async function pushMarketingNotification(message: any) {
+  try {
+    const groupId = process.env.LINE_MARKETING_GROUP_ID || process.env.LINE_GROUP_ID;
+    if (groupId) {
+      await pushLineMessage(groupId, [message], 'crm');
+    } else {
+      console.log('[lineNotify] LINE_MARKETING_GROUP_ID or LINE_GROUP_ID not configured, skipped group push');
+    }
+  } catch (err) {
+    console.error('[lineNotify] Failed to push marketing notification:', err);
+  }
+}
+
+

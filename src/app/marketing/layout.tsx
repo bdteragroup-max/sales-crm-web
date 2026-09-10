@@ -24,18 +24,6 @@ export default async function MarketingLayout({
     redirect('/')
   }
 
-  const headersList = await headers();
-  const currentUrl = headersList.get('x-invoke-path') || headersList.get('referer') || '';
-  
-  const roleStr = (user.role || '').toUpperCase();
-  
-  const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "PROJECT", "การตลาด", "บริการ", "ผู้จัดการ", "โปรเจค", "โครงการ"];
-  const hasAccess = allowedRoles.some(r => roleStr.includes(r));
-  
-  if (!hasAccess) {
-    redirect('/dashboard') // Or some unauthorized page
-  }
-
   return (
     <div className="flex h-screen bg-gray-50 text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/marketing" userFullName={user.fullName} userId={user.employeeId || user.id} userRole={user.role} />
