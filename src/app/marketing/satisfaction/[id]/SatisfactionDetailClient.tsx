@@ -6,8 +6,9 @@ import { ArrowLeft, CheckCircle, CheckCircle2, Wrench, Share2, FileText, Downloa
 import { CustomerSatisfaction, Company, User } from '@/generated/client';
 
 type SurveyData = CustomerSatisfaction & {
-  company: Company;
+  company: Company & { assignedUser?: { fullName: string } | null };
   surveyor: User;
+  salespersonName?: string | null;
   installationStatus?: {
     status: 'COMPLETED' | 'IN_PROGRESS' | 'NO_INSTALLATION' | 'UNKNOWN';
     label: string;
@@ -124,6 +125,12 @@ export default function SatisfactionDetailClient({ id }: { id: string }) {
               {survey.phone && (
                 <span className="inline-flex items-center gap-1 text-gray-600">
                   <Phone size={14} className="text-gray-400" /> {survey.phone}
+                </span>
+              )}
+              {(survey.salespersonName || survey.company?.assignedUser?.fullName) && (
+                <span className="inline-flex items-center gap-1 text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-lg text-xs font-semibold border border-slate-200">
+                  <UserIcon size={13} className="text-slate-500" />
+                  ผู้แทนขาย: {survey.salespersonName || survey.company?.assignedUser?.fullName}
                 </span>
               )}
               <span className="text-gray-300">•</span>

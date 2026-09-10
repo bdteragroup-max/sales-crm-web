@@ -11,6 +11,7 @@ import * as XLSX from 'xlsx';
 
 type SurveyWithRelations = CustomerSatisfaction & {
   company: Company & { assignedUser?: { fullName: string } | null };
+  salespersonName?: string | null;
   installationStatus?: InstallationStatusInfo;
 };
 
@@ -132,6 +133,8 @@ export default function SatisfactionDashboardClient() {
       else if (survey.scoreAverage >= 1.5) ratingCategory = 'น้อย (ต้องปรับปรุง)';
       else ratingCategory = 'น้อยที่สุด (เร่งด่วน)';
 
+      const salesperson = survey.salespersonName || survey.company?.assignedUser?.fullName || '-';
+
       return {
         'ลำดับ': index + 1,
         'วันที่ประเมิน': new Date(survey.surveyDate).toLocaleDateString('th-TH'),
@@ -142,7 +145,7 @@ export default function SatisfactionDashboardClient() {
         'ผู้ติดต่อ': survey.contactName || '-',
         'เบอร์โทรศัพท์': survey.phone || '-',
         'จังหวัด': survey.province || survey.company?.province || '-',
-        'ผู้แทนขายที่ดูแล': survey.company?.assignedUser?.fullName || '-',
+        'ผู้แทนขายที่ดูแล': salesperson,
         'สถานะงานติดตั้ง': survey.installationStatus?.label || 'ไม่มีข้อมูลงานติดตั้ง',
         'เลขที่ใบงานติดตั้ง': survey.installationStatus?.orderNo || '-',
         'ช่างผู้รับผิดชอบ': survey.installationStatus?.technician || '-',
@@ -515,8 +518,8 @@ export default function SatisfactionDashboardClient() {
                             )}
                             <span className="text-slate-300">|</span>
                             <span>
-                              ผู้แทนขาย: {survey.company.assignedUser?.fullName ? (
-                                <span className="text-slate-700 font-medium">{survey.company.assignedUser.fullName}</span>
+                              ผู้แทนขาย: {survey.salespersonName || survey.company?.assignedUser?.fullName ? (
+                                <span className="text-slate-700 font-medium">{survey.salespersonName || survey.company?.assignedUser?.fullName}</span>
                               ) : (
                                 <span className="text-slate-300 italic">N/A</span>
                               )}

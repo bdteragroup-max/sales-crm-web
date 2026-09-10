@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import prisma from '@/app/lib/db';
+import { resolveSalespersonBatch } from '@/app/lib/satisfactionServerHelper';
 
 function generateSatisfactionPDFHTML(survey: any): string {
   const scores = [
@@ -13,7 +14,7 @@ function generateSatisfactionPDFHTML(survey: any): string {
     { label: 'After-Sales (บริการหลังการขาย)', score: survey.scoreAfterSales },
   ];
 
-  const purchaseReasonsHtml = survey.purchaseReasons.length > 0 
+  const purchaseReasonsHtml = survey.purchaseReasons.length > 0
     ? survey.purchaseReasons.map((r: string) => `<span style="display:inline-block; padding: 4px 10px; background: #e5f6fd; color: #0288d1; border-radius: 20px; font-size: 12px; margin-right: 5px; margin-bottom: 5px;">${r}</span>`).join('')
     : '-';
 
@@ -66,6 +67,7 @@ function generateSatisfactionPDFHTML(survey: any): string {
     <table>
       <tr><td class="td-label">ชื่อบริษัทลูกค้า (Company Name)</td><td><strong>${survey.company.companyName}</strong></td></tr>
       <tr><td class="td-label">ชื่อผู้ติดต่อ / ลูกค้า (Contact Person)</td><td><strong>${survey.contactName || '-'}</strong></td></tr>
+      <tr><td class="td-label">พนักงานขายผู้รับผิดชอบ (Salesperson)</td><td><strong>${survey.salespersonName || survey.company?.assignedUser?.fullName || '-'}</strong></td></tr>
       <tr><td class="td-label">เบอร์โทรศัพท์ (Phone)</td><td>${survey.phone || '-'}</td></tr>
       <tr><td class="td-label">จังหวัด (Province)</td><td>${survey.province || '-'}</td></tr>
       <tr><td class="td-label">รอบประเมิน (Survey Round/Year)</td><td>รอบที่ ${survey.surveyRound} / ${survey.surveyYear}</td></tr>
@@ -129,34 +131,56 @@ function generateSatisfactionPDFHTML(survey: any): string {
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const survey = await prisma.customerSatisfaction.findUnique({ 
+    const survey = await prisma.customerSatisfaction.findUnique({
       where: { id },
       include: {
-        company: true,
+        company: {
+          include: {
+            assignedUser: {
+              select: { fullName: true }
+            }
+          }
+        },
       }
-    }); 
+    });
 
     if (!survey) {
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
     }
 
-    const html = generateSatisfactionPDFHTML(survey);
+    const salespersonMap = await resolveSalespersonBatch([{
+      companyId: survey.companyId,
+      quotationNumbers: survey.quotationIds || [],
+      assignedUserFullName: survey.company?.assignedUser?.fullName
+    }]);
+
+    const salespersonName = survey.company?.assignedUser?.fullName || salespersonMap.get(survey.companyId) || null;
+    const enrichedSurvey = {
+      ...survey,
+      salespersonName,
+      company: {
+        ...survey.company,
+        assignedUser: survey.company?.assignedUser || (salespersonName ? { fullName: salespersonName } : null)
+      }
+    };
+
+    const html = generateSatisfactionPDFHTML(enrichedSurvey);
 
     const isLocal = process.env.NODE_ENV === 'development';
-    
-    const browser = await puppeteer.launch({ 
-      args: isLocal ? [] : chromium.args, 
-      executablePath: isLocal 
-        ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' 
-        : await chromium.executablePath(), 
+
+    const browser = await puppeteer.launch({
+      args: isLocal ? [] : chromium.args,
+      executablePath: isLocal
+        ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+        : await chromium.executablePath(),
       headless: true,
     });
 
-    const page = await browser.newPage(); 
-    await page.setContent(html, { waitUntil: "load" }); 
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "load" });
 
     await page.evaluate(() => document.fonts.ready);
-    
+
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
-import { resolveInstallationStatusBatch } from '@/app/lib/satisfactionServerHelper';
+import { resolveInstallationStatusBatch, resolveSalespersonBatch } from '@/app/lib/satisfactionServerHelper';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -8,7 +8,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const survey = await prisma.customerSatisfaction.findUnique({
       where: { id },
       include: {
-        company: true,
+        company: {
+          include: {
+            assignedUser: {
+              select: { fullName: true }
+            }
+          }
+        },
         surveyor: true,
       }
     });
@@ -17,14 +23,28 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
     }
 
-    const installStatusMap = await resolveInstallationStatusBatch([{
-      companyId: survey.companyId,
-      companyName: survey.company?.companyName,
-      quotationNumbers: survey.quotationIds || []
-    }]);
+    const [installStatusMap, salespersonMap] = await Promise.all([
+      resolveInstallationStatusBatch([{
+        companyId: survey.companyId,
+        companyName: survey.company?.companyName,
+        quotationNumbers: survey.quotationIds || []
+      }]),
+      resolveSalespersonBatch([{
+        companyId: survey.companyId,
+        quotationNumbers: survey.quotationIds || [],
+        assignedUserFullName: survey.company?.assignedUser?.fullName
+      }])
+    ]);
+
+    const salespersonName = survey.company?.assignedUser?.fullName || salespersonMap.get(survey.companyId) || null;
 
     const enrichedSurvey = {
       ...survey,
+      salespersonName,
+      company: {
+        ...survey.company,
+        assignedUser: survey.company?.assignedUser || (salespersonName ? { fullName: salespersonName } : null)
+      },
       installationStatus: installStatusMap.get(survey.companyId) || {
         status: 'UNKNOWN',
         label: 'ไม่มีข้อมูลงานติดตั้ง',

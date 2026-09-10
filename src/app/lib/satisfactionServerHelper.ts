@@ -109,3 +109,96 @@ export async function resolveInstallationStatusBatch(
 
   return result;
 }
+
+/**
+ * Batch resolve salesperson full name for companies / surveys
+ * Looks up by assignedUser, quotation numbers, or latest closed/active quotation of the company
+ */
+export async function resolveSalespersonBatch(
+  items: Array<{
+    companyId: string;
+    quotationNumbers?: string[];
+    assignedUserFullName?: string | null;
+  }>
+): Promise<Map<string, string>> {
+  const result = new Map<string, string>();
+  if (items.length === 0) return result;
+
+  const pendingItems = items.filter(it => {
+    if (it.assignedUserFullName && it.assignedUserFullName.trim()) {
+      result.set(it.companyId, it.assignedUserFullName.trim());
+      return false;
+    }
+    return true;
+  });
+
+  if (pendingItems.length === 0) return result;
+
+  const quoteNumbers = Array.from(
+    new Set(pendingItems.flatMap(it => it.quotationNumbers || []).filter(Boolean))
+  );
+  const companyIds = Array.from(
+    new Set(pendingItems.map(it => it.companyId).filter(Boolean))
+  );
+
+  const quotations = await prisma.quotation.findMany({
+    where: {
+      OR: [
+        ...(quoteNumbers.length > 0 ? [{ quotationNumber: { in: quoteNumbers } }] : []),
+        ...(companyIds.length > 0 ? [{ companyId: { in: companyIds } }] : [])
+      ],
+      salespersonId: { not: null },
+      salesperson: { isNot: null }
+    },
+    select: {
+      quotationNumber: true,
+      companyId: true,
+      salesperson: { select: { fullName: true } }
+    },
+    orderBy: [
+      { billingDate: 'desc' },
+      { poDate: 'desc' },
+      { createdAt: 'desc' }
+    ]
+  });
+
+  const quoteSalesMap = new Map<string, string>();
+  const companySalesMap = new Map<string, string>();
+
+  for (const q of quotations) {
+    const fullName = q.salesperson?.fullName?.trim();
+    if (!fullName) continue;
+
+    if (q.quotationNumber && !quoteSalesMap.has(q.quotationNumber)) {
+      quoteSalesMap.set(q.quotationNumber, fullName);
+    }
+    if (q.companyId && !companySalesMap.has(q.companyId)) {
+      companySalesMap.set(q.companyId, fullName);
+    }
+  }
+
+  for (const it of pendingItems) {
+    let resolvedName: string | null = null;
+
+    // 1. Try resolving via quotation numbers
+    if (it.quotationNumbers && it.quotationNumbers.length > 0) {
+      for (const qn of it.quotationNumbers) {
+        if (quoteSalesMap.has(qn)) {
+          resolvedName = quoteSalesMap.get(qn)!;
+          break;
+        }
+      }
+    }
+
+    // 2. Fallback to company quotations
+    if (!resolvedName && it.companyId && companySalesMap.has(it.companyId)) {
+      resolvedName = companySalesMap.get(it.companyId)!;
+    }
+
+    if (resolvedName) {
+      result.set(it.companyId, resolvedName);
+    }
+  }
+
+  return result;
+}
