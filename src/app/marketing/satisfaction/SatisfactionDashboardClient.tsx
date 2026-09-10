@@ -3,18 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, FileText, CheckCircle, Clock, AlertTriangle, ArrowRight, BarChart3, TrendingUp, Filter, User } from 'lucide-react';
+import { Plus, FileText, CheckCircle, CheckCircle2, Wrench, Clock, AlertTriangle, ArrowRight, BarChart3, TrendingUp, Filter, User } from 'lucide-react';
 import { CustomerSatisfaction, Company } from '@/generated/client';
 import { SATISFACTION_SCORE_LEGEND, formatPhoneForTel } from '@/app/lib/satisfactionScore';
+import { InstallationStatusInfo } from '@/app/lib/satisfactionHelper';
 
 type SurveyWithRelations = CustomerSatisfaction & {
   company: Company & { assignedUser?: { fullName: string } | null };
+  installationStatus?: InstallationStatusInfo;
 };
 
 export default function SatisfactionDashboardClient() {
   const router = useRouter();
   const [round, setRound] = useState<string>('1');
   const [year, setYear] = useState<string>('2569'); // Or current BE year
+  const [installFilter, setInstallFilter] = useState<'ALL' | 'COMPLETED' | 'IN_PROGRESS' | 'NO_INSTALLATION'>('ALL');
   const [surveys, setSurveys] = useState<SurveyWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +56,19 @@ export default function SatisfactionDashboardClient() {
     : '0.0';
   const below3Count = surveys.filter(s => s.scoreAverage < 3).length;
   const awaitingAnalysisCount = surveys.filter(s => !s.analysisNote).length;
+
+  // Installation KPIs & Filtering
+  const completedInstallCount = surveys.filter(s => s.installationStatus?.status === 'COMPLETED').length;
+  const inProgressInstallCount = surveys.filter(s => s.installationStatus?.status === 'IN_PROGRESS').length;
+  const noInstallCount = surveys.filter(s => s.installationStatus?.status === 'NO_INSTALLATION' || s.installationStatus?.status === 'UNKNOWN').length;
+
+  const displayedSurveys = surveys.filter(s => {
+    if (installFilter === 'ALL') return true;
+    if (installFilter === 'COMPLETED') return s.installationStatus?.status === 'COMPLETED';
+    if (installFilter === 'IN_PROGRESS') return s.installationStatus?.status === 'IN_PROGRESS';
+    if (installFilter === 'NO_INSTALLATION') return s.installationStatus?.status === 'NO_INSTALLATION' || s.installationStatus?.status === 'UNKNOWN';
+    return true;
+  });
 
   // Averages per topic
   const calculateAverage = (field: keyof CustomerSatisfaction) => {
@@ -112,6 +128,7 @@ export default function SatisfactionDashboardClient() {
             >
               <option value="1">รอบที่ 1 (ม.ค. - มิ.ย.)</option>
               <option value="2">รอบที่ 2 (ก.ค. - ธ.ค.)</option>
+              <option value="all">ทุกรอบการประเมิน (ม.ค. - ธ.ค.)</option>
             </select>
             <select
               value={year}
@@ -225,43 +242,100 @@ export default function SatisfactionDashboardClient() {
 
           {/* Table Section */}
           <div className="lg:col-span-2 bg-white rounded-[2rem] border border-slate-100 shadow-sm shadow-slate-200/40 overflow-hidden flex flex-col">
-            <div className="p-8 border-b border-slate-100/60 flex justify-between items-center bg-white">
-              <h2 className="text-xl font-bold text-slate-900 tracking-tight">รายการประเมินล่าสุด</h2>
+            <div className="p-6 border-b border-slate-100/60 flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">รายการประเมินล่าสุด</h2>
+                <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                  แสดง {displayedSurveys.length} จากทั้งหมด {surveys.length} รายการ
+                </p>
+              </div>
+
+              {/* Installation Filter Pills */}
+              <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs font-bold overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => setInstallFilter('ALL')}
+                  className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                    installFilter === 'ALL'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  ทั้งหมด ({surveys.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInstallFilter('COMPLETED')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                    installFilter === 'COMPLETED'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'text-emerald-700 hover:bg-emerald-50'
+                  }`}
+                >
+                  <CheckCircle2 size={12} />
+                  <span>ติดตั้งเสร็จแล้ว ({completedInstallCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInstallFilter('IN_PROGRESS')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                    installFilter === 'IN_PROGRESS'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-blue-700 hover:bg-blue-50'
+                  }`}
+                >
+                  <Wrench size={12} />
+                  <span>กำลังติดตั้ง ({inProgressInstallCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInstallFilter('NO_INSTALLATION')}
+                  className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                    installFilter === 'NO_INSTALLATION'
+                      ? 'bg-white text-slate-800 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  ไม่มีติดตั้ง ({noInstallCount})
+                </button>
+              </div>
             </div>
+
             <div className="overflow-x-auto flex-1">
-              <table className="w-full text-left border-collapse min-w-[700px]">
+              <table className="w-full text-left border-collapse min-w-[760px]">
                 <thead>
                   <tr className="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider">
                     <th className="p-5 font-bold whitespace-nowrap">วันที่</th>
                     <th className="p-5 font-bold whitespace-nowrap">ข้อมูลลูกค้า</th>
+                    <th className="p-5 font-bold whitespace-nowrap">สถานะการติดตั้ง</th>
                     <th className="p-5 font-bold whitespace-nowrap text-center">คะแนนเฉลี่ย</th>
-                    <th className="p-5 font-bold whitespace-nowrap">สถานะ</th>
+                    <th className="p-5 font-bold whitespace-nowrap">สถานะวิเคราะห์</th>
                     <th className="p-5 font-bold whitespace-nowrap text-right pr-8">จัดการ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-sm">
                   {loading ? (
                     <tr>
-                      <td colSpan={5} className="p-12 text-center">
+                      <td colSpan={6} className="p-12 text-center">
                         <div className="flex flex-col items-center justify-center text-slate-400 gap-3">
                           <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#ff2301] border-t-transparent"></div>
                           <span className="font-semibold">กำลังโหลดข้อมูล...</span>
                         </div>
                       </td>
                     </tr>
-                  ) : surveys.length === 0 ? (
+                  ) : displayedSurveys.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="p-12 text-center">
+                      <td colSpan={6} className="p-12 text-center">
                         <div className="flex flex-col items-center justify-center text-slate-400 gap-3">
                           <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
                             <AlertTriangle size={24} className="text-slate-300" />
                           </div>
-                          <span className="font-bold text-slate-500 text-base">ไม่พบข้อมูลในรอบการประเมินนี้</span>
+                          <span className="font-bold text-slate-500 text-base">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</span>
                         </div>
                       </td>
                     </tr>
                   ) : (
-                    surveys.map((survey) => (
+                    displayedSurveys.map((survey) => (
                       <tr key={survey.id} className="hover:bg-slate-50/80 transition-colors group cursor-default">
                         <td className="p-5 text-slate-600 font-medium whitespace-nowrap">
                           {new Date(survey.surveyDate).toLocaleDateString('th-TH')}
@@ -289,6 +363,45 @@ export default function SatisfactionDashboardClient() {
                               )}
                             </span>
                           </div>
+                        </td>
+                        <td className="p-5 whitespace-nowrap">
+                          {survey.installationStatus?.status === 'COMPLETED' ? (
+                            <div className="flex flex-col gap-0.5">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm w-fit">
+                                <CheckCircle2 size={13} className="text-emerald-600" />
+                                <span>ติดตั้งเสร็จสมบูรณ์แล้ว</span>
+                              </span>
+                              {survey.installationStatus.orderNo && (
+                                <span className="text-[11px] text-slate-400 font-mono pl-1">
+                                  {survey.installationStatus.orderNo}
+                                </span>
+                              )}
+                            </div>
+                          ) : survey.installationStatus?.status === 'IN_PROGRESS' ? (
+                            <div className="flex flex-col gap-0.5">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm w-fit animate-pulse">
+                                <Wrench size={13} className="text-blue-600" />
+                                <span>กำลังติดตั้งอยู่หน้างาน</span>
+                              </span>
+                              {survey.installationStatus.technician ? (
+                                <span className="text-[11px] text-slate-500 font-medium pl-1">
+                                  ช่าง: {survey.installationStatus.technician}
+                                </span>
+                              ) : survey.installationStatus.orderNo ? (
+                                <span className="text-[11px] text-slate-400 font-mono pl-1">
+                                  {survey.installationStatus.orderNo}
+                                </span>
+                              ) : null}
+                            </div>
+                          ) : survey.installationStatus?.status === 'NO_INSTALLATION' ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 w-fit">
+                              ส่งมอบแล้ว (ไม่มีติดตั้ง)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-medium text-slate-400 bg-slate-50 border border-slate-100 w-fit">
+                              ไม่มีข้อมูลงานติดตั้ง
+                            </span>
+                          )}
                         </td>
                         <td className="p-5 text-center">
                           <span className={`inline-flex px-3 py-1.5 rounded-xl font-black text-sm shadow-sm ${survey.scoreAverage >= 4 ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50' :

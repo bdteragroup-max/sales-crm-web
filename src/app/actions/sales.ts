@@ -4,7 +4,8 @@ import prisma from "@/app/lib/db";
 import { generateOrderNumber } from "./orderHelper";
 import { getUser } from "@/app/lib/dal";
 import { getCompanyWhereClause } from "@/app/lib/visibility";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_noStore as noStore } from "next/cache";
+import { getCycleDateRange, getQuotationCycleWhere, resolveInstallationStatusBatch } from "@/app/lib/satisfactionServerHelper";
 
 const VALID_WIN_LOSS_REASONS = [
   "ราคาแพงกว่าคู่แข่ง",
@@ -112,6 +113,7 @@ export async function searchCompanies(
     if (surveyExcludeFilter) {
       const closedStatuses = ["เปิดบิลแล้ว", "PO แล้วรอเงินโอน", "PO แล้วรอสินค้า"];
       const companyIds = companies.map(c => c.id);
+      const { startDate, endDate } = getCycleDateRange(surveyExcludeFilter.year, surveyExcludeFilter.round);
 
       const quotations = await prisma.quotation.findMany({
         where: {
@@ -123,7 +125,8 @@ export async function searchCompanies(
               { status: { startsWith: 'ยกเลิก' } },
               { status: { in: ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'] } }
             ]
-          }
+          },
+          ...getQuotationCycleWhere(startDate, endDate)
         },
         select: {
           companyId: true,
@@ -153,8 +156,17 @@ export async function searchCompanies(
         ]
       });
 
+      const companyQuotesMap = new Map<string, string[]>();
+
       const enrichedCompanies = companies.map(comp => {
-        const compQuotes = quotations.filter(q => q.companyId === comp.id);
+        const compQuotes = quotations.filter(q => {
+          if (q.companyId !== comp.id) return false;
+          const effDate = q.billingDate || q.poDate || q.quotationDate;
+          if (!effDate) return false;
+          const d = new Date(effDate);
+          return d >= startDate && d <= endDate;
+        });
+
         const closedQ = compQuotes.find(q => {
           const isRejected = q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก') || ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'].includes(q.status);
           return !isRejected && (closedStatuses.includes(q.status) || !!q.poNumber?.trim() || !!q.billingDate);
@@ -174,6 +186,8 @@ export async function searchCompanies(
         const primaryContactName = closedQ?.contact?.contactName || comp.contacts?.[0]?.contactName || null;
         const primaryContactPhone = closedQ?.contact?.mobilePhone || comp.contacts?.[0]?.mobilePhone || null;
 
+        companyQuotesMap.set(comp.id, compQuotes.map(q => q.quotationNumber).filter((n): n is string => Boolean(n)));
+
         return {
           ...comp,
           primaryContactName,
@@ -187,6 +201,23 @@ export async function searchCompanies(
           actualClosingAmount
         };
       });
+
+      const batchItems = enrichedCompanies.map(c => ({
+        companyId: c.id,
+        companyName: c.companyName,
+        quotationNumbers: companyQuotesMap.get(c.id) || []
+      }));
+
+      const installStatusMap = await resolveInstallationStatusBatch(batchItems);
+
+      for (const c of enrichedCompanies as any[]) {
+        c.installationStatus = installStatusMap.get(c.id) || {
+          status: 'UNKNOWN',
+          label: 'ไม่มีข้อมูลงานติดตั้ง',
+          badgeText: 'ไม่มีงานติดตั้ง',
+          color: 'gray'
+        };
+      }
 
       if (surveyExcludeFilter.onlyClosedSales) {
         return enrichedCompanies.filter(c => c.isClosedSale).slice(0, 8);

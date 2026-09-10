@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
+import { resolveInstallationStatusBatch } from '@/app/lib/satisfactionServerHelper';
 
 export async function GET(req: Request) {
   try {
@@ -9,8 +10,8 @@ export async function GET(req: Request) {
     const year = searchParams.get('year');
 
     const where: any = {};
-    if (round) where.surveyRound = parseInt(round);
-    if (year) where.surveyYear = parseInt(year);
+    if (round && round !== 'all') where.surveyRound = parseInt(round);
+    if (year && year !== 'all') where.surveyYear = parseInt(year);
 
     const surveys = await prisma.customerSatisfaction.findMany({
       where,
@@ -27,7 +28,25 @@ export async function GET(req: Request) {
       orderBy: { surveyDate: 'desc' },
     });
 
-    return NextResponse.json(surveys);
+    const batchItems = surveys.map(s => ({
+      companyId: s.companyId,
+      companyName: s.company?.companyName,
+      quotationNumbers: s.quotationIds || []
+    }));
+
+    const installStatusMap = await resolveInstallationStatusBatch(batchItems);
+
+    const enrichedSurveys = surveys.map(s => ({
+      ...s,
+      installationStatus: installStatusMap.get(s.companyId) || {
+        status: 'UNKNOWN',
+        label: 'ไม่มีข้อมูลงานติดตั้ง',
+        badgeText: 'ไม่มีงานติดตั้ง',
+        color: 'gray'
+      }
+    }));
+
+    return NextResponse.json(enrichedSurveys);
   } catch (error) {
     console.error('Error fetching surveys:', error);
     return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });

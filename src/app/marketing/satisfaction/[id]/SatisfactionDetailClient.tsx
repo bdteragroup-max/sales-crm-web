@@ -2,12 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle, Share2, FileText, Download, Loader2, Save, User as UserIcon, Phone } from 'lucide-react';
+import { ArrowLeft, CheckCircle, CheckCircle2, Wrench, Share2, FileText, Download, Loader2, Save, User as UserIcon, Phone } from 'lucide-react';
 import { CustomerSatisfaction, Company, User } from '@/generated/client';
 
 type SurveyData = CustomerSatisfaction & {
   company: Company;
   surveyor: User;
+  installationStatus?: {
+    status: 'COMPLETED' | 'IN_PROGRESS' | 'NO_INSTALLATION' | 'UNKNOWN';
+    label: string;
+    badgeText: string;
+    color: 'green' | 'blue' | 'gray' | 'amber';
+    technician?: string | null;
+    orderNo?: string | null;
+    plannedDate?: string | null;
+  };
 };
 
 export default function SatisfactionDetailClient({ id }: { id: string }) {
@@ -119,6 +128,22 @@ export default function SatisfactionDetailClient({ id }: { id: string }) {
               )}
               <span className="text-gray-300">•</span>
               <span className="text-gray-500">รอบประเมินที่ {survey.surveyRound} / ปี {survey.surveyYear}</span>
+              {survey.installationStatus?.status === 'COMPLETED' ? (
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                  <CheckCircle2 size={13} className="text-emerald-600" />
+                  ติดตั้งเสร็จสมบูรณ์แล้ว
+                </span>
+              ) : survey.installationStatus?.status === 'IN_PROGRESS' ? (
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full animate-pulse">
+                  <Wrench size={13} className="text-blue-600" />
+                  กำลังติดตั้งอยู่หน้างาน
+                  {survey.installationStatus.technician ? ` (ช่าง: ${survey.installationStatus.technician})` : ''}
+                </span>
+              ) : survey.installationStatus?.status === 'NO_INSTALLATION' ? (
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
+                  ส่งมอบสินค้าแล้ว (ไม่มีงานติดตั้ง)
+                </span>
+              ) : null}
             </div>
           </div>
         </div>

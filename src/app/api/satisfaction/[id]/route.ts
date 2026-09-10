@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
+import { resolveInstallationStatusBatch } from '@/app/lib/satisfactionServerHelper';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -16,7 +17,23 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
     }
 
-    return NextResponse.json(survey);
+    const installStatusMap = await resolveInstallationStatusBatch([{
+      companyId: survey.companyId,
+      companyName: survey.company?.companyName,
+      quotationNumbers: survey.quotationIds || []
+    }]);
+
+    const enrichedSurvey = {
+      ...survey,
+      installationStatus: installStatusMap.get(survey.companyId) || {
+        status: 'UNKNOWN',
+        label: 'ไม่มีข้อมูลงานติดตั้ง',
+        badgeText: 'ไม่มีงานติดตั้ง',
+        color: 'gray'
+      }
+    };
+
+    return NextResponse.json(enrichedSurvey);
   } catch (error) {
     console.error('Error fetching survey:', error);
     return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });

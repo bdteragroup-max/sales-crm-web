@@ -28,11 +28,13 @@ import {
   ArrowRight,
   RotateCcw,
   MapPin,
-  Briefcase
+  Briefcase,
+  Wrench
 } from 'lucide-react';
 import { searchCompanies } from "@/app/actions/sales";
 import Link from 'next/link';
 import { SATISFACTION_SCORE_LEGEND, formatPhoneForTel } from '@/app/lib/satisfactionScore';
+import { getCurrentCycle } from '@/app/lib/satisfactionHelper';
 
 const formatContactName = (name?: string | null) => {
   if (!name) return '';
@@ -84,9 +86,9 @@ type CriteriaComments = Partial<Record<
 export default function NewSatisfactionSurvey() {
   const router = useRouter();
 
-  const currentYearBE = new Date().getFullYear() + 543;
-  const [round, setRound] = useState('1');
-  const [year, setYear] = useState(currentYearBE.toString());
+  const currentCycle = getCurrentCycle();
+  const [round, setRound] = useState(currentCycle.round);
+  const [year, setYear] = useState(currentCycle.year);
   const [method, setMethod] = useState('PHONE');
 
   // Closed Sales vs All Companies filter
@@ -158,6 +160,7 @@ export default function NewSatisfactionSurvey() {
     closedStatus?: string | null;
     totalClosedAmount?: number;
     salespersonName?: string | null;
+    installationStatus?: any;
   } | null>(null);
 
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -659,6 +662,16 @@ export default function NewSatisfactionSurvey() {
                                     ยังไม่ปิดการขาย
                                   </span>
                                 )}
+                                {company.installationStatus?.status === 'COMPLETED' && (
+                                  <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                    <CheckCircle2 size={11} className="text-emerald-600" /> ติดตั้งเสร็จสิ้น
+                                  </span>
+                                )}
+                                {company.installationStatus?.status === 'IN_PROGRESS' && (
+                                  <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
+                                    <Wrench size={11} className="text-blue-600 animate-pulse" /> กำลังติดตั้งหน้างาน
+                                  </span>
+                                )}
                               </div>
 
                               <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
@@ -717,19 +730,31 @@ export default function NewSatisfactionSurvey() {
               /* Selected Company Summary Card (Left Column) */
               <div className="lg:col-span-1 p-4 rounded-2xl border border-gray-200 bg-gray-50/80 space-y-3 flex flex-col justify-between">
                 <div className="space-y-2.5">
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-2 flex-wrap">
                     <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0 border border-red-100">
                       <Building2 size={20} />
                     </div>
-                    {selectedCompany.isClosedSale ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <ShieldCheck size={11} className="text-emerald-600" /> ปิดการขายแล้ว
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                        ยังไม่ปิดการขาย
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {selectedCompany.isClosedSale ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <ShieldCheck size={11} className="text-emerald-600" /> ปิดการขายแล้ว
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                          ยังไม่ปิดการขาย
+                        </span>
+                      )}
+                      {(salesData?.installationStatus || selectedCompany.installationStatus)?.status === 'COMPLETED' && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          <CheckCircle2 size={11} className="text-emerald-600" /> ติดตั้งเสร็จสิ้น
+                        </span>
+                      )}
+                      {(salesData?.installationStatus || selectedCompany.installationStatus)?.status === 'IN_PROGRESS' && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
+                          <Wrench size={11} className="text-blue-600 animate-pulse" /> กำลังติดตั้งหน้างาน
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div>
@@ -738,13 +763,18 @@ export default function NewSatisfactionSurvey() {
                     </div>
                     <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500 mt-1.5">
                       {selectedCompany.latestPoNumber && (
-                        <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-300">
+                        <span className="font-mono font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-300 px-2 py-0.5 rounded text-[11px]">
                           PO: {selectedCompany.latestPoNumber}
                         </span>
                       )}
+                      {selectedCompany.latestInvoiceNumber && !selectedCompany.latestPoNumber && (
+                        <span className="font-mono text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded text-[11px]">
+                          บิล: {selectedCompany.latestInvoiceNumber}
+                        </span>
+                      )}
                       {selectedCompany.province && (
-                        <span className="text-gray-500 inline-flex items-center gap-1">
-                          <MapPin size={12} className="text-gray-400" />
+                        <span className="inline-flex items-center gap-1 text-gray-500">
+                          <MapPin size={11} className="text-gray-400" />
                           <span>{selectedCompany.province}</span>
                         </span>
                       )}
@@ -892,15 +922,42 @@ export default function NewSatisfactionSurvey() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="px-3 py-1 bg-emerald-600 text-white rounded-full text-xs font-bold shadow-sm">
                           {salesData?.closedStatus || selectedCompany.closedStatus || 'เปิดบิลแล้ว'}
                         </span>
+                        {/* Installation Status Badge */}
+                        {(() => {
+                          const installStatus = salesData?.installationStatus || selectedCompany?.installationStatus;
+                          if (!installStatus) return null;
+                          if (installStatus.status === 'COMPLETED') {
+                            return (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-700 text-white rounded-full text-xs font-bold shadow-sm border border-emerald-400">
+                                <CheckCircle2 size={13} className="text-emerald-200" />
+                                <span>ติดตั้งเสร็จสมบูรณ์แล้ว</span>
+                              </span>
+                            );
+                          }
+                          if (installStatus.status === 'IN_PROGRESS') {
+                            return (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-bold shadow-sm border border-blue-400">
+                                <Wrench size={13} className="text-blue-200 animate-pulse" />
+                                <span>กำลังติดตั้งอยู่หน้างาน</span>
+                              </span>
+                            );
+                          }
+                          return (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-600 text-white rounded-full text-xs font-bold shadow-sm">
+                              <Package size={13} className="text-slate-200" />
+                              <span>{installStatus.badgeText || 'ไม่มีงานติดตั้ง'}</span>
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
 
                     {/* Metrics Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                       {/* PO Number */}
                       <div className="bg-white/95 p-3 rounded-xl border border-emerald-200 shadow-xs">
                         <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-1.5">
@@ -944,22 +1001,76 @@ export default function NewSatisfactionSurvey() {
                           {formatCurrency(salesData?.totalClosedAmount || selectedCompany.actualClosingAmount)}
                         </div>
                       </div>
+
+                      {/* Installation Status Card */}
+                      {(() => {
+                        const installStatus = salesData?.installationStatus || selectedCompany?.installationStatus;
+                        const isCompleted = installStatus?.status === 'COMPLETED';
+                        const isInProgress = installStatus?.status === 'IN_PROGRESS';
+                        const borderStyle = isCompleted ? 'border-emerald-300 bg-emerald-50/60' : isInProgress ? 'border-blue-300 bg-blue-50/60' : 'border-emerald-200 bg-white/95';
+                        const textColor = isCompleted ? 'text-emerald-800' : isInProgress ? 'text-blue-800' : 'text-gray-700';
+                        const iconColor = isCompleted ? 'text-emerald-600' : isInProgress ? 'text-blue-600' : 'text-gray-400';
+
+                        return (
+                          <div className={`p-3 rounded-xl border shadow-xs transition-all ${borderStyle}`}>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-1.5">
+                              <Wrench size={13} className={iconColor} />
+                              สถานะการติดตั้ง
+                            </div>
+                            <div className={`text-sm font-black mt-1 truncate flex items-center gap-1.5 ${textColor}`}>
+                              {isCompleted && <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />}
+                              {isInProgress && <Wrench size={15} className="text-blue-600 shrink-0 animate-bounce" />}
+                              <span title={installStatus?.label || 'ไม่มีข้อมูลงานติดตั้ง'}>
+                                {installStatus?.label || 'ไม่มีข้อมูลงานติดตั้ง'}
+                              </span>
+                            </div>
+                            {installStatus?.orderNo && (
+                              <div className="text-[10px] text-gray-500 mt-0.5 truncate font-mono">
+                                ใบงาน: {installStatus.orderNo}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Caller Guidance Tip */}
                     <div className="bg-emerald-100/70 border border-emerald-200/80 rounded-xl p-3 flex items-start gap-2.5 text-xs text-emerald-900 leading-relaxed">
                       <Info size={16} className="text-emerald-700 shrink-0 mt-0.5" />
-                      <div>
-                        <strong className="font-bold text-emerald-950">คำแนะนำสำหรับผู้โทรสอบถาม: </strong>
-                        {(salesData?.latestPoNumber || selectedCompany.latestPoNumber) ? (
-                          <span>
-                            ลูกค้ารายนี้มีใบสั่งซื้อทางการ เลขที่ PO: <strong className="font-mono underline text-emerald-950 px-1.5 py-0.5 bg-white/80 rounded border border-emerald-200">{salesData?.latestPoNumber || selectedCompany.latestPoNumber}</strong> สามารถอ้างอิงเลข PO นี้เพื่อให้ลูกค้ามั่นใจว่าเป็นการโทรติดตามความพึงพอใจจากการสั่งซื้อจริง
-                          </span>
-                        ) : (
-                          <span>
-                            ลูกค้ารายนี้เปิดบิลเรียบร้อยแล้ว อ้างอิงใบเสนอราคาเลขที่ <strong className="font-mono text-emerald-950 px-1.5 py-0.5 bg-white/80 rounded border border-emerald-200">{salesData?.latestQuotationNumber || selectedCompany.latestQuotationNumber}</strong> หรือใบกำกับภาษีในการสนทนาได้
-                          </span>
-                        )}
+                      <div className="space-y-1.5 w-full">
+                        <div>
+                          <strong className="font-bold text-emerald-950">คำแนะนำสำหรับผู้โทรสอบถาม: </strong>
+                          {(salesData?.latestPoNumber || selectedCompany.latestPoNumber) ? (
+                            <span>
+                              ลูกค้ารายนี้มีใบสั่งซื้อทางการ เลขที่ PO: <strong className="font-mono underline text-emerald-950 px-1.5 py-0.5 bg-white/80 rounded border border-emerald-200">{salesData?.latestPoNumber || selectedCompany.latestPoNumber}</strong> สามารถอ้างอิงเลข PO นี้เพื่อให้ลูกค้ามั่นใจว่าเป็นการโทรติดตามความพึงพอใจจากการสั่งซื้อจริง
+                            </span>
+                          ) : (
+                            <span>
+                              ลูกค้ารายนี้เปิดบิลเรียบร้อยแล้ว อ้างอิงใบเสนอราคาเลขที่ <strong className="font-mono text-emerald-950 px-1.5 py-0.5 bg-white/80 rounded border border-emerald-200">{salesData?.latestQuotationNumber || selectedCompany.latestQuotationNumber}</strong> หรือใบกำกับภาษีในการสนทนาได้
+                            </span>
+                          )}
+                        </div>
+                        {(() => {
+                          const installStatus = salesData?.installationStatus || selectedCompany?.installationStatus;
+                          if (!installStatus) return null;
+                          if (installStatus.status === 'COMPLETED') {
+                            return (
+                              <div className="pt-1.5 text-emerald-900 font-medium border-t border-emerald-200/70 flex items-center gap-1.5">
+                                <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                                <span><strong>สถานะงานติดตั้ง: ติดตั้งเสร็จสมบูรณ์แล้ว</strong> — สามารถสอบถามความพึงพอใจด้านคุณภาพสินค้าและผลงานการติดตั้งของทีมช่างได้เต็มที่</span>
+                              </div>
+                            );
+                          }
+                          if (installStatus.status === 'IN_PROGRESS') {
+                            return (
+                              <div className="pt-1.5 text-blue-900 font-medium border-t border-emerald-200/70 flex items-center gap-1.5">
+                                <Wrench size={13} className="text-blue-600 shrink-0" />
+                                <span><strong>สถานะงานติดตั้ง: กำลังติดตั้งอยู่หน้างาน</strong> — แนะนำให้สอบถามความเรียบร้อยของการประสานงานและการเข้าหน้างานของช่างเบื้องต้น</span>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     </div>
                   </div>

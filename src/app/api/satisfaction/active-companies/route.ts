@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
+import { getCycleDateRange, getQuotationCycleWhere, resolveInstallationStatusBatch } from '@/app/lib/satisfactionServerHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,15 +14,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
   }
 
-  // Convert Buddhist Era (B.E.) to Common Era (C.E.) and offset timezone
-  const ceYear = Number(year) - 543;
-  const isRound1 = round === '1';
-  
-  // Adjusted for timezone UTC+7
-  const startDate = new Date(`${ceYear}-${isRound1 ? '01' : '07'}-01T00:00:00+07:00`);
-  const endMonth = isRound1 ? '06' : '12';
-  const endDay = isRound1 ? '30' : '31';
-  const endDate = new Date(`${ceYear}-${endMonth}-${endDay}T23:59:59+07:00`);
+  const { startDate, endDate } = getCycleDateRange(year, round);
 
   try {
     const closedStatuses = ["เปิดบิลแล้ว", "PO แล้วรอเงินโอน", "PO แล้วรอสินค้า"];
@@ -44,13 +37,7 @@ export async function GET(req: Request) {
           { billingDate: { not: null } }
         ],
         AND: [
-          {
-            OR: [
-              { quotationDate: { gte: startDate, lte: endDate } },
-              { poDate: { gte: startDate, lte: endDate } },
-              { billingDate: { gte: startDate, lte: endDate } }
-            ]
-          }
+          getQuotationCycleWhere(startDate, endDate)
         ]
       },
       select: {
@@ -110,10 +97,16 @@ export async function GET(req: Request) {
 
     // Aggregate by companyId with closed-sale metadata & PO reference
     const companyMap = new Map<string, any>();
+    const companyQuotesMap = new Map<string, string[]>();
 
     for (const q of quotations) {
       if (!q.company || evaluatedCompanyIds.has(q.company.id)) continue;
       
+      const effectiveClosedDate = q.billingDate || q.poDate || q.quotationDate;
+      if (!effectiveClosedDate) continue;
+      const effD = new Date(effectiveClosedDate);
+      if (effD < startDate || effD > endDate) continue;
+
       const cleanPo = q.poNumber?.trim() || null;
       const cleanInvoice = q.invoiceNumber?.trim() || null;
       const isRejected = q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก') || ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'].includes(q.status);
@@ -121,6 +114,13 @@ export async function GET(req: Request) {
 
       const contactName = q.contact?.contactName || q.company.contacts?.[0]?.contactName || null;
       const contactPhone = q.contact?.mobilePhone || q.company.contacts?.[0]?.mobilePhone || null;
+
+      if (!companyQuotesMap.has(q.companyId)) {
+        companyQuotesMap.set(q.companyId, []);
+      }
+      if (q.quotationNumber) {
+        companyQuotesMap.get(q.companyId)!.push(q.quotationNumber);
+      }
 
       if (!companyMap.has(q.companyId)) {
         companyMap.set(q.companyId, {
@@ -132,7 +132,7 @@ export async function GET(req: Request) {
           latestPoNumber: cleanPo,
           latestInvoiceNumber: cleanInvoice,
           latestQuotationNumber: q.quotationNumber || null,
-          latestClosedDate: q.billingDate || q.poDate || q.quotationDate || null,
+          latestClosedDate: effectiveClosedDate,
           actualClosingAmount: q.actualClosingAmount ?? q.totalAmountBeforeVat ?? null,
           closedQuotationsCount: isClosed ? 1 : 0
         });
@@ -155,7 +155,24 @@ export async function GET(req: Request) {
       }
     }
 
+    // Resolve installation status for all active companies in batch
     const companies = Array.from(companyMap.values());
+    const batchItems = companies.map(c => ({
+      companyId: c.id,
+      companyName: c.companyName,
+      quotationNumbers: companyQuotesMap.get(c.id) || []
+    }));
+
+    const installStatusMap = await resolveInstallationStatusBatch(batchItems);
+
+    for (const c of companies) {
+      c.installationStatus = installStatusMap.get(c.id) || {
+        status: 'UNKNOWN',
+        label: 'ไม่มีข้อมูลงานติดตั้ง',
+        badgeText: 'ไม่มีงานติดตั้ง',
+        color: 'gray'
+      };
+    }
 
     return NextResponse.json({ companies });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
+import { getCycleDateRange, getQuotationCycleWhere, resolveInstallationStatusBatch } from '@/app/lib/satisfactionServerHelper';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -11,15 +12,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
   }
 
-  // Convert Buddhist Era (B.E.) to Common Era (C.E.) and offset timezone
-  const ceYear = Number(year) - 543;
-  const isRound1 = round === '1';
-  
-  // Adjusted for timezone UTC+7
-  const startDate = new Date(`${ceYear}-${isRound1 ? '01' : '07'}-01T00:00:00+07:00`);
-  const endMonth = isRound1 ? '06' : '12';
-  const endDay = isRound1 ? '30' : '31';
-  const endDate = new Date(`${ceYear}-${endMonth}-${endDay}T23:59:59+07:00`);
+  const { startDate, endDate } = getCycleDateRange(year, round);
 
   try {
     const quotations = await prisma.quotation.findMany({
@@ -32,14 +25,15 @@ export async function GET(req: Request) {
             { status: { in: ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'] } }
           ]
         },
-        OR: [
-          { quotationDate: { gte: startDate, lte: endDate } },
-          { poDate: { gte: startDate, lte: endDate } },
-          { billingDate: { gte: startDate, lte: endDate } }
-        ]
+        ...getQuotationCycleWhere(startDate, endDate)
       },
       include: {
-        jobs: true,
+        jobs: {
+          include: {
+            installationOrders: true,
+            project: true
+          }
+        },
         contact: true,
         salesperson: { select: { fullName: true } }
       },
@@ -150,6 +144,20 @@ export async function GET(req: Request) {
     const totalClosedAmount = closedQuotations.reduce((sum, q) => sum + (q.actualClosingAmount ?? q.totalAmountBeforeVat ?? 0), 0);
     const salespersonName = closedQuotations[0]?.salesperson?.fullName || quotations[0]?.salesperson?.fullName || null;
 
+    const allQuotationNumbers = enrichedQuotations.map(q => q.quotationNumber).filter((n): n is string => Boolean(n));
+    const installStatusMap = await resolveInstallationStatusBatch([{
+      companyId,
+      companyName: company?.companyName || null,
+      quotationNumbers: allQuotationNumbers
+    }]);
+
+    const installationStatus = installStatusMap.get(companyId) || {
+      status: 'UNKNOWN',
+      label: 'ไม่มีข้อมูลงานติดตั้ง',
+      badgeText: 'ไม่มีงานติดตั้ง',
+      color: 'gray'
+    };
+
     return NextResponse.json({
       quotations: enrichedQuotations,
       closedQuotations,
@@ -165,7 +173,8 @@ export async function GET(req: Request) {
       latestQuotationNumber,
       closedStatus,
       totalClosedAmount,
-      salespersonName
+      salespersonName,
+      installationStatus
     });
   } catch (error) {
     console.error('Error fetching company data:', error);
