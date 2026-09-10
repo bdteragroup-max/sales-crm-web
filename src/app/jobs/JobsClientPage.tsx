@@ -694,9 +694,6 @@ export default function JobsClientPage({
     return depts;
   }, [userDept, userRole, isSuperAdmin]);
 
-  const [filterStatus, setFilterStatus] = useState<"all" | "pending">(
-    isSuperAdmin || normalizedDept.includes("sales") ? "all" : "pending"
-  );
   const [statusTab, setStatusTab] = useState<string>("all");
 
   const months = useMemo(() => {
@@ -1142,20 +1139,6 @@ export default function JobsClientPage({
       }
       if (filterPo === "with_po" && !j.poNumber) return false;
       if (filterPo === "without_po" && j.poNumber) return false;
-      if (filterStatus === "pending") {
-        if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
-          return false;
-        const stepDef = getCurrentStepDef(
-          j.jobType,
-          j.currentStep,
-          j.flowVariant,
-          j.stepLogs
-        );
-        if (
-          !stepDef?.department?.some((dept) => normalizedDept.includes(dept))
-        )
-          return false;
-      }
       if (filterMonth === "custom") {
         const jobDate = new Date(j.dateClosed).getTime();
         if (filterStartDate && jobDate < new Date(filterStartDate).getTime())
@@ -1197,7 +1180,7 @@ export default function JobsClientPage({
     filterType,
     filterEmployee,
     filterDeptStatus,
-    filterStatus,
+    filterPo,
     filterMonth,
     filterStartDate,
     filterEndDate,
@@ -1253,7 +1236,7 @@ export default function JobsClientPage({
     filterStartDate,
     filterEndDate,
     filterDeptStatus,
-    filterStatus,
+    filterPo,
     search,
   ]);
 
@@ -1280,7 +1263,6 @@ export default function JobsClientPage({
       filterEndDate ||
       filterDeptStatus ||
       filterPo ||
-      filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending") ||
       search
   );
 
@@ -1294,7 +1276,6 @@ export default function JobsClientPage({
     setFilterEndDate("");
     setFilterDeptStatus("");
     setFilterPo("");
-    setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending");
     setSearch("");
     setCurrentPage(1);
   };
