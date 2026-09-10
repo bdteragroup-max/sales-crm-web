@@ -71,18 +71,56 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
       where: { employeeId: { in: subEmpIds }, isActive: true },
       select: { fullName: true }
     });
-    const teamFullNames = teamUsers.map(u => u.fullName);
+    const teamFullNames = Array.from(
+      new Set(
+        teamUsers.flatMap((u) =>
+          u.fullName
+            ? [
+                u.fullName,
+                u.fullName.trim().replace(/\s+/g, " "),
+                u.fullName.trim().replace(/\s+/g, "  "),
+              ]
+            : []
+        )
+      )
+    );
+
+    const userNames = user.fullName
+      ? Array.from(
+          new Set([
+            user.fullName,
+            user.fullName.trim().replace(/\s+/g, " "),
+            user.fullName.trim().replace(/\s+/g, "  "),
+          ])
+        )
+      : [];
 
     whereClause = {
       OR: [
         { sellerName: { in: teamFullNames } },
-        { sellerName: user.fullName ?? "" },
+        ...userNames.map((name) => ({ sellerName: name })),
         { sellerName: null },
-        { sellerName: "" }
-      ]
+        { sellerName: "" },
+      ],
     };
   } else if (isSales && !isServiceManager) {
-    whereClause = { OR: [{ sellerName: user.fullName ?? "" }, { sellerName: null }, { sellerName: "" }] };
+    const userNames = user.fullName
+      ? Array.from(
+          new Set([
+            user.fullName,
+            user.fullName.trim().replace(/\s+/g, " "),
+            user.fullName.trim().replace(/\s+/g, "  "),
+          ])
+        )
+      : [];
+
+    whereClause = {
+      OR: [
+        ...userNames.map((name) => ({ sellerName: name })),
+        { sellerName: null },
+        { sellerName: "" },
+      ],
+    };
   }
 
   const jobs = await prisma.job.findMany({ 

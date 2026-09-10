@@ -706,9 +706,10 @@ export default function JobsClientPage({
   const uniqueEmployees = useMemo(() => {
     const s = new Set<string>();
     jobs.forEach((j) => {
-      if (j.sellerName) s.add(j.sellerName);
+      const name = j.sellerName?.trim().replace(/\s+/g, " ");
+      if (name) s.add(name);
     });
-    return Array.from(s).sort();
+    return Array.from(s).sort((a, b) => a.localeCompare(b, "th"));
   }, [jobs]);
 
   const thisMonthCount = useMemo(() => {
@@ -1124,8 +1125,11 @@ export default function JobsClientPage({
 
       if (filterCo && j.companyCode !== filterCo) return false;
       if (filterType && j.jobType !== filterType) return false;
-      if (filterEmployee && (j.sellerName || "") !== filterEmployee)
-        return false;
+      if (filterEmployee) {
+        const jobSeller = (j.sellerName || "").trim().replace(/\s+/g, " ");
+        const targetSeller = filterEmployee.trim().replace(/\s+/g, " ");
+        if (jobSeller !== targetSeller) return false;
+      }
       if (filterDeptStatus) {
         if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
           return false;
@@ -1153,13 +1157,13 @@ export default function JobsClientPage({
         if (j.yearBe !== +y || j.month !== +mo) return false;
       }
       if (search) {
-        const q = search.toLowerCase();
+        const q = search.trim().replace(/\s+/g, " ").toLowerCase();
         const jn = j.jobNumber.toLowerCase();
         const cn = j.customerName.toLowerCase();
         const it = (j.item || "").toLowerCase();
         const qn = (j.quotationNumber || "").toLowerCase();
         const po = (j.poNumber || "").toLowerCase();
-        const sn = (j.sellerName || "").toLowerCase();
+        const sn = (j.sellerName || "").trim().replace(/\s+/g, " ").toLowerCase();
         if (
           !jn.includes(q) &&
           !cn.includes(q) &&
