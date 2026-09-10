@@ -689,7 +689,7 @@ export async function POST(req: NextRequest) {
   for (const row of rows) {
     const r = makeReader(row);
     if (row?.type === 'PO') {
-      const rawPo = r.read(['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ PO', 'เลข PO'], ['เลขที่po']);
+      const rawPo = r.read(['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ใบสั่งซื้อ', 'เลขที่สั่งซื้อ', 'เลขที่ PO', 'เลข PO'], ['เลขที่po']);
       if (rawPo) poKeys.push(cleanDocNo(rawPo));
       const rawPr = r.read(['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR', 'เลขที่ PR (ref)']);
       if (rawPr) prKeys.push(cleanDocNo(rawPr));
@@ -705,7 +705,7 @@ export async function POST(req: NextRequest) {
   ]);
 
   const ctx: SyncContext = {
-    syncedPrs: new Set<string>(),
+    syncedPrs: new Set<string>(existingPRs.map(p => p.prNumber)),
     poMap: new Map<string, any>(existingPOs.map(p => [p.poNumber, p])),
     prMap: new Map<string, any>(existingPRs.map(p => [p.prNumber, p]))
   };
