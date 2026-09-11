@@ -13,6 +13,10 @@ const config: Config = {
         sans: ["var(--font-prompt)", "Prompt", "sans-serif"],
         mono: ["var(--font-prompt)", "Prompt", "sans-serif"],
       },
+      fontSize: {
+        '2xs': ['0.6875rem', { lineHeight: '0.875rem' }],
+        '3xs': ['0.625rem', { lineHeight: '0.75rem' }],
+      },
       colors: {
         'brand-red': '#ff2301',
         'iron-gold': '#D4AF37',
