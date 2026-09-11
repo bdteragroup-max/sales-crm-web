@@ -23,11 +23,11 @@ export default async function ExecutiveCoinsDashboard(props: {
 }) {
   const searchParams = await props.searchParams;
   const session = await getUser();
-  
+
   const roleStr = (session?.role || '').toLowerCase();
   const isExecutive = roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
   const isAdmin = roleStr === 'admin';
-  
+
   if (!isExecutive && !isAdmin) {
     redirect('/');
   }
@@ -55,7 +55,12 @@ export default async function ExecutiveCoinsDashboard(props: {
       ...(coinType && { coin_type_id: coinType }),
       ...(dept && { employees: { department_id: Number(dept) } })
     },
-    include: { coin_types: true, employees: true }
+    include: {
+      coin_types: true,
+      employees: {
+        include: { departments: true }
+      }
+    }
   });
 
   const coinTypeSums: Record<string, { name: string; code: string; amount: number }> = {};
@@ -70,12 +75,13 @@ export default async function ExecutiveCoinsDashboard(props: {
   const totalCirculation = Object.values(coinTypeSums).reduce((acc, curr) => acc + curr.amount, 0);
 
   // Top Coin Holders (Leaderboard) - based on current balance
-  const userBalances: Record<string, { empId: string; name: string; totalBalance: number }> = {};
+  const userBalances: Record<string, { empId: string; name: string; departmentName?: string; totalBalance: number }> = {};
   allEmployeeCoins.forEach(coin => {
     const empId = coin.emp_id;
     if (!userBalances[empId]) {
       const userName = coin.employees?.name || empId;
-      userBalances[empId] = { empId, name: userName, totalBalance: 0 };
+      const departmentName = coin.employees?.departments?.name;
+      userBalances[empId] = { empId, name: userName, departmentName, totalBalance: 0 };
     }
     userBalances[empId].totalBalance += coin.balance;
   });
@@ -113,9 +119,14 @@ export default async function ExecutiveCoinsDashboard(props: {
   // Recent Transactions
   const recentTransactionsRaw = await prisma.coin_ledgers.findMany({
     where: ledgerBaseWhere,
-    include: { coin_types: true, employees: true },
+    include: {
+      coin_types: true,
+      employees: {
+        include: { departments: true }
+      }
+    },
     orderBy: { created_at: 'desc' },
-    take: 50
+    take: 100
   });
 
   const recentTransactions = recentTransactionsRaw.map(tx => ({
@@ -126,7 +137,10 @@ export default async function ExecutiveCoinsDashboard(props: {
     source_key: tx.source_key,
     description: tx.description,
     created_at: tx.created_at.toISOString(),
-    employees: { name: tx.employees?.name },
+    employees: {
+      name: tx.employees?.name,
+      departmentName: tx.employees?.departments?.name
+    },
     coin_types: tx.coin_types ? { id: tx.coin_types.id, name: tx.coin_types.name } : null
   }));
 
@@ -158,6 +172,7 @@ export default async function ExecutiveCoinsDashboard(props: {
     points_spent: r.points_spent,
     redeemed_at: r.redeemed_at,
     employeeName: r.employees_reward_redemptions_emp_idToemployees?.name || r.emp_id,
+    departmentName: r.employees_reward_redemptions_emp_idToemployees?.departments?.name,
     rewardName: r.rewards?.name || 'Unknown Reward',
     coinTypeId: r.coin_type_id || undefined,
     coinTypeName: r.coin_type_id ? coinTypeMap.get(r.coin_type_id) : undefined,
@@ -176,7 +191,12 @@ export default async function ExecutiveCoinsDashboard(props: {
       created_at: { gte: from, lte: to },
       ...(dept && { employees: { department_id: Number(dept) } })
     },
-    include: { coin_types: true, employees: true },
+    include: {
+      coin_types: true,
+      employees: {
+        include: { departments: true }
+      }
+    },
     orderBy: { created_at: 'desc' }
   });
 
@@ -186,7 +206,10 @@ export default async function ExecutiveCoinsDashboard(props: {
     amount: Math.abs(tx.amount), // Show as positive amount reclaimed
     description: tx.description,
     created_at: tx.created_at.toISOString(),
-    employees: { name: tx.employees?.name },
+    employees: {
+      name: tx.employees?.name,
+      departmentName: tx.employees?.departments?.name
+    },
     coin_types: tx.coin_types ? { id: tx.coin_types.id, name: tx.coin_types.name } : null
   }));
 
@@ -197,7 +220,7 @@ export default async function ExecutiveCoinsDashboard(props: {
   });
 
   return (
-    <CoinsClient 
+    <CoinsClient
       totalCirculation={totalCirculation}
       issuedThisPeriod={issuedThisPeriod._sum.amount || 0}
       redeemedThisPeriod={Math.abs(redeemedThisPeriod._sum.amount || 0)}

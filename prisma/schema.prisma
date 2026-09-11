@@ -152,6 +152,8 @@ model Company {
   companyName           String
   taxId                 String?
   address               String?
+  website               String?
+  googleMapUrl          String?
   createdAt             DateTime               @default(now()) @db.Timestamptz(6)
   updatedAt             DateTime               @updatedAt @db.Timestamptz(6)
   area                  String?

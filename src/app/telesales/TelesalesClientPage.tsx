@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileText, Plus, Search, Edit2, FileSpreadsheet, PhoneCall, CheckCircle2, Clock, Calendar } from 'lucide-react';
+import { FileText, Plus, Search, Edit2, FileSpreadsheet, PhoneCall, CheckCircle2, Clock, Calendar, Globe, MapPin } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import NewTelesaleForm from './components/NewTelesaleForm';
 import TelesaleBulkUploadModal from './components/TelesaleBulkUploadModal';
@@ -285,7 +285,7 @@ export default function TelesalesClientPage({
                   <option value="ไม่สนใจ">ไม่สนใจ</option>
                   <option value="นัดหมายสำเร็จ">นัดหมายสำเร็จ</option>
                   <option value="ขอข้อมูลเพิ่มเติม">ขอข้อมูลเพิ่มเติม</option>
-                  <option value="โทรกลับภายหลัง">โทรกลับภายหลัง</option>
+                  <option value="ติดตามภายหลัง">ติดตามภายหลัง</option>
                 </select>
 
                 {isManager && salesReps && (
@@ -333,7 +333,33 @@ export default function TelesalesClientPage({
                           {record.callDate ? new Date(record.callDate).toLocaleDateString('th-TH') : '-'}
                         </td>
                         <td className="py-4 px-5">
-                          <p className="text-xs font-bold text-gray-900 leading-tight">{record.company?.companyName || '-'}</p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-bold text-gray-900 leading-tight">{record.company?.companyName || '-'}</span>
+                            {record.company?.website && (
+                              <a
+                                href={record.company.website.startsWith('http') ? record.company.website : `https://${record.company.website}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1 rounded-md transition-colors"
+                                title={`เปิดเว็บไซต์: ${record.company.website}`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Globe size={12} />
+                              </a>
+                            )}
+                            {record.company?.googleMapUrl && (
+                              <a
+                                href={record.company.googleMapUrl.startsWith('http') ? record.company.googleMapUrl : `https://${record.company.googleMapUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1 rounded-md transition-colors"
+                                title="เปิดพิกัด Google Maps"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MapPin size={12} />
+                              </a>
+                            )}
+                          </div>
                           <p className="text-[10px] text-gray-400 font-medium mt-0.5">{record.user?.fullName || '-'}</p>
                         </td>
                         <td className="py-4 px-5">
@@ -350,7 +376,13 @@ export default function TelesalesClientPage({
                           <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                             record.callOutcome === 'สนใจ' || record.callOutcome === 'นัดหมายสำเร็จ' 
                               ? 'bg-emerald-500 text-white' 
-                              : record.callOutcome === 'ไม่สนใจ' ? 'bg-gray-100 text-gray-400' : 'bg-brand-red text-white'
+                              : record.callOutcome === 'ไม่สนใจ' 
+                              ? 'bg-gray-100 text-gray-400' 
+                              : record.callOutcome === 'ติดตามภายหลัง'
+                              ? 'bg-amber-500 text-white'
+                              : record.callOutcome === 'ขอข้อมูลเพิ่มเติม'
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-brand-red text-white'
                           }`}>
                             {record.callOutcome || '-'}
                           </span>
@@ -570,7 +602,33 @@ export default function TelesalesClientPage({
                             </div>
                           </td>
                           <td className="py-4 px-5">
-                            <p className="text-xs font-bold text-gray-900">{record.company?.companyName || '-'}</p>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-xs font-bold text-gray-900">{record.company?.companyName || '-'}</span>
+                              {record.company?.website && (
+                                <a
+                                  href={record.company.website.startsWith('http') ? record.company.website : `https://${record.company.website}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1 rounded-md transition-colors"
+                                  title={`เปิดเว็บไซต์: ${record.company.website}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Globe size={12} />
+                                </a>
+                              )}
+                              {record.company?.googleMapUrl && (
+                                <a
+                                  href={record.company.googleMapUrl.startsWith('http') ? record.company.googleMapUrl : `https://${record.company.googleMapUrl}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1 rounded-md transition-colors"
+                                  title="เปิดพิกัด Google Maps"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MapPin size={12} />
+                                </a>
+                              )}
+                            </div>
                             <p className="text-[10px] text-gray-400 font-medium mt-0.5">
                               {primaryContact ? `ผู้ติดต่อ: ${primaryContact.contactName}` : 'ไม่มีข้อมูลผู้ติดต่อหลัก'}
                             </p>

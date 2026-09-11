@@ -453,6 +453,8 @@ export default function TelesaleLogClient({
                     >
                       <option value="สนใจ">สนใจ (Interested)</option>
                       <option value="นัดหมายสำเร็จ">นัดหมายสำเร็จ (Appointment)</option>
+                      <option value="ขอข้อมูลเพิ่มเติม">ขอข้อมูลเพิ่มเติม (More Info)</option>
+                      <option value="ติดตามภายหลัง">ติดตามภายหลัง (Follow-up)</option>
                       <option value="ไม่สนใจ">ไม่สนใจ (Not Interested)</option>
                       <option value="ข้อมูลไม่ถูกต้อง">ข้อมูลไม่ถูกต้อง (Invalid Details)</option>
                     </select>

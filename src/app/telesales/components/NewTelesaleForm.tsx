@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, X, PhoneCall, Clock, Phone, MapPin, Edit2 } from 'lucide-react';
+import { Save, X, PhoneCall, Clock, Phone, MapPin, Edit2, Globe, ExternalLink } from 'lucide-react';
 import { saveTelesaleData, updateTelesaleData, getCompanyFullHistory } from '@/app/actions/telesales';
 import { searchCompanies, searchContacts, searchCompetitors } from '@/app/actions/sales';
 import { getSalesEmployees } from '@/app/actions/user';
@@ -50,6 +50,15 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
               return Object.keys(updates).length > 0 ? { ...prev, ...updates } : prev;
             });
           }
+
+          if (res.company) {
+            setFormData((prev: any) => {
+              const updates: any = {};
+              if (!prev.website && res.company.website) updates.website = res.company.website;
+              if (!prev.googleMapUrl && res.company.googleMapUrl) updates.googleMapUrl = res.company.googleMapUrl;
+              return Object.keys(updates).length > 0 ? { ...prev, ...updates } : prev;
+            });
+          }
         } catch (error) {
           console.error("Failed to load company history", error);
         }
@@ -61,6 +70,16 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
     }
     loadHistory();
   }, [selectedCompanyId]);
+
+  const formatExternalUrl = (url?: string) => {
+    if (!url) return '';
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    return `https://${trimmed}`;
+  };
 
   const formatDateForInput = (date: any) => {
     if (!date) return '';
@@ -85,6 +104,8 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
         companyName: initialData.company?.companyName || '',
         contactPerson: initialData.contactPerson || initialData.company?.contacts?.[0]?.contactName || '',
         phoneNumber: initialData.phoneNumber || initialData.company?.contacts?.[0]?.mobilePhone || '',
+        website: initialData.company?.website || '',
+        googleMapUrl: initialData.company?.googleMapUrl || '',
         customerType: initialData.company?.customerType || 'USER',
         customerStatus: initialData.company?.customerStatus || 'ลูกค้าใหม่',
         forwardTo: initialData.forwardTo || '',
@@ -179,6 +200,8 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
       companyName: company.companyName,
       customerType: company.customerType || 'USER',
       customerStatus: company.customerStatus || 'ลูกค้าเก่า',
+      website: company.website || prev.website || '',
+      googleMapUrl: company.googleMapUrl || prev.googleMapUrl || '',
     }));
     setSelectedCompanyId(company.id);
     setShowSuggestions(false);
@@ -206,6 +229,8 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
         companyName: contact.company.companyName,
         customerType: contact.company.customerType || 'USER',
         customerStatus: contact.company.customerStatus || 'ลูกค้าเก่า',
+        website: contact.company.website || prev.website || '',
+        googleMapUrl: contact.company.googleMapUrl || prev.googleMapUrl || '',
       } : {})
     }));
     if (contact.company) setSelectedCompanyId(contact.company.id);
@@ -509,6 +534,82 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
                 </div>
               </div>
               <InputField name="phoneNumber" label="เบอร์โทรศัพท์ :" type="tel" placeholder="0xx-xxx-xxxx" value={formData.phoneNumber || ''} onChange={handleInputChange} />
+
+              {/* เว็บไซต์ (Website) */}
+              <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 w-full">
+                <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-gray-600 ml-1 md:ml-0 shrink-0">
+                  เว็บไซต์ (Website) :
+                </label>
+                <div className="flex-1 flex items-center gap-2 min-w-0">
+                  <div className="relative flex-1 min-w-0">
+                    <input 
+                      name="website"
+                      type="text" 
+                      placeholder="เช่น www.example.com หรือ https://..." 
+                      value={formData.website || ''} 
+                      onChange={handleInputChange} 
+                      className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 focus:shadow-sm"
+                    />
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                  </div>
+                  {formData.website?.trim() && (
+                    <a
+                      href={formatExternalUrl(formData.website)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 border border-blue-200 rounded-xl text-xs font-semibold shadow-sm transition-all duration-200 shrink-0"
+                      title="เปิดเว็บไซต์ในแท็บใหม่"
+                    >
+                      <ExternalLink size={14} />
+                      <span className="hidden sm:inline">เปิดเว็บ</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Google Maps Location */}
+              <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 w-full">
+                <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-gray-600 ml-1 md:ml-0 shrink-0">
+                  Google Maps :
+                </label>
+                <div className="flex-1 flex items-center gap-2 min-w-0">
+                  <div className="relative flex-1 min-w-0">
+                    <input 
+                      name="googleMapUrl"
+                      type="text" 
+                      placeholder="เช่น https://maps.app.goo.gl/..." 
+                      value={formData.googleMapUrl || ''} 
+                      onChange={handleInputChange} 
+                      className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 focus:shadow-sm"
+                    />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none" size={16} />
+                  </div>
+                  {formData.googleMapUrl?.trim() ? (
+                    <a
+                      href={formatExternalUrl(formData.googleMapUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200 rounded-xl text-xs font-semibold shadow-sm transition-all duration-200 shrink-0"
+                      title="เปิดพิกัดแผนที่ Google Maps ในแท็บใหม่"
+                    >
+                      <ExternalLink size={14} />
+                      <span className="hidden sm:inline">เปิดแผนที่</span>
+                    </a>
+                  ) : formData.companyName?.trim() ? (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formData.companyName.trim())}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-800 border border-slate-200 rounded-xl text-xs font-medium transition-all duration-200 shrink-0"
+                      title="ค้นหาชื่อบริษัทนี้บน Google Maps ในแท็บใหม่"
+                    >
+                      <ExternalLink size={14} />
+                      <span className="hidden sm:inline">ค้นหาในแมพ</span>
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+
               <hr className="border-gray-100" />
               <SelectField name="customerType" label="ประเภทลูกค้า :" options={['USER', 'MAKER', 'TRADING', 'อื่นๆ']} value={formData.customerType} onChange={handleInputChange} />
               <SelectField name="customerStatus" label="สถานะลูกค้า :" options={['ลูกค้าใหม่', 'ลูกค้าเก่า', 'ลูกค้าเป้าหมาย']} value={formData.customerStatus} onChange={handleInputChange} />

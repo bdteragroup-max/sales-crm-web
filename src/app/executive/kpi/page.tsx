@@ -183,8 +183,10 @@ export default async function TeamKPIDashboard(props: {searchParams: Promise<{[k
   const staleDeals = activePipelineQuotes
     .filter(q => q.createdAt < thirtyDaysAgo)
     .map(q => ({
+      id: q.id,
       quotationNumber: q.quotationNumber,
       companyName: q.company?.companyName || 'ไม่ระบุบริษัท',
+      amount: q.totalAmountBeforeVat || 0,
       days: Math.floor((new Date().getTime() - q.createdAt.getTime()) / (1000 * 3600 * 24))
     }))
     .sort((a, b) => b.days - a.days);

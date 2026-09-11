@@ -48,6 +48,10 @@ export async function saveTelesaleData(formData: FormData) {
     const phoneNumber = formData.get("phoneNumber") as string;
     const customerType = formData.get("customerType") as string;
     const customerStatus = formData.get("customerStatus") as string;
+    const websiteRaw = formData.get("website");
+    const website = websiteRaw !== null ? (websiteRaw as string).trim() || null : undefined;
+    const googleMapUrlRaw = formData.get("googleMapUrl");
+    const googleMapUrl = googleMapUrlRaw !== null ? (googleMapUrlRaw as string).trim() || null : undefined;
     const forwardTo = formData.get("forwardTo") as string;
     const conversationSummary = formData.get("conversationSummary") as string;
 
@@ -103,6 +107,8 @@ export async function saveTelesaleData(formData: FormData) {
           companyName,
           customerType,
           customerStatus,
+          website: website ?? null,
+          googleMapUrl: googleMapUrl ?? null,
         },
       });
     } else {
@@ -111,6 +117,8 @@ export async function saveTelesaleData(formData: FormData) {
         data: {
           customerType: customerType || company.customerType,
           customerStatus: customerStatus || company.customerStatus,
+          ...(website !== undefined && { website }),
+          ...(googleMapUrl !== undefined && { googleMapUrl }),
         },
       });
     }
@@ -229,6 +237,10 @@ export async function updateTelesaleData(id: string, formData: FormData) {
     const phoneNumber = formData.get("phoneNumber") as string;
     const customerType = formData.get("customerType") as string;
     const customerStatus = formData.get("customerStatus") as string;
+    const websiteRaw = formData.get("website");
+    const website = websiteRaw !== null ? (websiteRaw as string).trim() || null : undefined;
+    const googleMapUrlRaw = formData.get("googleMapUrl");
+    const googleMapUrl = googleMapUrlRaw !== null ? (googleMapUrlRaw as string).trim() || null : undefined;
     const forwardTo = formData.get("forwardTo") as string;
     const conversationSummary = formData.get("conversationSummary") as string;
     const needsOrProblems = formData.get("needsOrProblems") as string;
@@ -278,12 +290,23 @@ export async function updateTelesaleData(id: string, formData: FormData) {
 
     if (!company) {
       company = await prisma.company.create({
-        data: { companyName, customerType, customerStatus },
+        data: { 
+          companyName, 
+          customerType, 
+          customerStatus,
+          website: website ?? null,
+          googleMapUrl: googleMapUrl ?? null,
+        },
       });
     } else {
       await prisma.company.update({
         where: { id: company.id },
-        data: { customerType, customerStatus },
+        data: { 
+          customerType, 
+          customerStatus,
+          ...(website !== undefined && { website }),
+          ...(googleMapUrl !== undefined && { googleMapUrl }),
+        },
       });
     }
 

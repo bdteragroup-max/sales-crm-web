@@ -156,7 +156,11 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   }
 
   if (outcome) {
-    searchFilter.callOutcome = outcome;
+    if (outcome === 'ติดตามภายหลัง' || outcome === 'โทรกลับภายหลัง') {
+      searchFilter.callOutcome = { in: ['ติดตามภายหลัง', 'โทรกลับภายหลัง'] };
+    } else {
+      searchFilter.callOutcome = outcome;
+    }
   }
 
   if (isManager && salespersonId) {
