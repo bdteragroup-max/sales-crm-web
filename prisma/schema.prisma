@@ -68,7 +68,12 @@ model User {
   materialApprovals       MaterialRequisition[]   @relation("MaterialApprover")
   materialRequests        MaterialRequisition[]   @relation("MaterialRequester")
   bdMemberProjects        BDProject[]             @relation("BDProjectMembers")
-  technicianOrders        Order[]                 @relation("OrderTechnicians")
+  technicianOrders            Order[]                 @relation("OrderTechnicians")
+  marketingRequestsRequested  MarketingRequest[]      @relation("MarketingRequestRequester")
+  marketingRequestsAssigned   MarketingRequest[]      @relation("MarketingRequestAssignee")
+  marketingRequestsAssignedBy MarketingRequest[]      @relation("MarketingRequestAssigner")
+  marketingRequestComments    MarketingRequestComment[]
+  marketingRequestLogs        MarketingRequestLog[]
 }
 
 model MonthlyTarget {
@@ -2465,6 +2470,7 @@ model KanbanCard {
   attachments          KanbanAttachment[]
   list                 KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
   comments             KanbanComment[]
+  marketingRequests    MarketingRequest[]
 
   @@index([listId])
   @@index([assignedToId])
@@ -3351,6 +3357,10 @@ model MarketingRequest {
   kanbanCardId           String?
   createdAt              DateTime                     @default(now()) @db.Timestamptz(6)
   updatedAt              DateTime                     @default(now()) @updatedAt @db.Timestamptz(6)
+  requester              User                         @relation("MarketingRequestRequester", fields: [requesterId], references: [id])
+  assignedTo             User?                        @relation("MarketingRequestAssignee", fields: [assignedToId], references: [id])
+  assignedBy             User?                        @relation("MarketingRequestAssigner", fields: [assignedById], references: [id])
+  kanbanCard             KanbanCard?                  @relation(fields: [kanbanCardId], references: [id])
   attachments            MarketingRequestAttachment[]
   comments               MarketingRequestComment[]
   logs                   MarketingRequestLog[]
@@ -3385,8 +3395,10 @@ model MarketingRequestComment {
   createdAt  DateTime         @default(now()) @db.Timestamptz(6)
   updatedAt  DateTime         @default(now()) @updatedAt @db.Timestamptz(6)
   request    MarketingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user       User             @relation(fields: [userId], references: [id])
 
   @@index([requestId])
+  @@index([userId])
 }
 
 model MarketingRequestLog {
@@ -3397,8 +3409,10 @@ model MarketingRequestLog {
   details    String?
   createdAt  DateTime         @default(now()) @db.Timestamptz(6)
   request    MarketingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user       User?            @relation(fields: [userId], references: [id])
 
   @@index([requestId])
+  @@index([userId])
 }
 
 model MarketingAnnouncement {
