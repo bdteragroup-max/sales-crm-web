@@ -61,10 +61,15 @@ export default async function ExecutiveServicePage(props: { searchParams?: Promi
     previousEndDate = new Date(2000, 0, 1);
   }
 
-  // Fetch all jobs in the selected timeframe (includes repair and service)
+  // Fetch all jobs in the selected timeframe (includes repair, service, inspection, claim)
   const currentPeriodJobs = await prisma.job.findMany({
     where: {
-      OR: [{ jobType: { contains: "ซ่อม" } }, { jobType: { contains: "บริการ" } }],
+      OR: [
+        { jobType: { contains: "ซ่อม" } }, 
+        { jobType: { contains: "บริการ" } },
+        { jobType: { contains: "ตรวจเช็ค" } },
+        { jobType: { contains: "เคลม" } }
+      ],
       createdAt: { gte: startDate, lte: endDate },
     },
     include: {
@@ -80,17 +85,27 @@ export default async function ExecutiveServicePage(props: { searchParams?: Promi
 
   const previousPeriodJobs = await prisma.job.findMany({
     where: {
-      OR: [{ jobType: { contains: "ซ่อม" } }, { jobType: { contains: "บริการ" } }],
+      OR: [
+        { jobType: { contains: "ซ่อม" } }, 
+        { jobType: { contains: "บริการ" } },
+        { jobType: { contains: "ตรวจเช็ค" } },
+        { jobType: { contains: "เคลม" } }
+      ],
       createdAt: { gte: previousStartDate, lte: previousEndDate },
     },
     select: { id: true, currentStep: true, dateClosed: true, createdAt: true },
   });
 
-  // Fetch all pending jobs (unclosed) regardless of start date, but for SLA we mainly care about all currently open
+  // Fetch all pending jobs (unclosed) regardless of start date
   const allPendingJobs = await prisma.job.findMany({
     where: {
-      OR: [{ jobType: { contains: "ซ่อม" } }, { jobType: { contains: "บริการ" } }],
-      currentStep: { not: "closed" },
+      OR: [
+        { jobType: { contains: "ซ่อม" } }, 
+        { jobType: { contains: "บริการ" } },
+        { jobType: { contains: "ตรวจเช็ค" } },
+        { jobType: { contains: "เคลม" } }
+      ],
+      currentStep: { notIn: ["closed", "service_return", "accounting", "delivery"] },
     },
     include: {
       quotation: true,
@@ -121,7 +136,7 @@ export default async function ExecutiveServicePage(props: { searchParams?: Promi
   // Pending installations (for SLA)
   const allPendingInstallations = await prisma.installationOrder.findMany({
     where: {
-      status: { notIn: ["Completed", "ติดตั้งเสร็จสิ้น", "Cancelled"] },
+      status: { notIn: ["Completed", "ติดตั้งเสร็จสิ้น", "ปิด Job - ติดตั้งเสร็จสิ้น", "Cancelled", "ยกเลิก"] },
     },
     include: { job: true },
   });

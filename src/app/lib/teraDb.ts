@@ -29,9 +29,9 @@ const prismaClientSingleton = () => {
 
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 3, // Prevents exhausting PostgreSQL server connection limits
-    idleTimeoutMillis: 10000, // 10s before dropping idle connection
-    connectionTimeoutMillis: 15000, // 15s to establish connection
+    max: 10, // Increased from 3 to 10 to prevent connection timeouts
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 30000,
     keepAlive: true,
     keepAliveInitialDelayMillis: 10000,
   })
@@ -45,8 +45,8 @@ const prismaClientSingleton = () => {
   return new PrismaClient({ adapter })
 }
 
-const globalForTera = global as unknown as { tera_instance_v4: ReturnType<typeof prismaClientSingleton> }
-export const teraDb = globalForTera.tera_instance_v4 ?? prismaClientSingleton()
+const globalForTera = global as unknown as { tera_instance_v5: ReturnType<typeof prismaClientSingleton> }
+export const teraDb = globalForTera.tera_instance_v5 ?? prismaClientSingleton()
 
-globalForTera.tera_instance_v4 = teraDb
+globalForTera.tera_instance_v5 = teraDb
 

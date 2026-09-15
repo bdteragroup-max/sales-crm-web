@@ -46,7 +46,20 @@ export default function AdsCampaignTable({ data }: { data: DashboardData }) {
 
               return (
                 <tr key={row.internalId} className="hover:bg-gray-50 even:bg-gray-50/50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{row.campaignName}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span>{row.campaignName}</span>
+                      {row.budgetStrategy === 'CBO' ? (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 whitespace-nowrap">
+                          CBO — Campaign Budget
+                        </span>
+                      ) : (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                          ABO — Ad Set Budget
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{row.channelName}</td>
                   <td className="px-4 py-3 text-right tabular-nums text-gray-700">{formatMetric(row.budget, 'thb')}</td>
                   <td className={`px-4 py-3 text-right tabular-nums ${isOverBudget ? 'bg-red-50 text-red-700 font-medium' : 'text-gray-700'}`}>

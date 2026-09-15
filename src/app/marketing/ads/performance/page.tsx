@@ -21,6 +21,8 @@ export default async function PerformancePage() {
   })).map(c => ({
     ...c,
     budget: c.budget ? c.budget.toNumber() : 0,
+    campaignBudget: c.campaignBudget ? c.campaignBudget.toNumber() : (c.campaign_budget ? c.campaign_budget.toNumber() : (c.budget ? c.budget.toNumber() : 0)),
+    campaign_budget: c.campaign_budget ? c.campaign_budget.toNumber() : (c.campaignBudget ? c.campaignBudget.toNumber() : (c.budget ? c.budget.toNumber() : 0)),
     branch: c.branch ? {
       ...c.branch,
       center_lat: c.branch.center_lat ? c.branch.center_lat.toNumber() : null,

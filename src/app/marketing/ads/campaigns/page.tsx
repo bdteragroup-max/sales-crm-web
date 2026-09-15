@@ -20,6 +20,8 @@ export default async function CampaignsPage() {
   })).map(c => ({
     ...c,
     budget: c.budget ? c.budget.toNumber() : 0,
+    campaignBudget: c.campaignBudget ? c.campaignBudget.toNumber() : (c.campaign_budget ? c.campaign_budget.toNumber() : (c.budget ? c.budget.toNumber() : 0)),
+    campaign_budget: c.campaign_budget ? c.campaign_budget.toNumber() : (c.campaignBudget ? c.campaignBudget.toNumber() : (c.budget ? c.budget.toNumber() : 0)),
     branch: c.branch ? {
       ...c.branch,
       center_lat: c.branch.center_lat ? c.branch.center_lat.toNumber() : null,
@@ -41,7 +43,12 @@ export default async function CampaignsPage() {
   })).map(p => ({ 
     ...p, 
     spend: p.spend ? p.spend.toNumber() : 0,
-    campaign: p.campaign ? { ...p.campaign, budget: p.campaign.budget ? p.campaign.budget.toNumber() : 0 } : null
+    campaign: p.campaign ? { 
+      ...p.campaign, 
+      budget: p.campaign.budget ? p.campaign.budget.toNumber() : 0,
+      campaignBudget: p.campaign.campaignBudget ? p.campaign.campaignBudget.toNumber() : (p.campaign.campaign_budget ? p.campaign.campaign_budget.toNumber() : 0),
+      campaign_budget: p.campaign.campaign_budget ? p.campaign.campaign_budget.toNumber() : (p.campaign.campaignBudget ? p.campaign.campaignBudget.toNumber() : 0)
+    } : null
   }))
 
   const branches = branchesData.map(b => ({

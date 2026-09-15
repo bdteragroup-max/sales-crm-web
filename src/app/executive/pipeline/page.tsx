@@ -8,47 +8,68 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
   const searchParams = await props.searchParams;
   const filterPeriod = typeof searchParams.period === 'string' ? searchParams.period : 'รายเดือน';
   
-  // Date filtering logic based on period
-  // (รายเดือน, รายไตรมาส, รายปี)
   const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
-  let startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-  let endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
-  let targetMonths = [today.getMonth() + 1];
+  const month = typeof searchParams.month === 'string' ? parseInt(searchParams.month) : today.getMonth() + 1;
+  const year = typeof searchParams.year === 'string' ? parseInt(searchParams.year) : today.getFullYear();
+  
+  // Date filtering logic based on period
+  let startDate = new Date(year, month - 1, 1);
+  let endDate = new Date(year, month, 0, 23, 59, 59, 999);
+  let targetMonths = [month];
 
   if (filterPeriod === 'รายไตรมาส') {
-    const quarter = Math.floor(today.getMonth() / 3);
-    startDate = new Date(today.getFullYear(), quarter * 3, 1);
-    endDate = new Date(today.getFullYear(), quarter * 3 + 3, 0, 23, 59, 59, 999);
+    const quarter = Math.floor((month - 1) / 3);
+    startDate = new Date(year, quarter * 3, 1);
+    endDate = new Date(year, quarter * 3 + 3, 0, 23, 59, 59, 999);
     targetMonths = [quarter * 3 + 1, quarter * 3 + 2, quarter * 3 + 3];
   } else if (filterPeriod === 'รายปี') {
-    startDate = new Date(today.getFullYear(), 0, 1);
-    endDate = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999);
+    startDate = new Date(year, 0, 1);
+    endDate = new Date(year, 11, 31, 23, 59, 59, 999);
     targetMonths = Array.from({length: 12}, (_, i) => i + 1);
   }
 
   // 1. Fetch Target for the period
   const monthlyTargets = await prisma.monthlyTarget.aggregate({
     _sum: { amount: true },
-    where: { year: today.getFullYear(), month: { in: targetMonths } }
+    where: { year, month: { in: targetMonths } }
   });
   const target = monthlyTargets._sum.amount || 0;
 
-  // 2. Fetch Sales Closed in the period
+  // 2. Fetch Sales Closed in the period (All Won quotes: เปิดบิลแล้ว or PO...)
+  // Uses createdAt to match /executive/kpi
   const closedQuotes = await prisma.quotation.findMany({
     where: {
-      status: { in: ['เปิดบิลแล้ว', 'PO แล้วรอสินค้า'] },
-      updatedAt: { gte: startDate, lte: endDate }
+      OR: [
+        { status: 'เปิดบิลแล้ว' },
+        { status: { startsWith: 'PO' } }
+      ],
+      createdAt: { gte: startDate, lte: endDate }
     },
     select: { actualClosingAmount: true, totalAmountBeforeVat: true }
   });
   const closedSales = closedQuotes.reduce((sum, q) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
 
-  // 3. Fetch All Active Quotes (for pipeline analysis)
+  // 3. Fetch All Active & Won Quotes (Active pipeline: รอจัดทำ PO, รอใบประเมินราคา, เสนอราคา, ความสนใจ)
+  const ACTIVE_PIPELINE_STATUSES = ['รอจัดทำ PO', 'รอใบประเมินราคา', 'เสนอราคา', 'ความสนใจ'];
   const allActiveQuotes = await prisma.quotation.findMany({
     where: {
-      NOT: { status: { in: ['ปฏิเสธ-อื่นๆ', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ยกเลิก-Revise', 'ชะลอโครงการ', 'ช่วงนี้ยังไม่ได้ใช้'] } }
+      OR: [
+        { status: { in: ACTIVE_PIPELINE_STATUSES } },
+        { status: 'เปิดบิลแล้ว' },
+        { status: { startsWith: 'PO' } }
+      ]
     },
-    select: { id: true, status: true, totalAmountBeforeVat: true, createdAt: true, updatedAt: true, quotationNumber: true, company: { select: { companyName: true } }, salesperson: { select: { fullName: true } } }
+    select: { 
+      id: true, 
+      status: true, 
+      totalAmountBeforeVat: true, 
+      actualClosingAmount: true,
+      createdAt: true, 
+      updatedAt: true, 
+      quotationNumber: true, 
+      company: { select: { companyName: true } }, 
+      salesperson: { select: { fullName: true } } 
+    }
   });
 
   let totalPipeline = 0;
@@ -68,9 +89,11 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
 
   allActiveQuotes.forEach(q => {
     const val = q.totalAmountBeforeVat || 0;
+    const isWon = q.status === 'เปิดบิลแล้ว' || q.status.startsWith('PO');
     
-    if (['เปิดบิลแล้ว', 'PO แล้วรอสินค้า'].includes(q.status)) {
-      count100++; amount100 += val;
+    if (isWon) {
+      count100++; 
+      amount100 += val;
       // Velocity calculation (Only for closed deals)
       if (q.createdAt && q.updatedAt) {
         const days = Math.max(1, Math.floor((q.updatedAt.getTime() - q.createdAt.getTime()) / (1000 * 3600 * 24)));
@@ -82,11 +105,12 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
       
       // Calculate age of update (Stalled deals)
       const daysStalled = Math.floor((now - q.updatedAt.getTime()) / (1000 * 3600 * 24));
-      if (daysStalled > 30) {
+      if (daysStalled > 30 && q.status !== '' && (val > 0 || q.quotationNumber)) {
         stalledDealsList.push({
           id: q.id,
-          company: q.company?.companyName || 'Unknown',
-          salesperson: q.salesperson?.fullName || 'Unknown',
+          quotationNumber: q.quotationNumber || 'ไม่ระบุเลขที่',
+          company: q.company?.companyName || 'ไม่ระบุบริษัท',
+          salesperson: q.salesperson?.fullName || 'ไม่ระบุผู้ดูแล',
           status: q.status,
           amount: val,
           daysStalled
@@ -94,16 +118,16 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
       }
 
       // Weighted Forecast Categories
-      if (['รอจัดทำ PO'].includes(q.status)) {
+      if (q.status === 'รอจัดทำ PO') {
         count80++; amount80 += val;
         weightedForecast += val * 0.8;
-      } else if (['รอใบประเมินราคา'].includes(q.status)) {
+      } else if (q.status === 'รอใบประเมินราคา') {
         count60++; amount60 += val;
         weightedForecast += val * 0.6;
-      } else if (['เสนอราคา'].includes(q.status)) {
+      } else if (q.status === 'เสนอราคา') {
         count30++; amount30 += val;
         weightedForecast += val * 0.3;
-      } else if (['ความสนใจ'].includes(q.status)) {
+      } else if (q.status === 'ความสนใจ') {
         count10++; amount10 += val;
         weightedForecast += val * 0.1;
       }
@@ -117,8 +141,6 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
   const coverageRatio = gapToTarget > 0 ? (totalPipeline / gapToTarget) : (totalPipeline > 0 ? 99.9 : 0);
 
   // Stage conversion for current period
-  // We fetch actual companies that are "unassigned" as our top-of-funnel "Leads"
-  // The user requested this to match the total unassigned clients pool, so we remove the date filter
   const unassignedWhere = {
     assignedUserId: null,
     quotations: { none: { salesperson: { isActive: true } } },
@@ -129,7 +151,13 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
   
   const unassignedLeadsListRaw = await prisma.company.findMany({
     where: unassignedWhere,
-    select: { id: true, companyName: true, createdAt: true },
+    select: { 
+      id: true, 
+      companyName: true, 
+      province: true,
+      customerType: true,
+      createdAt: true 
+    },
     orderBy: { createdAt: 'desc' },
     take: 50 // Limit to 50 for the list display
   });
@@ -137,14 +165,20 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
   const unassignedLeadsList = unassignedLeadsListRaw.map(c => ({
     id: c.id,
     company: c.companyName,
+    province: c.province || 'ไม่ระบุจังหวัด',
+    customerType: c.customerType || 'ลูกค้าทั่วไป',
     daysSinceCreated: Math.floor((now - c.createdAt.getTime()) / (1000 * 3600 * 24))
   }));
+
   const telesalesCount = await prisma.telesale.count({ where: { createdAt: { gte: startDate, lte: endDate } } });
   const quotesCreated = await prisma.quotation.count({ where: { createdAt: { gte: startDate, lte: endDate } } });
   const poCreated = await prisma.quotation.count({ 
     where: { 
-      status: { in: ['เปิดบิลแล้ว', 'PO แล้วรอสินค้า'] },
-      updatedAt: { gte: startDate, lte: endDate } 
+      OR: [
+        { status: 'เปิดบิลแล้ว' },
+        { status: { startsWith: 'PO' } }
+      ],
+      createdAt: { gte: startDate, lte: endDate } 
     } 
   });
   
@@ -158,7 +192,7 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
   const lostQuotes = await prisma.quotation.findMany({
     where: { 
       status: { in: ['ปฏิเสธ-อื่นๆ', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ยกเลิก-Revise', 'ชะลอโครงการ', 'ช่วงนี้ยังไม่ได้ใช้'] },
-      updatedAt: { gte: startDate, lte: endDate }
+      createdAt: { gte: startDate, lte: endDate }
     },
     select: { totalAmountBeforeVat: true }
   });
@@ -168,6 +202,9 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
   const startAmount = Math.max(0, totalPipeline - newAdded + closedSales + lostAmount);
 
   const data = {
+    month,
+    year,
+    filterPeriod,
     executiveSummary: {
       target,
       closedSales,

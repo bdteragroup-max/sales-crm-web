@@ -45,9 +45,10 @@ import {
   Globe,
   ChevronUp,
   UploadCloud,
-  FileSpreadsheet
+  FileSpreadsheet,
+  History
 } from 'lucide-react'
-import { createCampaign, updateCampaign, deleteCampaign, importCampaignsBatch } from '@/app/actions/ads-campaigns'
+import { createCampaign, updateCampaign, deleteCampaign, importCampaignsBatch, getCampaignBudgetHistory } from '@/app/actions/ads-campaigns'
 import {
   getCreativesList,
   uploadCreativeToObjectStorage,
@@ -134,6 +135,27 @@ export default function CampaignsClient({
     onConfirm: () => void
   }>({ isOpen: false, message: '', onConfirm: () => { } })
 
+  // Strategy Switch Confirmation Modal
+  const [strategySwitchModal, setStrategySwitchModal] = useState<{
+    isOpen: boolean
+    targetStrategy: 'ABO' | 'CBO'
+  }>({ isOpen: false, targetStrategy: 'CBO' })
+
+  // Budget History Modal State
+  const [budgetHistoryModal, setBudgetHistoryModal] = useState<{
+    isOpen: boolean
+    campaignId: string
+    campaignName: string
+    loading: boolean
+    history: any[]
+  }>({
+    isOpen: false,
+    campaignId: '',
+    campaignName: '',
+    loading: false,
+    history: []
+  })
+
   // 4 ส่วนงานหลัก / Subtab Navigation
   const [mainTab, setMainTab] = useState<'setup' | 'performance' | 'crm' | 'dashboard'>('setup')
   const [subTab, setSubTab] = useState<'info' | 'adsets' | 'creative'>('info')
@@ -155,6 +177,9 @@ export default function CampaignsClient({
     status: 'ACTIVE',
     notes: '',
     budgetStrategy: 'ABO' as 'ABO' | 'CBO',
+    budgetType: 'DAILY' as 'DAILY' | 'LIFETIME',
+    currency: 'THB',
+    budgetNotes: '',
     budget: '',
     startDate: '',
     endDate: '',
@@ -189,18 +214,18 @@ export default function CampaignsClient({
 
   // Helper to parse adSets and budgetStrategy from campaign record
   const getParsedCampaignData = (c: any): CampaignData => {
+    let strat: 'ABO' | 'CBO' = (c.budgetStrategy || c.budget_strategy || 'ABO').toString().toUpperCase().includes('CBO') ? 'CBO' : 'ABO'
+    let sets: AdSetItem[] = []
     try {
       if (c.targetAudience && c.targetAudience.startsWith('{')) {
         const parsed = JSON.parse(c.targetAudience)
-        return {
-          budgetStrategy: parsed.budgetStrategy || 'ABO',
-          adSets: Array.isArray(parsed.adSets) ? parsed.adSets : []
-        }
+        if (parsed.budgetStrategy) strat = parsed.budgetStrategy
+        if (Array.isArray(parsed.adSets)) sets = parsed.adSets
       }
     } catch { }
     return {
-      budgetStrategy: (c.targetAudience as any) || 'ABO',
-      adSets: []
+      budgetStrategy: strat,
+      adSets: sets
     }
   }
 
@@ -274,6 +299,69 @@ export default function CampaignsClient({
     return `${prefix}${seq}`
   }
 
+  // Smart Campaign Name generator: [Channel]_[Product]_[YYYYMM]_[Objective]
+  const generateSmartCampaignName = () => {
+    const channelObj = channels?.find((ch: any) => ch.id === formData.channelId)
+    const chName = channelObj?.name ? channelObj.name.replace(/\s+/g, '') : 'Meta'
+    let prodCode = 'General'
+    const p = (formData.productCategory || '').toLowerCase().trim()
+    if (p === 'inverter veichi') prodCode = 'INV-Veichi'
+    else if (p === 'inverter other') prodCode = 'INV-Other'
+    else if (p.includes('inverter')) prodCode = 'Inverter'
+    else if (p.includes('motor')) prodCode = 'Motor'
+    else if (p === 'solar pump') prodCode = 'SolarPump'
+    else if (p === 'solar roof') prodCode = 'SolarRoof'
+    else if (p) prodCode = formData.productCategory.replace(/\s+/g, '')
+
+    const dateObj = formData.startDate ? new Date(formData.startDate) : new Date()
+    const yyyymm = `${dateObj.getFullYear()}${String(dateObj.getMonth() + 1).padStart(2, '0')}`
+
+    const objObj = objectives?.find((o: any) => o.id === formData.objectiveId)
+    const objName = objObj?.name ? objObj.name.replace(/\s+/g, '') : 'Lead'
+
+    return `${chName}_${prodCode}_${yyyymm}_${objName}`
+  }
+
+  // Quick Date Duration Setter
+  const handleSetDurationPreset = (days: number | 'month_end') => {
+    const start = formData.startDate ? new Date(formData.startDate) : new Date()
+    const yyyy = start.getFullYear()
+    const mm = String(start.getMonth() + 1).padStart(2, '0')
+    const dd = String(start.getDate()).padStart(2, '0')
+    const startStr = `${yyyy}-${mm}-${dd}`
+
+    let endStr = ''
+    if (days === 'month_end') {
+      const end = new Date(start.getFullYear(), start.getMonth() + 1, 0)
+      const eY = end.getFullYear()
+      const eM = String(end.getMonth() + 1).padStart(2, '0')
+      const eD = String(end.getDate()).padStart(2, '0')
+      endStr = `${eY}-${eM}-${eD}`
+    } else {
+      const end = new Date(start)
+      end.setDate(start.getDate() + days)
+      const eY = end.getFullYear()
+      const eM = String(end.getMonth() + 1).padStart(2, '0')
+      const eD = String(end.getDate()).padStart(2, '0')
+      endStr = `${eY}-${eM}-${eD}`
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      startDate: prev.startDate || startStr,
+      endDate: endStr
+    }))
+    setIsDirty(true)
+  }
+
+  // Quick Budget increment for CBO
+  const handleAddBudgetIncrement = (amount: number) => {
+    const current = parseFloat(formData.budget) || 0
+    const next = Math.max(0, current + amount)
+    setFormData(prev => ({ ...prev, budget: next.toString() }))
+    setIsDirty(true)
+  }
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -298,6 +386,8 @@ export default function CampaignsClient({
 
   const handleEdit = (campaign: any) => {
     const parsedData = getParsedCampaignData(campaign)
+    const strategy = parsedData.budgetStrategy || campaign.budgetStrategy || campaign.budget_strategy || 'ABO'
+    const bType = campaign.budgetType || campaign.budget_type || 'DAILY'
     setFormData({
       id: campaign.id,
       channelId: campaign.channelId || '',
@@ -310,8 +400,11 @@ export default function CampaignsClient({
       internalCode: campaign.internalCode || '',
       status: campaign.status || 'ACTIVE',
       notes: campaign.notes || '',
-      budgetStrategy: parsedData.budgetStrategy,
-      budget: campaign.budget ? campaign.budget.toString() : '',
+      budgetStrategy: strategy,
+      budgetType: bType,
+      currency: campaign.currency || 'THB',
+      budgetNotes: campaign.budgetNotes || '',
+      budget: campaign.budget ? campaign.budget.toString() : (campaign.campaignBudget ? campaign.campaignBudget.toString() : ''),
       startDate: campaign.startDate ? new Date(campaign.startDate).toISOString().split('T')[0] : '',
       endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : '',
       targetAudience: campaign.targetAudience || '',
@@ -327,6 +420,8 @@ export default function CampaignsClient({
 
   const handleDuplicate = (campaign: any) => {
     const parsedData = getParsedCampaignData(campaign)
+    const strategy = parsedData.budgetStrategy || campaign.budgetStrategy || campaign.budget_strategy || 'ABO'
+    const bType = campaign.budgetType || campaign.budget_type || 'DAILY'
     const newCode = generateCampaignCode(campaign.channelId || '', campaign.productCategory || '', '')
     setFormData({
       id: '',
@@ -340,8 +435,11 @@ export default function CampaignsClient({
       internalCode: newCode,
       status: 'DRAFT',
       notes: campaign.notes || '',
-      budgetStrategy: parsedData.budgetStrategy,
-      budget: campaign.budget ? campaign.budget.toString() : '',
+      budgetStrategy: strategy,
+      budgetType: bType,
+      currency: campaign.currency || 'THB',
+      budgetNotes: campaign.budgetNotes || '',
+      budget: campaign.budget ? campaign.budget.toString() : (campaign.campaignBudget ? campaign.campaignBudget.toString() : ''),
       startDate: campaign.startDate ? new Date(campaign.startDate).toISOString().split('T')[0] : '',
       endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : '',
       targetAudience: campaign.targetAudience || '',
@@ -377,14 +475,76 @@ export default function CampaignsClient({
     })
   }
 
+  // Strategy Switch Handlers
+  const handleStrategyChange = (newStrat: 'ABO' | 'CBO') => {
+    if (newStrat === formData.budgetStrategy) return
+    setStrategySwitchModal({
+      isOpen: true,
+      targetStrategy: newStrat
+    })
+  }
+
+  const handleConfirmStrategySwitch = () => {
+    const nextStrat = strategySwitchModal.targetStrategy
+    setFormData(prev => ({
+      ...prev,
+      budgetStrategy: nextStrat
+    }))
+    if (nextStrat === 'CBO') {
+      // In CBO, ad sets' individual budget is auto-allocated by Facebook
+      setFormAdSets(prev => prev.map(s => ({ ...s, budget: 0, dailyBudget: 0 })))
+    }
+    setIsDirty(true)
+    setStrategySwitchModal(prev => ({ ...prev, isOpen: false }))
+  }
+
+  const handleOpenBudgetHistory = async (campId: string, campName: string) => {
+    setBudgetHistoryModal({
+      isOpen: true,
+      campaignId: campId,
+      campaignName: campName,
+      loading: true,
+      history: []
+    })
+    try {
+      const res = await getCampaignBudgetHistory(campId)
+      if (res.success && res.data) {
+        setBudgetHistoryModal(prev => ({ ...prev, loading: false, history: res.data }))
+      } else {
+        setBudgetHistoryModal(prev => ({ ...prev, loading: false, history: [] }))
+      }
+    } catch {
+      setBudgetHistoryModal(prev => ({ ...prev, loading: false, history: [] }))
+    }
+  }
+
+  // Active ad sets
+  const activeAdSets = useMemo(() => {
+    return formAdSets.filter(s => (s.status || 'ACTIVE') === 'ACTIVE')
+  }, [formAdSets])
+
+  const activeAdSetsBudgetSum = useMemo(() => {
+    return activeAdSets.reduce((sum, item) => sum + (Number(item.budget) || 0), 0)
+  }, [activeAdSets])
+
   // Calculate allocated budget from current form ad sets
   const formAllocatedBudget = useMemo(() => {
     return formAdSets.reduce((sum, item) => sum + (Number(item.budget) || 0), 0)
   }, [formAdSets])
 
-  const plannedBudgetNum = parseFloat(formData.budget) || 0
-  const isOverBudget = plannedBudgetNum > 0 && formAllocatedBudget > plannedBudgetNum
+  const isCBO = formData.budgetStrategy === 'CBO'
+  const plannedBudgetNum = isCBO ? (parseFloat(formData.budget) || 0) : activeAdSetsBudgetSum
+  const isOverBudget = !isCBO && plannedBudgetNum > 0 && formAllocatedBudget > plannedBudgetNum
   const budgetRatio = plannedBudgetNum > 0 ? (formAllocatedBudget / plannedBudgetNum) * 100 : 0
+
+  const durationDays = useMemo(() => {
+    if (!formData.startDate || !formData.endDate) return null
+    const s = new Date(formData.startDate)
+    const e = new Date(formData.endDate)
+    const diffTime = e.getTime() - s.getTime()
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays >= 0 ? diffDays : null
+  }, [formData.startDate, formData.endDate])
 
   // Required fields check with Thai names
   const missingFields: string[] = []
@@ -394,9 +554,15 @@ export default function CampaignsClient({
   if (!formData.objectiveId) missingFields.push('วัตถุประสงค์ (Objective)')
   if (!formData.name.trim()) missingFields.push('ชื่อแคมเปญ (Campaign Name)')
   if (!formData.campaignId.trim()) missingFields.push('รหัสบนแพลตฟอร์ม (Platform ID)')
-  if (!formData.budget || plannedBudgetNum <= 0) missingFields.push('งบประมาณ (Planned Budget)')
+  if (isCBO) {
+    if (!formData.budget || plannedBudgetNum <= 0) missingFields.push('งบประมาณแคมเปญ (Campaign Budget > 0)')
+    if (formData.budgetType === 'LIFETIME' && !formData.endDate) missingFields.push('วันที่สิ้นสุด (End Date สำหรับ Lifetime Budget)')
+  } else {
+    if (activeAdSets.length === 0) missingFields.push('ชุดโฆษณาที่เปิดใช้งาน (Active Ad Set อย่างน้อย 1 ชุด)')
+    const hasInvalidAdSet = activeAdSets.some(s => !s.budget || Number(s.budget) <= 0)
+    if (hasInvalidAdSet) missingFields.push('งบประมาณทุกชุดโฆษณา Active (> 0)')
+  }
   if (!formData.startDate) missingFields.push('วันที่เริ่มต้น (Start Date)')
-  if (!formData.endDate) missingFields.push('วันที่สิ้นสุด (End Date)')
 
   const isFormComplete = missingFields.length === 0
 
@@ -405,17 +571,47 @@ export default function CampaignsClient({
     setSuccessMsg('')
 
     if (isViewer) return
-    if (!formData.channelId || !formData.name || !formData.campaignId || !formData.budget) {
+    if (!formData.channelId || !formData.name || !formData.campaignId) {
       setError('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน')
       return
     }
 
+    if (isCBO) {
+      if (plannedBudgetNum <= 0) {
+        setError('กรุณาระบุงบประมาณแคมเปญ (Campaign Budget) ให้มากกว่า 0')
+        return
+      }
+      if (formData.budgetType === 'LIFETIME' && !formData.endDate) {
+        setError('สำหรับงบประมาณตลอดอายุ (Lifetime Budget) จำเป็นต้องระบุวันที่สิ้นสุด (End Date)')
+        return
+      }
+    } else {
+      if (activeAdSets.length === 0) {
+        setError('กรุณาระบุงบประมาณใน Ad Set อย่างน้อย 1 ชุด (จำเป็นต้องมี Active Ad Set)')
+        return
+      }
+      const invalidSet = activeAdSets.find(s => !s.budget || Number(s.budget) <= 0)
+      if (invalidSet) {
+        setError(`ชุดโฆษณา "${invalidSet.name || invalidSet.code || 'ชุดโฆษณา'}" เปิดใช้งานอยู่แต่ยังไม่ได้ระบุงบประมาณ (กรุณาระบุงบประมาณสำหรับชุดโฆษณานี้)`)
+        return
+      }
+    }
+
     setIsSubmitting(true)
+
+    // In CBO mode, individual ad set budgets are saved as null
+    const processedAdSets = formAdSets.map(s => ({
+      ...s,
+      budget: isCBO ? null : (Number(s.budget) || 0),
+      allocated_budget: isCBO ? null : (Number(s.budget) || 0)
+    }))
 
     // Store budgetStrategy and adSets encoded in targetAudience
     const targetPayload = JSON.stringify({
       budgetStrategy: formData.budgetStrategy,
-      adSets: formAdSets
+      budgetType: formData.budgetType,
+      currency: formData.currency || 'THB',
+      adSets: processedAdSets
     })
 
     const payload = {
@@ -428,8 +624,14 @@ export default function CampaignsClient({
       accountId: formData.accountId || undefined,
       internalCode: formData.internalCode ? formData.internalCode.trim() : undefined,
       budget: plannedBudgetNum,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
+      campaignBudget: isCBO ? plannedBudgetNum : undefined,
+      budgetStrategy: formData.budgetStrategy,
+      budgetLevel: isCBO ? ('CAMPAIGN' as const) : ('ADSET' as const),
+      budgetType: formData.budgetType,
+      currency: formData.currency || 'THB',
+      budgetNotes: formData.budgetNotes || undefined,
+      startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
+      endDate: formData.endDate ? new Date(formData.endDate) : undefined,
       status: overrideStatus || formData.status || 'ACTIVE',
       notes: formData.notes ? formData.notes.trim() : undefined,
       targetAudience: targetPayload
@@ -1154,116 +1356,248 @@ export default function CampaignsClient({
             {/* SUBTAB 1: Campaign Information */}
             {subTab === 'info' && (
               <div className="space-y-6">
-                {/* Form Card */}
-                <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-6">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h2 className="text-base font-black text-gray-900 tracking-wider">
-                      ข้อมูลแคมเปญ (CAMPAIGN INFORMATION)
-                    </h2>
-                    {formData.id && (
-                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-                        กำลังแก้ไข: {formData.internalCode || formData.name}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                    {/* Column A: รายละเอียดแคมเปญ */}
-                    <div className="space-y-4">
-                      <div className="pb-1 border-b border-gray-100">
-                        <h3 className="text-xs font-black text-gray-800 tracking-wider">
-                          A. รายละเอียดแคมเปญ (CAMPAIGN DETAILS)
-                        </h3>
+                {/* Live Campaign Preview Banner */}
+                <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white rounded-2xl p-5 shadow-sm border border-slate-800 relative overflow-hidden">
+                  <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-rose-500/10 to-transparent pointer-events-none" />
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs ${formData.id
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-rose-600 text-white'
+                          }`}>
+                          {formData.id ? 'กำลังแก้ไขแคมเปญ' : 'สร้างแคมเปญใหม่'}
+                        </span>
+                        {formData.internalCode && (
+                          <span className="font-mono text-xs text-slate-300 font-semibold bg-slate-800/90 px-2 py-0.5 rounded-md border border-slate-700">
+                            {formData.internalCode}
+                          </span>
+                        )}
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${formData.budgetStrategy === 'CBO'
+                          ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'
+                          : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          }`}>
+                          {formData.budgetStrategy === 'CBO' ? 'CBO • Meta AI Budget' : 'ABO • Ad Set Budget'}
+                        </span>
+                        <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-md ${formData.status === 'ACTIVE'
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          : formData.status === 'DRAFT'
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            : 'bg-slate-700 text-slate-300 border border-slate-600'
+                          }`}>
+                          {formData.status === 'ACTIVE' ? 'Active' : formData.status === 'DRAFT' ? 'Draft' : formData.status}
+                        </span>
                       </div>
 
-                      <div className="space-y-3.5">
-                        {/* Row 1: Channel */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      <h2 className="text-lg md:text-xl font-black tracking-tight text-white truncate">
+                        {formData.name || <span className="text-slate-500 font-normal italic">ยังไม่ได้ระบุชื่อแคมเปญ (คลิก 'ตัวช่วยตั้งชื่อมาตรฐาน' ด้านล่าง)</span>}
+                      </h2>
+
+                      <div className="flex items-center gap-2.5 text-xs text-slate-300 flex-wrap pt-0.5">
+                        <span className="flex items-center gap-1 font-medium text-slate-200">
+                          <Globe size={13} className="text-rose-400" />
+                          {channels?.find((c: any) => c.id === formData.channelId)?.name || 'ยังไม่เลือกช่องทาง'}
+                        </span>
+                        <span className="text-slate-600">•</span>
+                        <span>
+                          สินค้า: <strong className="text-slate-100">{formData.productCategory || '—'}</strong>
+                        </span>
+                        <span className="text-slate-600">•</span>
+                        <span>
+                          งบรวม: <strong className="text-rose-400 font-mono text-sm">฿{plannedBudgetNum.toLocaleString()}</strong> ({formData.budgetType === 'DAILY' ? 'รายวัน' : 'ตลอดอายุ'})
+                        </span>
+                        {formData.startDate && (
+                          <>
+                            <span className="text-slate-600">•</span>
+                            <span className="flex items-center gap-1 text-slate-300">
+                              <Calendar size={13} className="text-slate-400" />
+                              {formData.startDate} {formData.endDate ? `ถึง ${formData.endDate}` : ''}
+                              {durationDays !== null && (
+                                <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 px-1.5 py-0.2 rounded border border-amber-400/30">
+                                  {durationDays} วัน
+                                </span>
+                              )}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Completeness Badge */}
+                    <div className="shrink-0 flex items-center lg:flex-col lg:items-end justify-between lg:justify-center gap-2 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-800">
+                      {isFormComplete ? (
+                        <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-500/40 px-3.5 py-2 rounded-xl shadow-xs">
+                          <CheckCircle2 size={16} />
+                          <span>ข้อมูลครบ พร้อมบันทึก</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-xs font-bold text-amber-300 bg-amber-950/70 border border-amber-500/40 px-3.5 py-2 rounded-xl shadow-xs">
+                          <AlertCircle size={16} />
+                          <span>ยังขาดอีก {missingFields.length} รายการ</span>
+                        </div>
+                      )}
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        {formData.id ? `ID: ${formData.id.substring(0, 8)}...` : 'กรอกข้อมูล 3 ส่วนด้านล่าง'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2-Column Section Grid: Card A & Card B */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                  {/* CARD A: ช่องทางและกลุ่มสินค้า (Platform & Target) */}
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-5">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-rose-50 text-[#ff2301] font-black text-xs flex items-center justify-center border border-rose-100">
+                            A
+                          </span>
+                          <h3 className="text-xs font-black text-slate-900 tracking-wider">
+                            ช่องทางและกลุ่มสินค้า (PLATFORM & TARGET)
+                          </h3>
+                        </div>
+                        <span className="text-[11px] text-slate-400 font-medium">กำหนดผู้ยิงและเป้าหมาย</span>
+                      </div>
+
+                      {/* Field 1: Channel Quick Pills & Dropdown */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
                             ช่องทางโฆษณา (Channel) <span className="text-red-500">*</span>
                           </label>
-                          <select
-                            name="channelId"
-                            value={formData.channelId}
-                            onChange={handleInputChange}
-                            disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                          >
-                            <option value="">เลือกช่องทางโฆษณา...</option>
-                            {channels?.map((c: any) => (
-                              <option key={c.id} value={c.id}>
-                                {c.name}
-                              </option>
-                            ))}
-                          </select>
+                          <span className="text-[10px] text-slate-400">คลิกเลือกด่วนได้ทันที</span>
                         </div>
+                        {/* Channel Quick Pills */}
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                          {channels?.slice(0, 5).map((c: any) => {
+                            const isSelected = formData.channelId === c.id
+                            return (
+                              <button
+                                key={c.id}
+                                type="button"
+                                disabled={isViewer}
+                                onClick={() => {
+                                  setFormData(prev => {
+                                    const next = { ...prev, channelId: c.id }
+                                    if (!next.internalCode) {
+                                      next.internalCode = generateCampaignCode(c.id, next.productCategory, next.startDate)
+                                    }
+                                    return next
+                                  })
+                                  setIsDirty(true)
+                                }}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border shadow-2xs ${isSelected
+                                  ? 'bg-rose-600 text-white border-rose-600 ring-2 ring-rose-500/20'
+                                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                                  }`}
+                              >
+                                <Globe size={12} className={isSelected ? 'text-white' : 'text-slate-400'} />
+                                <span>{c.name}</span>
+                                {isSelected && <Check size={12} className="stroke-[3]" />}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <select
+                          name="channelId"
+                          value={formData.channelId}
+                          onChange={handleInputChange}
+                          disabled={isViewer}
+                          className="w-full h-10 bg-white border border-slate-200 rounded-xl px-3 text-sm focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none text-slate-800 transition-all font-medium"
+                        >
+                          <option value="">เลือกช่องทางโฆษณา (หรือเลือกจากปุ่มลัดด้านบน)...</option>
+                          {channels?.map((c: any) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                        {/* Row 2: Account */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      {/* Field 2: Account */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
                             บัญชี / เพจ / โครงการ (Account) <span className="text-red-500">*</span>
                           </label>
-                          <select
-                            name="accountId"
-                            value={formData.accountId}
-                            onChange={handleInputChange}
-                            disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                          >
-                            <option value="">เลือกบัญชี / เพจ...</option>
-                            {accounts?.map((a: any) => (
-                              <option key={a.id} value={a.id}>
-                                {a.name}
-                              </option>
-                            ))}
-                          </select>
+                          <span className="text-[10px] text-slate-400">
+                            {accounts?.length || 0} บัญชีที่มีในระบบ
+                          </span>
                         </div>
+                        <select
+                          name="accountId"
+                          value={formData.accountId}
+                          onChange={handleInputChange}
+                          disabled={isViewer}
+                          className="w-full h-10 bg-white border border-slate-200 rounded-xl px-3 text-sm focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none text-slate-800 transition-all font-medium"
+                        >
+                          <option value="">เลือกบัญชี / เพจผู้ลงโฆษณา...</option>
+                          {accounts?.map((a: any) => (
+                            <option key={a.id} value={a.id}>
+                              {a.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                        {/* Row 3: Branch */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                            สาขา (Branch)
-                          </label>
-                          <select
-                            name="branchId"
-                            value={formData.branchId}
-                            onChange={handleInputChange}
-                            disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                          >
-                            <option value="">ทุกสาขา / สำนักงานใหญ่ (Head Office)</option>
-                            {branches?.map((b: any) => (
-                              <option key={b.id} value={b.id}>
-                                {b.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {/* Row 4: Product */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      {/* Field 3: Product Category Quick Pills & Dropdown */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
                             ประเภทสินค้า (Product Category) <span className="text-red-500">*</span>
                           </label>
-                          <select
-                            name="productCategory"
-                            value={formData.productCategory}
-                            onChange={handleInputChange}
-                            disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all font-medium"
-                          >
-                            <option value="">- เลือก -</option>
-                            {PRODUCT_CATEGORIES.map(c => (
-                              <option key={c} value={c}>
-                                {c}
-                              </option>
-                            ))}
-                          </select>
+                          <span className="text-[10px] text-slate-400">หมวดหมู่หลัก</span>
                         </div>
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                          {['Solar Pump', 'Solar Roof', 'Inverter Veichi', 'Motor'].map(cat => {
+                            const isSelected = formData.productCategory === cat
+                            return (
+                              <button
+                                key={cat}
+                                type="button"
+                                disabled={isViewer}
+                                onClick={() => {
+                                  setFormData(prev => {
+                                    const next = { ...prev, productCategory: cat }
+                                    if (!next.internalCode) {
+                                      next.internalCode = generateCampaignCode(next.channelId, cat, next.startDate)
+                                    }
+                                    return next
+                                  })
+                                  setIsDirty(true)
+                                }}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border shadow-2xs ${isSelected
+                                  ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-slate-800/20'
+                                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                                  }`}
+                              >
+                                <span>{cat}</span>
+                                {isSelected && <Check size={11} className="inline ml-1 stroke-[3]" />}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <select
+                          name="productCategory"
+                          value={formData.productCategory}
+                          onChange={handleInputChange}
+                          disabled={isViewer}
+                          className="w-full h-10 bg-white border border-slate-200 rounded-xl px-3 text-sm focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none text-slate-800 transition-all font-medium"
+                        >
+                          <option value="">- เลือกหมวดหมู่สินค้าทั้งหมด -</option>
+                          {PRODUCT_CATEGORIES.map(c => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                        {/* Row 5: Objective */}
+                      {/* Field 4 & 5: Objective & Branch */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5">
                             วัตถุประสงค์ (Objective) <span className="text-red-500">*</span>
                           </label>
                           <select
@@ -1271,7 +1605,7 @@ export default function CampaignsClient({
                             value={formData.objectiveId}
                             onChange={handleInputChange}
                             disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
+                            className="w-full h-10 bg-white border border-slate-200 rounded-xl px-3 text-xs focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none text-slate-800 transition-all font-medium"
                           >
                             <option value="">เลือกวัตถุประสงค์...</option>
                             {objectives?.map((o: any) => (
@@ -1281,308 +1615,566 @@ export default function CampaignsClient({
                             ))}
                           </select>
                         </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            สาขา (Branch)
+                          </label>
+                          <select
+                            name="branchId"
+                            value={formData.branchId}
+                            onChange={handleInputChange}
+                            disabled={isViewer}
+                            className="w-full h-10 bg-white border border-slate-200 rounded-xl px-3 text-xs focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none text-slate-800 transition-all font-medium"
+                          >
+                            <option value="">ทุกสาขา / สำนักงานใหญ่</option>
+                            {branches?.map((b: any) => (
+                              <option key={b.id} value={b.id}>
+                                {b.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Column B: ข้อมูลเฉพาะแคมเปญ */}
+                  {/* CARD B: อัตลักษณ์และชื่อแคมเปญ (Campaign Identity & Smart Helpers) */}
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-5">
                     <div className="space-y-4">
-                      <div className="pb-1 border-b border-gray-100">
-                        <h3 className="text-xs font-black text-gray-800 tracking-wider">
-                          B. ข้อมูลเฉพาะแคมเปญ (CAMPAIGN IDENTITY)
-                        </h3>
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-rose-50 text-[#ff2301] font-black text-xs flex items-center justify-center border border-rose-100">
+                            B
+                          </span>
+                          <h3 className="text-xs font-black text-slate-900 tracking-wider">
+                            อัตลักษณ์และชื่อแคมเปญ (CAMPAIGN IDENTITY)
+                          </h3>
+                        </div>
+                        <span className="text-[11px] text-slate-400 font-medium">ตั้งชื่อและรหัสอ้างอิง</span>
                       </div>
 
-                      <div className="space-y-3.5">
-                        {/* Row 1: Campaign Name */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      {/* Field 1: Campaign Name with Smart Generator Button */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
                             ชื่อแคมเปญ (Campaign Name) <span className="text-red-500">*</span>
                           </label>
-                          <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            placeholder="เช่น SP Aug Lead"
+                          <button
+                            type="button"
                             disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                          />
+                            onClick={() => {
+                              const smart = generateSmartCampaignName()
+                              setFormData(prev => ({ ...prev, name: smart }))
+                              setIsDirty(true)
+                            }}
+                            className="text-[11px] font-bold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1 transition-colors shadow-2xs"
+                            title="สร้างชื่อมาตรฐานอัตโนมัติจาก ช่องทาง_สินค้า_ปีเดือน_วัตถุประสงค์"
+                          >
+                            <Sparkles size={12} />
+                            <span>ตัวช่วยตั้งชื่อมาตรฐาน</span>
+                          </button>
                         </div>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="เช่น FB_SolarPump_202609_Lead หรือ SP Aug Lead"
+                          disabled={isViewer}
+                          className="w-full h-10 bg-white border border-slate-200 rounded-xl px-3 text-sm focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none text-slate-900 transition-all font-medium"
+                        />
+                      </div>
 
-                        {/* Row 2: Platform Campaign ID */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      {/* Field 2: Platform Campaign ID */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
                             รหัสบนแพลตฟอร์ม (Platform Campaign ID) <span className="text-red-500">*</span>
                           </label>
-                          <input
-                            type="text"
-                            name="campaignId"
-                            value={formData.campaignId}
-                            onChange={handleInputChange}
-                            placeholder="เช่น 120209834001"
-                            disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                          />
+                          <span className="text-[10px] text-slate-400">คัดลอกจาก Meta / TikTok Ads Manager</span>
                         </div>
+                        <input
+                          type="text"
+                          name="campaignId"
+                          value={formData.campaignId}
+                          onChange={handleInputChange}
+                          placeholder="เช่น 120209834001920834"
+                          disabled={isViewer}
+                          className="w-full h-10 bg-white border border-slate-200 rounded-xl px-3 text-sm font-mono text-slate-900 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all"
+                        />
+                      </div>
 
-                        {/* Row 3: Internal Code */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      {/* Field 3: Internal Code */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
                             รหัสแคมเปญภายใน (Internal Code)
                           </label>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              name="internalCode"
-                              value={formData.internalCode}
-                              onChange={handleInputChange}
-                              placeholder="CMP-202608-SP-001"
-                              disabled={isViewer}
-                              className="w-full h-10 bg-gray-100 border border-gray-300 rounded-xl px-3 pr-28 text-sm text-gray-800 font-mono"
-                            />
+                          {formData.internalCode && (
+                            <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                              สร้างตามกฎระบบ
+                            </span>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            name="internalCode"
+                            value={formData.internalCode}
+                            onChange={handleInputChange}
+                            placeholder="CMP-202609-SP-001"
+                            disabled={isViewer}
+                            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl px-3 pr-28 text-sm text-slate-800 font-mono"
+                          />
+                          <button
+                            type="button"
+                            disabled={isViewer}
+                            onClick={() => {
+                              const gen = generateCampaignCode(formData.channelId, formData.productCategory, formData.startDate)
+                              setFormData(prev => ({ ...prev, internalCode: gen }))
+                              setIsDirty(true)
+                            }}
+                            className="absolute right-1.5 top-1.5 bottom-1.5 px-2.5 text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg flex items-center gap-1 transition-colors"
+                            title="สร้างรหัสใหม่อัตโนมัติ"
+                          >
+                            <Sparkles size={11} /> อัตโนมัติ
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Field 4: Status Selector Buttons */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          สถานะแคมเปญ (Status) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {[
+                            { val: 'ACTIVE', label: 'กำลังใช้งาน', color: 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20' },
+                            { val: 'DRAFT', label: 'ฉบับร่าง', color: 'border-amber-400 bg-amber-50 text-amber-800 ring-2 ring-amber-500/20' },
+                            { val: 'PAUSED', label: 'หยุดชั่วคราว', color: 'border-slate-400 bg-slate-100 text-slate-800 ring-2 ring-slate-500/20' }
+                          ].map(st => (
                             <button
+                              key={st.val}
                               type="button"
+                              disabled={isViewer}
                               onClick={() => {
-                                const gen = generateCampaignCode(formData.channelId, formData.productCategory, formData.startDate)
-                                setFormData(prev => ({ ...prev, internalCode: gen }))
+                                setFormData(prev => ({ ...prev, status: st.val }))
                                 setIsDirty(true)
                               }}
-                              className="absolute right-1.5 top-1.5 bottom-1.5 px-2.5 text-[11px] font-bold text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors"
-                              title="สร้างรหัสอัตโนมัติ"
+                              className={`py-2 px-2 rounded-xl text-xs font-bold text-center border transition-all ${formData.status === st.val
+                                ? `${st.color} shadow-2xs`
+                                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600'
+                                }`}
                             >
-                              <Sparkles size={11} /> อัตโนมัติ
+                              {st.label}
                             </button>
-                          </div>
+                          ))}
                         </div>
+                      </div>
 
-                        {/* Row 4: Status */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                            สถานะ (Status) <span className="text-red-500">*</span>
-                          </label>
-                          <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleInputChange}
-                            disabled={isViewer}
-                            className={`w-full h-10 border rounded-xl px-3 text-sm font-bold focus:ring-2 focus:ring-[#ff2301] outline-none transition-colors ${formData.status === 'ACTIVE'
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                              : formData.status === 'DRAFT'
-                                ? 'bg-amber-50 text-amber-800 border-amber-300'
-                                : formData.status === 'PAUSED'
-                                  ? 'bg-gray-100 text-gray-800 border-gray-300'
-                                  : formData.status === 'COMPLETED'
-                                    ? 'bg-blue-50 text-blue-800 border-blue-300'
-                                    : 'bg-slate-100 text-slate-800 border-slate-300'
-                              }`}
-                          >
-                            <option value="ACTIVE">กำลังใช้งาน (Active)</option>
-                            <option value="DRAFT">ฉบับร่าง (Draft)</option>
-                            <option value="PAUSED">หยุดชั่วคราว (Paused)</option>
-                            <option value="COMPLETED">เสร็จสิ้น (Completed)</option>
-                            <option value="ARCHIVED">เก็บถาวร (Archived)</option>
-                          </select>
-                        </div>
-
-                        {/* Row 5: Notes */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                            หมายเหตุแคมเปญ (Campaign Notes)
-                          </label>
-                          <input
-                            type="text"
-                            name="notes"
-                            value={formData.notes}
-                            onChange={handleInputChange}
-                            placeholder="ระบุหมายเหตุ เช่น แคมเปญโซล่าปั๊ม..."
-                            disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 transition-all"
-                          />
-                        </div>
-
-                        {/* Row 6: Legacy Artwork Link (Read Only) */}
-                        <div>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <label className="block text-xs font-bold text-gray-700">
-                              ลิงก์ Artwork เดิม (Legacy Artwork Link)
-                            </label>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                              กำลังย้ายข้อมูล (Read Only)
-                            </span>
-                          </div>
-                          <input
-                            type="text"
-                            name="artworkUrl"
-                            value={formData.artworkUrl || ''}
-                            readOnly
-                            disabled
-                            placeholder="ย้ายไปใช้คลังสื่อโฆษณา (Creative Library) ในแท็บที่ 3"
-                            className="w-full h-10 bg-gray-100/90 border border-gray-300 rounded-xl px-3 text-xs text-gray-500 font-mono cursor-not-allowed"
-                          />
-                          <p className="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
-                            <Info size={12} className="text-blue-500 shrink-0" />
-                            <span>
-                              ระบบเปลี่ยนมาใช้ <strong>คลังสื่อโฆษณา (Creative Library)</strong> ในแท็บที่ 3 แทนการแนบลิงก์
-                            </span>
-                          </p>
-                        </div>
+                      {/* Field 5: Campaign Notes */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          หมายเหตุแคมเปญ (Campaign Notes)
+                        </label>
+                        <input
+                          type="text"
+                          name="notes"
+                          value={formData.notes}
+                          onChange={handleInputChange}
+                          placeholder="ระบุหมายเหตุ เช่น กลุ่มเป้าหมายเกษตรกร, ยิงเฉพาะพื้นที่ภาคอีสาน..."
+                          disabled={isViewer}
+                          className="w-full h-10 bg-white border border-slate-200 rounded-xl px-3 text-sm focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none text-slate-800 transition-all"
+                        />
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Column C: งบประมาณและกำหนดการ */}
+                {/* CARD C: กลยุทธ์งบประมาณและกำหนดการ (Budget Strategy & Schedule) - FULL WIDTH */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-lg bg-rose-50 text-[#ff2301] font-black text-xs flex items-center justify-center border border-rose-100">
+                        C
+                      </span>
+                      <h3 className="text-xs font-black text-slate-900 tracking-wider">
+                        กลยุทธ์งบประมาณและกำหนดการ (BUDGET STRATEGY & SCHEDULE)
+                      </h3>
+                    </div>
+                    {formData.id && (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenBudgetHistory(formData.id, formData.name || 'แคมเปญ')}
+                        className="text-xs font-bold text-slate-600 hover:text-rose-600 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-rose-200 bg-slate-50 hover:bg-rose-50 transition-colors"
+                      >
+                        <History size={14} className="text-rose-600" />
+                        <span>ดูประวัติการปรับงบ</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Interactive CBO vs ABO Selection Cards */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-2">
+                      เลือกกลยุทธ์งบประมาณ (Budget Strategy) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Card 1: CBO */}
+                      <button
+                        type="button"
+                        disabled={isViewer}
+                        onClick={() => handleStrategyChange('CBO')}
+                        className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${formData.budgetStrategy === 'CBO'
+                          ? 'bg-gradient-to-br from-indigo-50/90 via-indigo-50/40 to-white border-indigo-500 ring-2 ring-indigo-500/20 shadow-sm'
+                          : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-slate-300'
+                          }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${formData.budgetStrategy === 'CBO'
+                              ? 'bg-indigo-600 text-white border-indigo-600'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                              }`}>
+                              Meta AI Budget
+                            </span>
+                            {formData.budgetStrategy === 'CBO' && (
+                              <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <Check size={12} className="stroke-[3]" />
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 font-black text-slate-900 text-sm mb-1.5">
+                            <Sparkles size={16} className={formData.budgetStrategy === 'CBO' ? 'text-indigo-600' : 'text-slate-400'} />
+                            <span>CBO — Campaign Budget Optimization</span>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            กำหนดงบก้อนเดียวระดับแคมเปญ ระบบ Meta AI จะเกลี่ยงบประมาณไปยังชุดโฆษณาที่ได้ผลลัพธ์ดีที่สุดให้อัตโนมัติ
+                          </p>
+                        </div>
+                        <div className="mt-3.5 pt-2.5 border-t border-indigo-100/80 flex items-center justify-between text-[11px] font-bold text-indigo-800">
+                          <span>ระดับ: Campaign Level</span>
+                          <span className="text-[10px] bg-indigo-100 px-2 py-0.5 rounded text-indigo-900">แนะนำสำหรับสเกลโฆษณา</span>
+                        </div>
+                      </button>
+
+                      {/* Card 2: ABO */}
+                      <button
+                        type="button"
+                        disabled={isViewer}
+                        onClick={() => handleStrategyChange('ABO')}
+                        className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${formData.budgetStrategy === 'ABO'
+                          ? 'bg-gradient-to-br from-emerald-50/90 via-emerald-50/40 to-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm'
+                          : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-slate-300'
+                          }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${formData.budgetStrategy === 'ABO'
+                              ? 'bg-emerald-600 text-white border-emerald-600'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                              }`}>
+                              Manual Control
+                            </span>
+                            {formData.budgetStrategy === 'ABO' && (
+                              <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <Check size={12} className="stroke-[3]" />
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 font-black text-slate-900 text-sm mb-1.5">
+                            <Layers size={16} className={formData.budgetStrategy === 'ABO' ? 'text-emerald-600' : 'text-slate-400'} />
+                            <span>ABO — Ad Set Budget Optimization</span>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            กำหนดงบแยกตามแต่ละชุดโฆษณา ควบคุมงบรายกลุ่มเป้าหมายได้ชัดเจน รวมงบคำนวณจากชุดโฆษณาที่เปิดใช้งาน
+                          </p>
+                        </div>
+                        <div className="mt-3.5 pt-2.5 border-t border-emerald-100/80 flex items-center justify-between text-[11px] font-bold text-emerald-800">
+                          <span>ระดับ: Ad Set Level</span>
+                          <span className="text-[10px] bg-emerald-100 px-2 py-0.5 rounded text-emerald-900">คุมงบตามกลุ่มเป้าหมาย</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Sub-grid: Budget Details & Schedule Details */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-1">
+                    {/* Left: Budget Type & Amount */}
                     <div className="space-y-4">
-                      <div className="pb-1 border-b border-gray-100">
-                        <h3 className="text-xs font-black text-gray-800 tracking-wider">
-                          C. งบประมาณและกำหนดการ (BUDGET & SCHEDULE)
-                        </h3>
+                      {/* Budget Type Segmented Buttons */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          ประเภทงบประมาณ (Budget Type) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            disabled={isViewer}
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, budgetType: 'DAILY' }))
+                              setIsDirty(true)
+                            }}
+                            className={`h-10 px-3 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 ${formData.budgetType === 'DAILY'
+                              ? 'bg-rose-50 text-rose-700 border-rose-300 ring-2 ring-rose-500/20 shadow-2xs'
+                              : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                              }`}
+                          >
+                            <span>งบรายวัน (Daily Budget)</span>
+                            {formData.budgetType === 'DAILY' && <Check size={12} className="stroke-[3]" />}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isViewer}
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, budgetType: 'LIFETIME' }))
+                              setIsDirty(true)
+                            }}
+                            className={`h-10 px-3 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 ${formData.budgetType === 'LIFETIME'
+                              ? 'bg-rose-50 text-rose-700 border-rose-300 ring-2 ring-rose-500/20 shadow-2xs'
+                              : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                              }`}
+                          >
+                            <span>งบตลอดอายุ (Lifetime)</span>
+                            {formData.budgetType === 'LIFETIME' && <Check size={12} className="stroke-[3]" />}
+                          </button>
+                        </div>
                       </div>
 
-                      <div className="space-y-3.5">
-                        {/* Row 1: Budget Strategy */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                            กลยุทธ์งบประมาณ (Budget Strategy) <span className="text-red-500">*</span>
+                      {/* Budget Amount Input */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
+                            {formData.budgetStrategy === 'CBO'
+                              ? 'งบประมาณรวมของแคมเปญ (Campaign Budget)'
+                              : 'งบประมาณรวมที่วางแผน (Planned Budget - Sum)'}{' '}
+                            <span className="text-red-500">*</span>
                           </label>
-                          <select
-                            name="budgetStrategy"
-                            value={formData.budgetStrategy}
-                            onChange={handleInputChange}
-                            disabled={isViewer}
-                            className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 text-sm focus:ring-2 focus:ring-[#ff2301] outline-none text-gray-800 font-semibold transition-all"
-                          >
-                            <option value="ABO">ABO — กระจายงบตามชุดโฆษณา (Ad Set Budget)</option>
-                            <option value="CBO">CBO — งบประมาณรวมระดับแคมเปญ (Campaign Budget)</option>
-                          </select>
+                          {formData.budgetStrategy === 'CBO' ? (
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] text-slate-400">เพิ่มด่วน:</span>
+                              {[1000, 5000, 10000].map(amt => (
+                                <button
+                                  key={amt}
+                                  type="button"
+                                  disabled={isViewer}
+                                  onClick={() => handleAddBudgetIncrement(amt)}
+                                  className="text-[10px] font-bold bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200 transition-colors"
+                                >
+                                  +{amt.toLocaleString()}
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              คำนวณจาก Ad Sets
+                            </span>
+                          )}
                         </div>
 
-                        {/* Row 2: Planned Budget */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                            งบประมาณที่วางแผนไว้ (Planned Budget) <span className="text-red-500">*</span>
-                          </label>
-                          <div className="relative">
-                            <span className="absolute left-3.5 top-2.5 text-gray-500 font-bold text-sm">
-                              ฿
-                            </span>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-2.5 text-slate-400 font-bold text-sm">
+                            ฿
+                          </span>
+                          {formData.budgetStrategy === 'CBO' ? (
                             <input
                               type="number"
                               step="100"
                               name="budget"
                               value={formData.budget}
                               onChange={handleInputChange}
-                              placeholder="เช่น 110,000"
+                              placeholder="เช่น 100000"
                               disabled={isViewer}
-                              className="w-full h-10 bg-amber-50/40 border border-gray-300 rounded-xl px-3 pl-8 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-[#ff2301] outline-none transition-all"
+                              className="w-full h-11 bg-white border border-slate-200 rounded-xl px-3 pl-8 pr-16 text-base font-black text-slate-900 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all"
                             />
+                          ) : (
+                            <input
+                              type="text"
+                              readOnly
+                              disabled
+                              value={activeAdSetsBudgetSum > 0 ? activeAdSetsBudgetSum.toLocaleString() : '0.00'}
+                              className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-3 pl-8 pr-16 text-base font-black text-slate-800 cursor-not-allowed font-mono"
+                            />
+                          )}
+                          <span className="absolute right-3.5 top-3 text-xs font-bold text-slate-400">
+                            THB
+                          </span>
+                        </div>
+
+                        <div className="mt-1.5 text-xs text-slate-500">
+                          {formData.budgetStrategy === 'CBO' ? (
+                            formData.budget && parseFloat(formData.budget) > 0 ? (
+                              <span>
+                                งบประมาณที่กำหนด: <strong className="text-slate-800 font-semibold">{parseFloat(formData.budget).toLocaleString()} บาท</strong> ({formData.budgetType === 'DAILY' ? 'ต่อวัน' : 'ตลอดอายุแคมเปญ'})
+                              </span>
+                            ) : (
+                              <span className="text-indigo-700 font-medium">
+                                ระบุจำนวนเงินที่ต้องการให้ Facebook เกลี่ยงบในแต่ละ Ad Set
+                              </span>
+                            )
+                          ) : (
+                            <div>
+                              <span>
+                                คำนวณอัตโนมัติจากผลรวมของ Ad Sets ทั้งหมด (<strong className="text-slate-800 font-bold">{activeAdSets.length}</strong> ชุดที่เปิดใช้งาน)
+                              </span>
+                              {(activeAdSets.length === 0 || activeAdSetsBudgetSum === 0) && (
+                                <p className="text-amber-700 font-bold mt-1 flex items-center gap-1">
+                                  <AlertCircle size={13} className="text-amber-600" />
+                                  กรุณาระบุงบประมาณใน Ad Set อย่างน้อย 1 ชุด (จะเปิดให้จัดการในแท็บที่ 2)
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Schedule & Durations */}
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
+                            กำหนดการโฆษณา (Start - End Date) <span className="text-red-500">*</span>
+                            {formData.budgetType === 'LIFETIME' && (
+                              <span className="text-red-600 text-[10px] font-normal ml-1">
+                                (จำเป็นสำหรับ Lifetime Budget)
+                              </span>
+                            )}
+                          </label>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] text-slate-400">ระยะเวลา:</span>
+                            {[
+                              { label: '+7 วัน', days: 7 },
+                              { label: '+14 วัน', days: 14 },
+                              { label: '+30 วัน', days: 30 }
+                            ].map(p => (
+                              <button
+                                key={p.days}
+                                type="button"
+                                disabled={isViewer}
+                                onClick={() => handleSetDurationPreset(p.days)}
+                                className="text-[10px] font-bold bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200 transition-colors"
+                              >
+                                {p.label}
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              disabled={isViewer}
+                              onClick={() => handleSetDurationPreset('month_end')}
+                              className="text-[10px] font-bold bg-slate-100 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200 transition-colors"
+                            >
+                              สิ้นเดือนนี้
+                            </button>
                           </div>
                         </div>
 
-                        {/* Row 3: Schedule (Start & End Date) */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                            กำหนดการโฆษณา (Start - End Date) <span className="text-red-500">*</span>
-                          </label>
-                          <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <div>
+                            <span className="block text-[10px] text-slate-500 font-medium mb-1">วันที่เริ่มต้น (Start)</span>
                             <input
                               type="date"
                               name="startDate"
                               value={formData.startDate}
                               onChange={handleInputChange}
                               disabled={isViewer}
-                              className="w-full h-10 bg-white border border-gray-300 rounded-xl px-2.5 text-xs focus:ring-2 focus:ring-[#ff2301] outline-none"
+                              className="w-full h-10 bg-white border border-slate-200 rounded-xl px-2.5 text-xs text-slate-800 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none"
                               title="วันที่เริ่มต้น"
                             />
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] text-slate-500 font-medium">วันที่สิ้นสุด (End)</span>
+                              {durationDays !== null && (
+                                <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-100">
+                                  {durationDays} วัน
+                                </span>
+                              )}
+                            </div>
                             <input
                               type="date"
                               name="endDate"
                               value={formData.endDate}
                               onChange={handleInputChange}
                               disabled={isViewer}
-                              className="w-full h-10 bg-white border border-gray-300 rounded-xl px-2.5 text-xs focus:ring-2 focus:ring-[#ff2301] outline-none"
+                              className={`w-full h-10 bg-white border rounded-xl px-2.5 text-xs text-slate-800 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none ${formData.budgetType === 'LIFETIME' && !formData.endDate
+                                ? 'border-red-400 bg-red-50/30'
+                                : 'border-slate-200'
+                                }`}
                               title="วันที่สิ้นสุด"
                             />
                           </div>
                         </div>
+                      </div>
 
-                        {/* Row 4: Budget Allocated Widget */}
-                        <div>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <label className="block text-xs font-bold text-gray-700">
-                              งบประมาณที่จัดสรร (Budget Allocated)
-                            </label>
-                            <span className={`text-[11px] font-bold ${isOverBudget ? 'text-red-600' : 'text-gray-500'}`}>
-                              {budgetRatio.toFixed(0)}% ({formAdSets.length} ชุดโฆษณา)
-                            </span>
-                          </div>
-                          <div className="h-10 bg-white border border-gray-300 rounded-xl px-3 flex items-center justify-between relative overflow-hidden">
-                            <span className={`font-mono font-black text-xs ${isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
-                              ฿{formAllocatedBudget.toLocaleString()} / ฿{plannedBudgetNum.toLocaleString()}
-                            </span>
-                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-100">
-                              <div
-                                className={`h-full transition-all duration-300 ${isOverBudget ? 'bg-red-600' : 'bg-emerald-500'
-                                  }`}
-                                style={{ width: `${Math.min(budgetRatio, 100)}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Row 5: Budget Status / Alert */}
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                            สถานะการจัดสรรงบประมาณ
-                          </label>
-                          {isOverBudget ? (
-                            <div className="h-10 px-3 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700 flex items-center gap-1.5 animate-pulse">
-                              <AlertCircle size={15} className="shrink-0 text-red-600" />
-                              <span className="truncate">
-                                เกินงบ ฿{(formAllocatedBudget - plannedBudgetNum).toLocaleString()}! กรุณาปรับลดงบ Ad Set
+                        {/* Allocation Bar (ABO) or Meta AI Banner (CBO) */}
+                        {formData.budgetStrategy === 'ABO' ? (
+                          <div className="pt-2">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="block text-xs font-bold text-slate-700">
+                                งบประมาณที่จัดสรรใน Ad Sets (Budget Allocated)
+                              </label>
+                              <span className={`text-xs font-bold ${isOverBudget ? 'text-red-600' : 'text-slate-600'}`}>
+                                {budgetRatio.toFixed(0)}% ({formAdSets.length} ชุดโฆษณา)
                               </span>
                             </div>
-                          ) : (
-                            <div className="h-10 px-3 bg-blue-50/70 border border-blue-200/70 rounded-xl text-xs text-blue-700 flex items-center gap-1.5 font-medium">
-                              <Info size={14} className="shrink-0 text-blue-600" />
-                              <span className="truncate">
-                                {formData.budgetStrategy === 'ABO'
-                                  ? 'ระบบ ABO: จัดสรรงบในระดับชุดโฆษณา'
-                                  : 'ระบบ CBO: งบรวมจัดการระดับแคมเปญ'}
+                            <div className="h-10 bg-white border border-slate-200 rounded-xl px-3 flex items-center justify-between relative overflow-hidden">
+                              <span className={`font-mono font-black text-xs ${isOverBudget ? 'text-red-600' : 'text-slate-900'}`}>
+                                ฿{formAllocatedBudget.toLocaleString()} / ฿{plannedBudgetNum.toLocaleString()}
                               </span>
+                              <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-100">
+                                <div
+                                  className={`h-full transition-all duration-300 ${isOverBudget ? 'bg-red-600' : 'bg-emerald-500'
+                                    }`}
+                                  style={{ width: `${Math.min(budgetRatio, 100)}%` }}
+                                />
+                              </div>
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        ) : (
+                          <div className="p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl text-xs text-indigo-950 flex items-start gap-2.5 pt-3">
+                            <Sparkles size={16} className="text-indigo-600 shrink-0 mt-0.5" />
+                            <div>
+                              <strong className="font-bold text-indigo-950">ทำงานร่วมกับ Facebook Meta AI CBO</strong>
+                              <p className="text-[11px] text-indigo-800/90 mt-0.5 leading-relaxed">
+                                โหมด CBO จะไม่ล็อคงบประมาณราย Ad Set ระบบจะกระจายงบไปยังกลุ่มเป้าหมายที่มีแนวโน้ม Conversion สูงที่สุดแบบเรียลไทม์
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   {/* Form Action Footer */}
-                  <div className="pt-6 border-t border-gray-100 space-y-3">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
                     <div className="flex flex-col xl:flex-row items-center justify-between gap-4">
-                      {/* Left: Symmetrical, compact status indicator */}
+                      {/* Left: Validation Status Indicator */}
                       <div className="flex items-center gap-3 w-full xl:w-auto">
                         {isFormComplete ? (
-                          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 shadow-xs">
+                          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 shadow-2xs">
                             <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                            <span>ข้อมูลที่จำเป็นครบถ้วนแล้ว พร้อมบันทึก</span>
+                            <span>ข้อมูลจำเป็นครบถ้วนแล้ว พร้อมบันทึก</span>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-amber-800 bg-amber-50/80 border border-amber-200 shadow-xs">
+                          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-amber-800 bg-amber-50 border border-amber-200 shadow-2xs">
                             <Info size={16} className="text-amber-600 shrink-0" />
                             <span className="font-bold">กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วน</span>
-                            <span className="bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded-md font-bold text-[11px]">
+                            <span className="bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-md font-bold text-[11px]">
                               ยังขาดอีก {missingFields.length} ช่อง
                             </span>
                           </div>
                         )}
                       </div>
 
-                      {/* Right: Symmetrical 4 Action Buttons in a clean horizontal row */}
+                      {/* Right: Symmetrical Action Buttons */}
                       <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto justify-end shrink-0">
                         <button
                           type="button"
                           onClick={handleClear}
                           disabled={isSubmitting}
-                          className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-xs active:scale-[0.98] whitespace-nowrap"
+                          className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-all shadow-2xs active:scale-[0.98] whitespace-nowrap"
                         >
                           ล้างข้อมูล (Clear)
                         </button>
@@ -1591,7 +2183,7 @@ export default function CampaignsClient({
                           type="button"
                           onClick={() => handleSaveInternal('DRAFT')}
                           disabled={isSubmitting || !formData.name}
-                          className="px-4 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-xs active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
+                          className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-all shadow-2xs active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
                         >
                           บันทึกฉบับร่าง (Save Draft)
                         </button>
@@ -1612,21 +2204,21 @@ export default function CampaignsClient({
                           className="px-5 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 whitespace-nowrap flex items-center gap-1.5"
                         >
                           <span>บันทึกและไปจัดการ Ad Sets</span>
-                          <ChevronRight size={13} />
+                          <ChevronRight size={14} />
                         </button>
                       </div>
                     </div>
 
-                    {/* Sub-row: Missing field chips on left, guideline note on right */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-gray-400 font-medium pt-1">
+                    {/* Sub-row: Missing field chips & Guidelines */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-slate-400 font-medium pt-1 border-t border-slate-100">
                       <div className="flex flex-wrap items-center gap-1.5">
                         {!isFormComplete && (
                           <>
-                            <span className="text-gray-500 font-semibold">ช่องที่ยังขาด:</span>
+                            <span className="text-slate-500 font-semibold text-[11px]">ช่องที่ยังขาด:</span>
                             {missingFields.map((field, idx) => (
                               <span
                                 key={idx}
-                                className="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md text-[10px] font-medium border border-gray-200/60"
+                                className="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md text-[10px] font-medium border border-slate-200"
                               >
                                 {field}
                               </span>
@@ -1634,802 +2226,972 @@ export default function CampaignsClient({
                           </>
                         )}
                       </div>
-                      <div className="text-right text-gray-400 sm:ml-auto">
-                        สร้างแคมเปญก่อน จากนั้นจึงเพิ่มชุดโฆษณา (Ad Sets), โฆษณา (Ads) และชิ้นงาน (Creative)
+                      <div className="text-right text-slate-400 text-[11px] sm:ml-auto">
+                        สร้างแคมเปญก่อน จากนั้นจึงเพิ่มชุดโฆษณา (Ad Sets), โฆษณา (Ads) และชิ้นงาน (Creative) ในแท็บถัดไป
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* CAMPAIGN STRUCTURE SUMMARY Section */}
-                <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <h2 className="text-xs font-black text-gray-800 tracking-wider">
-                      สรุปโครงสร้างแคมเปญ (CAMPAIGN STRUCTURE SUMMARY)
-                    </h2>
+                  {/* CAMPAIGN STRUCTURE SUMMARY Section */}
+                  <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <h2 className="text-xs font-black text-gray-800 tracking-wider">
+                        สรุปโครงสร้างแคมเปญ (CAMPAIGN STRUCTURE SUMMARY)
+                      </h2>
 
-                    <div className="flex items-center gap-2.5">
-                      <button
-                        onClick={() => setSubTab('adsets')}
-                        className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
-                      >
-                        จัดการชุดโฆษณา (Manage Ad Sets & Ads)
-                      </button>
-                      <button
-                        onClick={() => setSubTab('creative')}
-                        className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
-                      >
-                        เปิดคลังสื่อโฆษณา (Open Creative Library)
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                      <span className="text-xs font-semibold text-gray-500">ชุดโฆษณา (Ad Sets)</span>
-                      <p className="text-2xl font-black text-gray-900 mt-1">
-                        {structureSummary.totalAdSets}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                      <span className="text-xs font-semibold text-gray-500">ชิ้นงานโฆษณา (Ads)</span>
-                      <p className="text-2xl font-black text-gray-900 mt-1">
-                        {structureSummary.totalAds}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                      <span className="text-xs font-semibold text-gray-500">ไฟล์สื่อโฆษณา (Creative Files)</span>
-                      <p className="text-2xl font-black text-gray-900 mt-1">
-                        {structureSummary.totalCreatives}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                      <span className="text-xs font-semibold text-gray-500">งบประมาณที่จัดสรรแล้ว (Allocated)</span>
-                      <p className="text-2xl font-black text-gray-900 mt-1">
-                        ฿{structureSummary.totalAllocated.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-[11px] text-blue-600 flex items-center gap-1.5 pt-1">
-                    <Info size={13} className="shrink-0" />
-                    <span>ข้อมูลผลการโฆษณาจริงจะถูกอัปเดตและบันทึกแยกต่างหากในหน้า "2. ผลการโฆษณา (Ads Performance)"</span>
-                  </div>
-                </div>
-
-                {/* CAMPAIGN MASTER LIST (Table) */}
-                <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-4">
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <h2 className="text-xs font-black text-gray-800 tracking-wider">
-                      รายการแคมเปญหลัก (CAMPAIGN MASTER LIST)
-                    </h2>
-
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <button
-                        type="button"
-                        onClick={handleDownloadTemplate}
-                        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
-                        title="ดาวน์โหลดไฟล์เทมเพลต CSV ตัวอย่างสำหรับกรอกข้อมูล"
-                      >
-                        <FileSpreadsheet size={14} className="text-emerald-600" />
-                        <span>ดาวน์โหลดเทมเพลต (Download Template)</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsImportModalOpen(true)
-                          setImportFile(null)
-                          setParsedCampaigns([])
-                          setImportParseErrors([])
-                        }}
-                        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#ff2301] hover:bg-[#e01f01] rounded-xl transition-all shadow-sm"
-                        title="อัปโหลดไฟล์เทมเพลต CSV เพื่อเพิ่มแคมเปญและโฆษณา"
-                      >
-                        <Upload size={14} />
-                        <span>นำเข้าข้อมูล (Import CSV)</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleExportCSV}
-                        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
-                      >
-                        <Download size={14} />
-                        <span>ส่งออกข้อมูล (Export CSV)</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Filters Bar */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div className="relative">
-                      <Search
-                        size={14}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                      />
-                      <input
-                        type="text"
-                        value={search}
-                        onChange={e => {
-                          setSearch(e.target.value)
-                          setCurrentPage(1)
-                        }}
-                        placeholder="ค้นหาชื่อแคมเปญ หรือรหัสแคมเปญ..."
-                        className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#ff2301]"
-                      />
-                    </div>
-
-                    <select
-                      value={filterChannel}
-                      onChange={e => {
-                        setFilterChannel(e.target.value)
-                        setCurrentPage(1)
-                      }}
-                      className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
-                    >
-                      <option value="">ทุกช่องทาง (All Channels)</option>
-                      {channels?.map((c: any) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={filterProduct}
-                      onChange={e => {
-                        setFilterProduct(e.target.value)
-                        setCurrentPage(1)
-                      }}
-                      className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
-                    >
-                      <option value="">ทุกกลุ่มสินค้า (All Products)</option>
-                      {PRODUCT_CATEGORIES.map(p => (
-                        <option key={p} value={p}>
-                          {p}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={filterStatus}
-                      onChange={e => {
-                        setFilterStatus(e.target.value)
-                        setCurrentPage(1)
-                      }}
-                      className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
-                    >
-                      <option value="">ทุกสถานะ (All Status)</option>
-                      <option value="ACTIVE">กำลังใช้งาน (Active)</option>
-                      <option value="DRAFT">ฉบับร่าง (Draft)</option>
-                      <option value="PAUSED">หยุดชั่วคราว (Paused)</option>
-                      <option value="COMPLETED">เสร็จสิ้น (Completed)</option>
-                      <option value="ARCHIVED">เก็บถาวร (Archived)</option>
-                    </select>
-                  </div>
-
-                  {/* Table */}
-                  <div className="overflow-x-auto border border-gray-100 rounded-xl">
-                    <table className="w-full text-left text-xs text-gray-600 whitespace-nowrap">
-                      <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-800">
-                        <tr>
-                          <th className="px-3 py-3 font-bold">รหัสแคมเปญ</th>
-                          <th className="px-3 py-3 font-bold">ชื่อแคมเปญ</th>
-                          <th className="px-3 py-3 font-bold">ช่องทาง</th>
-                          <th className="px-3 py-3 font-bold">กลุ่มสินค้า</th>
-                          <th className="px-3 py-3 font-bold">วัตถุประสงค์</th>
-                          <th className="px-3 py-3 font-bold">กลยุทธ์งบ</th>
-                          <th className="px-3 py-3 font-bold text-right">งบที่วางแผนไว้</th>
-                          <th className="px-3 py-3 font-bold text-center">ชุดโฆษณา</th>
-                          <th className="px-3 py-3 font-bold text-center">ชิ้นงาน</th>
-                          <th className="px-3 py-3 font-bold text-center">สื่อโฆษณา</th>
-                          <th className="px-3 py-3 font-bold text-right">งบที่จัดสรร</th>
-                          <th className="px-3 py-3 font-bold">ระยะเวลา</th>
-                          <th className="px-3 py-3 font-bold text-center">สถานะ</th>
-                          <th className="px-3 py-3 font-bold">อัปเดตล่าสุด</th>
-                          <th className="px-3 py-3 font-bold text-center">จัดการ</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100">
-                        {paginatedCampaigns.length > 0 ? (
-                          paginatedCampaigns.map((c: any) => {
-                            const parsed = getParsedCampaignData(c)
-                            const sets = parsed.adSets || []
-                            const adsCount = sets.reduce((sum, s) => sum + (s.ads?.length || 0), 0)
-                            const allocated = sets.reduce((sum, s) => sum + (Number(s.budget) || 0), 0)
-                            const scheduleStr = `${c.startDate ? new Date(c.startDate).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' }) : '-'} - ${c.endDate ? new Date(c.endDate).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }) : '-'}`
-                            const statusUpper = (c.status || 'ACTIVE').toUpperCase()
-
-                            return (
-                              <tr key={c.id} className="hover:bg-gray-50/70 transition-colors">
-                                <td className="px-3 py-3 font-mono font-bold text-gray-900">
-                                  {c.internalCode || '-'}
-                                </td>
-                                <td className="px-3 py-3 font-semibold text-gray-900 max-w-[200px] truncate" title={c.name}>
-                                  {c.name}
-                                </td>
-                                <td className="px-3 py-3 text-gray-700">
-                                  {c.channel?.name || '-'}
-                                </td>
-                                <td className="px-3 py-3 text-gray-700 max-w-[150px] truncate" title={c.productCategory}>
-                                  {c.productCategory || '-'}
-                                </td>
-                                <td className="px-3 py-3 text-gray-700">
-                                  {c.objective?.name || '-'}
-                                </td>
-                                <td className="px-3 py-3 font-semibold text-gray-800">
-                                  {parsed.budgetStrategy}
-                                </td>
-                                <td className="px-3 py-3 font-bold text-gray-900 text-right">
-                                  ฿{Number(c.budget || 0).toLocaleString()}
-                                </td>
-                                <td className="px-3 py-3 text-center font-bold text-gray-800">
-                                  {sets.length}
-                                </td>
-                                <td className="px-3 py-3 text-center font-bold text-gray-800">
-                                  {adsCount}
-                                </td>
-                                <td className="px-3 py-3 text-center font-bold text-gray-800">
-                                  {adsCount}
-                                </td>
-                                <td className={`px-3 py-3 font-bold text-right ${allocated > (c.budget || 0) ? 'text-red-600' : 'text-gray-900'}`}>
-                                  ฿{allocated.toLocaleString()}
-                                </td>
-                                <td className="px-3 py-3 text-gray-600">
-                                  {scheduleStr}
-                                </td>
-                                <td className="px-3 py-3 text-center">
-                                  <span
-                                    className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusUpper === 'ACTIVE'
-                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                      : statusUpper === 'DRAFT'
-                                        ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                        : statusUpper === 'PAUSED'
-                                          ? 'bg-gray-100 text-gray-700 border-gray-300'
-                                          : statusUpper === 'COMPLETED'
-                                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                            : 'bg-slate-100 text-slate-700 border-slate-300'
-                                      }`}
-                                  >
-                                    {statusUpper === 'ACTIVE'
-                                      ? 'ใช้งาน'
-                                      : statusUpper === 'DRAFT'
-                                        ? 'ฉบับร่าง'
-                                        : statusUpper === 'PAUSED'
-                                          ? 'หยุดชั่วคราว'
-                                          : statusUpper === 'COMPLETED'
-                                            ? 'เสร็จสิ้น'
-                                            : 'เก็บถาวร'}
-                                  </span>
-                                </td>
-                                <td className="px-3 py-3 text-gray-500">
-                                  {new Date(c.updatedAt || c.createdAt).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })},{' '}
-                                  {new Date(c.updatedAt || c.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
-                                </td>
-                                <td className="px-3 py-3 text-center">
-                                  <div className="flex items-center justify-center gap-1">
-                                    <button
-                                      onClick={() => handleEdit(c)}
-                                      className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                      title="แก้ไขแคมเปญ"
-                                    >
-                                      <Pencil size={14} />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        handleEdit(c)
-                                        setSubTab('adsets')
-                                      }}
-                                      className="p-1 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                                      title="จัดการชุดโฆษณา (Ad Sets & Ads)"
-                                    >
-                                      <Layers size={14} />
-                                    </button>
-                                    <button
-                                      onClick={() => handleDuplicate(c)}
-                                      className="p-1 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                                      title="คัดลอกแคมเปญ"
-                                    >
-                                      <Copy size={14} />
-                                    </button>
-                                    <button
-                                      onClick={() => handleDelete(c.id)}
-                                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                      title="ลบแคมเปญ"
-                                    >
-                                      <Trash2 size={14} />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            )
-                          })
-                        ) : (
-                          <tr>
-                            <td colSpan={15} className="px-4 py-8 text-center text-gray-400 font-medium">
-                              ไม่พบข้อมูลแคมเปญตามเงื่อนไขที่ค้นหา
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Pagination */}
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500 pt-2">
-                    <span>
-                      แสดง {filteredCampaigns.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}-
-                      {Math.min(currentPage * pageSize, filteredCampaigns.length)} จากทั้งหมด {filteredCampaigns.length} แคมเปญ
-                    </span>
-
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
-                        title="หน้าก่อนหน้า"
-                      >
-                        <ChevronLeft size={14} />
-                      </button>
-
-                      {Array.from({ length: totalPages }).map((_, idx) => {
-                        const p = idx + 1
-                        return (
-                          <button
-                            key={p}
-                            onClick={() => setCurrentPage(p)}
-                            className={`w-7 h-7 rounded-lg font-bold text-xs ${currentPage === p
-                              ? 'bg-[#ff2301] text-white'
-                              : 'hover:bg-gray-100 text-gray-700'
-                              }`}
-                          >
-                            {p}
-                          </button>
-                        )
-                      })}
-
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
-                        title="หน้าถัดไป"
-                      >
-                        <ChevronRight size={14} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* SUBTAB 2: Ad Sets & Ads Management */}
-            {subTab === 'adsets' && (
-              <AdSetsManager
-                campaigns={campaigns}
-                selectedCampaignId={selectedCampaignId || formData.id || campaigns[0]?.id || ''}
-                onSelectCampaign={(id: string) => {
-                  setSelectedCampaignId(id)
-                  const c = campaigns.find(item => item.id === id)
-                  if (c) {
-                    const parsed = getParsedCampaignData(c)
-                    setFormAdSets(parsed.adSets || [])
-                  }
-                }}
-                onEditCampaign={(campaign: any) => {
-                  handleEdit(campaign)
-                }}
-                adSets={formAdSets}
-                setAdSets={setFormAdSets}
-                onSaveStructure={async (updatedSets: AdSetItem[]) => {
-                  const targetId = selectedCampaignId || formData.id || campaigns[0]?.id
-                  if (!targetId) return
-                  const c = campaigns.find(item => item.id === targetId)
-                  if (!c) return
-
-                  const parsed = getParsedCampaignData(c)
-                  const targetPayload = JSON.stringify({
-                    budgetStrategy: parsed.budgetStrategy || 'ABO',
-                    adSets: updatedSets
-                  })
-
-                  try {
-                    const res = await updateCampaign(targetId, { targetAudience: targetPayload })
-                    if (res && !res.success) {
-                      setError('บันทึกล้มเหลว: ' + (res.error || 'เกิดข้อผิดพลาดในการอัปเดต'))
-                      return
-                    }
-                    setCampaigns(prev => prev.map(item => (item.id === targetId ? res.data : item)))
-                    setSuccessMsg('บันทึกโครงสร้าง Ad Sets & Ads สำเร็จ!')
-                  } catch (e: any) {
-                    setError('บันทึกล้มเหลว: ' + e.message)
-                  }
-                }}
-                onBack={() => setSubTab('info')}
-                onOpenCreativeLibrary={() => setSubTab('creative')}
-              />
-            )}
-
-            {/* SUBTAB 3: Creative Library */}
-            {subTab === 'creative' && (
-              <CreativeLibraryView
-                campaigns={campaigns}
-                onSelectAdSet={(campId?: string, adCode?: string) => {
-                  if (campId) {
-                    const targetCampaign = campaigns.find(c => c.id === campId || c.name === campId)
-                    if (targetCampaign) {
-                      setSelectedCampaignId(targetCampaign.id)
-                      const parsed = getParsedCampaignData(targetCampaign)
-                      setFormAdSets(parsed.adSets || [])
-                    }
-                  }
-                  setSubTab('adsets')
-                }}
-              />
-            )}
-          </div>
-        )}
-
-        {/* Confirmation Modal */}
-        {confirmModal.isOpen && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            onPointerDown={e => e.stopPropagation()}
-          >
-            <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center animate-in fade-in zoom-in-95">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">ยืนยันการดำเนินการ</h3>
-              <p className="text-sm text-gray-600 mb-6">{confirmModal.message}</p>
-              <div className="flex justify-center space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-                  className="px-4 py-2 border border-gray-200 rounded-xl text-gray-700 bg-white hover:bg-gray-50 text-sm font-semibold transition-colors"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="button"
-                  onClick={confirmModal.onConfirm}
-                  className="px-4 py-2 bg-[#ff2301] text-white rounded-xl hover:bg-red-600 text-sm font-bold shadow-sm transition-colors"
-                >
-                  ยืนยัน
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: CSV IMPORT */}
-        {isImportModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in">
-            <div className="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
-              {/* Header */}
-              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-[#ff2301] shadow-xs">
-                    <Upload size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900">
-                      นำเข้าข้อมูลแคมเปญ (Import Campaigns via CSV)
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      อัปโหลดไฟล์เทมเพลต CSV เพื่อเพิ่มแคมเปญ ชุดโฆษณา และโฆษณาจำนวนมากพร้อมกัน
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsImportModalOpen(false)}
-                  className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              {/* Modal Body */}
-              <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
-                {/* Hidden file input */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv"
-                  className="hidden"
-                  onChange={e => {
-                    if (e.target.files && e.target.files[0]) {
-                      processCSVFile(e.target.files[0])
-                    }
-                  }}
-                />
-
-                {/* Upload Dropzone */}
-                {!importFile ? (
-                  <div
-                    onDragOver={e => {
-                      e.preventDefault()
-                      setImportDragActive(true)
-                    }}
-                    onDragLeave={() => setImportDragActive(false)}
-                    onDrop={e => {
-                      e.preventDefault()
-                      setImportDragActive(false)
-                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                        processCSVFile(e.dataTransfer.files[0])
-                      }
-                    }}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${
-                      importDragActive
-                        ? 'border-[#ff2301] bg-red-50/50 scale-[0.99]'
-                        : 'border-gray-200 bg-gray-50/60 hover:bg-gray-50 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 shadow-sm group-hover:scale-105 transition-transform">
-                      <UploadCloud size={28} className="text-[#ff2301]" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-800">
-                        คลิกเพื่อเลือกไฟล์ หรือ ลากไฟล์ .CSV มาวางที่นี่
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        รองรับไฟล์ .CSV พร้อมการเข้ารหัส UTF-8 (แนะนำดาวน์โหลดเทมเพลตมาตรฐาน)
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 pt-2">
-                      <span className="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg shadow-xs">
-                        เลือกไฟล์ CSV
-                      </span>
-                      <button
-                        type="button"
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleDownloadTemplate()
-                        }}
-                        className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors flex items-center gap-1"
-                      >
-                        <Download size={12} />
-                        <span>ยังไม่มีไฟล์? ดาวน์โหลดเทมเพลตที่นี่</span>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* File Selected Banner */
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-                        <FileSpreadsheet size={20} />
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => setSubTab('adsets')}
+                          className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+                        >
+                          จัดการชุดโฆษณา (Manage Ad Sets & Ads)
+                        </button>
+                        <button
+                          onClick={() => setSubTab('creative')}
+                          className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+                        >
+                          เปิดคลังสื่อโฆษณา (Open Creative Library)
+                        </button>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-gray-800 truncate">{importFile.name}</p>
-                        <p className="text-[11px] text-gray-400">
-                          {(importFile.size / 1024).toFixed(1)} KB • แคมเปญที่พบ {parsedCampaigns.length} รายการ
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
+                        <span className="text-xs font-semibold text-gray-500">ชุดโฆษณา (Ad Sets)</span>
+                        <p className="text-2xl font-black text-gray-900 mt-1">
+                          {structureSummary.totalAdSets}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
+                        <span className="text-xs font-semibold text-gray-500">ชิ้นงานโฆษณา (Ads)</span>
+                        <p className="text-2xl font-black text-gray-900 mt-1">
+                          {structureSummary.totalAds}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
+                        <span className="text-xs font-semibold text-gray-500">ไฟล์สื่อโฆษณา (Creative Files)</span>
+                        <p className="text-2xl font-black text-gray-900 mt-1">
+                          {structureSummary.totalCreatives}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
+                        <span className="text-xs font-semibold text-gray-500">งบประมาณที่จัดสรรแล้ว (Allocated)</span>
+                        <p className="text-2xl font-black text-gray-900 mt-1">
+                          ฿{structureSummary.totalAllocated.toLocaleString()}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all shadow-xs"
-                      >
-                        เปลี่ยนไฟล์
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImportFile(null)
-                          setParsedCampaigns([])
-                          setImportParseErrors([])
+
+                    <div className="text-[11px] text-blue-600 flex items-center gap-1.5 pt-1">
+                      <Info size={13} className="shrink-0" />
+                      <span>ข้อมูลผลการโฆษณาจริงจะถูกอัปเดตและบันทึกแยกต่างหากในหน้า "2. ผลการโฆษณา (Ads Performance)"</span>
+                    </div>
+                  </div>
+
+                  {/* CAMPAIGN MASTER LIST (Table) */}
+                  <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <h2 className="text-xs font-black text-gray-800 tracking-wider">
+                        รายการแคมเปญหลัก (CAMPAIGN MASTER LIST)
+                      </h2>
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={handleDownloadTemplate}
+                          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+                          title="ดาวน์โหลดไฟล์เทมเพลต CSV ตัวอย่างสำหรับกรอกข้อมูล"
+                        >
+                          <FileSpreadsheet size={14} className="text-emerald-600" />
+                          <span>ดาวน์โหลดเทมเพลต (Download Template)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsImportModalOpen(true)
+                            setImportFile(null)
+                            setParsedCampaigns([])
+                            setImportParseErrors([])
+                          }}
+                          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#ff2301] hover:bg-[#e01f01] rounded-xl transition-all shadow-sm"
+                          title="อัปโหลดไฟล์เทมเพลต CSV เพื่อเพิ่มแคมเปญและโฆษณา"
+                        >
+                          <Upload size={14} />
+                          <span>นำเข้าข้อมูล (Import CSV)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleExportCSV}
+                          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+                        >
+                          <Download size={14} />
+                          <span>ส่งออกข้อมูล (Export CSV)</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Filters Bar */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="relative">
+                        <Search
+                          size={14}
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                        />
+                        <input
+                          type="text"
+                          value={search}
+                          onChange={e => {
+                            setSearch(e.target.value)
+                            setCurrentPage(1)
+                          }}
+                          placeholder="ค้นหาชื่อแคมเปญ หรือรหัสแคมเปญ..."
+                          className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#ff2301]"
+                        />
+                      </div>
+
+                      <select
+                        value={filterChannel}
+                        onChange={e => {
+                          setFilterChannel(e.target.value)
+                          setCurrentPage(1)
                         }}
-                        className="w-7 h-7 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
+                        className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
                       >
-                        <X size={15} />
-                      </button>
-                    </div>
-                  </div>
-                )}
+                        <option value="">ทุกช่องทาง (All Channels)</option>
+                        {channels?.map((c: any) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
 
-                {/* Error messages if any */}
-                {importParseErrors.length > 0 && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-red-800">
-                      <AlertCircle size={14} className="shrink-0" />
-                      <span>พบข้อผิดพลาดหรือข้อควรระวัง:</span>
-                    </div>
-                    <ul className="list-disc list-inside space-y-0.5 text-red-600 pl-1">
-                      {importParseErrors.map((err, idx) => (
-                        <li key={idx}>{err}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                      <select
+                        value={filterProduct}
+                        onChange={e => {
+                          setFilterProduct(e.target.value)
+                          setCurrentPage(1)
+                        }}
+                        className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
+                      >
+                        <option value="">ทุกกลุ่มสินค้า (All Products)</option>
+                        {PRODUCT_CATEGORIES.map(p => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
+                        ))}
+                      </select>
 
-                {/* Parsed Summary Cards */}
-                {parsedCampaigns.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div className="p-3.5 bg-blue-50/60 border border-blue-100 rounded-2xl">
-                        <p className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">แคมเปญ (Campaigns)</p>
-                        <p className="text-xl font-black text-blue-900 mt-1">{importSummary.campaignCount}</p>
-                      </div>
-                      <div className="p-3.5 bg-purple-50/60 border border-purple-100 rounded-2xl">
-                        <p className="text-[11px] font-bold text-purple-600 uppercase tracking-wider">ชุดโฆษณา (Ad Sets)</p>
-                        <p className="text-xl font-black text-purple-900 mt-1">{importSummary.adSetCount}</p>
-                      </div>
-                      <div className="p-3.5 bg-amber-50/60 border border-amber-100 rounded-2xl">
-                        <p className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">โฆษณา (Ads)</p>
-                        <p className="text-xl font-black text-amber-900 mt-1">{importSummary.adCount}</p>
-                      </div>
-                      <div className="p-3.5 bg-emerald-50/60 border border-emerald-100 rounded-2xl">
-                        <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">งบประมาณรวม</p>
-                        <p className="text-xl font-black text-emerald-900 mt-1">฿{importSummary.totalBudget.toLocaleString()}</p>
-                      </div>
+                      <select
+                        value={filterStatus}
+                        onChange={e => {
+                          setFilterStatus(e.target.value)
+                          setCurrentPage(1)
+                        }}
+                        className="px-3 py-2 text-xs bg-gray-50/70 border border-gray-200 rounded-xl outline-none text-gray-700 font-semibold"
+                      >
+                        <option value="">ทุกสถานะ (All Status)</option>
+                        <option value="ACTIVE">กำลังใช้งาน (Active)</option>
+                        <option value="DRAFT">ฉบับร่าง (Draft)</option>
+                        <option value="PAUSED">หยุดชั่วคราว (Paused)</option>
+                        <option value="COMPLETED">เสร็จสิ้น (Completed)</option>
+                        <option value="ARCHIVED">เก็บถาวร (Archived)</option>
+                      </select>
                     </div>
 
-                    {/* Preview Table / List */}
-                    <div className="space-y-2">
-                      <p className="text-xs font-bold text-gray-700 flex items-center justify-between">
-                        <span>รายการข้อมูลแคมเปญที่จะถูกสร้าง ({parsedCampaigns.length} รายการ):</span>
-                        <span className="text-[11px] text-gray-400 font-normal">คลิกเพื่อดูชุดโฆษณาและโฆษณาด้านใน</span>
-                      </p>
+                    {/* Table */}
+                    <div className="overflow-x-auto border border-gray-100 rounded-xl">
+                      <table className="w-full text-left text-xs text-gray-600 whitespace-nowrap">
+                        <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-800">
+                          <tr>
+                            <th className="px-3 py-3 font-bold">รหัสแคมเปญ</th>
+                            <th className="px-3 py-3 font-bold">ชื่อแคมเปญ</th>
+                            <th className="px-3 py-3 font-bold">ช่องทาง</th>
+                            <th className="px-3 py-3 font-bold">กลุ่มสินค้า</th>
+                            <th className="px-3 py-3 font-bold">วัตถุประสงค์</th>
+                            <th className="px-3 py-3 font-bold">กลยุทธ์งบ</th>
+                            <th className="px-3 py-3 font-bold text-right">งบที่วางแผนไว้</th>
+                            <th className="px-3 py-3 font-bold text-center">ชุดโฆษณา</th>
+                            <th className="px-3 py-3 font-bold text-center">ชิ้นงาน</th>
+                            <th className="px-3 py-3 font-bold text-center">สื่อโฆษณา</th>
+                            <th className="px-3 py-3 font-bold text-right">งบที่จัดสรร</th>
+                            <th className="px-3 py-3 font-bold">ระยะเวลา</th>
+                            <th className="px-3 py-3 font-bold text-center">สถานะ</th>
+                            <th className="px-3 py-3 font-bold">อัปเดตล่าสุด</th>
+                            <th className="px-3 py-3 font-bold text-center">จัดการ</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {paginatedCampaigns.length > 0 ? (
+                            paginatedCampaigns.map((c: any) => {
+                              const parsed = getParsedCampaignData(c)
+                              const sets = parsed.adSets || []
+                              const adsCount = sets.reduce((sum, s) => sum + (s.ads?.length || 0), 0)
+                              const allocated = sets.reduce((sum, s) => sum + (Number(s.budget) || 0), 0)
+                              const scheduleStr = `${c.startDate ? new Date(c.startDate).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' }) : '-'} - ${c.endDate ? new Date(c.endDate).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }) : '-'}`
+                              const statusUpper = (c.status || 'ACTIVE').toUpperCase()
 
-                      <div className="space-y-2.5 max-h-[340px] overflow-y-auto custom-scrollbar pr-1">
-                        {parsedCampaigns.map((c, idx) => {
-                          const isExpanded = expandedPreviewIdx === idx
-                          return (
-                            <div
-                              key={idx}
-                              className="border border-gray-200 rounded-2xl p-3.5 bg-white hover:border-gray-300 transition-all shadow-xs"
-                            >
-                              <div
-                                className="flex items-start justify-between gap-3 cursor-pointer"
-                                onClick={() => setExpandedPreviewIdx(isExpanded ? null : idx)}
-                              >
-                                <div className="space-y-1 min-w-0">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="text-xs font-bold text-gray-900">{c.name}</span>
-                                    {c.channelName && (
-                                      <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 rounded-full border border-blue-100">
-                                        {c.channelName}
-                                      </span>
-                                    )}
-                                    {c.productCategory && (
-                                      <span className="px-2 py-0.5 text-[10px] font-bold bg-rose-50 text-rose-700 rounded-full border border-rose-100">
-                                        {c.productCategory}
-                                      </span>
-                                    )}
-                                    <span className="px-2 py-0.5 text-[10px] font-bold bg-gray-100 text-gray-600 rounded-full">
-                                      {c.budgetStrategy || 'ABO'}
+                              return (
+                                <tr key={c.id} className="hover:bg-gray-50/70 transition-colors">
+                                  <td className="px-3 py-3 font-mono font-bold text-gray-900">
+                                    {c.internalCode || '-'}
+                                  </td>
+                                  <td className="px-3 py-3 font-semibold text-gray-900 max-w-[200px] truncate" title={c.name}>
+                                    {c.name}
+                                  </td>
+                                  <td className="px-3 py-3 text-gray-700">
+                                    {c.channel?.name || '-'}
+                                  </td>
+                                  <td className="px-3 py-3 text-gray-700 max-w-[150px] truncate" title={c.productCategory}>
+                                    {c.productCategory || '-'}
+                                  </td>
+                                  <td className="px-3 py-3 text-gray-700">
+                                    {c.objective?.name || '-'}
+                                  </td>
+                                  <td className="px-3 py-3 font-semibold text-gray-800">
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-black border ${parsed.budgetStrategy === 'CBO'
+                                      ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                      }`}>
+                                      {parsed.budgetStrategy === 'CBO' ? 'CBO — Campaign' : 'ABO — Ad Set'}
                                     </span>
-                                  </div>
-
-                                  <div className="flex items-center gap-3 text-[11px] text-gray-500">
-                                    <span>งบประมาณ: <strong className="text-gray-800">฿{Number(c.budget || 0).toLocaleString()}</strong></span>
-                                    <span>•</span>
-                                    <span>{c.adSets?.length || 0} ชุดโฆษณา</span>
-                                    <span>•</span>
-                                    <span>
-                                      {(c.adSets || []).reduce((sum: number, s: any) => sum + (s.ads?.length || 0), 0)} โฆษณา
-                                    </span>
-                                    {c.startDate && (
-                                      <>
-                                        <span>•</span>
-                                        <span>{c.startDate} ถึง {c.endDate || 'ไม่มีกำหนด'}</span>
-                                      </>
+                                  </td>
+                                  <td className="px-3 py-3 font-bold text-gray-900 text-right">
+                                    ฿{Number(c.budget || 0).toLocaleString()}
+                                  </td>
+                                  <td className="px-3 py-3 text-center font-bold text-gray-800">
+                                    {sets.length}
+                                  </td>
+                                  <td className="px-3 py-3 text-center font-bold text-gray-800">
+                                    {adsCount}
+                                  </td>
+                                  <td className="px-3 py-3 text-center font-bold text-gray-800">
+                                    {adsCount}
+                                  </td>
+                                  <td className={`px-3 py-3 font-bold text-right ${allocated > (c.budget || 0) && parsed.budgetStrategy !== 'CBO' ? 'text-red-600' : 'text-gray-900'}`}>
+                                    {parsed.budgetStrategy === 'CBO' ? (
+                                      <span className="text-[11px] font-medium text-indigo-700">จัดสรรอัตโนมัติ</span>
+                                    ) : (
+                                      `฿${allocated.toLocaleString()}`
                                     )}
-                                  </div>
-                                </div>
-
-                                <div className="text-gray-400 hover:text-gray-600 p-1">
-                                  {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                                </div>
-                              </div>
-
-                              {/* Expanded Details: Ad Sets & Ads */}
-                              {isExpanded && c.adSets && c.adSets.length > 0 && (
-                                <div className="mt-3 pt-3 border-t border-gray-100 space-y-2.5">
-                                  {c.adSets.map((s: any, sIdx: number) => (
-                                    <div key={sIdx} className="bg-gray-50/80 rounded-xl p-2.5 border border-gray-100 text-xs">
-                                      <div className="flex items-center justify-between font-bold text-gray-800 mb-1.5">
-                                        <span className="flex items-center gap-1.5">
-                                          <Layers size={13} className="text-indigo-600" />
-                                          <span>{s.name}</span>
-                                        </span>
-                                        <span className="text-gray-600 font-semibold">
-                                          งบชุด: ฿{Number(s.budget || 0).toLocaleString()}
-                                        </span>
-                                      </div>
-                                      <div className="text-[11px] text-gray-500 mb-2">
-                                        เป้าหมาย: {s.targetAudience || '-'} | พื้นที่: {s.location || '-'} | อายุ: {s.age || '-'}
-                                      </div>
-
-                                      {/* Ads in this Set */}
-                                      {s.ads && s.ads.length > 0 && (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1.5">
-                                          {s.ads.map((ad: any, aIdx: number) => (
-                                            <div key={aIdx} className="bg-white p-2 rounded-lg border border-gray-200 flex items-center gap-2">
-                                              {ad.creativeUrl ? (
-                                                <img
-                                                  src={ad.creativeUrl}
-                                                  alt=""
-                                                  referrerPolicy="no-referrer"
-                                                  className="w-10 h-10 object-cover rounded shrink-0 border border-gray-100"
-                                                  onError={e => {
-                                                    (e.target as HTMLElement).style.display = 'none'
-                                                  }}
-                                                />
-                                              ) : (
-                                                <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400 shrink-0">
-                                                  <ImageIcon size={16} />
-                                                </div>
-                                              )}
-                                              <div className="min-w-0 flex-1 text-[11px]">
-                                                <p className="font-bold text-gray-800 truncate">{ad.name}</p>
-                                                <p className="text-gray-500 truncate">{ad.headline || ad.primaryText || '-'}</p>
-                                                <div className="flex items-center gap-1.5 text-[10px] text-gray-400 mt-0.5">
-                                                  <span className="bg-gray-100 px-1 rounded">{ad.format || 'IMAGE'}</span>
-                                                  <span>•</span>
-                                                  <span className="text-blue-600">{ad.cta || 'ส่งข้อความ'}</span>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      )}
+                                  </td>
+                                  <td className="px-3 py-3 text-gray-600">
+                                    {scheduleStr}
+                                  </td>
+                                  <td className="px-3 py-3 text-center">
+                                    <span
+                                      className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusUpper === 'ACTIVE'
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                        : statusUpper === 'DRAFT'
+                                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                          : statusUpper === 'PAUSED'
+                                            ? 'bg-gray-100 text-gray-700 border-gray-300'
+                                            : statusUpper === 'COMPLETED'
+                                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                              : 'bg-slate-100 text-slate-700 border-slate-300'
+                                        }`}
+                                    >
+                                      {statusUpper === 'ACTIVE'
+                                        ? 'ใช้งาน'
+                                        : statusUpper === 'DRAFT'
+                                          ? 'ฉบับร่าง'
+                                          : statusUpper === 'PAUSED'
+                                            ? 'หยุดชั่วคราว'
+                                            : statusUpper === 'COMPLETED'
+                                              ? 'เสร็จสิ้น'
+                                              : 'เก็บถาวร'}
+                                    </span>
+                                  </td>
+                                  <td className="px-3 py-3 text-gray-500">
+                                    {new Date(c.updatedAt || c.createdAt).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })},{' '}
+                                    {new Date(c.updatedAt || c.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                                  </td>
+                                  <td className="px-3 py-3 text-center">
+                                    <div className="flex items-center justify-center gap-1">
+                                      <button
+                                        onClick={() => handleOpenBudgetHistory(c.id, c.name)}
+                                        className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                        title="ประวัติงบประมาณ (Budget History)"
+                                      >
+                                        <History size={14} />
+                                      </button>
+                                      <button
+                                        onClick={() => handleEdit(c)}
+                                        className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                        title="แก้ไขแคมเปญ"
+                                      >
+                                        <Pencil size={14} />
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          handleEdit(c)
+                                          setSubTab('adsets')
+                                        }}
+                                        className="p-1 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                        title="จัดการชุดโฆษณา (Ad Sets & Ads)"
+                                      >
+                                        <Layers size={14} />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDuplicate(c)}
+                                        className="p-1 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                        title="คัดลอกแคมเปญ"
+                                      >
+                                        <Copy size={14} />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDelete(c.id)}
+                                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                        title="ลบแคมเปญ"
+                                      >
+                                        <Trash2 size={14} />
+                                      </button>
                                     </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                                  </td>
+                                </tr>
+                              )
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={15} className="px-4 py-8 text-center text-gray-400 font-medium">
+                                ไม่พบข้อมูลแคมเปญตามเงื่อนไขที่ค้นหา
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500 pt-2">
+                      <span>
+                        แสดง {filteredCampaigns.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}-
+                        {Math.min(currentPage * pageSize, filteredCampaigns.length)} จากทั้งหมด {filteredCampaigns.length} แคมเปญ
+                      </span>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+                          title="หน้าก่อนหน้า"
+                        >
+                          <ChevronLeft size={14} />
+                        </button>
+
+                        {Array.from({ length: totalPages }).map((_, idx) => {
+                          const p = idx + 1
+                          return (
+                            <button
+                              key={p}
+                              onClick={() => setCurrentPage(p)}
+                              className={`w-7 h-7 rounded-lg font-bold text-xs ${currentPage === p
+                                ? 'bg-[#ff2301] text-white'
+                                : 'hover:bg-gray-100 text-gray-700'
+                                }`}
+                            >
+                              {p}
+                            </button>
                           )
                         })}
+
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+                          title="หน้าถัดไป"
+                        >
+                          <ChevronRight size={14} />
+                        </button>
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
+
+                {/* SUBTAB 2: Ad Sets & Ads Management */}
+                {subTab === 'adsets' && (
+                  <AdSetsManager
+                    campaigns={campaigns}
+                    selectedCampaignId={selectedCampaignId || formData.id || campaigns[0]?.id || ''}
+                    onSelectCampaign={(id: string) => {
+                      setSelectedCampaignId(id)
+                      const c = campaigns.find(item => item.id === id)
+                      if (c) {
+                        const parsed = getParsedCampaignData(c)
+                        setFormAdSets(parsed.adSets || [])
+                      }
+                    }}
+                    onEditCampaign={(campaign: any) => {
+                      handleEdit(campaign)
+                    }}
+                    adSets={formAdSets}
+                    setAdSets={setFormAdSets}
+                    onSaveStructure={async (updatedSets: AdSetItem[]) => {
+                      const targetId = selectedCampaignId || formData.id || campaigns[0]?.id
+                      if (!targetId) return
+                      const c = campaigns.find(item => item.id === targetId)
+                      if (!c) return
+
+                      const parsed = getParsedCampaignData(c)
+                      const targetPayload = JSON.stringify({
+                        budgetStrategy: parsed.budgetStrategy || 'ABO',
+                        adSets: updatedSets
+                      })
+
+                      try {
+                        const res = await updateCampaign(targetId, { targetAudience: targetPayload })
+                        if (res && !res.success) {
+                          setError('บันทึกล้มเหลว: ' + (res.error || 'เกิดข้อผิดพลาดในการอัปเดต'))
+                          return
+                        }
+                        setCampaigns(prev => prev.map(item => (item.id === targetId ? res.data : item)))
+                        setSuccessMsg('บันทึกโครงสร้าง Ad Sets & Ads สำเร็จ!')
+                      } catch (e: any) {
+                        setError('บันทึกล้มเหลว: ' + e.message)
+                      }
+                    }}
+                    onBack={() => setSubTab('info')}
+                    onOpenCreativeLibrary={() => setSubTab('creative')}
+                  />
+                )}
+
+                {/* SUBTAB 3: Creative Library */}
+                {subTab === 'creative' && (
+                  <CreativeLibraryView
+                    campaigns={campaigns}
+                    onSelectAdSet={(campId?: string, adCode?: string) => {
+                      if (campId) {
+                        const targetCampaign = campaigns.find(c => c.id === campId || c.name === campId)
+                        if (targetCampaign) {
+                          setSelectedCampaignId(targetCampaign.id)
+                          const parsed = getParsedCampaignData(targetCampaign)
+                          setFormAdSets(parsed.adSets || [])
+                        }
+                      }
+                      setSubTab('adsets')
+                    }}
+                  />
                 )}
               </div>
+            )}
 
-              {/* Modal Footer */}
-              <div className="px-6 py-4 border-t border-gray-100 bg-slate-50 flex items-center justify-between gap-4">
-                <button
-                  type="button"
-                  onClick={handleDownloadTemplate}
-                  className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
-                >
-                  <Download size={13} />
-                  <span>ดาวน์โหลดแบบฟอร์มเทมเพลต (.CSV)</span>
-                </button>
-
-                <div className="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setIsImportModalOpen(false)}
-                    disabled={isImporting}
-                    className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-200/70 rounded-xl transition-all"
-                  >
-                    ยกเลิก
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={parsedCampaigns.length === 0 || isImporting}
-                    onClick={handleImportSubmit}
-                    className="px-5 py-2 text-xs font-bold text-white bg-[#ff2301] hover:bg-[#e01f01] rounded-xl transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isImporting ? <RefreshCw size={13} className="animate-spin" /> : <Upload size={13} />}
-                    <span>
-                      {isImporting
-                        ? 'กำลังนำเข้าข้อมูล...'
-                        : `ยืนยันนำเข้าข้อมูล (${parsedCampaigns.length} แคมเปญ)`}
-                    </span>
-                  </button>
+            {/* Confirmation Modal */}
+            {confirmModal.isOpen && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+                onPointerDown={e => e.stopPropagation()}
+              >
+                <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center animate-in fade-in zoom-in-95">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">ยืนยันการดำเนินการ</h3>
+                  <p className="text-sm text-gray-600 mb-6">{confirmModal.message}</p>
+                  <div className="flex justify-center space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                      className="px-4 py-2 border border-gray-200 rounded-xl text-gray-700 bg-white hover:bg-gray-50 text-sm font-semibold transition-colors"
+                    >
+                      ยกเลิก
+                    </button>
+                    <button
+                      type="button"
+                      onClick={confirmModal.onConfirm}
+                      className="px-4 py-2 bg-[#ff2301] text-white rounded-xl hover:bg-red-600 text-sm font-bold shadow-sm transition-colors"
+                    >
+                      ยืนยัน
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+            )}
+
+            {/* Strategy Switch Confirmation Modal */}
+            {strategySwitchModal.isOpen && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in"
+                onPointerDown={e => e.stopPropagation()}
+              >
+                <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 text-center border border-gray-100 animate-in zoom-in-95">
+                  <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#ff2301] flex items-center justify-center mx-auto mb-4 border border-red-100 shadow-xs">
+                    <AlertCircle size={24} />
+                  </div>
+                  <h3 className="text-base font-black text-gray-900 mb-2">
+                    {strategySwitchModal.targetStrategy === 'CBO'
+                      ? 'ยืนยันการเปลี่ยนเป็น CBO (Campaign Budget Optimization)'
+                      : 'การเปลี่ยนเป็น ABO (Ad Set Budget Optimization)'}
+                  </h3>
+                  <p className="text-xs text-gray-600 leading-relaxed mb-6">
+                    {strategySwitchModal.targetStrategy === 'CBO'
+                      ? 'การเปลี่ยนเป็น CBO จะยกเลิกการใช้งบประมาณรายชุดโฆษณา และใช้ Campaign Budget เป็นงบประมาณหลักแทน โดยข้อมูลงบประมาณเดิมจะถูกบันทึกไว้ในประวัติ คุณต้องการดำเนินการต่อหรือไม่?'
+                      : 'การเปลี่ยนเป็น ABO จำเป็นต้องระบุงบประมาณสำหรับทุกชุดโฆษณาที่ใช้งานอยู่ (Active) ก่อนบันทึกข้อมูล'}
+                  </p>
+                  <div className="flex justify-center items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setStrategySwitchModal(prev => ({ ...prev, isOpen: false }))}
+                      className="px-5 py-2.5 border border-gray-200 rounded-xl text-gray-700 bg-white hover:bg-gray-50 text-xs font-bold transition-all"
+                    >
+                      ยกเลิก
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleConfirmStrategySwitch}
+                      className="px-5 py-2.5 bg-[#ff2301] text-white rounded-xl hover:bg-red-600 text-xs font-bold shadow-xs transition-all"
+                    >
+                      {strategySwitchModal.targetStrategy === 'CBO' ? 'ยืนยัน' : 'รับทราบ'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Budget History Modal */}
+            {budgetHistoryModal.isOpen && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in"
+                onPointerDown={e => e.stopPropagation()}
+              >
+                <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col border border-gray-100 overflow-hidden animate-in zoom-in-95">
+                  {/* Header */}
+                  <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-xs">
+                        <History size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-gray-900">
+                          ประวัติการปรับปรุงงบประมาณ (Budget History)
+                        </h3>
+                        <p className="text-xs text-gray-500 truncate max-w-md">
+                          แคมเปญ: {budgetHistoryModal.campaignName}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBudgetHistoryModal(prev => ({ ...prev, isOpen: false }))}
+                      className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-all"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-6 overflow-y-auto flex-1">
+                    {budgetHistoryModal.loading ? (
+                      <div className="py-16 text-center text-gray-500 flex flex-col items-center justify-center gap-2">
+                        <RefreshCw size={24} className="animate-spin text-gray-400" />
+                        <span className="text-xs font-semibold">กำลังโหลดประวัติงบประมาณ...</span>
+                      </div>
+                    ) : budgetHistoryModal.history.length === 0 ? (
+                      <div className="py-16 text-center text-gray-400 flex flex-col items-center justify-center gap-2">
+                        <Info size={28} className="text-gray-300" />
+                        <span className="text-xs font-semibold">ยังไม่มีประวัติการปรับปรุงงบประมาณสำหรับแคมเปญนี้</span>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto border border-gray-200 rounded-2xl">
+                        <table className="w-full text-left text-xs whitespace-nowrap">
+                          <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 text-[11px] uppercase tracking-wider font-bold">
+                            <tr>
+                              <th className="px-4 py-3">วันและเวลา</th>
+                              <th className="px-3 py-3 text-center">ประเภท</th>
+                              <th className="px-4 py-3">กลยุทธ์</th>
+                              <th className="px-4 py-3 text-right">งบประมาณเดิม ➔ ใหม่</th>
+                              <th className="px-3 py-3 text-center">ประเภทงบ</th>
+                              <th className="px-4 py-3">ผู้แก้ไข</th>
+                              <th className="px-4 py-3">หมายเหตุ</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {budgetHistoryModal.history.map((item, idx) => (
+                              <tr key={item.id || idx} className="hover:bg-gray-50">
+                                <td className="px-4 py-3 text-gray-600 font-mono text-[11px]">
+                                  {new Date(item.changedAt).toLocaleString('th-TH', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </td>
+                                <td className="px-3 py-3 text-center">
+                                  <span className={`px-2 py-0.5 rounded text-[10px] font-black ${item.actionType === 'STRATEGY_CHANGE'
+                                    ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                                    : item.actionType === 'CAMPAIGN_BUDGET_UPDATE'
+                                      ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                                      : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    }`}>
+                                    {item.actionType}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 font-semibold text-gray-900">
+                                  {item.prevStrategy || '—'} ➔ {item.newStrategy || '—'}
+                                </td>
+                                <td className="px-4 py-3 text-right font-mono font-bold text-gray-900">
+                                  {item.prevBudget !== null && item.prevBudget !== undefined ? `฿${Number(item.prevBudget).toLocaleString()}` : '—'} ➔ {item.newBudget !== null && item.newBudget !== undefined ? `฿${Number(item.newBudget).toLocaleString()}` : '—'}
+                                </td>
+                                <td className="px-3 py-3 text-center text-gray-600 font-mono text-[11px]">
+                                  {item.budgetType || 'DAILY'}
+                                </td>
+                                <td className="px-4 py-3 text-gray-700">
+                                  {item.changedBy || 'ระบบ'}
+                                </td>
+                                <td className="px-4 py-3 text-gray-500 max-w-xs truncate" title={item.changeReason}>
+                                  {item.changeReason || '—'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-6 py-3 border-t border-gray-100 flex justify-end bg-gray-50">
+                    <button
+                      type="button"
+                      onClick={() => setBudgetHistoryModal(prev => ({ ...prev, isOpen: false }))}
+                      className="px-5 py-2 bg-gray-900 hover:bg-black text-white rounded-xl text-xs font-bold transition-all"
+                    >
+                      ปิด (Close)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* MODAL: CSV IMPORT */}
+            {isImportModalOpen && (
+              <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in">
+                <div className="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+                  {/* Header */}
+                  <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-[#ff2301] shadow-xs">
+                        <Upload size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900">
+                          นำเข้าข้อมูลแคมเปญ (Import Campaigns via CSV)
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          อัปโหลดไฟล์เทมเพลต CSV เพื่อเพิ่มแคมเปญ ชุดโฆษณา และโฆษณาจำนวนมากพร้อมกัน
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsImportModalOpen(false)}
+                      className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+                    {/* Hidden file input */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      onChange={e => {
+                        if (e.target.files && e.target.files[0]) {
+                          processCSVFile(e.target.files[0])
+                        }
+                      }}
+                    />
+
+                    {/* Upload Dropzone */}
+                    {!importFile ? (
+                      <div
+                        onDragOver={e => {
+                          e.preventDefault()
+                          setImportDragActive(true)
+                        }}
+                        onDragLeave={() => setImportDragActive(false)}
+                        onDrop={e => {
+                          e.preventDefault()
+                          setImportDragActive(false)
+                          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                            processCSVFile(e.dataTransfer.files[0])
+                          }
+                        }}
+                        onClick={() => fileInputRef.current?.click()}
+                        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${importDragActive
+                          ? 'border-[#ff2301] bg-red-50/50 scale-[0.99]'
+                          : 'border-gray-200 bg-gray-50/60 hover:bg-gray-50 hover:border-gray-300'
+                          }`}
+                      >
+                        <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 shadow-sm group-hover:scale-105 transition-transform">
+                          <UploadCloud size={28} className="text-[#ff2301]" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-gray-800">
+                            คลิกเพื่อเลือกไฟล์ หรือ ลากไฟล์ .CSV มาวางที่นี่
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            รองรับไฟล์ .CSV พร้อมการเข้ารหัส UTF-8 (แนะนำดาวน์โหลดเทมเพลตมาตรฐาน)
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 pt-2">
+                          <span className="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg shadow-xs">
+                            เลือกไฟล์ CSV
+                          </span>
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.stopPropagation()
+                              handleDownloadTemplate()
+                            }}
+                            className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors flex items-center gap-1"
+                          >
+                            <Download size={12} />
+                            <span>ยังไม่มีไฟล์? ดาวน์โหลดเทมเพลตที่นี่</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* File Selected Banner */
+                      <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                            <FileSpreadsheet size={20} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-gray-800 truncate">{importFile.name}</p>
+                            <p className="text-[11px] text-gray-400">
+                              {(importFile.size / 1024).toFixed(1)} KB • แคมเปญที่พบ {parsedCampaigns.length} รายการ
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all shadow-xs"
+                          >
+                            เปลี่ยนไฟล์
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setImportFile(null)
+                              setParsedCampaigns([])
+                              setImportParseErrors([])
+                            }}
+                            className="w-7 h-7 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
+                          >
+                            <X size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Error messages if any */}
+                    {importParseErrors.length > 0 && (
+                      <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 space-y-1">
+                        <div className="flex items-center gap-1.5 font-bold text-red-800">
+                          <AlertCircle size={14} className="shrink-0" />
+                          <span>พบข้อผิดพลาดหรือข้อควรระวัง:</span>
+                        </div>
+                        <ul className="list-disc list-inside space-y-0.5 text-red-600 pl-1">
+                          {importParseErrors.map((err, idx) => (
+                            <li key={idx}>{err}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Parsed Summary Cards */}
+                    {parsedCampaigns.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          <div className="p-3.5 bg-blue-50/60 border border-blue-100 rounded-2xl">
+                            <p className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">แคมเปญ (Campaigns)</p>
+                            <p className="text-xl font-black text-blue-900 mt-1">{importSummary.campaignCount}</p>
+                          </div>
+                          <div className="p-3.5 bg-purple-50/60 border border-purple-100 rounded-2xl">
+                            <p className="text-[11px] font-bold text-purple-600 uppercase tracking-wider">ชุดโฆษณา (Ad Sets)</p>
+                            <p className="text-xl font-black text-purple-900 mt-1">{importSummary.adSetCount}</p>
+                          </div>
+                          <div className="p-3.5 bg-amber-50/60 border border-amber-100 rounded-2xl">
+                            <p className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">โฆษณา (Ads)</p>
+                            <p className="text-xl font-black text-amber-900 mt-1">{importSummary.adCount}</p>
+                          </div>
+                          <div className="p-3.5 bg-emerald-50/60 border border-emerald-100 rounded-2xl">
+                            <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">งบประมาณรวม</p>
+                            <p className="text-xl font-black text-emerald-900 mt-1">฿{importSummary.totalBudget.toLocaleString()}</p>
+                          </div>
+                        </div>
+
+                        {/* Preview Table / List */}
+                        <div className="space-y-2">
+                          <p className="text-xs font-bold text-gray-700 flex items-center justify-between">
+                            <span>รายการข้อมูลแคมเปญที่จะถูกสร้าง ({parsedCampaigns.length} รายการ):</span>
+                            <span className="text-[11px] text-gray-400 font-normal">คลิกเพื่อดูชุดโฆษณาและโฆษณาด้านใน</span>
+                          </p>
+
+                          <div className="space-y-2.5 max-h-[340px] overflow-y-auto custom-scrollbar pr-1">
+                            {parsedCampaigns.map((c, idx) => {
+                              const isExpanded = expandedPreviewIdx === idx
+                              return (
+                                <div
+                                  key={idx}
+                                  className="border border-gray-200 rounded-2xl p-3.5 bg-white hover:border-gray-300 transition-all shadow-xs"
+                                >
+                                  <div
+                                    className="flex items-start justify-between gap-3 cursor-pointer"
+                                    onClick={() => setExpandedPreviewIdx(isExpanded ? null : idx)}
+                                  >
+                                    <div className="space-y-1 min-w-0">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="text-xs font-bold text-gray-900">{c.name}</span>
+                                        {c.channelName && (
+                                          <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+                                            {c.channelName}
+                                          </span>
+                                        )}
+                                        {c.productCategory && (
+                                          <span className="px-2 py-0.5 text-[10px] font-bold bg-rose-50 text-rose-700 rounded-full border border-rose-100">
+                                            {c.productCategory}
+                                          </span>
+                                        )}
+                                        <span className="px-2 py-0.5 text-[10px] font-bold bg-gray-100 text-gray-600 rounded-full">
+                                          {c.budgetStrategy || 'ABO'}
+                                        </span>
+                                      </div>
+
+                                      <div className="flex items-center gap-3 text-[11px] text-gray-500">
+                                        <span>งบประมาณ: <strong className="text-gray-800">฿{Number(c.budget || 0).toLocaleString()}</strong></span>
+                                        <span>•</span>
+                                        <span>{c.adSets?.length || 0} ชุดโฆษณา</span>
+                                        <span>•</span>
+                                        <span>
+                                          {(c.adSets || []).reduce((sum: number, s: any) => sum + (s.ads?.length || 0), 0)} โฆษณา
+                                        </span>
+                                        {c.startDate && (
+                                          <>
+                                            <span>•</span>
+                                            <span>{c.startDate} ถึง {c.endDate || 'ไม่มีกำหนด'}</span>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div className="text-gray-400 hover:text-gray-600 p-1">
+                                      {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                    </div>
+                                  </div>
+
+                                  {/* Expanded Details: Ad Sets & Ads */}
+                                  {isExpanded && c.adSets && c.adSets.length > 0 && (
+                                    <div className="mt-3 pt-3 border-t border-gray-100 space-y-2.5">
+                                      {c.adSets.map((s: any, sIdx: number) => (
+                                        <div key={sIdx} className="bg-gray-50/80 rounded-xl p-2.5 border border-gray-100 text-xs">
+                                          <div className="flex items-center justify-between font-bold text-gray-800 mb-1.5">
+                                            <span className="flex items-center gap-1.5">
+                                              <Layers size={13} className="text-indigo-600" />
+                                              <span>{s.name}</span>
+                                            </span>
+                                            <span className="text-gray-600 font-semibold">
+                                              งบชุด: ฿{Number(s.budget || 0).toLocaleString()}
+                                            </span>
+                                          </div>
+                                          <div className="text-[11px] text-gray-500 mb-2">
+                                            เป้าหมาย: {s.targetAudience || '-'} | พื้นที่: {s.location || '-'} | อายุ: {s.age || '-'}
+                                          </div>
+
+                                          {/* Ads in this Set */}
+                                          {s.ads && s.ads.length > 0 && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1.5">
+                                              {s.ads.map((ad: any, aIdx: number) => (
+                                                <div key={aIdx} className="bg-white p-2 rounded-lg border border-gray-200 flex items-center gap-2">
+                                                  {ad.creativeUrl ? (
+                                                    <img
+                                                      src={ad.creativeUrl}
+                                                      alt=""
+                                                      referrerPolicy="no-referrer"
+                                                      className="w-10 h-10 object-cover rounded shrink-0 border border-gray-100"
+                                                      onError={e => {
+                                                        (e.target as HTMLElement).style.display = 'none'
+                                                      }}
+                                                    />
+                                                  ) : (
+                                                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400 shrink-0">
+                                                      <ImageIcon size={16} />
+                                                    </div>
+                                                  )}
+                                                  <div className="min-w-0 flex-1 text-[11px]">
+                                                    <p className="font-bold text-gray-800 truncate">{ad.name}</p>
+                                                    <p className="text-gray-500 truncate">{ad.headline || ad.primaryText || '-'}</p>
+                                                    <div className="flex items-center gap-1.5 text-[10px] text-gray-400 mt-0.5">
+                                                      <span className="bg-gray-100 px-1 rounded">{ad.format || 'IMAGE'}</span>
+                                                      <span>•</span>
+                                                      <span className="text-blue-600">{ad.cta || 'ส่งข้อความ'}</span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="px-6 py-4 border-t border-gray-100 bg-slate-50 flex items-center justify-between gap-4">
+                    <button
+                      type="button"
+                      onClick={handleDownloadTemplate}
+                      className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                    >
+                      <Download size={13} />
+                      <span>ดาวน์โหลดแบบฟอร์มเทมเพลต (.CSV)</span>
+                    </button>
+
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setIsImportModalOpen(false)}
+                        disabled={isImporting}
+                        className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-200/70 rounded-xl transition-all"
+                      >
+                        ยกเลิก
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={parsedCampaigns.length === 0 || isImporting}
+                        onClick={handleImportSubmit}
+                        className="px-5 py-2 text-xs font-bold text-white bg-[#ff2301] hover:bg-[#e01f01] rounded-xl transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isImporting ? <RefreshCw size={13} className="animate-spin" /> : <Upload size={13} />}
+                        <span>
+                          {isImporting
+                            ? 'กำลังนำเข้าข้อมูล...'
+                            : `ยืนยันนำเข้าข้อมูล (${parsedCampaigns.length} แคมเปญ)`}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+      </div>
   )
 }
 
@@ -2459,21 +3221,33 @@ function AdSetsManager({
 }) {
   const router = useRouter()
   const currentCampaign = campaigns.find(c => c.id === selectedCampaignId) || campaigns[0]
-  const plannedBudget = currentCampaign ? Number(currentCampaign.budget || 0) : 0
-
-  let campaignBudgetStrategy = 'ABO'
+  let campaignBudgetStrategy = (currentCampaign?.budgetStrategy || currentCampaign?.budget_strategy || 'ABO').toString().toUpperCase().includes('CBO') ? 'CBO' : 'ABO'
   try {
     if (currentCampaign?.targetAudience?.startsWith('{')) {
       const parsed = JSON.parse(currentCampaign.targetAudience)
-      campaignBudgetStrategy = parsed.budgetStrategy || 'ABO'
+      if (parsed.budgetStrategy) {
+        campaignBudgetStrategy = parsed.budgetStrategy.toUpperCase().includes('CBO') ? 'CBO' : 'ABO'
+      }
     }
   } catch { }
+
+  const isCBO = campaignBudgetStrategy === 'CBO'
+
+  const activeAdSetsList = useMemo(() => {
+    return adSets.filter(s => (s.status || 'ACTIVE') === 'ACTIVE')
+  }, [adSets])
+
+  const activeAdSetsSum = useMemo(() => {
+    return activeAdSetsList.reduce((sum, s) => sum + (Number(s.budget) || 0), 0)
+  }, [activeAdSetsList])
+
+  const plannedBudget = isCBO ? Number(currentCampaign?.budget || 0) : activeAdSetsSum
 
   const totalAllocated = useMemo(() => {
     return adSets.reduce((sum, s) => sum + (Number(s.budget) || 0), 0)
   }, [adSets])
 
-  const isOverBudget = plannedBudget > 0 && totalAllocated > plannedBudget
+  const isOverBudget = !isCBO && plannedBudget > 0 && totalAllocated > plannedBudget
   const budgetRatio = plannedBudget > 0 ? (totalAllocated / plannedBudget) * 100 : 0
 
   const [activeSetId, setActiveSetId] = useState<string>(adSets[0]?.id || '')
@@ -2679,7 +3453,7 @@ function AdSetsManager({
 
   const handleAddAdSet = () => {
     const nextSeq = adSets.length + 1
-    const defaultBudget = remainingForActiveSet > 0 ? Math.min(remainingForActiveSet, 30000) : 10000
+    const defaultBudget = isCBO ? 0 : (remainingForActiveSet > 0 ? Math.min(remainingForActiveSet, 30000) : 10000)
     const newSetId = `set_${Date.now()}`
     const pCode = getProductAbbr()
     const startDateStr = currentCampaign?.startDate ? new Date(currentCampaign.startDate).toISOString().split('T')[0] : ''
@@ -2698,7 +3472,7 @@ function AdSetsManager({
       optimization: 'Maximize messaging conversations',
       budgetType: 'DAILY',
       budget: defaultBudget,
-      dailyBudget: Math.round(defaultBudget / 30) || 1000,
+      dailyBudget: isCBO ? 0 : (Math.round(defaultBudget / 30) || 1000),
       startDate: startDateStr,
       endDate: endDateStr,
       status: 'ACTIVE',
@@ -3166,9 +3940,16 @@ function AdSetsManager({
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100">
                   {objectiveDisplayName}
                 </span>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-700">
-                  กลยุทธ์: {campaignBudgetStrategy}
-                </span>
+                {isCBO ? (
+                  <span className="text-[11px] font-black px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1 shadow-xs">
+                    <Sparkles size={13} className="text-indigo-600" />
+                    CBO — Facebook Auto Allocation
+                  </span>
+                ) : (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    ABO — Ad Set Budget
+                  </span>
+                )}
               </div>
               <h2 className="text-base sm:text-lg font-black text-gray-900 truncate" title={currentCampaign.name}>
                 {currentCampaign.name}
@@ -3179,18 +3960,28 @@ function AdSetsManager({
           {/* Right: Aligned Metrics & Action Button */}
           <div className="flex items-center gap-3 self-end xl:self-center shrink-0">
             <div className="bg-gray-50/80 border border-gray-200/80 rounded-xl px-4 py-2 text-right h-11 flex flex-col justify-center">
-              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">งบประมาณที่วางแผนไว้</div>
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                {isCBO ? 'งบประมาณรวมแคมเปญ' : 'งบที่วางแผนไว้ (Sum)'}
+              </div>
               <div className="text-base sm:text-lg font-black text-gray-900 leading-tight">
                 ฿{plannedBudget.toLocaleString()}
               </div>
             </div>
 
             <div className="bg-gray-50/80 border border-gray-200/80 rounded-xl px-4 py-2 text-right h-11 flex flex-col justify-center">
-              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">จัดสรรให้ชุดโฆษณาแล้ว</div>
-              <div className={`text-base sm:text-lg font-black leading-tight ${isOverBudget ? 'text-red-600' : 'text-emerald-600'}`}>
-                ฿{totalAllocated.toLocaleString()}
-                <span className="text-xs font-normal text-gray-400 ml-1">/ ฿{plannedBudget.toLocaleString()}</span>
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                {isCBO ? 'สถานะการจัดสรรงบ' : 'จัดสรรให้ชุดโฆษณาแล้ว'}
               </div>
+              {isCBO ? (
+                <div className="text-xs sm:text-sm font-black text-indigo-700 leading-tight">
+                  จัดสรรอัตโนมัติ (Meta)
+                </div>
+              ) : (
+                <div className={`text-base sm:text-lg font-black leading-tight ${isOverBudget ? 'text-red-600' : 'text-emerald-600'}`}>
+                  ฿{totalAllocated.toLocaleString()}
+                  <span className="text-xs font-normal text-gray-400 ml-1">/ ฿{plannedBudget.toLocaleString()}</span>
+                </div>
+              )}
             </div>
 
             <button
@@ -3203,33 +3994,44 @@ function AdSetsManager({
           </div>
         </div>
 
-        {/* Dynamic Budget Allocation Bar */}
+        {/* Dynamic Budget Allocation Bar / Info banner */}
         <div className="space-y-1.5 pt-3 border-t border-gray-100">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500 font-medium flex items-center gap-1.5">
-              <span>สัดส่วนการจัดสรรงบประมาณ:</span>
-              <strong className="text-gray-800 font-bold">{budgetRatio.toFixed(1)}%</strong>
-            </span>
-            <span className={`font-bold ${isOverBudget ? 'text-red-600' : 'text-gray-700'}`}>
-              {isOverBudget
-                ? `เกินงบประมาณที่วางแผน ฿${(totalAllocated - plannedBudget).toLocaleString()}`
-                : `คงเหลือจัดสรรได้อีก ฿${Math.max(plannedBudget - totalAllocated, 0).toLocaleString()}`}
-            </span>
-          </div>
-          <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden flex">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${isOverBudget ? 'bg-red-500' : budgetRatio > 90 ? 'bg-amber-500' : 'bg-emerald-500'
-                }`}
-              style={{ width: `${Math.min(budgetRatio, 100)}%` }}
-            />
-          </div>
-          {isOverBudget && (
-            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold">
-              <AlertCircle size={15} className="shrink-0 text-red-600" />
+          {isCBO ? (
+            <div className="p-2.5 rounded-xl bg-indigo-50/70 border border-indigo-100 flex items-center gap-2 text-xs text-indigo-900 font-medium">
+              <Sparkles size={15} className="shrink-0 text-indigo-600" />
               <span>
-                คำเตือน: งบประมาณรวมของชุดโฆษณา (฿{totalAllocated.toLocaleString()}) เกินงบที่กำหนดไว้ในแคมเปญ (฿{plannedBudget.toLocaleString()}) กรุณาปรับลดงบประมาณชุดโฆษณา
+                <strong>โหมด CBO (Campaign Budget Optimization):</strong> Facebook/Meta จะกระจายงบประมาณไปยังชุดโฆษณาโดยอัตโนมัติ เพื่อให้ได้ผลลัพธ์ที่มีประสิทธิภาพสูงสุด
               </span>
             </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-500 font-medium flex items-center gap-1.5">
+                  <span>สัดส่วนการจัดสรรงบประมาณ:</span>
+                  <strong className="text-gray-800 font-bold">{budgetRatio.toFixed(1)}%</strong>
+                </span>
+                <span className={`font-bold ${isOverBudget ? 'text-red-600' : 'text-gray-700'}`}>
+                  {isOverBudget
+                    ? `เกินงบประมาณที่วางแผน ฿${(totalAllocated - plannedBudget).toLocaleString()}`
+                    : `คงเหลือจัดสรรได้อีก ฿${Math.max(plannedBudget - totalAllocated, 0).toLocaleString()}`}
+                </span>
+              </div>
+              <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden flex">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${isOverBudget ? 'bg-red-500' : budgetRatio > 90 ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`}
+                  style={{ width: `${Math.min(budgetRatio, 100)}%` }}
+                />
+              </div>
+              {isOverBudget && (
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold">
+                  <AlertCircle size={15} className="shrink-0 text-red-600" />
+                  <span>
+                    คำเตือน: งบประมาณรวมของชุดโฆษณา (฿{totalAllocated.toLocaleString()}) เกินงบที่กำหนดไว้ในแคมเปญ (฿{plannedBudget.toLocaleString()}) กรุณาปรับลดงบประมาณชุดโฆษณา
+                  </span>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -3387,12 +4189,18 @@ function AdSetsManager({
                       </div>
 
                       <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-gray-900">
-                          ฿{(Number(s.budget) || 0).toLocaleString()}
-                          <span className="text-[10px] font-normal text-gray-400 ml-1">
-                            (฿{(s.dailyBudget || Math.round((Number(s.budget) || 0) / 30)).toLocaleString()}/วัน)
+                        {isCBO ? (
+                          <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 flex items-center gap-1">
+                            <Sparkles size={11} className="text-indigo-600" /> จัดสรรอัตโนมัติ (CBO)
                           </span>
-                        </span>
+                        ) : (
+                          <span className="font-bold text-gray-900">
+                            ฿{(Number(s.budget) || 0).toLocaleString()}
+                            <span className="text-[10px] font-normal text-gray-400 ml-1">
+                              (฿{(s.dailyBudget || Math.round((Number(s.budget) || 0) / 30)).toLocaleString()}/วัน)
+                            </span>
+                          </span>
+                        )}
                         <span className="text-gray-400 font-medium">
                           {adCount} ชิ้นงาน • {creativeCount} สื่อ
                         </span>
@@ -3407,7 +4215,7 @@ function AdSetsManager({
           <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
             <span>ชุดโฆษณาทั้งหมด {adSets.length} ชุด</span>
             <span className="font-bold text-gray-900">
-              รวม ฿{totalAllocated.toLocaleString()}
+              {isCBO ? 'จัดการระดับแคมเปญ (CBO)' : `รวม ฿${totalAllocated.toLocaleString()}`}
             </span>
           </div>
         </div>
@@ -3564,51 +4372,88 @@ function AdSetsManager({
                   <label className="block text-[11px] font-bold text-gray-600 mb-1">
                     ประเภทงบประมาณ (Budget Type)
                   </label>
-                  <select
-                    value={activeSet.budgetType || 'DAILY'}
-                    onChange={e => handleUpdateActiveSet('budgetType', e.target.value)}
-                    className="w-full h-9.5 text-xs font-semibold px-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-red-500"
-                  >
-                    <option value="DAILY">งบประมาณรายวัน (Daily Budget)</option>
-                    <option value="LIFETIME">งบประมาณตลอดอายุ (Lifetime Budget)</option>
-                  </select>
+                  {isCBO ? (
+                    <input
+                      type="text"
+                      readOnly
+                      disabled
+                      value="จัดการระดับแคมเปญ (CBO)"
+                      className="w-full h-9.5 text-xs font-semibold px-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed"
+                    />
+                  ) : (
+                    <select
+                      value={activeSet.budgetType || 'DAILY'}
+                      onChange={e => handleUpdateActiveSet('budgetType', e.target.value)}
+                      className="w-full h-9.5 text-xs font-semibold px-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-red-500"
+                    >
+                      <option value="DAILY">งบประมาณรายวัน (Daily Budget)</option>
+                      <option value="LIFETIME">งบประมาณตลอดอายุ (Lifetime Budget)</option>
+                    </select>
+                  )}
                 </div>
 
                 {/* ROW 4: Budget & Schedule */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-[11px] font-bold text-gray-600">
-                      งบประมาณจัดสรร (Allocated Budget) <span className="text-red-500">*</span>
+                      งบประมาณจัดสรร (Allocated Budget) {isCBO ? null : <span className="text-red-500">*</span>}
                     </label>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100">
-                      โควตาคงเหลือ ฿{remainingForActiveSet.toLocaleString()}
-                    </span>
+                    {!isCBO && (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100">
+                        โควตาคงเหลือ ฿{remainingForActiveSet.toLocaleString()}
+                      </span>
+                    )}
                   </div>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-xs font-bold text-gray-400">฿</span>
-                    <input
-                      type="number"
-                      step="500"
-                      value={activeSet.budget || 0}
-                      onChange={e => handleUpdateActiveSet('budget', parseFloat(e.target.value) || 0)}
-                      className="w-full h-9.5 text-xs font-bold pl-7 pr-3 bg-amber-50/50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-red-500"
-                    />
-                  </div>
+                  {isCBO ? (
+                    <div>
+                      <input
+                        type="text"
+                        readOnly
+                        disabled
+                        value="จัดสรรอัตโนมัติโดย Facebook"
+                        className="w-full h-9.5 text-xs font-bold px-3 bg-gray-100 border border-gray-200 rounded-xl text-indigo-700 cursor-not-allowed"
+                      />
+                      <p className="text-[10px] text-gray-400 mt-1">
+                        งบประมาณถูกจัดการที่ระดับแคมเปญ (CBO)
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <span className="absolute left-3 top-2.5 text-xs font-bold text-gray-400">฿</span>
+                      <input
+                        type="number"
+                        step="500"
+                        value={activeSet.budget || 0}
+                        onChange={e => handleUpdateActiveSet('budget', parseFloat(e.target.value) || 0)}
+                        className="w-full h-9.5 text-xs font-bold pl-7 pr-3 bg-amber-50/50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-red-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-gray-600 mb-1">
                     งบประมาณรายวันเฉลี่ย (Daily Budget)
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-xs font-bold text-gray-400">฿</span>
+                  {isCBO ? (
                     <input
-                      type="number"
-                      value={activeSet.dailyBudget || Math.round((Number(activeSet.budget) || 0) / 30)}
-                      onChange={e => handleUpdateActiveSet('dailyBudget', parseFloat(e.target.value) || 0)}
-                      className="w-full h-9.5 text-xs font-bold pl-7 pr-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-red-500"
+                      type="text"
+                      readOnly
+                      disabled
+                      value="— (Facebook จัดสรรอัตโนมัติ)"
+                      className="w-full h-9.5 text-xs px-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-400 cursor-not-allowed"
                     />
-                  </div>
+                  ) : (
+                    <div className="relative">
+                      <span className="absolute left-3 top-2.5 text-xs font-bold text-gray-400">฿</span>
+                      <input
+                        type="number"
+                        value={activeSet.dailyBudget || Math.round((Number(activeSet.budget) || 0) / 30)}
+                        onChange={e => handleUpdateActiveSet('dailyBudget', parseFloat(e.target.value) || 0)}
+                        className="w-full h-9.5 text-xs font-bold pl-7 pr-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-red-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>

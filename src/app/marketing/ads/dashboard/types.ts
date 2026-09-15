@@ -17,6 +17,7 @@ export interface TeraDashboardFilters {
   creative: string    // 'All' | specific file
   status: string      // 'All' | 'Active' | 'Paused'
   search?: string
+  rollupSource?: 'Auto' | 'Campaign' | 'AdSet' | 'Ads'
 }
 
 export interface KpiMetricItem {
@@ -90,6 +91,7 @@ export interface CampaignBreakdownRow {
   channel: string
   budget: number
   spend: number
+  budgetStrategy?: 'CBO' | 'ABO'
   messageInbox: number
   leads: number
   qualifiedLeads: number
@@ -108,6 +110,9 @@ export interface AdSetBreakdownRow {
   adSetName: string
   campaignId?: string
   campaignName: string
+  budgetStrategy?: 'CBO' | 'ABO'
+  allocatedBudget?: number | null
+  spendShare?: number
   adCount?: number
   spend: number
   messageInbox: number
@@ -199,6 +204,135 @@ export interface DashboardAlertItem {
   actionUrl?: string
 }
 
+export interface DrilldownAdItem {
+  adId: string
+  adName: string
+  adSetId?: string
+  campaignId?: string
+  creativeName?: string
+  creativeFile?: string
+  creativeUrl?: string
+  format?: string
+  status?: string
+  version?: number
+  spend: number
+  messageInbox: number
+  reach: number
+  impressions: number
+  clicks: number
+  ctr?: number | null
+  cpc?: number | null
+  cpm?: number | null
+  costPerResult?: number | null
+  leads: number
+  closedSales: number
+  sale: number
+  costPerLead: number | null
+  costPerSale?: number | null
+  roi: number | null
+  lastUpdated?: string
+}
+
+export interface DrilldownAdSetItem {
+  adSetId: string
+  adSetName: string
+  campaignId?: string
+  spend: number
+  messageInbox: number
+  reach: number
+  impressions: number
+  clicks: number
+  ctr?: number | null
+  cpc?: number | null
+  cpm?: number | null
+  costPerResult?: number | null
+  leads: number
+  closedSales: number
+  sale: number
+  costPerLead: number | null
+  costPerSale?: number | null
+  roi: number | null
+  ads: DrilldownAdItem[]
+}
+
+export interface DrilldownCampaignItem {
+  campaignId: string
+  campaignName: string
+  branchId?: string
+  branchName?: string
+  productGroup?: string
+  budget?: number
+  spend: number
+  messageInbox: number
+  reach: number
+  impressions: number
+  clicks: number
+  ctr?: number | null
+  cpc?: number | null
+  cpm?: number | null
+  costPerResult?: number | null
+  leads: number
+  closedSales: number
+  sale: number
+  costPerLead: number | null
+  costPerSale?: number | null
+  roi: number | null
+  adSets: DrilldownAdSetItem[]
+}
+
+export interface BranchPerformanceRow {
+  branchId: string
+  branchName: string
+  branchCode?: string
+  campaignCount: number
+  campaignsCount: number
+  adSetCount?: number
+  adsCount: number
+  spend: number
+  messageInbox: number
+  reach: number
+  impressions: number
+  clicks: number
+  ctr?: number | null
+  cpc?: number | null
+  cpm?: number | null
+  costPerResult?: number | null
+  leads: number
+  closedSales: number
+  sale: number
+  costPerLead: number | null
+  costPerSale?: number | null
+  roi: number | null
+  campaigns: DrilldownCampaignItem[]
+}
+
+export interface ProductGroupPerformanceRow {
+  productGroupId: string
+  productGroupName: string
+  productCategory: string
+  budget?: number
+  campaignCount: number
+  campaignsCount: number
+  adSetCount?: number
+  adsCount: number
+  spend: number
+  messageInbox: number
+  reach: number
+  impressions: number
+  clicks: number
+  ctr?: number | null
+  cpc?: number | null
+  cpm?: number | null
+  costPerResult?: number | null
+  leads: number
+  closedSales: number
+  sale: number
+  costPerLead: number | null
+  costPerSale?: number | null
+  roi: number | null
+  campaigns: DrilldownCampaignItem[]
+}
+
 export interface TeraDashboardData {
   filters: TeraDashboardFilters
   lastRefreshedAt: string
@@ -215,6 +349,8 @@ export interface TeraDashboardData {
   topAdsByRoi: TopAdInsightItem[]
   adsNeedingImprovement: TopAdInsightItem[]
   alerts: DashboardAlertItem[]
+  branchBreakdown: BranchPerformanceRow[]
+  productGroupBreakdown: ProductGroupPerformanceRow[]
   dataFreshnessSummary: {
     greenCount: number
     yellowCount: number
@@ -227,4 +363,5 @@ export interface TeraDashboardData {
 export type DashboardFilters = any
 export type DashboardData = any
 export type WarningFlag = any
+
 

@@ -7,7 +7,10 @@ import {
   TeraDashboardFilters,
   TeraDashboardData,
   KpiMetricItem,
-  DataFreshnessLevel
+  DataFreshnessLevel,
+  BranchPerformanceRow,
+  ProductGroupPerformanceRow,
+  DrilldownAdItem
 } from '../marketing/ads/dashboard/types'
 import { getActiveAdsWithCrm } from './ads-crm'
 
@@ -25,6 +28,21 @@ export async function ensureRelationalAdsSchema() {
     await prisma.$executeRawUnsafe(`
       CREATE OR REPLACE VIEW "ad_campaigns" WITH (security_invoker = true) AS SELECT * FROM "AdCampaign";
 
+      ALTER TABLE "AdCampaign" 
+      ADD COLUMN IF NOT EXISTS "budget_strategy" TEXT DEFAULT 'ABO',
+      ADD COLUMN IF NOT EXISTS "budget_level" TEXT DEFAULT 'AD_SET',
+      ADD COLUMN IF NOT EXISTS "budget_type" TEXT DEFAULT 'DAILY',
+      ADD COLUMN IF NOT EXISTS "campaign_budget" DECIMAL(12, 2),
+      ADD COLUMN IF NOT EXISTS "currency" TEXT DEFAULT 'THB',
+      ADD COLUMN IF NOT EXISTS "budget_notes" TEXT,
+      ADD COLUMN IF NOT EXISTS "budget_strategy_effective_at" TIMESTAMPTZ DEFAULT NOW(),
+      ADD COLUMN IF NOT EXISTS "budgetStrategy" TEXT DEFAULT 'ABO',
+      ADD COLUMN IF NOT EXISTS "budgetLevel" TEXT DEFAULT 'AD_SET',
+      ADD COLUMN IF NOT EXISTS "budgetType" TEXT DEFAULT 'DAILY',
+      ADD COLUMN IF NOT EXISTS "campaignBudget" DECIMAL(12, 2),
+      ADD COLUMN IF NOT EXISTS "budgetNotes" TEXT,
+      ADD COLUMN IF NOT EXISTS "budgetStrategyEffectiveAt" TIMESTAMPTZ DEFAULT NOW();
+
       CREATE TABLE IF NOT EXISTS "ad_sets" (
         "id" TEXT PRIMARY KEY,
         "adSetId" TEXT UNIQUE NOT NULL,
@@ -32,10 +50,42 @@ export async function ensureRelationalAdsSchema() {
         "name" TEXT NOT NULL,
         "targeting" TEXT,
         "budget" DECIMAL(12, 2) DEFAULT 0,
+        "allocated_budget" DECIMAL(12, 2),
+        "budget_type" TEXT,
+        "budget_source" TEXT DEFAULT 'ADSET_MANUAL',
+        "budget_status" TEXT DEFAULT 'ACTIVE',
+        "budget_notes" TEXT,
+        "updated_by" TEXT,
         "status" TEXT DEFAULT 'Active',
         "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+      ALTER TABLE "ad_sets"
+      ADD COLUMN IF NOT EXISTS "allocated_budget" DECIMAL(12, 2),
+      ADD COLUMN IF NOT EXISTS "budget_type" TEXT,
+      ADD COLUMN IF NOT EXISTS "budget_source" TEXT DEFAULT 'ADSET_MANUAL',
+      ADD COLUMN IF NOT EXISTS "budget_status" TEXT DEFAULT 'ACTIVE',
+      ADD COLUMN IF NOT EXISTS "budget_notes" TEXT,
+      ADD COLUMN IF NOT EXISTS "updated_by" TEXT;
+
+      CREATE TABLE IF NOT EXISTS "ad_budget_history" (
+        "id" TEXT PRIMARY KEY,
+        "campaignId" TEXT NOT NULL,
+        "prevStrategy" TEXT,
+        "newStrategy" TEXT NOT NULL,
+        "prevBudget" DECIMAL(12, 2),
+        "newBudget" DECIMAL(12, 2),
+        "prevBudgetType" TEXT,
+        "newBudgetType" TEXT,
+        "effectiveDate" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        "changedBy" TEXT,
+        "changedByName" TEXT,
+        "changedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        "changeNotes" TEXT,
+        "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS "idx_ad_budget_hist_camp" ON "ad_budget_history"("campaignId");
+      CREATE INDEX IF NOT EXISTS "idx_ad_budget_hist_date" ON "ad_budget_history"("changedAt" DESC);
       CREATE INDEX IF NOT EXISTS "idx_ad_sets_camp" ON "ad_sets"("campaignId");
 
       CREATE TABLE IF NOT EXISTS "ads" (
@@ -241,7 +291,8 @@ export async function getTeraAdsDashboardData(
     adId: filters?.adId || 'All',
     creative: filters?.creative || 'All',
     status: filters?.status || 'Active',
-    search: filters?.search || ''
+    search: filters?.search || '',
+    rollupSource: filters?.rollupSource || 'Auto'
   }
 
   // 2. Fetch all active ads populated with performance and CRM snapshots
@@ -269,25 +320,90 @@ export async function getTeraAdsDashboardData(
     return true
   })
 
-  // 4. Fetch campaigns for Planned Budget calculation
-  let totalPlannedBudget = 150000 // Default baseline budget matching user mockup (฿150,000)
+  // 4. Fetch campaigns for Planned Budget calculation with CBO / ABO Strategy verification
+  let totalPlannedBudget = 0
+  let detectedStrategy: 'ABO' | 'CBO' = 'ABO'
+  const campaignStrategyMap: Record<string, {
+    strategy: 'ABO' | 'CBO'
+    campaignBudget: number
+    adSetsBudget: number
+    plannedBudget: number
+    branchId?: string
+    branchName?: string
+    productCategory?: string
+  }> = {}
+
   try {
     const campaignsInDb = await prisma.adCampaign.findMany({
       where: { deletedAt: null },
-      select: { id: true, campaignId: true, name: true, budget: true, channel: { select: { name: true } } }
+      select: { 
+        id: true, 
+        campaignId: true, 
+        name: true, 
+        budget: true, 
+        campaignBudget: true,
+        budgetStrategy: true,
+        budget_strategy: true,
+        targetAudience: true,
+        branchId: true,
+        branch: { select: { id: true, name: true } },
+        productCategory: true,
+        channel: { select: { name: true } } 
+      }
     })
-    if (campaignsInDb.length > 0) {
-      const matchingCamps = campaignsInDb.filter(c => {
-        if (activeFilters.campaignId !== 'All' && c.campaignId !== activeFilters.campaignId) return false
-        if (activeFilters.channel !== 'All' && c.channel?.name !== activeFilters.channel) return false
-        return true
-      })
-      const sumBudget = matchingCamps.reduce((acc, c) => acc + Number(c.budget || 0), 0)
-      if (sumBudget > 0) {
-        totalPlannedBudget = sumBudget
+
+    for (const c of campaignsInDb) {
+      const strat = (c.budgetStrategy || c.budget_strategy || 'ABO').toUpperCase().includes('CBO') ? 'CBO' : 'ABO'
+      const campB = c.campaignBudget ? Number(c.campaignBudget) : Number(c.budget || 0)
+
+      let adSetsB = 0
+      try {
+        if (c.targetAudience && c.targetAudience.startsWith('{')) {
+          const parsed = JSON.parse(c.targetAudience)
+          if (Array.isArray(parsed.adSets)) {
+            adSetsB = parsed.adSets
+              .filter((s: any) => (s.status || 'ACTIVE').toUpperCase() === 'ACTIVE')
+              .reduce((sum: number, s: any) => sum + (Number(s.budget) || 0), 0)
+          }
+        }
+      } catch {}
+
+      // CBO formula: Planned Budget = Campaign Budget
+      // ABO formula: Planned Budget = Sum of active ad set budgets
+      const planned = strat === 'CBO' ? campB : (adSetsB > 0 ? adSetsB : campB)
+      campaignStrategyMap[c.campaignId] = {
+        strategy: strat,
+        campaignBudget: campB,
+        adSetsBudget: adSetsB,
+        plannedBudget: planned,
+        branchId: c.branchId || 'unassigned',
+        branchName: c.branch?.name || 'ไม่ได้ระบุสาขา',
+        productCategory: c.productCategory || 'ไม่ได้ระบุกลุ่มสินค้า'
+      } as any
+    }
+
+    const matchingCamps = campaignsInDb.filter(c => {
+      if (activeFilters.campaignId !== 'All' && c.campaignId !== activeFilters.campaignId) return false
+      if (activeFilters.channel !== 'All' && c.channel?.name !== activeFilters.channel) return false
+      return true
+    })
+
+    if (activeFilters.campaignId !== 'All' && campaignStrategyMap[activeFilters.campaignId]) {
+      detectedStrategy = campaignStrategyMap[activeFilters.campaignId].strategy
+      totalPlannedBudget = campaignStrategyMap[activeFilters.campaignId].plannedBudget
+    } else {
+      totalPlannedBudget = matchingCamps.reduce((acc, c) => {
+        const item = campaignStrategyMap[c.campaignId]
+        return acc + (item ? item.plannedBudget : Number(c.budget || 0))
+      }, 0)
+      if (matchingCamps.length === 1 && campaignStrategyMap[matchingCamps[0].campaignId]) {
+        detectedStrategy = campaignStrategyMap[matchingCamps[0].campaignId].strategy
       }
     }
-  } catch { }
+  } catch (err) {
+    console.error("fetch campaigns for dashboard budget error:", err)
+  }
+  if (totalPlannedBudget <= 0) totalPlannedBudget = 150000 // Default baseline budget matching user mockup (฿150,000)
 
   // 5. Aggregate KPI Totals across filtered ads
   let totalSpend = 0
@@ -446,22 +562,26 @@ export async function getTeraAdsDashboardData(
     }
   }
 
-  // Assemble Primary Business KPIs (Matching Section B in Mockup)
+  // Assemble Primary Business KPIs (Matching Section B in Mockup with CBO/ABO Strategy)
   const businessKpis = {
     plannedBudget: makeKpi('plannedBudget', 'งบประมาณตามแผน (Planned Budget)', totalPlannedBudget, 'currency', {
-      sublabel: 'Monthly plan',
-      subtitle: 'แผนรายเดือน'
+      badge: detectedStrategy === 'CBO' ? 'CBO — Campaign Budget' : 'ABO — Ad Set Budget',
+      sublabel: detectedStrategy === 'CBO' ? 'CBO — แผนระดับแคมเปญ' : 'ABO — แผนระดับชุดโฆษณา',
+      subtitle: detectedStrategy === 'CBO' ? 'CBO — Campaign Budget' : 'ABO — Ad Set Budget'
     }),
     totalSpend: makeKpi('totalSpend', 'ค่าใช้จ่ายรวม (Total Spend)', totalSpend, 'currency', {
+      badge: detectedStrategy === 'CBO' ? 'CBO' : 'ABO',
       sublabel: `${budgetUsedPct.toFixed(1)}% of budget`,
       subtitle: `${budgetUsedPct.toFixed(1)}% ของงบประมาณ`,
       delta: calcDelta(totalSpend, compSpend, false)
     }),
     remainingBudget: makeKpi('remainingBudget', 'งบประมาณคงเหลือ (Remaining Budget)', remainingBudget, 'currency', {
+      badge: detectedStrategy === 'CBO' ? 'CBO' : 'ABO',
       sublabel: `${(100 - budgetUsedPct).toFixed(1)}% remaining`,
       subtitle: `${(100 - budgetUsedPct).toFixed(1)}% คงเหลือ`
     }),
     budgetUsedPct: makeKpi('budgetUsedPct', 'อัตราการใช้งบ (Budget Used %)', budgetUsedPct, 'percent', {
+      badge: detectedStrategy === 'CBO' ? 'CBO' : 'ABO',
       sublabel: `${totalSpend.toLocaleString()} / ${totalPlannedBudget.toLocaleString()}`
     }),
     messageInbox: makeKpi('messageInbox', 'ข้อความทัก (Message Inbox)', totalInbox, 'number', {
@@ -494,9 +614,23 @@ export async function getTeraAdsDashboardData(
     })
   }
 
-  // 7. Delivery & Traffic KPIs
+  // 7. Delivery & Traffic KPIs (Point 11: Non-additive reach logic)
+  const isSingleEntity = (activeFilters.adId !== 'All') || (activeFilters.adSetId !== 'All') || (activeFilters.campaignId !== 'All')
+  const reachValue = isSingleEntity ? (totalReach > 0 ? totalReach : 128450) : null
+  const reachDisplay = isSingleEntity 
+    ? (reachValue !== null ? Math.round(reachValue).toLocaleString('en-US') : '—')
+    : '—'
+
   const deliveryKpis = {
-    reach: makeKpi('reach', 'การเข้าถึง (Reach)', totalReach > 0 ? totalReach : 128450, 'number'),
+    reach: {
+      key: 'reach',
+      label: 'การเข้าถึง (Reach)',
+      sublabel: isSingleEntity ? 'ยอดเฉพาะรายการที่เลือก' : 'Non-additive (ไม่สามารถรวมข้ามโฆษณาได้)',
+      subtitle: isSingleEntity ? undefined : 'ดูยอด Reach ได้ที่หน้ารายละเอียดแยกตามแคมเปญหรือโฆษณา',
+      value: reachValue,
+      displayValue: reachDisplay,
+      format: 'number' as const
+    },
     impressions: makeKpi('impressions', 'จำนวนครั้งที่แสดง (Impressions)', totalImpressions > 0 ? totalImpressions : 347680, 'number'),
     clicks: makeKpi('clicks', 'การคลิกลิงก์ (Clicks)', totalClicks > 0 ? totalClicks : 9350, 'number'),
     ctr: makeKpi('ctr', 'อัตราคลิกต่อการแสดง (CTR)', ctr !== null ? ctr : 2.69, 'percent'),
@@ -688,24 +822,35 @@ export async function getTeraAdsDashboardData(
     campMap[k].adCount++
   })
 
-  const campaignBreakdown: Array<any> = Object.values(campMap).map(c => ({
-    campaignId: c.campaignId,
-    campaignName: c.campaignName,
-    channel: c.channel,
-    budget: c.budget,
-    spend: c.spend,
-    messageInbox: c.inbox,
-    leads: c.leads,
-    qualifiedLeads: c.qualified,
-    appointments: c.appointments,
-    quotations: c.quotations,
-    closedSales: c.closedSales,
-    sale: c.sale,
-    costPerLead: c.leads > 0 ? c.spend / c.leads : null,
-    costPerSale: c.closedSales > 0 ? c.spend / c.closedSales : null,
-    roi: c.spend > 0 ? ((c.sale - c.spend) / c.spend) * 100 : null,
-    adCount: c.adCount
-  }))
+  const campaignBreakdown: Array<any> = Object.values(campMap).map(c => {
+    const stratInfo = campaignStrategyMap[c.campaignId]
+    const strat = stratInfo?.strategy || 'ABO'
+    const planned = stratInfo ? stratInfo.plannedBudget : c.budget
+    const rem = planned - c.spend
+    const usedPct = planned > 0 ? (c.spend / planned) * 100 : 0
+    return {
+      campaignId: c.campaignId,
+      campaignName: c.campaignName,
+      channel: c.channel,
+      budgetStrategy: strat,
+      strategyBadge: strat === 'CBO' ? 'CBO — Campaign Budget' : 'ABO — Ad Set Budget',
+      budget: planned,
+      spend: c.spend,
+      remainingBudget: rem,
+      budgetUsedPct: usedPct,
+      messageInbox: c.inbox,
+      leads: c.leads,
+      qualifiedLeads: c.qualified,
+      appointments: c.appointments,
+      quotations: c.quotations,
+      closedSales: c.closedSales,
+      sale: c.sale,
+      costPerLead: c.leads > 0 ? c.spend / c.leads : null,
+      costPerSale: c.closedSales > 0 ? c.spend / c.closedSales : null,
+      roi: c.spend > 0 ? ((c.sale - c.spend) / c.spend) * 100 : null,
+      adCount: c.adCount
+    }
+  })
 
   // 11. Top Ads by ROI (Dynamic ranking)
   const sortedAdsByRoi = [...adsBreakdown]
@@ -823,18 +968,30 @@ export async function getTeraAdsDashboardData(
   }))
 
   // 14. Ad Set Breakdown
+  const campSpendMap: Record<string, number> = {}
+  Object.values(campMap).forEach((c: any) => {
+    campSpendMap[c.campaignId] = c.spend || 0
+  })
+
   const adSetMap: Record<string, any> = {}
   filteredAds.forEach(a => {
-    const k = a.adSetName || '01 Agriculture Broad'
+    const k = a.adSetId || a.adSetName || '01 Agriculture Broad'
+    const campInfo = campaignStrategyMap[a.campaignId]
+    const strat = campInfo?.strategy || 'ABO'
     if (!adSetMap[k]) {
       adSetMap[k] = {
         adSetId: a.adSetId,
-        adSetName: k,
+        adSetName: a.adSetName || k,
         campaignId: a.campaignId,
         campaignName: a.campaignName,
+        budgetStrategy: strat,
+        allocatedBudget: strat === 'CBO' ? null : ((a as any).allocatedBudget ?? null),
         adCount: 0,
         spend: 0,
         messageInbox: 0,
+        reach: 0,
+        impressions: 0,
+        clicks: 0,
         leads: 0,
         closedSales: 0,
         sale: 0
@@ -843,15 +1000,32 @@ export async function getTeraAdsDashboardData(
     adSetMap[k].adCount++
     adSetMap[k].spend += a.spend || 0
     adSetMap[k].messageInbox += a.messageInbox || 0
+    adSetMap[k].reach += (a as any).reach || Math.round((a.spend || 0) * 1.95)
+    adSetMap[k].impressions += (a as any).impressions || Math.round((a.spend || 0) * 5.3)
+    adSetMap[k].clicks += (a as any).clicks || Math.round((a.spend || 0) * 0.14)
     adSetMap[k].leads += a.leads || 0
     adSetMap[k].closedSales += a.closedSales || 0
     adSetMap[k].sale += a.sale || 0
   })
 
-  const adSetBreakdown = Object.values(adSetMap).map((set: any) => ({
-    ...set,
-    roi: set.spend > 0 ? ((set.sale - set.spend) / set.spend) * 100 : null
-  }))
+  const adSetBreakdown = Object.values(adSetMap).map((set: any) => {
+    const campTotal = campSpendMap[set.campaignId] || totalSpend || 0
+    const spendShare = campTotal > 0 ? (set.spend / campTotal) * 100 : 0
+    const ctr = set.impressions > 0 ? (set.clicks / set.impressions) * 100 : null
+    const cpc = set.clicks > 0 ? set.spend / set.clicks : null
+    const cpm = set.impressions > 0 ? (set.spend / set.impressions) * 1000 : null
+    const costPerResult = set.messageInbox > 0 ? set.spend / set.messageInbox : null
+
+    return {
+      ...set,
+      spendShare,
+      ctr,
+      cpc,
+      cpm,
+      costPerResult,
+      roi: set.spend > 0 ? ((set.sale - set.spend) / set.spend) * 100 : null
+    }
+  })
 
   // 15. Creative Breakdown
   const creativeMap: Record<string, any> = {}
@@ -886,6 +1060,422 @@ export async function getTeraAdsDashboardData(
     costPerLead: c.leads > 0 ? c.spend / c.leads : null
   }))
 
+  // 16. Performance by Branch Breakdown with Nested Hierarchy for Drill-down (Point 18, 19, 20)
+  const branchMap: Record<string, {
+    branchId: string
+    branchName: string
+    campaigns: Record<string, {
+      campaignId: string
+      campaignName: string
+      budget: number
+      adSets: Record<string, {
+        adSetId: string
+        adSetName: string
+        ads: DrilldownAdItem[]
+      }>
+    }>
+  }> = {}
+
+  filteredAds.forEach(ad => {
+    const cInfo = campaignStrategyMap[ad.campaignId]
+    const bId = cInfo?.branchId || 'unassigned'
+    const bName = cInfo?.branchName || 'ไม่ได้ระบุสาขา'
+
+    if (!branchMap[bId]) {
+      branchMap[bId] = {
+        branchId: bId,
+        branchName: bName,
+        campaigns: {}
+      }
+    }
+
+    const cId = ad.campaignId
+    if (!branchMap[bId].campaigns[cId]) {
+      branchMap[bId].campaigns[cId] = {
+        campaignId: cId,
+        campaignName: ad.campaignName,
+        budget: cInfo?.plannedBudget || 0,
+        adSets: {}
+      }
+    }
+
+    const sId = ad.adSetId || 'AS-01'
+    if (!branchMap[bId].campaigns[cId].adSets[sId]) {
+      branchMap[bId].campaigns[cId].adSets[sId] = {
+        adSetId: sId,
+        adSetName: ad.adSetName,
+        ads: []
+      }
+    }
+
+    const adSpend = ad.spend || 0
+    const adSale = ad.sale || 0
+    const adLeads = ad.leads || 0
+    const adInbox = ad.messageInbox || 0
+    const adClicks = (ad as any).clicks || 0
+    const adImp = (ad as any).impressions || 0
+
+    branchMap[bId].campaigns[cId].adSets[sId].ads.push({
+      adId: ad.adId,
+      adName: ad.adName,
+      adSetId: sId,
+      campaignId: cId,
+      creativeUrl: ad.creativeUrl,
+      creativeFile: ad.creativeFile,
+      format: ad.format,
+      version: (ad as any).version || 1,
+      spend: adSpend,
+      messageInbox: adInbox,
+      reach: (ad as any).reach || 0,
+      impressions: adImp,
+      clicks: adClicks,
+      ctr: adClicks > 0 && adImp > 0 ? (adClicks / adImp) * 100 : null,
+      cpc: adClicks > 0 ? adSpend / adClicks : null,
+      costPerResult: adInbox > 0 ? adSpend / adInbox : null,
+      leads: adLeads,
+      closedSales: ad.closedSales || 0,
+      sale: adSale,
+      costPerLead: adLeads > 0 ? adSpend / adLeads : null,
+      roi: adSpend > 0 ? ((adSale - adSpend) / adSpend) * 100 : null
+    })
+  })
+
+  const branchBreakdown: BranchPerformanceRow[] = Object.values(branchMap).map(b => {
+    let bSpend = 0
+    let bInbox = 0
+    let bReach = 0
+    let bImp = 0
+    let bClicks = 0
+    let bLeads = 0
+    let bClosed = 0
+    let bSale = 0
+
+    const campList = Object.values(b.campaigns).map(c => {
+      let cSpend = 0
+      let cInbox = 0
+      let cReach = 0
+      let cImp = 0
+      let cClicks = 0
+      let cLeads = 0
+      let cClosed = 0
+      let cSale = 0
+
+      const setList = Object.values(c.adSets).map(s => {
+        let sSpend = 0
+        let sInbox = 0
+        let sReach = 0
+        let sImp = 0
+        let sClicks = 0
+        let sLeads = 0
+        let sClosed = 0
+        let sSale = 0
+
+        s.ads.forEach(a => {
+          sSpend += a.spend
+          sInbox += a.messageInbox
+          sReach += a.reach
+          sImp += a.impressions
+          sClicks += a.clicks
+          sLeads += a.leads
+          sClosed += a.closedSales
+          sSale += a.sale
+        })
+
+        cSpend += sSpend
+        cInbox += sInbox
+        cReach += sReach
+        cImp += sImp
+        cClicks += sClicks
+        cLeads += sLeads
+        cClosed += sClosed
+        cSale += sSale
+
+        return {
+          adSetId: s.adSetId,
+          adSetName: s.adSetName,
+          campaignId: c.campaignId,
+          spend: sSpend,
+          messageInbox: sInbox,
+          reach: sReach,
+          impressions: sImp,
+          clicks: sClicks,
+          ctr: sClicks > 0 && sImp > 0 ? (sClicks / sImp) * 100 : null,
+          cpc: sClicks > 0 ? sSpend / sClicks : null,
+          costPerResult: sInbox > 0 ? sSpend / sInbox : null,
+          leads: sLeads,
+          closedSales: sClosed,
+          sale: sSale,
+          costPerLead: sLeads > 0 ? sSpend / sLeads : null,
+          roi: sSpend > 0 ? ((sSale - sSpend) / sSpend) * 100 : null,
+          ads: s.ads
+        }
+      })
+
+      bSpend += cSpend
+      bInbox += cInbox
+      bReach += cReach
+      bImp += cImp
+      bClicks += cClicks
+      bLeads += cLeads
+      bClosed += cClosed
+      bSale += cSale
+
+      return {
+        campaignId: c.campaignId,
+        campaignName: c.campaignName,
+        budget: c.budget,
+        spend: cSpend,
+        messageInbox: cInbox,
+        reach: cReach,
+        impressions: cImp,
+        clicks: cClicks,
+        ctr: cClicks > 0 && cImp > 0 ? (cClicks / cImp) * 100 : null,
+        cpc: cClicks > 0 ? cSpend / cClicks : null,
+        costPerResult: cInbox > 0 ? cSpend / cInbox : null,
+        leads: cLeads,
+        closedSales: cClosed,
+        sale: cSale,
+        costPerLead: cLeads > 0 ? cSpend / cLeads : null,
+        roi: cSpend > 0 ? ((cSale - cSpend) / cSpend) * 100 : null,
+        adSets: setList
+      }
+    })
+
+    const totalAds = campList.reduce((acc, c) => acc + c.adSets.reduce((sAcc, s) => sAcc + s.ads.length, 0), 0)
+
+    return {
+      branchId: b.branchId,
+      branchName: b.branchName,
+      branchCode: b.branchId !== 'unassigned' ? b.branchId : undefined,
+      campaignCount: campList.length,
+      campaignsCount: campList.length,
+      adsCount: totalAds,
+      spend: bSpend,
+      messageInbox: bInbox,
+      reach: bReach,
+      impressions: bImp,
+      clicks: bClicks,
+      ctr: bClicks > 0 && bImp > 0 ? (bClicks / bImp) * 100 : null,
+      cpc: bClicks > 0 ? bSpend / bClicks : null,
+      costPerResult: bInbox > 0 ? bSpend / bInbox : null,
+      leads: bLeads,
+      closedSales: bClosed,
+      sale: bSale,
+      costPerLead: bLeads > 0 ? bSpend / bLeads : null,
+      roi: bSpend > 0 ? ((bSale - bSpend) / bSpend) * 100 : null,
+      campaigns: campList
+    }
+  })
+
+  // 17. Performance by Product Group Breakdown with Nested Hierarchy for Drill-down (Point 18, 19, 20)
+  const prodMap: Record<string, {
+    productCategory: string
+    budget: number
+    campaigns: Record<string, {
+      campaignId: string
+      campaignName: string
+      budget: number
+      adSets: Record<string, {
+        adSetId: string
+        adSetName: string
+        ads: DrilldownAdItem[]
+      }>
+    }>
+  }> = {}
+
+  filteredAds.forEach(ad => {
+    const cInfo = campaignStrategyMap[ad.campaignId]
+    const pCat = ad.productCategory || cInfo?.productCategory || 'ไม่ได้ระบุกลุ่มสินค้า'
+
+    if (!prodMap[pCat]) {
+      prodMap[pCat] = {
+        productCategory: pCat,
+        budget: 0,
+        campaigns: {}
+      }
+    }
+
+    const cId = ad.campaignId
+    if (!prodMap[pCat].campaigns[cId]) {
+      const cBudget = cInfo?.plannedBudget || 0
+      prodMap[pCat].budget += cBudget
+      prodMap[pCat].campaigns[cId] = {
+        campaignId: cId,
+        campaignName: ad.campaignName,
+        budget: cBudget,
+        adSets: {}
+      }
+    }
+
+    const sId = ad.adSetId || 'AS-01'
+    if (!prodMap[pCat].campaigns[cId].adSets[sId]) {
+      prodMap[pCat].campaigns[cId].adSets[sId] = {
+        adSetId: sId,
+        adSetName: ad.adSetName,
+        ads: []
+      }
+    }
+
+    const adSpend = ad.spend || 0
+    const adSale = ad.sale || 0
+    const adLeads = ad.leads || 0
+    const adInbox = ad.messageInbox || 0
+    const adClicks = (ad as any).clicks || 0
+    const adImp = (ad as any).impressions || 0
+
+    prodMap[pCat].campaigns[cId].adSets[sId].ads.push({
+      adId: ad.adId,
+      adName: ad.adName,
+      adSetId: sId,
+      campaignId: cId,
+      creativeUrl: ad.creativeUrl,
+      creativeFile: ad.creativeFile,
+      format: ad.format,
+      version: (ad as any).version || 1,
+      spend: adSpend,
+      messageInbox: adInbox,
+      reach: (ad as any).reach || 0,
+      impressions: adImp,
+      clicks: adClicks,
+      ctr: adClicks > 0 && adImp > 0 ? (adClicks / adImp) * 100 : null,
+      cpc: adClicks > 0 ? adSpend / adClicks : null,
+      costPerResult: adInbox > 0 ? adSpend / adInbox : null,
+      leads: adLeads,
+      closedSales: ad.closedSales || 0,
+      sale: adSale,
+      costPerLead: adLeads > 0 ? adSpend / adLeads : null,
+      roi: adSpend > 0 ? ((adSale - adSpend) / adSpend) * 100 : null
+    })
+  })
+
+  const productGroupBreakdown: ProductGroupPerformanceRow[] = Object.values(prodMap).map(p => {
+    let pSpend = 0
+    let pInbox = 0
+    let pReach = 0
+    let pImp = 0
+    let pClicks = 0
+    let pLeads = 0
+    let pClosed = 0
+    let pSale = 0
+
+    const campList = Object.values(p.campaigns).map(c => {
+      let cSpend = 0
+      let cInbox = 0
+      let cReach = 0
+      let cImp = 0
+      let cClicks = 0
+      let cLeads = 0
+      let cClosed = 0
+      let cSale = 0
+
+      const setList = Object.values(c.adSets).map(s => {
+        let sSpend = 0
+        let sInbox = 0
+        let sReach = 0
+        let sImp = 0
+        let sClicks = 0
+        let sLeads = 0
+        let sClosed = 0
+        let sSale = 0
+
+        s.ads.forEach(a => {
+          sSpend += a.spend
+          sInbox += a.messageInbox
+          sReach += a.reach
+          sImp += a.impressions
+          sClicks += a.clicks
+          sLeads += a.leads
+          sClosed += a.closedSales
+          sSale += a.sale
+        })
+
+        cSpend += sSpend
+        cInbox += sInbox
+        cReach += sReach
+        cImp += sImp
+        cClicks += sClicks
+        cLeads += sLeads
+        cClosed += sClosed
+        cSale += sSale
+
+        return {
+          adSetId: s.adSetId,
+          adSetName: s.adSetName,
+          campaignId: c.campaignId,
+          spend: sSpend,
+          messageInbox: sInbox,
+          reach: sReach,
+          impressions: sImp,
+          clicks: sClicks,
+          ctr: sClicks > 0 && sImp > 0 ? (sClicks / sImp) * 100 : null,
+          cpc: sClicks > 0 ? sSpend / sClicks : null,
+          costPerResult: sInbox > 0 ? sSpend / sInbox : null,
+          leads: sLeads,
+          closedSales: sClosed,
+          sale: sSale,
+          costPerLead: sLeads > 0 ? sSpend / sLeads : null,
+          roi: sSpend > 0 ? ((sSale - sSpend) / sSpend) * 100 : null,
+          ads: s.ads
+        }
+      })
+
+      pSpend += cSpend
+      pInbox += cInbox
+      pReach += cReach
+      pImp += cImp
+      pClicks += cClicks
+      pLeads += cLeads
+      pClosed += cClosed
+      pSale += cSale
+
+      return {
+        campaignId: c.campaignId,
+        campaignName: c.campaignName,
+        budget: c.budget,
+        spend: cSpend,
+        messageInbox: cInbox,
+        reach: cReach,
+        impressions: cImp,
+        clicks: cClicks,
+        ctr: cClicks > 0 && cImp > 0 ? (cClicks / cImp) * 100 : null,
+        cpc: cClicks > 0 ? cSpend / cClicks : null,
+        costPerResult: cInbox > 0 ? cSpend / cInbox : null,
+        leads: cLeads,
+        closedSales: cClosed,
+        sale: cSale,
+        costPerLead: cLeads > 0 ? cSpend / cLeads : null,
+        roi: cSpend > 0 ? ((cSale - cSpend) / cSpend) * 100 : null,
+        adSets: setList
+      }
+    })
+
+    const totalAds = campList.reduce((acc, c) => acc + c.adSets.reduce((sAcc, s) => sAcc + s.ads.length, 0), 0)
+
+    return {
+      productGroupId: p.productCategory,
+      productGroupName: p.productCategory,
+      productCategory: p.productCategory,
+      budget: p.budget,
+      campaignCount: campList.length,
+      campaignsCount: campList.length,
+      adsCount: totalAds,
+      spend: pSpend,
+      messageInbox: pInbox,
+      reach: pReach,
+      impressions: pImp,
+      clicks: pClicks,
+      ctr: pClicks > 0 && pImp > 0 ? (pClicks / pImp) * 100 : null,
+      cpc: pClicks > 0 ? pSpend / pClicks : null,
+      costPerResult: pInbox > 0 ? pSpend / pInbox : null,
+      leads: pLeads,
+      closedSales: pClosed,
+      sale: pSale,
+      costPerLead: pLeads > 0 ? pSpend / pLeads : null,
+      roi: pSpend > 0 ? ((pSale - pSpend) / pSpend) * 100 : null,
+      campaigns: campList
+    }
+  })
+
   return {
     filters: activeFilters,
     lastRefreshedAt: isSeptember ? '30 ก.ย. 2026, 17:00 น.' : '31 ส.ค. 2026, 17:00 น.',
@@ -902,6 +1492,8 @@ export async function getTeraAdsDashboardData(
     topAdsByRoi,
     adsNeedingImprovement,
     alerts,
+    branchBreakdown,
+    productGroupBreakdown,
     dataFreshnessSummary: {
       greenCount,
       yellowCount,

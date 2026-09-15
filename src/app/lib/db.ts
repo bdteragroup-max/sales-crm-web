@@ -29,9 +29,9 @@ const prismaClientSingleton = () => {
   }
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 5,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 15000,
+    max: 20, // Expanded from 5 to 20 to prevent pool queue starvation with concurrent queries
+    idleTimeoutMillis: 30000, // Keep connections warm for 30s to reduce handshake latency
+    connectionTimeoutMillis: 30000, // 30s connection timeout for burst resilience
     keepAlive: true,
     keepAliveInitialDelayMillis: 10000,
   })
@@ -50,12 +50,12 @@ const prismaClientSingleton = () => {
 }
 
 declare global {
-  var prisma_instance_v26: undefined | ReturnType<typeof prismaClientSingleton>
+  var prisma_instance_v28: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-const prisma = globalThis.prisma_instance_v26 ?? prismaClientSingleton()
+const prisma = globalThis.prisma_instance_v28 ?? prismaClientSingleton()
 
 export default prisma
 
-globalThis.prisma_instance_v26 = prisma
+globalThis.prisma_instance_v28 = prisma
 

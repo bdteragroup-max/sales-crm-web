@@ -9,7 +9,8 @@ import {
   PerformanceSnapshot,
   savePerformanceSnapshot,
   saveBulkPerformanceSnapshots,
-  getAdPerformanceHistory
+  getAdPerformanceHistory,
+  getActiveAdsWithPerformance
 } from '@/app/actions/ads-performance'
 import {
   Search,
@@ -40,8 +41,12 @@ import {
   SlidersHorizontal,
   RotateCcw,
   Radio,
-  Activity
+  Activity,
+  FileSpreadsheet
 } from 'lucide-react'
+import UpdateResultsModal from './components/UpdateResultsModal'
+import MassUpdateModal from './components/MassUpdateModal'
+import SnapshotHistoryModal from './components/SnapshotHistoryModal'
 
 interface PerformanceClientProps {
   campaigns: any[]
@@ -76,50 +81,39 @@ export default function PerformanceClient({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [groupByAdSet, setGroupByAdSet] = useState<boolean>(false)
 
-  // Expanded Ad row for inline Update Results
-  const [expandedAdId, setExpandedAdId] = useState<string | null>(null)
-
-  // Inline Update Form state
-  const [formValues, setFormValues] = useState<{
-    dataAsOf: string
-    spend: string
-    messageInbox: string
-    reach: string
-    impressions: string
-    clicks: string
-    updateType: 'Regular Update' | 'Correction'
-    correctionReason: string
-    notes: string
-  }>({
-    dataAsOf: new Date().toISOString().slice(0, 16),
-    spend: '',
-    messageInbox: '',
-    reach: '',
-    impressions: '',
-    clicks: '',
-    updateType: 'Regular Update',
-    correctionReason: '',
-    notes: ''
-  })
-
-  const [savingUpdate, setSavingUpdate] = useState(false)
-  const [updateError, setUpdateError] = useState<string | null>(null)
-  const [updateSuccess, setUpdateSuccess] = useState<string | null>(null)
-
   // Modals state
-  const [historyModalAd, setHistoryModalAd] = useState<ActiveAdPerformanceItem | null>(null)
-  const [historyRecords, setHistoryRecords] = useState<PerformanceSnapshot[]>([])
-  const [loadingHistory, setLoadingHistory] = useState(false)
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
+  const [updatePresetItem, setUpdatePresetItem] = useState<{
+    level: 'CAMPAIGN' | 'AD_SET' | 'AD'
+    entityId: string
+    campaignId?: string
+    adSetId?: string
+  } | null>(null)
 
-  const [bulkModalOpen, setBulkModalOpen] = useState(false)
-  const [bulkFormRows, setBulkFormRows] = useState<Record<string, { spend: string, messageInbox: string, reach: string, impressions: string, clicks: string }>>({})
-  const [bulkDataAsOf, setBulkDataAsOf] = useState<string>(new Date().toISOString().slice(0, 16))
-  const [bulkNotes, setBulkNotes] = useState<string>('')
-  const [savingBulk, setSavingBulk] = useState(false)
-  const [bulkError, setBulkError] = useState<string | null>(null)
+  const [isMassUpdateModalOpen, setIsMassUpdateModalOpen] = useState(false)
+
+  const [historyModalItem, setHistoryModalItem] = useState<{
+    entityType: 'CAMPAIGN' | 'AD_SET' | 'AD'
+    entityId: string
+    title: string
+    subtitle?: string
+  } | null>(null)
 
   // Image Preview Modal
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+
+  // Refresh data handler
+  const handleRefreshData = async () => {
+    try {
+      const res = await getActiveAdsWithPerformance()
+      if (res.success) {
+        setAds(res.ads)
+        setSnapshots(res.snapshots)
+      }
+    } catch (e) {
+      console.error('Failed to refresh ads data:', e)
+    }
+  }
 
   // Available Filter Options
   const channels = useMemo(() => {
@@ -297,311 +291,7 @@ export default function PerformanceClient({
     }
   }, [campaigns, filteredAds, filterCampaign])
 
-  // Toggle inline expansion and pre-fill form
-  const handleToggleExpand = (ad: ActiveAdPerformanceItem) => {
-    if (expandedAdId === ad.adId) {
-      setExpandedAdId(null)
-      setUpdateError(null)
-      setUpdateSuccess(null)
-      return
-    }
 
-    setExpandedAdId(ad.adId)
-    setUpdateError(null)
-    setUpdateSuccess(null)
-
-    // Prepopulate with latest snapshot values or current ad values
-    const latest = ad.latestSnapshot
-    setFormValues({
-      dataAsOf: new Date().toISOString().slice(0, 16),
-      spend: latest ? String(latest.spend) : (ad.spend ? String(ad.spend) : ''),
-      messageInbox: latest ? String(latest.messageInbox) : (ad.messageInbox ? String(ad.messageInbox) : ''),
-      reach: latest ? String(latest.reach) : (ad.reach ? String(ad.reach) : ''),
-      impressions: latest ? String(latest.impressions) : (ad.impressions ? String(ad.impressions) : ''),
-      clicks: latest ? String(latest.clicks) : (ad.clicks ? String(ad.clicks) : ''),
-      updateType: 'Regular Update',
-      correctionReason: '',
-      notes: ''
-    })
-  }
-
-  // Current expanded ad object
-  const currentExpandedAd = useMemo(() => {
-    return ads.find(a => a.adId === expandedAdId) || null
-  }, [ads, expandedAdId])
-
-  // Real-time calculation for expanded ad
-  const liveCalculations = useMemo(() => {
-    if (!currentExpandedAd) return null
-
-    const prev = currentExpandedAd.latestSnapshot
-    const prevSpend = prev ? prev.spend : 0
-    const prevInbox = prev ? prev.messageInbox : 0
-    const prevReach = prev ? prev.reach : 0
-    const prevImp = prev ? prev.impressions : 0
-    const prevClicks = prev ? prev.clicks : 0
-
-    const newSpend = Number(formValues.spend || 0)
-    const newInbox = Number(formValues.messageInbox || 0)
-    const newReach = Number(formValues.reach || 0)
-    const newImp = Number(formValues.impressions || 0)
-    const newClicks = Number(formValues.clicks || 0)
-
-    const deltaSpend = newSpend - prevSpend
-    const deltaInbox = newInbox - prevInbox
-    const deltaReach = newReach - prevReach
-    const deltaImp = newImp - prevImp
-    const deltaClicks = newClicks - prevClicks
-
-    const ctr = newImp > 0 ? (newClicks / newImp) * 100 : null
-    const cpc = newClicks > 0 ? newSpend / newClicks : null
-    const cpm = newImp > 0 ? (newSpend / newImp) * 1000 : null
-    const costPerResult = newInbox > 0 ? newSpend / newInbox : null
-
-    const planned = currentExpandedAd.plannedBudget || summary.totalPlannedBudget || 110000
-    const budgetUsedPercent = planned > 0 ? (newSpend / planned) * 100 : null
-    const remainingBudget = planned - newSpend
-
-    const isDecrease = deltaSpend < 0 || deltaInbox < 0 || deltaReach < 0 || deltaImp < 0 || deltaClicks < 0
-
-    return {
-      prevSpend,
-      prevInbox,
-      prevReach,
-      prevImp,
-      prevClicks,
-      newSpend,
-      newInbox,
-      newReach,
-      newImp,
-      newClicks,
-      deltaSpend,
-      deltaInbox,
-      deltaReach,
-      deltaImp,
-      deltaClicks,
-      ctr,
-      cpc,
-      cpm,
-      costPerResult,
-      budgetUsedPercent,
-      remainingBudget,
-      isDecrease
-    }
-  }, [currentExpandedAd, formValues, summary.totalPlannedBudget])
-
-  // Handle saving new single snapshot
-  const handleSaveUpdate = async (asDraft: boolean = false) => {
-    if (!currentExpandedAd) return
-
-    setUpdateError(null)
-    setUpdateSuccess(null)
-
-    // Safeguard validation
-    if (liveCalculations?.isDecrease && formValues.updateType !== 'Correction') {
-      setUpdateError('ค่าผลลัพธ์สะสมน้อยกว่าค่าก่อนหน้า กรุณาเลือกประเภทเป็น "Correction" พร้อมระบุเหตุผลการแก้ไข')
-      return
-    }
-
-    if (formValues.updateType === 'Correction' && !formValues.correctionReason.trim()) {
-      setUpdateError('กรุณากรอกเหตุผลการแก้ไข (Correction Reason) สำหรับการแก้ไขแบบย้อนหลัง')
-      return
-    }
-
-    setSavingUpdate(true)
-    try {
-      const res = await savePerformanceSnapshot({
-        adId: currentExpandedAd.adId,
-        campaignId: currentExpandedAd.campaignId,
-        adSetId: currentExpandedAd.adSetId,
-        creativeId: currentExpandedAd.adId,
-        creativeFile: currentExpandedAd.creativeFile,
-        creativeVersion: currentExpandedAd.creativeVersion,
-        creativeUrl: currentExpandedAd.creativeUrl,
-        capturedAt: formValues.dataAsOf ? new Date(formValues.dataAsOf).toISOString() : new Date().toISOString(),
-        spend: Number(formValues.spend || 0),
-        messageInbox: Number(formValues.messageInbox || 0),
-        reach: Number(formValues.reach || 0),
-        impressions: Number(formValues.impressions || 0),
-        clicks: Number(formValues.clicks || 0),
-        dataSource: 'Cumulative Ads Manager Snapshot',
-        notes: formValues.notes,
-        enteredBy: currentUser.name,
-        updateType: formValues.updateType,
-        correctionReason: formValues.updateType === 'Correction' ? formValues.correctionReason : null,
-        status: asDraft ? 'DRAFT' : 'SAVED'
-      })
-
-      if (res.success && res.snapshot) {
-        const newSnap = res.snapshot
-        // Update local ads state
-        setAds(prevAds => prevAds.map(ad => {
-          if (ad.adId === currentExpandedAd.adId) {
-            const previous = ad.latestSnapshot
-            const newSpend = newSnap.spend
-            const newInbox = newSnap.messageInbox
-            const newReach = newSnap.reach
-            const newImp = newSnap.impressions
-            const newClicks = newSnap.clicks
-
-            return {
-              ...ad,
-              latestSnapshot: newSnap,
-              previousSnapshot: previous,
-              spend: newSpend,
-              messageInbox: newInbox,
-              reach: newReach,
-              impressions: newImp,
-              clicks: newClicks,
-              ctr: newImp > 0 ? (newClicks / newImp) * 100 : null,
-              cpc: newClicks > 0 ? newSpend / newClicks : null,
-              cpm: newImp > 0 ? (newSpend / newImp) * 1000 : null,
-              costPerResult: newInbox > 0 ? newSpend / newInbox : null,
-              lastUpdated: newSnap.capturedAt,
-              deltaSpend: previous ? newSpend - previous.spend : newSpend,
-              deltaInbox: previous ? newInbox - previous.messageInbox : newInbox,
-              deltaReach: previous ? newReach - previous.reach : newReach,
-              deltaImpressions: previous ? newImp - previous.impressions : newImp,
-              deltaClicks: previous ? newClicks - previous.clicks : newClicks,
-              changePercent: (previous && previous.spend > 0) ? ((newSpend - previous.spend) / previous.spend) * 100 : null
-            }
-          }
-          return ad
-        }))
-
-        setSnapshots(prev => [newSnap, ...prev])
-        setUpdateSuccess(`บันทึก Performance Snapshot สำเร็จ! รหัส Snapshot: ${newSnap.snapshotId}`)
-
-        setTimeout(() => {
-          setExpandedAdId(null)
-          setUpdateSuccess(null)
-        }, 1200)
-      } else {
-        setUpdateError(res.error || 'เกิดข้อผิดพลาดในการบันทึก')
-      }
-    } catch (err: any) {
-      setUpdateError(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ')
-    } finally {
-      setSavingUpdate(false)
-    }
-  }
-
-  // Open History modal
-  const handleOpenHistory = async (ad: ActiveAdPerformanceItem) => {
-    setHistoryModalAd(ad)
-    setLoadingHistory(true)
-    try {
-      const res = await getAdPerformanceHistory(ad.adId)
-      if (res.success) {
-        setHistoryRecords(res.history)
-      } else {
-        setHistoryRecords([])
-      }
-    } catch {
-      setHistoryRecords([])
-    } finally {
-      setLoadingHistory(false)
-    }
-  }
-
-  // Open Bulk Update Modal
-  const handleOpenBulkModal = () => {
-    const initialRows: Record<string, { spend: string, messageInbox: string, reach: string, impressions: string, clicks: string }> = {}
-    filteredAds.forEach(ad => {
-      initialRows[ad.adId] = {
-        spend: ad.spend ? String(ad.spend) : '',
-        messageInbox: ad.messageInbox ? String(ad.messageInbox) : '',
-        reach: ad.reach ? String(ad.reach) : '',
-        impressions: ad.impressions ? String(ad.impressions) : '',
-        clicks: ad.clicks ? String(ad.clicks) : ''
-      }
-    })
-    setBulkFormRows(initialRows)
-    setBulkDataAsOf(new Date().toISOString().slice(0, 16))
-    setBulkNotes('')
-    setBulkError(null)
-    setBulkModalOpen(true)
-  }
-
-  // Save Bulk Updates
-  const handleSaveBulkUpdates = async () => {
-    setBulkError(null)
-    setSavingBulk(true)
-    try {
-      const updates = filteredAds.map(ad => {
-        const row = bulkFormRows[ad.adId] || { spend: '0', messageInbox: '0', reach: '0', impressions: '0', clicks: '0' }
-        return {
-          adId: ad.adId,
-          campaignId: ad.campaignId,
-          adSetId: ad.adSetId,
-          creativeId: ad.adId,
-          creativeFile: ad.creativeFile,
-          creativeVersion: ad.creativeVersion,
-          creativeUrl: ad.creativeUrl,
-          capturedAt: bulkDataAsOf ? new Date(bulkDataAsOf).toISOString() : new Date().toISOString(),
-          spend: Number(row.spend || 0),
-          messageInbox: Number(row.messageInbox || 0),
-          reach: Number(row.reach || 0),
-          impressions: Number(row.impressions || 0),
-          clicks: Number(row.clicks || 0),
-          dataSource: 'Bulk Snapshot Update',
-          notes: bulkNotes,
-          enteredBy: currentUser.name,
-          updateType: 'Regular Update' as const,
-          status: 'SAVED' as const
-        }
-      })
-
-      const res = await saveBulkPerformanceSnapshots(updates)
-      if (res.success && res.snapshots) {
-        // Refresh local state with new snapshots
-        const newSnapshotsMap = new Map<string, PerformanceSnapshot>(
-          res.snapshots.map((s: PerformanceSnapshot) => [s.adId, s])
-        )
-        setAds(prev => prev.map(ad => {
-          const snap = newSnapshotsMap.get(ad.adId)
-          if (snap) {
-            const previous = ad.latestSnapshot
-            const newSpend = snap.spend
-            const newInbox = snap.messageInbox
-            const newReach = snap.reach
-            const newImp = snap.impressions
-            const newClicks = snap.clicks
-
-            return {
-              ...ad,
-              latestSnapshot: snap,
-              previousSnapshot: previous,
-              spend: newSpend,
-              messageInbox: newInbox,
-              reach: newReach,
-              impressions: newImp,
-              clicks: newClicks,
-              ctr: newImp > 0 ? (newClicks / newImp) * 100 : null,
-              cpc: newClicks > 0 ? newSpend / newClicks : null,
-              cpm: newImp > 0 ? (newSpend / newImp) * 1000 : null,
-              costPerResult: newInbox > 0 ? newSpend / newInbox : null,
-              lastUpdated: snap.capturedAt,
-              deltaSpend: previous ? newSpend - previous.spend : newSpend,
-              deltaInbox: previous ? newInbox - previous.messageInbox : newInbox,
-              deltaReach: previous ? newReach - previous.reach : newReach,
-              deltaImpressions: previous ? newImp - previous.impressions : newImp,
-              deltaClicks: previous ? newClicks - previous.clicks : newClicks,
-              changePercent: (previous && previous.spend > 0) ? ((newSpend - previous.spend) / previous.spend) * 100 : null
-            }
-          }
-          return ad
-        }))
-        setBulkModalOpen(false)
-      } else {
-        setBulkError(res.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูลพร้อมกัน')
-      }
-    } catch (err: any) {
-      setBulkError(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อบันทึกข้อมูล')
-    } finally {
-      setSavingBulk(false)
-    }
-  }
 
   // Export to CSV
   const handleExportCSV = () => {
@@ -791,15 +481,29 @@ export default function PerformanceClient({
                 <span>จัดการโครงสร้างแคมเปญ</span>
               </Link>
 
-              {/* Bulk Update Results button */}
+              {/* Single / Multi-Level Update Results button */}
               <button
                 type="button"
-                onClick={handleOpenBulkModal}
+                onClick={() => {
+                  setUpdatePresetItem(null)
+                  setIsUpdateModalOpen(true)
+                }}
                 className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition-all shadow-sm hover:shadow-rose-500/20 active:scale-95 shrink-0"
-                title="อัปเดตผลลัพธ์หลายโฆษณาพร้อมกัน"
+                title="บันทึกผลสะสมล่าสุด (ระดับแคมเปญ / ชุดโฆษณา / โฆษณา)"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>อัปเดตผลหลายรายการ</span>
+                <Save className="w-3.5 h-3.5" />
+                <span>อัปเดตผลลัพธ์ (Update Results)</span>
+              </button>
+
+              {/* Mass Update Results button */}
+              <button
+                type="button"
+                onClick={() => setIsMassUpdateModalOpen(true)}
+                className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all shadow-xs shrink-0"
+                title="อัปเดตผลลัพธ์จำนวนมากด้วยไฟล์ Excel (.xlsx 4 แท็บ) หรือ CSV"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                <span>อัปเดตจำนวนมาก (Mass Update)</span>
               </button>
 
               {/* Export CSV button */}
@@ -832,8 +536,8 @@ export default function PerformanceClient({
                 className="w-full text-xs bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:bg-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all cursor-pointer truncate"
               >
                 <option value="All">ทุกแคมเปญ (All Campaigns)</option>
-                {campaigns.map(c => (
-                  <option key={c.id} value={c.campaignId || c.id}>
+                {campaigns.map((c, idx) => (
+                  <option key={`perf_camp_${c.id || c.campaignId}_${idx}`} value={c.campaignId || c.id}>
                     {c.name}
                   </option>
                 ))}
@@ -852,8 +556,8 @@ export default function PerformanceClient({
                 className="w-full text-xs bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:bg-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all cursor-pointer truncate"
               >
                 <option value="All">ทุกชุดโฆษณา (All Ad Sets)</option>
-                {adSets.map(setName => (
-                  <option key={setName} value={setName}>
+                {adSets.map((setName, idx) => (
+                  <option key={`perf_set_${setName}_${idx}`} value={setName}>
                     {setName}
                   </option>
                 ))}
@@ -872,8 +576,8 @@ export default function PerformanceClient({
                 className="w-full text-xs bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:bg-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all cursor-pointer"
               >
                 <option value="All">ทุกช่องทาง (All Channels)</option>
-                {channels.map(ch => (
-                  <option key={ch} value={ch}>{ch}</option>
+                {channels.map((ch, idx) => (
+                  <option key={`perf_ch_${ch}_${idx}`} value={ch}>{ch}</option>
                 ))}
               </select>
             </div>
@@ -1203,46 +907,52 @@ export default function PerformanceClient({
                         </tr>
                       )}
 
-                      {groupItems.map(ad => {
-                        const isExpanded = expandedAdId === ad.adId
+                      {groupItems.map((ad, idx) => {
                         const hasDeltaSpend = ad.deltaSpend !== 0 && ad.deltaSpend !== undefined
                         const hasDeltaInbox = ad.deltaInbox !== 0 && ad.deltaInbox !== undefined
 
                         return (
-                          <React.Fragment key={ad.adId}>
-                            <tr
-                              className={`transition-colors group ${
-                                isExpanded
-                                  ? 'bg-rose-50/30'
-                                  : 'hover:bg-slate-50/80 bg-white'
-                              }`}
-                            >
+                          <React.Fragment key={`${ad.campaignId}_${ad.adSetId}_${ad.adId}_${idx}`}>
+                            <tr className="hover:bg-slate-50/80 bg-white transition-colors group">
                               {/* 1. Creative Thumbnail & Version */}
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-3">
-                                  <div
-                                    className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0 cursor-pointer group-hover:border-rose-300 transition-all flex items-center justify-center"
-                                    onClick={() => setPreviewImage(ad.creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg')}
-                                    title="คลิกเพื่อดูรูปขนาดเต็ม"
-                                  >
-                                    <img
-                                      src={ad.creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg'}
-                                      alt={ad.creativeFile || 'Creative'}
-                                      className="w-full h-full object-cover"
-                                      referrerPolicy="no-referrer"
-                                      onError={(e: any) => {
-                                        if (!e.currentTarget.dataset.proxied && ad.creativeUrl && ad.creativeUrl.startsWith('http')) {
-                                          e.currentTarget.dataset.proxied = 'true'
-                                          e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(ad.creativeUrl)}`
-                                          return
-                                        }
-                                        e.currentTarget.src = 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=100&auto=format&fit=crop&q=60'
-                                      }}
-                                    />
-                                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                                      <Eye className="w-3.5 h-3.5" />
-                                    </div>
-                                  </div>
+                                  {(() => {
+                                    const isFbPreview = Boolean(ad.creativeUrl && (ad.creativeUrl.includes('fb.me') || ad.creativeUrl.includes('adspreview') || ad.creativeUrl.includes('facebook.com')))
+                                    const displaySrc = (!isFbPreview && ad.creativeUrl) ? ad.creativeUrl : (ad.thumbnailUrl && !ad.thumbnailUrl.includes('fb.me') ? ad.thumbnailUrl : '/uploads/creatives/SP_WaterStrong_V1.jpg')
+
+                                    return (
+                                      <div
+                                        className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0 cursor-pointer group-hover:border-rose-300 transition-all flex items-center justify-center"
+                                        onClick={() => {
+                                          if (isFbPreview && ad.creativeUrl) {
+                                            window.open(ad.creativeUrl, '_blank')
+                                          } else {
+                                            setPreviewImage(ad.creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg')
+                                          }
+                                        }}
+                                        title={isFbPreview ? 'คลิกเพื่อเปิด Facebook Ad Preview ในแท็บใหม่' : 'คลิกเพื่อดูรูปขนาดเต็ม'}
+                                      >
+                                        <img
+                                          src={displaySrc}
+                                          alt={ad.creativeFile || 'Creative'}
+                                          className="w-full h-full object-cover"
+                                          referrerPolicy="no-referrer"
+                                          onError={(e: any) => {
+                                            e.currentTarget.src = '/uploads/creatives/SP_WaterStrong_V1.jpg'
+                                          }}
+                                        />
+                                        {isFbPreview && (
+                                          <span className="absolute bottom-1 right-1 px-1 py-0.5 bg-blue-600/90 text-white rounded text-[8px] font-black leading-none shadow-xs">
+                                            FB
+                                          </span>
+                                        )}
+                                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                          <Eye className="w-3.5 h-3.5" />
+                                        </div>
+                                      </div>
+                                    )
+                                  })()}
                                   <div className="min-w-0">
                                     <div className="font-semibold text-slate-900 truncate max-w-[150px]" title={ad.creativeFile}>
                                       {ad.creativeFile || 'Artwork'}
@@ -1261,11 +971,27 @@ export default function PerformanceClient({
 
                               {/* 2. Campaign / Ad Set */}
                               <td className="px-4 py-3">
-                                <div className="font-medium text-slate-900 truncate max-w-[180px]" title={ad.campaignName}>
-                                  {ad.campaignName}
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-medium text-slate-900 truncate max-w-[150px]" title={ad.campaignName}>
+                                    {ad.campaignName}
+                                  </span>
+                                  {ad.budgetStrategy === 'CBO' ? (
+                                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                      CBO
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                      ABO
+                                    </span>
+                                  )}
                                 </div>
-                                <div className="text-[11px] text-slate-500 truncate max-w-[180px] mt-0.5" title={ad.adSetName}>
-                                  {ad.adSetName}
+                                <div className="text-[11px] text-slate-500 truncate max-w-[180px] mt-0.5 flex items-center gap-1.5" title={ad.adSetName}>
+                                  <span>{ad.adSetName}</span>
+                                  {ad.adSetSpendShare !== undefined && ad.adSetSpendShare !== null && (
+                                    <span className="text-[10px] font-mono text-slate-400 font-semibold" title="สัดส่วนที่ Ad Set นี้ใช้จากงบแคมเปญ">
+                                      ({ad.adSetSpendShare.toFixed(1)}% spend)
+                                    </span>
+                                  )}
                                 </div>
                               </td>
 
@@ -1374,497 +1100,45 @@ export default function PerformanceClient({
                                 <div>{formatRelativeTime(ad.lastUpdated)}</div>
                               </td>
 
-                              {/* 15. Action Button */}
+                              {/* 15. Action Buttons */}
                               <td className="px-4 py-3 text-center sticky right-0 bg-white/95 group-hover:bg-slate-50/95 transition-colors shadow-xs">
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleExpand(ad)}
-                                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-xs ${
-                                    isExpanded
-                                      ? 'bg-rose-600 text-white shadow-rose-500/20'
-                                      : 'bg-white border border-rose-300 text-rose-600 hover:bg-rose-50'
-                                  }`}
-                                >
-                                  <span>อัปเดตผลลัพธ์</span>
-                                  {isExpanded ? (
-                                    <ChevronUp className="w-3.5 h-3.5" />
-                                  ) : (
-                                    <ChevronDown className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setUpdatePresetItem({
+                                        level: 'AD',
+                                        entityId: ad.adId,
+                                        campaignId: ad.campaignId,
+                                        adSetId: ad.adSetId
+                                      })
+                                      setIsUpdateModalOpen(true)
+                                    }}
+                                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 shadow-xs transition-all"
+                                    title="อัปเดตผลสะสมล่าสุดของโฆษณานี้"
+                                  >
+                                    <Save className="w-3.5 h-3.5" />
+                                    <span>อัปเดต</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setHistoryModalItem({
+                                        entityType: 'AD',
+                                        entityId: ad.adId,
+                                        title: ad.adName,
+                                        subtitle: `${ad.campaignName} • ${ad.adSetName}`
+                                      })
+                                    }}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all"
+                                    title="ดูประวัติ Snapshot ทุกเวอร์ชัน"
+                                  >
+                                    <History className="w-3.5 h-3.5 text-slate-500" />
+                                    <span>ประวัติ</span>
+                                  </button>
+                                </div>
                               </td>
                             </tr>
-
-                            {/* ================================================================= */}
-                            {/* INLINE EXPANDABLE CARD: UPDATE RESULTS (3-PANEL MOCKUP LAYOUT)    */}
-                            {/* ================================================================= */}
-                            {isExpanded && (
-                              <tr className="bg-slate-50/90 border-y-2 border-rose-400">
-                                <td colSpan={15} className="p-5">
-                                  <div className="bg-white rounded-2xl p-5 shadow-md border border-slate-200 space-y-5">
-                                    {/* Subheader */}
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                                      <div className="flex items-center gap-2.5">
-                                        <span className="w-2 h-2 rounded-full bg-rose-600"></span>
-                                        <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-                                          อัปเดตผลการนำส่งโฆษณา — {ad.adId}: {ad.adName}
-                                        </h3>
-                                        <span className="text-[11px] font-semibold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
-                                          โหมดบันทึก Snapshot สะสม
-                                        </span>
-                                      </div>
-
-                                      <div className="flex items-center gap-2">
-                                        <button
-                                          type="button"
-                                          onClick={() => handleOpenHistory(ad)}
-                                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all"
-                                        >
-                                          <History className="w-3.5 h-3.5 text-slate-500" />
-                                          <span>ดูประวัติ Snapshot</span>
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => setExpandedAdId(null)}
-                                          className="text-slate-400 hover:text-slate-600 p-1"
-                                        >
-                                          <X className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    </div>
-
-                                    {/* 3 Columns Layout matching mockup */}
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                                      {/* ============================================== */}
-                                      {/* PANEL 1: AD METADATA & CREATIVE (READ-ONLY)    */}
-                                      {/* ============================================== */}
-                                      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-4">
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                                            ข้อมูลโฆษณาและสื่อ (Metadata)
-                                          </span>
-                                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 bg-slate-200 px-2 py-0.5 rounded">
-                                            <Lock className="w-2.5 h-2.5" /> อ่านอย่างเดียว (Read Only)
-                                          </span>
-                                        </div>
-
-                                        {/* Creative Preview */}
-                                        <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-slate-200">
-                                          <div
-                                            className="w-16 h-16 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0 cursor-pointer"
-                                            onClick={() => setPreviewImage(ad.creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg')}
-                                          >
-                                            <img
-                                              src={ad.creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg'}
-                                              alt={ad.creativeFile}
-                                              className="w-full h-full object-cover"
-                                              referrerPolicy="no-referrer"
-                                              onError={(e: any) => {
-                                                if (!e.currentTarget.dataset.proxied && ad.creativeUrl && ad.creativeUrl.startsWith('http')) {
-                                                  e.currentTarget.dataset.proxied = 'true'
-                                                  e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(ad.creativeUrl)}`
-                                                  return
-                                                }
-                                                e.currentTarget.src = 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=100&auto=format&fit=crop&q=60'
-                                              }}
-                                            />
-                                          </div>
-                                          <div className="min-w-0">
-                                            <div className="text-xs font-bold text-slate-900 truncate" title={ad.creativeFile}>
-                                              {ad.creativeFile || 'รูปภาพชิ้นงานสื่อ'}
-                                            </div>
-                                            <div className="flex items-center gap-1.5 mt-1">
-                                              <span className="text-[10px] font-bold px-1.5 py-0.5 bg-rose-50 text-rose-700 rounded border border-rose-200">
-                                                เวอร์ชัน {ad.creativeVersion || 'V1'}
-                                              </span>
-                                              <span className="text-[10px] text-slate-500">
-                                                {ad.format === 'Video' ? 'วิดีโอ' : 'รูปภาพ'}
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        {/* Read-only Attributes */}
-                                        <div className="space-y-2 text-xs">
-                                          <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
-                                            <span className="text-slate-500">แคมเปญ:</span>
-                                            <span className="font-semibold text-slate-800 text-right truncate max-w-[170px]" title={ad.campaignName}>
-                                              {ad.campaignName}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
-                                            <span className="text-slate-500">ชุดโฆษณา:</span>
-                                            <span className="font-semibold text-slate-800 text-right truncate max-w-[170px]" title={ad.adSetName}>
-                                              {ad.adSetName}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
-                                            <span className="text-slate-500">ชื่อโฆษณา:</span>
-                                            <span className="font-semibold text-slate-800 text-right truncate max-w-[170px]" title={ad.adName}>
-                                              {ad.adName}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
-                                            <span className="text-slate-500">รหัสโฆษณา:</span>
-                                            <span className="font-mono font-semibold text-slate-700">
-                                              {ad.adId}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1">
-                                            <span className="text-slate-500">สถานะ:</span>
-                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                              ● {ad.status === 'Active' ? 'เปิดใช้งาน' : (ad.status === 'Paused' ? 'หยุดชั่วคราว' : ad.status)}
-                                            </span>
-                                          </div>
-                                        </div>
-
-                                        {/* Campaign Setup notice */}
-                                        <div className="text-[11px] text-slate-500 bg-white p-2.5 rounded-lg border border-slate-200 flex items-start gap-2">
-                                          <Info className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
-                                          <span>
-                                            หากต้องการเปลี่ยนชิ้นงานสื่อ หรือแก้ไขโครงสร้างโฆษณา กรุณาไปที่{' '}
-                                            <Link href="/marketing/ads/campaigns" className="text-rose-600 font-semibold underline">
-                                              ตั้งค่าแคมเปญ (Campaign Setup)
-                                            </Link>
-                                          </span>
-                                        </div>
-                                      </div>
-
-                                      {/* ============================================== */}
-                                      {/* PANEL 2: LATEST CUMULATIVE VALUES (INPUT)      */}
-                                      {/* ============================================== */}
-                                      <div className="bg-white rounded-xl p-4 border border-rose-200 shadow-xs space-y-3.5">
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-[11px] font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
-                                            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                                            ตัวเลขสะสมล่าสุด (Cumulative Values)
-                                          </span>
-                                          <span className="text-[10px] text-slate-400 font-mono">
-                                            ข้อมูลจาก Ads Manager
-                                          </span>
-                                        </div>
-
-                                        {/* Data As Of */}
-                                        <div>
-                                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                                            Data as of (วัน-เวลาที่ดึงข้อมูล):
-                                          </label>
-                                          <input
-                                            type="datetime-local"
-                                            value={formValues.dataAsOf}
-                                            onChange={e => setFormValues(prev => ({ ...prev, dataAsOf: e.target.value }))}
-                                            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 font-mono text-slate-800 focus:bg-white focus:border-rose-500 outline-none"
-                                          />
-                                        </div>
-
-                                        {/* Amount Spent */}
-                                        <div>
-                                          <div className="flex items-center justify-between mb-1">
-                                            <label className="text-[11px] font-semibold text-slate-700">
-                                              ค่าใช้จ่ายสะสม (Amount Spent ฿) <span className="text-rose-500">*</span>
-                                            </label>
-                                            <span className="text-[10px] text-slate-400 font-mono">
-                                              ก่อนหน้า: {formatCurrency(liveCalculations?.prevSpend)}
-                                            </span>
-                                          </div>
-                                          <input
-                                            type="number"
-                                            step="any"
-                                            placeholder="เช่น 65350"
-                                            value={formValues.spend}
-                                            onChange={e => setFormValues(prev => ({ ...prev, spend: e.target.value }))}
-                                            className="w-full text-xs font-mono font-bold bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none"
-                                          />
-                                        </div>
-
-                                        {/* Message Inbox */}
-                                        <div>
-                                          <div className="flex items-center justify-between mb-1">
-                                            <label className="text-[11px] font-semibold text-slate-700">
-                                              ข้อความทักสะสม (Message Inbox)
-                                            </label>
-                                            <span className="text-[10px] text-slate-400 font-mono">
-                                              ก่อนหน้า: {formatNum(liveCalculations?.prevInbox)}
-                                            </span>
-                                          </div>
-                                          <input
-                                            type="number"
-                                            step="1"
-                                            placeholder="เช่น 1204"
-                                            value={formValues.messageInbox}
-                                            onChange={e => setFormValues(prev => ({ ...prev, messageInbox: e.target.value }))}
-                                            className="w-full text-xs font-mono font-bold bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none"
-                                          />
-                                        </div>
-
-                                        {/* 2-col inputs for Reach & Impressions */}
-                                        <div className="grid grid-cols-2 gap-3">
-                                          <div>
-                                            <div className="flex items-center justify-between mb-1">
-                                              <label className="text-[11px] font-semibold text-slate-700">
-                                                การเข้าถึงสะสม (Reach)
-                                              </label>
-                                            </div>
-                                            <input
-                                              type="number"
-                                              step="1"
-                                              placeholder="เช่น 148200"
-                                              value={formValues.reach}
-                                              onChange={e => setFormValues(prev => ({ ...prev, reach: e.target.value }))}
-                                              className="w-full text-xs font-mono bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-900 focus:border-rose-500 outline-none"
-                                            />
-                                            <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                                              ก่อนหน้า: {formatNum(liveCalculations?.prevReach)}
-                                            </div>
-                                          </div>
-
-                                          <div>
-                                            <div className="flex items-center justify-between mb-1">
-                                              <label className="text-[11px] font-semibold text-slate-700">
-                                                การมองเห็นสะสม (Imp)
-                                              </label>
-                                            </div>
-                                            <input
-                                              type="number"
-                                              step="1"
-                                              placeholder="เช่น 215600"
-                                              value={formValues.impressions}
-                                              onChange={e => setFormValues(prev => ({ ...prev, impressions: e.target.value }))}
-                                              className="w-full text-xs font-mono bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-900 focus:border-rose-500 outline-none"
-                                            />
-                                            <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                                              ก่อนหน้า: {formatNum(liveCalculations?.prevImp)}
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        {/* Clicks */}
-                                        <div>
-                                          <div className="flex items-center justify-between mb-1">
-                                            <label className="text-[11px] font-semibold text-slate-700">
-                                              จำนวนคลิกสะสม (Clicks)
-                                            </label>
-                                            <span className="text-[10px] text-slate-400 font-mono">
-                                              ก่อนหน้า: {formatNum(liveCalculations?.prevClicks)}
-                                            </span>
-                                          </div>
-                                          <input
-                                            type="number"
-                                            step="1"
-                                            placeholder="เช่น 4320"
-                                            value={formValues.clicks}
-                                            onChange={e => setFormValues(prev => ({ ...prev, clicks: e.target.value }))}
-                                            className="w-full text-xs font-mono bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-900 focus:border-rose-500 outline-none"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      {/* ======================================================== */}
-                                      {/* PANEL 3: CHANGE SINCE PREVIOUS UPDATE & AUTO METRICS     */}
-                                      {/* ======================================================== */}
-                                      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-4">
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                            ส่วนต่างและคำนวณอัตโนมัติ (Metrics)
-                                          </span>
-                                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                                            คำนวณสดทันที (Live)
-                                          </span>
-                                        </div>
-
-                                        {/* Delta Increments */}
-                                        <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-1.5">
-                                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                            ส่วนต่างจากการอัปเดตก่อนหน้า (Change):
-                                          </div>
-                                          <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
-                                            <div className="flex justify-between">
-                                              <span className="text-slate-500">ค่าใช้จ่าย:</span>
-                                              <span className={`font-bold ${
-                                                (liveCalculations?.deltaSpend ?? 0) >= 0 ? 'text-rose-600' : 'text-amber-600'
-                                              }`}>
-                                                {(liveCalculations?.deltaSpend ?? 0) >= 0 ? '+' : ''}
-                                                {formatCurrency(liveCalculations?.deltaSpend)}
-                                              </span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                              <span className="text-slate-500">ข้อความทัก:</span>
-                                              <span className={`font-bold ${
-                                                (liveCalculations?.deltaInbox ?? 0) >= 0 ? 'text-blue-600' : 'text-amber-600'
-                                              }`}>
-                                                {(liveCalculations?.deltaInbox ?? 0) >= 0 ? '+' : ''}
-                                                {formatNum(liveCalculations?.deltaInbox)}
-                                              </span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                              <span className="text-slate-500">การเข้าถึง:</span>
-                                              <span className="text-slate-700">
-                                                {(liveCalculations?.deltaReach ?? 0) >= 0 ? '+' : ''}
-                                                {formatNum(liveCalculations?.deltaReach)}
-                                              </span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                              <span className="text-slate-500">คลิก:</span>
-                                              <span className="text-slate-700">
-                                                {(liveCalculations?.deltaClicks ?? 0) >= 0 ? '+' : ''}
-                                                {formatNum(liveCalculations?.deltaClicks)}
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        {/* Cumulative Auto Rates */}
-                                        <div className="space-y-2 text-xs">
-                                          <div className="flex items-center justify-between py-1 border-b border-slate-200">
-                                            <span className="text-slate-600">CTR (คลิก ÷ การมองเห็น):</span>
-                                            <span className="font-mono font-bold text-slate-900">
-                                              {formatPercent(liveCalculations?.ctr)}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1 border-b border-slate-200">
-                                            <span className="text-slate-600">CPC (ค่าใช้จ่าย ÷ คลิก):</span>
-                                            <span className="font-mono font-bold text-slate-900">
-                                              {formatDecimalCurrency(liveCalculations?.cpc)}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1 border-b border-slate-200">
-                                            <span className="text-slate-600">CPM (ค่าใช้จ่าย ÷ การมองเห็น × 1,000):</span>
-                                            <span className="font-mono font-bold text-slate-900">
-                                              {formatDecimalCurrency(liveCalculations?.cpm)}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1 border-b border-slate-200">
-                                            <span className="text-slate-600">ต้นทุนต่อผลลัพธ์ (Spend ÷ ข้อความ):</span>
-                                            <span className="font-mono font-extrabold text-rose-700">
-                                              {formatDecimalCurrency(liveCalculations?.costPerResult)}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1">
-                                            <span className="text-slate-600">สัดส่วนงบที่ใช้ไป (%):</span>
-                                            <span className="font-mono font-bold text-slate-800">
-                                              {formatPercent(liveCalculations?.budgetUsedPercent)}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Safeguard Warning Banner (if decrease detected) */}
-                                    {liveCalculations?.isDecrease && (
-                                      <div className="p-3.5 bg-amber-50 border border-amber-300 text-amber-900 rounded-xl text-xs flex items-start gap-2.5">
-                                        <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                                        <div>
-                                          <strong className="font-bold">คำเตือน: ข้อมูลสะสมล่าสุดน้อยกว่าค่าก่อนหน้า (Cumulative Values Decreased)</strong>
-                                          <p className="mt-0.5 text-amber-800">
-                                            โดยปกติค่าสะสมต้องเพิ่มขึ้นหรือเท่าเดิม หากคุณกำลังแก้ไขข้อมูลที่บันทึกผิดพลาดก่อนหน้า ระบบจะบันทึกเป็นประเภท <strong>&quot;Correction&quot;</strong> โดยอัตโนมัติ และจำเป็นต้องระบุเหตุผลการแก้ไข
-                                          </p>
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {/* Bottom Row: Update Type, Notes & Save Actions */}
-                                    <div className="pt-4 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                      <div className="flex-1 space-y-3">
-                                        <div className="flex items-center gap-4 text-xs">
-                                          <span className="font-semibold text-slate-700">ประเภทการบันทึก:</span>
-                                          <label className="flex items-center gap-1.5 cursor-pointer">
-                                            <input
-                                              type="radio"
-                                              name="updateType"
-                                              value="Regular Update"
-                                              checked={formValues.updateType === 'Regular Update' && !liveCalculations?.isDecrease}
-                                              disabled={liveCalculations?.isDecrease}
-                                              onChange={() => setFormValues(prev => ({ ...prev, updateType: 'Regular Update' }))}
-                                              className="text-rose-600 focus:ring-rose-500"
-                                            />
-                                            <span className="text-slate-700">อัปเดตปกติ (Regular Update)</span>
-                                          </label>
-                                          <label className="flex items-center gap-1.5 cursor-pointer">
-                                            <input
-                                              type="radio"
-                                              name="updateType"
-                                              value="Correction"
-                                              checked={formValues.updateType === 'Correction' || liveCalculations?.isDecrease}
-                                              onChange={() => setFormValues(prev => ({ ...prev, updateType: 'Correction' }))}
-                                              className="text-rose-600 focus:ring-rose-500"
-                                            />
-                                            <span className="text-amber-800 font-medium">แก้ไขย้อนหลัง (Correction)</span>
-                                          </label>
-                                        </div>
-
-                                        {/* Correction Reason (Mandatory if Correction) */}
-                                        {(formValues.updateType === 'Correction' || liveCalculations?.isDecrease) && (
-                                          <div>
-                                            <input
-                                              type="text"
-                                              placeholder="ระบุเหตุผลการแก้ไข (จำเป็นต้องระบุ) เช่น กรอกตัวเลขผิด, ปรับตัวเลขตามใบเสร็จจริง..."
-                                              value={formValues.correctionReason}
-                                              onChange={e => setFormValues(prev => ({ ...prev, correctionReason: e.target.value }))}
-                                              className="w-full text-xs bg-amber-50/60 border border-amber-300 rounded-lg px-3 py-1.5 text-amber-900 placeholder-amber-500 outline-none focus:ring-1 focus:ring-amber-500"
-                                            />
-                                          </div>
-                                        )}
-
-                                        {/* Optional Notes */}
-                                        <div>
-                                          <input
-                                            type="text"
-                                            placeholder="บันทึกเพิ่มเติม (ไม่บังคับ) เช่น งบถูกปรับขึ้น 10%, โปรโมชันวันหยุด..."
-                                            value={formValues.notes}
-                                            onChange={e => setFormValues(prev => ({ ...prev, notes: e.target.value }))}
-                                            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 placeholder-slate-400 outline-none focus:border-rose-500"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      {/* Save & Draft Buttons */}
-                                      <div className="flex items-center gap-2.5 self-end md:self-center">
-                                        <button
-                                          type="button"
-                                          disabled={savingUpdate}
-                                          onClick={() => handleSaveUpdate(true)}
-                                          className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all disabled:opacity-50"
-                                        >
-                                          บันทึกฉบับร่าง (Save Draft)
-                                        </button>
-                                        <button
-                                          type="button"
-                                          disabled={savingUpdate}
-                                          onClick={() => handleSaveUpdate(false)}
-                                          className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm hover:shadow-rose-500/20 active:scale-95 transition-all disabled:opacity-50"
-                                        >
-                                          {savingUpdate ? (
-                                            <>
-                                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                              <span>กำลังบันทึก...</span>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <Save className="w-3.5 h-3.5" />
-                                              <span>บันทึก Snapshot ใหม่</span>
-                                            </>
-                                          )}
-                                        </button>
-                                      </div>
-                                    </div>
-
-                                    {/* Feedback messages */}
-                                    {updateError && (
-                                      <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
-                                        <AlertCircle className="w-4 h-4 shrink-0" />
-                                        <span>{updateError}</span>
-                                      </div>
-                                    )}
-                                    {updateSuccess && (
-                                      <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs flex items-center gap-2">
-                                        <CheckCircle2 className="w-4 h-4 shrink-0" />
-                                        <span>{updateSuccess}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
                           </React.Fragment>
                         )
                       })}
@@ -1890,336 +1164,44 @@ export default function PerformanceClient({
       </main>
 
       {/* ========================================================================= */}
-      {/* MODAL: VIEW HISTORY TIMELINE                                              */}
+      {/* MODALS: 4-STEP UPDATE, MASS UPDATE, AND VERSION HISTORY                   */}
       {/* ========================================================================= */}
-      {historyModalAd && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <div className="flex items-center gap-2.5">
-                <span className="p-2 rounded-xl bg-rose-100 text-rose-700">
-                  <History className="w-5 h-5" />
-                </span>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">
-                    ประวัติ Snapshot ผลโฆษณา: {historyModalAd.adId}
-                  </h3>
-                  <p className="text-xs text-slate-500">{historyModalAd.adName}</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setHistoryModalAd(null)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200/50"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6 overflow-y-auto flex-1 space-y-4">
-              {loadingHistory ? (
-                <div className="py-12 text-center text-slate-500 flex flex-col items-center gap-2">
-                  <RefreshCw className="w-6 h-6 animate-spin text-rose-600" />
-                  <span>กำลังโหลดประวัติ Snapshot...</span>
-                </div>
-              ) : historyRecords.length === 0 ? (
-                <div className="py-12 text-center text-slate-500">
-                  ไม่พบประวัติ Snapshot ก่อนหน้า
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {historyRecords.map((snap, idx) => {
-                    const isCorrection = snap.updateType === 'Correction'
-                    return (
-                      <div
-                        key={snap.id || snap.snapshotId || idx}
-                        className={`p-4 rounded-xl border transition-all ${
-                          isCorrection
-                            ? 'bg-amber-50/50 border-amber-200'
-                            : idx === 0
-                            ? 'bg-rose-50/30 border-rose-200 shadow-xs'
-                            : 'bg-white border-slate-200'
-                        }`}
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-xs text-slate-800">
-                              {snap.snapshotId}
-                            </span>
-                            {idx === 0 && (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600 text-white">
-                                ล่าสุด
-                              </span>
-                            )}
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              isCorrection ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
-                            }`}>
-                              {snap.updateType === 'Correction' ? 'แก้ไขย้อนหลัง (Correction)' : 'อัปเดตปกติ (Regular Update)'}
-                            </span>
-                            <span className="text-[11px] text-slate-400">
-                              บันทึกโดย: {snap.enteredBy}
-                            </span>
-                          </div>
-                          <div className="text-xs font-mono text-slate-500">
-                            {new Date(snap.capturedAt).toLocaleString('th-TH')}
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-3 text-xs">
-                          <div>
-                            <span className="text-slate-400 block text-[10px] uppercase">ค่าใช้จ่าย (Spend)</span>
-                            <span className="font-mono font-bold text-slate-900">{formatCurrency(snap.spend)}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 block text-[10px] uppercase">ข้อความ (Inbox)</span>
-                            <span className="font-mono font-bold text-blue-600">{formatNum(snap.messageInbox)}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 block text-[10px] uppercase">การเข้าถึง (Reach)</span>
-                            <span className="font-mono text-slate-700">{formatNum(snap.reach)}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 block text-[10px] uppercase">การมองเห็น (Imp)</span>
-                            <span className="font-mono text-slate-700">{formatNum(snap.impressions)}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 block text-[10px] uppercase">คลิก (Clicks)</span>
-                            <span className="font-mono text-slate-700">{formatNum(snap.clicks)}</span>
-                          </div>
-                        </div>
-
-                        {snap.notes && (
-                          <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
-                            <strong>หมายเหตุ:</strong> {snap.notes}
-                          </div>
-                        )}
-
-                        {snap.correctionReason && (
-                          <div className="mt-2 pt-2 border-t border-amber-200 text-[11px] text-amber-800">
-                            <strong>เหตุผลการแก้ไข (Correction Reason):</strong> {snap.correctionReason}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-3 border-t border-slate-200 bg-slate-50 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setHistoryModalAd(null)}
-                className="px-4 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
-              >
-                ปิด (Close)
-              </button>
-            </div>
-          </div>
-        </div>
+      {isUpdateModalOpen && (
+        <UpdateResultsModal
+          isOpen={isUpdateModalOpen}
+          onClose={() => {
+            setIsUpdateModalOpen(false)
+            setUpdatePresetItem(null)
+          }}
+          campaigns={campaigns}
+          initialAds={ads}
+          currentUser={currentUser}
+          presetItem={updatePresetItem}
+          onSuccess={() => {
+            handleRefreshData()
+          }}
+        />
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL: BULK UPDATE RESULTS                                                */}
-      {/* ========================================================================= */}
-      {bulkModalOpen && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <div className="flex items-center gap-2.5">
-                <span className="p-2 rounded-xl bg-rose-100 text-rose-700">
-                  <RefreshCw className="w-5 h-5" />
-                </span>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">
-                    Bulk Update Results — อัปเดตผลสะสมพร้อมกันหลายรายการ
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    กรอกตัวเลขสะสมล่าสุดของแต่ละโฆษณา ระบบจะสร้าง Snapshot แยกเป็นรายตัวให้อัตโนมัติ
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setBulkModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200/50"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {isMassUpdateModalOpen && (
+        <MassUpdateModal
+          isOpen={isMassUpdateModalOpen}
+          onClose={() => setIsMassUpdateModalOpen(false)}
+          campaigns={campaigns}
+          initialAds={ads}
+          currentUser={currentUser}
+          onImportSuccess={() => {
+            handleRefreshData()
+          }}
+        />
+      )}
 
-            {/* Modal Form Settings */}
-            <div className="px-6 py-3 bg-rose-50/40 border-b border-rose-100 flex flex-wrap items-center gap-4 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-slate-700">Data as of (วัน-เวลาที่ดึงข้อมูล):</span>
-                <input
-                  type="datetime-local"
-                  value={bulkDataAsOf}
-                  onChange={e => setBulkDataAsOf(e.target.value)}
-                  className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-800"
-                />
-              </div>
-              <div className="flex-1 min-w-[200px]">
-                <input
-                  type="text"
-                  placeholder="หมายเหตุสำหรับการอัปเดตชุดนี้ (ไม่บังคับ เช่น อัปเดตรอบเช้า)..."
-                  value={bulkNotes}
-                  onChange={e => setBulkNotes(e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1 text-xs text-slate-800"
-                />
-              </div>
-            </div>
-
-            {/* Modal Content Table */}
-            <div className="p-6 overflow-y-auto flex-1">
-              <table className="w-full text-left text-xs whitespace-nowrap">
-                <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider font-semibold border-b border-slate-200">
-                  <tr>
-                    <th className="px-3 py-2.5">รหัส Ads / ชื่อโฆษณา</th>
-                    <th className="px-3 py-2.5 text-right">ค่าใช้จ่ายสะสม (฿)</th>
-                    <th className="px-3 py-2.5 text-right">ข้อความทักสะสม</th>
-                    <th className="px-3 py-2.5 text-right">การเข้าถึงสะสม</th>
-                    <th className="px-3 py-2.5 text-right">การมองเห็นสะสม</th>
-                    <th className="px-3 py-2.5 text-right">คลิกสะสม</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredAds.map(ad => {
-                    const row = bulkFormRows[ad.adId] || { spend: '', messageInbox: '', reach: '', impressions: '', clicks: '' }
-                    return (
-                      <tr key={ad.adId} className="hover:bg-slate-50">
-                        <td className="px-3 py-2.5">
-                          <div className="font-bold text-slate-900 font-mono text-xs">{ad.adId}</div>
-                          <div className="text-[11px] text-slate-500 truncate max-w-[180px]">{ad.adName}</div>
-                        </td>
-                        <td className="px-3 py-2.5 text-right">
-                          <input
-                            type="number"
-                            step="any"
-                            value={row.spend}
-                            onChange={e => {
-                              const val = e.target.value
-                              setBulkFormRows(prev => ({
-                                ...prev,
-                                [ad.adId]: { ...prev[ad.adId], spend: val }
-                              }))
-                            }}
-                            className="w-28 text-right font-mono font-bold border border-slate-300 rounded-md px-2 py-1 text-xs"
-                          />
-                        </td>
-                        <td className="px-3 py-2.5 text-right">
-                          <input
-                            type="number"
-                            step="1"
-                            value={row.messageInbox}
-                            onChange={e => {
-                              const val = e.target.value
-                              setBulkFormRows(prev => ({
-                                ...prev,
-                                [ad.adId]: { ...prev[ad.adId], messageInbox: val }
-                              }))
-                            }}
-                            className="w-24 text-right font-mono border border-slate-300 rounded-md px-2 py-1 text-xs"
-                          />
-                        </td>
-                        <td className="px-3 py-2.5 text-right">
-                          <input
-                            type="number"
-                            step="1"
-                            value={row.reach}
-                            onChange={e => {
-                              const val = e.target.value
-                              setBulkFormRows(prev => ({
-                                ...prev,
-                                [ad.adId]: { ...prev[ad.adId], reach: val }
-                              }))
-                            }}
-                            className="w-24 text-right font-mono border border-slate-300 rounded-md px-2 py-1 text-xs"
-                          />
-                        </td>
-                        <td className="px-3 py-2.5 text-right">
-                          <input
-                            type="number"
-                            step="1"
-                            value={row.impressions}
-                            onChange={e => {
-                              const val = e.target.value
-                              setBulkFormRows(prev => ({
-                                ...prev,
-                                [ad.adId]: { ...prev[ad.adId], impressions: val }
-                              }))
-                            }}
-                            className="w-24 text-right font-mono border border-slate-300 rounded-md px-2 py-1 text-xs"
-                          />
-                        </td>
-                        <td className="px-3 py-2.5 text-right">
-                          <input
-                            type="number"
-                            step="1"
-                            value={row.clicks}
-                            onChange={e => {
-                              const val = e.target.value
-                              setBulkFormRows(prev => ({
-                                ...prev,
-                                [ad.adId]: { ...prev[ad.adId], clicks: val }
-                              }))
-                            }}
-                            className="w-20 text-right font-mono border border-slate-300 rounded-md px-2 py-1 text-xs"
-                          />
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-
-              {bulkError && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{bulkError}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-              <span className="text-xs text-slate-500">
-                พร้อมบันทึก {filteredAds.length} รายการ
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setBulkModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50"
-                >
-                  ยกเลิก (Cancel)
-                </button>
-                <button
-                  type="button"
-                  disabled={savingBulk}
-                  onClick={handleSaveBulkUpdates}
-                  className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm hover:shadow-rose-500/20 active:scale-95 disabled:opacity-50"
-                >
-                  {savingBulk ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>กำลังบันทึกทั้งหมด...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-3.5 h-3.5" />
-                      <span>บันทึกทั้งหมด (Save All Updates)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {historyModalItem && (
+        <SnapshotHistoryModal
+          isOpen={!!historyModalItem}
+          onClose={() => setHistoryModalItem(null)}
+          item={historyModalItem}
+        />
       )}
 
       {/* ========================================================================= */}
@@ -2243,12 +1225,7 @@ export default function PerformanceClient({
               className="max-h-[80vh] w-auto object-contain rounded-xl"
               referrerPolicy="no-referrer"
               onError={(e: any) => {
-                if (!e.currentTarget.dataset.proxied && previewImage && previewImage.startsWith('http')) {
-                  e.currentTarget.dataset.proxied = 'true'
-                  e.currentTarget.src = `/api/proxy-image?url=${encodeURIComponent(previewImage)}`
-                  return
-                }
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800&auto=format&fit=crop&q=80'
+                e.currentTarget.src = '/uploads/creatives/SP_WaterStrong_V1.jpg'
               }}
             />
           </div>

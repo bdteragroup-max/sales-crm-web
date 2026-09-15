@@ -33,6 +33,8 @@ export default async function CrmResultsPage() {
   const plainCampaigns = rawCampaigns.map(c => ({
     ...c,
     budget: c.budget ? Number(c.budget) : 0,
+    campaignBudget: c.campaignBudget ? Number(c.campaignBudget) : (c.campaign_budget ? Number(c.campaign_budget) : (c.budget ? Number(c.budget) : 0)),
+    campaign_budget: c.campaign_budget ? Number(c.campaign_budget) : (c.campaignBudget ? Number(c.campaignBudget) : (c.budget ? Number(c.budget) : 0)),
     branch: c.branch ? {
       ...c.branch,
       center_lat: c.branch.center_lat ? Number(c.branch.center_lat) : null,

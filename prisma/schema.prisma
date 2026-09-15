@@ -68,12 +68,7 @@ model User {
   materialApprovals       MaterialRequisition[]   @relation("MaterialApprover")
   materialRequests        MaterialRequisition[]   @relation("MaterialRequester")
   bdMemberProjects        BDProject[]             @relation("BDProjectMembers")
-  technicianOrders            Order[]                 @relation("OrderTechnicians")
-  marketingRequestsRequested  MarketingRequest[]      @relation("MarketingRequestRequester")
-  marketingRequestsAssigned   MarketingRequest[]      @relation("MarketingRequestAssignee")
-  marketingRequestsAssignedBy MarketingRequest[]      @relation("MarketingRequestAssigner")
-  marketingRequestComments    MarketingRequestComment[]
-  marketingRequestLogs        MarketingRequestLog[]
+  technicianOrders        Order[]                 @relation("OrderTechnicians")
 }
 
 model MonthlyTarget {
@@ -152,8 +147,6 @@ model Company {
   companyName           String
   taxId                 String?
   address               String?
-  website               String?
-  googleMapUrl          String?
   createdAt             DateTime               @default(now()) @db.Timestamptz(6)
   updatedAt             DateTime               @updatedAt @db.Timestamptz(6)
   area                  String?
@@ -181,6 +174,8 @@ model Company {
   region                String?
   segment               String?
   tags                  String[]
+  website               String?
+  googleMapUrl          String?
   assignedUser          User?                  @relation("AssignedCompany", fields: [assignedUserId], references: [id])
   interactions          CompanyInteraction[]
   contacts              Contact[]
@@ -2470,7 +2465,6 @@ model KanbanCard {
   attachments          KanbanAttachment[]
   list                 KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
   comments             KanbanComment[]
-  marketingRequests    MarketingRequest[]
 
   @@index([listId])
   @@index([assignedToId])
@@ -3020,19 +3014,53 @@ model AdCampaign {
   accountId       String?
   artworkUrl      String?
   notes           String?
-  targetAudience  String?
-  internalCode    String?         @unique
-  productCategory String?
-  account         AdAccount?      @relation(fields: [accountId], references: [id])
-  branch          branches?       @relation(fields: [branchId], references: [id])
-  channel         AdChannel       @relation(fields: [channelId], references: [id])
-  objective       AdObjective?    @relation(fields: [objectiveId], references: [id])
-  product         products?       @relation(fields: [productId], references: [id])
-  performances    AdPerformance[]
-  leads           MarketingLead[]
+  targetAudience             String?
+  internalCode               String?         @unique
+  productCategory            String?
+  budget_strategy            String?         @default("ABO")
+  budget_level               String?         @default("AD_SET")
+  budget_type                String?         @default("DAILY")
+  campaign_budget            Decimal?        @db.Decimal(12, 2)
+  currency                   String?         @default("THB")
+  budget_notes               String?
+  budget_strategy_effective_at DateTime?      @db.Timestamptz(6)
+  budgetStrategy             String?         @default("ABO")
+  budgetLevel                String?         @default("AD_SET")
+  budgetType                 String?         @default("DAILY")
+  campaignBudget             Decimal?        @db.Decimal(12, 2)
+  budgetNotes                String?
+  budgetStrategyEffectiveAt  DateTime?       @db.Timestamptz(6)
+  account                    AdAccount?      @relation(fields: [accountId], references: [id])
+  branch                     branches?       @relation(fields: [branchId], references: [id])
+  channel                    AdChannel       @relation(fields: [channelId], references: [id])
+  objective                  AdObjective?    @relation(fields: [objectiveId], references: [id])
+  product                    products?       @relation(fields: [productId], references: [id])
+  performances               AdPerformance[]
+  leads                      MarketingLead[]
 
   @@index([channelId])
   @@index([status])
+}
+
+model AdBudgetHistory {
+  id            String    @id @default(cuid())
+  campaignId    String
+  prevStrategy  String?
+  newStrategy   String
+  prevBudget    Decimal?  @db.Decimal(12, 2)
+  newBudget     Decimal?  @db.Decimal(12, 2)
+  prevBudgetType String?
+  newBudgetType String?
+  effectiveDate DateTime  @default(now()) @db.Timestamptz(6)
+  changedBy     String?
+  changedByName String?
+  changedAt     DateTime  @default(now()) @db.Timestamptz(6)
+  changeNotes   String?
+  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([campaignId])
+  @@index([changedAt])
+  @@map("ad_budget_history")
 }
 
 model AdPerformance {
@@ -3323,10 +3351,6 @@ model MarketingRequest {
   kanbanCardId           String?
   createdAt              DateTime                     @default(now()) @db.Timestamptz(6)
   updatedAt              DateTime                     @default(now()) @updatedAt @db.Timestamptz(6)
-  requester              User                         @relation("MarketingRequestRequester", fields: [requesterId], references: [id])
-  assignedTo             User?                        @relation("MarketingRequestAssignee", fields: [assignedToId], references: [id])
-  assignedBy             User?                        @relation("MarketingRequestAssigner", fields: [assignedById], references: [id])
-  kanbanCard             KanbanCard?                  @relation(fields: [kanbanCardId], references: [id])
   attachments            MarketingRequestAttachment[]
   comments               MarketingRequestComment[]
   logs                   MarketingRequestLog[]
@@ -3361,10 +3385,8 @@ model MarketingRequestComment {
   createdAt  DateTime         @default(now()) @db.Timestamptz(6)
   updatedAt  DateTime         @default(now()) @updatedAt @db.Timestamptz(6)
   request    MarketingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  user       User             @relation(fields: [userId], references: [id])
 
   @@index([requestId])
-  @@index([userId])
 }
 
 model MarketingRequestLog {
@@ -3375,8 +3397,114 @@ model MarketingRequestLog {
   details    String?
   createdAt  DateTime         @default(now()) @db.Timestamptz(6)
   request    MarketingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  user       User?            @relation(fields: [userId], references: [id])
 
   @@index([requestId])
-  @@index([userId])
+}
+
+model MarketingAnnouncement {
+  id               String                                @id @default(cuid())
+  announcementType String                                @map("announcement_type") @db.VarChar(50)
+  productGroup     String                                @map("product_group") @db.VarChar(50)
+  campaignName     String                                @map("campaign_name") @db.VarChar(255)
+  shortDescription String                                @map("short_description")
+  campaignDetails  String                                @map("campaign_details")
+  termsConditions  String?                               @map("terms_conditions")
+  startAt          DateTime                              @map("start_at") @db.Timestamptz(6)
+  endAt            DateTime?                             @map("end_at") @db.Timestamptz(6)
+  branchScope      String                                @default("ALL") @map("branch_scope") @db.VarChar(20)
+  priority         String                                @default("Normal") @db.VarChar(20)
+  status           String                                @default("Active") @db.VarChar(30)
+  version          Int                                   @default(1)
+  coverImageUrl    String?                               @map("cover_image_url")
+  contactPerson    String?                               @map("contact_person")
+  publishMode      String                                @default("NOW") @map("publish_mode") @db.VarChar(20)
+  publishedAt      DateTime?                             @map("published_at") @db.Timestamptz(6)
+  displayOrder     Int                                   @default(0) @map("display_order")
+  isFeatured       Boolean                               @default(false) @map("is_featured")
+  createdBy        String                                @map("created_by")
+  createdAt        DateTime                              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedBy        String?                               @map("updated_by")
+  updatedAt        DateTime                              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  acknowledgments  MarketingAnnouncementAcknowledgment[]
+  assets           MarketingAnnouncementAsset[]
+  auditLogs        MarketingAnnouncementAuditLog[]
+  branches         MarketingAnnouncementBranch[]
+
+  @@index([startAt, endAt], map: "idx_mkt_announcements_dates")
+  @@index([priority], map: "idx_mkt_announcements_priority")
+  @@index([productGroup], map: "idx_mkt_announcements_product_group")
+  @@index([status], map: "idx_mkt_announcements_status")
+  @@map("marketing_announcements")
+}
+
+model MarketingAnnouncementBranch {
+  id             String                @id @default(cuid())
+  announcementId String                @map("announcement_id")
+  branchId       String                @map("branch_id") @db.VarChar(20)
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  announcement   MarketingAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mkt_announcement_branch")
+
+  @@index([announcementId], map: "idx_mkt_announcement_branches_ann_id")
+  @@index([branchId], map: "idx_mkt_announcement_branches_branch_id")
+  @@map("marketing_announcement_branches")
+}
+
+model MarketingAnnouncementAsset {
+  id                String                 @id @default(cuid())
+  announcementId    String?                @map("announcement_id")
+  assetType         String                 @default("document") @map("asset_type") @db.VarChar(50)
+  documentType      String                 @default("Others") @map("document_type") @db.VarChar(100)
+  fileName          String                 @map("file_name") @db.VarChar(255)
+  fileUrl           String                 @map("file_url")
+  fileSize          BigInt                 @default(0) @map("file_size")
+  mimeType          String?                @map("mime_type") @db.VarChar(100)
+  downloadable      Boolean                @default(true)
+  version           String                 @default("V1") @db.VarChar(20)
+  effectiveDate     DateTime?              @map("effective_date") @db.Timestamptz(6)
+  expiryDate        DateTime?              @map("expiry_date") @db.Timestamptz(6)
+  downloadCount     Int                    @default(0) @map("download_count")
+  branchScope       String                 @default("ALL") @map("branch_scope") @db.VarChar(20)
+  specificBranchIds String?                @map("specific_branch_ids")
+  productGroup      String?                @map("product_group") @db.VarChar(50)
+  uploadedBy        String?                @map("uploaded_by")
+  uploadedAt        DateTime               @default(now()) @map("uploaded_at") @db.Timestamptz(6)
+  announcement      MarketingAnnouncement? @relation(fields: [announcementId], references: [id], onUpdate: NoAction, map: "fk_mkt_announcement_asset")
+
+  @@index([announcementId], map: "idx_mkt_announcement_assets_ann_id")
+  @@index([documentType], map: "idx_mkt_announcement_assets_doc_type")
+  @@index([productGroup], map: "idx_mkt_announcement_assets_product_group")
+  @@map("marketing_announcement_assets")
+}
+
+model MarketingAnnouncementAcknowledgment {
+  id                  String                @id @default(cuid())
+  announcementId      String                @map("announcement_id")
+  userId              String                @map("user_id")
+  branchId            String?               @map("branch_id") @db.VarChar(20)
+  userName            String?               @map("user_name") @db.VarChar(255)
+  readAt              DateTime              @default(now()) @map("read_at") @db.Timestamptz(6)
+  acknowledgedAt      DateTime?             @map("acknowledged_at") @db.Timestamptz(6)
+  acknowledgedVersion Int?                  @map("acknowledged_version")
+  announcement        MarketingAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mkt_announcement_ack")
+
+  @@unique([announcementId, userId], map: "uq_mkt_ack_user_announcement")
+  @@index([announcementId, userId], map: "idx_mkt_announcement_ack_ann_user")
+  @@map("marketing_announcement_acknowledgments")
+}
+
+model MarketingAnnouncementAuditLog {
+  id              String                @id @default(cuid())
+  announcementId  String                @map("announcement_id")
+  version         Int                   @default(1)
+  action          String                @db.VarChar(50)
+  previousValue   Json?                 @map("previous_value")
+  newValue        Json?                 @map("new_value")
+  performedBy     String                @map("performed_by")
+  performedByName String?               @map("performed_by_name") @db.VarChar(255)
+  notes           String?
+  performedAt     DateTime              @default(now()) @map("performed_at") @db.Timestamptz(6)
+  announcement    MarketingAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mkt_announcement_audit")
+
+  @@index([announcementId], map: "idx_mkt_announcement_audit_ann_id")
+  @@map("marketing_announcement_audit_logs")
 }

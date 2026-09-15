@@ -16,6 +16,7 @@ import { getPendingOutsourceRepairCount } from '@/app/actions/outsourceRepairs';
 import { getPendingRepairDeliveryCount } from '@/app/actions/repairDeliveries';
 import { getPendingEstimationCount } from '@/app/actions/estimations';
 import { getPendingMarketingRequestCount } from '@/app/actions/marketingRequests';
+import { getUnreadMarketingBoardCount } from '@/app/actions/marketingBoard';
 import CoinMiniWidget from './CoinMiniWidget';
 import NotificationBell from './NotificationBell'; // HMR flush
 
@@ -31,6 +32,7 @@ type NavItem = { icon: React.ElementType; label: string; href: string };
 
 const executiveNav = [
   { icon: LayoutDashboard, label: 'Executive KPI', href: '/executive/kpi' },
+  { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: GitCommit, label: 'Pipeline Forecast', href: '/executive/pipeline' },
   { icon: Wrench, label: 'ภาพรวมงานบริการ', href: '/executive/service' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
@@ -44,6 +46,7 @@ const executiveNav = [
 
 const managerNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมทีม', href: '/dashboard' },
+  { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: GitCommit, label: 'ท่อดีลฝ่ายขาย', href: '/pipeline' },
   { icon: Bell, label: 'Leads จาก Marketing', href: '/sales/leads' },
   { icon: TrendingUp, label: 'จัดการใบเสนอราคา', href: '/sales' },
@@ -63,6 +66,7 @@ const managerNav = [
 
 const repNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมของฉัน', href: '/dashboard' },
+  { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: GitCommit, label: 'ท่อดีลของฉัน', href: '/pipeline' },
   { icon: Bell, label: 'Leads จาก Marketing', href: '/sales/leads' },
   { icon: TrendingUp, label: 'บันทึกใบเสนอราคา', href: '/sales' },
@@ -142,6 +146,7 @@ const projectNav = [
 
 const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
+  { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests' },
   { icon: Tv, label: 'แดชบอร์ดโฆษณา (Ads Dashboard)', href: '/marketing/ads/dashboard' },
   { icon: FolderOpen, label: 'แคมเปญโฆษณา (Ads Campaigns)', href: '/marketing/ads/campaigns' },
@@ -195,6 +200,7 @@ const bdNav = [
 ];
 
 const commonNav = [
+  { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests/new' },
   { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' },
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
@@ -316,6 +322,7 @@ function ResponsiveSidebar({
   const [pendingDeliveryCount, setPendingDeliveryCount] = useState(0);
   const [pendingEstimationCount, setPendingEstimationCount] = useState(0);
   const [pendingMarketingRequestCount, setPendingMarketingRequestCount] = useState(0);
+  const [unreadMarketingBoardCount, setUnreadMarketingBoardCount] = useState(0);
 
   const [selectedContext, setSelectedContext] = useState<string>('All (Default)');
   const [isContextSwitcherOpen, setIsContextSwitcherOpen] = useState(false);
@@ -371,6 +378,7 @@ function ResponsiveSidebar({
     }
 
     getPendingMarketingRequestCount().then(setPendingMarketingRequestCount).catch(() => { });
+    getUnreadMarketingBoardCount().then(setUnreadMarketingBoardCount).catch(() => { });
   }, [router, nav, userRole]);
 
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -539,6 +547,11 @@ function ResponsiveSidebar({
                   {(href === '/marketing/requests' || href === '/marketing/requests/new') && pendingMarketingRequestCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
                       {pendingMarketingRequestCount > 99 ? '99+' : pendingMarketingRequestCount}
+                    </span>
+                  )}
+                  {href === '/marketing-board' && unreadMarketingBoardCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-[#ff2301] text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10 animate-pulse">
+                      {unreadMarketingBoardCount > 99 ? '99+' : unreadMarketingBoardCount}
                     </span>
                   )}
                 </Link>
@@ -753,6 +766,11 @@ function ResponsiveSidebar({
                     {(href === '/marketing/requests' || href === '/marketing/requests/new') && pendingMarketingRequestCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
                         {pendingMarketingRequestCount > 99 ? '99+' : pendingMarketingRequestCount}
+                      </span>
+                    )}
+                    {href === '/marketing-board' && unreadMarketingBoardCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {unreadMarketingBoardCount > 99 ? '99+' : unreadMarketingBoardCount}
                       </span>
                     )}
                   </div>

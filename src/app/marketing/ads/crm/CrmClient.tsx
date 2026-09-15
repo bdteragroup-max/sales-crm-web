@@ -1478,11 +1478,11 @@ export default function CrmClient({
                         </tr>
                       )}
 
-                      {groupItems.map(ad => {
+                      {groupItems.map((ad, idx) => {
                         const isExpanded = expandedAdId === ad.adId
 
                         return (
-                          <React.Fragment key={ad.adId}>
+                          <React.Fragment key={`${ad.campaignId}_${ad.adSetId}_${ad.adId}_${idx}`}>
                             <tr
                               className={`transition-colors group ${isExpanded
                                 ? 'bg-rose-50/30'
@@ -2306,7 +2306,7 @@ export default function CrmClient({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {ads.map(ad => {
+                    {ads.map((ad, idx) => {
                       const row = bulkFormRows[ad.adId] || {
                         leads: '',
                         qualifiedLeads: '',
@@ -2316,7 +2316,7 @@ export default function CrmClient({
                         sale: ''
                       }
                       return (
-                        <tr key={ad.adId} className="hover:bg-slate-50">
+                        <tr key={`${ad.campaignId}_${ad.adSetId}_${ad.adId}_${idx}`} className="hover:bg-slate-50">
                           <td className="px-3 py-2">
                             <div className="font-semibold text-slate-900 truncate max-w-[160px]">{ad.adName}</div>
                             <div className="font-mono text-[10px] text-slate-400">{ad.adId}</div>

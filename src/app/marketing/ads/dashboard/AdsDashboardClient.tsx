@@ -21,8 +21,12 @@ import {
   Play,
   Eye,
   X,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Building2,
+  Package,
+  History
 } from 'lucide-react'
+import SnapshotHistoryModal from '@/app/marketing/ads/performance/components/SnapshotHistoryModal'
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -81,6 +85,7 @@ export default function AdsDashboardClient({
   const queryCompareWith = searchParams?.get('compareWith') || ''
   const queryCompareFrom = searchParams?.get('compareFrom') || ''
   const queryCompareTo = searchParams?.get('compareTo') || ''
+  const queryRollup = searchParams?.get('rollupSource') as any || ''
 
   const isQuerySeptember = queryFrom.includes('2026-09') || queryTo.includes('2026-09')
 
@@ -104,7 +109,8 @@ export default function AdsDashboardClient({
       adId: 'All',
       creative: 'All',
       status: queryStatus || 'Active',
-      search: ''
+      search: '',
+      rollupSource: queryRollup || 'Auto'
     }
   )
 
@@ -117,7 +123,57 @@ export default function AdsDashboardClient({
   )
 
   // Active Tab for Deep-Dive Section E
-  const [activeTab, setActiveTab] = useState<'ads' | 'campaigns' | 'adsets' | 'channels' | 'creatives'>('ads')
+  const [activeTab, setActiveTab] = useState<'ads' | 'campaigns' | 'adsets' | 'branches' | 'productGroups' | 'channels' | 'creatives'>('ads')
+
+  // Drilldown expanded row states for Branches & Product Groups
+  const [expandedBranches, setExpandedBranches] = useState<Set<string>>(new Set())
+  const [expandedProductGroups, setExpandedProductGroups] = useState<Set<string>>(new Set())
+  const [expandedCampaigns, setExpandedCampaigns] = useState<Set<string>>(new Set())
+  const [expandedAdSets, setExpandedAdSets] = useState<Set<string>>(new Set())
+
+  // History modal state
+  const [historyModalItem, setHistoryModalItem] = useState<{
+    entityType: 'CAMPAIGN' | 'AD_SET' | 'AD'
+    entityId: string
+    title: string
+    subtitle?: string
+  } | null>(null)
+
+  const toggleBranch = (id: string) => {
+    setExpandedBranches(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleProductGroup = (id: string) => {
+    setExpandedProductGroups(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleCampaign = (id: string) => {
+    setExpandedCampaigns(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleAdSet = (id: string) => {
+    setExpandedAdSets(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
 
   // Show detailed Delivery/Traffic KPIs toggle
   const [showDeliveryKpis, setShowDeliveryKpis] = useState(false)
@@ -372,20 +428,37 @@ export default function AdsDashboardClient({
       )
     }
 
+    const isFbPreview = Boolean(creativeUrl && (creativeUrl.includes('fb.me') || creativeUrl.includes('adspreview') || creativeUrl.includes('facebook.com')))
+
     return (
       <div
         className={`${dimClass} bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0 cursor-pointer hover:border-rose-300 transition-all flex items-center justify-center shadow-2xs group`}
-        onClick={() => setPreviewMedia(creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg')}
-        title="คลิกเพื่อดูรูปขนาดเต็ม"
+        onClick={() => {
+          if (isFbPreview && creativeUrl) {
+            window.open(creativeUrl, '_blank')
+          } else {
+            setPreviewMedia(creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg')
+          }
+        }}
+        title={isFbPreview ? 'คลิกเพื่อเปิด Facebook Ad Preview ในแท็บใหม่' : 'คลิกเพื่อดูรูปขนาดเต็ม'}
       >
         <img
-          src={creativeUrl || '/uploads/creatives/SP_WaterStrong_V1.jpg'}
+          src={
+            creativeUrl && !isFbPreview
+              ? creativeUrl
+              : '/uploads/creatives/SP_WaterStrong_V1.jpg'
+          }
           alt={creativeFile || 'Creative'}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
           onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
             e.currentTarget.src = '/uploads/creatives/SP_WaterStrong_V1.jpg'
           }}
         />
+        {isFbPreview && (
+          <span className="absolute bottom-0.5 right-0.5 px-1 py-0.2 bg-blue-600/90 text-white rounded text-[7.5px] font-black leading-none shadow-2xs">
+            FB
+          </span>
+        )}
         <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
           <Eye className="w-3.5 h-3.5" />
         </div>
@@ -645,8 +718,8 @@ export default function AdsDashboardClient({
             </div>
           </div>
 
-          {/* Symmetrical 6-Column Controls Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5 items-end">
+          {/* Symmetrical 7-Column Controls Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-3.5 items-end">
             {/* 1. Reporting Period */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
@@ -700,8 +773,8 @@ export default function AdsDashboardClient({
                 <option value="TikTok">TikTok</option>
                 <option value="Google">Google</option>
                 <option value="LINE">LINE</option>
-                {channels?.filter(ch => !['Facebook', 'TikTok', 'Google', 'LINE'].includes(ch.name)).map(ch => (
-                  <option key={ch.id} value={ch.name}>{ch.name}</option>
+                {channels?.filter(ch => !['Facebook', 'TikTok', 'Google', 'LINE'].includes(ch.name)).map((ch, idx) => (
+                  <option key={`ch_${ch.id}_${idx}`} value={ch.name}>{ch.name}</option>
                 ))}
               </select>
             </div>
@@ -720,8 +793,8 @@ export default function AdsDashboardClient({
                 className="w-full text-xs font-medium bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 outline-none cursor-pointer h-9 shadow-2xs truncate"
               >
                 <option value="All">ทุกแคมเปญ</option>
-                {availableCampaigns.map((c: { id: string; campaignId: string; name: string }) => (
-                  <option key={c.id} value={c.campaignId}>{c.name}</option>
+                {availableCampaigns.map((c: { id: string; campaignId: string; name: string }, idx: number) => (
+                  <option key={`camp_${c.id || c.campaignId}_${idx}`} value={c.campaignId}>{c.name}</option>
                 ))}
               </select>
             </div>
@@ -737,8 +810,8 @@ export default function AdsDashboardClient({
                 className="w-full text-xs font-medium bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 outline-none cursor-pointer h-9 shadow-2xs truncate"
               >
                 <option value="All">ทุกชุดโฆษณา</option>
-                {availableAdSets.map((s: { id: string; name: string }) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
+                {availableAdSets.map((s: { id: string; name: string }, idx: number) => (
+                  <option key={`set_${s.id}_${idx}`} value={s.id}>{s.name}</option>
                 ))}
               </select>
             </div>
@@ -756,6 +829,24 @@ export default function AdsDashboardClient({
                 <option value="Active">เปิดใช้งาน</option>
                 <option value="All">ทุกสถานะ</option>
                 <option value="Paused">ปิดชั่วคราว</option>
+              </select>
+            </div>
+
+            {/* 7. Roll-up Source */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
+                แหล่งคำนวณ Roll-up
+              </label>
+              <select
+                value={filters.rollupSource || 'Auto'}
+                onChange={e => handleFilterChange('rollupSource', e.target.value)}
+                className="w-full text-xs font-medium bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 outline-none cursor-pointer h-9 shadow-2xs truncate"
+                title="เลือกแหล่งข้อมูลสำหรับการสรุปยอด Dashboard"
+              >
+                <option value="Auto">Auto (ตามระดับ)</option>
+                <option value="Campaign">Campaign Level</option>
+                <option value="AdSet">Ad Set Level</option>
+                <option value="Ads">Ads Level</option>
               </select>
             </div>
           </div>
@@ -1175,8 +1266,8 @@ export default function AdsDashboardClient({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-[11px]">
-                      {dashboardData?.campaignBreakdown.map(c => (
-                        <tr key={c.campaignId} className="hover:bg-slate-50/80 transition-colors">
+                      {dashboardData?.campaignBreakdown.map((c, idx) => (
+                        <tr key={`${c.campaignId}_${idx}`} className="hover:bg-slate-50/80 transition-colors">
                           <td className="py-2.5 pr-1 font-semibold text-slate-900 truncate" title={c.campaignName}>
                             {c.campaignName}
                           </td>
@@ -1229,10 +1320,10 @@ export default function AdsDashboardClient({
                 </div>
 
                 <div className="space-y-4 pt-3 my-auto">
-                  {dashboardData?.topAdsByRoi.slice(0, 3).map(ad => {
+                  {dashboardData?.topAdsByRoi.slice(0, 3).map((ad, idx) => {
                     const barWidth = Math.min(100, Math.max(15, (ad.roi / 1500) * 100))
                     return (
-                      <div key={ad.adId} className="space-y-1.5">
+                      <div key={`${ad.adId}_${idx}`} className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-semibold text-slate-800 truncate max-w-[150px]" title={ad.adName}>
                             {ad.adName}
@@ -1413,6 +1504,28 @@ export default function AdsDashboardClient({
               </button>
               <button
                 type="button"
+                onClick={() => setActiveTab('branches')}
+                className={`px-3 py-1 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  activeTab === 'branches'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                สาขา (Branches) ({dashboardData?.branchBreakdown?.length || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('productGroups')}
+                className={`px-3 py-1 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  activeTab === 'productGroups'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                กลุ่มสินค้า ({dashboardData?.productGroupBreakdown?.length || 0})
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('channels')}
                 className={`px-3 py-1 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === 'channels'
@@ -1457,8 +1570,8 @@ export default function AdsDashboardClient({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {dashboardData?.adsBreakdown.map(ad => (
-                    <tr key={ad.adId} className="hover:bg-slate-50/80 transition-colors">
+                  {dashboardData?.adsBreakdown.map((ad, idx) => (
+                    <tr key={`${ad.campaignId}_${ad.adSetId}_${ad.adId}_${idx}`} className="hover:bg-slate-50/80 transition-colors">
                       {/* Creative Thumbnail */}
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-2.5">
@@ -1561,9 +1674,22 @@ export default function AdsDashboardClient({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {dashboardData?.campaignBreakdown.map(c => (
-                    <tr key={c.campaignId} className="hover:bg-slate-50/80">
-                      <td className="px-4 py-3 font-bold text-slate-900">{c.campaignName}</td>
+                  {dashboardData?.campaignBreakdown.map((c, idx) => (
+                    <tr key={`${c.campaignId}_${idx}`} className="hover:bg-slate-50/80">
+                      <td className="px-4 py-3 font-bold text-slate-900">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span>{c.campaignName}</span>
+                          {c.budgetStrategy === 'CBO' ? (
+                            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                              CBO
+                            </span>
+                          ) : (
+                            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              ABO
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-center font-mono">{c.adCount}</td>
                       <td className="px-4 py-3 text-right font-mono font-semibold">{formatCurrency(c.spend)}</td>
                       <td className="px-4 py-3 text-right font-mono">{formatNum(c.messageInbox)}</td>
@@ -1587,7 +1713,9 @@ export default function AdsDashboardClient({
                   <tr>
                     <th className="px-4 py-2.5">ชุดโฆษณา (Ad Set)</th>
                     <th className="px-4 py-2.5 text-center">จำนวน Ads</th>
+                    <th className="px-4 py-2.5 text-right">งบประมาณ (Budget)</th>
                     <th className="px-4 py-2.5 text-right">ค่าใช้จ่าย (฿)</th>
+                    <th className="px-4 py-2.5 text-right">สัดส่วนการใช้งบ (%)</th>
                     <th className="px-4 py-2.5 text-right">ข้อความทัก</th>
                     <th className="px-4 py-2.5 text-right">ลีด</th>
                     <th className="px-4 py-2.5 text-right">ปิดการขาย</th>
@@ -1596,11 +1724,23 @@ export default function AdsDashboardClient({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {dashboardData?.adSetBreakdown.map(s => (
-                    <tr key={s.adSetId} className="hover:bg-slate-50/80">
+                  {dashboardData?.adSetBreakdown.map((s, idx) => (
+                    <tr key={`${s.campaignId || ''}_${s.adSetId}_${idx}`} className="hover:bg-slate-50/80">
                       <td className="px-4 py-3 font-bold text-slate-900">{s.adSetName}</td>
                       <td className="px-4 py-3 text-center font-mono">{s.adCount}</td>
+                      <td className="px-4 py-3 text-right font-mono font-semibold">
+                        {s.budgetStrategy === 'CBO' || s.allocatedBudget === null || s.allocatedBudget === undefined ? (
+                          <span className="text-[10.5px] font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                            จัดสรรอัตโนมัติ (Facebook CBO)
+                          </span>
+                        ) : (
+                          formatCurrency(s.allocatedBudget)
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-right font-mono font-semibold">{formatCurrency(s.spend)}</td>
+                      <td className="px-4 py-3 text-right font-mono font-semibold text-slate-700">
+                        {s.spendShare !== undefined ? `${s.spendShare.toFixed(1)}%` : '—'}
+                      </td>
                       <td className="px-4 py-3 text-right font-mono">{formatNum(s.messageInbox)}</td>
                       <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">{formatNum(s.leads)}</td>
                       <td className="px-4 py-3 text-right font-mono font-bold text-emerald-800">{formatNum(s.closedSales)}</td>
@@ -1608,6 +1748,505 @@ export default function AdsDashboardClient({
                       <td className="px-4 py-3 text-right font-mono font-bold text-emerald-600">{s.roi ? `${s.roi.toFixed(1)}%` : '—'}</td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* TAB: BRANCHES BREAKDOWN (4-LEVEL DRILLDOWN) */}
+          {activeTab === 'branches' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs whitespace-nowrap">
+                <thead className="bg-slate-50 text-slate-600 text-[10.5px] uppercase tracking-wider font-bold border-b border-slate-200 select-none">
+                  <tr>
+                    <th className="px-4 py-2.5 min-w-[260px]">สาขา / แคมเปญ / ชุดโฆษณา / โฆษณา</th>
+                    <th className="px-4 py-2.5 text-right">ค่าใช้จ่าย (฿)</th>
+                    <th className="px-4 py-2.5 text-right">ข้อความทัก</th>
+                    <th className="px-4 py-2.5 text-right">การเข้าถึง (Reach)</th>
+                    <th className="px-4 py-2.5 text-right">อิมเพรสชัน</th>
+                    <th className="px-4 py-2.5 text-right">คลิก</th>
+                    <th className="px-4 py-2.5 text-right">CTR (%)</th>
+                    <th className="px-4 py-2.5 text-right">CPC (฿)</th>
+                    <th className="px-4 py-2.5 text-right">ต้นทุน/ผลลัพธ์ (฿)</th>
+                    <th className="px-4 py-2.5 text-right">ลีด</th>
+                    <th className="px-4 py-2.5 text-right">ปิดการขาย</th>
+                    <th className="px-4 py-2.5 text-right">ยอดขาย (Sale ฿)</th>
+                    <th className="px-4 py-2.5 text-right">ROI (%)</th>
+                    <th className="px-4 py-2.5 text-center">ประวัติ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {(!dashboardData?.branchBreakdown || dashboardData.branchBreakdown.length === 0) ? (
+                    <tr>
+                      <td colSpan={14} className="px-4 py-8 text-center text-slate-400">
+                        ไม่พบข้อมูลประสิทธิภาพรายสาขาตามเงื่อนไขตัวกรอง
+                      </td>
+                    </tr>
+                  ) : (
+                    dashboardData.branchBreakdown.map((b) => {
+                      const isBranchExpanded = expandedBranches.has(b.branchId)
+                      return (
+                        <React.Fragment key={b.branchId}>
+                          {/* LEVEL 1: BRANCH */}
+                          <tr
+                            className="bg-slate-50/80 hover:bg-slate-100/90 font-semibold cursor-pointer border-t border-slate-200 transition-colors"
+                            onClick={() => toggleBranch(b.branchId)}
+                          >
+                            <td className="px-4 py-3 text-slate-900">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  className="text-slate-500 hover:text-slate-800 p-0.5 rounded cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    toggleBranch(b.branchId)
+                                  }}
+                                >
+                                  {isBranchExpanded ? <ChevronDown className="w-4 h-4 text-rose-600" /> : <ChevronRight className="w-4 h-4" />}
+                                </button>
+                                <div className="w-6 h-6 rounded bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 shadow-2xs">
+                                  <Building2 className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="font-bold text-slate-900 text-xs">{b.branchName}</span>
+                                {b.branchCode && (
+                                  <span className="text-[10px] px-1.5 py-0.2 bg-slate-200 text-slate-700 rounded font-mono font-medium">
+                                    {b.branchCode}
+                                  </span>
+                                )}
+                                <span className="text-[10.5px] text-slate-500 font-normal">
+                                  ({b.campaignCount} แคมเปญ, {b.adsCount} Ads)
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">{formatCurrency(b.spend)}</td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-800">{formatNum(b.messageInbox)}</td>
+                            <td className="px-4 py-3 text-right font-mono text-slate-400 text-[11px]" title="ไม่สามารถบวกทบ Reach ข้ามโฆษณาได้ (Non-additive)">
+                              {b.adsCount <= 1 ? formatNum(b.reach) : '—'}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono">{formatNum(b.impressions)}</td>
+                            <td className="px-4 py-3 text-right font-mono">{formatNum(b.clicks)}</td>
+                            <td className="px-4 py-3 text-right font-mono">{b.ctr ? `${b.ctr.toFixed(2)}%` : '—'}</td>
+                            <td className="px-4 py-3 text-right font-mono">{b.cpc ? `฿${b.cpc.toFixed(2)}` : '—'}</td>
+                            <td className="px-4 py-3 text-right font-mono">{b.costPerResult ? `฿${b.costPerResult.toFixed(2)}` : '—'}</td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">{formatNum(b.leads)}</td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-emerald-800">{formatNum(b.closedSales)}</td>
+                            <td className="px-4 py-3 text-right font-mono font-black text-emerald-700">{formatCurrency(b.sale)}</td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-emerald-600">{b.roi ? `${b.roi.toFixed(1)}%` : '—'}</td>
+                            <td className="px-4 py-3 text-center">
+                              <span className="text-[10px] font-bold text-rose-600">
+                                {isBranchExpanded ? 'ย่อ' : 'ขยาย'}
+                              </span>
+                            </td>
+                          </tr>
+
+                          {/* LEVEL 2: CAMPAIGNS */}
+                          {isBranchExpanded && b.campaigns.map((c) => {
+                            const isCampaignExpanded = expandedCampaigns.has(c.campaignId)
+                            return (
+                              <React.Fragment key={c.campaignId}>
+                                <tr className="bg-rose-50/25 hover:bg-rose-50/45 text-slate-800 transition-colors">
+                                  <td className="px-4 py-2.5 pl-8">
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleCampaign(c.campaignId)}
+                                        className="text-slate-400 hover:text-slate-700 p-0.5 rounded cursor-pointer"
+                                      >
+                                        {isCampaignExpanded ? <ChevronDown className="w-3.5 h-3.5 text-rose-500" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                                      </button>
+                                      <span className="px-1.5 py-0.2 text-[9px] font-bold bg-rose-100 text-rose-800 rounded">แคมเปญ</span>
+                                      <span className="font-semibold text-slate-900">{c.campaignName}</span>
+                                      <span className="text-[10px] text-slate-400 font-mono">({c.adSets.length} ชุดโฆษณา)</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-semibold">{formatCurrency(c.spend)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{formatNum(c.messageInbox)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono text-slate-400 text-[11px]" title="ไม่สามารถบวกทบ Reach ข้ามโฆษณาได้ (Non-additive)">
+                                    {c.adSets.reduce((sum, s) => sum + s.ads.length, 0) <= 1 ? formatNum(c.reach) : '—'}
+                                  </td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{formatNum(c.impressions)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{formatNum(c.clicks)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{c.ctr ? `${c.ctr.toFixed(2)}%` : '—'}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{c.cpc ? `฿${c.cpc.toFixed(2)}` : '—'}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{c.costPerResult ? `฿${c.costPerResult.toFixed(2)}` : '—'}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-bold text-slate-900">{formatNum(c.leads)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-bold text-emerald-800">{formatNum(c.closedSales)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-black text-emerald-700">{formatCurrency(c.sale)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-bold text-emerald-600">{c.roi ? `${c.roi.toFixed(1)}%` : '—'}</td>
+                                  <td className="px-4 py-2.5 text-center">
+                                    <button
+                                      type="button"
+                                      onClick={() => setHistoryModalItem({
+                                        entityType: 'CAMPAIGN',
+                                        entityId: c.campaignId,
+                                        title: c.campaignName,
+                                        subtitle: `สาขา: ${b.branchName}`
+                                      })}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-2xs cursor-pointer active:scale-95"
+                                      title="ดูประวัติการบันทึกข้อมูล"
+                                    >
+                                      <History className="w-3 h-3 text-slate-500" />
+                                      <span>ประวัติ</span>
+                                    </button>
+                                  </td>
+                                </tr>
+
+                                {/* LEVEL 3: AD SETS */}
+                                {isCampaignExpanded && c.adSets.map((s) => {
+                                  const isAdSetExpanded = expandedAdSets.has(s.adSetId)
+                                  return (
+                                    <React.Fragment key={s.adSetId}>
+                                      <tr className="bg-slate-50/50 hover:bg-slate-50/80 text-slate-700 transition-colors">
+                                        <td className="px-4 py-2 pl-14">
+                                          <div className="flex items-center gap-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => toggleAdSet(s.adSetId)}
+                                              className="text-slate-400 hover:text-slate-700 p-0.5 rounded cursor-pointer"
+                                            >
+                                              {isAdSetExpanded ? <ChevronDown className="w-3.5 h-3.5 text-indigo-500" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                                            </button>
+                                            <span className="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded">ชุดโฆษณา</span>
+                                            <span className="font-medium text-slate-800">{s.adSetName}</span>
+                                            <span className="text-[10px] text-slate-400 font-mono">({s.ads.length} Ads)</span>
+                                          </div>
+                                        </td>
+                                        <td className="px-4 py-2 text-right font-mono font-semibold">{formatCurrency(s.spend)}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{formatNum(s.messageInbox)}</td>
+                                        <td className="px-4 py-2 text-right font-mono text-slate-400 text-[11px]" title="ไม่สามารถบวกทบ Reach ข้ามโฆษณาได้ (Non-additive)">
+                                          {s.ads.length <= 1 ? formatNum(s.reach) : '—'}
+                                        </td>
+                                        <td className="px-4 py-2 text-right font-mono">{formatNum(s.impressions)}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{formatNum(s.clicks)}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{s.ctr ? `${s.ctr.toFixed(2)}%` : '—'}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{s.cpc ? `฿${s.cpc.toFixed(2)}` : '—'}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{s.costPerResult ? `฿${s.costPerResult.toFixed(2)}` : '—'}</td>
+                                        <td className="px-4 py-2 text-right font-mono font-bold text-slate-900">{formatNum(s.leads)}</td>
+                                        <td className="px-4 py-2 text-right font-mono font-bold text-emerald-800">{formatNum(s.closedSales)}</td>
+                                        <td className="px-4 py-2 text-right font-mono font-black text-emerald-700">{formatCurrency(s.sale)}</td>
+                                        <td className="px-4 py-2 text-right font-mono font-bold text-emerald-600">{s.roi ? `${s.roi.toFixed(1)}%` : '—'}</td>
+                                        <td className="px-4 py-2 text-center">
+                                          <button
+                                            type="button"
+                                            onClick={() => setHistoryModalItem({
+                                              entityType: 'AD_SET',
+                                              entityId: s.adSetId,
+                                              title: s.adSetName,
+                                              subtitle: `แคมเปญ: ${c.campaignName}`
+                                            })}
+                                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-2xs cursor-pointer active:scale-95"
+                                            title="ดูประวัติการบันทึกข้อมูล"
+                                          >
+                                            <History className="w-3 h-3 text-slate-500" />
+                                            <span>ประวัติ</span>
+                                          </button>
+                                        </td>
+                                      </tr>
+
+                                      {/* LEVEL 4: ADS */}
+                                      {isAdSetExpanded && s.ads.map((ad) => (
+                                        <tr key={ad.adId} className="bg-white hover:bg-slate-50/90 text-slate-700 transition-colors">
+                                          <td className="px-4 py-2 pl-20">
+                                            <div className="flex items-center gap-2">
+                                              {renderCreativeThumbnail(ad.creativeUrl, ad.creativeFile, ad.format, 'sm')}
+                                              <div>
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                  <span className="font-semibold text-slate-900">{ad.adName}</span>
+                                                  <span className="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    v{ad.version || 1}
+                                                  </span>
+                                                </div>
+                                                <span className="text-[10px] text-slate-400 font-mono">ID: {ad.adId}</span>
+                                              </div>
+                                            </div>
+                                          </td>
+                                          <td className="px-4 py-2 text-right font-mono font-semibold">{formatCurrency(ad.spend)}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{formatNum(ad.messageInbox)}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-semibold text-blue-700">{formatNum(ad.reach)}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{formatNum(ad.impressions)}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{formatNum(ad.clicks)}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{ad.ctr ? `${ad.ctr.toFixed(2)}%` : '—'}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{ad.cpc ? `฿${ad.cpc.toFixed(2)}` : '—'}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{ad.costPerResult ? `฿${ad.costPerResult.toFixed(2)}` : '—'}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-bold text-slate-900">{formatNum(ad.leads)}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-bold text-emerald-800">{formatNum(ad.closedSales)}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-black text-emerald-700">{formatCurrency(ad.sale)}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-bold text-emerald-600">{ad.roi ? `${ad.roi.toFixed(1)}%` : '—'}</td>
+                                          <td className="px-4 py-2 text-center">
+                                            <button
+                                              type="button"
+                                              onClick={() => setHistoryModalItem({
+                                                entityType: 'AD',
+                                                entityId: ad.adId,
+                                                title: ad.adName,
+                                                subtitle: `ID: ${ad.adId}`
+                                              })}
+                                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-2xs cursor-pointer active:scale-95"
+                                              title="ดูประวัติการบันทึกข้อมูล"
+                                            >
+                                              <History className="w-3 h-3 text-slate-500" />
+                                              <span>ประวัติ</span>
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </React.Fragment>
+                                  )
+                                })}
+                              </React.Fragment>
+                            )
+                          })}
+                        </React.Fragment>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* TAB: PRODUCT GROUPS BREAKDOWN (4-LEVEL DRILLDOWN) */}
+          {activeTab === 'productGroups' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs whitespace-nowrap">
+                <thead className="bg-slate-50 text-slate-600 text-[10.5px] uppercase tracking-wider font-bold border-b border-slate-200 select-none">
+                  <tr>
+                    <th className="px-4 py-2.5 min-w-[260px]">กลุ่มสินค้า / แคมเปญ / ชุดโฆษณา / โฆษณา</th>
+                    <th className="px-4 py-2.5 text-right">ค่าใช้จ่าย (฿)</th>
+                    <th className="px-4 py-2.5 text-right">ข้อความทัก</th>
+                    <th className="px-4 py-2.5 text-right">การเข้าถึง (Reach)</th>
+                    <th className="px-4 py-2.5 text-right">อิมเพรสชัน</th>
+                    <th className="px-4 py-2.5 text-right">คลิก</th>
+                    <th className="px-4 py-2.5 text-right">CTR (%)</th>
+                    <th className="px-4 py-2.5 text-right">CPC (฿)</th>
+                    <th className="px-4 py-2.5 text-right">ต้นทุน/ผลลัพธ์ (฿)</th>
+                    <th className="px-4 py-2.5 text-right">ลีด</th>
+                    <th className="px-4 py-2.5 text-right">ปิดการขาย</th>
+                    <th className="px-4 py-2.5 text-right">ยอดขาย (Sale ฿)</th>
+                    <th className="px-4 py-2.5 text-right">ROI (%)</th>
+                    <th className="px-4 py-2.5 text-center">ประวัติ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {(!dashboardData?.productGroupBreakdown || dashboardData.productGroupBreakdown.length === 0) ? (
+                    <tr>
+                      <td colSpan={14} className="px-4 py-8 text-center text-slate-400">
+                        ไม่พบข้อมูลประสิทธิภาพรายกลุ่มสินค้าตามเงื่อนไขตัวกรอง
+                      </td>
+                    </tr>
+                  ) : (
+                    dashboardData.productGroupBreakdown.map((pg) => {
+                      const isPgExpanded = expandedProductGroups.has(pg.productGroupId)
+                      return (
+                        <React.Fragment key={pg.productGroupId}>
+                          {/* LEVEL 1: PRODUCT GROUP */}
+                          <tr
+                            className="bg-slate-50/80 hover:bg-slate-100/90 font-semibold cursor-pointer border-t border-slate-200 transition-colors"
+                            onClick={() => toggleProductGroup(pg.productGroupId)}
+                          >
+                            <td className="px-4 py-3 text-slate-900">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  className="text-slate-500 hover:text-slate-800 p-0.5 rounded cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    toggleProductGroup(pg.productGroupId)
+                                  }}
+                                >
+                                  {isPgExpanded ? <ChevronDown className="w-4 h-4 text-emerald-600" /> : <ChevronRight className="w-4 h-4" />}
+                                </button>
+                                <div className="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
+                                  <Package className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="font-bold text-slate-900 text-xs">{pg.productGroupName}</span>
+                                <span className="text-[10.5px] text-slate-500 font-normal">
+                                  ({pg.campaignCount} แคมเปญ, {pg.adsCount} Ads)
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">{formatCurrency(pg.spend)}</td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-800">{formatNum(pg.messageInbox)}</td>
+                            <td className="px-4 py-3 text-right font-mono text-slate-400 text-[11px]" title="ไม่สามารถบวกทบ Reach ข้ามโฆษณาได้ (Non-additive)">
+                              {pg.adsCount <= 1 ? formatNum(pg.reach) : '—'}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono">{formatNum(pg.impressions)}</td>
+                            <td className="px-4 py-3 text-right font-mono">{formatNum(pg.clicks)}</td>
+                            <td className="px-4 py-3 text-right font-mono">{pg.ctr ? `${pg.ctr.toFixed(2)}%` : '—'}</td>
+                            <td className="px-4 py-3 text-right font-mono">{pg.cpc ? `฿${pg.cpc.toFixed(2)}` : '—'}</td>
+                            <td className="px-4 py-3 text-right font-mono">{pg.costPerResult ? `฿${pg.costPerResult.toFixed(2)}` : '—'}</td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">{formatNum(pg.leads)}</td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-emerald-800">{formatNum(pg.closedSales)}</td>
+                            <td className="px-4 py-3 text-right font-mono font-black text-emerald-700">{formatCurrency(pg.sale)}</td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-emerald-600">{pg.roi ? `${pg.roi.toFixed(1)}%` : '—'}</td>
+                            <td className="px-4 py-3 text-center">
+                              <span className="text-[10px] font-bold text-emerald-700">
+                                {isPgExpanded ? 'ย่อ' : 'ขยาย'}
+                              </span>
+                            </td>
+                          </tr>
+
+                          {/* LEVEL 2: CAMPAIGNS */}
+                          {isPgExpanded && pg.campaigns.map((c) => {
+                            const isCampaignExpanded = expandedCampaigns.has(c.campaignId)
+                            return (
+                              <React.Fragment key={c.campaignId}>
+                                <tr className="bg-emerald-50/25 hover:bg-emerald-50/45 text-slate-800 transition-colors">
+                                  <td className="px-4 py-2.5 pl-8">
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleCampaign(c.campaignId)}
+                                        className="text-slate-400 hover:text-slate-700 p-0.5 rounded cursor-pointer"
+                                      >
+                                        {isCampaignExpanded ? <ChevronDown className="w-3.5 h-3.5 text-emerald-600" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                                      </button>
+                                      <span className="px-1.5 py-0.2 text-[9px] font-bold bg-emerald-100 text-emerald-800 rounded">แคมเปญ</span>
+                                      <span className="font-semibold text-slate-900">{c.campaignName}</span>
+                                      <span className="text-[10px] text-slate-400 font-mono">({c.adSets.length} ชุดโฆษณา)</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-semibold">{formatCurrency(c.spend)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{formatNum(c.messageInbox)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono text-slate-400 text-[11px]" title="ไม่สามารถบวกทบ Reach ข้ามโฆษณาได้ (Non-additive)">
+                                    {c.adSets.reduce((sum, s) => sum + s.ads.length, 0) <= 1 ? formatNum(c.reach) : '—'}
+                                  </td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{formatNum(c.impressions)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{formatNum(c.clicks)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{c.ctr ? `${c.ctr.toFixed(2)}%` : '—'}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{c.cpc ? `฿${c.cpc.toFixed(2)}` : '—'}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono">{c.costPerResult ? `฿${c.costPerResult.toFixed(2)}` : '—'}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-bold text-slate-900">{formatNum(c.leads)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-bold text-emerald-800">{formatNum(c.closedSales)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-black text-emerald-700">{formatCurrency(c.sale)}</td>
+                                  <td className="px-4 py-2.5 text-right font-mono font-bold text-emerald-600">{c.roi ? `${c.roi.toFixed(1)}%` : '—'}</td>
+                                  <td className="px-4 py-2.5 text-center">
+                                    <button
+                                      type="button"
+                                      onClick={() => setHistoryModalItem({
+                                        entityType: 'CAMPAIGN',
+                                        entityId: c.campaignId,
+                                        title: c.campaignName,
+                                        subtitle: `กลุ่มสินค้า: ${pg.productGroupName}`
+                                      })}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-2xs cursor-pointer active:scale-95"
+                                      title="ดูประวัติการบันทึกข้อมูล"
+                                    >
+                                      <History className="w-3 h-3 text-slate-500" />
+                                      <span>ประวัติ</span>
+                                    </button>
+                                  </td>
+                                </tr>
+
+                                {/* LEVEL 3: AD SETS */}
+                                {isCampaignExpanded && c.adSets.map((s) => {
+                                  const isAdSetExpanded = expandedAdSets.has(s.adSetId)
+                                  return (
+                                    <React.Fragment key={s.adSetId}>
+                                      <tr className="bg-slate-50/50 hover:bg-slate-50/80 text-slate-700 transition-colors">
+                                        <td className="px-4 py-2 pl-14">
+                                          <div className="flex items-center gap-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => toggleAdSet(s.adSetId)}
+                                              className="text-slate-400 hover:text-slate-700 p-0.5 rounded cursor-pointer"
+                                            >
+                                              {isAdSetExpanded ? <ChevronDown className="w-3.5 h-3.5 text-indigo-500" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                                            </button>
+                                            <span className="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded">ชุดโฆษณา</span>
+                                            <span className="font-medium text-slate-800">{s.adSetName}</span>
+                                            <span className="text-[10px] text-slate-400 font-mono">({s.ads.length} Ads)</span>
+                                          </div>
+                                        </td>
+                                        <td className="px-4 py-2 text-right font-mono font-semibold">{formatCurrency(s.spend)}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{formatNum(s.messageInbox)}</td>
+                                        <td className="px-4 py-2 text-right font-mono text-slate-400 text-[11px]" title="ไม่สามารถบวกทบ Reach ข้ามโฆษณาได้ (Non-additive)">
+                                          {s.ads.length <= 1 ? formatNum(s.reach) : '—'}
+                                        </td>
+                                        <td className="px-4 py-2 text-right font-mono">{formatNum(s.impressions)}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{formatNum(s.clicks)}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{s.ctr ? `${s.ctr.toFixed(2)}%` : '—'}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{s.cpc ? `฿${s.cpc.toFixed(2)}` : '—'}</td>
+                                        <td className="px-4 py-2 text-right font-mono">{s.costPerResult ? `฿${s.costPerResult.toFixed(2)}` : '—'}</td>
+                                        <td className="px-4 py-2 text-right font-mono font-bold text-slate-900">{formatNum(s.leads)}</td>
+                                        <td className="px-4 py-2 text-right font-mono font-bold text-emerald-800">{formatNum(s.closedSales)}</td>
+                                        <td className="px-4 py-2 text-right font-mono font-black text-emerald-700">{formatCurrency(s.sale)}</td>
+                                        <td className="px-4 py-2 text-right font-mono font-bold text-emerald-600">{s.roi ? `${s.roi.toFixed(1)}%` : '—'}</td>
+                                        <td className="px-4 py-2 text-center">
+                                          <button
+                                            type="button"
+                                            onClick={() => setHistoryModalItem({
+                                              entityType: 'AD_SET',
+                                              entityId: s.adSetId,
+                                              title: s.adSetName,
+                                              subtitle: `แคมเปญ: ${c.campaignName}`
+                                            })}
+                                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-2xs cursor-pointer active:scale-95"
+                                            title="ดูประวัติการบันทึกข้อมูล"
+                                          >
+                                            <History className="w-3 h-3 text-slate-500" />
+                                            <span>ประวัติ</span>
+                                          </button>
+                                        </td>
+                                      </tr>
+
+                                      {/* LEVEL 4: ADS */}
+                                      {isAdSetExpanded && s.ads.map((ad) => (
+                                        <tr key={ad.adId} className="bg-white hover:bg-slate-50/90 text-slate-700 transition-colors">
+                                          <td className="px-4 py-2 pl-20">
+                                            <div className="flex items-center gap-2">
+                                              {renderCreativeThumbnail(ad.creativeUrl, ad.creativeFile, ad.format, 'sm')}
+                                              <div>
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                  <span className="font-semibold text-slate-900">{ad.adName}</span>
+                                                  <span className="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    v{ad.version || 1}
+                                                  </span>
+                                                </div>
+                                                <span className="text-[10px] text-slate-400 font-mono">ID: {ad.adId}</span>
+                                              </div>
+                                            </div>
+                                          </td>
+                                          <td className="px-4 py-2 text-right font-mono font-semibold">{formatCurrency(ad.spend)}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{formatNum(ad.messageInbox)}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-semibold text-blue-700">{formatNum(ad.reach)}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{formatNum(ad.impressions)}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{formatNum(ad.clicks)}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{ad.ctr ? `${ad.ctr.toFixed(2)}%` : '—'}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{ad.cpc ? `฿${ad.cpc.toFixed(2)}` : '—'}</td>
+                                          <td className="px-4 py-2 text-right font-mono">{ad.costPerResult ? `฿${ad.costPerResult.toFixed(2)}` : '—'}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-bold text-slate-900">{formatNum(ad.leads)}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-bold text-emerald-800">{formatNum(ad.closedSales)}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-black text-emerald-700">{formatCurrency(ad.sale)}</td>
+                                          <td className="px-4 py-2 text-right font-mono font-bold text-emerald-600">{ad.roi ? `${ad.roi.toFixed(1)}%` : '—'}</td>
+                                          <td className="px-4 py-2 text-center">
+                                            <button
+                                              type="button"
+                                              onClick={() => setHistoryModalItem({
+                                                entityType: 'AD',
+                                                entityId: ad.adId,
+                                                title: ad.adName,
+                                                subtitle: `ID: ${ad.adId}`
+                                              })}
+                                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-2xs cursor-pointer active:scale-95"
+                                              title="ดูประวัติการบันทึกข้อมูล"
+                                            >
+                                              <History className="w-3 h-3 text-slate-500" />
+                                              <span>ประวัติ</span>
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </React.Fragment>
+                                  )
+                                })}
+                              </React.Fragment>
+                            )
+                          })}
+                        </React.Fragment>
+                      )
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -1630,8 +2269,8 @@ export default function AdsDashboardClient({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {dashboardData?.channelBreakdown.map(ch => (
-                    <tr key={ch.channel} className="hover:bg-slate-50/80">
+                  {dashboardData?.channelBreakdown.map((ch, idx) => (
+                    <tr key={`${ch.channel}_${idx}`} className="hover:bg-slate-50/80">
                       <td className="px-4 py-3 font-bold text-slate-900">{ch.channel}</td>
                       <td className="px-4 py-3 text-center font-mono">{ch.campaignCount}</td>
                       <td className="px-4 py-3 text-right font-mono font-semibold">{formatCurrency(ch.spend)}</td>
@@ -1665,8 +2304,8 @@ export default function AdsDashboardClient({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {dashboardData?.creativeBreakdown.map(cr => (
-                    <tr key={cr.creativeFile} className="hover:bg-slate-50/80">
+                  {dashboardData?.creativeBreakdown.map((cr, idx) => (
+                    <tr key={`${cr.creativeFile}_${cr.creativeVersion}_${idx}`} className="hover:bg-slate-50/80">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           {renderCreativeThumbnail(cr.creativeUrl, cr.creativeFile, cr.format, 'sm')}
@@ -1733,6 +2372,15 @@ export default function AdsDashboardClient({
             )}
           </div>
         </div>
+      )}
+
+      {/* Snapshot History Modal */}
+      {historyModalItem && (
+        <SnapshotHistoryModal
+          isOpen={true}
+          onClose={() => setHistoryModalItem(null)}
+          item={historyModalItem}
+        />
       )}
     </div>
   )

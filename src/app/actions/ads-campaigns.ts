@@ -34,6 +34,26 @@ function isAllowedCampaignRole(role: string | null | undefined): boolean {
   return allowedKeywords.some(keyword => r.includes(keyword))
 }
 
+export async function getCampaignBudgetHistory(campaignId: string) {
+  try {
+    const history = await prisma.adBudgetHistory.findMany({
+      where: { campaignId },
+      orderBy: { changedAt: 'desc' }
+    })
+    return {
+      success: true,
+      data: history.map(h => ({
+        ...h,
+        prevBudget: h.prevBudget ? h.prevBudget.toNumber() : null,
+        newBudget: h.newBudget ? h.newBudget.toNumber() : null
+      }))
+    }
+  } catch (err: any) {
+    console.error("getCampaignBudgetHistory error:", err)
+    return { success: false, error: err.message || "Failed to load budget history", data: [] }
+  }
+}
+
 export async function createCampaign(data: {
   campaignId: string
   name: string
@@ -50,6 +70,13 @@ export async function createCampaign(data: {
   targetAudience?: string
   artworkUrl?: string
   notes?: string
+  budgetStrategy?: 'ABO' | 'CBO'
+  budgetLevel?: 'CAMPAIGN' | 'AD_SET'
+  budgetType?: 'DAILY' | 'LIFETIME'
+  campaignBudget?: number
+  currency?: string
+  budgetNotes?: string
+  adSets?: any[]
 }) {
   try {
     const user = await getUser()
@@ -58,12 +85,63 @@ export async function createCampaign(data: {
       return { success: false, error: "Forbidden: สิทธิ์การใช้งานของคุณไม่สามารถสร้างแคมเปญได้" }
     }
 
-    if (data.endDate < data.startDate) {
+    if (data.endDate && data.startDate && data.endDate < data.startDate) {
       return { success: false, error: "วันที่สิ้นสุดต้องไม่น้อยกว่าวันที่เริ่มต้น (End date cannot be before start date)" }
     }
 
-    if (data.budget < 0) {
-      return { success: false, error: "งบประมาณต้องไม่ติดลบ (Budget cannot be negative)" }
+    const strategy: 'ABO' | 'CBO' = data.budgetStrategy || 'ABO'
+    const budgetType: 'DAILY' | 'LIFETIME' = data.budgetType || 'DAILY'
+    const budgetLevel: 'CAMPAIGN' | 'AD_SET' = strategy === 'CBO' ? 'CAMPAIGN' : 'AD_SET'
+    let campaignBudget = data.campaignBudget !== undefined ? Number(data.campaignBudget) : Number(data.budget || 0)
+
+    let parsedTargetAudience: any = null
+    try {
+      if (data.targetAudience && data.targetAudience.startsWith('{')) {
+        parsedTargetAudience = JSON.parse(data.targetAudience)
+      }
+    } catch {}
+
+    let adSetsList: any[] = Array.isArray(data.adSets) ? data.adSets : (parsedTargetAudience?.adSets || [])
+
+    // Strategy-specific validation per Change Request
+    if (strategy === 'CBO') {
+      if (campaignBudget <= 0) {
+        return { success: false, error: "งบประมาณแคมเปญ (Campaign Budget) ต้องมากกว่า 0 สำหรับกลยุทธ์ CBO" }
+      }
+      if (budgetType === 'LIFETIME' && (!data.startDate || !data.endDate)) {
+        return { success: false, error: "สำหรับงบประมาณแบบ Lifetime ใน CBO จำเป็นต้องระบุทั้งวันที่เริ่มต้นและสิ้นสุด" }
+      }
+      // For CBO: The Ad Set's Allocated Budget value must be saved as NULL, not 0
+      adSetsList = adSetsList.map(s => ({
+        ...s,
+        budget: null,
+        allocated_budget: null,
+        budgetSource: 'CAMPAIGN_AUTO',
+        budgetStatus: 'INACTIVE'
+      }))
+    } else {
+      // ABO: All active Ad Sets must have an Allocated Budget greater than 0 before saving
+      const activeSets = adSetsList.filter(s => (s.status || 'ACTIVE').toUpperCase() === 'ACTIVE')
+      if (activeSets.length > 0) {
+        const invalidSet = activeSets.find(s => s.budget === null || s.budget === undefined || Number(s.budget) <= 0)
+        if (invalidSet) {
+          return {
+            success: false,
+            error: `กรุณาระบุงบประมาณจัดสรรสำหรับชุดโฆษณา "${invalidSet.name || 'Active Ad Set'}" ให้มากกว่า 0 สำหรับกลยุทธ์ ABO`
+          }
+        }
+      }
+      const sumActive = activeSets.reduce((sum, s) => sum + (Number(s.budget) || 0), 0)
+      if (sumActive > 0) {
+        campaignBudget = sumActive
+      } else if (campaignBudget <= 0) {
+        return { success: false, error: "กรุณาระบุงบประมาณสำหรับชุดโฆษณาในกลยุทธ์ ABO" }
+      }
+      adSetsList = adSetsList.map(s => ({
+        ...s,
+        budgetSource: 'ADSET_MANUAL',
+        budgetStatus: 'ACTIVE'
+      }))
     }
 
     const trimmedCampaignId = data.campaignId.trim()
@@ -107,6 +185,17 @@ export async function createCampaign(data: {
       })
     }
 
+    const targetAudiencePayload = JSON.stringify({
+      ...(parsedTargetAudience || {}),
+      budgetStrategy: strategy,
+      budgetLevel: budgetLevel,
+      budgetType: budgetType,
+      campaignBudget: campaignBudget,
+      currency: data.currency || 'THB',
+      budgetNotes: data.budgetNotes || '',
+      adSets: adSetsList
+    })
+
     const campaign = await prisma.adCampaign.create({
       data: {
         campaignId: trimmedCampaignId,
@@ -117,14 +206,27 @@ export async function createCampaign(data: {
         objectiveId: data.objectiveId || null,
         accountId: data.accountId || null,
         internalCode: trimmedInternalCode || null,
-        budget: data.budget,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        budget: campaignBudget,
+        startDate: data.startDate || new Date(),
+        endDate: data.endDate || new Date(Date.now() + 30 * 86400000),
         status: data.status || 'ACTIVE',
-        targetAudience: data.targetAudience || null,
+        targetAudience: targetAudiencePayload,
         artworkUrl: data.artworkUrl || null,
         notes: data.notes || null,
-        createdBy: user.id
+        createdBy: user.id,
+        budget_strategy: strategy,
+        budget_level: budgetLevel,
+        budget_type: budgetType,
+        campaign_budget: campaignBudget,
+        currency: data.currency || 'THB',
+        budget_notes: data.budgetNotes || null,
+        budget_strategy_effective_at: new Date(),
+        budgetStrategy: strategy,
+        budgetLevel: budgetLevel,
+        budgetType: budgetType,
+        campaignBudget: campaignBudget,
+        budgetNotes: data.budgetNotes || null,
+        budgetStrategyEffectiveAt: new Date()
       },
       include: {
         channel: true,
@@ -135,9 +237,53 @@ export async function createCampaign(data: {
       }
     })
 
+    // Record initial history record
+    await prisma.adBudgetHistory.create({
+      data: {
+        campaignId: trimmedCampaignId,
+        prevStrategy: null,
+        newStrategy: strategy,
+        prevBudget: null,
+        newBudget: campaignBudget,
+        prevBudgetType: null,
+        newBudgetType: budgetType,
+        effectiveDate: new Date(),
+        changedBy: user.id,
+        changedByName: user.fullName || user.email || 'User',
+        changeNotes: 'สร้างแคมเปญใหม่ (Initial Setup)'
+      }
+    })
+
+    // Synchronize relational ad_sets table
+    for (const s of adSetsList) {
+      const sId = s.id || `set_${Date.now()}`
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO "ad_sets" (
+          "id", "adSetId", "campaignId", "name", "targeting", "budget", "allocated_budget", 
+          "budget_type", "budget_source", "budget_status", "status", "updated_by", "updatedAt"
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+        ON CONFLICT ("adSetId") DO UPDATE SET
+          "campaignId" = EXCLUDED."campaignId",
+          "name" = EXCLUDED."name",
+          "targeting" = EXCLUDED."targeting",
+          "budget" = EXCLUDED."budget",
+          "allocated_budget" = EXCLUDED."allocated_budget",
+          "budget_type" = EXCLUDED."budget_type",
+          "budget_source" = EXCLUDED."budget_source",
+          "budget_status" = EXCLUDED."budget_status",
+          "status" = EXCLUDED."status",
+          "updated_by" = EXCLUDED."updated_by",
+          "updatedAt" = NOW();
+      `, sId, s.platformAdSetId || (s.code ? `${trimmedCampaignId}-${s.code}` : sId), trimmedCampaignId, s.name || 'Ad Set', s.targetAudience || 'Broad',
+         s.budget ? Number(s.budget) : null, s.budget ? Number(s.budget) : null,
+         budgetType, strategy === 'CBO' ? 'CAMPAIGN_AUTO' : 'ADSET_MANUAL',
+         strategy === 'CBO' ? 'INACTIVE' : 'ACTIVE', s.status || 'Active', user.id)
+    }
+
     const plainCampaign = {
       ...campaign,
       budget: campaign.budget ? campaign.budget.toNumber() : 0,
+      campaignBudget: campaign.campaignBudget ? campaign.campaignBudget.toNumber() : (campaign.budget ? campaign.budget.toNumber() : 0),
       branch: campaign.branch ? {
         ...campaign.branch,
         center_lat: campaign.branch.center_lat ? campaign.branch.center_lat.toNumber() : null,
@@ -161,8 +307,77 @@ export async function updateCampaign(id: string, data: Partial<any>) {
       return { success: false, error: "Forbidden: สิทธิ์การใช้งานของคุณไม่สามารถแก้ไขแคมเปญได้" }
     }
 
+    const existing = await prisma.adCampaign.findUnique({ where: { id } })
+    if (!existing) {
+      return { success: false, error: "ไม่พบแคมเปญที่ต้องการแก้ไข" }
+    }
+
     if (data.startDate && data.endDate && new Date(data.endDate) < new Date(data.startDate)) {
       return { success: false, error: "วันที่สิ้นสุดต้องไม่น้อยกว่าวันที่เริ่มต้น (End date cannot be before start date)" }
+    }
+
+    // Previous strategy & budget baseline
+    const prevStrategy = (existing.budgetStrategy || existing.budget_strategy || 'ABO') as 'ABO' | 'CBO'
+    const prevBudget = existing.campaignBudget ? existing.campaignBudget.toNumber() : (existing.budget ? existing.budget.toNumber() : 0)
+    const prevBudgetType = existing.budgetType || existing.budget_type || 'DAILY'
+
+    const newStrategy: 'ABO' | 'CBO' = data.budgetStrategy || prevStrategy
+    const newBudgetType: 'DAILY' | 'LIFETIME' = data.budgetType || prevBudgetType
+    const newBudgetLevel: 'CAMPAIGN' | 'AD_SET' = newStrategy === 'CBO' ? 'CAMPAIGN' : 'AD_SET'
+
+    let newBudget = data.campaignBudget !== undefined ? Number(data.campaignBudget) : (data.budget !== undefined ? Number(data.budget) : prevBudget)
+
+    let parsedTargetAudience: any = null
+    try {
+      const taSource = data.targetAudience !== undefined ? data.targetAudience : existing.targetAudience
+      if (taSource && taSource.startsWith('{')) {
+        parsedTargetAudience = JSON.parse(taSource)
+      }
+    } catch {}
+
+    let adSetsList: any[] = Array.isArray(data.adSets) ? data.adSets : (parsedTargetAudience?.adSets || [])
+
+    // Strategy-specific validation & adjustments
+    if (newStrategy === 'CBO') {
+      if (newBudget <= 0) {
+        return { success: false, error: "งบประมาณแคมเปญ (Campaign Budget) ต้องมากกว่า 0 สำหรับกลยุทธ์ CBO" }
+      }
+      const startDate = data.startDate || existing.startDate
+      const endDate = data.endDate || existing.endDate
+      if (newBudgetType === 'LIFETIME' && (!startDate || !endDate)) {
+        return { success: false, error: "สำหรับงบประมาณแบบ Lifetime ใน CBO จำเป็นต้องระบุทั้งวันที่เริ่มต้นและสิ้นสุด" }
+      }
+      // When CBO: Ad Set's Allocated Budget value must be saved as NULL, not 0
+      adSetsList = adSetsList.map(s => ({
+        ...s,
+        budget: null,
+        allocated_budget: null,
+        budgetSource: 'CAMPAIGN_AUTO',
+        budgetStatus: 'INACTIVE'
+      }))
+    } else {
+      // ABO Strategy: All active Ad Sets must have an Allocated Budget greater than 0
+      const activeSets = adSetsList.filter(s => (s.status || 'ACTIVE').toUpperCase() === 'ACTIVE')
+      if (activeSets.length > 0) {
+        const invalidSet = activeSets.find(s => s.budget === null || s.budget === undefined || Number(s.budget) <= 0)
+        if (invalidSet) {
+          return {
+            success: false,
+            error: `การเปลี่ยนเป็น ABO หรือบันทึกแคมเปญแบบ ABO จำเป็นต้องระบุงบประมาณสำหรับทุกชุดโฆษณาที่ใช้งานอยู่ (Active) โดย "${invalidSet.name || 'Active Ad Set'}" ยังไม่มีงบประมาณที่ถูกต้อง`
+          }
+        }
+      }
+      const sumActive = activeSets.reduce((sum, s) => sum + (Number(s.budget) || 0), 0)
+      if (sumActive > 0) {
+        newBudget = sumActive
+      } else if (newBudget <= 0) {
+        return { success: false, error: "กรุณาระบุงบประมาณสำหรับชุดโฆษณาในกลยุทธ์ ABO" }
+      }
+      adSetsList = adSetsList.map(s => ({
+        ...s,
+        budgetSource: 'ADSET_MANUAL',
+        budgetStatus: 'ACTIVE'
+      }))
     }
 
     const trimmedCampaignId = data.campaignId ? data.campaignId.trim() : undefined
@@ -210,10 +425,73 @@ export async function updateCampaign(id: string, data: Partial<any>) {
       }
     }
 
+    const targetAudiencePayload = JSON.stringify({
+      ...(parsedTargetAudience || {}),
+      budgetStrategy: newStrategy,
+      budgetLevel: newBudgetLevel,
+      budgetType: newBudgetType,
+      campaignBudget: newBudget,
+      currency: data.currency || existing.currency || 'THB',
+      budgetNotes: data.budgetNotes !== undefined ? data.budgetNotes : (existing.budgetNotes || ''),
+      adSets: adSetsList
+    })
+
+    const isStrategyChanged = newStrategy !== prevStrategy
+    const isBudgetChanged = Math.abs(newBudget - prevBudget) > 0.01
+    const isTypeChanged = newBudgetType !== prevBudgetType
+
+    // Record history if strategy or budget amount changed
+    if (isStrategyChanged || isBudgetChanged || isTypeChanged) {
+      let changeNote = data.changeNotes || ''
+      if (!changeNote) {
+        if (isStrategyChanged) {
+          changeNote = `เปลี่ยนกลยุทธ์จาก ${prevStrategy} เป็น ${newStrategy}`
+        } else if (isBudgetChanged) {
+          changeNote = `ปรับเปลี่ยนงบประมาณจาก ฿${prevBudget.toLocaleString()} เป็น ฿${newBudget.toLocaleString()}`
+        } else {
+          changeNote = `ปรับเปลี่ยนประเภทงบประมาณจาก ${prevBudgetType} เป็น ${newBudgetType}`
+        }
+      }
+
+      await prisma.adBudgetHistory.create({
+        data: {
+          campaignId: trimmedCampaignId || existing.campaignId,
+          prevStrategy,
+          newStrategy,
+          prevBudget,
+          newBudget,
+          prevBudgetType,
+          newBudgetType,
+          effectiveDate: new Date(),
+          changedBy: user.id,
+          changedByName: user.fullName || user.email || 'User',
+          changeNotes: changeNote
+        }
+      })
+    }
+
     const updatePayload: any = {
       ...data,
+      budget: newBudget,
+      campaignBudget: newBudget,
+      campaign_budget: newBudget,
+      budgetStrategy: newStrategy,
+      budget_strategy: newStrategy,
+      budgetLevel: newBudgetLevel,
+      budget_level: newBudgetLevel,
+      budgetType: newBudgetType,
+      budget_type: newBudgetType,
+      budgetNotes: data.budgetNotes !== undefined ? data.budgetNotes : existing.budgetNotes,
+      budget_notes: data.budgetNotes !== undefined ? data.budgetNotes : existing.budgetNotes,
+      targetAudience: targetAudiencePayload,
       updatedBy: user.id
     }
+
+    if (isStrategyChanged) {
+      updatePayload.budgetStrategyEffectiveAt = new Date()
+      updatePayload.budget_strategy_effective_at = new Date()
+    }
+
     if (trimmedCampaignId) updatePayload.campaignId = trimmedCampaignId
     if (trimmedInternalCode !== undefined) updatePayload.internalCode = trimmedInternalCode || null
     if (data.branchId !== undefined) updatePayload.branchId = data.branchId || null
@@ -233,9 +511,37 @@ export async function updateCampaign(id: string, data: Partial<any>) {
       }
     })
 
+    // Synchronize relational ad_sets table
+    const currentCampId = trimmedCampaignId || existing.campaignId
+    for (const s of adSetsList) {
+      const sId = s.id || `set_${Date.now()}`
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO "ad_sets" (
+          "id", "adSetId", "campaignId", "name", "targeting", "budget", "allocated_budget", 
+          "budget_type", "budget_source", "budget_status", "status", "updated_by", "updatedAt"
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+        ON CONFLICT ("adSetId") DO UPDATE SET
+          "campaignId" = EXCLUDED."campaignId",
+          "name" = EXCLUDED."name",
+          "targeting" = EXCLUDED."targeting",
+          "budget" = EXCLUDED."budget",
+          "allocated_budget" = EXCLUDED."allocated_budget",
+          "budget_type" = EXCLUDED."budget_type",
+          "budget_source" = EXCLUDED."budget_source",
+          "budget_status" = EXCLUDED."budget_status",
+          "status" = EXCLUDED."status",
+          "updated_by" = EXCLUDED."updated_by",
+          "updatedAt" = NOW();
+      `, sId, s.platformAdSetId || (s.code ? `${currentCampId}-${s.code}` : sId), currentCampId, s.name || 'Ad Set', s.targetAudience || 'Broad',
+         s.budget ? Number(s.budget) : null, s.budget ? Number(s.budget) : null,
+         newBudgetType, newStrategy === 'CBO' ? 'CAMPAIGN_AUTO' : 'ADSET_MANUAL',
+         newStrategy === 'CBO' ? 'INACTIVE' : 'ACTIVE', s.status || 'Active', user.id)
+    }
+
     const plainCampaign = {
       ...campaign,
       budget: campaign.budget ? campaign.budget.toNumber() : 0,
+      campaignBudget: campaign.campaignBudget ? campaign.campaignBudget.toNumber() : (campaign.budget ? campaign.budget.toNumber() : 0),
       branch: campaign.branch ? {
         ...campaign.branch,
         center_lat: campaign.branch.center_lat ? campaign.branch.center_lat.toNumber() : null,

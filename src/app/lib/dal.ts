@@ -32,24 +32,40 @@ export const getUser = cache(async () => {
   if (!session.isAuth) return null
 
   let user = null;
-  try {
-    user = await prisma.user.findUnique({
-      where: {
-        id: session.userId as string,
-      },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        role: true,
-        employeeId: true,
-        isActive: true,
-        employeeSale: true,
-      },
-    })
-  } catch (error) {
-    console.error('[dal] getUser error', error)
-    return null
+  let hasDbError = false;
+
+  // Attempt to fetch user with automatic 1-time retry for transient pool queue delays
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      user = await prisma.user.findUnique({
+        where: {
+          id: session.userId as string,
+        },
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          role: true,
+          employeeId: true,
+          isActive: true,
+          employeeSale: true,
+        },
+      })
+      hasDbError = false;
+      break;
+    } catch (error: any) {
+      hasDbError = true;
+      console.error(`[dal] getUser error (attempt ${attempt}/2):`, error?.message || error)
+      if (attempt < 2) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+    }
+  }
+
+  // If a transient database connection error occurred, do NOT destroy the user's session!
+  if (hasDbError) {
+    console.warn('[dal] getUser aborted due to database connection error; session retained');
+    return null;
   }
 
   if (!user || !user.isActive) {
