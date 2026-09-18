@@ -12,6 +12,7 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-prompt)", "Prompt", "sans-serif"],
         mono: ["var(--font-prompt)", "Prompt", "sans-serif"],
+        'ibm-thai': ["'IBM Plex Sans Thai'", "'IBM Plex Sans'", "sans-serif"],
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '0.875rem' }],

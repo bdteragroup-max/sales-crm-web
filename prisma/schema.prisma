@@ -68,12 +68,7 @@ model User {
   materialApprovals       MaterialRequisition[]   @relation("MaterialApprover")
   materialRequests        MaterialRequisition[]   @relation("MaterialRequester")
   bdMemberProjects        BDProject[]             @relation("BDProjectMembers")
-  technicianOrders            Order[]                 @relation("OrderTechnicians")
-  marketingRequestsRequested  MarketingRequest[]      @relation("MarketingRequestRequester")
-  marketingRequestsAssigned   MarketingRequest[]      @relation("MarketingRequestAssignee")
-  marketingRequestsAssignedBy MarketingRequest[]      @relation("MarketingRequestAssigner")
-  marketingRequestComments    MarketingRequestComment[]
-  marketingRequestLogs        MarketingRequestLog[]
+  technicianOrders        Order[]                 @relation("OrderTechnicians")
 }
 
 model MonthlyTarget {
@@ -1520,58 +1515,94 @@ model PurchaseRequest {
 }
 
 model PurchaseOrder {
-  id              Int              @id @default(autoincrement())
-  no              Int?
-  recordedAt      DateTime?        @db.Timestamptz(6)
-  prNumber        String?
-  poNumber        String           @unique
-  vendorName      String?
-  accountNumber   String?
-  totalAmount     Decimal?         @db.Decimal(12, 2)
-  depositAmount   Decimal?         @db.Decimal(12, 2)
-  remainingAmount Decimal?         @db.Decimal(12, 2)
-  payment1        Decimal?         @db.Decimal(12, 2)
-  creditTerm      String?
-  jobName         String?
-  itemList        String?
-  deliveryDate    DateTime?        @db.Timestamptz(6)
-  note            String?
-  reportedBy      String?
-  receiveStatus   String?
-  receivedBy      String?
-  receivedAt      DateTime?        @db.Timestamptz(6)
-  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
-  updatedAt       DateTime         @updatedAt @db.Timestamptz(6)
-  goodsReceipts   GoodsReceipt[]
-  purchaseRequest PurchaseRequest? @relation(fields: [prNumber], references: [prNumber])
+  id                   Int                   @id @default(autoincrement())
+  no                   Int?
+  recordedAt           DateTime?             @db.Timestamptz(6)
+  prNumber             String?
+  poNumber             String                @unique
+  vendorName           String?
+  accountNumber        String?
+  totalAmount          Decimal?              @db.Decimal(12, 2)
+  depositAmount        Decimal?              @db.Decimal(12, 2)
+  remainingAmount      Decimal?              @db.Decimal(12, 2)
+  payment1             Decimal?              @db.Decimal(12, 2)
+  creditTerm           String?
+  jobName              String?
+  itemList             String?
+  deliveryDate         DateTime?             @db.Timestamptz(6)
+  note                 String?
+  reportedBy           String?
+  receiveStatus        String?
+  receivedBy           String?
+  receivedAt           DateTime?             @db.Timestamptz(6)
+  createdAt            DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime              @updatedAt @db.Timestamptz(6)
+  goodsReceipts        GoodsReceipt[]
+  purchaseRequest      PurchaseRequest?      @relation(fields: [prNumber], references: [prNumber])
+  supplierPaymentTasks SupplierPaymentTask[]
 
   @@map("purchase_orders")
 }
 
 model GoodsReceipt {
-  id                   String        @id @default(cuid())
+  id                   String                @id @default(cuid())
   sequenceNo           Int?
-  recordedAt           DateTime?     @db.Timestamptz(6)
+  recordedAt           DateTime?             @db.Timestamptz(6)
   company              String?
   poNumber             String
   item                 String?
-  quantity             Decimal?      @db.Decimal(10, 2)
-  totalAmount          Decimal?      @db.Decimal(12, 2)
+  quantity             Decimal?              @db.Decimal(10, 2)
+  totalAmount          Decimal?              @db.Decimal(12, 2)
   creditTerm           String?
   status               String?
-  targetDeliveryDate   DateTime?     @db.Timestamptz(6)
-  deliveredQuantity    Decimal?      @db.Decimal(10, 2)
-  receivedAt           DateTime?     @db.Timestamptz(6)
+  targetDeliveryDate   DateTime?             @db.Timestamptz(6)
+  deliveredQuantity    Decimal?              @db.Decimal(10, 2)
+  receivedAt           DateTime?             @db.Timestamptz(6)
   deliveryNoteNumber   String?
   recipient            String?
-  isCompleteDelivery   Boolean       @default(false)
-  isIncompleteDelivery Boolean       @default(false)
-  createdAt            DateTime      @default(now()) @db.Timestamptz(6)
-  updatedAt            DateTime      @updatedAt @db.Timestamptz(6)
-  purchaseOrder        PurchaseOrder @relation(fields: [poNumber], references: [poNumber])
+  isCompleteDelivery   Boolean               @default(false)
+  isIncompleteDelivery Boolean               @default(false)
+  createdAt            DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime              @updatedAt @db.Timestamptz(6)
+  purchaseOrder        PurchaseOrder         @relation(fields: [poNumber], references: [poNumber])
+  supplierPaymentTasks SupplierPaymentTask[]
 
   @@unique([poNumber, sequenceNo])
   @@map("goods_receipts")
+}
+
+model SupplierPaymentTask {
+  id                  String        @id @default(cuid())
+  poNumber            String
+  paymentType         String
+  sequenceNo          Int           @default(1)
+  grossAmount         Decimal       @db.Decimal(18, 2)
+  whtPercent          Decimal       @default(0) @db.Decimal(5, 2)
+  whtAmount           Decimal       @default(0) @db.Decimal(18, 2)
+  netPayableAmount    Decimal       @db.Decimal(18, 2)
+  dueDate             DateTime      @db.Timestamptz(6)
+  paymentMethod       String        @default("BANK_TRANSFER")
+  chequeNumber        String?
+  chequeDueDate       DateTime?     @db.Timestamptz(6)
+  isGoodsReceived     Boolean       @default(false)
+  goodsReceiptId      String?
+  status              String        @default("PENDING")
+  paidDate            DateTime?     @db.Timestamptz(6)
+  paidAmount          Decimal?      @db.Decimal(18, 2)
+  paidFromBankCode    String?
+  bankReferenceNumber String?
+  whtCertNumber       String?
+  note                String?
+  createdById         String?
+  approvedById        String?
+  createdAt           DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime      @default(now()) @updatedAt @db.Timestamptz(6)
+  goodsReceipt        GoodsReceipt? @relation(fields: [goodsReceiptId], references: [id], map: "fk_spt_gr")
+  purchaseOrder       PurchaseOrder @relation(fields: [poNumber], references: [poNumber], onDelete: Cascade, map: "fk_spt_po")
+
+  @@index([dueDate, status], map: "idx_spt_dueDate_status")
+  @@index([poNumber], map: "idx_spt_poNumber")
+  @@map("supplier_payment_tasks")
 }
 
 model Project {
@@ -1637,6 +1668,15 @@ model Project {
   siteTeamMembers           String?
   supervisorSignUrl         String?
   workSummary               Json?
+  installment5              Decimal?           @db.Decimal(15, 2)
+  installment6              Decimal?           @db.Decimal(15, 2)
+  installment7              Decimal?           @db.Decimal(15, 2)
+  installment8              Decimal?           @db.Decimal(15, 2)
+  installment9              Decimal?           @db.Decimal(15, 2)
+  installment10             Decimal?           @db.Decimal(15, 2)
+  installment11             Decimal?           @db.Decimal(15, 2)
+  installment12             Decimal?           @db.Decimal(15, 2)
+  installmentsData          Json?
   job                       Job?               @relation(fields: [jobId], references: [id])
   manager                   User?              @relation("ProjectManager", fields: [managerId], references: [id])
   dailyLogs                 ProjectDailyLog[]
@@ -2470,7 +2510,6 @@ model KanbanCard {
   attachments          KanbanAttachment[]
   list                 KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
   comments             KanbanComment[]
-  marketingRequests    MarketingRequest[]
 
   @@index([listId])
   @@index([assignedToId])
@@ -3001,71 +3040,71 @@ model AdResultType {
 }
 
 model AdCampaign {
-  id              String          @id @default(cuid())
-  campaignId      String          @unique
-  name            String
-  channelId       String
-  productId       Int?
-  branchId        String?
-  objectiveId     String?
-  budget          Decimal         @db.Decimal(12, 2)
-  startDate       DateTime        @db.Date
-  endDate         DateTime        @db.Date
-  status          String          @default("ACTIVE")
-  createdBy       String
-  createdAt       DateTime        @default(now()) @db.Timestamptz(6)
-  updatedBy       String?
-  updatedAt       DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
-  deletedAt       DateTime?       @db.Timestamptz(6)
-  accountId       String?
-  artworkUrl      String?
-  notes           String?
-  targetAudience             String?
-  internalCode               String?         @unique
-  productCategory            String?
-  budget_strategy            String?         @default("ABO")
-  budget_level               String?         @default("AD_SET")
-  budget_type                String?         @default("DAILY")
-  campaign_budget            Decimal?        @db.Decimal(12, 2)
-  currency                   String?         @default("THB")
-  budget_notes               String?
-  budget_strategy_effective_at DateTime?      @db.Timestamptz(6)
-  budgetStrategy             String?         @default("ABO")
-  budgetLevel                String?         @default("AD_SET")
-  budgetType                 String?         @default("DAILY")
-  campaignBudget             Decimal?        @db.Decimal(12, 2)
-  budgetNotes                String?
-  budgetStrategyEffectiveAt  DateTime?       @db.Timestamptz(6)
-  account                    AdAccount?      @relation(fields: [accountId], references: [id])
-  branch                     branches?       @relation(fields: [branchId], references: [id])
-  channel                    AdChannel       @relation(fields: [channelId], references: [id])
-  objective                  AdObjective?    @relation(fields: [objectiveId], references: [id])
-  product                    products?       @relation(fields: [productId], references: [id])
-  performances               AdPerformance[]
-  leads                      MarketingLead[]
+  id                           String          @id @default(cuid())
+  campaignId                   String          @unique
+  name                         String
+  channelId                    String
+  productId                    Int?
+  branchId                     String?
+  objectiveId                  String?
+  budget                       Decimal         @db.Decimal(12, 2)
+  startDate                    DateTime        @db.Date
+  endDate                      DateTime        @db.Date
+  status                       String          @default("ACTIVE")
+  createdBy                    String
+  createdAt                    DateTime        @default(now()) @db.Timestamptz(6)
+  updatedBy                    String?
+  updatedAt                    DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
+  deletedAt                    DateTime?       @db.Timestamptz(6)
+  accountId                    String?
+  artworkUrl                   String?
+  notes                        String?
+  targetAudience               String?
+  internalCode                 String?         @unique
+  productCategory              String?
+  budget_strategy              String?         @default("ABO")
+  budget_level                 String?         @default("AD_SET")
+  budget_type                  String?         @default("DAILY")
+  campaign_budget              Decimal?        @db.Decimal(12, 2)
+  currency                     String?         @default("THB")
+  budget_notes                 String?
+  budget_strategy_effective_at DateTime?       @default(now()) @db.Timestamptz(6)
+  budgetStrategy               String?         @default("ABO")
+  budgetLevel                  String?         @default("AD_SET")
+  budgetType                   String?         @default("DAILY")
+  campaignBudget               Decimal?        @db.Decimal(12, 2)
+  budgetNotes                  String?
+  budgetStrategyEffectiveAt    DateTime?       @default(now()) @db.Timestamptz(6)
+  account                      AdAccount?      @relation(fields: [accountId], references: [id])
+  branch                       branches?       @relation(fields: [branchId], references: [id])
+  channel                      AdChannel       @relation(fields: [channelId], references: [id])
+  objective                    AdObjective?    @relation(fields: [objectiveId], references: [id])
+  product                      products?       @relation(fields: [productId], references: [id])
+  performances                 AdPerformance[]
+  leads                        MarketingLead[]
 
   @@index([channelId])
   @@index([status])
 }
 
 model AdBudgetHistory {
-  id            String    @id @default(cuid())
-  campaignId    String
-  prevStrategy  String?
-  newStrategy   String
-  prevBudget    Decimal?  @db.Decimal(12, 2)
-  newBudget     Decimal?  @db.Decimal(12, 2)
+  id             String   @id @default(cuid())
+  campaignId     String
+  prevStrategy   String?
+  newStrategy    String
+  prevBudget     Decimal? @db.Decimal(12, 2)
+  newBudget      Decimal? @db.Decimal(12, 2)
   prevBudgetType String?
-  newBudgetType String?
-  effectiveDate DateTime  @default(now()) @db.Timestamptz(6)
-  changedBy     String?
-  changedByName String?
-  changedAt     DateTime  @default(now()) @db.Timestamptz(6)
-  changeNotes   String?
-  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+  newBudgetType  String?
+  effectiveDate  DateTime @default(now()) @db.Timestamptz(6)
+  changedBy      String?
+  changedByName  String?
+  changedAt      DateTime @default(now()) @db.Timestamptz(6)
+  changeNotes    String?
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
 
-  @@index([campaignId])
-  @@index([changedAt])
+  @@index([campaignId], map: "idx_ad_budget_hist_camp")
+  @@index([changedAt(sort: Desc)], map: "idx_ad_budget_hist_date")
   @@map("ad_budget_history")
 }
 
@@ -3217,48 +3256,65 @@ model ad_crm_snapshots {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ad_performance_snapshots {
-  id               String    @id
-  snapshotId       String    @unique
-  adId             String
-  campaignId       String
-  adSetId          String
-  creativeId       String?
-  creativeFile     String?
-  creativeVersion  String?
-  creativeUrl      String?
-  periodStart      DateTime? @db.Date
-  periodEnd        DateTime? @db.Date
-  capturedAt       DateTime  @default(now()) @db.Timestamptz(6)
-  updateMode       String?   @default("CUMULATIVE_SNAPSHOT")
-  spend            Decimal   @default(0) @db.Decimal(12, 2)
-  messageInbox     Int?      @default(0)
-  reach            Int?      @default(0)
-  impressions      Int?      @default(0)
-  clicks           Int?      @default(0)
-  dataSource       String?   @default("Ads Manager")
-  notes            String?
-  enteredBy        String?
-  updateType       String?   @default("Regular Update")
-  correctionReason String?
-  status           String?   @default("SAVED")
-  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+  id                   String    @id
+  snapshotId           String    @unique
+  adId                 String?
+  campaignId           String
+  adSetId              String?
+  creativeId           String?
+  creativeFile         String?
+  creativeVersion      String?
+  creativeUrl          String?
+  periodStart          DateTime? @db.Date
+  periodEnd            DateTime? @db.Date
+  capturedAt           DateTime  @default(now()) @db.Timestamptz(6)
+  updateMode           String?   @default("CUMULATIVE_SNAPSHOT")
+  spend                Decimal   @default(0) @db.Decimal(12, 2)
+  messageInbox         Int?      @default(0)
+  reach                Int?      @default(0)
+  impressions          Int?      @default(0)
+  clicks               Int?      @default(0)
+  dataSource           String?   @default("Ads Manager")
+  notes                String?
+  enteredBy            String?
+  updateType           String?   @default("Regular Update")
+  correctionReason     String?
+  status               String?   @default("SAVED")
+  createdAt            DateTime  @default(now()) @db.Timestamptz(6)
+  entityType           String    @default("AD")
+  entityId             String?
+  version              Int       @default(1)
+  previousSpend        Decimal?  @default(0) @db.Decimal(12, 2)
+  previousMessageInbox Int?      @default(0)
+  previousReach        Int?      @default(0)
+  previousImpressions  Int?      @default(0)
+  previousClicks       Int?      @default(0)
+  source               String?   @default("Manual")
+  importJobId          String?
 
   @@index([adId], map: "idx_ad_perf_snaps_ad")
   @@index([campaignId], map: "idx_ad_perf_snaps_camp")
   @@index([capturedAt(sort: Desc)], map: "idx_ad_perf_snaps_date")
+  @@index([entityType, entityId], map: "idx_ad_perf_snaps_entity")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ad_sets {
-  id         String   @id
-  adSetId    String   @unique
-  campaignId String
-  name       String
-  targeting  String?
-  budget     Decimal? @default(0) @db.Decimal(12, 2)
-  status     String?  @default("Active")
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt  DateTime @default(now()) @db.Timestamptz(6)
+  id               String   @id
+  adSetId          String   @unique
+  campaignId       String
+  name             String
+  targeting        String?
+  budget           Decimal? @default(0) @db.Decimal(12, 2)
+  status           String?  @default("Active")
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @db.Timestamptz(6)
+  allocated_budget Decimal? @db.Decimal(12, 2)
+  budget_type      String?
+  budget_source    String?  @default("ADSET_MANUAL")
+  budget_status    String?  @default("ACTIVE")
+  budget_notes     String?
+  updated_by       String?
 
   @@index([campaignId], map: "idx_ad_sets_camp")
 }
@@ -3357,10 +3413,6 @@ model MarketingRequest {
   kanbanCardId           String?
   createdAt              DateTime                     @default(now()) @db.Timestamptz(6)
   updatedAt              DateTime                     @default(now()) @updatedAt @db.Timestamptz(6)
-  requester              User                         @relation("MarketingRequestRequester", fields: [requesterId], references: [id])
-  assignedTo             User?                        @relation("MarketingRequestAssignee", fields: [assignedToId], references: [id])
-  assignedBy             User?                        @relation("MarketingRequestAssigner", fields: [assignedById], references: [id])
-  kanbanCard             KanbanCard?                  @relation(fields: [kanbanCardId], references: [id])
   attachments            MarketingRequestAttachment[]
   comments               MarketingRequestComment[]
   logs                   MarketingRequestLog[]
@@ -3395,10 +3447,8 @@ model MarketingRequestComment {
   createdAt  DateTime         @default(now()) @db.Timestamptz(6)
   updatedAt  DateTime         @default(now()) @updatedAt @db.Timestamptz(6)
   request    MarketingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  user       User             @relation(fields: [userId], references: [id])
 
   @@index([requestId])
-  @@index([userId])
 }
 
 model MarketingRequestLog {
@@ -3409,10 +3459,8 @@ model MarketingRequestLog {
   details    String?
   createdAt  DateTime         @default(now()) @db.Timestamptz(6)
   request    MarketingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  user       User?            @relation(fields: [userId], references: [id])
 
   @@index([requestId])
-  @@index([userId])
 }
 
 model MarketingAnnouncement {
@@ -3521,4 +3569,23 @@ model MarketingAnnouncementAuditLog {
 
   @@index([announcementId], map: "idx_mkt_announcement_audit_ann_id")
   @@map("marketing_announcement_audit_logs")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ad_import_jobs {
+  id           String   @id
+  jobId        String   @unique
+  filename     String
+  fileType     String
+  fileHash     String?
+  totalRows    Int      @default(0)
+  importedRows Int      @default(0)
+  skippedRows  Int      @default(0)
+  errorCount   Int      @default(0)
+  status       String   @default("COMPLETED")
+  enteredBy    String?
+  details      Json?
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([createdAt(sort: Desc)], map: "idx_ad_import_jobs_date")
 }

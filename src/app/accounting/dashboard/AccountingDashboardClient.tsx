@@ -26,7 +26,8 @@ import {
   BarChart3,
   Clock,
   CheckCircle2,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Package
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -54,6 +55,11 @@ interface AccountingDashboardClientProps {
     totalExpenses: number;
     netProfit?: number;
     profitMargin?: number;
+    totalAP?: number;
+    overdueAP?: number;
+    overdueAPCount?: number;
+    awaitingGrAP?: number;
+    paidAP?: number;
     monthlyTrend: Array<{ month: string; revenue: number; expenses: number }>;
     paymentMethods: Array<{ name: string; value: number }>;
     topOverdue: any[];
@@ -248,6 +254,14 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
 
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
+            href="/accounting/payables"
+            className="flex items-center gap-1.5 px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-semibold shadow-sm transition-all"
+          >
+            <Package className="w-4 h-4 text-amber-600" />
+            <span>จ่ายเงินเจ้าหนี้ (AP)</span>
+          </Link>
+
+          <Link
             href="/accounting"
             className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
           >
@@ -358,8 +372,8 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
         </div>
       )}
 
-      {/* 3. Five Executive KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* 3. Executive KPI Cards (AR & AP) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {/* Card 1: Collected Revenue */}
         <div className="bg-white p-5 rounded-2xl border border-emerald-200/80 shadow-sm relative overflow-hidden transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
@@ -396,6 +410,28 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
             </div>
           </div>
         </div>
+
+        {/* Card 3: Accounts Payable (AP) */}
+        <Link
+          href="/accounting/payables"
+          className="bg-white p-5 rounded-2xl border border-amber-200/80 shadow-sm relative overflow-hidden transition-all hover:shadow-md hover:border-amber-400 block"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">เจ้าหนี้รอจ่าย (AP)</span>
+            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Package className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-2xl font-black text-slate-900 tracking-tight">
+              {formatCurrency(data.totalAP || 0)}
+            </div>
+            <div className="text-xs text-amber-700 mt-1 font-semibold flex items-center justify-between">
+              <span>{data.awaitingGrAP ? `รอตรวจรับ: ${formatCurrency(data.awaitingGrAP)}` : 'จัดการตั้งจ่าย'}</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-amber-600" />
+            </div>
+          </div>
+        </Link>
 
         {/* Card 3: Overdue AR */}
         <div
@@ -653,7 +689,9 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
                       return (
                         <tr key={pt.id} className="hover:bg-slate-50/80 transition-colors">
                           <td className="py-3.5 px-4 font-semibold text-slate-900">
-                            {pt.installmentNo ? `งวดที่ ${pt.installmentNo}/${pt.installmentTotal}` : 'ยอดรวม'}
+                            {(pt.installmentNo === 0 || pt.creditType === 'DEPOSIT')
+                              ? 'เงินมัดจำ'
+                              : (pt.installmentNo ? `งวดที่ ${pt.installmentNo}/${pt.installmentTotal}` : 'ยอดรวม')}
                           </td>
 
                           {/* Due Date & Overdue Badge */}

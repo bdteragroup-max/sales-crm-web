@@ -63,6 +63,10 @@ export async function updateQuotationStatus(
       return { success: false, error: "ปฏิเสธการเข้าถึง: คุณสามารถแก้ไขเฉพาะดีลของคุณเองเท่านั้น" };
     }
 
+    if (newStatus === 'หมดอายุ') {
+      return { success: false, error: "สถานะ 'หมดอายุ' เป็นสถานะที่ระบบคำนวณและปรับเปลี่ยนอัตโนมัติ ไม่สามารถเลือกด้วยตนเองได้" };
+    }
+
     const statusChanged = quotation.status !== newStatus;
 
     const updateData: any = { 

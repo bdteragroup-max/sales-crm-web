@@ -31,16 +31,30 @@ type SidebarProps = {
 type NavItem = { icon: React.ElementType; label: string; href: string };
 
 const executiveNav = [
-  { icon: LayoutDashboard, label: 'Executive KPI', href: '/executive/kpi' },
+  // ── 1. Executive Suite ──
+  { icon: LayoutDashboard, label: 'Executive KPI (สรุปภาพรวมผู้บริหาร)', href: '/executive/kpi' },
+  { icon: GitCommit, label: 'Pipeline Forecast (คาดการณ์ยอดขาย)', href: '/executive/pipeline' },
+  { icon: Bell, label: 'SLA & Bottleneck Monitor (ติดตามคอขวด)', href: '/executive/sla' },
+
+  // ── 2. Operations & Engineering ──
+  { icon: Briefcase, label: 'ติดตามงานทั้งหมด (Master Jobs Tracker)', href: '/jobs' },
+  { icon: FolderOpen, label: 'ภาพรวมโครงการ (Projects Dashboard)', href: '/projects/dashboard' },
+  { icon: Boxes, label: 'ภาพรวมฝ่ายผลิต (Production Dashboard)', href: '/production/dashboard' },
+  { icon: Wrench, label: 'ภาพรวมงานบริการ (Service Overview)', href: '/executive/service' },
+  { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Schedule)', href: '/technician/schedule' },
+
+  // ── 3. Marketing & Commercial ──
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
-  { icon: GitCommit, label: 'Pipeline Forecast', href: '/executive/pipeline' },
-  { icon: Wrench, label: 'ภาพรวมงานบริการ', href: '/executive/service' },
-  { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
-  { icon: Bell, label: 'SLA Exceptions', href: '/executive/sla' },
-  { icon: Coins, label: 'ภาพรวมเหรียญรางวัล', href: '/executive/coins' },
-  { icon: ShoppingCart, label: 'ภาพรวมจัดซื้อ', href: '/executive/purchasing' },
-  { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี', href: '/accounting/dashboard' },
-  { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
+  { icon: Tv, label: 'แดชบอร์ดการตลาดและโฆษณา (Marketing & Ads)', href: '/marketing/dashboard' },
+  { icon: Users, label: 'ทะเบียนลูกค้า (Client 360)', href: '/clients' },
+
+  // ── 4. Finance, Procurement & Rewards ──
+  { icon: DollarSign, label: 'แดชบอร์ดการเงิน/บัญชี (Finance & Accounting)', href: '/accounting/dashboard' },
+  { icon: Package, label: 'เจ้าหนี้การค้า (AP Payables)', href: '/accounting/payables' },
+  { icon: ShoppingCart, label: 'ภาพรวมจัดซื้อ (Purchasing Overview)', href: '/executive/purchasing' },
+  { icon: Coins, label: 'ภาพรวมเหรียญรางวัล (Coins & Rewards)', href: '/executive/coins' },
+
+  // ── 5. System ──
   { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
 ];
 
@@ -181,7 +195,8 @@ const productionNav = [
 const accountingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี/การเงิน', href: '/accounting/dashboard' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
-  { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
+  { icon: DollarSign, label: 'ลูกหนี้การค้า (AR Collections)', href: '/accounting' },
+  { icon: Package, label: 'เจ้าหนี้การค้า (AP Payables)', href: '/accounting/payables' },
   { icon: FileText, label: 'รายงานใช้น้ำมัน & GPS', href: '/department/fuel-report' },
 ];
 
@@ -271,7 +286,7 @@ export default function SidebarClient(props: SidebarProps) {
 
   const isBdRole = ['business development', 'bd', 'พัฒนาธุรกิจ'].some(r => roleStr.includes(r));
   const isMarketingRole = ['marketing', 'การตลาด', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด'].some(r => roleStr.includes(r));
-  let navToAppend = isBdRole ? [] : commonNav;
+  let navToAppend = (isBdRole || isExecutive) ? [] : commonNav;
 
   if (isTechnician) {
     navToAppend = navToAppend.filter(item => item.href !== '/facility-repairs/new');
@@ -437,7 +452,7 @@ function ResponsiveSidebar({
         {/* Top brand logo and navigation */}
         <div className="flex flex-col items-center w-full shrink-0">
           {/* Logo mark */}
-          <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} className={`w-12 h-12 ${colors.bg} rounded-2xl flex items-center justify-center shadow-lg ${colors.shadow} hover:scale-105 transition-all duration-300`}>
+          <Link href={isReadOnlyExecutive(userRole) ? '/executive/kpi' : userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} className={`w-12 h-12 ${colors.bg} rounded-2xl flex items-center justify-center shadow-lg ${colors.shadow} hover:scale-105 transition-all duration-300`}>
             <TrendingUp size={22} className="text-white" strokeWidth={2.5} />
           </Link>
 
@@ -667,7 +682,7 @@ function ResponsiveSidebar({
         {/* Brand header */}
         <div className="flex flex-col w-full">
           <div className="flex items-center justify-between">
-            <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
+            <Link href={isReadOnlyExecutive(userRole) ? '/executive/kpi' : userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
               <div className={`w-10 h-10 ${colors.bg} rounded-xl flex items-center justify-center shadow-lg ${colors.shadow}`}>
                 <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
               </div>

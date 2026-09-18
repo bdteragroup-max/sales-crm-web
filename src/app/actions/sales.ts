@@ -474,7 +474,7 @@ export async function saveSalesData(formData: FormData) {
         requirementDate: parseDate(requirementDateRaw),
         quotationNumber,
         quotationDate: parseDate(quotationDateRaw),
-        status,
+        status: status === 'หมดอายุ' ? 'เสนอราคา' : status,
         statusChangedAt: new Date(),
         rejectReason,
         subject: productInterest,
@@ -760,7 +760,8 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       where: { id: quotationId },
       select: { status: true }
     });
-    const statusActuallyChanged = existingQuotation?.status !== status;
+    const safeStatus = (existingQuotation?.status !== 'หมดอายุ' && status === 'หมดอายุ') ? (existingQuotation?.status || 'เสนอราคา') : status;
+    const statusActuallyChanged = existingQuotation?.status !== safeStatus;
 
     const updatedQuotation = await prisma.quotation.update({
       where: { id: quotationId },
@@ -772,7 +773,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         requirementDate: parseDate(requirementDateRaw),
         quotationNumber,
         quotationDate: parseDate(quotationDateRaw),
-        status,
+        status: safeStatus,
         ...(statusActuallyChanged ? { statusChangedAt: new Date() } : {}),
         rejectReason,
         subject: productInterest,

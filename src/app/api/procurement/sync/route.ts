@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import prisma from '@/app/lib/db';
 import { sendPushToUser } from '@/app/lib/pushNotification';
 import { isRetroactivePO, getRetroactiveReceivedBy } from '@/app/lib/poHelper';
+import { syncSupplierPaymentsForPO } from '@/app/actions/supplierPayment';
+import { normalizePOPaymentAmounts } from '@/app/lib/supplierPaymentUtils';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -77,7 +79,7 @@ function cleanDocNo(raw: any): string {
 }
 
 /* ========== ตัวเลข ========== */
-function parseNumber(val: any): number | undefined {
+function parseNumber(val: any, totalAmountContext?: number): number | undefined {
   if (isBlank(val)) return undefined;
   if (typeof val === 'number') return isNaN(val) ? undefined : val;
 
@@ -89,11 +91,41 @@ function parseNumber(val: any): number | undefined {
     return undefined;
   }
 
-  s = s.replace(/^(?:🧾?\s*ยอด(?:\s*รวม)?\s*[:：]?\s*)/i, '');
+  // 1. ตรวจจับรูปแบบข้อความที่มีเครื่องหมาย = หรือวงเล็บยอดเงิน เช่น "30% = 7,957.91" หรือ "70% = 18,568.46"
+  const eqMatch = s.match(/=\s*([0-9,]+(?:\.[0-9]+)?)/);
+  if (eqMatch) {
+    const n = parseFloat(eqMatch[1].replace(/,/g, ''));
+    if (!isNaN(n)) return n;
+  }
+
+  // 2. ตรวจจับรูปแบบมีวงเล็บยอดเงิน เช่น "30% (7,957.91)"
+  const parenMatch = s.match(/\((?:฿|\s)*([0-9,]+(?:\.[0-9]+)?)\)/);
+  if (parenMatch) {
+    const n = parseFloat(parenMatch[1].replace(/,/g, ''));
+    if (!isNaN(n)) return n;
+  }
+
+  // 3. ตรวจจับรูปแบบเปอร์เซ็นต์ตามด้วยยอดเงิน เช่น "30% 7,957.91" หรือ "30% : 7,957.91"
+  const pctWithAmtMatch = s.match(/(\d+(?:\.\d+)?)\s*%\s*(?:[=:–-]\s*)?(?:฿\s*)?([0-9,]+(?:\.[0-9]+)?)/);
+  if (pctWithAmtMatch) {
+    const n = parseFloat(pctWithAmtMatch[2].replace(/,/g, ''));
+    if (!isNaN(n)) return n;
+  }
+
+  s = s.replace(/^(?:🧾?\s*(?:ยอด|มัดจำ|ส่วนที่เหลือ|คงเหลือ)(?:\s*รวม)?\s*[:：]?\s*)/i, '');
   s = s.replace(/\s*(?:หัก\s*\d+%?|[-–]\s*\d+%(?:\s*=\s*[\d,.]+)?).*$/i, '').trim();
 
+  // 4. กรณีระบุเฉพาะเปอร์เซ็นต์โดดๆ เช่น "30%" หรือ "30" ถ้ามี context ของยอดรวม PO
+  const onlyPctMatch = s.match(/^(\d+(?:\.\d+)?)\s*%?$/);
+  if (onlyPctMatch && totalAmountContext && totalAmountContext > 1000) {
+    const pct = parseFloat(onlyPctMatch[1]);
+    if (pct > 0 && pct <= 100) {
+      return Math.round(totalAmountContext * (pct / 100) * 100) / 100;
+    }
+  }
+
   // จัดการกรณีพิมพ์จุดแทนจุลภาค เช่น "34.935.50" -> "34935.50"
-  let cleaned = s.replace(/,/g, '');
+  let cleaned = s.replace(/,/g, '').replace(/^[^\d.]*/, '');
   const dotCount = (cleaned.match(/\./g) || []).length;
   if (dotCount > 1) {
     const lastDotIdx = cleaned.lastIndexOf('.');
@@ -149,60 +181,79 @@ const THAI_MONTHS: [string[], number][] = [
   [['ธ.ค.', 'ธันวาคม'], 11],
 ];
 
-function parseDateStr(str: any): Date | undefined {
+function isSensibleYear(d: Date | undefined): boolean {
+  if (!d || isNaN(d.getTime())) return false;
+  const y = d.getUTCFullYear();
+  return y >= 2024 && y <= 2035;
+}
+
+function parseDateStr(str: any, baseDate?: Date): Date | undefined {
+  const d = rawParseDateStr(str, baseDate);
+  if (!d) return undefined;
+  const fixed = fixDate(d);
+  return isSensibleYear(fixed) ? fixed : undefined;
+}
+
+function rawParseDateStr(str: any, baseDate?: Date): Date | undefined {
   if (isBlank(str)) return undefined;
-  if (str instanceof Date) return fixDate(new Date(str.getTime()));
+  if (str instanceof Date) return new Date(str.getTime());
 
   const s = String(str).trim();
+
+  // ปฏิเสธข้อความที่เป็นขนาด สเปก หรือมิติสินค้า เช่น "ขนาด 1/4"", "1/2 นิ้ว", "1/4 mm"
+  if (/(?:ขนาด|size|[\"”'’]\s*$|\d+[\/\-]\d+[\"”'’]|\b(?:นิ้ว|มม|cm|mm)\b)/i.test(s)) {
+    return undefined;
+  }
 
   // 1. ISO ที่ Apps Script ส่งมาเมื่อเซลล์มีเวลาติดมาด้วย
   if (s.includes('T') && s.endsWith('Z')) {
     const d = new Date(s);
-    if (!isNaN(d.getTime())) return fixDate(d);
+    if (!isNaN(d.getTime())) return d;
   }
 
-  // 2. yyyy-MM-dd (รูปแบบหลักที่ Apps Script ส่งมา)
-  const isoMatch = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+  // 2. yyyy-MM-dd (รูปแบบหลักที่ Apps Script ส่งมา อาจมีเวลาตามหลัง)
+  const isoMatch = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
   if (isoMatch) {
     const y = parseInt(isoMatch[1], 10);
     const m = parseInt(isoMatch[2], 10) - 1;
     const d = parseInt(isoMatch[3], 10);
-    if (m >= 0 && m <= 11 && d >= 1 && d <= 31) return fixDate(createThaiDate(y, m, d));
+    if (m >= 0 && m <= 11 && d >= 1 && d <= 31) return createThaiDate(y, m, d);
   }
 
-  // 3. มีเวลาติดมาแบบ "7/2/2026 13:45:29" → ปล่อยให้ native parse
-  if (s.includes(':')) {
-    const native = new Date(s);
-    if (!isNaN(native.getTime())) return fixDate(native);
-  }
-
-  // 4. yyyy-MM-dd ที่ฝังอยู่กลางข้อความ
-  const isoLoose = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-  if (isoLoose) {
-    const y = parseInt(isoLoose[1], 10);
-    const m = parseInt(isoLoose[2], 10) - 1;
-    const d = parseInt(isoLoose[3], 10);
-    if (m >= 0 && m <= 11 && d >= 1 && d <= 31) return fixDate(createThaiDate(y, m, d));
-  }
-
-  // 5. dd/MM/yyyy หรือ dd-MM-yy
-  const dmRegex = /(\d{1,2})\s*([\/\-])\s*(\d{1,2})(?:\s*\2\s*(\d{2,4}))?/g;
+  // 3. dd/MM/yyyy หรือ dd-MM-yy (ไทยใช้วัน/เดือน/ปีเสมอ ไม่ว่าจะติดเวลามาหรือไม่ เช่น "02/08/2026 00:00:00" หรือ "2/8/2026 13:45:29")
+  // ต้องตรวจจับก่อน new Date() ป้องกัน V8 ตีความเป็น US format (MM/DD/YYYY)
+  const dmRegex = /(\d{1,2})\s*([\/\-])\s*(\d{1,2})\s*\2\s*(\d{2,4})/g;
   let match: RegExpExecArray | null;
   while ((match = dmRegex.exec(s)) !== null) {
     const d = parseInt(match[1], 10);
     const m = parseInt(match[3], 10) - 1;
     const yStr = match[4];
-    if (d >= 1 && d <= 31 && m >= 0 && m <= 11) {
-      let y = new Date().getUTCFullYear();
-      if (yStr) {
-        const raw = parseInt(yStr, 10);
-        y = raw < 100 ? twoDigitYearToGregorian(raw) : raw;
-      }
-      return fixDate(createThaiDate(y, m, d));
+
+    if (d >= 1 && d <= 31 && m >= 0 && m <= 11 && yStr) {
+      const raw = parseInt(yStr, 10);
+      const y = raw < 100 ? twoDigitYearToGregorian(raw) : raw;
+      return createThaiDate(y, m, d);
     }
   }
 
-  // 6. เดือนภาษาไทย เช่น "1-3 ก.ค. 69"
+  // 4. Lead time ในรูปแบบ "...วัน" หรือ "...สัปดาห์" (ต้องเช็คก่อนไทยย่อ)
+  const leadTimeMatch = s.match(/(?:ผลิต|ล่วงหน้า|จัดส่ง|ภายใน)?\s*(\d+)(?:\s*[-–\/]\s*(\d+))?\s*(?:วัน|สัปดาห์|สัปดาห|week|weeks|day|days)/i);
+  if (leadTimeMatch) {
+    const d1 = parseInt(leadTimeMatch[1], 10);
+    const d2 = leadTimeMatch[2] ? parseInt(leadTimeMatch[2], 10) : d1;
+    let days = Math.max(d1, d2);
+    if (/สัปดาห์|week/i.test(leadTimeMatch[0])) {
+      days *= 7;
+    }
+    if (days > 0 && days <= 180) {
+      const base = baseDate ? new Date(baseDate.getTime()) : new Date();
+      base.setDate(base.getDate() + days);
+      base.setHours(23, 59, 59, 999);
+      return base;
+    }
+  }
+
+  // 7. เดือนภาษาไทย เช่น "1-3 ก.ค. 69" หรือ "8 ก.ย."
   const monthAlt = THAI_MONTHS.flatMap(([names]) => names)
     .join('|')
     .replace(/\./g, '\\.');
@@ -214,17 +265,17 @@ function parseDateStr(str: any): Date | undefined {
 
     const found = THAI_MONTHS.find(([names]) => names.some(n => monthStr.includes(n)));
     if (found && d >= 1 && d <= 31) {
-      let y = new Date().getUTCFullYear();
+      let y = baseDate ? baseDate.getUTCFullYear() : new Date().getUTCFullYear();
       if (yStr) {
         const raw = parseInt(yStr, 10);
         y = raw < 100 ? twoDigitYearToGregorian(raw) : raw;
       }
-      return fixDate(createThaiDate(y, found[1], d));
+      return createThaiDate(y, found[1], d);
     }
   }
 
   const fallback = new Date(s);
-  if (!isNaN(fallback.getTime())) return fixDate(fallback);
+  if (!isNaN(fallback.getTime())) return fallback;
 
   return undefined;
 }
@@ -237,7 +288,9 @@ function dateFromDocNumber(docNo: string, prefix: 'PR' | 'PO'): Date | undefined
   const mm = parseInt(m[2], 10);
   const dd = parseInt(m[3], 10);
   if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return undefined;
-  return createThaiDate(twoDigitYearToGregorian(yy), mm - 1, dd);
+  const d = createThaiDate(twoDigitYearToGregorian(yy), mm - 1, dd);
+  const fixed = fixDate(d);
+  return isSensibleYear(fixed) ? fixed : undefined;
 }
 
 /* ========== เขียนเฉพาะที่เปลี่ยน ==========
@@ -411,12 +464,18 @@ async function syncPO(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promi
 
   // fuzzy ตรงนี้สำคัญ: Apps Script normalize คอลัมน์ที่ "มีคำว่าจัดส่ง" ทุกคอลัมน์
   // header จริงอย่าง "วันที่จัดส่ง" / "กำหนดจัดส่ง" จะ exact-match ไม่ติด
-  const deliveryDate = parseDateStr(
+  let deliveryDate = parseDateStr(
     r.read(
       ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง', 'วันจัดส่ง'],
       ['จัดส่ง', 'ส่งมอบ', 'นัดส่ง']
-    )
+    ),
+    recordedAt
   );
+
+  // ตรวจสอบความถูกต้อง: วันส่งมอบสินค้าที่วางแผนไว้ ต้องไม่เกิดก่อนวันที่เปิดเอกสาร PO
+  if (deliveryDate && recordedAt && deliveryDate.getTime() < recordedAt.getTime() - 24 * 3600 * 1000) {
+    deliveryDate = undefined;
+  }
 
   const rawAccount = r.read(['Account Number', 'Account', 'เลขที่บัญชี', 'บัญชี']);
   const accountNumber = (rawAccount && (rawAccount.includes('🧾') || rawAccount.includes('ยอด:'))) ? null : rawAccount;
@@ -432,7 +491,9 @@ async function syncPO(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promi
     )
   );
 
-  const depositAmount = parseNumber(r.read(['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ']));
+  const rawDeposit = parseNumber(r.read(['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ']), rawTotal);
+  const rawRemaining = parseNumber(r.read(['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ', 'ส่วนที่เหลือ']), rawTotal);
+  const rawPayment1 = parseNumber(r.read(['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1', 'จ่ายงวดที่1']), rawTotal);
 
   // Fallback 1: ถ้าช่องยอดรวมไม่ได้กรอก แต่ในช่องเลขที่บัญชีมี '🧾ยอด: ...' หรือ 'ยอด: ...' ให้ดึงยอดมาใช้
   if ((rawTotal === undefined || rawTotal === null || rawTotal === 0) && rawAccount && rawAccount.includes('ยอด:')) {
@@ -448,9 +509,15 @@ async function syncPO(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promi
   }
 
   // Fallback 3: ถ้าช่องยอดรวมยังว่าง แต่มีกรอกยอดมัดจำไว้เดี่ยวๆ
-  if ((rawTotal === undefined || rawTotal === null || rawTotal === 0) && depositAmount && depositAmount > 0) {
-    rawTotal = Math.abs(depositAmount);
+  if ((rawTotal === undefined || rawTotal === null || rawTotal === 0) && rawDeposit && rawDeposit > 0) {
+    rawTotal = Math.abs(rawDeposit);
   }
+
+  const normalizedAmounts = normalizePOPaymentAmounts(
+    rawTotal || 0,
+    rawDeposit !== undefined ? rawDeposit : rawPayment1,
+    rawRemaining
+  );
 
   const rawCreditTerm = r.read(['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']);
   let resolvedJobName = jobName;
@@ -470,9 +537,9 @@ async function syncPO(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promi
     vendorName: r.read(['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์', 'บริษัทผู้ขาย']),
     accountNumber,
     totalAmount: rawTotal,
-    depositAmount,
-    remainingAmount: parseNumber(r.read(['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ', 'ส่วนที่เหลือ'])),
-    payment1: parseNumber(r.read(['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1', 'จ่ายงวดที่1'])),
+    depositAmount: normalizedAmounts.depositAmount > 0 ? normalizedAmounts.depositAmount : null,
+    remainingAmount: normalizedAmounts.remainingAmount > 0 ? normalizedAmounts.remainingAmount : null,
+    payment1: rawPayment1,
     creditTerm,
     jobName: resolvedJobName,
     itemList,
@@ -544,6 +611,7 @@ async function syncPO(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promi
       const created = await prisma.purchaseOrder.create({ data: { poNumber, ...data, ...receiveFields } });
       if (ctx?.poMap) ctx.poMap.set(poNumber, created);
       newDocs.push({ type: 'PO', number: poNumber });
+      syncSupplierPaymentsForPO(poNumber).catch(e => console.error('Error syncing AP on PO create:', e));
       return { ok: true, row: r.rowNumber, key: poNumber, action: 'created' };
     } catch (e: any) {
       if (e?.code !== 'P2002') throw e;
@@ -570,6 +638,7 @@ async function syncPO(payload: any, newDocs: NewDoc[], ctx?: SyncContext): Promi
 
   const updated = await prisma.purchaseOrder.update({ where: { id: existing.id }, data: changed });
   if (ctx?.poMap) ctx.poMap.set(poNumber, updated);
+  syncSupplierPaymentsForPO(poNumber).catch(e => console.error('Error syncing AP on PO update:', e));
   return { ok: true, row: r.rowNumber, key: poNumber, action: 'updated' };
 }
 
@@ -622,6 +691,7 @@ async function syncGR(payload: any): Promise<RowResult> {
     await prisma.goodsReceipt.create({
       data: { poNumber, sequenceNo: seqVal, ...fields },
     });
+    syncSupplierPaymentsForPO(poNumber).catch(e => console.error('Error syncing AP on GR create:', e));
     return { ok: true, row: r.rowNumber, key: `${poNumber}#${seqVal}`, action: 'created' };
   }
 
@@ -631,6 +701,7 @@ async function syncGR(payload: any): Promise<RowResult> {
   }
 
   await prisma.goodsReceipt.update({ where: { id: existing.id }, data: changed });
+  syncSupplierPaymentsForPO(poNumber).catch(e => console.error('Error syncing AP on GR update:', e));
   return { ok: true, row: r.rowNumber, key: `${poNumber}#${seqVal}`, action: 'updated' };
 }
 

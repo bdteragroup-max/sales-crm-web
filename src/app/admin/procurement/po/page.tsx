@@ -26,6 +26,31 @@ export default async function POListPage(props: { searchParams?: Promise<any> | 
     include: {
       purchaseRequest: {
         select: { projectName: true }
+      },
+      supplierPaymentTasks: {
+        select: {
+          id: true,
+          paymentType: true,
+          sequenceNo: true,
+          grossAmount: true,
+          whtPercent: true,
+          whtAmount: true,
+          netPayableAmount: true,
+          dueDate: true,
+          paymentMethod: true,
+          chequeNumber: true,
+          chequeDueDate: true,
+          isGoodsReceived: true,
+          status: true,
+          paidDate: true,
+          paidAmount: true,
+          paidFromBankCode: true,
+          bankReferenceNumber: true,
+          whtCertNumber: true,
+          note: true,
+          updatedAt: true,
+        },
+        orderBy: { sequenceNo: 'asc' }
       }
     },
     orderBy: [
@@ -40,6 +65,18 @@ export default async function POListPage(props: { searchParams?: Promise<any> | 
     depositAmount: po.depositAmount ? Number(po.depositAmount) : null,
     remainingAmount: po.remainingAmount ? Number(po.remainingAmount) : null,
     payment1: po.payment1 ? Number(po.payment1) : null,
+    supplierPaymentTasks: (po.supplierPaymentTasks || []).map(t => ({
+      ...t,
+      grossAmount: Number(t.grossAmount) || 0,
+      whtPercent: Number(t.whtPercent) || 0,
+      whtAmount: Number(t.whtAmount) || 0,
+      netPayableAmount: Number(t.netPayableAmount) || 0,
+      paidAmount: t.paidAmount ? Number(t.paidAmount) : null,
+      dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+      paidDate: t.paidDate ? t.paidDate.toISOString() : null,
+      chequeDueDate: t.chequeDueDate ? t.chequeDueDate.toISOString() : null,
+      updatedAt: t.updatedAt ? t.updatedAt.toISOString() : null,
+    }))
   }));
 
   return (

@@ -27,8 +27,8 @@ export function getCompanyWhereClause(user: UserContext): Prisma.CompanyWhereInp
 
   const roleStr = user.role.toLowerCase();
 
-  // 1. Admins and MDs see everything
-  const isAdminOrMD = roleStr.includes('admin') || roleStr.includes('md') || roleStr.includes('managing director');
+  // 1. Admins, MDs, and Executives see everything
+  const isAdminOrMD = roleStr.includes('admin') || roleStr.includes('md') || roleStr.includes('managing director') || roleStr === 'executive' || roleStr === 'ผู้บริหาร';
   if (isAdminOrMD) {
     return {};
   }

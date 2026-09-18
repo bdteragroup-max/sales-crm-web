@@ -305,6 +305,22 @@ export default function ServiceDashboardClient({
         <p className="text-md text-gray-500 mt-2">พิมพ์เมื่อ: {printDate}</p>
       </div>
 
+      {/* Executive Quick Return Banner */}
+      {currentUser?.role && ['executive', 'ผู้บริหาร', 'super_admin'].includes(String(currentUser.role).toLowerCase()) && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-3 px-4 flex items-center justify-between text-xs text-red-900 shadow-2xs font-ibm-thai mb-6">
+          <div className="flex items-center gap-2 font-bold">
+            <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+            <span>ท่านกำลังเปิดมุมมองช่างปฏิบัติการ (Operational Service View)</span>
+          </div>
+          <Link
+            href="/executive/service"
+            className="px-3 py-1.5 rounded-xl bg-red-600 text-white font-bold text-xs hover:bg-red-700 transition-colors shadow-2xs inline-flex items-center gap-1.5"
+          >
+            <span>⬅ สลับไป Executive Cockpit</span>
+          </Link>
+        </div>
+      )}
+
       {/* Header & Filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 print:hidden">
         <div>

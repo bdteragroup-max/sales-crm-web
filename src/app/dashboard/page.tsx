@@ -5,13 +5,18 @@ import { teraDb } from '@/app/lib/teraDb';
 import DashboardClientWrapper from '@/app/components/DashboardClientWrapper';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { isSuperUser } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Dashboard(props: {searchParams: Promise<{[key: string]: string | string[] | undefined;}>;}) {
   const user = await getUser();
   if (!user) redirect('/');
+
+  if (isReadOnlyExecutive(user.role)) {
+    redirect('/executive/kpi');
+  }
+
   const userRoleStr = (user.role || '').toLowerCase();
   const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(userRoleStr);
   const isMarketing = ['marketing', 'การตลาด'].some((r) => userRoleStr.includes(r));

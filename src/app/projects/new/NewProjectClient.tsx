@@ -6,10 +6,29 @@ import { ArrowLeft, Save, Plus, Trash2, Calendar, FileText, DollarSign, FolderOp
 import Link from 'next/link';
 import { createProject, addProjectMember, createTask } from '@/app/actions/projects';
 import SolarChecklist from '../components/SolarChecklist';
+import DynamicInstallmentsBuilder, { InstallmentItem, DepositConfig } from '../components/DynamicInstallmentsBuilder';
+import SearchableTeamSelect from '../components/SearchableTeamSelect';
 
 export default function NewProjectClient({ users, jobs, currentUserId, initialJobId, currentUserRole }: { users: any[], jobs: any[], currentUserId: string, initialJobId?: string, currentUserRole?: string }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Deposit state (Contract signing deposit - not counted as an installment)
+  const [deposit, setDeposit] = useState<DepositConfig>({
+    hasDeposit: false,
+    percent: '',
+    amount: '',
+    dueDate: '',
+    title: 'เงินมัดจำเมื่อเซ็นสัญญา',
+  });
+
+  // Progress installments state (งวดงานจริง 1..N)
+  const [installments, setInstallments] = useState<InstallmentItem[]>([
+    { id: 'inst-1', no: 1, title: 'ส่งมอบอุปกรณ์ / ดำเนินการขั้นที่ 1', amount: '', percent: '', dueDate: '' },
+    { id: 'inst-2', no: 2, title: 'ติดตั้งโครงสร้างและอุปกรณ์', amount: '', percent: '', dueDate: '' },
+    { id: 'inst-3', no: 3, title: 'ทดสอบระบบ (Commissioning)', amount: '', percent: '', dueDate: '' },
+    { id: 'inst-4', no: 4, title: 'ส่งมอบงานขั้นสุดท้าย', amount: '', percent: '', dueDate: '' },
+  ]);
   
   const initialJob = jobs.find((j: any) => j.id === initialJobId);
   const [formData, setFormData] = useState({
@@ -89,8 +108,6 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
   // Section 2: Team
   const [engineers, setEngineers] = useState<string[]>([]);
   const [admins, setAdmins] = useState<string[]>([]);
-  const [engineerSearch, setEngineerSearch] = useState('');
-  const [adminSearch, setAdminSearch] = useState('');
 
   // Section 3: Tasks
   const [tasks, setTasks] = useState<any[]>([]);
@@ -172,13 +189,40 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
         amountIncludingVat: formData.amountIncludingVat ? parseFloat(formData.amountIncludingVat) : undefined,
         budget: formData.budget ? parseFloat(formData.budget) : undefined,
 
-        installment1: formData.installment1 ? parseFloat(formData.installment1) : undefined,
-        installment2: formData.installment2 ? parseFloat(formData.installment2) : undefined,
-        installment3: formData.installment3 ? parseFloat(formData.installment3) : undefined,
-        installment4: formData.installment4 ? parseFloat(formData.installment4) : undefined,
-        firstPayment: formData.firstPayment ? parseFloat(formData.firstPayment) : undefined,
+        // Dynamic Installments & Payments
+        installmentsData: {
+          hasDeposit: deposit.hasDeposit,
+          deposit: deposit.hasDeposit && Number(deposit.amount) > 0 ? {
+            amount: parseFloat(deposit.amount),
+            percent: deposit.percent ? parseFloat(deposit.percent) : undefined,
+            dueDate: deposit.dueDate ? new Date(deposit.dueDate).toISOString() : undefined,
+            title: deposit.title || 'เงินมัดจำเมื่อเซ็นสัญญา',
+          } : null,
+          installments: installments
+            .map((inst, idx) => ({
+              no: idx + 1,
+              title: inst.title || `งวดที่ ${idx + 1}`,
+              amount: inst.amount ? parseFloat(inst.amount) : 0,
+              percent: inst.percent ? parseFloat(inst.percent) : undefined,
+              dueDate: inst.dueDate ? new Date(inst.dueDate).toISOString() : undefined,
+            }))
+            .filter(inst => inst.amount > 0),
+        },
+        installment1: installments[0]?.amount ? parseFloat(installments[0].amount) : undefined,
+        installment2: installments[1]?.amount ? parseFloat(installments[1].amount) : undefined,
+        installment3: installments[2]?.amount ? parseFloat(installments[2].amount) : undefined,
+        installment4: installments[3]?.amount ? parseFloat(installments[3].amount) : undefined,
+        installment5: installments[4]?.amount ? parseFloat(installments[4].amount) : undefined,
+        installment6: installments[5]?.amount ? parseFloat(installments[5].amount) : undefined,
+        installment7: installments[6]?.amount ? parseFloat(installments[6].amount) : undefined,
+        installment8: installments[7]?.amount ? parseFloat(installments[7].amount) : undefined,
+        installment9: installments[8]?.amount ? parseFloat(installments[8].amount) : undefined,
+        installment10: installments[9]?.amount ? parseFloat(installments[9].amount) : undefined,
+        installment11: installments[10]?.amount ? parseFloat(installments[10].amount) : undefined,
+        installment12: installments[11]?.amount ? parseFloat(installments[11].amount) : undefined,
+        firstPayment: deposit.hasDeposit && Number(deposit.amount) > 0 ? parseFloat(deposit.amount) : (formData.firstPayment ? parseFloat(formData.firstPayment) : undefined),
         secondPayment: formData.secondPayment ? parseFloat(formData.secondPayment) : undefined,
-        paymentDate: formData.paymentDate ? new Date(formData.paymentDate) : undefined,
+        paymentDate: deposit.hasDeposit && deposit.dueDate ? new Date(deposit.dueDate) : (formData.paymentDate ? new Date(formData.paymentDate) : undefined),
 
         // Docs
         documentNumber: formData.documentNumber || undefined,
@@ -458,25 +502,15 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
           </div>
 
           <div className="border-t border-gray-100 pt-6">
-            <h3 className="text-sm font-bold text-gray-800 mb-4">การแบ่งชำระ (Installments)</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700">งวดที่ 1</label>
-                <input type="number" step="0.01" name="installment1" value={formData.installment1} onChange={handleInputChange} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700">งวดที่ 2</label>
-                <input type="number" step="0.01" name="installment2" value={formData.installment2} onChange={handleInputChange} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700">งวดที่ 3</label>
-                <input type="number" step="0.01" name="installment3" value={formData.installment3} onChange={handleInputChange} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700">งวดที่ 4</label>
-                <input type="number" step="0.01" name="installment4" value={formData.installment4} onChange={handleInputChange} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
-              </div>
-            </div>
+            <h3 className="text-sm font-bold text-gray-800 mb-4">การแบ่งชำระเงินค่างวด (Payment Installments)</h3>
+            <DynamicInstallmentsBuilder
+              projectValue={formData.projectValue}
+              deposit={deposit}
+              onDepositChange={setDeposit}
+              installments={installments}
+              onInstallmentsChange={setInstallments}
+              disabled={isSubmitting}
+            />
           </div>
         </div>
 
@@ -522,107 +556,45 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
         </div>
 
         {/* Section 5: Team */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-          <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">5. ทีมงานเพิ่มเติม (Additional Team)</h2>
+        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-6">
+          <div className="flex items-center gap-3 border-b border-gray-100 pb-3.5">
+            <h2 className="text-base font-black text-gray-900 tracking-tight">5. ทีมงานโครงการ (Project Team)</h2>
+          </div>
           
-          <div className="space-y-6">
-            <div className="space-y-2 border-gray-100">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <label className="text-sm font-bold text-gray-900">วิศวกร (Engineers)</label>
-                  <span className="text-[10px] font-bold text-brand-red bg-brand-red/10 px-2 py-0.5 rounded-full">
-                    {engineers.length} Selected
-                  </span>
-                </div>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                  <input 
-                    type="text" 
-                    placeholder="ค้นหาวิศวกร (Search...)" 
-                    value={engineerSearch}
-                    onChange={e => setEngineerSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-200 rounded-full focus:ring-1 focus:ring-brand-red focus:border-brand-red outline-none bg-gray-50/50"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar p-1">
-                {users.filter(u => u.fullName.toLowerCase().includes(engineerSearch.toLowerCase())).map(u => {
-                  const isSelected = engineers.includes(u.id);
-                  return (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => {
-                        if (isSelected) setEngineers(engineers.filter(id => id !== u.id));
-                        else setEngineers([...engineers, u.id]);
-                      }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1.5 ${
-                        isSelected 
-                          ? 'bg-brand-red text-white border-brand-red shadow-sm' 
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {u.fullName}
-                      {isSelected && <Check size={12} />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SearchableTeamSelect
+              label="วิศวกรประจำโครงการ (Engineers)"
+              subtitle="ค้นหาและเลือกวิศวกรที่รับผิดชอบการดำเนินงานหน้างาน"
+              placeholder="คลิกเพื่อค้นหาและเลือกวิศวกร..."
+              searchPlaceholder="พิมพ์ชื่อวิศวกร หรือแผนก..."
+              users={users}
+              selectedIds={engineers}
+              onChange={setEngineers}
+              badgeTheme="red"
+              disabled={isSubmitting}
+            />
 
-            <div className="space-y-2 border-t border-gray-100 pt-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <label className="text-sm font-bold text-gray-900">แอดมิน (Admins)</label>
-                  <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
-                    {admins.length} Selected
-                  </span>
-                </div>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                  <input 
-                    type="text" 
-                    placeholder="ค้นหาแอดมิน (Search...)" 
-                    value={adminSearch}
-                    onChange={e => setAdminSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-200 rounded-full focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none bg-gray-50/50"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar p-1">
-                {users.filter(u => u.fullName.toLowerCase().includes(adminSearch.toLowerCase())).map(u => {
-                  const isSelected = admins.includes(u.id);
-                  return (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => {
-                        if (isSelected) setAdmins(admins.filter(id => id !== u.id));
-                        else setAdmins([...admins, u.id]);
-                      }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1.5 ${
-                        isSelected 
-                          ? 'bg-purple-500 text-white border-purple-500 shadow-sm' 
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {u.fullName}
-                      {isSelected && <Check size={12} />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <SearchableTeamSelect
+              label="ฝ่ายสนับสนุนและแอดมิน (Admins & Support)"
+              subtitle="ค้นหาและเลือกเจ้าหน้าที่ประสานงานและธุรการโครงการ"
+              placeholder="คลิกเพื่อค้นหาและเลือกแอดมิน..."
+              searchPlaceholder="พิมพ์ชื่อแอดมิน หรือแผนก..."
+              users={users}
+              selectedIds={admins}
+              onChange={setAdmins}
+              badgeTheme="dark"
+              disabled={isSubmitting}
+            />
 
-            <div className="space-y-1.5 border-t border-gray-100 pt-4">
-              <label className="text-sm font-bold text-gray-700">ช่างภายนอก (External Technicians)</label>
+            <div className="space-y-1.5 lg:col-span-2 pt-2 border-t border-gray-100">
+              <label className="text-xs font-bold text-gray-700">ช่างภายนอก (External Technicians)</label>
               <textarea 
                 rows={2} 
                 name="externalTechnicians"
                 value={formData.externalTechnicians} 
                 onChange={handleInputChange} 
-                placeholder="ระบุชื่อช่างภายนอก (Enter names of external technicians, separated by commas)"
-                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" 
+                placeholder="ระบุชื่อช่างภายนอก หรือผู้รับเหมาช่วง คั่นด้วยเครื่องหมายจุลภาค (,)"
+                className="w-full px-3.5 py-2.5 text-xs bg-gray-50/60 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none text-gray-900 font-medium transition-all" 
               />
             </div>
           </div>

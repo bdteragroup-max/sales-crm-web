@@ -5,6 +5,18 @@ import Link from 'next/link';
 import Swal from 'sweetalert2';
 import { cancelPurchaseOrder, restorePurchaseOrder, updatePurchaseOrder } from '@/app/actions/procurement';
 import SearchableProjectSelect, { ProjectOption } from '../components/SearchableProjectSelect';
+import {
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  ShieldAlert,
+  CalendarClock,
+  DollarSign,
+  CreditCard,
+  FileCheck2,
+  AlertCircle
+} from 'lucide-react';
+import { getPOPaymentStatus } from '@/app/lib/supplierPaymentUtils';
 
 function normalizeProjectName(rawName: string | undefined | null): string {
   if (!rawName) return '';
@@ -64,11 +76,46 @@ function parseSafeAmount(val: string): number | null {
   return isNaN(parsed) ? null : parsed;
 }
 
+function getAccountingAuditInfo(po: any) {
+  const isModified = Boolean(
+    (po.note && (po.note.includes('[ฝ่ายบัญชี') || po.note.includes('[การเงิน') || po.note.includes('[เลื่อนชำระ'))) ||
+    po.supplierPaymentTasks?.some((t: any) => t.note && (t.note.includes('[ฝ่ายบัญชี') || t.note.includes('[เลื่อนชำระ') || t.note.includes('[การเงิน')))
+  );
+
+  if (!isModified) return { isModified: false, latestLog: '', editor: '' };
+
+  let latestLog = '';
+  if (po.note) {
+    const lines = po.note.split('\n').filter((l: string) => l.includes('[ฝ่ายบัญชี') || l.includes('[การเงิน') || l.includes('[เลื่อนชำระ'));
+    if (lines.length > 0) latestLog = lines[lines.length - 1];
+  }
+  if (!latestLog && po.supplierPaymentTasks) {
+    for (const t of po.supplierPaymentTasks) {
+      if (t.note) {
+        const lines = t.note.split('\n').filter((l: string) => l.includes('[ฝ่ายบัญชี') || l.includes('[การเงิน') || l.includes('[เลื่อนชำระ'));
+        if (lines.length > 0) {
+          latestLog = lines[lines.length - 1];
+          break;
+        }
+      }
+    }
+  }
+
+  let editor = '';
+  const match = latestLog.match(/โดย\s+([^:\]]+)/);
+  if (match) {
+    editor = match[1].trim();
+  }
+
+  return { isModified: true, latestLog, editor };
+}
+
 export default function POListClient({ initialPos, initialSearch = '' }: { initialPos: any[], initialSearch?: string }) {
   const router = useRouter();
   const [posList, setPosList] = useState(initialPos);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, PENDING, RECEIVED, CANCELLED
+  const [paymentFilter, setPaymentFilter] = useState('ALL'); // ALL, PAID, DEFERRED, PENDING, AWAITING_GR, OVERDUE
   const [companyFilter, setCompanyFilter] = useState('all'); // all, TE, TP, TG
   const [projectFilter, setProjectFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
@@ -156,6 +203,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
   const resetAllFilters = () => {
     setSearchTerm('');
     setStatusFilter('ALL');
+    setPaymentFilter('ALL');
     setCompanyFilter('all');
     setProjectFilter('');
     setDateFilter('');
@@ -167,6 +215,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
   const isAnyFilterActive = Boolean(
     searchTerm.trim() ||
     statusFilter !== 'ALL' ||
+    paymentFilter !== 'ALL' ||
     companyFilter !== 'all' ||
     projectFilter !== '' ||
     dateFilter !== '' ||
@@ -193,6 +242,16 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
       if (statusFilter === 'RECEIVED' && po.receiveStatus !== 'Received') return false;
       if (statusFilter === 'PENDING' && (po.receiveStatus === 'Received' || po.receiveStatus === 'Cancelled')) return false;
       if (statusFilter === 'CANCELLED' && po.receiveStatus !== 'Cancelled') return false;
+
+      // 2.1 Payment Status filter
+      if (paymentFilter !== 'ALL') {
+        const payStatus = getPOPaymentStatus(po);
+        if (paymentFilter === 'PAID' && payStatus.type !== 'PAID') return false;
+        if (paymentFilter === 'DEFERRED' && payStatus.type !== 'DEFERRED') return false;
+        if (paymentFilter === 'PENDING' && payStatus.type !== 'PENDING') return false;
+        if (paymentFilter === 'AWAITING_GR' && payStatus.type !== 'AWAITING_GR') return false;
+        if (paymentFilter === 'OVERDUE' && payStatus.type !== 'OVERDUE') return false;
+      }
 
       // 3. Company filter
       if (companyFilter !== 'all') {
@@ -229,7 +288,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
 
       return true;
     });
-  }, [posList, searchTerm, statusFilter, companyFilter, projectFilter, dateFilter, monthFilter, yearFilter]);
+  }, [posList, searchTerm, statusFilter, paymentFilter, companyFilter, projectFilter, dateFilter, monthFilter, yearFilter]);
 
   // Sorted List
   const sortedPos = useMemo(() => {
@@ -687,7 +746,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
           </div>
 
           {/* Secondary Filter Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 pt-1">
             {/* Company Selector */}
             <div>
               <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">บริษัท</label>
@@ -700,6 +759,23 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                 <option value="TE">TE (Electric)</option>
                 <option value="TP">TP (Power)</option>
                 <option value="TG">TG (Group)</option>
+              </select>
+            </div>
+
+            {/* Payment Status Selector */}
+            <div>
+              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">สถานะชำระเงิน (AP)</label>
+              <select
+                value={paymentFilter}
+                onChange={(e) => { setPaymentFilter(e.target.value); setCurrentPage(1); }}
+                className="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-gray-50/50 text-gray-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+              >
+                <option value="ALL">ทุกสถานะชำระ</option>
+                <option value="PAID">🟢 จ่ายเงินแล้ว</option>
+                <option value="DEFERRED">🟡 เลื่อนนัดชำระ</option>
+                <option value="PENDING">🔵 รอจ่ายเงิน</option>
+                <option value="AWAITING_GR">🟠 รอตรวจรับของ</option>
+                <option value="OVERDUE">🔴 เกินกำหนดชำระ</option>
               </select>
             </div>
 
@@ -887,14 +963,15 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                     )}
                   </div>
                 </th>
-                <th className="py-3.5 px-3 text-center">สถานะ</th>
+                <th className="py-3.5 px-3 text-center">สถานะรับของ</th>
+                <th className="py-3.5 px-3 text-center">สถานะชำระเงิน (AP)</th>
                 <th className="py-3.5 pr-4 pl-2 text-right">การจัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedPos.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-gray-400">
+                  <td colSpan={11} className="py-12 text-center text-gray-400">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                       <span>ไม่พบข้อมูลรายการสั่งซื้อที่ตรงกับเงื่อนไข</span>
@@ -904,6 +981,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
               ) : (
                 paginatedPos.map((po) => {
                   const isExpanded = Boolean(expandedRows[po.id]);
+                  const accountingInfo = getAccountingAuditInfo(po);
                   const d = po.recordedAt ? new Date(po.recordedAt) : (po.createdAt ? new Date(po.createdAt) : null);
                   const dateStr = d ? d.toLocaleDateString('th-TH') : '-';
                   const comp = po.poNumber?.toUpperCase().includes('-E') ? 'TE' : (po.poNumber?.toUpperCase().includes('-P') ? 'TP' : (po.poNumber?.toUpperCase().includes('-G') ? 'TG' : '-'));
@@ -927,7 +1005,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                           </button>
                         </td>
 
-                        {/* PO Number */}
+                        {/* PO Number & Accounting Modification Badge */}
                         <td className="py-3 px-3 font-semibold">
                           <div className="flex items-baseline gap-1.5">
                             <span className="text-blue-700 font-mono font-bold tracking-tight">
@@ -939,6 +1017,17 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                               </span>
                             )}
                           </div>
+                          {accountingInfo.isModified && (
+                            <div className="mt-1">
+                              <span
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 text-[10px] font-bold border border-amber-200 shadow-2xs cursor-help"
+                                title={accountingInfo.latestLog || "มีข้อมูลที่ฝ่ายบัญชีปรับปรุงแก้ไข"}
+                              >
+                                <FileCheck2 className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+                                <span>แก้ไขโดยฝ่ายบัญชี</span>
+                              </span>
+                            </div>
+                          )}
                         </td>
 
                         {/* Document Date */}
@@ -980,7 +1069,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                             : '-'}
                         </td>
 
-                        {/* Status Badge */}
+                        {/* Warehouse Receive Status Badge */}
                         <td className="py-3 px-3 text-center whitespace-nowrap">
                           {po.receiveStatus === 'Cancelled' ? (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
@@ -995,6 +1084,26 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                               รอรับสินค้า
                             </span>
                           )}
+                        </td>
+
+                        {/* AP Financial / Payment Status Badge */}
+                        <td className="py-3 px-3 text-center whitespace-nowrap">
+                          {(() => {
+                            const payStatus = getPOPaymentStatus(po);
+                            return (
+                              <div className="inline-flex flex-col items-center">
+                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${payStatus.badgeClass}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${payStatus.dotClass}`}></span>
+                                  <span>{payStatus.label}</span>
+                                </span>
+                                {payStatus.subLabel && (
+                                  <span className="text-[10px] font-medium text-gray-500 mt-0.5 font-mono">
+                                    {payStatus.subLabel}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </td>
 
                         {/* Action Buttons */}
@@ -1035,7 +1144,23 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                       {/* Expandable Detail Row */}
                       {isExpanded && (
                         <tr className="bg-blue-50/30 border-b border-blue-100">
-                          <td colSpan={10} className="px-6 py-4">
+                          <td colSpan={11} className="px-6 py-4">
+                            {/* Accounting Revision Alert Banner */}
+                            {accountingInfo.isModified && (
+                              <div className="mb-3.5 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50/80 border border-amber-200 rounded-xl flex items-start gap-3 shadow-2xs">
+                                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                                <div className="flex-1 space-y-1">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-bold text-amber-950 text-xs">รายการนี้ได้รับการปรับปรุงข้อมูลโดยฝ่ายบัญชีและการเงิน (Accounting Modified)</span>
+                                    <span className="text-[10px] bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded-md">ซิงค์จากระบบการเงิน AP</span>
+                                  </div>
+                                  <p className="text-[11px] text-amber-900 whitespace-pre-wrap font-mono leading-relaxed bg-white/80 p-2.5 rounded-lg border border-amber-200/60">
+                                    {accountingInfo.latestLog || po.note}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
                               <div>
                                 <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-1.5">
@@ -1074,6 +1199,135 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                                   {po.note || 'ไม่มีหมายเหตุ'}
                                 </p>
                               </div>
+
+                              {/* Card 4: Accounts Payable & Payment Details */}
+                              <div className="md:col-span-3 border-t border-blue-100/80 pt-3 mt-1">
+                                <div className="flex items-center justify-between mb-2.5">
+                                  <h4 className="font-bold text-gray-800 flex items-center gap-1.5">
+                                    <CreditCard className="w-4 h-4 text-emerald-600" />
+                                    <span>สถานะการเงินและการจ่ายเงินให้คู่ค้า (Accounts Payable)</span>
+                                  </h4>
+                                  {(() => {
+                                    const payStatus = getPOPaymentStatus(po);
+                                    return (
+                                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${payStatus.badgeClass}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${payStatus.dotClass}`}></span>
+                                        <span>{payStatus.label}</span>
+                                        {payStatus.subLabel && <span className="font-normal opacity-80">({payStatus.subLabel})</span>}
+                                      </span>
+                                    );
+                                  })()}
+                                </div>
+
+                                {(!po.supplierPaymentTasks || po.supplierPaymentTasks.length === 0) ? (
+                                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-gray-500 text-center">
+                                    ยังไม่มีข้อมูลการตั้งเบิกหรือรอบการจ่ายเงินในระบบบัญชี
+                                  </div>
+                                ) : (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {po.supplierPaymentTasks.map((task: any, idx: number) => {
+                                      const isDeposit = task.paymentType === 'DEPOSIT';
+                                      const isPaid = task.status === 'PAID_VERIFIED';
+                                      const isAwaitingGr = task.status === 'AWAITING_GR';
+                                      const isDeferred = task.note && task.note.includes('[เลื่อนชำระ');
+                                      const isOverdue = !isPaid && task.status !== 'CANCELLED' && task.dueDate && new Date(task.dueDate) < new Date();
+
+                                      return (
+                                        <div
+                                          key={task.id || idx}
+                                          className={`p-3 rounded-xl border transition-all ${
+                                            isPaid
+                                              ? 'bg-emerald-50/40 border-emerald-200'
+                                              : isDeferred
+                                              ? 'bg-amber-50/40 border-amber-200'
+                                              : isOverdue
+                                              ? 'bg-rose-50/40 border-rose-200'
+                                              : isAwaitingGr
+                                              ? 'bg-orange-50/40 border-orange-200'
+                                              : 'bg-blue-50/30 border-blue-200'
+                                          }`}
+                                        >
+                                          <div className="flex items-center justify-between border-b border-gray-200/60 pb-1.5 mb-2">
+                                            <span className="font-bold text-gray-800 text-xs">
+                                              {isDeposit ? 'งวดที่ 1: เงินมัดจำล่วงหน้า (Deposit)' : 'งวดที่ 2: ยอดจ่ายคงเหลือ (Final Balance)'}
+                                            </span>
+                                            <span
+                                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                                                isPaid
+                                                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                                  : isDeferred
+                                                  ? 'bg-amber-100 text-amber-800 border-amber-300'
+                                                  : isOverdue
+                                                  ? 'bg-rose-100 text-rose-800 border-rose-300'
+                                                  : isAwaitingGr
+                                                  ? 'bg-orange-100 text-orange-800 border-orange-300'
+                                                  : 'bg-blue-100 text-blue-800 border-blue-300'
+                                              }`}
+                                            >
+                                              {isPaid ? 'จ่ายเงินแล้ว' : isDeferred ? 'เลื่อนนัดชำระ' : isOverdue ? 'เกินกำหนด' : isAwaitingGr ? 'รอตรวจรับของ (Hold)' : 'รอจ่ายเงิน'}
+                                            </span>
+                                          </div>
+
+                                          <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px]">
+                                            <div>
+                                              <span className="text-gray-500">ยอดตามเอกสาร:</span>{' '}
+                                              <span className="font-mono font-bold text-gray-900">
+                                                ฿{Number(task.grossAmount || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                                              </span>
+                                            </div>
+                                            <div>
+                                              <span className="text-gray-500">หัก ณ ที่จ่าย ({Number(task.whtPercent || 0)}%):</span>{' '}
+                                              <span className="font-mono text-gray-700">
+                                                ฿{Number(task.whtAmount || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                                              </span>
+                                            </div>
+                                            <div>
+                                              <span className="text-gray-500 font-semibold">ยอดจ่ายสุทธิ:</span>{' '}
+                                              <span className="font-mono font-bold text-blue-700">
+                                                ฿{Number(task.netPayableAmount || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                                              </span>
+                                            </div>
+                                            <div>
+                                              <span className="text-gray-500">วันครบกำหนด:</span>{' '}
+                                              <span className="font-mono font-semibold text-gray-800">
+                                                {task.dueDate ? new Date(task.dueDate).toLocaleDateString('th-TH') : '-'}
+                                              </span>
+                                            </div>
+                                          </div>
+
+                                          {/* Paid Details */}
+                                          {isPaid && (
+                                            <div className="mt-2 pt-2 border-t border-emerald-200/60 text-[11px] bg-emerald-100/50 p-2 rounded-lg text-emerald-900 space-y-0.5 font-mono">
+                                              <div className="font-bold flex items-center gap-1 text-emerald-800">
+                                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                                <span>จ่ายเงินเรียบร้อยเมื่อ: {task.paidDate ? new Date(task.paidDate).toLocaleDateString('th-TH') : '-'}</span>
+                                              </div>
+                                              <div>ยอดโอน: ฿{Number(task.paidAmount || task.netPayableAmount).toLocaleString('th-TH', { minimumFractionDigits: 2 })} ผ่าน {task.paidFromBankCode || 'ธนาคาร'}</div>
+                                              {task.bankReferenceNumber && <div>เลขอ้างอิงสลิป: {task.bankReferenceNumber}</div>}
+                                              {task.whtCertNumber && <div>หนังสือรับรอง 50 ทวิ: {task.whtCertNumber}</div>}
+                                            </div>
+                                          )}
+
+                                          {/* Cheque Details if Cheque PDC */}
+                                          {!isPaid && task.paymentMethod === 'CHEQUE_PDC' && (
+                                            <div className="mt-2 pt-2 border-t border-blue-200/60 text-[11px] bg-blue-100/40 p-2 rounded-lg text-blue-900">
+                                              <span className="font-bold">ชำระด้วยเช็ค PDC:</span> เลขที่ {task.chequeNumber || '-'} | กำหนดหน้าเช็ค {task.chequeDueDate ? new Date(task.chequeDueDate).toLocaleDateString('th-TH') : '-'}
+                                            </div>
+                                          )}
+
+                                          {/* Deferral or Task Notes */}
+                                          {task.note && (
+                                            <div className="mt-2 pt-1.5 border-t border-gray-200/60 text-[10px] text-gray-600 font-mono whitespace-pre-line leading-relaxed">
+                                              <span className="font-semibold text-gray-500 block">บันทึกจากฝ่ายการเงิน:</span>
+                                              {task.note}
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </td>
                         </tr>
@@ -1093,6 +1347,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
           ) : (
             paginatedPos.map(po => {
               const isExpanded = Boolean(expandedRows[po.id]);
+              const accountingInfo = getAccountingAuditInfo(po);
               const d = po.recordedAt ? new Date(po.recordedAt) : (po.createdAt ? new Date(po.createdAt) : null);
               const dateStr = d ? d.toLocaleDateString('th-TH') : '-';
               const comp = po.poNumber?.toUpperCase().includes('-E') ? 'TE' : (po.poNumber?.toUpperCase().includes('-P') ? 'TP' : (po.poNumber?.toUpperCase().includes('-G') ? 'TG' : '-'));
@@ -1110,15 +1365,37 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                           PR: {po.prNumber}
                         </span>
                       )}
+                      {accountingInfo.isModified && (
+                        <div className="mt-1">
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 text-[10px] font-bold border border-amber-200 shadow-2xs"
+                            title={accountingInfo.latestLog || "มีข้อมูลที่ฝ่ายบัญชีปรับปรุงแก้ไข"}
+                          >
+                            <FileCheck2 className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+                            <span>แก้ไขโดยฝ่ายบัญชี</span>
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${po.receiveStatus === 'Cancelled'
-                      ? 'bg-gray-100 text-gray-600'
-                      : po.receiveStatus === 'Received'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-amber-50 text-amber-700 border border-amber-200'
-                      }`}>
-                      {po.receiveStatus === 'Cancelled' ? 'ยกเลิกแล้ว' : (po.receiveStatus === 'Received' ? 'รับแล้ว' : 'รอรับสินค้า')}
-                    </span>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${po.receiveStatus === 'Cancelled'
+                        ? 'bg-gray-100 text-gray-600'
+                        : po.receiveStatus === 'Received'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                        }`}>
+                        {po.receiveStatus === 'Cancelled' ? 'ยกเลิกแล้ว' : (po.receiveStatus === 'Received' ? 'รับแล้ว' : 'รอรับสินค้า')}
+                      </span>
+                      {(() => {
+                        const payStatus = getPOPaymentStatus(po);
+                        return (
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${payStatus.badgeClass}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${payStatus.dotClass}`}></span>
+                            <span>{payStatus.label}</span>
+                          </span>
+                        );
+                      })()}
+                    </div>
                   </div>
 
                   <div className="text-xs text-gray-700 space-y-1">
@@ -1167,7 +1444,21 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                   </div>
 
                   {isExpanded && (
-                    <div className="p-3 bg-gray-50 rounded-xl text-xs space-y-1.5 text-gray-600 mt-2 border border-gray-100">
+                    <div className="p-3 bg-gray-50 rounded-xl text-xs space-y-2 text-gray-600 mt-2 border border-gray-100">
+                      {accountingInfo.isModified && (
+                        <div className="p-2.5 bg-amber-50/80 border border-amber-200 rounded-lg text-amber-900 space-y-1">
+                          <div className="flex items-center justify-between font-bold text-[11px] text-amber-950">
+                            <span className="flex items-center gap-1.5">
+                              <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                              <span>แก้ไขโดยฝ่ายบัญชีและการเงิน</span>
+                            </span>
+                            <span className="text-[9px] bg-amber-200 text-amber-900 px-1.5 py-0.2 rounded font-semibold">AP Synced</span>
+                          </div>
+                          <p className="text-[10px] whitespace-pre-wrap font-mono bg-white/90 p-2 rounded border border-amber-200/60 leading-relaxed">
+                            {accountingInfo.latestLog || po.note}
+                          </p>
+                        </div>
+                      )}
                       <div><span className="font-semibold text-gray-700">รายการ:</span> {po.itemList || '-'}</div>
                       <div><span className="font-semibold text-gray-700">เครดิต:</span> {po.creditTerm || '-'}</div>
                       <div><span className="font-semibold text-gray-700">วันส่งมอบ:</span> {po.deliveryDate ? new Date(po.deliveryDate).toLocaleDateString('th-TH') : '-'}</div>
@@ -1251,6 +1542,44 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
             </div>
 
             <form onSubmit={handleSaveEdit} className="p-6 space-y-5">
+              {/* Financial Status Alert Banner */}
+              {(() => {
+                const payStatus = getPOPaymentStatus(editingPO);
+                if (payStatus.type === 'PAID') {
+                  return (
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-2.5 text-xs text-emerald-900">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <span className="font-bold">ฝ่ายการเงินจ่ายเงินเรียบร้อยแล้ว:</span>{' '}
+                        {payStatus.subLabel || 'ชำระครบถ้วนแล้ว'}
+                      </div>
+                    </div>
+                  );
+                }
+                if (payStatus.type === 'DEFERRED') {
+                  return (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-2.5 text-xs text-amber-900">
+                      <CalendarClock className="w-4 h-4 text-amber-600 shrink-0" />
+                      <div>
+                        <span className="font-bold">ฝ่ายการเงินมีการเลื่อนนัดชำระ:</span>{' '}
+                        {payStatus.subLabel || 'โปรดตรวจสอบประวัติในรายละเอียด'}
+                      </div>
+                    </div>
+                  );
+                }
+                if (payStatus.type === 'PENDING') {
+                  return (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-2.5 text-xs text-blue-900">
+                      <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+                      <div>
+                        <span className="font-bold">สถานะการเงิน:</span>{' '}
+                        {payStatus.label} {payStatus.subLabel ? `(${payStatus.subLabel})` : ''}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">

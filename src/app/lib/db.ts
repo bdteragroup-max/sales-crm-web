@@ -29,15 +29,19 @@ const prismaClientSingleton = () => {
   }
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 20, // Expanded from 5 to 20 to prevent pool queue starvation with concurrent queries
-    idleTimeoutMillis: 30000, // Keep connections warm for 30s to reduce handshake latency
-    connectionTimeoutMillis: 30000, // 30s connection timeout for burst resilience
+    max: 12, // Balanced for Supabase pooler (max 20) to prevent starvation across dev/worker instances
+    idleTimeoutMillis: 5000, // Release idle clients after 5s before Supabase pgBouncer forcibly drops them
+    connectionTimeoutMillis: 15000, // 15s connection timeout
     keepAlive: true,
-    keepAliveInitialDelayMillis: 10000,
+    keepAliveInitialDelayMillis: 5000,
   })
 
   // Prevent unhandled errors on idle clients from terminating the connection or app
   pool.on('error', (err) => {
+    // Supabase pgBouncer terminates idle connections periodically, which is expected
+    if (err.message.includes('Connection terminated') || err.message.includes('timeout') || err.message.includes('closed')) {
+      return;
+    }
     console.warn('Unexpected error on idle client (primary db pool):', err.message)
   })
 
@@ -50,12 +54,12 @@ const prismaClientSingleton = () => {
 }
 
 declare global {
-  var prisma_instance_v28: undefined | ReturnType<typeof prismaClientSingleton>
+  var prisma_instance_v29: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-const prisma = globalThis.prisma_instance_v28 ?? prismaClientSingleton()
+const prisma = globalThis.prisma_instance_v29 ?? prismaClientSingleton()
 
 export default prisma
 
-globalThis.prisma_instance_v28 = prisma
+globalThis.prisma_instance_v29 = prisma
 

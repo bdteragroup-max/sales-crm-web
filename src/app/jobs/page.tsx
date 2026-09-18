@@ -138,7 +138,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   }); 
 
   return (
-    <div className="flex h-screen bg-slate-50 text-gray-900 font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 text-gray-900 font-ibm-thai overflow-hidden">
       <Sidebar 
         activeRoute="/jobs" 
         userFullName={user.fullName} 
@@ -149,6 +149,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
         <JobsClientPage 
           jobs={JSON.parse(JSON.stringify(jobs))} 
           isManager={isManager} 
+          isExecutive={isExecutive || isSuperAdmin}
           currentUser={user.fullName ?? ""}
           userDept={`${resolvedDept} ${user.role}`} 
           userRole={user.role}

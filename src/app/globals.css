@@ -1,10 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --background: #ffffff;
-  --foreground: #1a1a1a; /* Dark gray */
+  --foreground: #1a1a1a;
+  /* Dark gray */
   --brand-red: #ff2301;
 }
 
@@ -24,18 +27,25 @@ body {
   scroll-behavior: smooth;
 }
 
+.font-ibm-thai {
+  font-family: 'IBM Plex Sans Thai', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
 /* Hide number input spinners globally */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 input[type="number"] {
-  -moz-appearance: textfield; /* Firefox */
+  -moz-appearance: textfield;
+  /* Firefox */
   appearance: textfield;
 }
 
-.number, .data {
+.number,
+.data {
   font-family: var(--font-prompt), 'Prompt', sans-serif;
   font-variant-numeric: tabular-nums;
 }
@@ -67,8 +77,15 @@ input[type="number"] {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -76,16 +93,26 @@ input[type="number"] {
 }
 
 @media print {
-  @page { size: A4 landscape; margin: 10mm; }
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     background-color: white !important;
   }
-  aside, .sidebar-container {
+
+  aside,
+  .sidebar-container {
     display: none !important;
   }
-  .flex-1, .overflow-y-auto, .overflow-hidden, .custom-scrollbar {
+
+  .flex-1,
+  .overflow-y-auto,
+  .overflow-hidden,
+  .custom-scrollbar {
     overflow: visible !important;
     height: auto !important;
   }

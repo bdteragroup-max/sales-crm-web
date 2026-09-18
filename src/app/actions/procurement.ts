@@ -3,6 +3,7 @@
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
+import { syncSupplierPaymentsForPO } from "./supplierPayment";
 
 export async function createPurchaseRequest(data: {
   prNumber: string;
@@ -113,10 +114,14 @@ export async function cancelPurchaseOrder(poNumber: string, reason?: string) {
       }
     });
 
+    // Sync AP supplier payment tasks upon cancellation
+    await syncSupplierPaymentsForPO(poNumber).catch(e => console.error("Error syncing AP on cancel:", e));
+
     revalidatePath("/admin/procurement/po");
     revalidatePath("/admin/procurement/dashboard");
     revalidatePath("/store/receive");
     revalidatePath("/store/dashboard");
+    revalidatePath("/accounting/payables");
 
     return { success: true, data: updated };
   } catch (error: any) {
@@ -156,10 +161,14 @@ export async function restorePurchaseOrder(poNumber: string) {
       }
     });
 
+    // Sync AP supplier payment tasks upon restoration
+    await syncSupplierPaymentsForPO(poNumber).catch(e => console.error("Error syncing AP on restore:", e));
+
     revalidatePath("/admin/procurement/po");
     revalidatePath("/admin/procurement/dashboard");
     revalidatePath("/store/receive");
     revalidatePath("/store/dashboard");
+    revalidatePath("/accounting/payables");
 
     return { success: true, data: updated };
   } catch (error: any) {
@@ -261,11 +270,15 @@ export async function updatePurchaseOrder(
       }
     });
 
+    // Sync AP supplier payment tasks upon update
+    await syncSupplierPaymentsForPO(cleanNewPoNumber).catch(e => console.error("Error syncing AP on update:", e));
+
     revalidatePath("/admin/procurement/po");
     revalidatePath("/admin/procurement/dashboard");
     revalidatePath("/admin/procurement/pr");
     revalidatePath("/store/receive");
     revalidatePath("/store/dashboard");
+    revalidatePath("/accounting/payables");
 
     return { 
       success: true, 

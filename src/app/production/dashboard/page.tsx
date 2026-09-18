@@ -4,6 +4,7 @@ import prisma from '@/app/lib/db';
 import Sidebar from '@/app/components/Sidebar';
 import { redirect } from 'next/navigation';
 import ProductionDashboardClient from './ProductionDashboardClient';
+import { isReadOnlyExecutive } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,8 @@ export default async function ProductionDashboardPage() {
   if (!user) {
     redirect('/login');
   }
+
+  const isExecutive = isReadOnlyExecutive(user.role);
 
   // Fetch all cabinet orders with their linked PRs and POs
   const orders = await prisma.order.findMany({
@@ -76,16 +79,14 @@ export default async function ProductionDashboardPage() {
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/production/dashboard" userFullName={user.fullName} userId={user.id} userRole={user.role} />
       
-      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
-        <div className="max-w-7xl mx-auto w-full">
-          <ProductionDashboardClient 
-            orders={serializedOrders} 
-            prs={serializedPrs} 
-            pos={serializedPos} 
-            cabinetJobs={serializedCabinetJobs}
-          />
-        </div>
-      </main>
+      <ProductionDashboardClient 
+        orders={serializedOrders} 
+        prs={serializedPrs} 
+        pos={serializedPos} 
+        cabinetJobs={serializedCabinetJobs}
+        isExecutive={isExecutive}
+        userRole={user.role}
+      />
     </div>
   );
 }

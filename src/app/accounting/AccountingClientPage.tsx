@@ -30,19 +30,38 @@ import {
   CreditCard,
   Layers,
   ArrowDownRight,
-  AlertCircle
+  AlertCircle,
+  Package,
+  Plus,
+  Pencil,
+  Trash2
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
-import { updatePaymentTaskStatus, recordPaymentDeposit, updatePaymentTaskCreditType } from "@/app/actions/accounting";
+import {
+  updatePaymentTaskStatus,
+  recordPaymentDeposit,
+  updatePaymentTaskCreditType,
+  savePaymentScheduleItem,
+  deletePaymentScheduleItem
+} from "@/app/actions/accounting";
 
 function formatDate(d: string | Date | null | undefined) {
   if (!d) return '-';
   const date = new Date(d);
   if (isNaN(date.getTime())) return '-';
-  let year = date.getFullYear();
-  if (year < 2500) year += 543;
-  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${year}`;
+  try {
+    return new Intl.DateTimeFormat('th-TH', {
+      timeZone: 'Asia/Bangkok',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  } catch {
+    let year = date.getFullYear();
+    if (year < 2500) year += 543;
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${year}`;
+  }
 }
 
 function formatCurrency(amount: number | null | undefined) {
@@ -69,6 +88,7 @@ function JobDetailModal({
   onConfirmPayment,
   onRecordDeposit,
   onUpdateCreditType,
+  onTasksUpdated,
   isPending
 }: {
   jobId: string,
@@ -76,6 +96,7 @@ function JobDetailModal({
   onConfirmPayment: (id: string, status: string, note: string, invoiceNumber?: string, invoiceDate?: string) => void,
   onRecordDeposit: (id: string, amount: number, note: string) => void,
   onUpdateCreditType: (id: string, creditType: string) => void,
+  onTasksUpdated?: (jobId: string, tasks: any[]) => void,
   isPending: boolean
 }) {
   const [data, setData] = useState<any>(null);
@@ -87,6 +108,147 @@ function JobDetailModal({
   const [paymentNote, setPaymentNote] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState('');
+
+  // Add / Edit Payment Schedule Item State
+  const [scheduleModal, setScheduleModal] = useState<{
+    isOpen: boolean;
+    item: any | null; // null for add, object for edit
+  }>({ isOpen: false, item: null });
+
+  const [scheduleType, setScheduleType] = useState<'DEPOSIT' | 'PROGRESS'>('PROGRESS');
+  const [scheduleNo, setScheduleNo] = useState<number>(1);
+  const [scheduleAmount, setScheduleAmount] = useState<string>('');
+  const [scheduleDueDate, setScheduleDueDate] = useState<string>('');
+  const [scheduleNote, setScheduleNote] = useState<string>('');
+  const [scheduleCreditType, setScheduleCreditType] = useState<string>('');
+  const [isSavingSchedule, setIsSavingSchedule] = useState(false);
+
+  const openAddScheduleModal = () => {
+    const existingProgress = (data?.paymentTasks || []).filter((t: any) => t.installmentNo > 0);
+    const nextNo = existingProgress.length + 1;
+    const hasDeposit = (data?.paymentTasks || []).some((t: any) => t.installmentNo === 0 || t.creditType === 'DEPOSIT');
+
+    setScheduleModal({ isOpen: true, item: null });
+    setScheduleType(hasDeposit ? 'PROGRESS' : 'PROGRESS');
+    setScheduleNo(nextNo);
+    setScheduleAmount('');
+    setScheduleDueDate('');
+    setScheduleNote(`งวดที่ ${nextNo}`);
+    setScheduleCreditType(data?.job?.creditTerms || '');
+  };
+
+  const openEditScheduleModal = (pt: any) => {
+    const isDeposit = pt.installmentNo === 0 || pt.creditType === 'DEPOSIT';
+    setScheduleModal({ isOpen: true, item: pt });
+    setScheduleType(isDeposit ? 'DEPOSIT' : 'PROGRESS');
+    setScheduleNo(pt.installmentNo || 1);
+    setScheduleAmount(pt.installmentAmount ? String(pt.installmentAmount) : '');
+    setScheduleDueDate(pt.dueDate ? new Date(pt.dueDate).toISOString().slice(0, 10) : '');
+    setScheduleNote(pt.note || '');
+    setScheduleCreditType(pt.creditType || '');
+  };
+
+  const handleSaveSchedule = async () => {
+    const numAmount = parseFloat(scheduleAmount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'กรุณาระบุจำนวนเงิน',
+        text: 'จำนวนเงินต้องมากกว่า 0 บาท',
+        confirmButtonColor: '#059669'
+      });
+      return;
+    }
+
+    try {
+      setIsSavingSchedule(true);
+      const res = await savePaymentScheduleItem({
+        id: scheduleModal.item?.id,
+        jobId,
+        type: scheduleType,
+        installmentNo: scheduleType === 'DEPOSIT' ? 0 : Number(scheduleNo),
+        installmentAmount: numAmount,
+        dueDate: scheduleDueDate ? new Date(scheduleDueDate) : null,
+        note: scheduleNote.trim() || (scheduleType === 'DEPOSIT' ? 'เงินมัดจำเมื่อเซ็นสัญญา' : `งวดที่ ${scheduleNo}`),
+        creditType: scheduleCreditType.trim() || undefined,
+      });
+
+      if (res.success && res.paymentTasks) {
+        setData((prev: any) => ({
+          ...prev,
+          paymentTasks: res.paymentTasks
+        }));
+        if (onTasksUpdated) {
+          onTasksUpdated(jobId, res.paymentTasks);
+        }
+        setScheduleModal({ isOpen: false, item: null });
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: scheduleModal.item ? 'แก้ไขงวดชำระเงินเรียบร้อยแล้ว' : 'เพิ่มงวดชำระเงินเรียบร้อยแล้ว',
+          text: 'ปรับปรุงฐานข้อมูลทุกระบบที่เกี่ยวข้องสำเร็จ',
+          showConfirmButton: false,
+          timer: 2500
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: err.message || 'ไม่สามารถบันทึกข้อมูลได้',
+        confirmButtonColor: '#059669'
+      });
+    } finally {
+      setIsSavingSchedule(false);
+    }
+  };
+
+  const handleDeleteSchedule = async (ptId: string) => {
+    const result = await Swal.fire({
+      title: 'ยืนยันการลบงวดชำระนี้?',
+      text: 'ระบบจะจัดลำดับงวดใหม่และปรับปรุงฐานข้อมูลของงาน/โปรเจกต์โดยอัตโนมัติ',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'ยืนยันลบ',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await deletePaymentScheduleItem(ptId);
+        if (res.success && res.paymentTasks) {
+          setData((prev: any) => ({
+            ...prev,
+            paymentTasks: res.paymentTasks
+          }));
+          if (onTasksUpdated) {
+            onTasksUpdated(jobId, res.paymentTasks);
+          }
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'ลบงวดชำระเรียบร้อยแล้ว',
+            text: 'ปรับปรุงลำดับงวดและฐานข้อมูลสำเร็จ',
+            showConfirmButton: false,
+            timer: 2500
+          });
+        }
+      } catch (err: any) {
+        console.error(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถลบได้',
+          text: err.message || 'เกิดข้อผิดพลาดในการลบงวดชำระ',
+          confirmButtonColor: '#e11d48'
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     fetch(`/api/accounting/job/${jobId}`, { cache: 'no-store' })
@@ -292,9 +454,18 @@ function JobDetailModal({
 
           {/* Payment Info */}
           <section>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-              <DollarSign size={14} className="text-emerald-600" /> รายการงวดชำระเงิน (Payment Tasks)
-            </h3>
+            <div className="flex items-center justify-between mb-2.5">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <DollarSign size={14} className="text-emerald-600" /> รายการงวดชำระเงิน (Payment Tasks)
+              </h3>
+              <button
+                type="button"
+                onClick={openAddScheduleModal}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold rounded-xl transition-all shadow-sm"
+              >
+                <Plus size={14} /> เพิ่มงวดชำระ
+              </button>
+            </div>
             <div className="space-y-3 text-xs">
               {(paymentTasks || []).map((pt: any) => {
                 const ptIsCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
@@ -304,10 +475,13 @@ function JobDetailModal({
                     <div>
                       <p className="text-slate-400 mb-0.5 font-medium">งวดการชำระ</p>
                       <p className="font-bold text-slate-900 text-sm">
-                        {pt.installmentNo
-                          ? `งวดที่ ${pt.installmentNo}/${pt.installmentTotal} - ${formatCurrency(pt.installmentAmount)}`
+                        {pt.installmentNo !== undefined && pt.installmentNo !== null
+                          ? (pt.installmentNo === 0 || pt.creditType === 'DEPOSIT'
+                              ? `เงินมัดจำ - ${formatCurrency(pt.installmentAmount)}`
+                              : `งวดที่ ${pt.installmentNo}/${pt.installmentTotal} - ${formatCurrency(pt.installmentAmount)}`)
                           : (pt.job?.paymentMethod || pt.paymentMethod || job.paymentMethod || '-')}
                       </p>
+                      {pt.note && <p className="text-[11px] text-slate-500 mt-0.5">{pt.note}</p>}
                     </div>
                     <div>
                       <p className="text-slate-400 mb-0.5 font-medium">วันครบกำหนด</p>
@@ -365,9 +539,32 @@ function JobDetailModal({
                         </p>
                       </div>
                       {!ptIsCompleted && (
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() => openEditScheduleModal(pt)}
+                            className="flex items-center gap-1 px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                            title="แก้ไขงวดชำระ"
+                          >
+                            <Pencil size={12} />
+                            แก้ไข
+                          </button>
+                          {(!pt.paidAmount || pt.paidAmount === 0) && pt.status !== 'ตรวจสอบและบันทึกแล้ว' && (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleDeleteSchedule(pt.id)}
+                              className="flex items-center gap-1 px-2.5 py-1.5 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-xs font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                              title="ลบงวดชำระ"
+                            >
+                              <Trash2 size={12} />
+                              ลบ
+                            </button>
+                          )}
                           {(!pt.paidAmount || pt.paidAmount === 0) && (
                             <button
+                              type="button"
                               disabled={isPending}
                               onClick={() => setShowDepositModal(pt.id)}
                               className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-emerald-600 hover:bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50"
@@ -376,6 +573,7 @@ function JobDetailModal({
                             </button>
                           )}
                           <button
+                            type="button"
                             disabled={isPending}
                             onClick={() => setConfirmPaymentModal({ id: pt.id, status: 'ตรวจสอบและบันทึกแล้ว' })}
                             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50"
@@ -583,6 +781,161 @@ function JobDetailModal({
           </div>
         )}
 
+        {/* Add / Edit Payment Schedule Modal */}
+        {scheduleModal.isOpen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-in fade-in">
+            <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative border border-slate-200 animate-in zoom-in-95">
+              <button
+                type="button"
+                onClick={() => setScheduleModal({ isOpen: false, item: null })}
+                className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X size={18} />
+              </button>
+
+              <h3 className="text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
+                <DollarSign size={18} className="text-emerald-600" />
+                {scheduleModal.item ? "แก้ไขงวดชำระเงิน" : "เพิ่มงวดชำระเงินใหม่"}
+              </h3>
+              <p className="text-xs text-slate-500 mb-4">
+                งาน {job.jobNumber} ({company?.companyName || job.customerName})
+              </p>
+
+              <div className="space-y-3.5 text-xs">
+                {/* Type selector */}
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1.5">ประเภทงวด</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScheduleType('DEPOSIT');
+                        if (!scheduleNote || scheduleNote.startsWith('งวดที่')) {
+                          setScheduleNote('เงินมัดจำเมื่อเซ็นสัญญา');
+                        }
+                      }}
+                      className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
+                        scheduleType === 'DEPOSIT'
+                          ? 'bg-blue-50 text-blue-700 border-blue-300 ring-2 ring-blue-500/20'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      เงินมัดจำ (Deposit)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScheduleType('PROGRESS');
+                        if (!scheduleNote || scheduleNote === 'เงินมัดจำเมื่อเซ็นสัญญา') {
+                          setScheduleNote(`งวดที่ ${scheduleNo}`);
+                        }
+                      }}
+                      className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
+                        scheduleType === 'PROGRESS'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300 ring-2 ring-emerald-500/20'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      ค่างวดงาน (Installment)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Installment number (if progress) */}
+                {scheduleType === 'PROGRESS' && (
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">งวดที่</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={scheduleNo}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10) || 1;
+                        setScheduleNo(val);
+                        if (scheduleNote.startsWith('งวดที่')) {
+                          setScheduleNote(`งวดที่ ${val}`);
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-xs font-semibold"
+                    />
+                  </div>
+                )}
+
+                {/* Amount */}
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    จำนวนเงิน (บาท) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={scheduleAmount}
+                    onChange={(e) => setScheduleAmount(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-xs font-semibold"
+                    placeholder="เช่น 100000"
+                    autoFocus
+                  />
+                </div>
+
+                {/* Due Date */}
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">วันครบกำหนดชำระ</label>
+                  <input
+                    type="date"
+                    value={scheduleDueDate}
+                    onChange={(e) => setScheduleDueDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-xs"
+                  />
+                </div>
+
+                {/* Title / Description */}
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">คำอธิบาย / ชื่องวด</label>
+                  <input
+                    type="text"
+                    value={scheduleNote}
+                    onChange={(e) => setScheduleNote(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-xs"
+                    placeholder="เช่น ส่งมอบงานงวดที่ 1"
+                  />
+                </div>
+
+                {/* Credit Type */}
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">รูปแบบการให้เครดิต</label>
+                  <input
+                    type="text"
+                    value={scheduleCreditType}
+                    onChange={(e) => setScheduleCreditType(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-xs"
+                    placeholder="เช่น โอนเงินสด, เช็ค 30 วัน, วางบิล 60 วัน, LC"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2.5 mt-5">
+                <button
+                  type="button"
+                  disabled={isSavingSchedule}
+                  onClick={() => setScheduleModal({ isOpen: false, item: null })}
+                  className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="button"
+                  disabled={isSavingSchedule}
+                  onClick={handleSaveSchedule}
+                  className="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {isSavingSchedule ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 size={14} />}
+                  บันทึกข้อมูล
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="sticky bottom-0 bg-white border-t border-slate-100 p-5 flex justify-end gap-3 z-10 rounded-b-3xl">
           <button
             onClick={onClose}
@@ -680,6 +1033,18 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         ...t,
         creditType
       } : t));
+    });
+  };
+
+  const handleTasksUpdated = (jId: string, updatedJobTasks: any[]) => {
+    setTasks(prev => {
+      const others = prev.filter(t => t.jobId !== jId);
+      const existingSample = prev.find(t => t.jobId === jId);
+      const enriched = updatedJobTasks.map(t => ({
+        ...t,
+        job: t.job || existingSample?.job
+      }));
+      return [...others, ...enriched];
     });
   };
 
@@ -917,7 +1282,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           'บริษัท (Company)': g.job?.companyCode || '-',
           'รูปแบบการชำระเงิน': g.job?.paymentMethod || '-',
           'ยอดรวมทั้งโครงการ': totalValue,
-          'งวดที่': t.installmentNo ? `${t.installmentNo}/${t.installmentTotal}` : '-',
+          'งวดที่': (t.installmentNo === 0 || t.creditType === 'DEPOSIT') ? 'เงินมัดจำ' : (t.installmentNo ? `${t.installmentNo}/${t.installmentTotal}` : '-'),
           'ยอดเงินงวดนี้': amountDue,
           'วันครบกำหนด': t.dueDate ? formatDate(t.dueDate) : '-',
           'วันเครดิตคงเหลือ (วัน)': creditDaysLeft,
@@ -942,6 +1307,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           onConfirmPayment={handleUpdate}
           onRecordDeposit={handleRecordDeposit}
           onUpdateCreditType={handleUpdateCreditType}
+          onTasksUpdated={handleTasksUpdated}
           isPending={isPending}
         />
       )}
@@ -1038,6 +1404,14 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/accounting/payables"
+            className="flex items-center gap-1.5 px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-xl text-xs font-semibold border border-amber-300 shadow-sm transition-all"
+          >
+            <Package className="w-4 h-4 text-amber-600" />
+            <span>จ่ายเงินเจ้าหนี้ (AP)</span>
+          </Link>
+
           <Link
             href="/accounting/dashboard"
             className="flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-300 shadow-sm transition-all"

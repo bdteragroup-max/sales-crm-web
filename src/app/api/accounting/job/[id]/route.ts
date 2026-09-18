@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/lib/db";
+import { syncProjectInstallmentsToPaymentTasks } from "@/app/actions/projects";
 
 export const dynamic = 'force-dynamic';
 
@@ -9,6 +10,16 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
+
+    // If job has a linked project, ensure payment tasks are synced with project installment plan
+    const linkedProject = await prisma.project.findFirst({
+      where: { jobId: id },
+      select: { id: true }
+    });
+    if (linkedProject) {
+      await syncProjectInstallmentsToPaymentTasks(linkedProject.id);
+    }
+
     const job = await prisma.job.findUnique({
       where: { id: id },
       include: {

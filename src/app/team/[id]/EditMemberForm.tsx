@@ -158,8 +158,9 @@ export default function EditMemberForm({ member, isSuperAdmin = false }: EditMem
                   <option value="Admin Project">Admin Project</option>
                   <option value="ตัวแทนฝ่ายขาย">ตัวแทนฝ่ายขาย</option>
                   <option value="ผู้จัดการ">ผู้จัดการ</option>
+                  <option value="EXECUTIVE">EXECUTIVE (ผู้บริหาร)</option>
                   {isSuperAdmin && (
-                    <option value="SUPER_ADMIN">SUPER_ADMIN (Executive)</option>
+                    <option value="SUPER_ADMIN">SUPER_ADMIN (System Admin)</option>
                   )}
                 </select>
               </div>

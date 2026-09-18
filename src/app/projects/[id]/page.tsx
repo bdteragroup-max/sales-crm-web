@@ -42,7 +42,11 @@ export default async function ProjectDetailPage(props: { params: Promise<{ id: s
         },
         orderBy: [{ order: 'asc' }, { planStart: 'asc' }]
       },
-      job: true,
+      job: {
+        include: {
+          quotation: true
+        }
+      },
       equipment: true
     }
   });

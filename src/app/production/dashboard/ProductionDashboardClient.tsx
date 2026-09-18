@@ -3,15 +3,28 @@
 import React, { useState } from 'react';
 import { Package, Clock, CheckCircle2, ShieldAlert, FileWarning, Search, ShieldCheck, Activity, Receipt, FileText, TrendingDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import ProductionExecutiveCockpit from './ProductionExecutiveCockpit';
 
 interface ProductionDashboardClientProps {
   orders: any[];
   prs: any[];
   pos: any[];
   cabinetJobs?: any[];
+  isExecutive?: boolean;
+  userRole?: string;
 }
 
-export default function ProductionDashboardClient({ orders, prs, pos, cabinetJobs = [] }: ProductionDashboardClientProps) {
+export default function ProductionDashboardClient({
+  orders,
+  prs,
+  pos,
+  cabinetJobs = [],
+  isExecutive = false,
+  userRole,
+}: ProductionDashboardClientProps) {
+  const [viewMode, setViewMode] = useState<'cockpit' | 'operational'>(
+    isExecutive ? 'cockpit' : 'operational'
+  );
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'jobs' | 'prs'>('jobs');
   const [techChartTimeFilter, setTechChartTimeFilter] = useState<'all' | 'this_month' | 'this_week'>('all');
@@ -119,21 +132,53 @@ export default function ProductionDashboardClient({ orders, prs, pos, cabinetJob
   });
   const techChartData = Object.values(techStatsMap).sort((a, b) => (b.completed + b.inProgress) - (a.completed + a.inProgress));
 
+  if (viewMode === 'cockpit') {
+    return (
+      <ProductionExecutiveCockpit
+        orders={orders}
+        prs={prs}
+        pos={pos}
+        cabinetJobs={cabinetJobs}
+        onViewOperational={() => setViewMode('operational')}
+      />
+    );
+  }
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-300 pb-10">
-      
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-            <Package className="text-blue-600" size={28} />
-            แดชบอร์ดฝ่ายผลิต (งานตู้)
-          </h1>
-          <p className="text-sm text-gray-500 font-medium mt-1">
-            ภาพรวมงานประกอบตู้ทั้งหมดและการตรวจสอบคุณภาพ
-          </p>
+    <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-8 pb-24 md:pb-10 font-ibm-thai">
+      <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-300">
+        {/* Executive Return Banner */}
+        {isExecutive && (
+          <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-3 rounded-2xl shadow-sm flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-md bg-white/20 text-white font-mono text-xs font-bold">
+                Operational View
+              </span>
+              <span className="text-xs sm:text-sm font-semibold">
+                คุณกำลังดูแดชบอร์ดปฏิบัติการช่างโรงงาน (อ่านอย่างเดียวสำหรับผู้บริหาร)
+              </span>
+            </div>
+            <button
+              onClick={() => setViewMode('cockpit')}
+              className="px-3 py-1.5 bg-white text-red-600 rounded-xl text-xs font-bold hover:bg-red-50 transition-all cursor-pointer shadow-xs shrink-0 flex items-center gap-1.5"
+            >
+              <span>⬅ กลับสู่ Executive Cockpit</span>
+            </button>
+          </div>
+        )}
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+              <Package className="text-blue-600" size={28} />
+              แดชบอร์ดฝ่ายผลิต (งานตู้)
+            </h1>
+            <p className="text-sm text-gray-500 font-medium mt-1">
+              ภาพรวมงานประกอบตู้ทั้งหมดและการตรวจสอบคุณภาพ
+            </p>
+          </div>
         </div>
-      </div>
 
       {/* Main KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -518,5 +563,6 @@ export default function ProductionDashboardClient({ orders, prs, pos, cabinetJob
 
       </div>
     </div>
-  );
+  </main>
+);
 }

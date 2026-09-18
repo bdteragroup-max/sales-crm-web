@@ -11,9 +11,43 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
   const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
   const month = typeof searchParams.month === 'string' ? parseInt(searchParams.month) : today.getMonth() + 1;
   const year = typeof searchParams.year === 'string' ? parseInt(searchParams.year) : today.getFullYear();
+  const quarterParam = typeof searchParams.quarter === 'string' ? parseInt(searchParams.quarter) : null;
+  const currentQIndex = quarterParam && quarterParam >= 1 && quarterParam <= 4 
+    ? quarterParam - 1 
+    : Math.floor((month - 1) / 3);
+  const quarter = currentQIndex + 1;
 
   const periodFilter = typeof searchParams.period === 'string' ? searchParams.period : 'รายเดือน';
   const branchFilter = typeof searchParams.branch === 'string' ? searchParams.branch : 'ทีมทั้งหมด';
+  const companyParam = typeof searchParams.company === 'string' ? searchParams.company.toUpperCase().trim() : '';
+  const companyFilter = ['TE', 'TG', 'TP'].includes(companyParam) ? companyParam : '';
+
+  const getQuotationCompanyCode = (q: {
+    quotationNumber?: string | null;
+    jobs?: { companyCode?: string | null }[] | null;
+  }): 'TE' | 'TG' | 'TP' | 'OTHER' => {
+    if (q.jobs && q.jobs.length > 0 && q.jobs[0]?.companyCode) {
+      const c = q.jobs[0].companyCode.toUpperCase();
+      if (c === 'TE' || c === 'TG' || c === 'TP') return c;
+    }
+    const qn = (q.quotationNumber || '').trim().toUpperCase();
+    if (!qn) return 'OTHER';
+
+    const parts = qn.split('-');
+    if (parts.length >= 3 && parts[2]) {
+      const char = parts[2][0];
+      if (char === 'E') return 'TE';
+      if (char === 'G') return 'TG';
+      if (char === 'T' || char === 'P') return 'TP';
+    }
+    if (parts.length >= 2 && parts[1]) {
+      const char = parts[1][0];
+      if (char === 'E') return 'TE';
+      if (char === 'G') return 'TG';
+      if (char === 'T' || char === 'P') return 'TP';
+    }
+    return 'OTHER';
+  };
 
   const getThaiBranchName = (branch: string | null | undefined) => {
     if (!branch) return 'ไม่ระบุสาขา';
@@ -61,22 +95,27 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
   let targetMonths: number[] = [];
 
   if (periodFilter === 'รายปี') {
-    startDate = new Date(year, 0, 1);
+    startDate = new Date(year, 0, 1, 0, 0, 0, 0);
     endDate = new Date(year, 11, 31, 23, 59, 59, 999);
-    prevStartDate = new Date(year - 1, 0, 1);
+    prevStartDate = new Date(year - 1, 0, 1, 0, 0, 0, 0);
     prevEndDate = new Date(year - 1, 11, 31, 23, 59, 59, 999);
     targetMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   } else if (periodFilter === 'รายไตรมาส') {
-    const q = Math.floor((month - 1) / 3);
-    startDate = new Date(year, q * 3, 1);
+    const q = currentQIndex;
+    startDate = new Date(year, q * 3, 1, 0, 0, 0, 0);
     endDate = new Date(year, q * 3 + 3, 0, 23, 59, 59, 999);
-    prevStartDate = new Date(year, (q - 1) * 3, 1);
-    prevEndDate = new Date(year, (q - 1) * 3 + 3, 0, 23, 59, 59, 999);
+    if (q === 0) {
+      prevStartDate = new Date(year - 1, 9, 1, 0, 0, 0, 0);
+      prevEndDate = new Date(year - 1, 12, 0, 23, 59, 59, 999);
+    } else {
+      prevStartDate = new Date(year, (q - 1) * 3, 1, 0, 0, 0, 0);
+      prevEndDate = new Date(year, (q - 1) * 3 + 3, 0, 23, 59, 59, 999);
+    }
     targetMonths = [q * 3 + 1, q * 3 + 2, q * 3 + 3];
   } else { // รายเดือน
-    startDate = new Date(year, month - 1, 1);
+    startDate = new Date(year, month - 1, 1, 0, 0, 0, 0);
     endDate = new Date(year, month, 0, 23, 59, 59, 999);
-    prevStartDate = new Date(year, month - 2, 1);
+    prevStartDate = new Date(year, month - 2, 1, 0, 0, 0, 0);
     prevEndDate = new Date(year, month - 1, 0, 23, 59, 59, 999);
     targetMonths = [month];
   }
@@ -150,13 +189,45 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
   const validUserIds = filteredSalesTeam.map(u => u.id);
 
   // 1. Current Period Sales (Won Quotes)
-  const currentPeriodQuotes = await prisma.quotation.findMany({
+  const currentPeriodQuotesRaw = await prisma.quotation.findMany({
     where: {
       createdAt: { gte: startDate, lte: endDate },
       ...(branchCode ? { salespersonId: { in: validUserIds } } : {})
     },
-    select: { status: true, actualClosingAmount: true, totalAmountBeforeVat: true, createdAt: true, updatedAt: true, company: { select: { companyName: true } } }
+    select: {
+      id: true,
+      status: true,
+      actualClosingAmount: true,
+      totalAmountBeforeVat: true,
+      createdAt: true,
+      updatedAt: true,
+      quotationNumber: true,
+      jobs: { select: { companyCode: true } },
+      company: { select: { companyName: true } }
+    }
   });
+
+  const companyBreakdown: Record<string, { count: number; wonCount: number; sales: number }> = {
+    TE: { count: 0, wonCount: 0, sales: 0 },
+    TG: { count: 0, wonCount: 0, sales: 0 },
+    TP: { count: 0, wonCount: 0, sales: 0 },
+  };
+
+  currentPeriodQuotesRaw.forEach(q => {
+    const code = getQuotationCompanyCode(q);
+    if (companyBreakdown[code]) {
+      companyBreakdown[code].count++;
+      const isWon = q.status === 'เปิดบิลแล้ว' || q.status.startsWith('PO');
+      if (isWon) {
+        companyBreakdown[code].wonCount++;
+        companyBreakdown[code].sales += (q.actualClosingAmount || q.totalAmountBeforeVat || 0);
+      }
+    }
+  });
+
+  const currentPeriodQuotes = companyFilter
+    ? currentPeriodQuotesRaw.filter(q => getQuotationCompanyCode(q) === companyFilter)
+    : currentPeriodQuotesRaw;
 
   const currentPeriodWon = currentPeriodQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status.startsWith('PO'));
   const currentMonthSales = currentPeriodWon.reduce((sum, q) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
@@ -166,25 +237,44 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
   const winRate = currentPeriodTotalQuotesCount > 0 ? (currentPeriodWon.length / currentPeriodTotalQuotesCount) * 100 : 0;
 
   // Prev Period Win Rate & Sales for trends
-  const prevPeriodQuotes = await prisma.quotation.findMany({
+  const prevPeriodQuotesRaw = await prisma.quotation.findMany({
     where: {
       createdAt: { gte: prevStartDate, lte: prevEndDate },
       ...(branchCode ? { salespersonId: { in: validUserIds } } : {})
     },
-    select: { status: true, actualClosingAmount: true, totalAmountBeforeVat: true }
+    select: {
+      status: true,
+      actualClosingAmount: true,
+      totalAmountBeforeVat: true,
+      quotationNumber: true,
+      jobs: { select: { companyCode: true } }
+    }
   });
+  const prevPeriodQuotes = companyFilter
+    ? prevPeriodQuotesRaw.filter(q => getQuotationCompanyCode(q) === companyFilter)
+    : prevPeriodQuotesRaw;
   const prevPeriodWon = prevPeriodQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status.startsWith('PO'));
   const prevMonthSales = prevPeriodWon.reduce((sum, q) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
   const prevWinRate = prevPeriodQuotes.length > 0 ? (prevPeriodWon.length / prevPeriodQuotes.length) * 100 : 0;
 
   // Pipeline (All active pending for these users)
-  const activePipelineQuotes = await prisma.quotation.findMany({
+  const activePipelineQuotesRaw = await prisma.quotation.findMany({
     where: {
       status: { in: ['เสนอราคา', 'ความสนใจ', 'รอใบประเมินราคา', 'รอจัดทำ PO'] },
       ...(branchCode ? { salespersonId: { in: validUserIds } } : {})
     },
-    select: { id: true, totalAmountBeforeVat: true, createdAt: true, quotationNumber: true, company: { select: { companyName: true } } }
+    select: {
+      id: true,
+      totalAmountBeforeVat: true,
+      createdAt: true,
+      quotationNumber: true,
+      jobs: { select: { companyCode: true } },
+      company: { select: { companyName: true } }
+    }
   });
+  const activePipelineQuotes = companyFilter
+    ? activePipelineQuotesRaw.filter(q => getQuotationCompanyCode(q) === companyFilter)
+    : activePipelineQuotesRaw;
   const pipelineAmount = activePipelineQuotes.reduce((sum, q) => sum + (q.totalAmountBeforeVat || 0), 0);
   const pipelineCount = activePipelineQuotes.length;
 
@@ -214,17 +304,6 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
     .map(([companyName, sales]) => ({ companyName, sales }))
     .sort((a, b) => b.sales - a.sales)
     .slice(0, 5);
-
-  // Target Sales (Sum of MonthlyTargets for the selected months and users)
-  const targets = await prisma.monthlyTarget.findMany({
-    where: {
-      year,
-      month: { in: targetMonths },
-      ...(branchCode ? { userId: { in: validUserIds } } : {})
-    },
-    select: { amount: true }
-  });
-  const targetSales = targets.reduce((sum, t) => sum + (t.amount || 0), 0);
 
   // Funnel Data
   const leadCount = await prisma.marketingLead.count({
@@ -280,7 +359,15 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
       telesales: { where: { createdAt: { gte: startDate, lte: endDate } }, select: { id: true } },
       quotations: {
         where: { createdAt: { gte: startDate, lte: endDate } },
-        select: { status: true, actualClosingAmount: true, totalAmountBeforeVat: true, createdAt: true, updatedAt: true }
+        select: {
+          status: true,
+          actualClosingAmount: true,
+          totalAmountBeforeVat: true,
+          createdAt: true,
+          updatedAt: true,
+          quotationNumber: true,
+          jobs: { select: { companyCode: true } }
+        }
       }
     }
   });
@@ -289,8 +376,12 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
     const repTarget = rep.monthlyTargets.reduce((sum, t) => sum + (t.amount || 0), 0);
     const calls = rep.telesales.length;
 
-    const totalQ = rep.quotations.length;
-    const wonQ = rep.quotations.filter(q => q.status === 'เปิดบิลแล้ว' || q.status.startsWith('PO'));
+    const repQuotes = companyFilter
+      ? rep.quotations.filter(q => getQuotationCompanyCode(q) === companyFilter)
+      : rep.quotations;
+
+    const totalQ = repQuotes.length;
+    const wonQ = repQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status.startsWith('PO'));
     const sales = wonQ.reduce((sum, q) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
     const repWinRate = totalQ > 0 ? (wonQ.length / totalQ) * 100 : 0;
 
@@ -316,8 +407,27 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
   // Sort by sales descending, then by win rate descending
   salesTeam.sort((a, b) => b.sales - a.sales || b.winRate - a.winRate);
 
+  // Target Sales: Sum of individual targets for the active sales team across targetMonths
+  let targetSales = salesTeam.reduce((sum, rep) => sum + (rep.target || 0), 0);
+  if (targetSales === 0) {
+    const teamTargets = await prisma.monthlyTarget.findMany({
+      where: {
+        year,
+        month: { in: targetMonths },
+        userId: null
+      },
+      select: { amount: true }
+    });
+    targetSales = teamTargets.reduce((sum, t) => sum + (t.amount || 0), 0);
+  }
+
+  const wonCount = currentPeriodWon.length;
+  const avgDealSize = wonCount > 0 ? Math.round(currentMonthSales / wonCount) : 0;
+
   const data = {
-    month, year,
+    month, year, quarter,
+    companyFilter,
+    companyBreakdown,
     currentMonthSales,
     prevMonthSales,
     targetSales,
@@ -329,7 +439,9 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
     salesTeam,
     branches,
     staleDeals,
-    topCustomers
+    topCustomers,
+    wonCount,
+    avgDealSize
   };
 
   return <KPIClientDashboard data={data} />;

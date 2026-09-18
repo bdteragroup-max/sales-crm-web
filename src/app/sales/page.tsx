@@ -5,6 +5,7 @@ import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import { redirect } from 'next/navigation';
 import { isSuperUser } from '@/app/lib/roleHelper';
+import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
 
 export const dynamic = 'force-dynamic';
 
@@ -232,8 +233,34 @@ export default async function SalesPage({ searchParams }: PageProps) {
 
   const businessTypes = businessTypesData.map(bt => bt.name);
 
+  // ── Auto-expire open quotations whose validity has ended ──
+  const now = new Date();
+  const newlyExpiredIds: string[] = [];
+
+  for (const q of quotations) {
+    if (q.status === 'เสนอราคา') {
+      const exp = calculateQuotationExpiration(q, now);
+      if (exp.isExpired) {
+        newlyExpiredIds.push(q.id);
+        q.status = 'หมดอายุ';
+        q.statusChangedAt = now;
+      }
+    }
+  }
+
+  if (newlyExpiredIds.length > 0) {
+    await prisma.quotation.updateMany({
+      where: { id: { in: newlyExpiredIds } },
+      data: {
+        status: 'หมดอายุ',
+        statusChangedAt: now,
+      },
+    });
+  }
+
+
   return (
-    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-white pb-24 md:pb-6">
+    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-slate-50/70 pb-24 md:pb-6">
       <SalesClientPage
         initialQuotations={JSON.parse(JSON.stringify(quotations))}
         businessTypes={businessTypes}

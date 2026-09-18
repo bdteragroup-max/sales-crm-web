@@ -159,6 +159,42 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
     }
   });
 
+  // 3. Accounts Payable (Supplier Payment Tasks)
+  const apTasks = await prisma.supplierPaymentTask.findMany({
+    where: hasDateFilter ? { dueDate: dateFilter } : undefined,
+    include: {
+      purchaseOrder: {
+        select: {
+          vendorName: true,
+          jobName: true,
+          poNumber: true,
+        }
+      }
+    }
+  });
+
+  let totalAP = 0;
+  let overdueAP = 0;
+  let awaitingGrAP = 0;
+  let paidAP = 0;
+  let overdueAPCount = 0;
+
+  apTasks.forEach(apt => {
+    const net = Number(apt.netPayableAmount) || 0;
+    if (apt.status === 'PAID_VERIFIED') {
+      paidAP += Number(apt.paidAmount) || net;
+    } else if (apt.status !== 'CANCELLED') {
+      totalAP += net;
+      if (apt.status === 'AWAITING_GR') {
+        awaitingGrAP += net;
+      }
+      if (apt.dueDate && new Date(apt.dueDate) < now) {
+        overdueAP += net;
+        overdueAPCount++;
+      }
+    }
+  });
+
   // Monthly Collection Trend
   const monthlyDataMap = new Map<string, { revenue: number, expenses: number }>();
   const getMonthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -306,6 +342,11 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
     totalExpenses,
     netProfit,
     profitMargin,
+    totalAP,
+    overdueAP,
+    overdueAPCount,
+    awaitingGrAP,
+    paidAP,
     monthlyTrend,
     paymentMethods,
     topOverdue,

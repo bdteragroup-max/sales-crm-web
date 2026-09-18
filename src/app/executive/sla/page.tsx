@@ -334,6 +334,11 @@ export default async function SLADashboard() {
     }))
     .sort((a, b) => b.totalCount - a.totalCount);
 
+  const totalBreachedValue = breachedOrders.reduce(
+    (sum, o) => sum + (o.value || 0),
+    0
+  );
+
   const lastUpdatedTime =
     new Date().toLocaleTimeString("th-TH", {
       timeZone: "Asia/Bangkok",
@@ -349,6 +354,7 @@ export default async function SLADashboard() {
       totalActiveJobs={activeJobs.length}
       onTimeDeliveryRate={onTimeDeliveryRate}
       departmentStats={departmentStats}
+      totalBreachedValue={totalBreachedValue}
       lastUpdatedTime={lastUpdatedTime}
     />
   );

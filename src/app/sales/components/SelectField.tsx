@@ -6,26 +6,34 @@ export default function SelectField({
   label, 
   options, 
   value, 
-  onChange,
-  vertical
+  onChange, 
+  vertical = true,
+  required
 }: { 
-  name: string, 
-  label: string, 
-  options: string[], 
-  value?: string, 
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void,
-  vertical?: boolean
+  name: string; 
+  label: string; 
+  options: string[]; 
+  value?: string; 
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void; 
+  vertical?: boolean;
+  required?: boolean;
 }) {
+  const selectClass = `w-full border border-slate-200 text-slate-900 rounded-xl p-2.5 text-sm bg-white outline-none transition-all duration-150 
+    hover:border-slate-300 focus:border-red-600 focus:ring-2 focus:ring-red-500/15 focus:shadow-xs appearance-none pr-10 font-medium`;
+
   if (vertical) {
     return (
       <div className="flex flex-col gap-1.5 w-full">
-        <label className="text-xs font-semibold text-slate-500 ml-1">{label}</label>
+        <label className="text-xs font-bold text-slate-700 ml-0.5">
+          {label} {required && <span className="text-red-600">*</span>}
+        </label>
         <div className="relative">
           <select 
             name={name} 
             value={value} 
             onChange={onChange}
-            className="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white outline-none transition-all duration-200 hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 focus:shadow-sm focus:scale-[1.01] appearance-none pr-10"
+            required={required}
+            className={selectClass}
           >
             <option value="">- เลือก -</option>
             {options.map((opt, i) => (
@@ -41,14 +49,17 @@ export default function SelectField({
   }
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 w-full">
-      <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-slate-600 ml-1 md:ml-0 shrink-0">{label}</label>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4 w-full">
+      <label className="w-full sm:w-1/3 text-left sm:text-right text-xs sm:text-sm font-bold text-slate-700 shrink-0">
+        {label} {required && <span className="text-red-600">*</span>}
+      </label>
       <div className="flex-1 relative w-full">
         <select 
           name={name} 
           value={value} 
           onChange={onChange}
-          className="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white outline-none transition-all duration-200 hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 focus:shadow-sm focus:scale-[1.01] appearance-none pr-10"
+          required={required}
+          className={selectClass}
         >
           <option value="">- เลือก -</option>
           {options.map((opt, i) => (

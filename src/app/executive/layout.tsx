@@ -20,7 +20,7 @@ export default async function ExecutiveLayout({
   }
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 text-gray-900 font-ibm-thai overflow-hidden">
       <Sidebar activeRoute="/executive/kpi" userFullName={user.fullName} userId={user.id} userRole={user.role} />
       {children}
     </div>

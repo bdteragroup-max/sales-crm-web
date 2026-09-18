@@ -28,6 +28,8 @@ import {
   Loader2,
   AlertCircle,
   FileSpreadsheet,
+  Monitor,
+  Table,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -37,6 +39,7 @@ import { useRouter } from "next/navigation";
 
 import PushNotificationButton from "./PushNotificationButton";
 import JobTimeline from "./JobTimeline";
+import JobsExecutiveCockpit from "./JobsExecutiveCockpit";
 import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
 
 type StepLog = {
@@ -543,6 +546,7 @@ function ExpandedRow({
 export default function JobsClientPage({
   jobs: initialJobs,
   isManager,
+  isExecutive = false,
   currentUser,
   userDept,
   userRole,
@@ -552,6 +556,7 @@ export default function JobsClientPage({
 }: {
   jobs: Job[];
   isManager: boolean;
+  isExecutive?: boolean;
   currentUser: string;
   userDept: string;
   userRole: string;
@@ -560,6 +565,9 @@ export default function JobsClientPage({
   initialSearch?: string;
 }) {
   const router = useRouter();
+  const [viewMode, setViewMode] = useState<'cockpit' | 'operational'>(
+    isExecutive && !actionParam && !targetJobId ? 'cockpit' : 'operational'
+  );
   const [showQuickRepair, setShowQuickRepair] = useState(actionParam === "new-repair");
   const [quickRepairLoading, setQuickRepairLoading] = useState(false);
   const [showQuickProject, setShowQuickProject] = useState(false);
@@ -1286,27 +1294,67 @@ export default function JobsClientPage({
 
   const isSalesUser = normalizedDept.includes("sales");
 
+  if ((isExecutive || isManager) && viewMode === 'cockpit') {
+    return (
+      <div className="w-full h-full flex flex-col font-ibm-thai">
+        <JobsExecutiveCockpit
+          jobs={jobs as any}
+          currentUser={currentUser}
+          userRole={userRole}
+          onViewTable={(filterState) => {
+            if (filterState) {
+              if (filterState.period === 'month') {
+                const padMonth = String(filterState.month).padStart(2, '0');
+                const matchingYear = jobs.some((j) => j.yearBe === filterState.yearBe)
+                  ? filterState.yearBe
+                  : filterState.yearBe % 100;
+                setFilterMonth(`${matchingYear}-${padMonth}`);
+                setFilterStartDate('');
+                setFilterEndDate('');
+              } else if (filterState.period === 'date') {
+                setFilterMonth('custom');
+                setFilterStartDate(filterState.date);
+                setFilterEndDate(filterState.date);
+              } else if (filterState.period === 'all') {
+                setFilterMonth('');
+                setFilterStartDate('');
+                setFilterEndDate('');
+              }
+            }
+            setViewMode('operational');
+          }}
+          onSelectJob={(jobId) => {
+            setViewMode('operational');
+            setExpanded(jobId);
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6 font-ibm-thai">
       {showQuickRepair && <QuickRepairModal />}
       {showQuickProject && <QuickProjectModal />}
 
-      {/* ── 1. Top Header & Navigation Bar ── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-slate-200/80">
-        <div className="space-y-1.5 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <ClipboardList className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-            <span className="font-medium">ทะเบียนงาน (Jobs)</span>
-            <span>/</span>
-            <span className="text-slate-800 font-semibold">
-              ภาพรวมและการติดตามสถานะงาน
-            </span>
+      {/* ── 1. Symmetrical Modern Header Card ── */}
+      <div className="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden font-ibm-thai">
+        {/* Tier 1: Top Control Bar (Breadcrumbs, Role & Symmetrical Mode Switcher) */}
+        <div className="px-5 py-2.5 bg-slate-50/80 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          {/* Breadcrumbs & User Role */}
+          <div className="flex items-center gap-2 text-slate-500 min-w-0">
+            <div className="flex items-center gap-1.5 font-medium">
+              <ClipboardList className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+              <span>ทะเบียนงาน (Jobs)</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-slate-800 font-semibold truncate">ภาพรวมและการติดตามสถานะงาน</span>
+            </div>
             <span className="text-slate-300">•</span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white text-slate-700 border border-slate-200/80 shadow-2xs shrink-0">
               <User2 size={11} className="text-slate-500" />
               <span>
                 {isSuperAdmin
-                  ? "ผู้ดูแลระบบ (SUPER ADMIN - ทุกงานในระบบ)"
+                  ? "ผู้ดูแลระบบ (SUPER ADMIN)"
                   : isManager
                   ? "ผู้บริหาร (ทุกงานในระบบ)"
                   : `พนักงาน: ${currentUser}`}
@@ -1314,64 +1362,107 @@ export default function JobsClientPage({
             </span>
           </div>
 
-          <div className="flex items-center gap-3 pt-0.5">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm shadow-blue-500/20 shrink-0">
-              <ClipboardList className="w-5 h-5" />
+          {/* Symmetrical Mode Switcher Toggle Pill */}
+          {(isExecutive || isManager) && (
+            <div className="flex items-center bg-slate-200/70 p-0.5 rounded-xl border border-slate-300/70 text-xs shrink-0">
+              <button
+                type="button"
+                onClick={() => setViewMode('cockpit')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                  viewMode === 'cockpit'
+                    ? 'bg-red-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="สลับไปโหมดหน้าจอเดียว (Executive Cockpit)"
+              >
+                <Monitor size={13} />
+                <span>มุมมองผู้บริหาร (Cockpit)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('operational')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                  viewMode === 'operational'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="โหมดตารางปฏิบัติการ (Operational Table)"
+              >
+                <Table size={13} />
+                <span>ตารางปฏิบัติการ</span>
+              </button>
             </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                ระบบติดตามสถานะงาน{" "}
-                <span className="text-slate-400 font-medium text-base sm:text-lg">
-                  (Jobs Directory)
+          )}
+        </div>
+
+        {/* Tier 2: Main Title & Symmetrical Action Center */}
+        <div className="p-5 sm:p-6 flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+          {/* Left Title Block (Flexible, Symmetrical, Never Wraps awkwardly) */}
+          <div className="flex items-center gap-3.5 min-w-0 flex-1">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+              <ClipboardList className="w-6 h-6" />
+            </div>
+            <div className="min-w-0 space-y-0.5">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  ระบบติดตามสถานะงาน
+                </h1>
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-wider font-mono">
+                  Jobs Directory
                 </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              </div>
+              <p className="text-xs sm:text-sm text-slate-500 max-w-2xl">
                 ติดตามสถานะงาน วงจรการผลิต-จัดส่ง แผนกที่รอรับผิดชอบ และความคืบหน้ารายโครงการ
               </p>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center flex-wrap gap-2 lg:justify-end shrink-0 pt-2 lg:pt-0">
-          {(normalizedDept.includes("project") ||
-            normalizedDept.includes("sales") ||
-            isManager) && (
+          {/* Right Symmetrical Action Buttons */}
+          <div className="flex items-center flex-wrap gap-2 xl:justify-end shrink-0">
+            {(normalizedDept.includes("project") ||
+              normalizedDept.includes("sales") ||
+              isManager) && (
+              <button
+                type="button"
+                onClick={() => setShowQuickProject(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all shrink-0 cursor-pointer"
+              >
+                <FolderOpen size={14} />
+                <span>สร้างงานโปรเจกต์</span>
+              </button>
+            )}
+
+            {(normalizedDept.includes("service") || isManager) && (
+              <button
+                type="button"
+                onClick={() => setShowQuickRepair(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold border border-rose-200 transition-all shadow-xs shrink-0 cursor-pointer"
+              >
+                <Wrench size={14} />
+                <span>เปิดงานซ่อมด่วน</span>
+              </button>
+            )}
+
             <button
-              onClick={() => setShowQuickProject(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0"
+              type="button"
+              onClick={exportToExcel}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300/90 rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0 cursor-pointer"
             >
-              <FolderOpen size={14} />
-              <span>สร้างงานโปรเจค</span>
+              <Download size={14} className="text-emerald-600" />
+              <span>Export Excel</span>
             </button>
-          )}
 
-          {(normalizedDept.includes("service") || isManager) && (
+            <PushNotificationButton className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300/90 rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0 cursor-pointer" />
+
             <button
-              onClick={() => setShowQuickRepair(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-semibold border border-rose-200 transition-all shadow-xs shrink-0"
+              type="button"
+              onClick={() => window.location.reload()}
+              className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 rounded-xl transition-all shrink-0 cursor-pointer"
+              title="รีเฟรชข้อมูล"
             >
-              <Wrench size={14} />
-              <span>เปิดงานซ่อมด่วน</span>
+              <RotateCcw size={15} />
             </button>
-          )}
-
-          <button
-            onClick={exportToExcel}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0"
-          >
-            <Download size={14} className="text-emerald-600" />
-            <span>Export Excel</span>
-          </button>
-
-          <PushNotificationButton className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0" />
-
-          <button
-            onClick={() => window.location.reload()}
-            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 rounded-xl transition-all shrink-0"
-            title="รีเฟรชข้อมูล"
-          >
-            <RotateCcw size={15} />
-          </button>
+          </div>
         </div>
       </div>
 

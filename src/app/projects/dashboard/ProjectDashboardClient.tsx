@@ -28,19 +28,28 @@ import {
   X,
   TrendingUp,
   ClipboardList,
+  Monitor,
 } from "lucide-react";
 import DashboardCharts from "./DashboardCharts";
 import * as XLSX from "xlsx";
 import { useReactToPrint } from "react-to-print";
 import { calculateProjectProgress } from "@/app/lib/project-utils";
+import ProjectExecutiveCockpit from "./ProjectExecutiveCockpit";
 
 interface ProjectDashboardClientProps {
   projects: any[];
+  isExecutive?: boolean;
+  userRole?: string;
 }
 
 export default function ProjectDashboardClient({
   projects,
+  isExecutive = false,
+  userRole,
 }: ProjectDashboardClientProps) {
+  const [viewMode, setViewMode] = useState<"cockpit" | "operational">(
+    isExecutive ? "cockpit" : "operational"
+  );
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -199,12 +208,17 @@ export default function ProjectDashboardClient({
   const totalOutstandingInstallments = useMemo(
     () =>
       filteredProjects.reduce(
-        (sum, p) =>
-          sum +
-          (Number(p.installment1) || 0) +
-          (Number(p.installment2) || 0) +
-          (Number(p.installment3) || 0) +
-          (Number(p.installment4) || 0),
+        (sum, p) => {
+          let projectSum = 0;
+          if (Array.isArray(p.installmentsData) && p.installmentsData.length > 0) {
+            projectSum = p.installmentsData.reduce((s: number, inst: any) => s + (Number(inst.amount) || 0), 0);
+          } else {
+            for (let i = 1; i <= 12; i++) {
+              projectSum += Number((p as any)[`installment${i}`]) || 0;
+            }
+          }
+          return sum + projectSum;
+        },
         0
       ),
     [filteredProjects]
@@ -365,57 +379,98 @@ export default function ProjectDashboardClient({
     setSearch("");
   };
 
+  if (isExecutive && viewMode === "cockpit") {
+    return (
+      <ProjectExecutiveCockpit
+        projects={projects}
+        onViewOperational={() => setViewMode("operational")}
+      />
+    );
+  }
+
   return (
-    <div className="space-y-6" ref={contentRef}>
-      {/* ── 1. Header & Navigation Bar ── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-slate-200/80">
-        <div className="space-y-1.5 min-w-0">
-          {/* Breadcrumb Row */}
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <Building2 className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-            <span className="font-medium">ระบบบริหารโครงการ (Projects)</span>
-            <span>/</span>
-            <span className="text-slate-800 font-semibold">
-              ภาพรวมและการวิเคราะห์โครงการ (Project Dashboard)
-            </span>
+    <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10 font-ibm-thai">
+      <div className="max-w-7xl mx-auto w-full space-y-6" ref={contentRef}>
+        {/* Executive Mode Banner */}
+        {isExecutive && (
+          <div className="flex items-center justify-between p-3.5 bg-red-50 border border-red-200/80 rounded-2xl shadow-xs print:hidden">
+            <div className="flex items-center gap-2 text-xs text-red-900 font-semibold">
+              <span className="px-2 py-0.5 rounded-md bg-red-600 text-white text-[10px] font-mono font-bold uppercase">
+                Executive Mode
+              </span>
+              <span>คุณกำลังดูแดชบอร์ดโครงการในมุมมองปฏิบัติการ (Operational View)</span>
+            </div>
+            <button
+              onClick={() => setViewMode("cockpit")}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+            >
+              <Monitor size={13} />
+              <span>กลับสู่ Executive Cockpit</span>
+            </button>
+          </div>
+        )}
+
+        {/* ── 1. Header & Navigation Bar ── */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-slate-200/80">
+          <div className="space-y-1.5 min-w-0">
+            {/* Breadcrumb Row */}
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <Building2 className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+              <span className="font-medium">ระบบบริหารโครงการ (Projects)</span>
+              <span>/</span>
+              <span className="text-slate-800 font-semibold">
+                ภาพรวมและการวิเคราะห์โครงการ (Project Dashboard)
+              </span>
+            </div>
+
+            {/* Title + Subtitle */}
+            <div className="flex items-center gap-3 pt-0.5">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm shadow-indigo-500/20 shrink-0">
+                <LayoutDashboard className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                  ภาพรวมโครงการ{" "}
+                  <span className="text-slate-400 font-medium text-base sm:text-lg">
+                    (Project Dashboard)
+                  </span>
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  สรุปข้อมูลการเงิน โครงการ ความคืบหน้า อุปกรณ์หน้างาน และประสิทธิภาพทีมงาน
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Title + Subtitle */}
-          <div className="flex items-center gap-3 pt-0.5">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm shadow-indigo-500/20 shrink-0">
-              <LayoutDashboard className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                ภาพรวมโครงการ{" "}
-                <span className="text-slate-400 font-medium text-base sm:text-lg">
-                  (Project Dashboard)
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                สรุปข้อมูลการเงิน โครงการ ความคืบหน้า อุปกรณ์หน้างาน และประสิทธิภาพทีมงาน
-              </p>
-            </div>
-          </div>
-        </div>
+          {/* Action Buttons */}
+          <div className="flex items-center flex-wrap gap-2 lg:justify-end shrink-0 pt-2 lg:pt-0 print:hidden">
+            {isExecutive && (
+              <button
+                onClick={() => setViewMode("cockpit")}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0 cursor-pointer"
+              >
+                <Monitor size={14} />
+                <span>Executive Cockpit</span>
+              </button>
+            )}
 
-        {/* Action Buttons */}
-        <div className="flex items-center flex-wrap gap-2 lg:justify-end shrink-0 pt-2 lg:pt-0 print:hidden">
-          <Link
-            href="/projects"
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0"
-          >
-            <FolderOpen size={14} className="text-indigo-600" />
-            <span>ทะเบียนโครงการ</span>
-          </Link>
+            <Link
+              href="/projects"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0"
+            >
+              <FolderOpen size={14} className="text-indigo-600" />
+              <span>ทะเบียนโครงการ</span>
+            </Link>
 
-          <Link
-            href="/projects/new"
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0"
-          >
-            <Plus size={14} />
-            <span>สร้างโครงการใหม่</span>
-          </Link>
+            {!isExecutive && (
+              <Link
+                href="/projects/new"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-all shrink-0"
+              >
+                <Plus size={14} />
+                <span>สร้างโครงการใหม่</span>
+              </Link>
+            )}
 
           <button
             onClick={exportToExcel}
@@ -1060,5 +1115,6 @@ export default function ProjectDashboardClient({
         </div>
       </div>
     </div>
-  );
+  </main>
+);
 }
