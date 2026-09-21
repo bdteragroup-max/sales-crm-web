@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { createExpense, deleteExpense } from '@/app/actions/expenseActions';
-import { Plus, Trash2, Calendar, DollarSign, Tag, FileText, Loader2, User, MapPin } from 'lucide-react';
+import { Plus, Trash2, Calendar, DollarSign, Tag, FileText, Loader2, User, MapPin, Search } from 'lucide-react';
 
 interface ExpenseManagerProps {
   initialExpenses: any[];
@@ -24,8 +24,21 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
   const [expenses, setExpenses] = useState(initialExpenses);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRepFilter, setSelectedRepFilter] = useState('ALL');
   
-  const isManager = currentUser.role === 'manager' || currentUser.role === 'admin';
+  const roleLower = (currentUser.role || '').toLowerCase();
+  const isManager = 
+    roleLower.includes('super_admin') ||
+    roleLower.includes('super admin') ||
+    roleLower.includes('marketing manager') ||
+    roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
+    roleLower.includes('ผู้จัดการการตลาด') ||
+    roleLower.includes('ผู้การจัดการตลาด') ||
+    roleLower.includes('sales manager') ||
+    roleLower.includes('ผู้จัดการ') ||
+    roleLower === 'manager' ||
+    roleLower === 'admin';
 
   const [formData, setFormData] = useState({
     amount: '',
@@ -34,6 +47,20 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
     notes: '',
     odometer: '',
     salespersonId: currentUser.id
+  });
+
+  const filteredExpenses = expenses.filter((exp: any) => {
+    if (selectedRepFilter !== 'ALL' && exp.salespersonId !== selectedRepFilter) {
+      return false;
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const repName = (salesReps.find(r => r.id === exp.salespersonId)?.fullName || '').toLowerCase();
+      const notes = (exp.notes || '').toLowerCase();
+      const type = (exp.expenseType || '').toLowerCase();
+      return repName.includes(q) || notes.includes(q) || type.includes(q);
+    }
+    return true;
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -205,8 +232,39 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
         {/* LIST SECTION */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-4 md:p-6 border-b border-gray-100">
-              <h2 className="text-lg font-black text-gray-900">ประวัติค่าใช้จ่ายล่าสุด</h2>
+            <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-black text-gray-900">ประวัติค่าใช้จ่ายล่าสุด</h2>
+                <p className="text-xs text-gray-400 font-bold mt-0.5">
+                  แสดง {filteredExpenses.length} จาก {expenses.length} รายการ
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {isManager && salesReps.length > 1 && (
+                  <select
+                    className="bg-gray-50 border border-gray-200 text-gray-900 text-xs font-bold rounded-xl p-2.5 outline-none focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all max-w-[180px]"
+                    value={selectedRepFilter}
+                    onChange={(e) => setSelectedRepFilter(e.target.value)}
+                  >
+                    <option value="ALL">พนักงานทุกคน</option>
+                    {salesReps.map(rep => (
+                      <option key={rep.id} value={rep.id}>{rep.fullName}</option>
+                    ))}
+                  </select>
+                )}
+
+                <div className="relative min-w-[180px] flex-1">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="ค้นหา..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-gray-50 border border-gray-200 text-gray-900 text-xs font-bold rounded-xl pl-8 pr-3 py-2.5 outline-none focus:ring-[#ff2301]/20 focus:border-[#ff2301] w-full transition-all"
+                  />
+                </div>
+              </div>
             </div>
             
             <div className="overflow-x-auto custom-scrollbar">
@@ -221,14 +279,14 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
                   </tr>
                 </thead>
                 <tbody>
-                  {expenses.length === 0 ? (
+                  {filteredExpenses.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-6 py-8 text-center text-sm font-bold text-gray-400">
-                        ยังไม่มีประวัติค่าใช้จ่าย
+                        {expenses.length === 0 ? 'ยังไม่มีประวัติค่าใช้จ่าย' : 'ไม่พบรายการค่าใช้จ่ายที่ตรงกับการค้นหา'}
                       </td>
                     </tr>
                   ) : (
-                    expenses.map((exp: any) => {
+                    filteredExpenses.map((exp: any) => {
                       const repName = salesReps.find(r => r.id === exp.salespersonId)?.fullName || 'ไม่ทราบชื่อ';
                       return (
                         <tr key={exp.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">

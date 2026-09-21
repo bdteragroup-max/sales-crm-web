@@ -4,6 +4,8 @@ import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 
+import { isSuperUser } from "@/app/lib/roleHelper";
+
 export async function createExpense(formData: FormData) {
   const user = await getUser();
   if (!user) return { success: false, error: "Unauthorized" };
@@ -34,7 +36,9 @@ export async function createExpense(formData: FormData) {
     let targetBranch = user.employeeSale?.branch || "Head Office";
 
     const roleStr = (user.role || '').toLowerCase();
-    const isManager = roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด';
+    const isSuperAdmin = isSuperUser(user.role);
+    const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].some(r => roleStr.includes(r));
+    const isManager = isSuperAdmin || isMarketingManager || roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager';
 
     if (isManager) {
       const selectedUserId = formData.get("salespersonId") as string;
@@ -79,11 +83,17 @@ export async function getExpenses() {
 
   try {
     const roleStr = (user.role || '').toLowerCase();
-    const isManager = roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด';
+    const isSuperAdmin = isSuperUser(user.role);
+    const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].some(r => roleStr.includes(r));
+    const isManager = isSuperAdmin || isMarketingManager || roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager';
     
     let filterIds = [user.id];
+    let whereClause: any = { salespersonId: user.id };
 
-    if (isManager && user.employeeId) {
+    if (isSuperAdmin || isMarketingManager) {
+      // Super Admin and Marketing Manager see all expenses
+      whereClause = {};
+    } else if (isManager && user.employeeId) {
       const subordinates = await teraDb.employees.findMany({
         where: { supervisor_id: user.employeeId, is_active: true },
         select: { emp_id: true }
@@ -97,14 +107,13 @@ export async function getExpenses() {
         });
         filterIds = [user.id, ...subUsers.map(u => u.id)];
       }
+      whereClause = { salespersonId: { in: filterIds } };
     }
-
-    const whereClause = isManager ? { salespersonId: { in: filterIds } } : { salespersonId: user.id };
 
     const expenses = await prisma.branchExpense.findMany({
       where: whereClause,
       orderBy: { date: 'desc' },
-      take: 200,
+      take: 300,
     });
     
     return expenses.map(exp => ({
@@ -126,14 +135,15 @@ export async function deleteExpense(id: string) {
     if (!expense) return { success: false, error: "Not found" };
 
     const roleStr = (user.role || '').toLowerCase();
-    const isManager = roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด';
+    const isSuperAdmin = isSuperUser(user.role);
+    const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].some(r => roleStr.includes(r));
+    const isManager = isSuperAdmin || isMarketingManager || roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager';
 
     if (!isManager && expense.salespersonId !== user.id) {
       return { success: false, error: "Unauthorized" };
     }
 
-    // Ideally, for managers, we should verify the salesperson is in their team, but if they see it in the UI, they can delete it.
-    
+    // Managers, Marketing Managers, and Super Admins can delete
     await prisma.branchExpense.delete({ where: { id } });
 
     revalidatePath("/sales/expenses");

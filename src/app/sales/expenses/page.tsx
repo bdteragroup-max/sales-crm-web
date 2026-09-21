@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import ExpenseManager from './components/ExpenseManager';
 import { getExpenses } from '@/app/actions/expenseActions';
 
+import { isSuperUser } from '@/app/lib/roleHelper';
 import { teraDb } from '@/app/lib/teraDb';
 
 export const metadata = {
@@ -21,11 +22,23 @@ export default async function ExpensesPage() {
   const initialExpenses = await getExpenses();
 
   const roleStr = (user.role || '').toLowerCase();
-  const isManager = roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด';
+  const isSuperAdmin = isSuperUser(user.role);
+  const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].some(r => roleStr.includes(r));
+  const isManager = isSuperAdmin || isMarketingManager || roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager';
   
-  let filterIds = [user.id];
+  let userWhereClause: any = { id: user.id };
 
-  if (isManager && user.employeeId) {
+  if (isSuperAdmin || isMarketingManager) {
+    // Collect any salesperson IDs present in initialExpenses to ensure inactive or cross-department users are resolved
+    const expenseUserIds = Array.from(new Set(initialExpenses.map((e: any) => e.salespersonId).filter(Boolean))) as string[];
+    userWhereClause = {
+      OR: [
+        { isActive: true },
+        ...(expenseUserIds.length > 0 ? [{ id: { in: expenseUserIds } }] : [])
+      ]
+    };
+  } else if (isManager && user.employeeId) {
+    let filterIds = [user.id];
     const subordinates = await teraDb.employees.findMany({
       where: { supervisor_id: user.employeeId, is_active: true },
       select: { emp_id: true }
@@ -39,13 +52,12 @@ export default async function ExpensesPage() {
       });
       filterIds = [user.id, ...subUsers.map(u => u.id)];
     }
+    userWhereClause = { id: { in: filterIds } };
   }
 
-  // Fetch sales reps for the manager dropdown
+  // Fetch sales reps for the manager dropdown and table name display
   const salesRepsRaw = await prisma.user.findMany({
-    where: {
-      id: { in: filterIds }
-    },
+    where: userWhereClause,
     select: {
       id: true,
       fullName: true,
@@ -59,7 +71,7 @@ export default async function ExpensesPage() {
     orderBy: { fullName: 'asc' }
   });
 
-  const salesReps = salesRepsRaw.map(r => ({
+  const salesReps = salesRepsRaw.map((r: any) => ({
     id: r.id,
     fullName: r.fullName,
     role: r.role,
