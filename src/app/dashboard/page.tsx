@@ -6,10 +6,11 @@ import DashboardClientWrapper from '@/app/components/DashboardClientWrapper';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
+import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Dashboard(props: {searchParams: Promise<{[key: string]: string | string[] | undefined;}>;}) {
+export default async function Dashboard(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined; }>; }) {
   const user = await getUser();
   if (!user) redirect('/');
 
@@ -63,7 +64,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     }
     return vars;
   })() : undefined;
-  
+
   const provinceCondition = cleanProvinceFilters ? { in: cleanProvinceFilters } : undefined;
 
   const atRiskDays = typeof searchParams.atRiskDays === 'string' ? parseInt(searchParams.atRiskDays) : 60;
@@ -130,8 +131,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const prevPeriodEnd = new Date(filterEnd.getTime() - durationMs - 1);
 
   // Same Period Last Year (YoY)
-  const yoyStart = new Date(filterStart);yoyStart.setFullYear(yoyStart.getFullYear() - 1);
-  const yoyEnd = new Date(filterEnd);yoyEnd.setFullYear(yoyEnd.getFullYear() - 1);
+  const yoyStart = new Date(filterStart); yoyStart.setFullYear(yoyStart.getFullYear() - 1);
+  const yoyEnd = new Date(filterEnd); yoyEnd.setFullYear(yoyEnd.getFullYear() - 1);
 
   // 0. Fetch subordinates and the manager themselves to allow managers to view and select their own sales
   let salesReps: any[] = [];
@@ -168,23 +169,23 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
         isActive: true,
         NOT: {
           OR: [
-          { role: 'อื่นๆ' },
-          { role: { contains: 'accounting' } },
-          { role: { contains: 'บัญชี' } },
-          { role: { contains: 'purchasing' } },
-          { role: { contains: 'จัดซื้อ' } },
-          { role: { contains: 'warehouse' } },
-          { role: { contains: 'คลังสินค้า' } },
-          { role: { contains: 'service' } },
-          { role: { contains: 'บริการ' } },
-          { role: { contains: 'project' } },
-          { role: { contains: 'โครงการ' } }]
+            { role: 'อื่นๆ' },
+            { role: { contains: 'accounting' } },
+            { role: { contains: 'บัญชี' } },
+            { role: { contains: 'purchasing' } },
+            { role: { contains: 'จัดซื้อ' } },
+            { role: { contains: 'warehouse' } },
+            { role: { contains: 'คลังสินค้า' } },
+            { role: { contains: 'service' } },
+            { role: { contains: 'บริการ' } },
+            { role: { contains: 'project' } },
+            { role: { contains: 'โครงการ' } }]
 
         }
       } : {
         OR: [
-        { employeeId: { in: subEmpIds } },
-        { id: user.id }],
+          { employeeId: { in: subEmpIds } },
+          { id: user.id }],
 
         isActive: true
       }
@@ -214,10 +215,10 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     };
   });
 
-  const subordinateIds = salesReps.map((r: {id: string;}) => r.id);
+  const subordinateIds = salesReps.map((r: { id: string; }) => r.id);
   const filterIds = (isManager || isSuper) ?
-  salespersonIds.length > 0 ? salespersonIds : subordinateIds :
-  [user.id];
+    salespersonIds.length > 0 ? salespersonIds : subordinateIds :
+    [user.id];
 
   // Centralized Probabilities Configuration for Pipeline Stages
   const PIPELINE_PROBABILITIES = {
@@ -249,33 +250,70 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     company: provinceCondition ? { province: provinceCondition } : undefined,
     productType: equipmentType ? equipmentType : undefined,
     OR: [
-    {
-      status: 'เปิดบิลแล้ว',
-      OR: [
-      { billingDate: { gte: start, lte: end } },
-      { billingDate: null, poDate: { gte: start, lte: end } },
-      { billingDate: null, poDate: null, quotationDate: { gte: start, lte: end } },
-      { billingDate: null, poDate: null, quotationDate: null, updatedAt: { gte: start, lte: end } }]
+      {
+        status: 'เปิดบิลแล้ว',
+        OR: [
+          { billingDate: { gte: start, lte: end } },
+          { billingDate: null, poDate: { gte: start, lte: end } },
+          { billingDate: null, poDate: null, quotationDate: { gte: start, lte: end } },
+          { billingDate: null, poDate: null, quotationDate: null, updatedAt: { gte: start, lte: end } }]
 
-    },
-    {
-      status: { startsWith: 'PO' },
-      OR: [
-      { poDate: { gte: start, lte: end } },
-      { poDate: null, quotationDate: { gte: start, lte: end } },
-      { poDate: null, quotationDate: null, updatedAt: { gte: start, lte: end } }]
+      },
+      {
+        status: { startsWith: 'PO' },
+        OR: [
+          { poDate: { gte: start, lte: end } },
+          { poDate: null, quotationDate: { gte: start, lte: end } },
+          { poDate: null, quotationDate: null, updatedAt: { gte: start, lte: end } }]
 
-    },
-    {
-      status: { notIn: ['เปิดบิลแล้ว'] },
-      NOT: { status: { startsWith: 'PO' } },
-      OR: [
-      { quotationDate: { gte: start, lte: end } },
-      { quotationDate: null, updatedAt: { gte: start, lte: end } }]
+      },
+      {
+        status: { notIn: ['เปิดบิลแล้ว'] },
+        NOT: { status: { startsWith: 'PO' } },
+        OR: [
+          { quotationDate: { gte: start, lte: end } },
+          { quotationDate: null, updatedAt: { gte: start, lte: end } }]
 
-    }]
+      }]
 
   });
+
+  // ── Auto-expire open quotations whose validity has ended ──
+  const now = new Date();
+  try {
+    const openQuotesToExpire = await prisma.quotation.findMany({
+      where: { status: 'เสนอราคา' },
+      select: {
+        id: true,
+        quotationDate: true,
+        createdAt: true,
+        productType: true,
+        followUp1: true,
+        followUp2: true,
+        followUp3: true,
+        followUp4: true,
+      }
+    });
+
+    const newlyExpiredIds: string[] = [];
+    for (const q of openQuotesToExpire) {
+      if (calculateQuotationExpiration(q, now).isExpired) {
+        newlyExpiredIds.push(q.id);
+      }
+    }
+
+    if (newlyExpiredIds.length > 0) {
+      await prisma.quotation.updateMany({
+        where: { id: { in: newlyExpiredIds } },
+        data: {
+          status: 'หมดอายุ',
+          statusChangedAt: now,
+        },
+      });
+    }
+  } catch (err) {
+    console.error("Failed to auto-expire quotations on dashboard:", err);
+  }
 
   // Parallel data fetching for all metrics
   const [
@@ -302,17 +340,17 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       _count: { id: true },
       where: getQuotationWhereClause(filterStart, filterEnd)
     }),
-    
+
     // 2. Pending > 30 days
     prisma.quotation.aggregate({
       _sum: { totalAmountBeforeVat: true },
       _count: { id: true },
       where: {
         salespersonId: { in: filterIds },
-        status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
+        status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'] },
         OR: [
-        { quotationDate: { lt: thirtyDaysAgoFilter } },
-        { quotationDate: null, createdAt: { lt: thirtyDaysAgoFilter } }],
+          { quotationDate: { lt: thirtyDaysAgoFilter } },
+          { quotationDate: null, createdAt: { lt: thirtyDaysAgoFilter } }],
 
         company: provinceCondition ? { province: provinceCondition } : undefined
       }
@@ -374,8 +412,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       where: {
         year: { in: [refYear, filterStart.getFullYear(), filterStart.getFullYear() - 1, prevPeriodStart.getFullYear()] },
         OR: [
-        { userId: { in: filterIds } },
-        { userId: null }]
+          { userId: { in: filterIds } },
+          { userId: null }]
 
       }
     }) : Promise.resolve([]),
@@ -384,6 +422,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     prisma.quotation.findMany({
       where: getQuotationWhereClause(filterStart, filterEnd),
       select: {
+        id: true,
         createdAt: true,
         status: true,
         actualClosingAmount: true,
@@ -391,7 +430,12 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
         salespersonId: true,
         billingDate: true,
         poDate: true,
-        quotationDate: true
+        quotationDate: true,
+        productType: true,
+        followUp1: true,
+        followUp2: true,
+        followUp3: true,
+        followUp4: true,
       }
     }),
 
@@ -400,13 +444,13 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       where: {
         userId: { in: filterIds },
         OR: [
-        {
-          callDate: { gte: filterStart, lte: filterEnd }
-        },
-        {
-          callDate: null,
-          createdAt: { gte: filterStart, lte: filterEnd }
-        }],
+          {
+            callDate: { gte: filterStart, lte: filterEnd }
+          },
+          {
+            callDate: null,
+            createdAt: { gte: filterStart, lte: filterEnd }
+          }],
 
         company: province ? { province } : undefined
       },
@@ -452,10 +496,10 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       where: { province: { not: null } }
     })
   ]);
-  
+
   const cleanProvincesSet = new Set<string>();
   const totalCompaniesMap: Record<string, number> = {};
-  
+
   allProvincesRaw.forEach(p => {
     let clean = p.province?.trim() || '';
     if (PROVINCE_MAPPING[clean]) clean = PROVINCE_MAPPING[clean];
@@ -465,175 +509,184 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     }
   });
   const allProvinces = Array.from(cleanProvincesSet).map(p => ({ province: p })).sort((a, b) => a.province.localeCompare(b.province, 'th'));
-  
+
   const prevPeriodQuotations = await
-  // 16. Previous Period Quotations for Sales Cycle & Flow Benchmarks
-  prisma.quotation.findMany({
-    where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
-    select: { createdAt: true, status: true, billingDate: true, poDate: true, updatedAt: true, totalAmountBeforeVat: true, quotationDate: true }
-  });const allTimeWonQuotations = await
-  // 17. All-time Won Quotations for Customer Lifetime Analytics (CLV, At-Risk, New vs Existing)
-  prisma.quotation.findMany({
-    where: {
-      salespersonId: { in: filterIds },
-      OR: [
-      { status: 'เปิดบิลแล้ว' },
-      { status: { startsWith: 'PO' } }]
+    // 16. Previous Period Quotations for Sales Cycle & Flow Benchmarks
+    prisma.quotation.findMany({
+      where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
+      select: { createdAt: true, status: true, billingDate: true, poDate: true, updatedAt: true, totalAmountBeforeVat: true, quotationDate: true }
+    }); const allTimeWonQuotations = await
+      // 17. All-time Won Quotations for Customer Lifetime Analytics (CLV, At-Risk, New vs Existing)
+      prisma.quotation.findMany({
+        where: {
+          salespersonId: { in: filterIds },
+          OR: [
+            { status: 'เปิดบิลแล้ว' },
+            { status: { startsWith: 'PO' } }]
 
-    },
-    select: {
-      id: true,
-      companyId: true,
-      actualClosingAmount: true,
-      totalAmountBeforeVat: true,
-      billingDate: true,
-      createdAt: true,
-      productType: true,
-      salespersonId: true,
-      company: { select: { companyName: true, province: true } }
-    },
-    orderBy: { createdAt: 'asc' }
-  });const sixMonthTargets = await (
-  // 18. MonthlyTargets for last 6 months (Forecast Accuracy)
-  (prisma as any)['monthlyTarget'] ? (prisma as any)['monthlyTarget'].findMany({
-    where: {
-      year: { in: [refYear, refYear - 1] },
-      OR: [
-      { userId: { in: filterIds } },
-      { userId: null }]
+        },
+        select: {
+          id: true,
+          companyId: true,
+          actualClosingAmount: true,
+          totalAmountBeforeVat: true,
+          billingDate: true,
+          createdAt: true,
+          productType: true,
+          salespersonId: true,
+          company: { select: { companyName: true, province: true } }
+        },
+        orderBy: { createdAt: 'asc' }
+      }); const sixMonthTargets = await (
+        // 18. MonthlyTargets for last 6 months (Forecast Accuracy)
+        (prisma as any)['monthlyTarget'] ? (prisma as any)['monthlyTarget'].findMany({
+          where: {
+            year: { in: [refYear, refYear - 1] },
+            OR: [
+              { userId: { in: filterIds } },
+              { userId: null }]
 
+          }
+        }) : Promise.resolve([])); const prevPeriodHistoryQuotations = await
+          // 19. Previous Period daily quotations for MoM overlay
+          prisma.quotation.findMany({
+            where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
+            select: {
+              createdAt: true,
+              status: true,
+              actualClosingAmount: true,
+              totalAmountBeforeVat: true,
+              billingDate: true,
+              poDate: true,
+              quotationDate: true
+            }
+          }); const teamTelesalesBenchmark = await
+            // 20. Team-wide Telesales Benchmarks
+            prisma.telesale.findMany({
+              where: {
+                OR: [
+                  {
+                    callDate: { gte: filterStart, lte: filterEnd }
+                  },
+                  {
+                    callDate: null,
+                    createdAt: { gte: filterStart, lte: filterEnd }
+                  }],
+
+                company: provinceCondition ? { province: provinceCondition } : undefined
+              },
+              select: {
+                companyId: true,
+                callStatus: true,
+                callOutcome: true,
+                forwardTo: true,
+                createdAt: true,
+                callDate: true
+              }
+            }); const companyClosedQuotations = await
+              // 21. Company-wide Closed Quotations (for sales cycle fallbacks & Win Rate benchmarks, supporting null date fallbacks)
+              prisma.quotation.findMany({
+                where: {
+                  OR: [
+                    {
+                      status: 'เปิดบิลแล้ว',
+                      OR: [
+                        { billingDate: { gte: filterStart, lte: filterEnd } },
+                        { billingDate: null, poDate: { gte: filterStart, lte: filterEnd } },
+                        { billingDate: null, poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
+                        { billingDate: null, poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
+
+                    },
+                    {
+                      status: { startsWith: 'PO' },
+                      OR: [
+                        { poDate: { gte: filterStart, lte: filterEnd } },
+                        { poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
+                        { poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
+
+                    },
+                    {
+                      status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
+                      OR: [
+                        { quotationDate: { gte: filterStart, lte: filterEnd } },
+                        { quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
+
+                    }],
+
+                  company: provinceCondition ? { province: provinceCondition } : undefined
+                },
+                select: {
+                  createdAt: true,
+                  status: true,
+                  billingDate: true,
+                  poDate: true,
+                  quotationDate: true,
+                  updatedAt: true,
+                  productType: true
+                }
+              }); const telesalesKPIsResult = await
+                // 22. Telesales KPIs
+                prisma.telesalesKPI.findMany({
+                  where: {
+                    month: refMonth + 1,
+                    year: refYear,
+                    OR: [
+                      { userId: { in: filterIds } },
+                      { userId: null }]
+
+                  }
+                }); const ordersAgg = await
+                  // 23. Orders tracking metrics
+                  prisma.order.groupBy({
+                    by: ['status'],
+                    _sum: { value: true },
+                    _count: { id: true },
+                    where: {
+                      company: provinceCondition ? { province: provinceCondition } : undefined,
+                      OR: []
+
+                    }
+                  }); const jobsAgg = await
+
+                    // 24. Jobs tracking metrics
+                    prisma.job.groupBy({
+                      by: ['currentStep'],
+                      _count: { id: true },
+                      where: {
+                        OR: [
+                          { sellerName: { in: salesReps.map((r: any) => r.fullName).filter(Boolean) } },
+                          { sellerName: user.fullName ?? "" },
+                          { sellerName: null },
+                          { sellerName: "" }]
+
+                      }
+                    }); const allActiveQuotations = await
+                      // 25. All Active Quotations (for Aging Deals, independent of date filter)
+                      prisma.quotation.findMany({
+                        where: {
+                          salespersonId: { in: filterIds },
+                          company: provinceCondition ? { province: provinceCondition } : undefined,
+                          status: { in: ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'] }
+                        },
+                        include: {
+                          company: true,
+                          salesperson: {
+                            include: {
+                              employeeSale: true
+                            }
+                          }
+                        }
+                      });
+
+  const activeUnexpiredQuotations = allActiveQuotations.filter((q) => {
+    if (q.status === 'หมดอายุ') return false;
+    if (q.status === 'เสนอราคา') {
+      const exp = calculateQuotationExpiration(q, now);
+      if (exp.isExpired) return false;
     }
-  }) : Promise.resolve([]));const prevPeriodHistoryQuotations = await
-  // 19. Previous Period daily quotations for MoM overlay
-  prisma.quotation.findMany({
-    where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
-    select: {
-      createdAt: true,
-      status: true,
-      actualClosingAmount: true,
-      totalAmountBeforeVat: true,
-      billingDate: true,
-      poDate: true,
-      quotationDate: true
-    }
-  });const teamTelesalesBenchmark = await
-  // 20. Team-wide Telesales Benchmarks
-  prisma.telesale.findMany({
-    where: {
-      OR: [
-      {
-        callDate: { gte: filterStart, lte: filterEnd }
-      },
-      {
-        callDate: null,
-        createdAt: { gte: filterStart, lte: filterEnd }
-      }],
-
-      company: provinceCondition ? { province: provinceCondition } : undefined
-    },
-    select: {
-      companyId: true,
-      callStatus: true,
-      callOutcome: true,
-      forwardTo: true,
-      createdAt: true,
-      callDate: true
-    }
-  });const companyClosedQuotations = await
-  // 21. Company-wide Closed Quotations (for sales cycle fallbacks & Win Rate benchmarks, supporting null date fallbacks)
-  prisma.quotation.findMany({
-    where: {
-      OR: [
-      {
-        status: 'เปิดบิลแล้ว',
-        OR: [
-        { billingDate: { gte: filterStart, lte: filterEnd } },
-        { billingDate: null, poDate: { gte: filterStart, lte: filterEnd } },
-        { billingDate: null, poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
-        { billingDate: null, poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
-
-      },
-      {
-        status: { startsWith: 'PO' },
-        OR: [
-        { poDate: { gte: filterStart, lte: filterEnd } },
-        { poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
-        { poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
-
-      },
-      {
-        status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
-        OR: [
-        { quotationDate: { gte: filterStart, lte: filterEnd } },
-        { quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
-
-      }],
-
-      company: provinceCondition ? { province: provinceCondition } : undefined
-    },
-    select: {
-      createdAt: true,
-      status: true,
-      billingDate: true,
-      poDate: true,
-      quotationDate: true,
-      updatedAt: true,
-      productType: true
-    }
-  });const telesalesKPIsResult = await
-  // 22. Telesales KPIs
-  prisma.telesalesKPI.findMany({
-    where: {
-      month: refMonth + 1,
-      year: refYear,
-      OR: [
-      { userId: { in: filterIds } },
-      { userId: null }]
-
-    }
-  });const ordersAgg = await
-  // 23. Orders tracking metrics
-  prisma.order.groupBy({
-    by: ['status'],
-    _sum: { value: true },
-    _count: { id: true },
-    where: {
-      company: provinceCondition ? { province: provinceCondition } : undefined,
-      OR: []
-
-    }
-  });const jobsAgg = await
-
-  // 24. Jobs tracking metrics
-  prisma.job.groupBy({
-    by: ['currentStep'],
-    _count: { id: true },
-    where: {
-      OR: [
-      { sellerName: { in: salesReps.map((r: any) => r.fullName).filter(Boolean) } },
-      { sellerName: user.fullName ?? "" },
-      { sellerName: null },
-      { sellerName: "" }]
-
-    }
-  });const allActiveQuotations = await
-  // 25. All Active Quotations (for Aging Deals, independent of date filter)
-  prisma.quotation.findMany({
-    where: {
-      salespersonId: { in: filterIds },
-      company: provinceCondition ? { province: provinceCondition } : undefined,
-      status: { in: ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'] }
-    },
-    include: {
-      company: true,
-      salesperson: {
-        include: {
-          employeeSale: true
-        }
-      }
-    }
+    return true;
   });
-  
+
   const allProductTypesRaw = await prisma.quotation.findMany({
     select: { productType: true },
     distinct: ['productType'],
@@ -648,7 +701,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const wonCount = wonGroup?._count.id ?? 0;
 
   const pipelineGroups = (quotationSummary as any[]).filter((g) =>
-  !['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'].includes(g.status || '')
+    !['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'].includes(g.status || '')
   );
   const pipelineVal = pipelineGroups.reduce((acc, g) => acc + (g._sum.totalAmountBeforeVat ?? 0), 0);
   const pipelineCount = pipelineGroups.reduce((acc, g) => acc + (g._count.id ?? 0), 0);
@@ -678,21 +731,21 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   if (isManager && salespersonIds.length === 0) {
     // Manager looking at whole team: sum the targets of active subordinates who have targets assigned
     targetMTD = (monthlyTargetResult as any[]).
-    filter((t) => t.month === currentMonth && t.userId !== null && subordinateIds.includes(t.userId)).
-    reduce((sum, t) => sum + (t.amount || 0), 0);
+      filter((t) => t.month === currentMonth && t.userId !== null && subordinateIds.includes(t.userId)).
+      reduce((sum, t) => sum + (t.amount || 0), 0);
 
     targetQTD = (monthlyTargetResult as any[]).
-    filter((t) => currentQuarterMonths.includes(t.month) && t.userId !== null && subordinateIds.includes(t.userId)).
-    reduce((sum, t) => sum + (t.amount || 0), 0);
+      filter((t) => currentQuarterMonths.includes(t.month) && t.userId !== null && subordinateIds.includes(t.userId)).
+      reduce((sum, t) => sum + (t.amount || 0), 0);
   } else {
     // Single salesperson or specific filtered salespeople: sum their individual targets
     targetMTD = (monthlyTargetResult as any[]).
-    filter((t) => t.month === currentMonth && t.userId !== null && filterIds.includes(t.userId)).
-    reduce((sum, t) => sum + (t.amount || 0), 0);
+      filter((t) => t.month === currentMonth && t.userId !== null && filterIds.includes(t.userId)).
+      reduce((sum, t) => sum + (t.amount || 0), 0);
 
     targetQTD = (monthlyTargetResult as any[]).
-    filter((t) => currentQuarterMonths.includes(t.month) && t.userId !== null && filterIds.includes(t.userId)).
-    reduce((sum, t) => sum + (t.amount || 0), 0);
+      filter((t) => currentQuarterMonths.includes(t.month) && t.userId !== null && filterIds.includes(t.userId)).
+      reduce((sum, t) => sum + (t.amount || 0), 0);
   }
 
   const achMTD = targetMTD > 0 ? wonVal / targetMTD * 100 : 0;
@@ -724,8 +777,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const connectionRateMin = repCountForKPI > 0 ? connectionRateMinSum / repCountForKPI : 0.6;
 
   // Categorical Data Processing & Enriched Aggregations
-  const lostReasonMap: Record<string, {name: string;value: number;lostValue: number;}> = {};
-  const regionalMetrics: Record<string, {name: string;value: number;activeCompanies: Set<string>;}> = {};
+  const lostReasonMap: Record<string, { name: string; value: number; lostValue: number; }> = {};
+  const regionalMetrics: Record<string, { name: string; value: number; activeCompanies: Set<string>; }> = {};
   const bizTypePipelineMap: Record<string, number> = {};
   const bizTypeWonMap: Record<string, number> = {};
   const segmentMap: Record<string, number> = {};
@@ -788,13 +841,22 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     const segment = q.company?.customerStatus || 'ลูกค้าใหม่';
     segmentMap[segment] = (segmentMap[segment] || 0) + 1;
 
+    const isWon = q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO');
+    const isExpired = q.status === 'หมดอายุ' || (q.status === 'เสนอราคา' && calculateQuotationExpiration(q, now).isExpired);
+
     const biz = q.company?.businessType || 'ไม่ระบุ';
-    if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) bizTypeWonMap[biz] = (bizTypeWonMap[biz] || 0) + (q.actualClosingAmount || q.totalAmountBeforeVat || 0);else
-    bizTypePipelineMap[biz] = (bizTypePipelineMap[biz] || 0) + (q.totalAmountBeforeVat || 0);
-    
+    if (isWon) {
+      bizTypeWonMap[biz] = (bizTypeWonMap[biz] || 0) + (q.actualClosingAmount || q.totalAmountBeforeVat || 0);
+    } else if (!isLost && !isExpired) {
+      bizTypePipelineMap[biz] = (bizTypePipelineMap[biz] || 0) + (q.totalAmountBeforeVat || 0);
+    }
+
     const channel = q.company?.customerAccessChannel || 'ไม่ระบุ';
-    if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) accessChannelWonMap[channel] = (accessChannelWonMap[channel] || 0) + (q.actualClosingAmount || q.totalAmountBeforeVat || 0);else
-    accessChannelPipelineMap[channel] = (accessChannelPipelineMap[channel] || 0) + (q.totalAmountBeforeVat || 0);
+    if (isWon) {
+      accessChannelWonMap[channel] = (accessChannelWonMap[channel] || 0) + (q.actualClosingAmount || q.totalAmountBeforeVat || 0);
+    } else if (!isLost && !isExpired) {
+      accessChannelPipelineMap[channel] = (accessChannelPipelineMap[channel] || 0) + (q.totalAmountBeforeVat || 0);
+    }
   });
 
   // totalCompaniesMap is now computed earlier with raw province mapping
@@ -829,12 +891,12 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   let prevTargetMTD = 0;
   if (isManager && salespersonIds.length === 0) {
     prevTargetMTD = (monthlyTargetResult as any[]).
-    filter((t) => t.month === prevMonthIdx + 1 && t.year === prevMonthYear && t.userId !== null && subordinateIds.includes(t.userId)).
-    reduce((sum, t) => sum + (t.amount || 0), 0);
+      filter((t) => t.month === prevMonthIdx + 1 && t.year === prevMonthYear && t.userId !== null && subordinateIds.includes(t.userId)).
+      reduce((sum, t) => sum + (t.amount || 0), 0);
   } else {
     prevTargetMTD = (monthlyTargetResult as any[]).
-    filter((t) => t.month === prevMonthIdx + 1 && t.year === prevMonthYear && t.userId !== null && filterIds.includes(t.userId)).
-    reduce((sum, t) => sum + (t.amount || 0), 0);
+      filter((t) => t.month === prevMonthIdx + 1 && t.year === prevMonthYear && t.userId !== null && filterIds.includes(t.userId)).
+      reduce((sum, t) => sum + (t.amount || 0), 0);
   }
 
   const getQuotationDateHelper = (q: any) => {
@@ -858,7 +920,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
     // Constant daily target based on the calendar month's total days
     const lastDay = new Date(dYear, dMonth, 0).getDate();
-    
+
     let thisMonthTarget = 0;
     if (isManager && salespersonIds.length === 0) {
       thisMonthTarget = (monthlyTargetResult as any[]).filter((t) => t.month === dMonth && t.year === dYear && t.userId !== null && subordinateIds.includes(t.userId)).reduce((sum, t) => sum + (t.amount || 0), 0);
@@ -930,7 +992,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
   // Safe Cycle Win Averages (Exclude updatedAt fallback entirely, supporting null billing/PO fallbacks)
   const wonDealsWithCycles = analyticalData.filter((q) =>
-  (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
+    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
   ).map((q) => {
     const closeDate = q.billingDate || q.poDate || q.quotationDate || q.createdAt;
     return {
@@ -940,24 +1002,24 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   }).filter((q) => q.cycleDays !== null);
 
   const teamAvgTimeToWin = wonDealsWithCycles.length > 0 ?
-  wonDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / wonDealsWithCycles.length :
-  0;
+    wonDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / wonDealsWithCycles.length :
+    0;
 
   // Safe Cycle Lose Averages
   const lostDealsWithCycles = analyticalData.filter((q) =>
-  q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')
+    q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')
   ).map((q) => ({
     ...q,
     cycleDays: getDiffDaysHelper(q.quotationDate || q.createdAt, q.updatedAt)
   })).filter((q) => q.cycleDays !== null);
 
   const teamAvgTimeToLose = lostDealsWithCycles.length > 0 ?
-  lostDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / lostDealsWithCycles.length :
-  0;
+    lostDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / lostDealsWithCycles.length :
+    0;
 
   // Company-wide Benchmarks (calculated from companyClosedQuotations, supporting null date fallbacks)
   const companyWonDealsWithCycles = companyClosedQuotations.filter((q: any) =>
-  (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
+    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
   ).map((q: any) => {
     const closeDate = q.billingDate || q.poDate || q.quotationDate || q.createdAt;
     return {
@@ -967,69 +1029,69 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   }).filter((q: any) => q.cycleDays !== null);
 
   const companyAvgTimeToWin = companyWonDealsWithCycles.length > 0 ?
-  companyWonDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / companyWonDealsWithCycles.length :
-  14.5; // Premium company fallback default if no data at all
+    companyWonDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / companyWonDealsWithCycles.length :
+    14.5; // Premium company fallback default if no data at all
 
   const companyLostDealsWithCycles = companyClosedQuotations.filter((q: any) =>
-  q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')
+    q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')
   ).map((q: any) => ({
     ...q,
     cycleDays: getDiffDaysHelper(q.quotationDate || q.createdAt, q.updatedAt)
   })).filter((q: any) => q.cycleDays !== null);
 
   const companyAvgTimeToLose = companyLostDealsWithCycles.length > 0 ?
-  companyLostDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / companyLostDealsWithCycles.length :
-  21.0; // Premium company fallback default if no data at all
+    companyLostDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / companyLostDealsWithCycles.length :
+    21.0; // Premium company fallback default if no data at all
 
   const finalAvgTimeToWin = teamAvgTimeToWin > 0 ? teamAvgTimeToWin : companyAvgTimeToWin;
   const finalAvgTimeToLose = teamAvgTimeToLose > 0 ? teamAvgTimeToLose : companyAvgTimeToLose;
 
   // Previous Period Benchmarks for Win/Lose Cycle (supporting null date fallbacks)
   const prevWonDeals = prevPeriodQuotations.filter((q) =>
-  (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
+    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
   ).map((q) => {
     const closeDate = q.billingDate || q.poDate || q.quotationDate || q.createdAt;
     return getDiffDaysHelper(q.quotationDate || q.createdAt, closeDate);
   }).filter((c) => c !== null) as number[];
 
   const prevAvgTimeToWin = prevWonDeals.length > 0 ?
-  prevWonDeals.reduce((sum, c) => sum + c, 0) / prevWonDeals.length :
-  0;
+    prevWonDeals.reduce((sum, c) => sum + c, 0) / prevWonDeals.length :
+    0;
 
   const prevLostDeals = prevPeriodQuotations.filter((q) =>
-  q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')
+    q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')
   ).map((q) => getDiffDaysHelper(q.quotationDate || q.createdAt, q.updatedAt)).
-  filter((c) => c !== null) as number[];
+    filter((c) => c !== null) as number[];
 
   const prevAvgTimeToLose = prevLostDeals.length > 0 ?
-  prevLostDeals.reduce((sum, c) => sum + c, 0) / prevLostDeals.length :
-  0;
+    prevLostDeals.reduce((sum, c) => sum + c, 0) / prevLostDeals.length :
+    0;
 
   // Product Type Cycle Breakdown & Dynamic Thresholding Setup
   const productTypes = Array.from(new Set(analyticalData.map((q) => q.productType || 'อื่นๆ')));
   const productCycleTimes = productTypes.map((pType) => {
     const pWonDeals = wonDealsWithCycles.filter((q) => (q.productType || 'อื่นๆ') === pType);
     let pAvgTimeToWin = pWonDeals.length > 0 ?
-    pWonDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / pWonDeals.length :
-    0;
+      pWonDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / pWonDeals.length :
+      0;
 
     const pLostDeals = lostDealsWithCycles.filter((q) => (q.productType || 'อื่นๆ') === pType);
     let pAvgTimeToLose = pLostDeals.length > 0 ?
-    pLostDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / pLostDeals.length :
-    0;
+      pLostDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / pLostDeals.length :
+      0;
 
     // Fall back to company-wide product average if salesperson has no data for this specific product
     if (pAvgTimeToWin === 0) {
       const companyProductWonDeals = companyWonDealsWithCycles.filter((q: any) => (q.productType || 'อื่นๆ') === pType);
       pAvgTimeToWin = companyProductWonDeals.length > 0 ?
-      companyProductWonDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / companyProductWonDeals.length :
-      companyAvgTimeToWin;
+        companyProductWonDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / companyProductWonDeals.length :
+        companyAvgTimeToWin;
     }
     if (pAvgTimeToLose === 0) {
       const companyProductLostDeals = companyLostDealsWithCycles.filter((q: any) => (q.productType || 'อื่นๆ') === pType);
       pAvgTimeToLose = companyProductLostDeals.length > 0 ?
-      companyProductLostDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / companyProductLostDeals.length :
-      companyAvgTimeToLose;
+        companyProductLostDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / companyProductLostDeals.length :
+        companyAvgTimeToLose;
     }
 
     return {
@@ -1041,8 +1103,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   });
 
   // Stale Pipeline / Aging Deals Identification (Two-Layer Dynamic Thresholds + 30-Day Absolute Hard Cap)
-  const now = new Date();
-  const agingDeals = allActiveQuotations.map((q) => {
+  const agingDeals = activeUnexpiredQuotations.map((q) => {
     const pType = q.productType || 'อื่นๆ';
     const pStats = productCycleTimes.find((pct) => pct.productType === pType);
 
@@ -1086,28 +1147,33 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       managerStatus: q.salesperson?.employeeSale?.teamLeader || 'ไม่ระบุ'
     };
   }).filter((deal) => deal.daysStuck > deal.threshold || deal.isAbsoluteAging).
-  sort((a, b) => b.value - a.value); // Sorted by Value (Impact) descending!
+    sort((a, b) => b.value - a.value); // Sorted by Value (Impact) descending!
 
   // --- Funnel Counts, Values and Weighted Values ---
 
   const avgWonValue = wonCount > 0 ? wonVal / wonCount : 50000;
 
-  // 1. Target (ความสนใจ) - Since telesales may be 0, all quotations also enter the pipeline as target leads
-  const targetCount = historyTelesales.length + historyQuotations.length;
-  const targetValue = historyTelesales.length * avgWonValue + historyQuotations.reduce((s, q) => s + (q.totalAmountBeforeVat || 0), 0);
+  // 1. Target (ความสนใจ) - Leads plus unexpired quotes enter pipeline as target leads
+  const unexpiredHistoryQuotes = historyQuotations.filter((q) =>
+    q.status !== 'หมดอายุ' && !(q.status === 'เสนอราคา' && calculateQuotationExpiration(q, now).isExpired)
+  );
+  const targetCount = historyTelesales.length + unexpiredHistoryQuotes.length;
+  const targetValue = historyTelesales.length * avgWonValue + unexpiredHistoryQuotes.reduce((s, q) => s + (q.totalAmountBeforeVat || 0), 0);
   const targetWeighted = targetValue * PIPELINE_PROBABILITIES.target;
 
-  // 2. Quotation (ใบเสนอราคา) - All active/won non-lost quotes
+  // 2. Quotation (ใบเสนอราคา) - All active/won non-lost, non-expired quotes
   const activeQuotes = historyQuotations.filter((q) =>
-  !['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'].includes(q.status || '')
+    !['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'].includes(q.status || '') &&
+    !(q.status === 'เสนอราคา' && calculateQuotationExpiration(q, now).isExpired)
   );
   const quotationCount = activeQuotes.length;
   const quotationValue = activeQuotes.reduce((s, q) => s + (q.totalAmountBeforeVat || 0), 0);
   const quotationWeighted = activeQuotes.reduce((s, q) => s + (q.totalAmountBeforeVat || 0) * PIPELINE_PROBABILITIES.quotation, 0);
 
-  // 3. Negotiation (เจรจาต่อรอง) - Pending active pipeline
+  // 3. Negotiation (เจรจาต่อรอง) - Pending active pipeline (excluding expired)
   const negotiationQuotes = historyQuotations.filter((q) =>
-  ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'].includes(q.status || '')
+    ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'].includes(q.status || '') &&
+    !(q.status === 'เสนอราคา' && calculateQuotationExpiration(q, now).isExpired)
   );
   const negotiationCount = negotiationQuotes.length;
   const negotiationValue = negotiationQuotes.reduce((s, q) => s + (q.totalAmountBeforeVat || 0), 0);
@@ -1119,10 +1185,10 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const closingWeighted = closingValue * PIPELINE_PROBABILITIES.closing;
 
   const funnelStagesData = [
-  { name: 'ความสนใจ', count: targetCount, value: targetValue, weighted: targetWeighted, conversionRate: 100 },
-  { name: 'ใบเสนอราคา', count: quotationCount, value: quotationValue, weighted: quotationWeighted, conversionRate: targetCount > 0 ? quotationCount / targetCount * 100 : 0 },
-  { name: 'เจรจาต่อรอง', count: negotiationCount, value: negotiationValue, weighted: negotiationWeighted, conversionRate: quotationCount > 0 ? negotiationCount / quotationCount * 100 : 0 },
-  { name: 'ปิดการขาย', count: closingCount, value: closingValue, weighted: closingWeighted, conversionRate: negotiationCount > 0 ? closingCount / negotiationCount * 100 : 0 }];
+    { name: 'ความสนใจ', count: targetCount, value: targetValue, weighted: targetWeighted, conversionRate: 100 },
+    { name: 'ใบเสนอราคา', count: quotationCount, value: quotationValue, weighted: quotationWeighted, conversionRate: targetCount > 0 ? quotationCount / targetCount * 100 : 0 },
+    { name: 'เจรจาต่อรอง', count: negotiationCount, value: negotiationValue, weighted: negotiationWeighted, conversionRate: quotationCount > 0 ? negotiationCount / quotationCount * 100 : 0 },
+    { name: 'ปิดการขาย', count: closingCount, value: closingValue, weighted: closingWeighted, conversionRate: negotiationCount > 0 ? closingCount / negotiationCount * 100 : 0 }];
 
 
   // --- Pipeline Flow / Movement (MoM & Net Change) ---
@@ -1150,10 +1216,10 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
   // --- Win Rate & Total Sample size (Invoiced or PO / All filtered items) ---
   const teamWonQuotesCount = historyQuotations.filter((q) =>
-  q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')
+    q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')
   ).length;
   const teamLostQuotesCount = historyQuotations.filter((q) =>
-  q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')
+    q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')
   ).length;
   const teamClosedCount = historyQuotations.length;
   const teamWinRate = teamClosedCount > 0 ? teamWonQuotesCount / teamClosedCount * 100 : 0;
@@ -1169,23 +1235,23 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   for (let offset = 5; offset >= 0; offset--) {
     let mIdx = refMonth - offset;
     let mYear = refYear;
-    if (mIdx < 0) {mIdx += 12;mYear -= 1;}
+    if (mIdx < 0) { mIdx += 12; mYear -= 1; }
     const monthNum = mIdx + 1;
     const monthLabel = `${mYear}-${String(monthNum).padStart(2, '0')}`;
 
     let monthTarget = 0;
     if (isManager && salespersonIds.length === 0) {
       const teamMTarget = (sixMonthTargets as any[]).filter((t) => t.month === monthNum && t.year === mYear && t.userId === null).
-      reduce((s, t) => s + (t.amount || 0), 0);
+        reduce((s, t) => s + (t.amount || 0), 0);
       if (teamMTarget > 0) {
         monthTarget = teamMTarget;
       } else {
         monthTarget = (sixMonthTargets as any[]).filter((t) => t.month === monthNum && t.year === mYear && t.userId !== null && subordinateIds.includes(t.userId)).
-        reduce((s, t) => s + (t.amount || 0), 0);
+          reduce((s, t) => s + (t.amount || 0), 0);
       }
     } else {
       monthTarget = (sixMonthTargets as any[]).filter((t) => t.month === monthNum && t.year === mYear && t.userId !== null && filterIds.includes(t.userId)).
-      reduce((s, t) => s + (t.amount || 0), 0);
+        reduce((s, t) => s + (t.amount || 0), 0);
     }
 
     const monthActual = (allTimeWonQuotations as any[]).filter((q) => {
@@ -1278,9 +1344,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     silver: { count: 0, totalValue: 0 }
   };
   allCustomerData.forEach((c) => {
-    if (c.totalValue >= 500000) {clvTiers.platinum.count++;clvTiers.platinum.totalValue += c.totalValue;} else
-    if (c.totalValue >= 200000) {clvTiers.gold.count++;clvTiers.gold.totalValue += c.totalValue;} else
-    {clvTiers.silver.count++;clvTiers.silver.totalValue += c.totalValue;}
+    if (c.totalValue >= 500000) { clvTiers.platinum.count++; clvTiers.platinum.totalValue += c.totalValue; } else
+      if (c.totalValue >= 200000) { clvTiers.gold.count++; clvTiers.gold.totalValue += c.totalValue; } else { clvTiers.silver.count++; clvTiers.silver.totalValue += c.totalValue; }
   });
 
   // New vs Existing Customer (based on first win date vs filter range)
@@ -1291,9 +1356,9 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   allCustomerData.forEach((c) => {
     // Check if this company has any revenue in the filtered period
     const companyFilteredRevenue = (allTimeWonQuotations as any[]).filter((q) =>
-    q.companyId === c.companyId &&
-    new Date(q.billingDate || q.createdAt) >= filterStart &&
-    new Date(q.billingDate || q.createdAt) <= filterEnd
+      q.companyId === c.companyId &&
+      new Date(q.billingDate || q.createdAt) >= filterStart &&
+      new Date(q.billingDate || q.createdAt) <= filterEnd
     ).reduce((s, q) => s + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
 
     if (companyFilteredRevenue > 0) {
@@ -1378,9 +1443,10 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   // 4. Forecast Shift (compare current vs previous period forecast value)
   const prevForecast = prevPeriodQuotations.reduce((sum, q) => {
     if (q.status === '\u0e40\u0e1b\u0e34\u0e14\u0e1a\u0e34\u0e25\u0e41\u0e25\u0e49\u0e27') return sum;
+    if (q.status === 'หมดอายุ' || q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')) return sum;
     let prob = 0.1;
-    if (['\u0e40\u0e2a\u0e19\u0e2d\u0e23\u0e32\u0e04\u0e32', '\u0e23\u0e2d\u0e43\u0e1a\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e23\u0e32\u0e04\u0e32'].includes(q.status || '')) prob = PIPELINE_PROBABILITIES.quotation;else
-    if (['\u0e23\u0e2d\u0e08\u0e31\u0e14\u0e17\u0e33 PO', 'PO \u0e41\u0e25\u0e49\u0e27\u0e23\u0e2d\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32', 'PO \u0e41\u0e25\u0e49\u0e27\u0e23\u0e2d\u0e21\u0e31\u0e14\u0e08\u0e33', 'PO \u0e41\u0e25\u0e49\u0e27\u0e23\u0e2d\u0e40\u0e07\u0e34\u0e19\u0e42\u0e2d\u0e19'].includes(q.status || '')) prob = PIPELINE_PROBABILITIES.negotiation;
+    if (['\u0e40\u0e2a\u0e19\u0e2d\u0e23\u0e32\u0e04\u0e32', '\u0e23\u0e2d\u0e43\u0e1a\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e23\u0e32\u0e04\u0e32'].includes(q.status || '')) prob = PIPELINE_PROBABILITIES.quotation; else
+      if (['\u0e23\u0e2d\u0e08\u0e31\u0e14\u0e17\u0e33 PO', 'PO \u0e41\u0e25\u0e49\u0e27\u0e23\u0e2d\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32', 'PO \u0e41\u0e25\u0e49\u0e27\u0e23\u0e2d\u0e21\u0e31\u0e14\u0e08\u0e33', 'PO \u0e41\u0e25\u0e49\u0e27\u0e23\u0e2d\u0e40\u0e07\u0e34\u0e19\u0e42\u0e2d\u0e19'].includes(q.status || '')) prob = PIPELINE_PROBABILITIES.negotiation;
     return sum + (q.totalAmountBeforeVat || 0) * prob;
   }, 0) + prevVal;
 
@@ -1446,8 +1512,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     // Individual Sales Win cycle
     const repWonDeals = wonDealsWithCycles.filter((q) => q.salespersonId === rep.id);
     const repAvgTimeToWin = repWonDeals.length > 0 ?
-    repWonDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / repWonDeals.length :
-    0;
+      repWonDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / repWonDeals.length :
+      0;
 
     const tEmp = teraEmployees.find((t: any) => t.emp_id === rep.employeeId);
 
@@ -1490,7 +1556,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       return b.value - a.value;
     });
   } // end if (isManager && employeePerformance.length > 0)
-  
+
   // NEW ENHANCEMENTS: Branch/Individual Expenses and Product Group Targets
   const filteredSalesRepsForExpenses = salesReps.filter((r: any) => filterIds.includes(r.id));
   const hrBranchesForExpenses = Array.from(new Set(filteredSalesRepsForExpenses.map((r: any) => r.hrBranch || 'Head Office')));
@@ -1499,7 +1565,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const expenseFilterEnd = new Date(`${filterEndDateStr}T00:00:00.000Z`);
 
   const branchExpensesRaw = await prisma.branchExpense.findMany({
-    where: { 
+    where: {
       date: { gte: expenseFilterStart, lte: expenseFilterEnd },
       OR: [
         { salespersonId: { in: filterIds } },
@@ -1515,7 +1581,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   }));
 
   const totalActiveRepsCount = await prisma.user.count({ where: { isActive: true } });
-  
+
   const isViewingAll = isManager && salespersonIds.length === 0;
   const headcountProportion = isViewingAll ? 1 : (Math.max(1, filterIds.length) / Math.max(1, totalActiveRepsCount));
 
@@ -1553,7 +1619,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   branchExpenses.forEach((exp) => {
     const b = exp.branch;
     if (!branchPerformanceMap[b]) {
-       branchPerformanceMap[b] = { branch: b, sales: 0, expenses: 0 };
+      branchPerformanceMap[b] = { branch: b, sales: 0, expenses: 0 };
     }
     branchPerformanceMap[b].expenses += exp.amount;
 
@@ -1564,7 +1630,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
   const branchPerformance = Object.values(branchPerformanceMap).sort((a, b) => b.sales - a.sales);
   const individualPerformance = Object.values(individualPerformanceMap).sort((a, b) => b.sales - a.sales);
-  
+
   const groupSales: Record<string, number> = {
     'Inverter Veichi': 0,
     'Inverter Other': 0,
@@ -1649,8 +1715,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
             return allTypes.map((groupName) => {
               const groupQuotes = (analyticalData as any[]).filter((q: any) => (q.productType || 'Other') === groupName);
-              // Pending PO (ใช้ allActiveQuotations เพื่อให้ข้อมูลตรงกับหน้า Pipeline ที่กรองตามเดือน)
-              const groupPendingQuotes = (allActiveQuotations as any[]).filter((q: any) => (q.productType || 'Other') === groupName);
+              // Pending PO (ใช้ activeUnexpiredQuotations เพื่อให้ข้อมูลตรงกับหน้า Pipeline ที่กรองตามเดือนและไม่รวมใบเสนอราคาหมดอายุ)
+              const groupPendingQuotes = (activeUnexpiredQuotations as any[]).filter((q: any) => (q.productType || 'Other') === groupName);
               const pendingPoQuotes = groupPendingQuotes.filter((q: any) => {
                 const status = q.status || '';
                 return status.includes('รอจัดทำ PO') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
@@ -1695,11 +1761,11 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
               const branchUserIds = branchUsers.map((u: any) => u.id);
 
               const target = (monthlyTargetResult as any[]).
-              filter((t) => t.month === currentMonth && t.userId !== null && branchUserIds.includes(t.userId)).
-              reduce((sum, t) => sum + (t.amount || 0), 0);
+                filter((t) => t.month === currentMonth && t.userId !== null && branchUserIds.includes(t.userId)).
+                reduce((sum, t) => sum + (t.amount || 0), 0);
 
               const branchClosedQuotes = (analyticalData as any[]).filter((q: any) =>
-              branchUserIds.includes(q.salespersonId) && q.status === 'เปิดบิลแล้ว'
+                branchUserIds.includes(q.salespersonId) && q.status === 'เปิดบิลแล้ว'
               );
               let closedAmount = 0;
               const productSales: Record<string, number> = {};
@@ -1713,7 +1779,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
                 }
               });
 
-              const branchPendingQuotes = (allActiveQuotations as any[]).filter((q: any) => {
+              const branchPendingQuotes = (activeUnexpiredQuotations as any[]).filter((q: any) => {
                 const isBranchMatch = branchUserIds.includes(q.salespersonId);
                 const status = q.status || '';
                 const isPendingPo = status.includes('รอจัดทำ PO') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
@@ -1817,7 +1883,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
           branchExpenses={branchExpenses}
           monthlyTargets={monthlyTargetResult}
           allProductTypes={allProductTypes} />
-        
+
       </Suspense>
     </main>);
 

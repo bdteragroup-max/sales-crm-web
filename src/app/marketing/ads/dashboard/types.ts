@@ -10,7 +10,8 @@ export interface TeraDashboardFilters {
   compareDateFrom?: string
   compareDateTo?: string
   channel: string     // 'All' | 'Facebook' | 'TikTok' | 'Google' | 'LINE'
-  productCategory: string // 'All' | 'Solar Pump' | 'Solar Rooftop'
+  branchId?: string   // 'All' | specific branch ID / name
+  productCategory: string // 'All' | 'Solar Roof' | 'Solar Pump' | 'Inverter Veichi' | 'Other'
   campaignId: string  // 'All' | specific ID
   adSetId: string     // 'All' | specific ID
   adId: string        // 'All' | specific ID

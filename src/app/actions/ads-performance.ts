@@ -482,21 +482,50 @@ export async function getActiveAdsWithPerformance(filters?: {
       return 'Active'
     }
 
-    // Index snapshots by adId and by compound key `${campaignId}_${adId}` (sorted desc by capturedAt)
+    // Index snapshots by adId, adSetId, and campaignId (sorted desc by capturedAt)
     const snapshotsByAd: Record<string, PerformanceSnapshot[]> = {}
+    const snapshotsByAdSet: Record<string, PerformanceSnapshot[]> = {}
+    const snapshotsByCamp: Record<string, PerformanceSnapshot[]> = {}
+
     allSnapshots.forEach(snap => {
-      const adId = snap.adId || (snap.entityType === 'AD' ? snap.entityId : '') || ''
-      if (adId) {
+      // Index by Ad
+      const adIds = Array.from(new Set([snap.adId, snap.entityType === 'AD' ? snap.entityId : null].filter(Boolean))) as string[]
+      adIds.forEach(adId => {
         const compoundKey = `${snap.campaignId}_${adId}`
         if (!snapshotsByAd[compoundKey]) snapshotsByAd[compoundKey] = []
         snapshotsByAd[compoundKey].push(snap)
 
         if (!snapshotsByAd[adId]) snapshotsByAd[adId] = []
         snapshotsByAd[adId].push(snap)
+      })
+
+      // Index by Ad Set
+      const adSetIds = Array.from(new Set([snap.adSetId, snap.entityType === 'AD_SET' ? snap.entityId : null].filter(Boolean))) as string[]
+      adSetIds.forEach(adSetId => {
+        const compoundKey = `${snap.campaignId}_${adSetId}`
+        if (!snapshotsByAdSet[compoundKey]) snapshotsByAdSet[compoundKey] = []
+        snapshotsByAdSet[compoundKey].push(snap)
+
+        if (!snapshotsByAdSet[adSetId]) snapshotsByAdSet[adSetId] = []
+        snapshotsByAdSet[adSetId].push(snap)
+      })
+
+      // Index by Campaign
+      const campId = snap.campaignId || (snap.entityType === 'CAMPAIGN' ? snap.entityId : '') || ''
+      if (campId) {
+        if (!snapshotsByCamp[campId]) snapshotsByCamp[campId] = []
+        snapshotsByCamp[campId].push(snap)
       }
     })
+
     Object.keys(snapshotsByAd).forEach(key => {
       snapshotsByAd[key].sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime())
+    })
+    Object.keys(snapshotsByAdSet).forEach(key => {
+      snapshotsByAdSet[key].sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime())
+    })
+    Object.keys(snapshotsByCamp).forEach(key => {
+      snapshotsByCamp[key].sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime())
     })
 
     // 3. Extract ads from Campaign Setup targetAudience structures
@@ -537,7 +566,44 @@ export async function getActiveAdsWithPerformance(filters?: {
         }]
       }
 
+      const campCandidateIds = Array.from(new Set([camp.campaignId, camp.id, (camp as any).campaignDbId].filter(Boolean))) as string[]
+
       for (const set of adSets) {
+        const setCandidateIds = Array.from(new Set([set.code, set.id, (set as any).platformAdSetId].filter(Boolean))) as string[]
+
+        let setSnaps: PerformanceSnapshot[] = []
+        // 1. Try compound keys
+        for (const cId of campCandidateIds) {
+          for (const sId of setCandidateIds) {
+            const key = `${cId}_${sId}`
+            if (snapshotsByAdSet[key] && snapshotsByAdSet[key].length > 0) {
+              setSnaps = snapshotsByAdSet[key]
+              break
+            }
+          }
+          if (setSnaps.length > 0) break
+        }
+        // 2. Try single keys filtered by campaign if possible
+        if (setSnaps.length === 0) {
+          for (const sId of setCandidateIds) {
+            if (snapshotsByAdSet[sId] && snapshotsByAdSet[sId].length > 0) {
+              const matched = snapshotsByAdSet[sId].filter(s =>
+                campCandidateIds.includes(s.campaignId) ||
+                campCandidateIds.some(cid => s.campaignId?.startsWith(cid) || cid.startsWith(s.campaignId))
+              )
+              if (matched.length > 0) {
+                setSnaps = matched
+                break
+              }
+              setSnaps = snapshotsByAdSet[sId]
+              break
+            }
+          }
+        }
+
+        const latestSet = setSnaps[0] || null
+        const previousSet = setSnaps.length > 1 ? setSnaps[1] : null
+
         let adsList = Array.isArray(set.ads) ? set.ads : []
         if (adsList.length === 0) {
           adsList = [{
@@ -551,14 +617,63 @@ export async function getActiveAdsWithPerformance(filters?: {
           }]
         }
         for (const ad of adsList) {
-          const adCode = ad.code || ad.id
-          const campKey = camp.campaignId || camp.id
-          const compoundKey = `${campKey}_${adCode}`
-          const adSnaps = (snapshotsByAd[compoundKey] && snapshotsByAd[compoundKey].length > 0)
-            ? snapshotsByAd[compoundKey]
-            : (snapshotsByAd[adCode]?.filter(s => s.campaignId === campKey || s.campaignId === camp.id || s.campaignId === camp.campaignId) || [])
-          const latest = adSnaps[0] || null
-          const previous = adSnaps.length > 1 ? adSnaps[1] : null
+          const adCode = ad.code || ad.id || 'AD-01'
+          const adCandidateIds = Array.from(new Set([ad.code, ad.id, (ad as any).platformAdId].filter(Boolean))) as string[]
+
+          let adSnaps: PerformanceSnapshot[] = []
+          for (const cId of campCandidateIds) {
+            for (const aId of adCandidateIds) {
+              const key = `${cId}_${aId}`
+              if (snapshotsByAd[key] && snapshotsByAd[key].length > 0) {
+                adSnaps = snapshotsByAd[key]
+                break
+              }
+            }
+            if (adSnaps.length > 0) break
+          }
+          if (adSnaps.length === 0) {
+            for (const aId of adCandidateIds) {
+              if (snapshotsByAd[aId] && snapshotsByAd[aId].length > 0) {
+                const matched = snapshotsByAd[aId].filter(s =>
+                  campCandidateIds.includes(s.campaignId) ||
+                  campCandidateIds.some(cid => s.campaignId?.startsWith(cid) || cid.startsWith(s.campaignId))
+                )
+                if (matched.length > 0) {
+                  adSnaps = matched
+                  break
+                }
+                adSnaps = snapshotsByAd[aId]
+                break
+              }
+            }
+          }
+          
+          let latest = adSnaps[0] || null
+          let previous = adSnaps.length > 1 ? adSnaps[1] : null
+
+          // If no specific Ad snapshot exists, but the parent Ad Set has an accumulated snapshot,
+          // attribute the Ad Set's snapshot to the ads!
+          if (!latest && latestSet) {
+            const divisor = Math.max(1, adsList.length)
+            latest = {
+              ...latestSet,
+              spend: adsList.length > 1 ? Math.round((latestSet.spend / divisor) * 100) / 100 : latestSet.spend,
+              messageInbox: adsList.length > 1 ? Math.round(latestSet.messageInbox / divisor) : latestSet.messageInbox,
+              reach: adsList.length > 1 ? Math.round(latestSet.reach / divisor) : latestSet.reach,
+              impressions: adsList.length > 1 ? Math.round(latestSet.impressions / divisor) : latestSet.impressions,
+              clicks: adsList.length > 1 ? Math.round(latestSet.clicks / divisor) : latestSet.clicks
+            }
+            if (previousSet) {
+              previous = {
+                ...previousSet,
+                spend: adsList.length > 1 ? Math.round((previousSet.spend / divisor) * 100) / 100 : previousSet.spend,
+                messageInbox: adsList.length > 1 ? Math.round(previousSet.messageInbox / divisor) : previousSet.messageInbox,
+                reach: adsList.length > 1 ? Math.round(previousSet.reach / divisor) : previousSet.reach,
+                impressions: adsList.length > 1 ? Math.round(previousSet.impressions / divisor) : previousSet.impressions,
+                clicks: adsList.length > 1 ? Math.round(previousSet.clicks / divisor) : previousSet.clicks
+              }
+            }
+          }
 
           const spend = latest ? latest.spend : 0
           const messageInbox = latest ? latest.messageInbox : 0
@@ -637,6 +752,24 @@ export async function getActiveAdsWithPerformance(filters?: {
       campSpendTotal[a.campaignId] = (campSpendTotal[a.campaignId] || 0) + (a.spend || 0)
       const setKey = `${a.campaignId}_${a.adSetId}`
       adSetSpendTotal[setKey] = (adSetSpendTotal[setKey] || 0) + (a.spend || 0)
+    })
+
+    // Also factor in any direct AdSet or Campaign snapshots if they had higher recorded spend
+    Object.keys(snapshotsByAdSet).forEach(key => {
+      const snaps = snapshotsByAdSet[key]
+      if (snaps && snaps.length > 0 && snaps[0].spend > 0) {
+        if (!adSetSpendTotal[key] || snaps[0].spend > adSetSpendTotal[key]) {
+          adSetSpendTotal[key] = snaps[0].spend
+        }
+      }
+    })
+    Object.keys(snapshotsByCamp).forEach(key => {
+      const snaps = snapshotsByCamp[key]
+      if (snaps && snaps.length > 0 && snaps[0].spend > 0) {
+        if (!campSpendTotal[key] || snaps[0].spend > campSpendTotal[key]) {
+          campSpendTotal[key] = snaps[0].spend
+        }
+      }
     })
 
     extractedAds.forEach(a => {
@@ -991,7 +1124,7 @@ export async function getEntitySnapshotHistory(
         WHERE ("entityType" = $1 AND "entityId" = $2)
            OR ($1 = 'AD' AND "adId" = $2)
            OR ($1 = 'AD_SET' AND "adSetId" = $2)
-           OR ($1 = 'CAMPAIGN' AND "campaignId" = $2)
+           OR ($1 = 'CAMPAIGN' AND "campaignId" = $2 AND ("entityType" = 'CAMPAIGN' OR ("adId" IS NULL AND "adSetId" IS NULL)))
         ORDER BY "capturedAt" DESC, "createdAt" DESC
       `, entityType, entityId)
     } catch (e) {
@@ -1044,7 +1177,7 @@ export async function getEntitySnapshotHistory(
       (s.entityType === entityType && s.entityId === entityId) ||
       (entityType === 'AD' && s.adId === entityId) ||
       (entityType === 'AD_SET' && s.adSetId === entityId) ||
-      (entityType === 'CAMPAIGN' && s.campaignId === entityId)
+      (entityType === 'CAMPAIGN' && s.campaignId === entityId && (s.entityType === 'CAMPAIGN' || (!s.adId && !s.adSetId)))
     )
     localHistory.sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime())
     return { success: true, history: localHistory }
@@ -1083,9 +1216,9 @@ export async function getLatestEntitySnapshot(
  */
 export async function getMasterLookupData(): Promise<{
   success: boolean
-  campaigns: Array<{ id: string; campaignId: string; name: string; channelName: string; branchName: string; productCategory: string }>
-  adSets: Array<{ adSetId: string; name: string; campaignId: string; campaignName: string; branchName: string; productCategory: string }>
-  ads: Array<{ adId: string; name: string; adSetId: string; adSetName: string; campaignId: string; campaignName: string; branchName: string; productCategory: string }>
+  campaigns: Array<{ id: string; campaignId: string; campaignDbId: string; name: string; channelName: string; branchName: string; productCategory: string; budget: number; budgetStrategy: string }>
+  adSets: Array<{ id: string; code: string; adSetId: string; name: string; campaignId: string; campaignDbId: string; campaignName: string; branchName: string; productCategory: string; budget: number | null; budgetStrategy: string; status: string }>
+  ads: Array<{ id: string; code: string; adId: string; name: string; adSetId: string; adSetName: string; campaignId: string; campaignDbId: string; campaignName: string; branchName: string; productCategory: string; budgetStrategy: string; format: string; creativeFile: string; creativeVersion: string; creativeUrl: string; status: string }>
   error?: string
 }> {
   try {
@@ -1106,28 +1239,38 @@ export async function getMasterLookupData(): Promise<{
       const campId = c.campaignId || c.id
       const bName = c.branch?.name || 'ไม่ได้ระบุสาขา'
       const pCat = c.productCategory || 'ไม่ได้ระบุกลุ่มสินค้า'
-      campaignList.push({
-        id: c.id,
-        campaignId: campId,
-        name: c.name,
-        channelName: c.channel?.name || 'Facebook',
-        branchName: bName,
-        productCategory: pCat
-      })
+      let campStrategy: 'ABO' | 'CBO' = ((c as any).budgetStrategy || (c as any).budget_strategy || 'ABO').toString().toUpperCase().includes('CBO') ? 'CBO' : 'ABO'
 
       let adSets: any[] = []
       try {
         if (c.targetAudience && c.targetAudience.startsWith('{')) {
           const parsed = JSON.parse(c.targetAudience)
+          if (parsed.budgetStrategy) {
+            campStrategy = parsed.budgetStrategy.toString().toUpperCase().includes('CBO') ? 'CBO' : 'ABO'
+          }
           if (Array.isArray(parsed.adSets)) adSets = parsed.adSets
         }
       } catch { }
+
+      campaignList.push({
+        id: c.id,
+        campaignId: campId,
+        campaignDbId: c.id,
+        name: c.name,
+        channelName: c.channel?.name || 'Facebook',
+        branchName: bName,
+        productCategory: pCat,
+        budget: c.budget ? Number(c.budget) : 0,
+        budgetStrategy: campStrategy,
+        status: c.status || 'ACTIVE'
+      })
 
       if (adSets.length === 0) {
         adSets = [{
           id: `AS-${campId}-01`,
           code: `AS-${campId}-01`,
           name: `${c.name} - ชุดโฆษณา 01`,
+          budget: campStrategy === 'CBO' ? null : (c.budget ? Number(c.budget) : 0),
           ads: [{
             id: `AD-${campId}-01`,
             code: `AD-${campId}-01`,
@@ -1137,29 +1280,44 @@ export async function getMasterLookupData(): Promise<{
       }
 
       for (const s of adSets) {
-        const sId = s.code || s.id
+        const sId = s.code || s.id || `AS-${campId}-01`
         const sName = s.name || 'Ad Set'
         adSetList.push({
+          id: sId,
+          code: sId,
           adSetId: sId,
           name: sName,
           campaignId: campId,
+          campaignDbId: c.id,
           campaignName: c.name,
           branchName: s.branchName || bName,
-          productCategory: s.productCategory || pCat
+          productCategory: s.productCategory || pCat,
+          budget: s.budget !== null && s.budget !== undefined ? Number(s.budget) : (campStrategy === 'CBO' ? Number(c.budget || 0) : 0),
+          budgetStrategy: campStrategy,
+          status: s.status || 'Active'
         })
 
         const ads = Array.isArray(s.ads) ? s.ads : []
         for (const a of ads) {
-          const aId = a.code || a.id
+          const aId = a.code || a.id || `AD-${sId}-01`
           adList.push({
+            id: aId,
+            code: aId,
             adId: aId,
             name: a.name || 'Ad',
             adSetId: sId,
             adSetName: sName,
             campaignId: campId,
+            campaignDbId: c.id,
             campaignName: c.name,
             branchName: s.branchName || bName,
-            productCategory: s.productCategory || pCat
+            productCategory: s.productCategory || pCat,
+            budgetStrategy: campStrategy,
+            format: a.format || 'Image',
+            creativeFile: a.creativeFile || a.creativeName || 'SP_WaterStrong_V1.jpg',
+            creativeVersion: a.creativeVersion || 'V1',
+            creativeUrl: a.creativeUrl || '',
+            status: a.status || 'Active'
           })
         }
       }

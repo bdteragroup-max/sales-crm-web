@@ -75,6 +75,11 @@ export async function GET(req: Request) {
             position: true,
             mobilePhone: true
           }
+        },
+        salesperson: {
+          select: {
+            fullName: true
+          }
         }
       },
       orderBy: [
@@ -111,8 +116,9 @@ export async function GET(req: Request) {
       const isRejected = q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก') || ['Lost', 'Rejected', 'Cancelled', 'Pending', 'ไม่ผ่าน'].includes(q.status);
       const isClosed = !isRejected && (closedStatuses.includes(q.status) || !!cleanPo || !!q.billingDate);
 
-      const contactName = q.contact?.contactName || q.company.contacts?.[0]?.contactName || null;
-      const contactPhone = q.contact?.mobilePhone || q.company.contacts?.[0]?.mobilePhone || null;
+      const contactName = q.contact?.contactName || q.company.contacts?.find(c => c.contactName?.trim())?.contactName || null;
+      const contactPhone = q.contact?.mobilePhone || q.company.contacts?.find(c => c.mobilePhone?.trim())?.mobilePhone || null;
+      const resolvedSalesperson = q.company.assignedUser?.fullName || q.salesperson?.fullName || null;
 
       if (!companyQuotesMap.has(q.companyId)) {
         companyQuotesMap.set(q.companyId, []);
@@ -124,6 +130,7 @@ export async function GET(req: Request) {
       if (!companyMap.has(q.companyId)) {
         companyMap.set(q.companyId, {
           ...q.company,
+          assignedUser: resolvedSalesperson ? { fullName: resolvedSalesperson } : null,
           primaryContactName: contactName,
           primaryContactPhone: contactPhone,
           isClosedSale: isClosed,
@@ -143,6 +150,11 @@ export async function GET(req: Request) {
         if (!existing.primaryContactName && contactName) {
           existing.primaryContactName = contactName;
           existing.primaryContactPhone = contactPhone;
+        } else if (!existing.primaryContactPhone && contactPhone) {
+          existing.primaryContactPhone = contactPhone;
+        }
+        if (!existing.assignedUser?.fullName && resolvedSalesperson) {
+          existing.assignedUser = { fullName: resolvedSalesperson };
         }
         // If existing record did not have a PO number but current one does, prioritize PO
         if (!existing.latestPoNumber && cleanPo) {

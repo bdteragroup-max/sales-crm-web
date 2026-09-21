@@ -403,3 +403,207 @@ export async function updatePurchaseRequest(
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการแก้ไขข้อมูล PR" };
   }
 }
+
+/**
+ * Record Store-In / Goods Receipt for a PO directly by the Purchasing team
+ * Handles direct-to-site, labor/service, and warehouse receipts, with automatic AP unlock.
+ */
+export async function recordPurchaseOrderReceipt(data: {
+  poNumber: string;
+  receiptType: 'DIRECT_SITE' | 'LABOR_SERVICE' | 'WAREHOUSE' | 'OTHER';
+  receivedBy: string;
+  receivedAt?: string | null;
+  note?: string;
+}) {
+  const user = await getUser();
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการ" };
+
+  const userRoleStr = (user.role || '').toLowerCase();
+  const isAuthorized = ['admin', 'purchasing', 'จัดซื้อ', 'ผู้จัดการ', 'manager', 'director', 'store', 'สโตร์', 'คลังสินค้า', 'superadmin'].some(r => userRoleStr.includes(r));
+  if (!isAuthorized) {
+    return { success: false, error: "คุณไม่มีสิทธิ์บันทึกการรับสินค้าเข้าสโตร์/หน้างาน" };
+  }
+
+  try {
+    const cleanPoNumber = data.poNumber.trim();
+    const po = await prisma.purchaseOrder.findUnique({
+      where: { poNumber: cleanPoNumber }
+    });
+
+    if (!po) {
+      return { success: false, error: "ไม่พบข้อมูล PO นี้ในระบบ" };
+    }
+
+    if (po.receiveStatus === 'Cancelled') {
+      return { success: false, error: "PO นี้ถูกยกเลิกแล้ว ไม่สามารถรับสินค้าได้" };
+    }
+
+    const typeLabels: Record<string, string> = {
+      DIRECT_SITE: 'ส่งมอบตรงหน้างาน (Direct-to-Site)',
+      LABOR_SERVICE: 'ค่าแรง/ค่าบริการ (Labor & Service)',
+      WAREHOUSE: 'รับเข้าสโตร์/คลังสินค้า (Warehouse)',
+      OTHER: 'อื่นๆ (Other)'
+    };
+
+    const typeLabel = typeLabels[data.receiptType] || data.receiptType;
+    const finalReceivedBy = data.receivedBy.trim() || user.fullName || user.email || 'ฝ่ายจัดซื้อ';
+    const parsedReceivedAt = data.receivedAt ? new Date(data.receivedAt) : new Date();
+
+    const timestampStr = new Date().toLocaleString('th-TH');
+    let auditLog = `[บันทึกรับของโดยฝ่ายจัดซื้อ (${typeLabel}) ผู้ตรวจรับ: ${finalReceivedBy} ณ ${timestampStr}`;
+    if (data.note?.trim()) {
+      auditLog += ` - หมายเหตุ: ${data.note.trim()}`;
+    }
+    auditLog += ` โดยบัญชีผู้ใช้ ${user.fullName || user.email}]`;
+
+    const finalNote = po.note ? `${po.note}\n${auditLog}` : auditLog;
+    const storedReceivedBy = `[${typeLabel.split(' ')[0]}] ${finalReceivedBy}`;
+
+    const updated = await prisma.purchaseOrder.update({
+      where: { poNumber: cleanPoNumber },
+      data: {
+        receiveStatus: 'Received',
+        receivedBy: storedReceivedBy,
+        receivedAt: parsedReceivedAt,
+        note: finalNote
+      }
+    });
+
+    // Automatically trigger AP synchronization to unlock supplier payment tasks (AWAITING_GR -> PENDING)
+    await syncSupplierPaymentsForPO(cleanPoNumber).catch(e => console.error("Error syncing AP on receipt:", e));
+
+    revalidatePath("/admin/procurement/po");
+    revalidatePath("/admin/procurement/dashboard");
+    revalidatePath("/admin/procurement/pr");
+    revalidatePath("/store/receive");
+    revalidatePath("/store/dashboard");
+    revalidatePath("/accounting/payables");
+
+    return {
+      success: true,
+      data: {
+        ...updated,
+        totalAmount: updated.totalAmount ? Number(updated.totalAmount) : null,
+        depositAmount: updated.depositAmount ? Number(updated.depositAmount) : null,
+        remainingAmount: updated.remainingAmount ? Number(updated.remainingAmount) : null,
+        payment1: updated.payment1 ? Number(updated.payment1) : null,
+      }
+    };
+  } catch (error: any) {
+    console.error("Error recording PO receipt:", error);
+    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการบันทึกการรับสินค้า" };
+  }
+}
+
+/**
+ * Revert Store-In status back to pending
+ */
+export async function revertPurchaseOrderReceipt(poNumber: string, reason?: string) {
+  const user = await getUser();
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการ" };
+
+  const userRoleStr = (user.role || '').toLowerCase();
+  const isAuthorized = ['admin', 'purchasing', 'จัดซื้อ', 'ผู้จัดการ', 'manager', 'director', 'store', 'สโตร์', 'คลังสินค้า', 'superadmin'].some(r => userRoleStr.includes(r));
+  if (!isAuthorized) {
+    return { success: false, error: "คุณไม่มีสิทธิ์ยกเลิกสถานะการรับสินค้า" };
+  }
+
+  try {
+    const cleanPoNumber = poNumber.trim();
+    const po = await prisma.purchaseOrder.findUnique({
+      where: { poNumber: cleanPoNumber }
+    });
+
+    if (!po) {
+      return { success: false, error: "ไม่พบข้อมูล PO นี้ในระบบ" };
+    }
+
+    const timestampStr = new Date().toLocaleString('th-TH');
+    const revertLog = `[ยกเลิกสถานะรับสินค้ากลับเป็นรอรับของ โดย ${user.fullName || user.email} ณ ${timestampStr}${reason?.trim() ? ` เหตุผล: ${reason.trim()}` : ''}]`;
+    const finalNote = po.note ? `${po.note}\n${revertLog}` : revertLog;
+
+    const updated = await prisma.purchaseOrder.update({
+      where: { poNumber: cleanPoNumber },
+      data: {
+        receiveStatus: null,
+        receivedBy: null,
+        receivedAt: null,
+        note: finalNote
+      }
+    });
+
+    // Re-sync AP
+    await syncSupplierPaymentsForPO(cleanPoNumber).catch(e => console.error("Error syncing AP on revert receipt:", e));
+
+    revalidatePath("/admin/procurement/po");
+    revalidatePath("/admin/procurement/dashboard");
+    revalidatePath("/admin/procurement/pr");
+    revalidatePath("/store/receive");
+    revalidatePath("/store/dashboard");
+    revalidatePath("/accounting/payables");
+
+    return {
+      success: true,
+      data: {
+        ...updated,
+        totalAmount: updated.totalAmount ? Number(updated.totalAmount) : null,
+        depositAmount: updated.depositAmount ? Number(updated.depositAmount) : null,
+        remainingAmount: updated.remainingAmount ? Number(updated.remainingAmount) : null,
+        payment1: updated.payment1 ? Number(updated.payment1) : null,
+      }
+    };
+  } catch (error: any) {
+    console.error("Error reverting PO receipt:", error);
+    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการยกเลิกสถานะการรับสินค้า" };
+  }
+}
+
+/**
+ * Batch Store-In for multiple POs (e.g. multiple labor/direct-to-site deliveries)
+ */
+export async function batchRecordPurchaseOrderReceipt(data: {
+  poNumbers: string[];
+  receiptType: 'DIRECT_SITE' | 'LABOR_SERVICE' | 'WAREHOUSE' | 'OTHER';
+  receivedBy: string;
+  receivedAt?: string | null;
+  note?: string;
+}) {
+  const user = await getUser();
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการ" };
+
+  const userRoleStr = (user.role || '').toLowerCase();
+  const isAuthorized = ['admin', 'purchasing', 'จัดซื้อ', 'ผู้จัดการ', 'manager', 'director', 'store', 'สโตร์', 'คลังสินค้า', 'superadmin'].some(r => userRoleStr.includes(r));
+  if (!isAuthorized) {
+    return { success: false, error: "คุณไม่มีสิทธิ์บันทึกการรับสินค้าเข้าสโตร์/หน้างาน" };
+  }
+
+  if (!data.poNumbers || data.poNumbers.length === 0) {
+    return { success: false, error: "กรุณาเลือกรายการ PO อย่างน้อย 1 รายการ" };
+  }
+
+  const results = [];
+  const errors = [];
+
+  for (const poNumber of data.poNumbers) {
+    const res = await recordPurchaseOrderReceipt({
+      poNumber,
+      receiptType: data.receiptType,
+      receivedBy: data.receivedBy,
+      receivedAt: data.receivedAt,
+      note: data.note
+    });
+
+    if (res.success) {
+      results.push(poNumber);
+    } else {
+      errors.push(`${poNumber}: ${res.error}`);
+    }
+  }
+
+  return {
+    success: errors.length === 0,
+    processedCount: results.length,
+    failedCount: errors.length,
+    errors
+  };
+}

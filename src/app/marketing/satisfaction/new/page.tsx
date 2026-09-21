@@ -83,6 +83,22 @@ type CriteriaComments = Partial<Record<
   string
 >>;
 
+const getCompanyPhone = (c: any): string | null => {
+  if (!c) return null;
+  if (c.primaryContactPhone?.trim()) return c.primaryContactPhone.trim();
+  if (c.phone?.trim()) return c.phone.trim();
+  if (c.contacts && Array.isArray(c.contacts)) {
+    const found = c.contacts.find((ct: any) => ct?.mobilePhone?.trim());
+    if (found?.mobilePhone?.trim()) return found.mobilePhone.trim();
+  }
+  return null;
+};
+
+const getCompanySalesperson = (c: any): string | null => {
+  if (!c) return null;
+  return c.assignedUser?.fullName?.trim() || null;
+};
+
 export default function NewSatisfactionSurvey() {
   const router = useRouter();
 
@@ -93,6 +109,12 @@ export default function NewSatisfactionSurvey() {
 
   // Closed Sales vs All Companies filter
   const [closedOnlyFilter, setClosedOnlyFilter] = useState(true);
+
+  // Phone Presence Filter: 'ALL' | 'HAS_PHONE' | 'NO_PHONE'
+  const [phoneFilter, setPhoneFilter] = useState<'ALL' | 'HAS_PHONE' | 'NO_PHONE'>('ALL');
+
+  // Salesperson Filter: 'ALL' | 'ASSIGNED' | 'UNASSIGNED' | specific salesperson name
+  const [salesFilter, setSalesFilter] = useState<string>('ALL');
 
   const [search, setSearch] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -166,36 +188,161 @@ export default function NewSatisfactionSurvey() {
 
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const displayedCompanies = useMemo(() => {
+  // Base list of un-evaluated companies according to closedOnlyFilter
+  const unEvaluatedBaseList = useMemo(() => {
     const baseList = closedOnlyFilter ? activeCompanies.filter(c => c.isClosedSale) : activeCompanies;
-    const unEvaluatedBase = baseList.filter(c => !evaluatedCompanyIds.has(c.id));
-    
+    return baseList.filter(c => !evaluatedCompanyIds.has(c.id));
+  }, [activeCompanies, closedOnlyFilter, evaluatedCompanyIds]);
+
+  // Unique salespersons list with count of companies
+  const salespersonsList = useMemo(() => {
+    const map = new Map<string, number>();
+    unEvaluatedBaseList.forEach(c => {
+      const sp = getCompanySalesperson(c);
+      if (sp) {
+        map.set(sp, (map.get(sp) || 0) + 1);
+      }
+    });
+    return Array.from(map.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'th'));
+  }, [unEvaluatedBaseList]);
+
+  // Phone filter stats
+  const phoneStats = useMemo(() => {
+    let hasPhone = 0;
+    let noPhone = 0;
+    unEvaluatedBaseList.forEach(c => {
+      if (getCompanyPhone(c)) {
+        hasPhone++;
+      } else {
+        noPhone++;
+      }
+    });
+    return {
+      all: unEvaluatedBaseList.length,
+      hasPhone,
+      noPhone
+    };
+  }, [unEvaluatedBaseList]);
+
+  // Salesperson filter stats
+  const salesStats = useMemo(() => {
+    let assigned = 0;
+    let unassigned = 0;
+    unEvaluatedBaseList.forEach(c => {
+      if (getCompanySalesperson(c)) {
+        assigned++;
+      } else {
+        unassigned++;
+      }
+    });
+    return {
+      all: unEvaluatedBaseList.length,
+      assigned,
+      unassigned
+    };
+  }, [unEvaluatedBaseList]);
+
+  const displayedCompanies = useMemo(() => {
+    let list = unEvaluatedBaseList;
+
+    // 1. Filter by Phone Presence
+    if (phoneFilter === 'HAS_PHONE') {
+      list = list.filter(c => Boolean(getCompanyPhone(c)));
+    } else if (phoneFilter === 'NO_PHONE') {
+      list = list.filter(c => !getCompanyPhone(c));
+    }
+
+    // 2. Filter by Salesperson
+    if (salesFilter === 'ASSIGNED') {
+      list = list.filter(c => Boolean(getCompanySalesperson(c)));
+    } else if (salesFilter === 'UNASSIGNED') {
+      list = list.filter(c => !getCompanySalesperson(c));
+    } else if (salesFilter !== 'ALL' && salesFilter) {
+      list = list.filter(c => getCompanySalesperson(c) === salesFilter);
+    }
+
+    // 3. Search query filter
     if (!search.trim()) {
-      return unEvaluatedBase;
+      return list;
     }
 
     const query = search.trim().toLowerCase();
-    const inMemoryMatches = unEvaluatedBase.filter(c => {
+    const cleanDigits = query.replace(/\D/g, '');
+    const isPhoneDigitsQuery = cleanDigits.length >= 3;
+
+    const inMemoryMatches = list.filter(c => {
       const matchName = c.companyName?.toLowerCase().includes(query);
       const matchContact = c.primaryContactName?.toLowerCase().includes(query);
       const matchPo = c.latestPoNumber?.toLowerCase().includes(query);
       const matchInvoice = c.latestInvoiceNumber?.toLowerCase().includes(query);
       const matchProvince = c.province?.toLowerCase().includes(query);
       const matchSales = c.assignedUser?.fullName?.toLowerCase().includes(query);
-      return Boolean(matchName || matchContact || matchPo || matchInvoice || matchProvince || matchSales);
+      
+      // Match phone numbers across primaryContactPhone and all contacts
+      const cPhone = getCompanyPhone(c);
+      const cleanCPhone = cPhone ? cPhone.replace(/\D/g, '') : '';
+      const matchPrimaryPhone = cPhone?.toLowerCase().includes(query) || (isPhoneDigitsQuery && cleanCPhone.includes(cleanDigits));
+      
+      const matchAnyContactPhone = c.contacts && Array.isArray(c.contacts) && c.contacts.some((ct: any) => {
+        const p = ct?.mobilePhone || '';
+        const cleanP = p.replace(/\D/g, '');
+        return p.toLowerCase().includes(query) || (isPhoneDigitsQuery && cleanP.includes(cleanDigits));
+      });
+
+      return Boolean(matchName || matchContact || matchPo || matchInvoice || matchProvince || matchSales || matchPrimaryPhone || matchAnyContactPhone);
     });
 
     const existingIds = new Set(inMemoryMatches.map(c => c.id));
-    const extraMatches = companies.filter(c => !existingIds.has(c.id) && !evaluatedCompanyIds.has(c.id));
+    const extraMatches = companies.filter(c => {
+      if (existingIds.has(c.id) || evaluatedCompanyIds.has(c.id)) return false;
+      if (phoneFilter === 'HAS_PHONE' && !getCompanyPhone(c)) return false;
+      if (phoneFilter === 'NO_PHONE' && getCompanyPhone(c)) return false;
+      if (salesFilter === 'ASSIGNED' && !getCompanySalesperson(c)) return false;
+      if (salesFilter === 'UNASSIGNED' && getCompanySalesperson(c)) return false;
+      if (salesFilter !== 'ALL' && salesFilter && getCompanySalesperson(c) !== salesFilter) return false;
+      return true;
+    });
 
     return [...inMemoryMatches, ...extraMatches];
-  }, [activeCompanies, closedOnlyFilter, search, companies, evaluatedCompanyIds]);
+  }, [unEvaluatedBaseList, phoneFilter, salesFilter, search, companies, evaluatedCompanyIds]);
 
   const handleSelectCompany = (company: any) => {
     setSelectedCompany(company);
     setIsDropdownOpen(false);
-    setSearch('');
+    // Keep search intact so returning preserves the user's search query
+
+    // Push history state so browser Back returns to company list
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ satisfactionStep: 'evaluate', companyId: company.id }, '', window.location.href);
+    }
   };
+
+  const handleBackToCompanyList = () => {
+    setSelectedCompany(null);
+    setIsDropdownOpen(true);
+    // If browser history had pushed evaluation step, rewind it cleanly
+    if (typeof window !== 'undefined' && window.history.state?.satisfactionStep === 'evaluate') {
+      window.history.back();
+    }
+  };
+
+  // Listen to browser Back / Forward events
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // If user presses browser Back while evaluating a company, return to company list
+      if (selectedCompany && (!event.state || event.state.satisfactionStep !== 'evaluate')) {
+        setSelectedCompany(null);
+        setIsDropdownOpen(true);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [selectedCompany]);
 
   const [scores, setScores] = useState({
     scorePrice: 0,
@@ -451,12 +598,35 @@ export default function NewSatisfactionSurvey() {
       {/* Compact Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
         <div className="max-w-5xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Link href="/marketing/satisfaction" className="p-2 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
-              <ArrowLeft size={20} className="text-gray-600" />
-            </Link>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                if (selectedCompany) {
+                  handleBackToCompanyList();
+                } else {
+                  router.push('/marketing/satisfaction');
+                }
+              }}
+              className="p-2.5 bg-gray-50 hover:bg-red-50 hover:border-red-200 rounded-xl border border-gray-200 text-gray-700 hover:text-[#ff2301] transition-all flex items-center gap-2 shadow-2xs group cursor-pointer"
+              title={selectedCompany ? "ย้อนกลับไปเลือกบริษัทลูกค้า (คงการค้นหาและตัวกรองไว้)" : "กลับไปหน้ารายการประเมิน"}
+            >
+              <ArrowLeft size={19} className="group-hover:-translate-x-0.5 transition-transform" />
+              {selectedCompany && (
+                <span className="text-xs font-bold hidden sm:inline text-gray-700 group-hover:text-[#ff2301]">
+                  ย้อนกลับไปเลือกบริษัท
+                </span>
+              )}
+            </button>
             <div>
-              <h1 className="text-xl font-black text-gray-800">แบบประเมินความพึงพอใจลูกค้า</h1>
+              <h1 className="text-xl font-black text-gray-800 flex items-center gap-2 flex-wrap">
+                <span>แบบประเมินความพึงพอใจลูกค้า</span>
+                {selectedCompany && (
+                  <span className="hidden md:inline-flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-lg">
+                    กำลังประเมิน: <span className="text-gray-900 font-bold truncate max-w-[220px]">{selectedCompany.companyName}</span>
+                  </span>
+                )}
+              </h1>
             </div>
           </div>
           
@@ -575,6 +745,160 @@ export default function NewSatisfactionSurvey() {
                   )}
                 </div>
 
+                {/* Direct Filters Toolbar for Phone Number & Salesperson */}
+                <div className="bg-gray-50/80 rounded-2xl p-3 border border-gray-200/80 space-y-2.5 shadow-2xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2.5">
+                    {/* Filter Groupings */}
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs">
+                      {/* Phone Presence Filter */}
+                      <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-2xs">
+                        <span className="inline-flex items-center gap-1 text-gray-500 font-bold px-1.5 text-[11px]">
+                          <Phone size={13} className="text-emerald-600" />
+                          <span>เบอร์โทร:</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setPhoneFilter('ALL')}
+                          className={`px-2.5 py-1 rounded-lg font-bold text-xs transition-all ${
+                            phoneFilter === 'ALL'
+                              ? 'bg-gray-800 text-white shadow-xs'
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          ทั้งหมด ({phoneStats.all})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPhoneFilter('HAS_PHONE')}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-xs transition-all ${
+                            phoneFilter === 'HAS_PHONE'
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'text-emerald-700 hover:bg-emerald-50'
+                          }`}
+                        >
+                          <span>มีเบอร์โทร</span>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                            phoneFilter === 'HAS_PHONE' ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {phoneStats.hasPhone}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPhoneFilter('NO_PHONE')}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-xs transition-all ${
+                            phoneFilter === 'NO_PHONE'
+                              ? 'bg-rose-600 text-white shadow-xs'
+                              : 'text-rose-700 hover:bg-rose-50'
+                          }`}
+                        >
+                          <span>ไม่มีเบอร์</span>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                            phoneFilter === 'NO_PHONE' ? 'bg-rose-700 text-white' : 'bg-rose-100 text-rose-800'
+                          }`}>
+                            {phoneStats.noPhone}
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* Salesperson Filter */}
+                      <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-2xs">
+                        <span className="inline-flex items-center gap-1 text-gray-500 font-bold px-1.5 text-[11px]">
+                          <Briefcase size={13} className="text-blue-600" />
+                          <span>เซลล์ดูแล:</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setSalesFilter('ALL')}
+                          className={`px-2.5 py-1 rounded-lg font-bold text-xs transition-all ${
+                            salesFilter === 'ALL'
+                              ? 'bg-gray-800 text-white shadow-xs'
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          ทั้งหมด ({salesStats.all})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSalesFilter('ASSIGNED')}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-xs transition-all ${
+                            salesFilter === 'ASSIGNED'
+                              ? 'bg-blue-600 text-white shadow-xs'
+                              : 'text-blue-700 hover:bg-blue-50'
+                          }`}
+                        >
+                          <span>มีเซลล์ดูแล</span>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                            salesFilter === 'ASSIGNED' ? 'bg-blue-700 text-white' : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {salesStats.assigned}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSalesFilter('UNASSIGNED')}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-xs transition-all ${
+                            salesFilter === 'UNASSIGNED'
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'text-amber-700 hover:bg-amber-50'
+                          }`}
+                        >
+                          <span>ไม่มีเซลล์</span>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                            salesFilter === 'UNASSIGNED' ? 'bg-amber-700 text-white' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {salesStats.unassigned}
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* Dropdown to filter by specific salesperson */}
+                      {salespersonsList.length > 0 && (
+                        <div className="relative">
+                          <select
+                            value={salesFilter === 'ALL' || salesFilter === 'ASSIGNED' || salesFilter === 'UNASSIGNED' ? '' : salesFilter}
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                setSalesFilter(e.target.value);
+                              } else {
+                                setSalesFilter('ALL');
+                              }
+                            }}
+                            className={`px-3 py-1.5 bg-white border text-xs font-semibold rounded-xl outline-none transition-all cursor-pointer shadow-2xs ${
+                              salesFilter !== 'ALL' && salesFilter !== 'ASSIGNED' && salesFilter !== 'UNASSIGNED'
+                                ? 'border-blue-500 text-blue-800 bg-blue-50/70 ring-1 ring-blue-500'
+                                : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                            }`}
+                          >
+                            <option value="">👤 เลือกตามชื่อเซลล์ ({salespersonsList.length} คน)...</option>
+                            {salespersonsList.map((sp) => (
+                              <option key={sp.name} value={sp.name}>
+                                {sp.name} ({sp.count} บริษัท)
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Reset Button if Filters / Search Active */}
+                    {(phoneFilter !== 'ALL' || salesFilter !== 'ALL' || search.trim() !== '') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhoneFilter('ALL');
+                          setSalesFilter('ALL');
+                          setSearch('');
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors shadow-2xs ml-auto"
+                      >
+                        <RotateCcw size={12} />
+                        <span>ล้างตัวกรอง</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 {/* Prominent Search Bar */}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-gray-400">
@@ -583,10 +907,10 @@ export default function NewSatisfactionSurvey() {
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="พิมพ์ชื่อบริษัท, ผู้ติดต่อ, เลข PO, เลขที่บิล, หรือจังหวัดเพื่อค้นหา..."
+                    placeholder="พิมพ์ชื่อบริษัท, ผู้ติดต่อ, เบอร์โทร, เลข PO, เลขที่บิล, หรือจังหวัดเพื่อค้นหา..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-11 pr-32 py-3 bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-[#ff2301] focus:bg-white focus:border-transparent outline-none transition-all shadow-2xs placeholder-gray-400"
+                    className="w-full pl-11 pr-36 py-3 bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-[#ff2301] focus:bg-white focus:border-transparent outline-none transition-all shadow-2xs placeholder-gray-400"
                   />
                   <div className="absolute inset-y-0 right-3 flex items-center gap-2">
                     {isSearching && (
@@ -603,14 +927,14 @@ export default function NewSatisfactionSurvey() {
                       </button>
                     )}
                     <span className="text-xs font-bold text-[#ff2301] bg-red-50 border border-red-100 px-2.5 py-1 rounded-xl">
-                      {displayedCompanies.length} บริษัท
+                      {displayedCompanies.length} / {unEvaluatedBaseList.length} บริษัท
                     </span>
                   </div>
                 </div>
 
                 {/* Clean Scrollable Company List */}
                 <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-xs">
-                  <div className="max-h-[360px] overflow-y-auto divide-y divide-gray-100">
+                  <div className="max-h-[380px] overflow-y-auto divide-y divide-gray-100">
                     {loadingActiveCompanies ? (
                       <div className="p-12 text-center text-gray-400 flex flex-col items-center gap-3">
                         <Loader2 size={24} className="animate-spin text-[#ff2301]" />
@@ -621,23 +945,28 @@ export default function NewSatisfactionSurvey() {
                         <Building2 size={36} className="mx-auto mb-2 text-gray-300" />
                         <div className="font-bold text-gray-700">ไม่พบบริษัทที่ตรงกับเงื่อนไขการค้นหา</div>
                         <div className="text-xs text-gray-400">
-                          {search.trim() ? `ไม่พบผลลัพธ์สำหรับ "${search}" (ระบบคัดกรองบริษัทที่ได้รับการประเมินในรอบนี้ออกแล้ว)` : 'ไม่มีข้อมูลบริษัทที่ยังไม่ได้รับการประเมินในรอบนี้'}
+                          {search.trim() ? `ไม่พบผลลัพธ์สำหรับ "${search}"` : 'ไม่พบบริษัทตามเงื่อนไขตัวกรอง'}
+                          {evaluatedCompanyIds.size > 0 && ' (ระบบคัดกรองบริษัทที่ได้รับการประเมินในรอบนี้ออกแล้ว)'}
                         </div>
-                        <div className="pt-2 flex items-center justify-center gap-2">
-                          {search && (
+                        <div className="pt-2 flex items-center justify-center gap-2 flex-wrap">
+                          {(phoneFilter !== 'ALL' || salesFilter !== 'ALL' || search.trim()) && (
                             <button
                               type="button"
-                              onClick={() => setSearch('')}
-                              className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
+                              onClick={() => {
+                                setSearch('');
+                                setPhoneFilter('ALL');
+                                setSalesFilter('ALL');
+                              }}
+                              className="text-xs px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-[#ff2301] font-bold rounded-xl transition-colors border border-red-200"
                             >
-                              ล้างคำค้นหา
+                              ล้างตัวกรองและคำค้นหาทั้งหมด
                             </button>
                           )}
                           {closedOnlyFilter && (
                             <button
                               type="button"
                               onClick={() => setClosedOnlyFilter(false)}
-                              className="text-xs px-3 py-1.5 bg-red-50 hover:bg-red-100 text-[#ff2301] font-bold rounded-xl transition-colors"
+                              className="text-xs px-3.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
                             >
                               แสดงบริษัททั้งหมด ({activeCompanies.length})
                             </button>
@@ -647,6 +976,8 @@ export default function NewSatisfactionSurvey() {
                     ) : (
                       displayedCompanies.map((company) => {
                         const isSelected = selectedCompany?.id === company.id;
+                        const companyPhone = getCompanyPhone(company);
+                        const salespersonName = getCompanySalesperson(company);
                         return (
                           <div
                             key={company.id}
@@ -692,6 +1023,33 @@ export default function NewSatisfactionSurvey() {
                                     {formatContactName(company.primaryContactName)}
                                   </span>
                                 )}
+
+                                {/* Phone Presence Badge */}
+                                {companyPhone ? (
+                                  <span className="inline-flex items-center gap-1 font-mono font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded text-xs">
+                                    <Phone size={11} className="text-emerald-600" />
+                                    <span>{companyPhone}</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 font-medium text-rose-600 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded text-[11px]">
+                                    <AlertTriangle size={11} className="text-rose-500" />
+                                    <span>ไม่มีเบอร์โทร</span>
+                                  </span>
+                                )}
+
+                                {/* Assigned Salesperson Badge */}
+                                {salespersonName ? (
+                                  <span className="inline-flex items-center gap-1 font-medium text-blue-700 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded text-xs">
+                                    <Briefcase size={11} className="text-blue-500" />
+                                    <span>เซลล์: {salespersonName}</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 font-medium text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded text-[11px]">
+                                    <User size={11} className="text-amber-500" />
+                                    <span>ยังไม่มีเซลล์</span>
+                                  </span>
+                                )}
+
                                 {company.latestPoNumber && (
                                   <span className="font-mono font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-300 px-2 py-0.5 rounded text-[11px]">
                                     PO: {company.latestPoNumber}
@@ -706,12 +1064,6 @@ export default function NewSatisfactionSurvey() {
                                   <span className="inline-flex items-center gap-1 text-gray-500">
                                     <MapPin size={11} className="text-gray-400" />
                                     <span>{company.province}</span>
-                                  </span>
-                                )}
-                                {company.assignedUser?.fullName && (
-                                  <span className="inline-flex items-center gap-1 text-gray-400">
-                                    <Briefcase size={11} className="text-gray-400" />
-                                    <span>เซลล์: {company.assignedUser.fullName}</span>
                                   </span>
                                 )}
                               </div>
@@ -793,14 +1145,24 @@ export default function NewSatisfactionSurvey() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIsDropdownOpen(true)}
-                  className="w-full py-2 px-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
-                >
-                  <RotateCcw size={13} className="text-[#ff2301]" />
-                  <span>ค้นหา / เปลี่ยนบริษัทอื่น</span>
-                </button>
+                <div className="space-y-2 pt-2 border-t border-gray-200/60">
+                  <button
+                    type="button"
+                    onClick={handleBackToCompanyList}
+                    className="w-full py-2.5 px-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition-colors shadow-2xs cursor-pointer"
+                  >
+                    <ArrowLeft size={14} className="text-[#ff2301]" />
+                    <span>ย้อนกลับไปเลือกบริษัทอื่น (คงตัวกรองไว้)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsDropdownOpen(true)}
+                    className="w-full py-2 px-3 rounded-xl border border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-gray-600 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <RotateCcw size={13} className="text-gray-500" />
+                    <span>ค้นหา / สลับบริษัทในหน้านี้</span>
+                  </button>
+                </div>
               </div>
             )}
 
@@ -1345,13 +1707,22 @@ export default function NewSatisfactionSurvey() {
         )}
       </div>
 
-      {/* Floating Submit Bar */}
+      {/* Floating Submit & Action Bar */}
       {selectedCompany && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200 flex justify-center z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-gray-200 flex justify-center items-center gap-3 z-50">
+          <button
+            type="button"
+            onClick={handleBackToCompanyList}
+            className="px-5 py-3.5 rounded-2xl font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all flex items-center gap-2 shrink-0 shadow-xs cursor-pointer"
+          >
+            <ArrowLeft size={18} className="text-gray-600" />
+            <span className="hidden sm:inline">ย้อนกลับไปเลือกบริษัท</span>
+            <span className="sm:hidden">ย้อนกลับ</span>
+          </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="w-full max-w-5xl bg-[#ff2301] hover:bg-red-600 text-white px-8 py-3.5 rounded-2xl font-black text-lg transition-all disabled:opacity-70 flex items-center justify-center gap-3 shadow-lg shadow-red-500/20"
+            className="w-full max-w-4xl bg-[#ff2301] hover:bg-red-600 text-white px-8 py-3.5 rounded-2xl font-black text-lg transition-all disabled:opacity-70 flex items-center justify-center gap-3 shadow-lg shadow-red-500/20 cursor-pointer"
           >
             {submitting ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle size={20} />}
             <span>{submitting ? 'กำลังบันทึก...' : 'บันทึกแบบประเมิน'}</span>

@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/db';
 import StoreReceiveClient from './StoreReceiveClient';
 import { getRetroactiveReceivedBy } from '@/app/lib/poHelper';
-
 export const dynamic = 'force-dynamic';
 
 export default async function StoreReceivePage() {
@@ -11,7 +10,7 @@ export default async function StoreReceivePage() {
   if (!user) redirect('/');
 
   const userRoleStr = (user.role || '').toLowerCase();
-  const isStore = ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin'].some((r) => userRoleStr.includes(r));
+  const isStore = ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin', 'purchasing', 'จัดซื้อ', 'manager', 'director'].some((r) => userRoleStr.includes(r));
 
   if (!isStore) {
     redirect('/dashboard');
@@ -54,6 +53,28 @@ export default async function StoreReceivePage() {
     );
   }
 
+  const serializeGR = (grs: any[]) =>
+    (grs || []).map(gr => ({
+      id: gr.id,
+      sequenceNo: gr.sequenceNo,
+      recordedAt: gr.recordedAt ? (typeof gr.recordedAt === 'string' ? gr.recordedAt : gr.recordedAt.toISOString()) : null,
+      company: gr.company,
+      poNumber: gr.poNumber,
+      item: gr.item,
+      quantity: gr.quantity !== null && gr.quantity !== undefined ? Number(gr.quantity) : null,
+      totalAmount: gr.totalAmount !== null && gr.totalAmount !== undefined ? Number(gr.totalAmount) : null,
+      creditTerm: gr.creditTerm,
+      status: gr.status,
+      targetDeliveryDate: gr.targetDeliveryDate ? (typeof gr.targetDeliveryDate === 'string' ? gr.targetDeliveryDate : gr.targetDeliveryDate.toISOString()) : null,
+      deliveredQuantity: gr.deliveredQuantity !== null && gr.deliveredQuantity !== undefined ? Number(gr.deliveredQuantity) : null,
+      receivedAt: gr.receivedAt ? (typeof gr.receivedAt === 'string' ? gr.receivedAt : gr.receivedAt.toISOString()) : null,
+      deliveryNoteNumber: gr.deliveryNoteNumber,
+      recipient: gr.recipient,
+      isCompleteDelivery: Boolean(gr.isCompleteDelivery),
+      isIncompleteDelivery: Boolean(gr.isIncompleteDelivery),
+      createdAt: gr.createdAt ? (typeof gr.createdAt === 'string' ? gr.createdAt : gr.createdAt.toISOString()) : null,
+    }));
+
   // Fetch pending POs (receiveStatus != 'Received' and != 'Cancelled')
   const pendingPOs = await prisma.purchaseOrder.findMany({
     where: {
@@ -63,6 +84,9 @@ export default async function StoreReceivePage() {
       ]
     },
     include: {
+      goodsReceipts: {
+        orderBy: { sequenceNo: 'asc' }
+      },
       purchaseRequest: {
         select: {
           projectName: true,
@@ -85,6 +109,7 @@ export default async function StoreReceivePage() {
     payment1: po.payment1 ? Number(po.payment1) : null,
     projectName: po.purchaseRequest?.projectName || po.jobName || '-',
     prRequestedBy: po.purchaseRequest?.requestedBy || null,
+    goodsReceipts: serializeGR(po.goodsReceipts),
   }));
 
   // Fetch received POs (recent 200)
@@ -93,6 +118,9 @@ export default async function StoreReceivePage() {
       receiveStatus: 'Received'
     },
     include: {
+      goodsReceipts: {
+        orderBy: { sequenceNo: 'asc' }
+      },
       purchaseRequest: {
         select: {
           projectName: true,
@@ -116,6 +144,7 @@ export default async function StoreReceivePage() {
     payment1: po.payment1 ? Number(po.payment1) : null,
     projectName: po.purchaseRequest?.projectName || po.jobName || '-',
     prRequestedBy: po.purchaseRequest?.requestedBy || null,
+    goodsReceipts: serializeGR(po.goodsReceipts),
   }));
 
   return (

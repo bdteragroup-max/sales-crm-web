@@ -3,7 +3,14 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
-import { cancelPurchaseOrder, restorePurchaseOrder, updatePurchaseOrder } from '@/app/actions/procurement';
+import { 
+  cancelPurchaseOrder, 
+  restorePurchaseOrder, 
+  updatePurchaseOrder,
+  recordPurchaseOrderReceipt,
+  revertPurchaseOrderReceipt,
+  batchRecordPurchaseOrderReceipt
+} from '@/app/actions/procurement';
 import SearchableProjectSelect, { ProjectOption } from '../components/SearchableProjectSelect';
 import {
   CheckCircle2,
@@ -14,7 +21,17 @@ import {
   DollarSign,
   CreditCard,
   FileCheck2,
-  AlertCircle
+  AlertCircle,
+  PackageCheck,
+  Truck,
+  Wrench,
+  Warehouse,
+  RotateCcw,
+  CheckSquare,
+  Square,
+  Package,
+  X,
+  Layers
 } from 'lucide-react';
 import { getPOPaymentStatus } from '@/app/lib/supplierPaymentUtils';
 
@@ -110,7 +127,15 @@ function getAccountingAuditInfo(po: any) {
   return { isModified: true, latestLog, editor };
 }
 
-export default function POListClient({ initialPos, initialSearch = '' }: { initialPos: any[], initialSearch?: string }) {
+export default function POListClient({ 
+  initialPos, 
+  initialSearch = '',
+  currentUser
+}: { 
+  initialPos: any[]; 
+  initialSearch?: string;
+  currentUser?: { fullName?: string | null; role?: string | null; email?: string | null };
+}) {
   const router = useRouter();
   const [posList, setPosList] = useState(initialPos);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -143,6 +168,37 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
     note: ''
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  // Store-in (Goods Receipt) Modal State for Purchasing
+  const [receivingPO, setReceivingPO] = useState<any | null>(null);
+  const [receiveForm, setReceiveForm] = useState<{
+    receiptType: 'DIRECT_SITE' | 'LABOR_SERVICE' | 'WAREHOUSE' | 'OTHER';
+    receivedBy: string;
+    receivedAt: string;
+    note: string;
+  }>({
+    receiptType: 'DIRECT_SITE',
+    receivedBy: currentUser?.fullName || '',
+    receivedAt: new Date().toISOString().split('T')[0],
+    note: ''
+  });
+  const [isSubmittingReceive, setIsSubmittingReceive] = useState(false);
+
+  // Multi-select Batch Store-In State
+  const [selectedPoNumbers, setSelectedPoNumbers] = useState<Set<string>>(new Set());
+  const [isBatchReceiveModalOpen, setIsBatchReceiveModalOpen] = useState(false);
+  const [batchReceiveForm, setBatchReceiveForm] = useState<{
+    receiptType: 'DIRECT_SITE' | 'LABOR_SERVICE' | 'WAREHOUSE' | 'OTHER';
+    receivedBy: string;
+    receivedAt: string;
+    note: string;
+  }>({
+    receiptType: 'DIRECT_SITE',
+    receivedBy: currentUser?.fullName || '',
+    receivedAt: new Date().toISOString().split('T')[0],
+    note: ''
+  });
+  const [isSubmittingBatchReceive, setIsSubmittingBatchReceive] = useState(false);
 
   const thaiMonths = [
     { value: '1', label: 'มกราคม' },
@@ -513,6 +569,244 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
       });
     } finally {
       setLoadingMap(prev => ({ ...prev, [poNumber]: false }));
+    }
+  };
+
+  // --- Store-In (Goods Receipt) Action Handlers for Purchasing ---
+  const openReceiveModal = (po: any) => {
+    const isLaborOrService = 
+      po.jobName?.includes('ค่าแรง') || 
+      po.itemList?.includes('ค่าแรง') || 
+      po.jobName?.includes('ติดตั้ง') || 
+      po.itemList?.includes('ติดตั้ง') ||
+      po.jobName?.includes('จ้างเหมา') ||
+      po.itemList?.includes('จ้างเหมา');
+
+    const defaultType: 'DIRECT_SITE' | 'LABOR_SERVICE' | 'WAREHOUSE' | 'OTHER' = 
+      isLaborOrService ? 'LABOR_SERVICE' : 'DIRECT_SITE';
+
+    setReceivingPO(po);
+    setReceiveForm({
+      receiptType: defaultType,
+      receivedBy: currentUser?.fullName || '',
+      receivedAt: new Date().toISOString().split('T')[0],
+      note: ''
+    });
+  };
+
+  const handleConfirmReceive = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!receivingPO) return;
+    if (!receiveForm.receivedBy.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณาระบุชื่อผู้ตรวจรับ',
+        text: 'โปรดระบุชื่อผู้ตรวจรับสินค้า หรือผู้รับมอบงานที่หน้างาน'
+      });
+      return;
+    }
+
+    setIsSubmittingReceive(true);
+    try {
+      const res = await recordPurchaseOrderReceipt({
+        poNumber: receivingPO.poNumber,
+        receiptType: receiveForm.receiptType,
+        receivedBy: receiveForm.receivedBy.trim(),
+        receivedAt: receiveForm.receivedAt ? `${receiveForm.receivedAt}T12:00:00Z` : null,
+        note: receiveForm.note.trim() || undefined
+      });
+
+      if (res.success && res.data) {
+        setPosList(prev => prev.map(p => p.id === receivingPO.id ? {
+          ...p,
+          receiveStatus: 'Received',
+          receivedBy: res.data.receivedBy,
+          receivedAt: res.data.receivedAt,
+          note: res.data.note
+        } : p));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'บันทึกรับเข้าสำเร็จ',
+          html: `<div class="text-sm">บันทึกรับของ PO <b>${receivingPO.poNumber}</b> เรียบร้อยแล้ว<br/><span class="text-xs text-emerald-600 font-semibold mt-1 inline-block">ปลดล็อกรายการชำระเงินในระบบบัญชี (AP) อัตโนมัติ</span></div>`,
+          timer: 2500,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+
+        setReceivingPO(null);
+        router.refresh();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: res.error || 'ไม่สามารถบันทึกการรับสินค้าได้'
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
+      });
+    } finally {
+      setIsSubmittingReceive(false);
+    }
+  };
+
+  const handleRevertReceive = async (poNumber: string) => {
+    const confirm = await Swal.fire({
+      title: `ยกเลิกการตรวจรับ PO ${poNumber}?`,
+      text: 'สถานะจะถูกปรับกลับเป็น "รอรับสินค้า" และรายการชำระเงินในระบบบัญชีจะถูกปรับสถานะกลับตามเงื่อนไข',
+      icon: 'warning',
+      input: 'text',
+      inputPlaceholder: 'ระบุเหตุผลที่ยกเลิกการตรวจรับ (ถ้ามี)',
+      showCancelButton: true,
+      confirmButtonColor: '#d97706',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'ยืนยันยกเลิกรับสินค้า',
+      cancelButtonText: 'ปิด'
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    setLoadingMap(prev => ({ ...prev, [poNumber]: true }));
+    try {
+      const res = await revertPurchaseOrderReceipt(poNumber, confirm.value || undefined);
+      if (res.success && res.data) {
+        setPosList(prev => prev.map(p => p.poNumber === poNumber ? {
+          ...p,
+          receiveStatus: null,
+          receivedBy: null,
+          receivedAt: null,
+          note: res.data.note
+        } : p));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'ยกเลิกการตรวจรับเรียบร้อย',
+          text: `PO ${poNumber} กลับสู่สถานะรอรับสินค้าแล้ว`,
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+        router.refresh();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: res.error || 'ไม่สามารถยกเลิกการรับสินค้าได้'
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: err.message || 'เกิดข้อผิดพลาด'
+      });
+    } finally {
+      setLoadingMap(prev => ({ ...prev, [poNumber]: false }));
+    }
+  };
+
+  // --- Multi-select Batch Handlers ---
+  const handleToggleSelectPo = (poNumber: string) => {
+    setSelectedPoNumbers(prev => {
+      const next = new Set(prev);
+      if (next.has(poNumber)) next.delete(poNumber);
+      else next.add(poNumber);
+      return next;
+    });
+  };
+
+  const handleSelectAllOnPage = () => {
+    const selectableOnPage = paginatedPos.filter(p => p.receiveStatus !== 'Cancelled');
+    const allSelected = selectableOnPage.length > 0 && selectableOnPage.every(p => selectedPoNumbers.has(p.poNumber));
+    setSelectedPoNumbers(prev => {
+      const next = new Set(prev);
+      if (allSelected) {
+        selectableOnPage.forEach(p => next.delete(p.poNumber));
+      } else {
+        selectableOnPage.forEach(p => next.add(p.poNumber));
+      }
+      return next;
+    });
+  };
+
+  const openBatchReceiveModal = () => {
+    if (selectedPoNumbers.size === 0) return;
+    setBatchReceiveForm({
+      receiptType: 'DIRECT_SITE',
+      receivedBy: currentUser?.fullName || '',
+      receivedAt: new Date().toISOString().split('T')[0],
+      note: ''
+    });
+    setIsBatchReceiveModalOpen(true);
+  };
+
+  const handleConfirmBatchReceive = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedPoNumbers.size === 0) return;
+    if (!batchReceiveForm.receivedBy.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณาระบุชื่อผู้ตรวจรับ'
+      });
+      return;
+    }
+
+    setIsSubmittingBatchReceive(true);
+    try {
+      const poArray = Array.from(selectedPoNumbers);
+      const res = await batchRecordPurchaseOrderReceipt({
+        poNumbers: poArray,
+        receiptType: batchReceiveForm.receiptType,
+        receivedBy: batchReceiveForm.receivedBy.trim(),
+        receivedAt: batchReceiveForm.receivedAt ? `${batchReceiveForm.receivedAt}T12:00:00Z` : null,
+        note: batchReceiveForm.note.trim() || undefined
+      });
+
+      if (res.processedCount && res.processedCount > 0) {
+        setPosList(prev => prev.map(p => selectedPoNumbers.has(p.poNumber) ? {
+          ...p,
+          receiveStatus: 'Received',
+          receivedBy: `[${batchReceiveForm.receiptType}] ${batchReceiveForm.receivedBy.trim()}`,
+          receivedAt: new Date()
+        } : p));
+
+        Swal.fire({
+          icon: 'success',
+          title: `บันทึกรับเข้าสำเร็จ ${res.processedCount} รายการ`,
+          text: (res.failedCount ?? 0) > 0 ? `พบข้อผิดพลาด ${res.failedCount} รายการ` : 'ปลดล็อกรายการชำระเงินในระบบบัญชี (AP) อัตโนมัติ',
+          timer: 3000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+
+        setSelectedPoNumbers(new Set());
+        setIsBatchReceiveModalOpen(false);
+        router.refresh();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถบันทึกรับเข้าได้',
+          text: res.errors?.join('\n') || (res as any).error || 'เกิดข้อผิดพลาดในการบันทึกรับสินค้า'
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: err.message || 'เกิดข้อผิดพลาด'
+      });
+    } finally {
+      setIsSubmittingBatchReceive(false);
     }
   };
 
@@ -910,12 +1204,60 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
           </div>
         </div>
 
+        {/* Sticky/Floating Batch Action Bar */}
+        {selectedPoNumbers.size > 0 && (
+          <div className="p-3.5 bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white rounded-xl shadow-md border border-indigo-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in slide-in-from-top-1 m-4">
+            <div className="flex items-center gap-2.5">
+              <span className="p-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg border border-emerald-500/30">
+                <CheckSquare className="w-4 h-4" />
+              </span>
+              <div>
+                <div className="font-bold text-xs flex items-center gap-1.5">
+                  <span>เลือกไว้ {selectedPoNumbers.size} รายการ</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-normal">
+                    พร้อมทำรายการตรวจรับ
+                  </span>
+                </div>
+                <p className="text-[10px] text-gray-300 mt-0.5">
+                  บันทึกรับสินค้าเข้าสโตร์ หรือส่งมอบตรงหน้างาน/ค่าแรง พร้อมกันในครั้งเดียว
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedPoNumbers(new Set())}
+                className="px-3 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                ล้างที่เลือก
+              </button>
+              <button
+                type="button"
+                onClick={openBatchReceiveModal}
+                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 active:scale-95"
+              >
+                <PackageCheck className="w-4 h-4" />
+                <span>บันทึกรับเข้าพร้อมกัน ({selectedPoNumbers.size} ใบ)</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-gray-50/80 border-b border-gray-200/80 text-gray-500 font-semibold uppercase tracking-wider">
-                <th className="w-8 py-3.5 pl-4 pr-1 text-center"></th>
+                <th className="w-7 py-3.5 px-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={paginatedPos.length > 0 && paginatedPos.filter(p => p.receiveStatus !== 'Cancelled').every(p => selectedPoNumbers.has(p.poNumber))}
+                    onChange={handleSelectAllOnPage}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                    title="เลือกทั้งหมดในหน้านี้เพื่อรับเข้าพร้อมกัน"
+                  />
+                </th>
+                <th className="w-6 py-3.5 px-1 text-center"></th>
                 <th
                   onClick={() => handleSort('poNumber')}
                   className="py-3.5 px-3 cursor-pointer hover:bg-gray-100 transition-colors select-none"
@@ -971,7 +1313,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
             <tbody className="divide-y divide-gray-100">
               {paginatedPos.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="py-12 text-center text-gray-400">
+                  <td colSpan={12} className="py-12 text-center text-gray-400">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                       <span>ไม่พบข้อมูลรายการสั่งซื้อที่ตรงกับเงื่อนไข</span>
@@ -994,8 +1336,22 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                   return (
                     <React.Fragment key={po.id}>
                       <tr className={`hover:bg-blue-50/30 transition-colors ${isExpanded ? 'bg-blue-50/20' : ''}`}>
+                        {/* Multi-select Checkbox */}
+                        <td className="py-3 px-2 text-center" onClick={(e) => e.stopPropagation()}>
+                          {po.receiveStatus !== 'Cancelled' ? (
+                            <input
+                              type="checkbox"
+                              checked={selectedPoNumbers.has(po.poNumber)}
+                              onChange={() => handleToggleSelectPo(po.poNumber)}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                            />
+                          ) : (
+                            <span className="text-gray-300">-</span>
+                          )}
+                        </td>
+
                         {/* Expand Chevron */}
-                        <td className="py-3 pl-4 pr-1 text-center">
+                        <td className="py-3 px-1 text-center">
                           <button
                             onClick={() => toggleRowExpand(po.id)}
                             className="p-1 text-gray-400 hover:text-blue-600 hover:bg-gray-100 rounded transition-colors"
@@ -1076,12 +1432,24 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                               ยกเลิกแล้ว
                             </span>
                           ) : po.receiveStatus === 'Received' ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              รับสินค้าแล้ว
-                            </span>
+                            <div className="inline-flex flex-col items-center">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <span>รับสินค้าแล้ว</span>
+                              </span>
+                              {po.receivedBy && (
+                                <span 
+                                  className="text-[9px] font-medium text-gray-500 mt-0.5 max-w-[130px] truncate"
+                                  title={`รับโดย: ${po.receivedBy}${po.receivedAt ? ` เมื่อ ${new Date(po.receivedAt).toLocaleDateString('th-TH')}` : ''}`}
+                                >
+                                  {po.receivedBy}
+                                </span>
+                              )}
+                            </div>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                              รอรับสินค้า
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                              <Clock className="w-3 h-3 text-amber-500" />
+                              <span>รอรับสินค้า</span>
                             </span>
                           )}
                         </td>
@@ -1109,6 +1477,28 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                         {/* Action Buttons */}
                         <td className="py-3 pr-4 pl-2 text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1.5">
+                            {/* Store-In / Goods Receipt Action */}
+                            {po.receiveStatus !== 'Received' && po.receiveStatus !== 'Cancelled' ? (
+                              <button
+                                onClick={() => openReceiveModal(po)}
+                                className="px-2.5 py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-600 hover:text-white rounded-lg border border-emerald-300 hover:border-emerald-600 transition-all inline-flex items-center gap-1 shadow-2xs active:scale-95 group/rcv"
+                                title="บันทึกรับสินค้า / ตรวจรับงาน (ส่งตรงหน้างาน, ค่าแรง, สโตร์)"
+                              >
+                                <PackageCheck className="w-3.5 h-3.5 text-emerald-600 group-hover/rcv:text-white" />
+                                <span>รับเข้า</span>
+                              </button>
+                            ) : po.receiveStatus === 'Received' ? (
+                              <button
+                                onClick={() => handleRevertReceive(po.poNumber)}
+                                disabled={loadingMap[po.poNumber]}
+                                className="px-2 py-1 text-[10px] font-medium text-gray-500 hover:text-amber-800 bg-gray-50 hover:bg-amber-50 rounded-lg border border-gray-200 hover:border-amber-300 transition-all inline-flex items-center gap-1 disabled:opacity-50"
+                                title="ยกเลิกการตรวจรับ (ปรับกลับเป็นรอรับของ)"
+                              >
+                                <RotateCcw className="w-2.5 h-2.5" />
+                                <span>ยกเลิกรับ</span>
+                              </button>
+                            ) : null}
+
                             <button
                               onClick={() => openEditModal(po)}
                               className="px-2.5 py-1 text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-lg border border-blue-200 hover:border-blue-600 transition-all inline-flex items-center gap-1"
@@ -1144,7 +1534,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                       {/* Expandable Detail Row */}
                       {isExpanded && (
                         <tr className="bg-blue-50/30 border-b border-blue-100">
-                          <td colSpan={11} className="px-6 py-4">
+                          <td colSpan={12} className="px-6 py-4">
                             {/* Accounting Revision Alert Banner */}
                             {accountingInfo.isModified && (
                               <div className="mb-3.5 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50/80 border border-amber-200 rounded-xl flex items-start gap-3 shadow-2xs">
@@ -1411,12 +1801,31 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-2">
+                  <div className="flex items-center gap-1.5 pt-2 flex-wrap">
+                    {po.receiveStatus !== 'Received' && po.receiveStatus !== 'Cancelled' ? (
+                      <button
+                        onClick={() => openReceiveModal(po)}
+                        className="flex-1 text-[11px] py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
+                      >
+                        <PackageCheck className="w-3.5 h-3.5" />
+                        <span>รับเข้า</span>
+                      </button>
+                    ) : po.receiveStatus === 'Received' ? (
+                      <button
+                        onClick={() => handleRevertReceive(po.poNumber)}
+                        disabled={loadingMap[po.poNumber]}
+                        className="flex-1 text-[11px] py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg font-medium transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>ยกเลิกรับ</span>
+                      </button>
+                    ) : null}
+
                     <button
                       onClick={() => toggleRowExpand(po.id)}
                       className="flex-1 text-[11px] py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
                     >
-                      {isExpanded ? 'ย่อรายละเอียด' : 'ดูรายละเอียด'}
+                      {isExpanded ? 'ย่อ' : 'รายละเอียด'}
                     </button>
                     <button
                       onClick={() => openEditModal(po)}
@@ -1718,6 +2127,394 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                     </>
                   ) : (
                     'บันทึกข้อมูล (เขียนทับเดิม)'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Single PO Store-In (Goods Receipt) Modal */}
+      {receivingPO && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-gray-100 overflow-hidden my-8">
+            {/* Modal Header */}
+            <div className="px-6 py-4.5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/15 rounded-xl">
+                  <PackageCheck className="w-5 h-5 text-emerald-100" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base">บันทึกรับสินค้า / ตรวจรับงาน (Store-In)</h3>
+                  <p className="text-xs text-emerald-100">ฝ่ายจัดซื้อบันทึกรับเข้าคลัง หรือส่งมอบตรงหน้างาน / ค่าแรง</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReceivingPO(null)}
+                className="p-1 rounded-lg text-emerald-100 hover:text-white hover:bg-white/15 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmReceive} className="p-6 space-y-4">
+              {/* PO Summary Card */}
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 text-xs space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">เลขที่ PO:</span>
+                  <span className="font-mono font-bold text-blue-700 text-sm">{receivingPO.poNumber}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">ผู้ขาย:</span>
+                  <span className="font-semibold text-gray-800 truncate max-w-[260px]">{receivingPO.vendorName || '-'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">โครงการ / ชื่องาน:</span>
+                  <span className="font-medium text-gray-800 truncate max-w-[260px]">{receivingPO.jobName || receivingPO.purchaseRequest?.projectName || '-'}</span>
+                </div>
+                <div className="pt-1 border-t border-slate-200 flex items-center justify-between">
+                  <span className="text-gray-500">ยอดรวมทั้งสิ้น:</span>
+                  <span className="font-mono font-bold text-emerald-700">
+                    {receivingPO.totalAmount ? Number(receivingPO.totalAmount).toLocaleString('th-TH', { style: 'currency', currency: 'THB' }) : '-'}
+                  </span>
+                </div>
+                {receivingPO.itemList && (
+                  <div className="pt-1 text-[11px] text-gray-500 truncate" title={receivingPO.itemList}>
+                    รายการ: {receivingPO.itemList}
+                  </div>
+                )}
+              </div>
+
+              {/* Receipt Category Selection */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  ประเภทการรับสินค้า / ส่งมอบ <span className="text-rose-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: 'DIRECT_SITE', label: 'ส่งตรงหน้างาน', desc: 'ส่งถึงไซต์งาน ไม่ผ่านสโตร์', icon: Truck, color: 'text-purple-600' },
+                    { id: 'LABOR_SERVICE', label: 'ค่าแรง / งานบริการ', desc: 'งานช่าง จ้างเหมา ติดตั้ง', icon: Wrench, color: 'text-teal-600' },
+                    { id: 'WAREHOUSE', label: 'เข้าสโตร์กลาง', desc: 'เข้าคลังสินค้าบริษัท', icon: Warehouse, color: 'text-blue-600' },
+                    { id: 'OTHER', label: 'อื่นๆ / พิเศษ', desc: 'ระบุในหมายเหตุ', icon: Package, color: 'text-gray-600' },
+                  ].map((cat) => {
+                    const Icon = cat.icon;
+                    const isSel = receiveForm.receiptType === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setReceiveForm(prev => ({ ...prev, receiptType: cat.id as any }))}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${
+                          isSel
+                            ? 'bg-emerald-50/80 border-emerald-500 ring-2 ring-emerald-500/20 text-emerald-950'
+                            : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs">
+                          <Icon className={`w-3.5 h-3.5 ${cat.color}`} />
+                          <span>{cat.label}</span>
+                        </div>
+                        <p className="text-[10px] text-gray-500 mt-0.5 leading-tight">{cat.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Receiver Name */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  ชื่อผู้ตรวจรับ / ผู้รับมอบงาน <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={receiveForm.receivedBy}
+                  onChange={(e) => setReceiveForm(prev => ({ ...prev, receivedBy: e.target.value }))}
+                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 focus:bg-white transition-all font-medium"
+                  placeholder="ระบุชื่อผู้ตรวจรับสินค้า หรือวิศวกรผู้คุมงานหน้างาน"
+                />
+                {/* Quick autofill chips */}
+                <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                  <span className="text-[10px] text-gray-400">เลือกด่วน:</span>
+                  {currentUser?.fullName && (
+                    <button
+                      type="button"
+                      onClick={() => setReceiveForm(prev => ({ ...prev, receivedBy: currentUser.fullName! }))}
+                      className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                    >
+                      👤 ฉันเอง ({currentUser.fullName})
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setReceiveForm(prev => ({ ...prev, receivedBy: 'วิศวกร/ผู้ควบคุมงานหน้างาน' }))}
+                    className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                  >
+                    👷 วิศวกรหน้างาน
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReceiveForm(prev => ({ ...prev, receivedBy: 'ช่างประจำโครงการ' }))}
+                    className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                  >
+                    🔧 ช่างประจำโครงการ
+                  </button>
+                </div>
+              </div>
+
+              {/* Date of Receipt */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  วันที่ตรวจรับ / ส่งมอบ
+                </label>
+                <input
+                  type="date"
+                  value={receiveForm.receivedAt}
+                  onChange={(e) => setReceiveForm(prev => ({ ...prev, receivedAt: e.target.value }))}
+                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 focus:bg-white transition-all"
+                />
+              </div>
+
+              {/* Optional Note */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  หมายเหตุ / เลขที่ใบส่งของหน้างาน (ถ้ามี)
+                </label>
+                <textarea
+                  rows={2}
+                  value={receiveForm.note}
+                  onChange={(e) => setReceiveForm(prev => ({ ...prev, note: e.target.value }))}
+                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 focus:bg-white transition-all font-mono"
+                  placeholder="เช่น ใบส่งของเลขที่ DO-6701, ตรวจรับงานงวดที่ 1 ผ่านเรียบร้อย"
+                />
+              </div>
+
+              {/* AP Auto Unlock Banner */}
+              <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-3 text-xs text-emerald-900 flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold">ระบบจะปลดล็อกรอบการจ่ายเงิน (AP) อัตโนมัติ:</span>
+                  <p className="text-[11px] text-emerald-800 mt-0.5">
+                    รายการชำระเงินที่รอตรวจรับ (AWAITING_GR) จะถูกเปลี่ยนสถานะเป็นพร้อมจ่าย (PENDING) เพื่อให้ฝ่ายการเงินดำเนินการต่อได้ทันที
+                  </p>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="pt-3 border-t flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setReceivingPO(null)}
+                  disabled={isSubmittingReceive}
+                  className="px-4 py-2 text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors disabled:opacity-50"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingReceive}
+                  className="px-5 py-2 text-xs text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold shadow-sm transition-all inline-flex items-center gap-2 disabled:opacity-50 active:scale-95"
+                >
+                  {isSubmittingReceive ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      กำลังบันทึก...
+                    </>
+                  ) : (
+                    <>
+                      <PackageCheck size={15} />
+                      ยืนยันตรวจรับเข้า (Store-In)
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Multi-Select Batch Store-In Modal */}
+      {isBatchReceiveModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-gray-100 overflow-hidden my-8">
+            {/* Modal Header */}
+            <div className="px-6 py-4.5 bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/15 rounded-xl">
+                  <CheckSquare className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base">บันทึกตรวจรับเข้าพร้อมกัน ({selectedPoNumbers.size} ใบ)</h3>
+                  <p className="text-xs text-blue-200">ตรวจรับ PO หลายใบเข้าสโตร์หรือส่งตรงหน้างานในครั้งเดียว</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsBatchReceiveModalOpen(false)}
+                className="p-1 rounded-lg text-gray-300 hover:text-white hover:bg-white/15 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmBatchReceive} className="p-6 space-y-4">
+              {/* Selected PO Chips Preview */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  รายการ PO ที่เลือก ({selectedPoNumbers.size} รายการ):
+                </label>
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 max-h-24 overflow-y-auto flex flex-wrap gap-1.5">
+                  {Array.from(selectedPoNumbers).map((poNum) => (
+                    <span key={poNum} className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-white border border-slate-300 text-blue-700">
+                      {poNum}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Receipt Category Selection */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  ประเภทการรับสินค้า / ส่งมอบ <span className="text-rose-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: 'DIRECT_SITE', label: 'ส่งตรงหน้างาน', desc: 'ส่งถึงไซต์งาน ไม่ผ่านสโตร์', icon: Truck, color: 'text-purple-600' },
+                    { id: 'LABOR_SERVICE', label: 'ค่าแรง / งานบริการ', desc: 'งานช่าง จ้างเหมา ติดตั้ง', icon: Wrench, color: 'text-teal-600' },
+                    { id: 'WAREHOUSE', label: 'เข้าสโตร์กลาง', desc: 'เข้าคลังสินค้าบริษัท', icon: Warehouse, color: 'text-blue-600' },
+                    { id: 'OTHER', label: 'อื่นๆ / พิเศษ', desc: 'ระบุในหมายเหตุ', icon: Package, color: 'text-gray-600' },
+                  ].map((cat) => {
+                    const Icon = cat.icon;
+                    const isSel = batchReceiveForm.receiptType === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setBatchReceiveForm(prev => ({ ...prev, receiptType: cat.id as any }))}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${
+                          isSel
+                            ? 'bg-emerald-50/80 border-emerald-500 ring-2 ring-emerald-500/20 text-emerald-950'
+                            : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs">
+                          <Icon className={`w-3.5 h-3.5 ${cat.color}`} />
+                          <span>{cat.label}</span>
+                        </div>
+                        <p className="text-[10px] text-gray-500 mt-0.5 leading-tight">{cat.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Receiver Name */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  ชื่อผู้ตรวจรับ / ผู้รับมอบงาน <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={batchReceiveForm.receivedBy}
+                  onChange={(e) => setBatchReceiveForm(prev => ({ ...prev, receivedBy: e.target.value }))}
+                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 focus:bg-white transition-all font-medium"
+                  placeholder="ระบุชื่อผู้ตรวจรับสินค้า หรือวิศวกรผู้คุมงานหน้างาน"
+                />
+                {/* Quick autofill chips */}
+                <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                  <span className="text-[10px] text-gray-400">เลือกด่วน:</span>
+                  {currentUser?.fullName && (
+                    <button
+                      type="button"
+                      onClick={() => setBatchReceiveForm(prev => ({ ...prev, receivedBy: currentUser.fullName! }))}
+                      className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                    >
+                      👤 ฉันเอง ({currentUser.fullName})
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setBatchReceiveForm(prev => ({ ...prev, receivedBy: 'วิศวกร/ผู้ควบคุมงานหน้างาน' }))}
+                    className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                  >
+                    👷 วิศวกรหน้างาน
+                  </button>
+                </div>
+              </div>
+
+              {/* Date of Receipt */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  วันที่ตรวจรับ / ส่งมอบ
+                </label>
+                <input
+                  type="date"
+                  value={batchReceiveForm.receivedAt}
+                  onChange={(e) => setBatchReceiveForm(prev => ({ ...prev, receivedAt: e.target.value }))}
+                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 focus:bg-white transition-all"
+                />
+              </div>
+
+              {/* Optional Note */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  หมายเหตุเพิ่มเติม (ถ้ามี)
+                </label>
+                <textarea
+                  rows={2}
+                  value={batchReceiveForm.note}
+                  onChange={(e) => setBatchReceiveForm(prev => ({ ...prev, note: e.target.value }))}
+                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 focus:bg-white transition-all font-mono"
+                  placeholder="เช่น ตรวจรับงานติดตั้งประจำงวด"
+                />
+              </div>
+
+              {/* AP Auto Unlock Banner */}
+              <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-3 text-xs text-emerald-900 flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold">ระบบจะปลดล็อกรอบการจ่ายเงิน (AP) ของทุกใบที่เลือก:</span>
+                  <p className="text-[11px] text-emerald-800 mt-0.5">
+                    ทุกใบที่อยู่ในสถานะรอตรวจรับจะเปลี่ยนเป็นพร้อมจ่ายทันที
+                  </p>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="pt-3 border-t flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsBatchReceiveModalOpen(false)}
+                  disabled={isSubmittingBatchReceive}
+                  className="px-4 py-2 text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors disabled:opacity-50"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingBatchReceive}
+                  className="px-5 py-2 text-xs text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold shadow-sm transition-all inline-flex items-center gap-2 disabled:opacity-50 active:scale-95"
+                >
+                  {isSubmittingBatchReceive ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      กำลังบันทึก {selectedPoNumbers.size} ใบ...
+                    </>
+                  ) : (
+                    <>
+                      <PackageCheck size={15} />
+                      ยืนยันรับเข้า {selectedPoNumbers.size} ใบ
+                    </>
                   )}
                 </button>
               </div>

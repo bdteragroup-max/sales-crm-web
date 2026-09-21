@@ -46,7 +46,8 @@ import {
   ChevronUp,
   UploadCloud,
   FileSpreadsheet,
-  History
+  History,
+  Save
 } from 'lucide-react'
 import { createCampaign, updateCampaign, deleteCampaign, importCampaignsBatch, getCampaignBudgetHistory } from '@/app/actions/ads-campaigns'
 import {
@@ -64,6 +65,7 @@ import {
 import { PRODUCT_CATEGORIES } from '../constants'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import UpdateResultsModal from '../performance/components/UpdateResultsModal'
 
 
 export interface AdItem {
@@ -211,6 +213,15 @@ export default function CampaignsClient({
   const [isImporting, setIsImporting] = useState(false)
   const [expandedPreviewIdx, setExpandedPreviewIdx] = useState<number | null>(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Update Results Modal State
+  const [isUpdateResultsModalOpen, setIsUpdateResultsModalOpen] = useState(false)
+  const [updateResultsPresetItem, setUpdateResultsPresetItem] = useState<{
+    level: 'CAMPAIGN' | 'AD_SET' | 'AD'
+    entityId: string
+    campaignId?: string
+    adSetId?: string
+  } | null>(null)
 
   // Helper to parse adSets and budgetStrategy from campaign record
   const getParsedCampaignData = (c: any): CampaignData => {
@@ -2628,6 +2639,10 @@ export default function CampaignsClient({
                     }}
                     adSets={formAdSets}
                     setAdSets={setFormAdSets}
+                    onOpenUpdateResults={(preset) => {
+                      setUpdateResultsPresetItem(preset || null)
+                      setIsUpdateResultsModalOpen(true)
+                    }}
                     onSaveStructure={async (updatedSets: AdSetItem[]) => {
                       const targetId = selectedCampaignId || formData.id || campaigns[0]?.id
                       if (!targetId) return
@@ -3190,6 +3205,26 @@ export default function CampaignsClient({
                 </div>
               </div>
             )}
+
+        {isUpdateResultsModalOpen && (
+          <UpdateResultsModal
+            isOpen={isUpdateResultsModalOpen}
+            onClose={() => {
+              setIsUpdateResultsModalOpen(false)
+              setUpdateResultsPresetItem(null)
+            }}
+            campaigns={campaigns}
+            currentUser={{
+              name: 'ผู้ดูแลการตลาด',
+              role: userRole || 'MARKETING'
+            }}
+            presetItem={updateResultsPresetItem}
+            onSuccess={() => {
+              setSuccessMsg('อัปเดตผลลัพธ์สะสมล่าสุดเรียบร้อยแล้ว')
+              router.refresh()
+            }}
+          />
+        )}
           </main>
       </div>
   )
@@ -3207,7 +3242,8 @@ function AdSetsManager({
   setAdSets,
   onSaveStructure,
   onBack,
-  onOpenCreativeLibrary
+  onOpenCreativeLibrary,
+  onOpenUpdateResults
 }: {
   campaigns: any[]
   selectedCampaignId: string
@@ -3218,6 +3254,12 @@ function AdSetsManager({
   onSaveStructure: (sets: AdSetItem[]) => Promise<void>
   onBack: () => void
   onOpenCreativeLibrary: () => void
+  onOpenUpdateResults?: (preset?: {
+    level: 'CAMPAIGN' | 'AD_SET' | 'AD'
+    entityId: string
+    campaignId?: string
+    adSetId?: string
+  }) => void
 }) {
   const router = useRouter()
   const currentCampaign = campaigns.find(c => c.id === selectedCampaignId) || campaigns[0]
@@ -3991,6 +4033,23 @@ function AdSetsManager({
               <Pencil size={13} />
               แก้ไขแคมเปญ (Edit Campaign)
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                onOpenUpdateResults?.({
+                  level: isCBO ? 'CAMPAIGN' : 'AD_SET',
+                  campaignId: currentCampaign?.campaignId || currentCampaign?.id,
+                  adSetId: activeSet?.code || activeSet?.id,
+                  entityId: isCBO ? (currentCampaign?.campaignId || currentCampaign?.id) : (activeSet?.code || activeSet?.id)
+                })
+              }}
+              className="h-11 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm shrink-0 whitespace-nowrap active:scale-95"
+              title="บันทึกหรืออัปเดตผลลัพธ์สะสมล่าสุด (Spend, Messages, Reach, Clicks)"
+            >
+              <Save size={14} />
+              <span>อัปเดตผลสะสม (Update Results)</span>
+            </button>
           </div>
         </div>
 
@@ -4142,8 +4201,22 @@ function AdSetsManager({
                             {openMenuSetId === s.id && (
                               <div
                                 onClick={e => e.stopPropagation()}
-                                className="absolute right-0 top-6 z-30 w-36 bg-white border border-gray-200 rounded-xl shadow-lg py-1 text-xs"
+                                className="absolute right-0 top-6 z-30 w-44 bg-white border border-gray-200 rounded-xl shadow-lg py-1 text-xs"
                               >
+                                <button
+                                  onClick={() => {
+                                    setOpenMenuSetId(null)
+                                    onOpenUpdateResults?.({
+                                      level: 'AD_SET',
+                                      campaignId: currentCampaign?.campaignId || currentCampaign?.id,
+                                      adSetId: s.code || s.id,
+                                      entityId: s.code || s.id
+                                    })
+                                  }}
+                                  className="w-full px-3 py-1.5 text-left text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-semibold"
+                                >
+                                  <Save size={12} /> อัปเดตผลสะสม (Update)
+                                </button>
                                 <button
                                   onClick={() => handleDuplicateAdSet(s)}
                                   className="w-full px-3 py-1.5 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -4842,6 +4915,20 @@ function AdSetsManager({
                         {/* Row Actions */}
                         <td className="py-3 px-3 text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
+                            <button
+                              onClick={() => {
+                                onOpenUpdateResults?.({
+                                  level: 'AD',
+                                  campaignId: currentCampaign?.campaignId || currentCampaign?.id,
+                                  adSetId: activeSet?.code || activeSet?.id,
+                                  entityId: ad.code || ad.id
+                                })
+                              }}
+                              className="p-1.5 text-rose-500 hover:text-rose-700 rounded-lg hover:bg-rose-50 transition-colors"
+                              title="อัปเดตผลสะสมโฆษณานี้ (Update Results)"
+                            >
+                              <Save size={14} />
+                            </button>
                             <button
                               onClick={() => setPreviewModal({ isOpen: true, ad })}
                               className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"

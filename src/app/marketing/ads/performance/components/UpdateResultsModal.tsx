@@ -35,7 +35,7 @@ interface UpdateResultsModalProps {
   isOpen: boolean
   onClose: () => void
   campaigns: any[]
-  initialAds: ActiveAdPerformanceItem[]
+  initialAds?: ActiveAdPerformanceItem[]
   currentUser: {
     name: string
     role: string
@@ -53,7 +53,7 @@ export default function UpdateResultsModal({
   isOpen,
   onClose,
   campaigns,
-  initialAds,
+  initialAds = [],
   currentUser,
   presetItem,
   onSuccess
@@ -161,26 +161,36 @@ export default function UpdateResultsModal({
     const source = masterLookup ? masterLookup.adSets : null
     let list: any[] = []
     if (source) {
-      list = source.filter((as: any) => as.campaignId === selectedCampaignId)
+      list = source.filter((as: any) => 
+        as.campaignId === selectedCampaignId || 
+        as.campaignDbId === selectedCampaignId ||
+        (selectedCampaignId && as.campaignId && (as.campaignId.startsWith(selectedCampaignId) || selectedCampaignId.startsWith(as.campaignId)))
+      )
     } else {
       const map = new Map<string, any>()
       initialAds.forEach(a => {
-        if (a.campaignId === selectedCampaignId && a.adSetId) {
-          map.set(a.adSetId, {
-            id: a.adSetId,
-            code: a.adSetId,
-            name: a.adSetName,
-            campaignId: a.campaignId
+        const matchCamp = a.campaignId === selectedCampaignId || 
+          (a as any).campaignDbId === selectedCampaignId ||
+          (selectedCampaignId && a.campaignId && (a.campaignId.startsWith(selectedCampaignId) || selectedCampaignId.startsWith(a.campaignId)))
+        if (matchCamp && (a.adSetId || (a as any).code)) {
+          const sId = a.adSetId || (a as any).code
+          map.set(sId, {
+            id: sId,
+            code: sId,
+            adSetId: sId,
+            name: a.adSetName || sId,
+            campaignId: a.campaignId,
+            budgetStrategy: a.budgetStrategy
           })
         }
       })
       list = Array.from(map.values())
     }
-    // Deduplicate by code or id
+    // Deduplicate by adSetId, code or id
     const seen = new Set<string>()
     const uniqueList: any[] = []
     for (const item of list) {
-      const key = item.code || item.id
+      const key = item.adSetId || item.code || item.id
       if (key && !seen.has(key)) {
         seen.add(key)
         uniqueList.push(item)
@@ -194,8 +204,17 @@ export default function UpdateResultsModal({
     if (!selectedCampaignId) return []
     const source = masterLookup ? masterLookup.ads : initialAds
     const filtered = source.filter((ad: any) => {
-      if (ad.campaignId !== selectedCampaignId) return false
-      if (selectedAdSetId && ad.adSetId !== selectedAdSetId) return false
+      const matchCamp = ad.campaignId === selectedCampaignId || 
+        ad.campaignDbId === selectedCampaignId ||
+        (selectedCampaignId && ad.campaignId && (ad.campaignId.startsWith(selectedCampaignId) || selectedCampaignId.startsWith(ad.campaignId)))
+      if (!matchCamp) return false
+      if (selectedAdSetId) {
+        const matchAdSet = ad.adSetId === selectedAdSetId || 
+          ad.code === selectedAdSetId || 
+          ad.id === selectedAdSetId ||
+          (ad.adSetId && selectedAdSetId && (ad.adSetId.startsWith(selectedAdSetId) || selectedAdSetId.startsWith(ad.adSetId)))
+        if (!matchAdSet) return false
+      }
       return true
     })
     // Deduplicate by adId or code or id
@@ -211,6 +230,27 @@ export default function UpdateResultsModal({
     return uniqueList
   }, [masterLookup, selectedCampaignId, selectedAdSetId, initialAds])
 
+  // Auto-sync selection if current selected ID is invalid or empty
+  useEffect(() => {
+    if (level === 'AD_SET') {
+      if (availableAdSets.length > 0) {
+        const exists = availableAdSets.some(s => (s.adSetId || s.code || s.id) === selectedAdSetId || s.id === selectedAdSetId)
+        if (!selectedAdSetId || !exists) {
+          const firstVal = availableAdSets[0].adSetId || availableAdSets[0].code || availableAdSets[0].id
+          setSelectedAdSetId(firstVal)
+        }
+      }
+    } else if (level === 'AD') {
+      if (availableAds.length > 0) {
+        const exists = availableAds.some(a => (a.adId || a.code || a.id) === selectedAdId || a.id === selectedAdId)
+        if (!selectedAdId || !exists) {
+          const firstVal = availableAds[0].adId || availableAds[0].code || availableAds[0].id
+          setSelectedAdId(firstVal)
+        }
+      }
+    }
+  }, [level, availableAdSets, availableAds, selectedAdSetId, selectedAdId])
+
   // Identify the target entity ID
   const effectiveEntityId = useMemo(() => {
     if (level === 'CAMPAIGN') return selectedCampaignId
@@ -224,52 +264,62 @@ export default function UpdateResultsModal({
 
     if (level === 'CAMPAIGN') {
       const camp = (masterLookup?.campaigns || campaigns).find(
-        c => (c.campaignId || c.id) === effectiveEntityId
+        c => (c.campaignId || c.id) === effectiveEntityId || (c as any).campaignDbId === effectiveEntityId || c.id === effectiveEntityId
       )
       if (!camp) return null
+      const isCBO = (camp.budgetStrategy || (camp as any).budget_strategy || 'CBO').toString().toUpperCase().includes('CBO')
       return {
         id: camp.campaignId || camp.id,
         name: camp.name,
         code: camp.campaignId || camp.id,
-        channel: camp.channel?.name || camp.channelName || 'Meta Ads',
-        branch: camp.branch?.name || 'ทุกสาขา',
-        productGroup: camp.product?.name || camp.productCategory || 'ทุกกลุ่มสินค้า',
-        strategy: camp.budgetStrategy || camp.budget_strategy || 'CBO',
-        budget: Number(camp.budget || camp.campaignBudget || 0),
+        channel: camp.channel?.name || (camp as any).channelName || 'Meta Ads',
+        branch: camp.branch?.name || (camp as any).branchName || 'ทุกสาขา',
+        productGroup: camp.product?.name || (camp as any).productCategory || 'ทุกกลุ่มสินค้า',
+        strategy: isCBO ? 'CBO' : 'ABO',
+        budget: Number(camp.budget || (camp as any).campaignBudget || 0),
         status: camp.status || 'Active'
       }
     }
 
     if (level === 'AD_SET') {
-      const set = availableAdSets.find(s => (s.code || s.id) === effectiveEntityId)
+      const set = availableAdSets.find(
+        s => (s.adSetId || s.code || s.id) === effectiveEntityId || s.id === effectiveEntityId || s.code === effectiveEntityId || s.adSetId === effectiveEntityId
+      )
       const camp = (masterLookup?.campaigns || campaigns).find(
-        c => (c.campaignId || c.id) === selectedCampaignId
+        c => (c.campaignId || c.id) === selectedCampaignId || (c as any).campaignDbId === selectedCampaignId || c.id === selectedCampaignId
       )
       if (!set) return null
+      const isCBO = (set.budgetStrategy || camp?.budgetStrategy || (camp as any)?.budget_strategy || 'CBO').toString().toUpperCase().includes('CBO')
       return {
-        id: set.code || set.id,
+        id: set.adSetId || set.code || set.id,
         name: set.name,
-        code: set.code || set.id,
-        channel: camp?.channel?.name || 'Meta Ads',
-        branch: camp?.branch?.name || 'ทุกสาขา',
-        productGroup: camp?.product?.name || 'ทุกกลุ่มสินค้า',
-        strategy: camp?.budgetStrategy || 'CBO',
-        budget: Number(set.budget || 0),
+        code: set.code || set.adSetId || set.id,
+        channel: camp?.channel?.name || (camp as any)?.channelName || 'Meta Ads',
+        branch: camp?.branch?.name || (camp as any)?.branchName || set.branchName || 'ทุกสาขา',
+        productGroup: camp?.product?.name || (camp as any)?.productCategory || set.productCategory || 'ทุกกลุ่มสินค้า',
+        strategy: isCBO ? 'CBO' : 'ABO',
+        budget: isCBO ? Number(camp?.budget || (camp as any)?.campaignBudget || 0) : Number(set.budget || 0),
         status: set.status || 'Active'
       }
     }
 
-    const ad = availableAds.find(a => (a.adId || a.id || a.code) === effectiveEntityId)
+    const ad = availableAds.find(
+      a => (a.adId || a.code || a.id) === effectiveEntityId || a.id === effectiveEntityId || a.code === effectiveEntityId || a.adId === effectiveEntityId
+    )
     if (!ad) return null
+    const camp = (masterLookup?.campaigns || campaigns).find(
+      c => (c.campaignId || c.id) === selectedCampaignId || (c as any).campaignDbId === selectedCampaignId || c.id === selectedCampaignId
+    )
+    const isCBO = (ad.budgetStrategy || camp?.budgetStrategy || (camp as any)?.budget_strategy || 'CBO').toString().toUpperCase().includes('CBO')
     return {
       id: ad.adId || ad.code || ad.id,
       name: ad.adName || ad.name,
       code: ad.adId || ad.code || ad.id,
-      channel: ad.channel || 'Meta Ads',
-      branch: ad.branch || 'ทุกสาขา',
-      productGroup: ad.productCategory || 'ทุกกลุ่มสินค้า',
-      strategy: ad.budgetStrategy || 'CBO',
-      budget: Number(ad.plannedBudget || 0),
+      channel: ad.channel || camp?.channel?.name || (camp as any)?.channelName || 'Meta Ads',
+      branch: ad.branch || (camp as any)?.branchName || 'ทุกสาขา',
+      productGroup: ad.productCategory || (camp as any)?.productCategory || 'ทุกกลุ่มสินค้า',
+      strategy: isCBO ? 'CBO' : 'ABO',
+      budget: isCBO ? Number(camp?.budget || (camp as any)?.campaignBudget || 0) : Number(ad.plannedBudget || ad.budget || 0),
       creativeFile: ad.creativeFile || 'SP_WaterStrong_V1.jpg',
       creativeVersion: ad.creativeVersion || 'V1',
       creativeUrl: ad.creativeUrl || ad.thumbnailUrl,
@@ -607,7 +657,7 @@ export default function UpdateResultsModal({
                   >
                     <option value="">-- เลือกชุดโฆษณา --</option>
                     {availableAdSets.map((as, idx) => {
-                      const asVal = as.code || as.id
+                      const asVal = as.adSetId || as.code || as.id
                       return (
                         <option key={`opt_set_${as.campaignId || selectedCampaignId}_${asVal}_${idx}`} value={asVal}>
                           {as.name} ({asVal})
@@ -669,15 +719,24 @@ export default function UpdateResultsModal({
                       )}
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 font-bold font-mono">
-                      {level === 'CAMPAIGN' ? 'CMP' : (level === 'AD_SET' ? 'SET' : 'ADS')}
+                    <div className="w-10 h-10 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+                      {level === 'CAMPAIGN' ? <Layers className="w-5 h-5" /> : level === 'AD_SET' ? <FolderIcon className="w-5 h-5" /> : <ImageIcon className="w-5 h-5" />}
                     </div>
                   )}
                   <div className="min-w-0">
-                    <div className="font-bold text-slate-900 truncate">
-                      {selectedEntityDetails.name}
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900 truncate max-w-[280px]">
+                        {selectedEntityDetails.name}
+                      </span>
+                      <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold uppercase ${
+                        selectedEntityDetails.strategy === 'CBO'
+                          ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      }`}>
+                        {selectedEntityDetails.strategy}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                    <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500 flex-wrap">
                       <span className="font-mono font-semibold text-slate-700">
                         {selectedEntityDetails.code}
                       </span>
@@ -698,7 +757,7 @@ export default function UpdateResultsModal({
                 <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
                   <div className="text-right">
                     <span className="text-[10px] uppercase text-slate-400 block font-semibold">
-                      งบที่จัดสรร
+                      {selectedEntityDetails.strategy === 'CBO' ? 'งบแคมเปญ (CBO)' : 'งบที่จัดสรร (ABO)'}
                     </span>
                     <span className="font-mono font-bold text-slate-900">
                       ฿{selectedEntityDetails.budget.toLocaleString('th-TH')}

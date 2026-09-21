@@ -43,6 +43,10 @@ import {
   DataFreshnessLevel
 } from './types'
 import { getTeraAdsDashboardData } from '@/app/actions/ads-dashboard'
+import {
+  campaignMatchesBranch,
+  campaignMatchesProductCategory
+} from './helpers'
 
 interface AdsDashboardClientProps {
   campaigns: Array<{
@@ -53,11 +57,18 @@ interface AdsDashboardClientProps {
     budget: number
     status: string
     productCategory: string | null
+    branchId?: string | null
+    branch?: { id: string; name: string } | null
   }>
   channels: Array<{
     id: string
     name: string
   }>
+  branches?: Array<{
+    id: string
+    name: string
+  }>
+  productCategories?: string[]
   initialData: TeraDashboardData | null
   currentUser?: {
     id: string
@@ -70,6 +81,8 @@ interface AdsDashboardClientProps {
 export default function AdsDashboardClient({
   campaigns,
   channels,
+  branches = [],
+  productCategories = [],
   initialData,
   currentUser
 }: AdsDashboardClientProps) {
@@ -80,6 +93,8 @@ export default function AdsDashboardClient({
   const queryFrom = searchParams?.get('from') || ''
   const queryTo = searchParams?.get('to') || ''
   const queryChannel = searchParams?.get('channel') || ''
+  const queryBranch = searchParams?.get('branch') || searchParams?.get('branchId') || ''
+  const queryProductCategory = searchParams?.get('productCategory') || ''
   const queryCampaign = searchParams?.get('campaign') || ''
   const queryStatus = searchParams?.get('status') || ''
   const queryCompareWith = searchParams?.get('compareWith') || ''
@@ -102,8 +117,9 @@ export default function AdsDashboardClient({
       compareWith: queryCompareWith || 'Previous Period',
       compareDateFrom: queryCompareFrom || '2026-07-01',
       compareDateTo: queryCompareTo || '2026-07-31',
-      channel: queryChannel || 'Facebook',
-      productCategory: 'All',
+      channel: queryChannel || 'All',
+      branchId: queryBranch || 'All',
+      productCategory: queryProductCategory || 'All',
       campaignId: queryCampaign || 'All',
       adSetId: 'All',
       adId: 'All',
@@ -248,6 +264,26 @@ export default function AdsDashboardClient({
       }
     }
 
+    // Handle Branch or Product Category change:
+    // If currently selected campaign does not belong to the selected branch/product, reset campaign & ad set to 'All'
+    if (key === 'branchId' || key === 'productCategory') {
+      const targetBranch = key === 'branchId' ? value : next.branchId
+      const targetCat = key === 'productCategory' ? value : next.productCategory
+
+      let validCamps = campaigns || []
+      if (targetBranch && targetBranch !== 'All') {
+        validCamps = validCamps.filter(c => campaignMatchesBranch(c, targetBranch, branches))
+      }
+      if (targetCat && targetCat !== 'All') {
+        validCamps = validCamps.filter(c => campaignMatchesProductCategory(c, targetCat))
+      }
+
+      if (next.campaignId !== 'All' && !validCamps.some(c => (c.campaignId || c.id) === next.campaignId)) {
+        next.campaignId = 'All'
+        next.adSetId = 'All'
+      }
+    }
+
     setFilters(next)
     setIsRefreshing(true)
     try {
@@ -259,6 +295,8 @@ export default function AdsDashboardClient({
       if (next.dateFrom) params.set('from', next.dateFrom)
       if (next.dateTo) params.set('to', next.dateTo)
       if (next.channel !== 'All') params.set('channel', next.channel)
+      if (next.branchId && next.branchId !== 'All') params.set('branch', next.branchId)
+      if (next.productCategory && next.productCategory !== 'All') params.set('productCategory', next.productCategory)
       if (next.campaignId !== 'All') params.set('campaign', next.campaignId)
       if (next.status !== 'All') params.set('status', next.status)
       if (next.compareWith !== 'Previous Period') params.set('compareWith', next.compareWith)
@@ -284,14 +322,16 @@ export default function AdsDashboardClient({
       compareWith: 'Previous Period',
       compareDateFrom: '2026-07-01',
       compareDateTo: '2026-07-31',
-      channel: 'Facebook',
+      channel: 'All',
+      branchId: 'All',
       productCategory: 'All',
       campaignId: 'All',
       adSetId: 'All',
       adId: 'All',
       creative: 'All',
       status: 'Active',
-      search: ''
+      search: '',
+      rollupSource: 'Auto'
     }
     setShowCustomDate(false)
     setShowCustomCompareDate(false)
@@ -308,20 +348,33 @@ export default function AdsDashboardClient({
     }
   }
 
-  // Dynamic list of campaigns from props and dashboard data
+  // Dynamic list of campaigns filtered by selected branch and product category
   const availableCampaigns = useMemo(() => {
+    let list = campaigns || []
+    if (filters.branchId && filters.branchId !== 'All') {
+      list = list.filter(c => campaignMatchesBranch(c, filters.branchId, branches))
+    }
+    if (filters.productCategory && filters.productCategory !== 'All') {
+      list = list.filter(c => campaignMatchesProductCategory(c, filters.productCategory))
+    }
+
     const map = new Map<string, { id: string; campaignId: string; name: string }>()
-    campaigns?.forEach(c => {
+    list.forEach(c => {
       const cid = c.campaignId || c.id
       map.set(cid, { id: c.id, campaignId: cid, name: c.name })
     })
+
     dashboardData?.campaignBreakdown?.forEach(c => {
       if (c.campaignId && !map.has(c.campaignId)) {
-        map.set(c.campaignId, { id: c.campaignId, campaignId: c.campaignId, name: c.campaignName || c.campaignId })
+        const matchesBranch = !filters.branchId || filters.branchId === 'All' || campaignMatchesBranch({ name: c.campaignName }, filters.branchId, branches)
+        const matchesCat = !filters.productCategory || filters.productCategory === 'All' || campaignMatchesProductCategory({ name: c.campaignName }, filters.productCategory)
+        if (matchesBranch && matchesCat) {
+          map.set(c.campaignId, { id: c.campaignId, campaignId: c.campaignId, name: c.campaignName || c.campaignId })
+        }
       }
     })
     return Array.from(map.values())
-  }, [campaigns, dashboardData?.campaignBreakdown])
+  }, [campaigns, dashboardData?.campaignBreakdown, filters.branchId, filters.productCategory, branches])
 
   // Dynamic list of ad sets from dashboard data and ads breakdown
   const availableAdSets = useMemo(() => {
@@ -498,6 +551,8 @@ export default function AdsDashboardClient({
   // Check if any filter is active
   const isFilterActive =
     filters.channel !== 'All' ||
+    (Boolean(filters.branchId) && filters.branchId !== 'All') ||
+    (Boolean(filters.productCategory) && filters.productCategory !== 'All') ||
     filters.campaignId !== 'All' ||
     filters.adSetId !== 'All' ||
     filters.status !== 'Active' ||
@@ -718,8 +773,8 @@ export default function AdsDashboardClient({
             </div>
           </div>
 
-          {/* Symmetrical 7-Column Controls Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-3.5 items-end">
+          {/* Symmetrical Controls Row with Branch and Product Group */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3 sm:gap-3.5 items-end">
             {/* 1. Reporting Period */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
@@ -779,7 +834,47 @@ export default function AdsDashboardClient({
               </select>
             </div>
 
-            {/* 4. Campaign */}
+            {/* 4. Branch (สาขา) */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
+                สาขา
+              </label>
+              <select
+                value={filters.branchId || 'All'}
+                onChange={e => handleFilterChange('branchId', e.target.value)}
+                className="w-full text-xs font-medium bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 outline-none cursor-pointer h-9 shadow-2xs truncate"
+                title="เลือกสาขาเพื่อดูผลลัพธ์โฆษณาเฉพาะสาขานั้น"
+              >
+                <option value="All">ทุกสาขา</option>
+                {branches?.map((b, idx) => (
+                  <option key={`branch_${b.id}_${idx}`} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 5. Product Group (กลุ่มสินค้า) */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
+                กลุ่มสินค้า
+              </label>
+              <select
+                value={filters.productCategory || 'All'}
+                onChange={e => handleFilterChange('productCategory', e.target.value)}
+                className="w-full text-xs font-medium bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 outline-none cursor-pointer h-9 shadow-2xs truncate"
+                title="กรองตามกลุ่มสินค้า"
+              >
+                <option value="All">ทุกกลุ่มสินค้า</option>
+                {productCategories?.map((cat, idx) => (
+                  <option key={`cat_${idx}`} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 6. Campaign */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
                 แคมเปญ
@@ -799,7 +894,7 @@ export default function AdsDashboardClient({
               </select>
             </div>
 
-            {/* 5. Ad Set */}
+            {/* 7. Ad Set */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
                 ชุดโฆษณา
@@ -816,7 +911,7 @@ export default function AdsDashboardClient({
               </select>
             </div>
 
-            {/* 6. Ads Status */}
+            {/* 8. Ads Status */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
                 สถานะโฆษณา
@@ -832,7 +927,7 @@ export default function AdsDashboardClient({
               </select>
             </div>
 
-            {/* 7. Roll-up Source */}
+            {/* 9. Roll-up Source */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 mb-1 truncate">
                 แหล่งคำนวณ Roll-up

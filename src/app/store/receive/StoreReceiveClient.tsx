@@ -29,35 +29,12 @@ import {
   Warehouse,
   X,
   Layers,
-  ArrowUpDown
+  ArrowUpDown,
+  History,
+  Plus
 } from 'lucide-react';
 import Swal from 'sweetalert2';
-
-interface POItem {
-  id: number;
-  no?: number | null;
-  recordedAt?: string | Date | null;
-  prNumber?: string | null;
-  poNumber: string;
-  vendorName?: string | null;
-  accountNumber?: string | null;
-  totalAmount?: number | null;
-  depositAmount?: number | null;
-  remainingAmount?: number | null;
-  payment1?: number | null;
-  creditTerm?: string | null;
-  jobName?: string | null;
-  itemList?: string | null;
-  deliveryDate?: string | Date | null;
-  note?: string | null;
-  reportedBy?: string | null;
-  receiveStatus?: string | null;
-  receivedBy?: string | null;
-  receivedAt?: string | Date | null;
-  createdAt?: string | Date | null;
-  projectName?: string | null;
-  prRequestedBy?: string | null;
-}
+import GoodsReceiveModal, { POItem, GoodsReceiptRecord } from './GoodsReceiveModal';
 
 interface StoreReceiveClientProps {
   initialPos: POItem[];
@@ -85,9 +62,13 @@ export default function StoreReceiveClient({
   // Detail Modal State
   const [detailPo, setDetailPo] = useState<POItem | null>(null);
 
+  // Quantity Entry & Staggered Receive Modal State
+  const [receiveModalPo, setReceiveModalPo] = useState<POItem | null>(null);
+
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [companyFilter, setCompanyFilter] = useState<'ALL' | 'TE' | 'TP' | 'TG'>('ALL');
+  const [stageFilter, setStageFilter] = useState<'ALL' | 'UNRECEIVED' | 'PARTIAL'>('ALL');
   const [urgencyFilter, setUrgencyFilter] = useState<'ALL' | 'OVERDUE' | 'TODAY' | 'UPCOMING'>('ALL');
   const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('ALL');
@@ -246,12 +227,14 @@ export default function StoreReceiveClient({
     let overdueCount = 0;
     let dueTodayCount = 0;
     let totalPendingValue = 0;
+    let partialCount = 0;
 
     pos.forEach(po => {
       totalPendingValue += po.totalAmount || 0;
       const status = getDeliveryStatus(po.deliveryDate);
       if (status.status === 'overdue') overdueCount++;
       if (status.status === 'today') dueTodayCount++;
+      if (po.receiveStatus === 'Partial') partialCount++;
     });
 
     return {
@@ -259,6 +242,8 @@ export default function StoreReceiveClient({
       overdueCount,
       dueTodayCount,
       totalPendingValue,
+      partialCount,
+      unreceivedCount: pos.length - partialCount,
       receivedCount: receivedPos.length
     };
   }, [pos, receivedPos]);
@@ -283,6 +268,10 @@ export default function StoreReceiveClient({
         const comp = getCompanyFromPO(po.poNumber);
         if (comp !== companyFilter) return false;
       }
+
+      // 1.5 Delivery Stage (All / Unreceived / Partial)
+      if (stageFilter === 'UNRECEIVED' && po.receiveStatus === 'Partial') return false;
+      if (stageFilter === 'PARTIAL' && po.receiveStatus !== 'Partial') return false;
 
       // 2. Urgency
       if (urgencyFilter !== 'ALL') {
@@ -333,7 +322,7 @@ export default function StoreReceiveClient({
 
       return true;
     });
-  }, [pos, companyFilter, urgencyFilter, dateFilter, monthFilter, yearFilter, searchQuery]);
+  }, [pos, companyFilter, stageFilter, urgencyFilter, dateFilter, monthFilter, yearFilter, searchQuery]);
 
   // Filter Engine for Received POs
   const filteredReceived = useMemo(() => {
@@ -405,6 +394,7 @@ export default function StoreReceiveClient({
   const handleResetFilters = () => {
     setSearchQuery('');
     setCompanyFilter('ALL');
+    setStageFilter('ALL');
     setUrgencyFilter('ALL');
     setDateFilter('');
     setMonthFilter('ALL');
@@ -415,6 +405,7 @@ export default function StoreReceiveClient({
   const hasActiveFilters =
     searchQuery !== '' ||
     companyFilter !== 'ALL' ||
+    stageFilter !== 'ALL' ||
     urgencyFilter !== 'ALL' ||
     dateFilter !== '' ||
     monthFilter !== 'ALL' ||
@@ -456,99 +447,44 @@ export default function StoreReceiveClient({
     });
   };
 
-  // Action: Single Receive into Store
-  const handleReceiveStore = async (po: POItem) => {
-    const result = await Swal.fire({
-      title: 'ตรวจรับสินค้าเข้าสโตร์',
-      html: `
-        <div class="text-left text-sm space-y-2 mt-2">
-          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-            <div><span class="text-gray-500">เลขที่ PO:</span> <span class="font-bold text-gray-900">${po.poNumber}</span></div>
-            <div><span class="text-gray-500">ผู้ขาย:</span> <span class="font-semibold text-gray-800">${po.vendorName || '-'}</span></div>
-            <div><span class="text-gray-500">โครงการ:</span> <span class="text-gray-800">${po.projectName || '-'}</span></div>
-            <div class="truncate text-xs text-gray-600 mt-1">${po.itemList || '-'}</div>
-          </div>
-          <div class="mt-3">
-            <label class="block text-xs font-semibold text-gray-700 mb-1">ชื่อผู้ตรวจรับเข้าสโตร์</label>
-            <input id="swal-receiver-input" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" value="${userName || 'เจ้าหน้าที่สโตร์'}" />
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonColor: '#059669',
-      cancelButtonColor: '#64748b',
-      confirmButtonText: 'ยืนยันตรวจรับเข้าสโตร์',
-      cancelButtonText: 'ยกเลิก',
-      focusConfirm: false,
-      preConfirm: () => {
-        const input = document.getElementById('swal-receiver-input') as HTMLInputElement;
-        if (!input || !input.value.trim()) {
-          Swal.showValidationMessage('กรุณาระบุชื่อผู้ตรวจรับ');
-          return false;
-        }
-        return input.value.trim();
-      }
-    });
+  // Action: Single Receive into Store (opens item-level quantity modal)
+  const handleReceiveStore = (po: POItem) => {
+    setReceiveModalPo(po);
+  };
 
-    if (!result.isConfirmed || !result.value) return;
-
-    const finalReceiver = result.value;
-    setLoadingMap(prev => ({ ...prev, [po.poNumber]: true }));
-
-    try {
-      const res = await fetch(`/api/store/receive/${encodeURIComponent(po.poNumber)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ receivedBy: finalReceiver })
+  const handleSuccessReceive = (updatedPo: POItem, isComplete: boolean, newGR: GoodsReceiptRecord) => {
+    if (isComplete) {
+      setPos(prev => prev.filter(p => p.poNumber !== updatedPo.poNumber));
+      setReceivedPos(prev => [updatedPo, ...prev]);
+      setSelectedPoNumbers(prev => {
+        const next = new Set(prev);
+        next.delete(updatedPo.poNumber);
+        return next;
       });
 
-      if (res.ok) {
-        const nowIso = new Date().toISOString();
-        const updatedItem: POItem = {
-          ...po,
-          receiveStatus: 'Received',
-          receivedBy: finalReceiver,
-          receivedAt: nowIso
-        };
-        setPos(prev => prev.filter(p => p.poNumber !== po.poNumber));
-        setReceivedPos(prev => [updatedItem, ...prev]);
-        setSelectedPoNumbers(prev => {
-          const next = new Set(prev);
-          next.delete(po.poNumber);
-          return next;
-        });
-
-        if (detailPo?.poNumber === po.poNumber) {
-          setDetailPo(null);
-        }
-
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: `ตรวจรับ PO ${po.poNumber} เข้าสโตร์สำเร็จ`,
-          showConfirmButton: false,
-          timer: 2000
-        });
-
-        router.refresh();
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        Swal.fire({
-          icon: 'error',
-          title: 'อัปเดตไม่สำเร็จ',
-          text: errData.error || 'เกิดข้อผิดพลาดในการบันทึกการรับสินค้า'
-        });
-      }
-    } catch (e: any) {
-      console.error(e);
       Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `ตรวจรับ PO ${updatedPo.poNumber} ครบถ้วนเข้าสโตร์แล้ว`,
+        showConfirmButton: false,
+        timer: 2500
       });
-    } finally {
-      setLoadingMap(prev => ({ ...prev, [po.poNumber]: false }));
+    } else {
+      setPos(prev => prev.map(p => (p.poNumber === updatedPo.poNumber ? updatedPo : p)));
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `บันทึกรับงวดที่ ${newGR.sequenceNo || 1} เรียบร้อย (รับบางส่วน)`,
+        showConfirmButton: false,
+        timer: 2500
+      });
+    }
+
+    if (detailPo?.poNumber === updatedPo.poNumber) {
+      setDetailPo(updatedPo);
     }
   };
 
@@ -585,12 +521,17 @@ export default function StoreReceiveClient({
       const res = await fetch(`/api/store/receive/${encodeURIComponent(po.poNumber)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ receivedBy: siteReceiver })
+        body: JSON.stringify({
+          receivedBy: siteReceiver,
+          isCompleteDelivery: true,
+          note: 'รับเข้าหน้างานแล้ว (เปิด PO ย้อนหลัง)'
+        })
       });
 
       if (res.ok) {
+        const resData = await res.json().catch(() => ({}));
         const nowIso = new Date().toISOString();
-        const updatedItem: POItem = {
+        const updatedItem: POItem = resData.data || {
           ...po,
           receiveStatus: 'Received',
           receivedBy: siteReceiver,
@@ -907,43 +848,94 @@ export default function StoreReceiveClient({
 
       {/* 3. Filter Toolbar & Company Selector */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
-        {/* Row 1: Company Selector Pills */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">บริษัท:</span>
-            <div className="flex flex-wrap items-center gap-1.5">
-              {(['ALL', 'TE', 'TP', 'TG'] as const).map(comp => {
-                const count = companyCounts[comp];
-                const isSelected = companyFilter === comp;
-                return (
-                  <button
-                    key={comp}
-                    onClick={() => {
-                      setCompanyFilter(comp);
-                      setCurrentPage(1);
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                      isSelected
-                        ? 'bg-slate-900 text-white shadow-sm'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
-                    }`}
-                  >
-                    <span>{comp === 'ALL' ? 'ทุกบริษัท' : comp}</span>
-                    <span
-                      className={`px-1.5 py-0.5 rounded-md text-[10px] ${
-                        isSelected ? 'bg-slate-800 text-slate-200' : 'bg-slate-200 text-slate-700'
+        {/* Row 1: Company Selector & Delivery Stage Pills */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">บริษัท:</span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {(['ALL', 'TE', 'TP', 'TG'] as const).map(comp => {
+                  const count = companyCounts[comp];
+                  const isSelected = companyFilter === comp;
+                  return (
+                    <button
+                      key={comp}
+                      onClick={() => {
+                        setCompanyFilter(comp);
+                        setCurrentPage(1);
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                        isSelected
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                       }`}
                     >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
+                      <span>{comp === 'ALL' ? 'ทุกบริษัท' : comp}</span>
+                      <span
+                        className={`px-1.5 py-0.5 rounded-md text-[10px] ${
+                          isSelected ? 'bg-slate-800 text-slate-200' : 'bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Stage Selector Pills (Pending Tab only) */}
+            {activeTab === 'pending' && (
+              <div className="flex items-center gap-1.5 pl-0 lg:pl-3 lg:border-l border-slate-200">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">สถานะ:</span>
+                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                  <button
+                    onClick={() => {
+                      setStageFilter('ALL');
+                      setCurrentPage(1);
+                    }}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      stageFilter === 'ALL'
+                        ? 'bg-white text-slate-900 shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    ทั้งหมด ({pos.length})
+                  </button>
+                  <button
+                    onClick={() => {
+                      setStageFilter('UNRECEIVED');
+                      setCurrentPage(1);
+                    }}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      stageFilter === 'UNRECEIVED'
+                        ? 'bg-white text-blue-700 shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    รอรับใหม่ ({metrics.unreceivedCount})
+                  </button>
+                  <button
+                    onClick={() => {
+                      setStageFilter('PARTIAL');
+                      setCurrentPage(1);
+                    }}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      stageFilter === 'PARTIAL'
+                        ? 'bg-white text-amber-800 shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Clock className="w-3 h-3 text-amber-600" />
+                    <span>รับบางส่วน ({metrics.partialCount})</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Tab Switcher Buttons */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl flex-shrink-0">
             <button
               onClick={() => handleTabChange('pending')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
@@ -1080,6 +1072,11 @@ export default function StoreReceiveClient({
               {companyFilter !== 'ALL' && (
                 <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md border border-purple-200">
                   บริษัท: {companyFilter}
+                </span>
+              )}
+              {stageFilter !== 'ALL' && (
+                <span className="px-2 py-0.5 bg-amber-50 text-amber-800 rounded-md border border-amber-300 font-semibold">
+                  สถานะ: {stageFilter === 'UNRECEIVED' ? 'รอรับใหม่' : 'รับบางส่วนแล้ว'}
                 </span>
               )}
               {urgencyFilter !== 'ALL' && (
@@ -1244,6 +1241,12 @@ export default function StoreReceiveClient({
                                 {compBadge.short}
                               </span>
                             </div>
+                            {po.receiveStatus === 'Partial' && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300 w-fit">
+                                <Clock className="w-3 h-3 text-amber-600" />
+                                <span>รับบางส่วน (งวดที่ {(po.goodsReceipts?.length || 0) + 1})</span>
+                              </span>
+                            )}
                             {po.prNumber ? (
                               <div className="text-[11px] text-slate-500 flex items-center gap-1">
                                 <span>PR:</span>
@@ -1291,10 +1294,17 @@ export default function StoreReceiveClient({
                             <span className="text-slate-700 truncate group-hover:text-blue-600 transition-colors">
                               {po.itemList || '-'}
                             </span>
-                            <span className="text-[10px] text-blue-500 group-hover:underline flex items-center gap-0.5">
-                              <span>ดูรายละเอียดสินค้า</span>
-                              <ArrowRight className="w-2.5 h-2.5" />
-                            </span>
+                            <div className="flex items-center gap-1.5 text-[10px]">
+                              {po.goodsReceipts && po.goodsReceipts.length > 0 ? (
+                                <span className="font-semibold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                                  รับแล้ว {po.goodsReceipts.length} งวด
+                                </span>
+                              ) : null}
+                              <span className="text-blue-500 group-hover:underline flex items-center gap-0.5">
+                                <span>ดูรายการ/ระบุจำนวน</span>
+                                <ArrowRight className="w-2.5 h-2.5" />
+                              </span>
+                            </div>
                           </div>
                         </td>
 
@@ -1309,11 +1319,21 @@ export default function StoreReceiveClient({
                             <button
                               onClick={() => handleReceiveStore(po)}
                               disabled={isLoading}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all disabled:opacity-50 whitespace-nowrap"
-                              title="ตรวจรับสินค้าเข้าคลังสโตร์"
+                              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all disabled:opacity-50 whitespace-nowrap ${
+                                po.receiveStatus === 'Partial'
+                                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                              }`}
+                              title="ตรวจรับสินค้าและระบุจำนวน"
                             >
                               <PackageCheck className="w-3.5 h-3.5" />
-                              <span>{isLoading ? 'กำลังบันทึก...' : 'ตรวจรับเข้าสโตร์'}</span>
+                              <span>
+                                {isLoading
+                                  ? 'กำลังบันทึก...'
+                                  : po.receiveStatus === 'Partial'
+                                  ? 'ตรวจรับงวดถัดไป'
+                                  : 'ตรวจรับเข้าสโตร์'}
+                              </span>
                             </button>
 
                             <button
@@ -1375,15 +1395,23 @@ export default function StoreReceiveClient({
                           className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
                         />
                         <div>
-                          <span
-                            onClick={() => setDetailPo(po)}
-                            className="font-bold text-slate-900 text-sm hover:text-blue-600 cursor-pointer"
-                          >
-                            {po.poNumber}
-                          </span>
-                          <span className={`ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold border ${compBadge.badge}`}>
-                            {compBadge.short}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              onClick={() => setDetailPo(po)}
+                              className="font-bold text-slate-900 text-sm hover:text-blue-600 cursor-pointer"
+                            >
+                              {po.poNumber}
+                            </span>
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${compBadge.badge}`}>
+                              {compBadge.short}
+                            </span>
+                          </div>
+                          {po.receiveStatus === 'Partial' && (
+                            <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                              <Clock className="w-3 h-3 text-amber-600" />
+                              <span>รับบางส่วน (งวดที่ {(po.goodsReceipts?.length || 0) + 1})</span>
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -1425,10 +1453,20 @@ export default function StoreReceiveClient({
                       <button
                         onClick={() => handleReceiveStore(po)}
                         disabled={isLoading}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm disabled:opacity-50"
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-white rounded-xl text-xs font-semibold shadow-sm disabled:opacity-50 ${
+                          po.receiveStatus === 'Partial'
+                            ? 'bg-amber-600 hover:bg-amber-700'
+                            : 'bg-emerald-600 hover:bg-emerald-700'
+                        }`}
                       >
                         <PackageCheck className="w-4 h-4" />
-                        <span>{isLoading ? 'กำลังบันทึก...' : 'ตรวจรับเข้าสโตร์'}</span>
+                        <span>
+                          {isLoading
+                            ? 'กำลังบันทึก...'
+                            : po.receiveStatus === 'Partial'
+                            ? 'ตรวจรับงวดถัดไป'
+                            : 'ตรวจรับสินค้า (ระบุจำนวน)'}
+                        </span>
                       </button>
                       <button
                         onClick={() => handleReceiveSite(po)}
@@ -1852,6 +1890,82 @@ export default function StoreReceiveClient({
                 </div>
               </div>
 
+              {/* Partial Delivery Notice */}
+              {detailPo.receiveStatus === 'Partial' && (
+                <div className="p-4 bg-amber-50/90 rounded-2xl border border-amber-300 text-amber-900 space-y-1">
+                  <div className="font-bold text-xs flex items-center gap-1.5 text-amber-800">
+                    <Clock className="w-4 h-4 text-amber-600" />
+                    <span>สินค้ารายการนี้อยู่ระหว่างทยอยส่งมอบ (รับแล้วบางส่วน)</span>
+                  </div>
+                  <div className="text-xs text-amber-800">
+                    มีสินค้าบางรายการถูกตรวจรับเข้าสโตร์แล้ว และยังมียอดคงเหลือรอตรวจรับในงวดถัดไป
+                  </div>
+                </div>
+              )}
+
+              {/* Goods Receipts Timeline */}
+              {detailPo.goodsReceipts && detailPo.goodsReceipts.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[11px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1.5">
+                    <History className="w-3.5 h-3.5 text-slate-500" />
+                    <span>ประวัติการตรวจรับสินค้า ({detailPo.goodsReceipts.length} งวดที่ผ่านมา)</span>
+                  </span>
+                  <div className="space-y-2">
+                    {detailPo.goodsReceipts.map((gr, idx) => (
+                      <div key={gr.id || idx} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                        <div className="flex flex-wrap items-center justify-between gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900">งวดที่ {gr.sequenceNo || idx + 1}</span>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                gr.isCompleteDelivery
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-amber-100 text-amber-800'
+                              }`}
+                            >
+                              {gr.isCompleteDelivery ? 'ส่งมอบครบถ้วน' : 'ส่งมอบบางส่วน'}
+                            </span>
+                          </div>
+                          <span className="text-slate-500 text-[11px]">
+                            {gr.receivedAt ? formatThaiDate(gr.receivedAt, true) : '-'}
+                          </span>
+                        </div>
+                        <div className="text-slate-600 text-[11px] flex flex-wrap gap-x-4">
+                          <span>ผู้รับ: <strong className="text-slate-800">{gr.recipient || '-'}</strong></span>
+                          {gr.deliveryNoteNumber && (
+                            <span>ใบส่งของ/DO: <strong className="text-slate-800">{gr.deliveryNoteNumber}</strong></span>
+                          )}
+                        </div>
+                        {gr.item && (
+                          <div className="bg-white p-2.5 rounded-lg border border-slate-200 text-slate-700 text-[11px] font-mono whitespace-pre-wrap">
+                            {(() => {
+                              try {
+                                const parsed = JSON.parse(gr.item);
+                                if (Array.isArray(parsed)) {
+                                  return (
+                                    <div className="space-y-0.5">
+                                      {parsed.map((it: any, i: number) => (
+                                        <div key={i} className="flex justify-between">
+                                          <span>• {it.name}</span>
+                                          <span className="font-bold text-blue-700">
+                                            รับ {it.receivedQty} {it.unit || 'ชิ้น'} (สั่ง {it.orderedQty})
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  );
+                                }
+                              } catch {}
+                              return gr.item;
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Note / Remarks if available */}
               {detailPo.note && (
                 <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/70 text-amber-900 space-y-0.5">
@@ -1897,18 +2011,41 @@ export default function StoreReceiveClient({
                     <span>รับที่หน้างาน (ย้อนหลัง)</span>
                   </button>
                   <button
-                    onClick={() => handleReceiveStore(detailPo)}
+                    onClick={() => {
+                      const poToReceive = detailPo;
+                      setDetailPo(null);
+                      handleReceiveStore(poToReceive);
+                    }}
                     disabled={!!loadingMap[detailPo.poNumber]}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition-all disabled:opacity-50"
+                    className={`flex items-center gap-1.5 px-4 py-2 text-white rounded-xl text-xs font-semibold shadow transition-all disabled:opacity-50 ${
+                      detailPo.receiveStatus === 'Partial'
+                        ? 'bg-amber-600 hover:bg-amber-700'
+                        : 'bg-emerald-600 hover:bg-emerald-700'
+                    }`}
                   >
                     <PackageCheck className="w-4 h-4" />
-                    <span>ตรวจรับเข้าสโตร์</span>
+                    <span>
+                      {detailPo.receiveStatus === 'Partial'
+                        ? 'ตรวจรับงวดถัดไป'
+                        : 'ตรวจรับสินค้า (ระบุจำนวน)'}
+                    </span>
                   </button>
                 </div>
               )}
             </div>
           </div>
         </div>
+      )}
+
+      {/* 8. Goods Receive Modal with Manual Quantity Entry & Staggered Deliveries */}
+      {receiveModalPo && (
+        <GoodsReceiveModal
+          po={receiveModalPo}
+          isOpen={true}
+          onClose={() => setReceiveModalPo(null)}
+          onSuccess={handleSuccessReceive}
+          userName={userName}
+        />
       )}
     </div>
   );

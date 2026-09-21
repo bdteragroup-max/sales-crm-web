@@ -1,5 +1,5 @@
-import { 
-  AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
+import {
+  AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, ComposedChart, BarChart, Bar, Cell as RechartsCell, ReferenceLine, LabelList
 } from 'recharts';
 
@@ -17,52 +17,52 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
         >
           <defs>
             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1}/>
-              <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1} />
+              <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1}/>
-              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />
+              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="colorMeetings" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#4B5563" stopOpacity={0.1}/>
-              <stop offset="95%" stopColor="#4B5563" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#4B5563" stopOpacity={0.1} />
+              <stop offset="95%" stopColor="#4B5563" stopOpacity={0} />
             </linearGradient>
           </defs>
-          
+
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-          
-          <XAxis 
-            dataKey="date" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#94a3b8', fontSize: 10 }} 
+
+          <XAxis
+            dataKey="date"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#94a3b8', fontSize: 10 }}
             dy={10}
             tickFormatter={(str) => {
               const date = new Date(str);
               return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
             }}
           />
-          
-          <YAxis 
+
+          <YAxis
             yAxisId="left"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#94a3b8', fontSize: 10 }}
             dx={-10}
             tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           />
-          
-          <YAxis 
+
+          <YAxis
             yAxisId="right"
             orientation="right"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#94a3b8', fontSize: 10 }}
             dx={10}
           />
-          
-          <RechartsTooltip 
+
+          <RechartsTooltip
             contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
             labelStyle={{ fontWeight: 'bold', marginBottom: '8px', fontSize: '12px' }}
             itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
@@ -70,8 +70,8 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               if (name === 'ยอดขายสะสม' || name === 'ยอดสะสมรอบก่อน') return [`฿${value.toLocaleString()}`, name];
               if (name === 'ยอดพรีเมียมรายวัน') {
                 const hit = props.payload?.hitTarget;
-                const suffix = hasDailyTarget 
-                  ? (hit ? ' [ถึงเป้า]' : ' [ไม่ถึงเป้า]') 
+                const suffix = hasDailyTarget
+                  ? (hit ? ' [ถึงเป้า]' : ' [ไม่ถึงเป้า]')
                   : '';
                 return [`฿${value.toLocaleString()}${suffix}`, name];
               }
@@ -107,8 +107,8 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
             radius={[4, 4, 0, 0]}
           >
             {data.map((entry: any, index: number) => {
-              const color = hasDailyTarget 
-                ? (entry.hitTarget ? '#22c55e' : '#ef4444') 
+              const color = hasDailyTarget
+                ? (entry.hitTarget ? '#22c55e' : '#ef4444')
                 : '#ef4444'; // Default to theme red if no target
               return (
                 <RechartsCell
@@ -122,90 +122,90 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
 
           {/* Cumulative target dashed line */}
           <Line
-    hide={!hasDailyTarget}
-    yAxisId="left"
-    type="monotone"
-    dataKey="cumulativeTarget"
-    name="เป้าหมายสะสม"
-    stroke="#3b82f6"
-    strokeWidth={1.5}
-    strokeDasharray="6 3"
-    dot={false}
-    legendType="none"
-  />
-          
-          <Area hide={!visibleSeries.cumulativeSales} 
-              yAxisId="left"
-              type="monotone" 
-              dataKey="cumulativeSales" 
-              name="ยอดขายสะสม"
-              stroke="#ef4444" 
-              strokeWidth={3} 
-              fillOpacity={1} 
-              fill="url(#colorSales)"
-              dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
-              animationDuration={1500}
-              animationEasing="ease-in-out"
-            />
-          
-          <Area hide={!visibleSeries.calls} 
-              yAxisId="right"
-              type="monotone" 
-              dataKey="calls" 
-              name="โทร"
-              stroke="#8b5cf6" 
-              strokeWidth={2} 
-              fillOpacity={1} 
-              fill="url(#colorCalls)"
-              animationDuration={1500}
-              animationEasing="ease-in-out"
-            />
-          
-          <Area hide={!visibleSeries.meetings} 
-              yAxisId="right"
-              type="monotone" 
-              dataKey="meetings" 
-              name="เข้าพบ"
-              stroke="#4B5563" 
-              strokeWidth={2} 
-              fillOpacity={1} 
-              fill="url(#colorMeetings)"
-            />
-          
-          <Line hide={!visibleSeries.quotes} 
-              yAxisId="right"
-              type="monotone" 
-              dataKey="quotes" 
-              name="ใบเสนอราคา"
-              stroke="#1F2937" 
-              strokeWidth={2} 
-              dot={false}
-            />
+            hide={!hasDailyTarget}
+            yAxisId="left"
+            type="monotone"
+            dataKey="cumulativeTarget"
+            name="เป้าหมายสะสม"
+            stroke="#3b82f6"
+            strokeWidth={1.5}
+            strokeDasharray="6 3"
+            dot={false}
+            legendType="none"
+          />
+
+          <Area hide={!visibleSeries.cumulativeSales}
+            yAxisId="left"
+            type="monotone"
+            dataKey="cumulativeSales"
+            name="ยอดขายสะสม"
+            stroke="#ef4444"
+            strokeWidth={3}
+            fillOpacity={1}
+            fill="url(#colorSales)"
+            dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
+            activeDot={{ r: 6, strokeWidth: 0 }}
+            animationDuration={1500}
+            animationEasing="ease-in-out"
+          />
+
+          <Area hide={!visibleSeries.calls}
+            yAxisId="right"
+            type="monotone"
+            dataKey="calls"
+            name="โทร"
+            stroke="#8b5cf6"
+            strokeWidth={2}
+            fillOpacity={1}
+            fill="url(#colorCalls)"
+            animationDuration={1500}
+            animationEasing="ease-in-out"
+          />
+
+          <Area hide={!visibleSeries.meetings}
+            yAxisId="right"
+            type="monotone"
+            dataKey="meetings"
+            name="เข้าพบ"
+            stroke="#4B5563"
+            strokeWidth={2}
+            fillOpacity={1}
+            fill="url(#colorMeetings)"
+          />
+
+          <Line hide={!visibleSeries.quotes}
+            yAxisId="right"
+            type="monotone"
+            dataKey="quotes"
+            name="ใบเสนอราคา"
+            stroke="#1F2937"
+            strokeWidth={2}
+            dot={false}
+          />
 
           {/* MoM Overlay: Previous Period Cumulative Sales */}
           <Line hide={!showMoMOverlay}
-              yAxisId="left"
-              type="monotone"
-              dataKey="prevCumulativeSales"
-              name="ยอดสะสมรอบก่อน"
-              stroke="#94a3b8"
-              strokeWidth={2}
-              strokeDasharray="8 4"
-              dot={false}
-              legendType="line"
-            />
+            yAxisId="left"
+            type="monotone"
+            dataKey="prevCumulativeSales"
+            name="ยอดสะสมรอบก่อน"
+            stroke="#94a3b8"
+            strokeWidth={2}
+            strokeDasharray="8 4"
+            dot={false}
+            legendType="line"
+          />
           <Line hide={!showMoMOverlay}
-              yAxisId="left"
-              type="monotone"
-              dataKey="prevCumulativeTarget"
-              name="เป้ารอบก่อน"
-              stroke="#cbd5e1"
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
-              dot={false}
-              legendType="none"
-            />
+            yAxisId="left"
+            type="monotone"
+            dataKey="prevCumulativeTarget"
+            name="เป้ารอบก่อน"
+            stroke="#cbd5e1"
+            strokeWidth={1.5}
+            strokeDasharray="4 4"
+            dot={false}
+            legendType="none"
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -222,7 +222,7 @@ export function ProductMixPieChart({ data }: { data: any[] }) {
       </div>
     );
   }
-  
+
   const chartData = data.map((item, index) => ({
     name: item.name || 'อื่นๆ',
     value: item.value || 0,
@@ -249,13 +249,13 @@ export function ProductMixPieChart({ data }: { data: any[] }) {
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <RechartsTooltip 
+          <RechartsTooltip
             formatter={(value: any) => [`฿${value.toLocaleString()}`, 'ยอดขาย']}
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
           />
         </PieChart>
       </ResponsiveContainer>
-      
+
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 px-4 w-full overflow-y-auto max-h-20 custom-scrollbar">
         {chartData.map((item: any) => (
           <div key={item.name} className="flex items-center gap-1.5 min-w-0">
@@ -278,14 +278,14 @@ export function PipelineFunnelChart({ data }: { data: any[] }) {
         margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
       >
         <XAxis type="number" hide />
-        <YAxis 
-          type="category" 
-          dataKey="name" 
-          axisLine={false} 
-          tickLine={false} 
-          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} 
+        <YAxis
+          type="category"
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
         />
-        <RechartsTooltip 
+        <RechartsTooltip
           cursor={{ fill: 'transparent' }}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
@@ -302,7 +302,7 @@ export function PipelineFunnelChart({ data }: { data: any[] }) {
 
 export function LostReasonPieChart({ data }: { data: any[] }) {
   if (!data || data.length === 0) return <div className="h-full flex items-center justify-center text-gray-400 text-xs">ไม่มีข้อมูลสาเหตุที่พลาด</div>;
-  
+
   return (
     <ResponsiveContainer width="100%" height="100%" minHeight={250}>
       <PieChart key={data.length}>
@@ -320,7 +320,7 @@ export function LostReasonPieChart({ data }: { data: any[] }) {
             <Cell key={`cell-${index}`} fill={PREMIUM_COLORS[(index + 3) % PREMIUM_COLORS.length]} />
           ))}
         </Pie>
-        <RechartsTooltip 
+        <RechartsTooltip
           formatter={(val: any) => [val, 'จำนวนดีล']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
@@ -339,15 +339,15 @@ export function RegionalBarChart({ data }: { data: any[] }) {
         margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
       >
         <XAxis type="number" hide />
-        <YAxis 
-          type="category" 
-          dataKey="name" 
-          axisLine={false} 
-          tickLine={false} 
-          tick={{ fill: '#475569', fontSize: 9, fontWeight: 'bold' }} 
+        <YAxis
+          type="category"
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: '#475569', fontSize: 9, fontWeight: 'bold' }}
           width={70}
         />
-        <RechartsTooltip 
+        <RechartsTooltip
           formatter={(val: any) => [`฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, 'ยอดขาย']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
@@ -368,7 +368,7 @@ export function GrowthComparisonChart({ data }: { data: any[] }) {
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
         <YAxis hide />
-        <RechartsTooltip 
+        <RechartsTooltip
           formatter={(val: any) => [`฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, '']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
@@ -382,9 +382,9 @@ export function GrowthComparisonChart({ data }: { data: any[] }) {
 
 export function AnalyticalDonutChart({ data, label }: { data: any[], label?: string }) {
   if (!data || data.length === 0) return <div className="h-full flex items-center justify-center text-gray-400 text-[10px]">ไม่มีข้อมูล</div>;
-  
+
   const total = data.reduce((acc, curr) => acc + curr.value, 0);
-  
+
   return (
     <div className="h-full w-full flex flex-col relative">
       <ResponsiveContainer width="100%" height="100%" minHeight={250}>
@@ -403,7 +403,7 @@ export function AnalyticalDonutChart({ data, label }: { data: any[], label?: str
               <Cell key={`cell-${index}`} fill={PREMIUM_COLORS[index % PREMIUM_COLORS.length]} />
             ))}
           </Pie>
-          <RechartsTooltip 
+          <RechartsTooltip
             formatter={(val: any) => [val.toLocaleString(), 'จำนวนดีล']}
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
           />
@@ -423,17 +423,17 @@ export function WinRateBarChart({ data }: { data: any[] }) {
     <ResponsiveContainer width="100%" height="100%" minHeight={250}>
       <BarChart key={data?.length || 0} data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-        <XAxis 
-          dataKey="name" 
-          axisLine={false} 
-          tickLine={false} 
+        <XAxis
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
           tick={{ fill: '#94a3b8', fontSize: 8 }}
           interval={0}
           angle={-15}
           textAnchor="end"
         />
         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 8 }} domain={[0, 100]} />
-        <RechartsTooltip 
+        <RechartsTooltip
           formatter={(val: any) => [`${val.toFixed(1)}%`, 'อัตราการชนะ']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
@@ -454,7 +454,7 @@ export function ClosingTimeChart({ data }: { data: any[] }) {
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 9 }} />
         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 9 }} />
-        <RechartsTooltip 
+        <RechartsTooltip
           formatter={(val: any) => [val, 'จำนวนดีล']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
@@ -470,7 +470,7 @@ export function DecisionMakerChart({ data }: { data: any[] }) {
       <BarChart key={data?.length || 0} data={data} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <XAxis type="number" hide />
         <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} width={80} />
-        <RechartsTooltip 
+        <RechartsTooltip
           cursor={{ fill: 'transparent' }}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
@@ -494,7 +494,7 @@ export function ProductPerformanceChart({ data }: { data: any[] }) {
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
         <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`} />
         <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-        <RechartsTooltip 
+        <RechartsTooltip
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
           formatter={(value: any, name: any) => {
             if (name === 'มูลค่าการขาย') return [`฿${value.toLocaleString()}`, name];
@@ -519,15 +519,15 @@ export function HorizontalLeaderboardChart({ data }: { data: any[] }) {
         margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
       >
         <XAxis type="number" hide />
-        <YAxis 
-          type="category" 
-          dataKey="fullName" 
-          axisLine={false} 
-          tickLine={false} 
-          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} 
+        <YAxis
+          type="category"
+          dataKey="fullName"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
           width={90}
         />
-        <RechartsTooltip 
+        <RechartsTooltip
           formatter={(val: any) => [`฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'ยอดขาย']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
@@ -561,29 +561,29 @@ export function ComposedActivityCorrelationChart({ data }: { data: any[] }) {
           margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-          <XAxis 
-            dataKey="fullName" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }} 
+          <XAxis
+            dataKey="fullName"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }}
             dy={10}
           />
-          <YAxis 
+          <YAxis
             yAxisId="left"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#64748b', fontSize: 10 }}
             tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           />
-          <YAxis 
+          <YAxis
             yAxisId="right"
             orientation="right"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#64748b', fontSize: 10 }}
             label={{ value: 'กิจกรรมเฉลี่ย/สัปดาห์', angle: 90, position: 'insideRight', style: { fill: '#64748b', fontSize: 9, fontWeight: 'bold' } }}
           />
-          <RechartsTooltip 
+          <RechartsTooltip
             contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)', padding: '12px', background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(8px)' }}
             labelStyle={{ fontWeight: 'bold', fontSize: '11px', color: '#1e293b', marginBottom: '6px' }}
             itemStyle={{ fontSize: '10px', fontWeight: 'bold' }}
@@ -592,44 +592,44 @@ export function ComposedActivityCorrelationChart({ data }: { data: any[] }) {
               return [`${Number(value).toFixed(1)} ครั้ง/สัปดาห์`, name];
             }}
           />
-          <Legend 
-            verticalAlign="top" 
-            align="center" 
-            iconType="circle" 
+          <Legend
+            verticalAlign="top"
+            align="center"
+            iconType="circle"
             wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '15px' }}
           />
-          
+
           {/* Won Sales Bar */}
-          <Bar 
-            yAxisId="left" 
-            dataKey="won" 
-            name="ยอดขายที่ปิดได้" 
-            fill="#ff2301" 
-            radius={[6, 6, 0, 0]} 
-            barSize={24} 
+          <Bar
+            yAxisId="left"
+            dataKey="won"
+            name="ยอดขายที่ปิดได้"
+            fill="#ff2301"
+            radius={[6, 6, 0, 0]}
+            barSize={24}
             opacity={0.8}
           />
-          
+
           {/* Average Calls Line */}
-          <Line 
-            yAxisId="right" 
-            type="monotone" 
-            dataKey="weeklyCalls" 
-            name="โทรเฉลี่ย/สัปดาห์" 
-            stroke="#D4AF37" 
-            strokeWidth={3} 
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="weeklyCalls"
+            name="โทรเฉลี่ย/สัปดาห์"
+            stroke="#D4AF37"
+            strokeWidth={3}
             dot={{ r: 5, strokeWidth: 2, fill: '#fff', stroke: '#D4AF37' }}
             activeDot={{ r: 7 }}
           />
-          
+
           {/* Average Meetings Line */}
-          <Line 
-            yAxisId="right" 
-            type="monotone" 
-            dataKey="weeklyMeetings" 
-            name="พบเฉลี่ย/สัปดาห์" 
-            stroke="#475569" 
-            strokeWidth={3} 
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="weeklyMeetings"
+            name="พบเฉลี่ย/สัปดาห์"
+            stroke="#475569"
+            strokeWidth={3}
             dot={{ r: 5, strokeWidth: 2, fill: '#fff', stroke: '#475569' }}
             activeDot={{ r: 7 }}
           />
@@ -659,30 +659,30 @@ export function PipelineComposedStageChart({ data }: { data: any[] }) {
           margin={{ top: 20, right: 10, left: 10, bottom: 10 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-          <XAxis 
-            dataKey="name" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }} 
+          <XAxis
+            dataKey="name"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }}
             dy={8}
           />
-          <YAxis 
+          <YAxis
             yAxisId="left"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#64748b', fontSize: 10 }}
             label={{ value: 'จำนวนดีล (รายการ)', angle: -90, position: 'insideLeft', style: { fill: '#64748b', fontSize: 9, fontWeight: 'bold' } }}
           />
-          <YAxis 
+          <YAxis
             yAxisId="right"
             orientation="right"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#64748b', fontSize: 10 }}
             tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             label={{ value: 'มูลค่า (บาท)', angle: 90, position: 'insideRight', style: { fill: '#64748b', fontSize: 9, fontWeight: 'bold' } }}
           />
-          <RechartsTooltip 
+          <RechartsTooltip
             contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)', padding: '12px', background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(8px)' }}
             labelStyle={{ fontWeight: 'bold', fontSize: '11px', color: '#1e293b', marginBottom: '6px' }}
             itemStyle={{ fontSize: '10px', fontWeight: 'bold' }}
@@ -691,43 +691,43 @@ export function PipelineComposedStageChart({ data }: { data: any[] }) {
               return [`฿${value.toLocaleString()}`, name];
             }}
           />
-          <Legend 
-            verticalAlign="top" 
-            align="center" 
-            iconType="circle" 
+          <Legend
+            verticalAlign="top"
+            align="center"
+            iconType="circle"
             wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '15px' }}
           />
-          
+
           {/* Stage Count Bar */}
-          <Bar 
-            yAxisId="left" 
-            dataKey="count" 
-            name="จำนวนดีล" 
-            fill="#475569" 
-            radius={[4, 4, 0, 0]} 
-            barSize={16} 
+          <Bar
+            yAxisId="left"
+            dataKey="count"
+            name="จำนวนดีล"
+            fill="#475569"
+            radius={[4, 4, 0, 0]}
+            barSize={16}
             opacity={0.7}
           />
-          
+
           {/* Total Value Bar */}
-          <Bar 
-            yAxisId="right" 
-            dataKey="value" 
-            name="มูลค่ารวมใบเสนอราคา" 
-            fill="#ff2301" 
-            radius={[4, 4, 0, 0]} 
-            barSize={16} 
+          <Bar
+            yAxisId="right"
+            dataKey="value"
+            name="มูลค่ารวมใบเสนอราคา"
+            fill="#ff2301"
+            radius={[4, 4, 0, 0]}
+            barSize={16}
             opacity={0.8}
           />
-          
+
           {/* Weighted Pipeline Value Line */}
-          <Line 
-            yAxisId="right" 
-            type="monotone" 
-            dataKey="weighted" 
-            name="มูลค่าถ่วงน้ำหนักตามโอกาส" 
-            stroke="#D4AF37" 
-            strokeWidth={3} 
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="weighted"
+            name="มูลค่าถ่วงน้ำหนักตามโอกาส"
+            stroke="#D4AF37"
+            strokeWidth={3}
             dot={{ r: 5, strokeWidth: 2, fill: '#fff', stroke: '#D4AF37' }}
           />
         </ComposedChart>
@@ -756,31 +756,31 @@ export function ProductPerformanceComposedChart({ data }: { data: any[] }) {
           margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-          <XAxis 
-            dataKey="name" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} 
+          <XAxis
+            dataKey="name"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
           />
-          <YAxis 
+          <YAxis
             yAxisId="left"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#475569', fontSize: 10 }}
             tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             label={{ value: 'มูลค่า (บาท)', angle: -90, position: 'insideLeft', style: { fill: '#475569', fontSize: 9, fontWeight: 'bold' } }}
           />
-          <YAxis 
+          <YAxis
             yAxisId="right"
             orientation="right"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#475569', fontSize: 10 }}
             tickFormatter={(val) => `${val}%`}
             domain={[0, 100]}
             label={{ value: 'อัตรากำไรขั้นต้น (%)', angle: 90, position: 'insideRight', style: { fill: '#475569', fontSize: 9, fontWeight: 'bold' } }}
           />
-          <RechartsTooltip 
+          <RechartsTooltip
             formatter={(value: any, name: any) => {
               if (name === 'อัตรากำไรขั้นต้น') return [`${value.toFixed(1)}% (ประมาณการ)`, name];
               return [`฿${value.toLocaleString()}`, name];
@@ -788,7 +788,7 @@ export function ProductPerformanceComposedChart({ data }: { data: any[] }) {
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
           />
           <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '10px' }} />
-          
+
           <Bar yAxisId="left" dataKey="value" name="ยอดขายรวม" fill="#ff2301" radius={[4, 4, 0, 0]} barSize={24} />
           <Bar yAxisId="left" dataKey="grossProfit" name="กำไรขั้นต้น (ประมาณการ)" fill="#D4AF37" radius={[4, 4, 0, 0]} barSize={24} />
           <Line yAxisId="right" type="monotone" dataKey="marginPct" name="อัตรากำไรขั้นต้น" stroke="#10b981" strokeWidth={3} dot={{ r: 5, strokeWidth: 2, fill: '#fff', stroke: '#10b981' }} />
@@ -811,31 +811,31 @@ export function RegionalComposedChart({ data }: { data: any[] }) {
         margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-        <XAxis 
-          dataKey="name" 
-          axisLine={false} 
-          tickLine={false} 
-          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} 
+        <XAxis
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
         />
-        <YAxis 
+        <YAxis
           yAxisId="left"
-          axisLine={false} 
-          tickLine={false} 
+          axisLine={false}
+          tickLine={false}
           tick={{ fill: '#475569', fontSize: 10 }}
           tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           label={{ value: 'ยอดขายรวม (บาท)', angle: -90, position: 'insideLeft', style: { fill: '#475569', fontSize: 9, fontWeight: 'bold' } }}
         />
-        <YAxis 
+        <YAxis
           yAxisId="right"
           orientation="right"
-          axisLine={false} 
-          tickLine={false} 
+          axisLine={false}
+          tickLine={false}
           tick={{ fill: '#475569', fontSize: 10 }}
           tickFormatter={(val) => `${val.toFixed(0)}%`}
           domain={[0, 100]}
           label={{ value: 'อัตราการเข้าถึงตลาด (%)', angle: 90, position: 'insideRight', style: { fill: '#475569', fontSize: 9, fontWeight: 'bold' } }}
         />
-        <RechartsTooltip 
+        <RechartsTooltip
           formatter={(value: any, name: any) => {
             if (name === 'การเข้าถึงตลาด') return [`${value.toFixed(1)}%`, name];
             if (name === 'ยอดขายเฉลี่ยต่อลูกค้า') return [`฿${Math.round(value).toLocaleString()}`, name];
@@ -844,7 +844,7 @@ export function RegionalComposedChart({ data }: { data: any[] }) {
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
         <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '10px' }} />
-        
+
         <Bar yAxisId="left" dataKey="value" name="ยอดขายรวม" fill="#ff2301" radius={[4, 4, 0, 0]} barSize={24} />
         <Line yAxisId="right" type="monotone" dataKey="penetrationRate" name="การเข้าถึงตลาด" stroke="#D4AF37" strokeWidth={3} dot={{ r: 5, strokeWidth: 2, fill: '#fff', stroke: '#D4AF37' }} />
       </ComposedChart>
@@ -868,15 +868,15 @@ export function LostReasonSummaryChart({ data }: { data: any[] }) {
         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
         <XAxis type="number" xAxisId="left" hide />
         <XAxis type="number" xAxisId="right" hide />
-        <YAxis 
-          type="category" 
-          dataKey="name" 
-          axisLine={false} 
-          tickLine={false} 
-          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} 
+        <YAxis
+          type="category"
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
           width={150}
         />
-        <RechartsTooltip 
+        <RechartsTooltip
           formatter={(value: any, name: any) => {
             if (name === 'มูลค่าสูญเสีย') return [`฿${value.toLocaleString()}`, name];
             return [`${value} ดีล`, name];
@@ -884,7 +884,7 @@ export function LostReasonSummaryChart({ data }: { data: any[] }) {
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
         <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '10px' }} />
-        
+
         <Bar xAxisId="left" dataKey="value" name="จำนวนดีล (ครั้ง)" fill="#ff2301" radius={[0, 4, 4, 0]} barSize={10} opacity={0.8} />
         <Bar xAxisId="right" dataKey="lostValue" name="มูลค่าสูญเสีย (บาท)" fill="#4b5563" radius={[0, 4, 4, 0]} barSize={10} opacity={0.6} />
       </ComposedChart>
@@ -919,28 +919,28 @@ export function LostReasonByProductChart({ data }: { data: any }) {
         margin={{ top: 20, right: 30, left: 10, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-        <XAxis 
-          dataKey="name" 
-          axisLine={false} 
-          tickLine={false} 
-          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} 
+        <XAxis
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
         />
-        <YAxis 
-          axisLine={false} 
-          tickLine={false} 
+        <YAxis
+          axisLine={false}
+          tickLine={false}
           tick={{ fill: '#475569', fontSize: 10 }}
         />
-        <RechartsTooltip 
+        <RechartsTooltip
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
         <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: 'bold', paddingBottom: '10px' }} />
         {categories.map((cat: any, idx: number) => (
-          <Bar 
-            key={cat} 
-            dataKey={cat} 
-            name={cat} 
-            stackId="a" 
-            fill={colors[idx % colors.length]} 
+          <Bar
+            key={cat}
+            dataKey={cat}
+            name={cat}
+            stackId="a"
+            fill={colors[idx % colors.length]}
             barSize={30}
           />
         ))}
@@ -962,34 +962,34 @@ export function ForecastAccuracyChart({ data }: { data: any[] }) {
         margin={{ top: 10, right: 20, left: 10, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-        <XAxis 
-          dataKey="month" 
-          axisLine={false} 
-          tickLine={false} 
+        <XAxis
+          dataKey="month"
+          axisLine={false}
+          tickLine={false}
           tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
           tickFormatter={(val) => {
             const parts = val.split('-');
-            const monthNames = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+            const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
             return monthNames[parseInt(parts[1]) - 1] || val;
           }}
         />
-        <YAxis 
+        <YAxis
           yAxisId="left"
-          axisLine={false} 
-          tickLine={false} 
+          axisLine={false}
+          tickLine={false}
           tick={{ fill: '#94a3b8', fontSize: 10 }}
           tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         />
-        <YAxis 
+        <YAxis
           yAxisId="right"
           orientation="right"
-          axisLine={false} 
-          tickLine={false} 
+          axisLine={false}
+          tickLine={false}
           tick={{ fill: '#22c55e', fontSize: 10 }}
           domain={[0, 100]}
           tickFormatter={(val) => `${val}%`}
         />
-        <RechartsTooltip 
+        <RechartsTooltip
           contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
           formatter={(value: any, name: any) => {
             if (name === 'ความแม่นยำ') return [`${value}%`, name];
@@ -997,7 +997,7 @@ export function ForecastAccuracyChart({ data }: { data: any[] }) {
           }}
         />
         <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '10px' }} />
-        
+
         <Bar yAxisId="left" dataKey="forecast" name="เป้าหมาย (Forecast)" fill="#D4AF37" radius={[4, 4, 0, 0]} barSize={20} opacity={0.7} />
         <Bar yAxisId="left" dataKey="actual" name="ยอดขายจริง (Actual)" fill="#ff2301" radius={[4, 4, 0, 0]} barSize={20} opacity={0.8} />
         <Line yAxisId="right" type="monotone" dataKey="accuracy" name="ความแม่นยำ" stroke="#22c55e" strokeWidth={3} dot={{ r: 5, strokeWidth: 2, fill: '#fff', stroke: '#22c55e' }} />
@@ -1017,12 +1017,12 @@ export function TelesalesComposedChart({ data }: { data: any[] }) {
           margin={{ top: 15, right: 10, left: 10, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-          
-          <XAxis 
-            dataKey="date" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#94a3b8', fontSize: 10 }} 
+
+          <XAxis
+            dataKey="date"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#94a3b8', fontSize: 10 }}
             dy={10}
             tickFormatter={(str) => {
               try {
@@ -1033,53 +1033,53 @@ export function TelesalesComposedChart({ data }: { data: any[] }) {
               }
             }}
           />
-          
-          <YAxis 
+
+          <YAxis
             yAxisId="left"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#94a3b8', fontSize: 10 }}
             dx={-10}
             domain={[0, 'auto']}
             allowDecimals={false}
           />
-          
-          <YAxis 
+
+          <YAxis
             yAxisId="right"
             orientation="right"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#D4AF37', fontSize: 10 }}
             dx={10}
             domain={[0, 'auto']}
             allowDecimals={false}
           />
-          
-          <RechartsTooltip 
+
+          <RechartsTooltip
             contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
             labelStyle={{ fontWeight: 'bold', marginBottom: '8px', fontSize: '12px' }}
             itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
           />
-          
+
           <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '15px' }} />
 
-          <Bar 
-            yAxisId="left" 
-            dataKey="calls" 
-            name="จำนวนสายที่โทร (ครั้ง)" 
-            fill="#ff2301" 
-            radius={[4, 4, 0, 0]} 
-            barSize={12} 
-            fillOpacity={0.65} 
+          <Bar
+            yAxisId="left"
+            dataKey="calls"
+            name="จำนวนสายที่โทร (ครั้ง)"
+            fill="#ff2301"
+            radius={[4, 4, 0, 0]}
+            barSize={12}
+            fillOpacity={0.65}
           />
-          <Line 
-            yAxisId="right" 
-            type="monotone" 
-            dataKey="appointments" 
-            name="นัดหมาย/สนใจ (ราย)" 
-            stroke="#D4AF37" 
-            strokeWidth={3} 
-            dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#D4AF37' }} 
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="appointments"
+            name="นัดหมาย/สนใจ (ราย)"
+            stroke="#D4AF37"
+            strokeWidth={3}
+            dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#D4AF37' }}
             activeDot={{ r: 6 }}
           />
         </ComposedChart>
@@ -1088,10 +1088,10 @@ export function TelesalesComposedChart({ data }: { data: any[] }) {
   );
 }
 
-export function TelesalesFunnelChart({ 
-  currentFunnel, 
-  teamBenchmark 
-}: { 
+export function TelesalesFunnelChart({
+  currentFunnel,
+  teamBenchmark
+}: {
   currentFunnel: {
     outreach: number;
     connected: number;
@@ -1130,13 +1130,13 @@ export function TelesalesFunnelChart({
           </div>
           <div className="relative h-6 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner flex items-center">
             {/* Active stage bar */}
-            <div 
+            <div
               className={`h-full rounded-full bg-gradient-to-r ${stage.color} transition-all duration-1000 ease-out`}
               style={{ width: `${stage.pct}%` }}
             />
             {/* Dynamic Benchmark Tick Marker Overlay */}
             {stage.benchmark !== null && stage.benchmark > 0 && (
-              <div 
+              <div
                 className="absolute top-0 bottom-0 w-0.5 border-l-2 border-dashed border-yellow-500 z-10"
                 style={{ left: `${stage.benchmark}%` }}
                 title={`ค่าเฉลี่ยทีม: ${stage.benchmark.toFixed(1)}%`}
@@ -1174,14 +1174,14 @@ export function ProductGroupTargetChart({ data }: { data: any[] }) {
         <ComposedChart data={data} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
           <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} />
-          <YAxis 
+          <YAxis
             yAxisId="left"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#475569', fontSize: 10 }}
             tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           />
-          <RechartsTooltip 
+          <RechartsTooltip
             formatter={(value: any, name: any) => [`฿${value.toLocaleString()}`, name]}
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
           />
@@ -1206,14 +1206,14 @@ export function BranchPerformanceChart({ data }: { data: any[] }) {
         <ComposedChart data={data} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
           <XAxis dataKey="branch" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} />
-          <YAxis 
+          <YAxis
             yAxisId="left"
-            axisLine={false} 
-            tickLine={false} 
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#475569', fontSize: 10 }}
             tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           />
-          <RechartsTooltip 
+          <RechartsTooltip
             formatter={(value: any, name: any) => [`฿${value.toLocaleString()}`, name]}
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
           />

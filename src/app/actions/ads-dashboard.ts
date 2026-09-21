@@ -12,6 +12,13 @@ import {
   ProductGroupPerformanceRow,
   DrilldownAdItem
 } from '../marketing/ads/dashboard/types'
+import {
+  BRANCH_KEYWORDS,
+  campaignMatchesBranch,
+  campaignMatchesProductCategory,
+  detectBranchForCampaign,
+  detectProductCategory
+} from '../marketing/ads/dashboard/helpers'
 import { getActiveAdsWithCrm } from './ads-crm'
 
 /**
@@ -264,6 +271,8 @@ function makeKpi(
   }
 }
 
+
+
 /**
  * Main Data Fetcher for TERA ADS & CRM DASHBOARD
  */
@@ -285,6 +294,7 @@ export async function getTeraAdsDashboardData(
     compareDateFrom: filters?.compareDateFrom,
     compareDateTo: filters?.compareDateTo,
     channel: filters?.channel || 'All',
+    branchId: filters?.branchId || 'All',
     productCategory: filters?.productCategory || 'All',
     campaignId: filters?.campaignId || 'All',
     adSetId: filters?.adSetId || 'All',
@@ -295,32 +305,13 @@ export async function getTeraAdsDashboardData(
     rollupSource: filters?.rollupSource || 'Auto'
   }
 
-  // 2. Fetch all active ads populated with performance and CRM snapshots
-  const allAds = await getActiveAdsWithCrm()
-
-  // 3. Apply Multi-dimensional Filtering
-  const filteredAds = allAds.filter(ad => {
-    if (activeFilters.channel !== 'All' && ad.channel !== activeFilters.channel) return false
-    if (activeFilters.productCategory !== 'All' && ad.productCategory !== activeFilters.productCategory) return false
-    if (activeFilters.campaignId !== 'All' && ad.campaignId !== activeFilters.campaignId) return false
-    if (activeFilters.adSetId !== 'All' && ad.adSetId !== activeFilters.adSetId) return false
-    if (activeFilters.adId !== 'All' && ad.adId !== activeFilters.adId) return false
-    if (activeFilters.creative !== 'All' && ad.creativeFile !== activeFilters.creative) return false
-    if (activeFilters.status !== 'All' && ad.status !== activeFilters.status) return false
-
-    if (activeFilters.search?.trim()) {
-      const q = activeFilters.search.toLowerCase().trim()
-      const matchName = ad.adName.toLowerCase().includes(q)
-      const matchId = ad.adId.toLowerCase().includes(q)
-      const matchCamp = ad.campaignName.toLowerCase().includes(q)
-      const matchSet = ad.adSetName.toLowerCase().includes(q)
-      const matchFile = (ad.creativeFile || '').toLowerCase().includes(q)
-      if (!matchName && !matchId && !matchCamp && !matchSet && !matchFile) return false
-    }
-    return true
+  // 2. Fetch branches for name resolution
+  const branchesList = await prisma.branches.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' }
   })
 
-  // 4. Fetch campaigns for Planned Budget calculation with CBO / ABO Strategy verification
+  // 3. Fetch campaigns for Planned Budget calculation & Branch/Product Category matching
   let totalPlannedBudget = 0
   let detectedStrategy: 'ABO' | 'CBO' = 'ABO'
   const campaignStrategyMap: Record<string, {
@@ -328,13 +319,15 @@ export async function getTeraAdsDashboardData(
     campaignBudget: number
     adSetsBudget: number
     plannedBudget: number
-    branchId?: string
-    branchName?: string
-    productCategory?: string
+    branchId: string
+    branchName: string
+    productCategory: string
+    campaignName: string
   }> = {}
 
+  let campaignsInDb: any[] = []
   try {
-    const campaignsInDb = await prisma.adCampaign.findMany({
+    campaignsInDb = await prisma.adCampaign.findMany({
       where: { deletedAt: null },
       select: { 
         id: true, 
@@ -371,20 +364,59 @@ export async function getTeraAdsDashboardData(
       // CBO formula: Planned Budget = Campaign Budget
       // ABO formula: Planned Budget = Sum of active ad set budgets
       const planned = strat === 'CBO' ? campB : (adSetsB > 0 ? adSetsB : campB)
+      
+      const detectedBranch = detectBranchForCampaign({
+        branchId: c.branchId,
+        branchName: c.branch?.name,
+        name: c.name
+      }, branchesList)
+
+      const detectedCat = detectProductCategory({
+        productCategory: c.productCategory,
+        name: c.name
+      })
+
       campaignStrategyMap[c.campaignId] = {
         strategy: strat,
         campaignBudget: campB,
         adSetsBudget: adSetsB,
         plannedBudget: planned,
-        branchId: c.branchId || 'unassigned',
-        branchName: c.branch?.name || 'ไม่ได้ระบุสาขา',
-        productCategory: c.productCategory || 'ไม่ได้ระบุกลุ่มสินค้า'
-      } as any
+        branchId: detectedBranch.branchId,
+        branchName: detectedBranch.branchName,
+        productCategory: detectedCat,
+        campaignName: c.name
+      }
+      // Also alias by c.id if c.campaignId is different
+      if (c.id && c.id !== c.campaignId) {
+        campaignStrategyMap[c.id] = campaignStrategyMap[c.campaignId]
+      }
     }
 
+    // Filter matching campaigns for Planned Budget rollup
     const matchingCamps = campaignsInDb.filter(c => {
-      if (activeFilters.campaignId !== 'All' && c.campaignId !== activeFilters.campaignId) return false
+      const campInfo = campaignStrategyMap[c.campaignId] || campaignStrategyMap[c.id]
+      if (activeFilters.campaignId !== 'All' && c.campaignId !== activeFilters.campaignId && c.id !== activeFilters.campaignId) return false
       if (activeFilters.channel !== 'All' && c.channel?.name !== activeFilters.channel) return false
+      
+      // Branch filter
+      if (activeFilters.branchId && activeFilters.branchId !== 'All') {
+        const matchesBranch = campaignMatchesBranch({
+          branchId: campInfo?.branchId || c.branchId,
+          branchName: campInfo?.branchName || c.branch?.name,
+          name: c.name
+        }, activeFilters.branchId, branchesList)
+        if (!matchesBranch) return false
+      }
+
+      // Product Category filter
+      if (activeFilters.productCategory && activeFilters.productCategory !== 'All') {
+        const matchesCat = campaignMatchesProductCategory({
+          productCategory: campInfo?.productCategory || c.productCategory,
+          name: c.name
+        }, activeFilters.productCategory)
+        if (!matchesCat) return false
+      }
+
       return true
     })
 
@@ -393,17 +425,65 @@ export async function getTeraAdsDashboardData(
       totalPlannedBudget = campaignStrategyMap[activeFilters.campaignId].plannedBudget
     } else {
       totalPlannedBudget = matchingCamps.reduce((acc, c) => {
-        const item = campaignStrategyMap[c.campaignId]
+        const item = campaignStrategyMap[c.campaignId] || campaignStrategyMap[c.id]
         return acc + (item ? item.plannedBudget : Number(c.budget || 0))
       }, 0)
-      if (matchingCamps.length === 1 && campaignStrategyMap[matchingCamps[0].campaignId]) {
-        detectedStrategy = campaignStrategyMap[matchingCamps[0].campaignId].strategy
+      if (matchingCamps.length === 1) {
+        const singleItem = campaignStrategyMap[matchingCamps[0].campaignId] || campaignStrategyMap[matchingCamps[0].id]
+        if (singleItem) detectedStrategy = singleItem.strategy
       }
     }
   } catch (err) {
     console.error("fetch campaigns for dashboard budget error:", err)
   }
-  if (totalPlannedBudget <= 0) totalPlannedBudget = 150000 // Default baseline budget matching user mockup (฿150,000)
+  if (totalPlannedBudget <= 0 && activeFilters.branchId === 'All' && activeFilters.productCategory === 'All') {
+    totalPlannedBudget = 150000 // Default baseline budget matching user mockup (฿150,000)
+  }
+
+  // 4. Fetch all active ads populated with performance and CRM snapshots
+  const allAds = await getActiveAdsWithCrm()
+
+  // 5. Apply Multi-dimensional Filtering (including Branch and Product Group)
+  const filteredAds = allAds.filter(ad => {
+    const campInfo = campaignStrategyMap[ad.campaignId]
+
+    if (activeFilters.channel !== 'All' && ad.channel !== activeFilters.channel) return false
+    if (activeFilters.campaignId !== 'All' && ad.campaignId !== activeFilters.campaignId) return false
+    if (activeFilters.adSetId !== 'All' && ad.adSetId !== activeFilters.adSetId) return false
+    if (activeFilters.adId !== 'All' && ad.adId !== activeFilters.adId) return false
+    if (activeFilters.creative !== 'All' && ad.creativeFile !== activeFilters.creative) return false
+    if (activeFilters.status !== 'All' && ad.status !== activeFilters.status) return false
+
+    // Branch Filter (matching branchId, branchName, or campaign name keyword)
+    if (activeFilters.branchId && activeFilters.branchId !== 'All') {
+      const matchesBranch = campaignMatchesBranch({
+        branchId: campInfo?.branchId,
+        branchName: campInfo?.branchName,
+        name: ad.campaignName || campInfo?.campaignName
+      }, activeFilters.branchId, branchesList)
+      if (!matchesBranch) return false
+    }
+
+    // Product Category Filter
+    if (activeFilters.productCategory && activeFilters.productCategory !== 'All') {
+      const matchesCat = campaignMatchesProductCategory({
+        productCategory: ad.productCategory || campInfo?.productCategory,
+        name: ad.campaignName || campInfo?.campaignName
+      }, activeFilters.productCategory)
+      if (!matchesCat) return false
+    }
+
+    if (activeFilters.search?.trim()) {
+      const q = activeFilters.search.toLowerCase().trim()
+      const matchName = ad.adName.toLowerCase().includes(q)
+      const matchId = ad.adId.toLowerCase().includes(q)
+      const matchCamp = ad.campaignName.toLowerCase().includes(q)
+      const matchSet = ad.adSetName.toLowerCase().includes(q)
+      const matchFile = (ad.creativeFile || '').toLowerCase().includes(q)
+      if (!matchName && !matchId && !matchCamp && !matchSet && !matchFile) return false
+    }
+    return true
+  })
 
   // 5. Aggregate KPI Totals across filtered ads
   let totalSpend = 0
@@ -1078,8 +1158,13 @@ export async function getTeraAdsDashboardData(
 
   filteredAds.forEach(ad => {
     const cInfo = campaignStrategyMap[ad.campaignId]
-    const bId = cInfo?.branchId || 'unassigned'
-    const bName = cInfo?.branchName || 'ไม่ได้ระบุสาขา'
+    const detected = detectBranchForCampaign({
+      branchId: cInfo?.branchId,
+      branchName: cInfo?.branchName,
+      name: ad.campaignName || cInfo?.campaignName
+    }, branchesList)
+    const bId = detected.branchId
+    const bName = detected.branchName
 
     if (!branchMap[bId]) {
       branchMap[bId] = {
@@ -1285,7 +1370,10 @@ export async function getTeraAdsDashboardData(
 
   filteredAds.forEach(ad => {
     const cInfo = campaignStrategyMap[ad.campaignId]
-    const pCat = ad.productCategory || cInfo?.productCategory || 'ไม่ได้ระบุกลุ่มสินค้า'
+    const rawCat = (ad.productCategory && ad.productCategory !== '-' && ad.productCategory !== 'None')
+      ? ad.productCategory
+      : (cInfo?.productCategory || detectProductCategory({ productCategory: ad.productCategory, name: ad.campaignName }))
+    const pCat = rawCat || 'Other'
 
     if (!prodMap[pCat]) {
       prodMap[pCat] = {

@@ -70,9 +70,15 @@ export function normalizeProjectName(name: string | null | undefined): string {
 function getCompanyFromPR(prNumber: string | null | undefined): { name: string; badgeClass: string; key: string } {
   if (!prNumber) return { name: 'OTHER', badgeClass: 'bg-gray-100 text-gray-700 border-gray-200', key: 'OTHER' };
   const upper = prNumber.toUpperCase();
-  if (upper.includes('E')) return { name: 'TE (Electric)', badgeClass: 'bg-blue-50 text-blue-700 border-blue-200', key: 'TE' };
-  if (upper.includes('P')) return { name: 'TP (Power)', badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200', key: 'TP' };
-  if (upper.includes('G')) return { name: 'TG (Group)', badgeClass: 'bg-purple-50 text-purple-700 border-purple-200', key: 'TG' };
+  if (upper.includes('-G') || upper.includes('TG')) {
+    return { name: 'TG (Group)', badgeClass: 'bg-purple-50 text-purple-700 border-purple-200', key: 'TG' };
+  }
+  if (upper.includes('-E') || upper.includes('TE')) {
+    return { name: 'TE (Electric)', badgeClass: 'bg-blue-50 text-blue-700 border-blue-200', key: 'TE' };
+  }
+  if (upper.includes('-P') || upper.includes('TP')) {
+    return { name: 'TP (Power)', badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200', key: 'TP' };
+  }
   return { name: 'OTHER', badgeClass: 'bg-gray-100 text-gray-700 border-gray-200', key: 'OTHER' };
 }
 
@@ -183,6 +189,17 @@ export default function PRListClient({
       pendingOrdersCount: pendingPrOrders.length
     };
   }, [prsList, pendingPrOrders]);
+
+  const companyCounts = useMemo(() => {
+    const counts = { all: prsList.length, TE: 0, TP: 0, TG: 0 };
+    prsList.forEach(pr => {
+      const comp = getCompanyFromPR(pr.prNumber).key;
+      if (comp === 'TE') counts.TE++;
+      else if (comp === 'TP') counts.TP++;
+      else if (comp === 'TG') counts.TG++;
+    });
+    return counts;
+  }, [prsList]);
 
   const toggleRowExpand = (id: number) => {
     setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
@@ -697,7 +714,7 @@ export default function PRListClient({
                     key={comp}
                     type="button"
                     onClick={() => { setCompanyFilter(comp); setCurrentPage(1); }}
-                    className={`px-2.5 py-1.5 rounded-lg font-semibold border transition-all ${
+                    className={`px-2.5 py-1.5 rounded-lg font-semibold border transition-all flex items-center gap-1.5 ${
                       isSelected 
                         ? comp === 'TE'
                           ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
@@ -709,7 +726,14 @@ export default function PRListClient({
                         : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'
                     }`}
                   >
-                    {label}
+                    <span>{label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                      isSelected
+                        ? 'bg-white/25 text-white'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {companyCounts[comp]}
+                    </span>
                   </button>
                 );
               })}

@@ -63,11 +63,46 @@ export async function searchCompanies(
   
   try {
     const user = await getUser();
-    const whereClause: any = {
-      companyName: {
-        contains: query,
-        mode: 'insensitive'
+    const cleanDigits = query.replace(/\D/g, '');
+    const isPhoneQuery = cleanDigits.length >= 3;
+
+    const searchConditions: any[] = [
+      {
+        companyName: {
+          contains: query,
+          mode: 'insensitive'
+        }
+      },
+      {
+        contacts: {
+          some: {
+            OR: [
+              {
+                contactName: {
+                  contains: query,
+                  mode: 'insensitive'
+                }
+              },
+              {
+                mobilePhone: {
+                  contains: query,
+                  mode: 'insensitive'
+                }
+              },
+              ...(isPhoneQuery ? [{
+                mobilePhone: {
+                  contains: cleanDigits,
+                  mode: 'insensitive'
+                }
+              }] : [])
+            ]
+          }
+        }
       }
+    ];
+
+    const whereClause: any = {
+      OR: searchConditions
     };
     
     if (user && !surveyExcludeFilter) {

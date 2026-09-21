@@ -81,7 +81,11 @@ export default async function POListPage(props: { searchParams?: Promise<any> | 
 
   return (
     <div className="p-4 md:p-6 lg:p-8 bg-gray-50/50 min-h-screen">
-      <POListClient initialPos={serializedPos} initialSearch={initialSearch} />
+      <POListClient 
+        initialPos={serializedPos} 
+        initialSearch={initialSearch} 
+        currentUser={{ fullName: user.fullName, role: user.role, email: user.email }}
+      />
     </div>
   );
 }

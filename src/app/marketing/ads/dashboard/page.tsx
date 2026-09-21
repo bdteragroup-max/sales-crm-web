@@ -14,6 +14,8 @@ export default async function AdsDashboardPage(props: {
   const from = typeof searchParams?.from === 'string' ? searchParams.from : undefined
   const to = typeof searchParams?.to === 'string' ? searchParams.to : undefined
   const channel = typeof searchParams?.channel === 'string' ? searchParams.channel : undefined
+  const branch = typeof searchParams?.branch === 'string' ? searchParams.branch : (typeof searchParams?.branchId === 'string' ? searchParams.branchId : undefined)
+  const productCategory = typeof searchParams?.productCategory === 'string' ? searchParams.productCategory : undefined
   const campaign = typeof searchParams?.campaign === 'string' ? searchParams.campaign : undefined
   const adSet = typeof searchParams?.adSet === 'string' ? searchParams.adSet : undefined
   const status = typeof searchParams?.status === 'string' ? searchParams.status : undefined
@@ -33,6 +35,21 @@ export default async function AdsDashboardPage(props: {
     select: { id: true, name: true }
   })
 
+  const branches = await prisma.branches.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' }
+  })
+
+  const categoriesInDb = await prisma.adCampaign.groupBy({
+    by: ['productCategory'],
+    where: { deletedAt: null }
+  })
+  const baseCategories = ['Solar Roof', 'Solar Pump', 'Inverter Veichi', 'Other']
+  const distinctFromDb = categoriesInDb
+    .map(c => c.productCategory?.trim())
+    .filter((c): c is string => Boolean(c && c !== '-' && c !== 'None'))
+  const productCategories = Array.from(new Set([...baseCategories, ...distinctFromDb]))
+
   const campaigns = await prisma.adCampaign.findMany({
     where: { deletedAt: null },
     select: {
@@ -42,7 +59,9 @@ export default async function AdsDashboardPage(props: {
       channelId: true,
       budget: true,
       status: true,
-      productCategory: true
+      productCategory: true,
+      branchId: true,
+      branch: { select: { id: true, name: true } }
     }
   })
 
@@ -62,6 +81,8 @@ export default async function AdsDashboardPage(props: {
       compareDateFrom: compareFrom,
       compareDateTo: compareTo,
       channel: channel || 'All',
+      branchId: branch || 'All',
+      productCategory: productCategory || 'All',
       campaignId: campaign || 'All',
       adSetId: adSet || 'All',
       status: status || 'Active'
@@ -72,6 +93,7 @@ export default async function AdsDashboardPage(props: {
 
   const plainCampaigns = JSON.parse(JSON.stringify(safeCampaigns))
   const plainChannels = JSON.parse(JSON.stringify(channels))
+  const plainBranches = JSON.parse(JSON.stringify(branches))
   const plainInitialData = initialData ? JSON.parse(JSON.stringify(initialData)) : null
   const plainUser = currentUser ? JSON.parse(JSON.stringify({
     id: currentUser.id,
@@ -85,6 +107,8 @@ export default async function AdsDashboardPage(props: {
       <AdsDashboardClient
         campaigns={plainCampaigns}
         channels={plainChannels}
+        branches={plainBranches}
+        productCategories={productCategories}
         initialData={plainInitialData}
         currentUser={plainUser}
       />
