@@ -26,9 +26,10 @@ export default async function AccountingDashboardPage(props: { searchParams: any
   const sp = await props.searchParams;
   const startDate = sp?.startDate;
   const endDate = sp?.endDate;
+  const entity = sp?.entity || 'ALL';
 
   // Fetch Dashboard Data
-  const data = await getAccountingDashboardData(startDate, endDate)
+  const data = await getAccountingDashboardData(startDate, endDate, entity)
 
   return (
     <div className="flex h-screen bg-slate-50 text-gray-900 font-sans overflow-hidden">

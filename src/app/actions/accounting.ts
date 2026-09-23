@@ -146,18 +146,21 @@ export async function syncFinancialAdjustments(jobId: string) {
 export type SavePaymentScheduleItemInput = {
   id?: string;
   jobId: string;
-  type: 'DEPOSIT' | 'PROGRESS';
+  type: 'DEPOSIT' | 'PROGRESS' | 'DELIVERY';
   installmentNo?: number;
   installmentAmount: number;
   dueDate?: string | Date | null;
   note?: string;
   creditType?: string;
+  invoiceNumber?: string | null;
+  invoiceDate?: string | Date | null;
 };
 
 export async function savePaymentScheduleItem(input: SavePaymentScheduleItemInput) {
-  const { id, jobId, type, installmentNo, installmentAmount, dueDate, note, creditType } = input;
+  const { id, jobId, type, installmentNo, installmentAmount, dueDate, note, creditType, invoiceNumber, invoiceDate } = input;
 
   const parsedDueDate = dueDate ? new Date(dueDate) : null;
+  const parsedInvoiceDate = invoiceDate ? new Date(invoiceDate) : null;
   const numAmount = Number(installmentAmount) || 0;
 
   if (id) {
@@ -173,8 +176,10 @@ export async function savePaymentScheduleItem(input: SavePaymentScheduleItemInpu
         installmentAmount: numAmount,
         dueDate: parsedDueDate,
         note: note !== undefined ? note : existing.note,
-        creditType: creditType !== undefined ? creditType : (type === 'DEPOSIT' ? 'DEPOSIT' : existing.creditType || 'PROGRESS'),
+        creditType: creditType !== undefined ? creditType : (type === 'DEPOSIT' ? 'DEPOSIT' : type === 'DELIVERY' ? 'DELIVERY' : existing.creditType || 'PROGRESS'),
         installmentNo: type === 'DEPOSIT' ? 0 : (installmentNo !== undefined ? Number(installmentNo) : existing.installmentNo),
+        invoiceNumber: invoiceNumber !== undefined ? (invoiceNumber ? invoiceNumber.trim() : null) : existing.invoiceNumber,
+        invoiceDate: invoiceDate !== undefined ? parsedInvoiceDate : existing.invoiceDate,
       }
     });
   } else {
@@ -199,6 +204,8 @@ export async function savePaymentScheduleItem(input: SavePaymentScheduleItemInpu
             note: note || existingDeposit.note || "เงินมัดจำเมื่อเซ็นสัญญา",
             creditType: creditType || 'DEPOSIT',
             installmentNo: 0,
+            invoiceNumber: invoiceNumber !== undefined ? (invoiceNumber ? invoiceNumber.trim() : null) : existingDeposit.invoiceNumber,
+            invoiceDate: invoiceDate !== undefined ? parsedInvoiceDate : existingDeposit.invoiceDate,
           }
         });
       } else {
@@ -211,9 +218,34 @@ export async function savePaymentScheduleItem(input: SavePaymentScheduleItemInpu
             dueDate: parsedDueDate,
             note: note || "เงินมัดจำเมื่อเซ็นสัญญา",
             creditType: creditType || 'DEPOSIT',
+            invoiceNumber: invoiceNumber ? invoiceNumber.trim() : null,
+            invoiceDate: parsedInvoiceDate,
           }
         });
       }
+    } else if (type === 'DELIVERY') {
+      let nextNo = installmentNo;
+      if (!nextNo) {
+        const maxTask = await prisma.paymentTask.findFirst({
+          where: { jobId, installmentNo: { gt: 0 } },
+          orderBy: { installmentNo: 'desc' }
+        });
+        nextNo = (maxTask?.installmentNo || 0) + 1;
+      }
+
+      await prisma.paymentTask.create({
+        data: {
+          jobId,
+          status: 'รอดำเนินการ',
+          installmentNo: Number(nextNo),
+          installmentAmount: numAmount,
+          dueDate: parsedDueDate,
+          note: note || `ส่งมอบสินค้า รอบที่ ${nextNo}`,
+          creditType: creditType || 'DELIVERY',
+          invoiceNumber: invoiceNumber ? invoiceNumber.trim() : null,
+          invoiceDate: parsedInvoiceDate,
+        }
+      });
     } else {
       let nextNo = installmentNo;
       if (!nextNo) {
@@ -233,6 +265,8 @@ export async function savePaymentScheduleItem(input: SavePaymentScheduleItemInpu
           dueDate: parsedDueDate,
           note: note || `งวดที่ ${nextNo}`,
           creditType: creditType || 'PROGRESS',
+          invoiceNumber: invoiceNumber ? invoiceNumber.trim() : null,
+          invoiceDate: parsedInvoiceDate,
         }
       });
     }

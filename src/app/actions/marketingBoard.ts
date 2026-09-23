@@ -511,6 +511,7 @@ export async function updateAnnouncement(id: string, data: {
   contactPerson?: string;
   updateNotes?: string;
   resetAcknowledgment?: boolean;
+  deletedAssetIds?: string[];
   newAssets?: Array<{
     fileName: string;
     fileUrl: string;
@@ -558,6 +559,16 @@ export async function updateAnnouncement(id: string, data: {
   } else if (data.branchScope === 'ALL') {
     await prisma.marketingAnnouncementBranch.deleteMany({
       where: { announcementId: id }
+    });
+  }
+
+  // Delete removed assets if specified
+  if (data.deletedAssetIds && data.deletedAssetIds.length > 0) {
+    await prisma.marketingAnnouncementAsset.deleteMany({
+      where: {
+        id: { in: data.deletedAssetIds },
+        announcementId: id
+      }
     });
   }
 

@@ -505,6 +505,25 @@ model PaymentTask {
   @@map("payment_tasks")
 }
 
+model CustomerCreditSetting {
+  id               String    @id @default(cuid())
+  customerName     String    @unique @map("customer_name")
+  taxId            String?   @map("tax_id")
+  companyId        String?   @map("company_id")
+  creditLimit      Float     @default(0) @map("credit_limit")
+  creditTermsDays  Int       @default(30) @map("credit_terms_days")
+  creditStatus     String    @default("ACTIVE") @map("credit_status")
+  billingCycleRule String?   @map("billing_cycle_rule")
+  notes            String?   @map("notes")
+  riskGrade        String?   @default("LOW") @map("risk_grade")
+  reviewedBy       String?   @map("reviewed_by")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([taxId])
+  @@map("customer_credit_settings")
+}
+
 model JobRunningNumber {
   id         String @id @default(cuid())
   yearBe     Int

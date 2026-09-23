@@ -11,6 +11,7 @@ import {
   createAnnouncement, 
   updateAnnouncement 
 } from '@/app/actions/marketingBoard';
+import { createClient } from '@/utils/supabase/client';
 import type { 
   AnnouncementType, 
   ProductGroupType, 
@@ -131,7 +132,75 @@ export default function CreateAnnouncementModal({
 
   if (!isOpen) return null;
 
-  // File upload handler to /api/upload
+  // Helper to upload a single file directly to Supabase storage or fallback safely
+  const uploadSingleFile = async (file: File): Promise<string> => {
+    const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+    if (file.size > MAX_SIZE) {
+      throw new Error(`ไฟล์ "${file.name}" มีขนาดใหญ่เกินไป (${(file.size / (1024 * 1024)).toFixed(1)}MB) กรุณาใช้ไฟล์ขนาดไม่เกิน 50MB`);
+    }
+
+    // 1. Try direct Supabase client upload (bypasses serverless & proxy size limits)
+    try {
+      const supabase = createClient();
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const storagePath = `marketing/${uniqueSuffix}-${cleanName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('uploadsService')
+        .upload(storagePath, file, {
+          contentType: file.type || 'application/octet-stream',
+          upsert: false
+        });
+
+      if (!uploadError && uploadData?.path) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('uploadsService')
+          .getPublicUrl(uploadData.path);
+        return publicUrl;
+      }
+
+      if (uploadError) {
+        console.warn('Direct Supabase upload error, trying fallback:', uploadError);
+      }
+    } catch (directErr) {
+      console.warn('Direct Supabase upload exception, trying fallback:', directErr);
+    }
+
+    // 2. Fallback to /api/upload
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      if (res.status === 413 || text.includes('Request Entity Too Large') || text.includes('PAYLOAD_TOO_LARGE')) {
+        throw new Error(`ไฟล์ "${file.name}" มีขนาดใหญ่เกินกว่าที่ระบบรองรับ (จำกัดไม่เกิน 50MB)`);
+      }
+      let errJson: any = null;
+      try { errJson = JSON.parse(text); } catch {}
+      throw new Error(errJson?.error || `อัปโหลดไฟล์ "${file.name}" ไม่สำเร็จ (รหัสสถานะ: ${res.status})`);
+    }
+
+    let json: any = null;
+    try {
+      json = await res.json();
+    } catch {
+      throw new Error(`ระบบตอบกลับไม่ถูกต้องขณะอัปโหลด "${file.name}"`);
+    }
+
+    if (!json?.success || !json?.url) {
+      throw new Error(json?.error || `อัปโหลดไฟล์ "${file.name}" ไม่สำเร็จ`);
+    }
+
+    return json.url;
+  };
+
+  // File upload handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isCover = false) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -142,21 +211,10 @@ export default function CreateAnnouncementModal({
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
-
-        const json = await res.json();
-        if (!json.success || !json.url) {
-          throw new Error(json.error || `Failed to upload ${file.name}`);
-        }
+        const publicUrl = await uploadSingleFile(file);
 
         if (isCover) {
-          setCoverImageUrl(json.url);
+          setCoverImageUrl(publicUrl);
           break;
         } else {
           // Detect suggested document type
@@ -171,7 +229,7 @@ export default function CreateAnnouncementModal({
             ...prev,
             {
               fileName: file.name,
-              fileUrl: json.url,
+              fileUrl: publicUrl,
               fileSize: file.size,
               documentType: docType
             }
@@ -179,10 +237,16 @@ export default function CreateAnnouncementModal({
         }
       }
     } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err.message || 'File upload failed');
+      console.error('File upload error:', err);
+      let message = err.message || 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์';
+      if (typeof message === 'string' && (message.includes('Unexpected token') || message.includes('Request Entity Too Large') || message.includes('413'))) {
+        message = 'ไฟล์ที่เลือกมีขนาดใหญ่เกินกว่าที่ระบบรองรับ กรุณาใช้ไฟล์ขนาดไม่เกิน 50MB';
+      }
+      setErrorMsg(message);
     } finally {
       setIsUploading(false);
+      // Reset input value so re-uploading the same file works
+      e.target.value = '';
     }
   };
 
@@ -228,7 +292,37 @@ export default function CreateAnnouncementModal({
     try {
       setSubmitting(true);
 
+      // Defensive check: If cover image was pasted as base64 data URI, upload it to storage first
+      let finalCoverUrl = coverImageUrl.trim();
+      if (finalCoverUrl.startsWith('data:image/')) {
+        try {
+          const supabase = createClient();
+          const res = await fetch(finalCoverUrl);
+          const blob = await res.blob();
+          const ext = finalCoverUrl.split(';')[0].split('/')[1] || 'png';
+          const filename = `marketing/cover_${Date.now()}.${ext}`;
+          const { data: upData, error: upErr } = await supabase.storage
+            .from('uploadsService')
+            .upload(filename, blob, { contentType: blob.type });
+
+          if (!upErr && upData?.path) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('uploadsService')
+              .getPublicUrl(upData.path);
+            finalCoverUrl = publicUrl;
+            setCoverImageUrl(publicUrl);
+          }
+        } catch (base64Err) {
+          console.error('Failed to convert base64 cover image:', base64Err);
+        }
+      }
+
       if (isEditing) {
+        // Calculate deleted assets
+        const existingAssetIds = (editItem.assets || []).map((ea: any) => ea.id);
+        const currentExistingAssetIds = assets.filter((a: any) => a.id).map((a: any) => a.id);
+        const deletedAssetIds = existingAssetIds.filter((eaId: string) => !currentExistingAssetIds.includes(eaId));
+
         await updateAnnouncement(editItem.id, {
           announcementType,
           productGroup,
@@ -241,10 +335,11 @@ export default function CreateAnnouncementModal({
           endAt: endAt || undefined,
           branchScope,
           specificBranchIds: branchScope === 'SPECIFIC' ? selectedBranches : undefined,
-          coverImageUrl,
+          coverImageUrl: finalCoverUrl,
           contactPerson,
           updateNotes: updateNotes.trim() || 'อัปเดตข้อมูลประกาศโดยฝ่ายการตลาด',
           resetAcknowledgment,
+          deletedAssetIds,
           newAssets: assets.filter(a => !(editItem.assets || []).some((ea: any) => ea.id === (a as any).id))
         });
       } else {
@@ -261,7 +356,7 @@ export default function CreateAnnouncementModal({
           branchScope,
           specificBranchIds: branchScope === 'SPECIFIC' ? selectedBranches : undefined,
           statusMode: mode,
-          coverImageUrl,
+          coverImageUrl: finalCoverUrl,
           contactPerson,
           assets
         });
@@ -270,8 +365,12 @@ export default function CreateAnnouncementModal({
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err.message || 'ไม่สามารถบันทึกประกาศได้');
+      console.error('Save announcement error:', err);
+      let msg = err.message || 'ไม่สามารถบันทึกประกาศได้';
+      if (typeof msg === 'string' && (msg.includes('Unexpected token') || msg.includes('Request Entity Too Large') || msg.includes('PAYLOAD_TOO_LARGE') || msg.includes('413'))) {
+        msg = 'ข้อมูลหรือไฟล์แนบมีขนาดใหญ่เกินกว่าที่ระบบรองรับ กรุณาตรวจสอบขนาดไฟล์แนบ';
+      }
+      setErrorMsg(msg);
     } finally {
       setSubmitting(false);
     }

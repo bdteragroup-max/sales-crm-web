@@ -16,6 +16,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 });
     }
 
+    if (file.size > 50 * 1024 * 1024) {
+      return NextResponse.json({ success: false, error: 'ไฟล์มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 50MB)' }, { status: 413 });
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -34,7 +38,7 @@ export async function POST(request: Request) {
 
     if (uploadError) {
       console.error('Supabase upload error:', uploadError);
-      return NextResponse.json({ success: false, error: 'Failed to upload file to storage' }, { status: 500 });
+      return NextResponse.json({ success: false, error: uploadError.message || 'Failed to upload file to storage' }, { status: 500 });
     }
 
     // Get the public URL for the uploaded file
@@ -46,8 +50,12 @@ export async function POST(request: Request) {
     console.log(`File uploaded to Supabase Storage: ${publicUrl}`);
 
     return NextResponse.json({ success: true, url: publicUrl });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error uploading file:', error);
-    return NextResponse.json({ success: false, error: 'Failed to process file upload' }, { status: 500 });
+    const isPayloadTooLarge = error?.message?.includes('payload') || error?.message?.includes('too large') || error?.status === 413;
+    return NextResponse.json(
+      { success: false, error: isPayloadTooLarge ? 'ไฟล์มีขนาดใหญ่เกินกว่าที่ระบบรองรับ (จำกัด 50MB)' : (error?.message || 'Failed to process file upload') },
+      { status: isPayloadTooLarge ? 413 : 500 }
+    );
   }
 }
