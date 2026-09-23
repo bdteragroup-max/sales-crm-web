@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
-import { resolveInstallationStatusBatch, resolveSalespersonBatch } from '@/app/lib/satisfactionServerHelper';
+import { resolveInstallationStatusBatch, resolveSalespersonBatch, resolvePurchasesBatch } from '@/app/lib/satisfactionServerHelper';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -23,7 +23,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
     }
 
-    const [installStatusMap, salespersonMap] = await Promise.all([
+    const [installStatusMap, salespersonMap, purchasesMap] = await Promise.all([
       resolveInstallationStatusBatch([{
         companyId: survey.companyId,
         companyName: survey.company?.companyName,
@@ -33,14 +33,26 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         companyId: survey.companyId,
         quotationNumbers: survey.quotationIds || [],
         assignedUserFullName: survey.company?.assignedUser?.fullName
+      }]),
+      resolvePurchasesBatch([{
+        key: survey.id,
+        companyId: survey.companyId,
+        quotationNumbers: survey.quotationIds || []
       }])
     ]);
 
     const salespersonName = survey.company?.assignedUser?.fullName || salespersonMap.get(survey.companyId) || null;
+    const purchaseInfo = purchasesMap.get(survey.id) || {
+      products: [],
+      totalAmount: 0,
+      quotationCount: 0
+    };
 
     const enrichedSurvey = {
       ...survey,
       salespersonName,
+      purchasedProducts: purchaseInfo.products,
+      purchaseValue: purchaseInfo.totalAmount,
       company: {
         ...survey.company,
         assignedUser: survey.company?.assignedUser || (salespersonName ? { fullName: salespersonName } : null)

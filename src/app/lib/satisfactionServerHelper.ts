@@ -202,3 +202,128 @@ export async function resolveSalespersonBatch(
 
   return result;
 }
+
+export interface PurchaseInfo {
+  products: string[];
+  totalAmount: number;
+  quotationCount: number;
+  latestPoNumber?: string | null;
+  latestInvoiceNumber?: string | null;
+}
+
+/**
+ * Batch resolve purchased products and total purchase value for surveys
+ */
+export async function resolvePurchasesBatch(
+  items: Array<{
+    key: string;
+    companyId: string;
+    quotationNumbers?: string[];
+  }>
+): Promise<Map<string, PurchaseInfo>> {
+  const result = new Map<string, PurchaseInfo>();
+  if (items.length === 0) return result;
+
+  const allQuoteNumbers = Array.from(
+    new Set(items.flatMap(it => it.quotationNumbers || []).filter(Boolean))
+  );
+  const allCompanyIds = Array.from(
+    new Set(items.map(it => it.companyId).filter(Boolean))
+  );
+
+  const quotations = await prisma.quotation.findMany({
+    where: {
+      OR: [
+        ...(allQuoteNumbers.length > 0 ? [{ quotationNumber: { in: allQuoteNumbers } }] : []),
+        ...(allCompanyIds.length > 0 ? [{ companyId: { in: allCompanyIds } }] : [])
+      ],
+      NOT: {
+        OR: [
+          { status: { startsWith: 'ปฏิเสธ' } },
+          { status: { startsWith: 'ยกเลิก' } },
+          { status: { in: ['Lost', 'Rejected', 'Cancelled', 'ไม่ผ่าน'] } }
+        ]
+      }
+    },
+    include: {
+      jobs: {
+        select: {
+          item: true,
+          jobType: true
+        }
+      }
+    },
+    orderBy: [
+      { billingDate: 'desc' },
+      { poDate: 'desc' },
+      { createdAt: 'desc' }
+    ]
+  });
+
+  const quoteMap = new Map<string, typeof quotations[0]>();
+  const companyQuotesMap = new Map<string, typeof quotations>();
+
+  for (const q of quotations) {
+    if (q.quotationNumber) {
+      quoteMap.set(q.quotationNumber, q);
+    }
+    if (q.companyId) {
+      const list = companyQuotesMap.get(q.companyId) || [];
+      list.push(q);
+      companyQuotesMap.set(q.companyId, list);
+    }
+  }
+
+  const closedStatuses = ['เปิดบิลแล้ว', 'PO แล้วรอเงินโอน', 'PO แล้วรอสินค้า'];
+
+  for (const it of items) {
+    let matched = (it.quotationNumbers || [])
+      .map(num => quoteMap.get(num))
+      .filter((q): q is typeof quotations[0] => Boolean(q));
+
+    if (matched.length === 0 && it.companyId) {
+      matched = companyQuotesMap.get(it.companyId) || [];
+    }
+
+    const closedQuotes = matched.filter(
+      q => closedStatuses.includes(q.status) || Boolean(q.poNumber) || Boolean(q.billingDate)
+    );
+    const targetQuotes = closedQuotes.length > 0 ? closedQuotes : matched;
+
+    const totalAmount = targetQuotes.reduce(
+      (sum, q) => sum + (q.actualClosingAmount ?? q.totalAmountBeforeVat ?? q.salesBeforeVat ?? 0),
+      0
+    );
+
+    const products: string[] = [];
+    for (const q of targetQuotes) {
+      if (q.jobs && q.jobs.length > 0) {
+        for (const j of q.jobs) {
+          const item = j.item?.trim();
+          if (item && item !== 'Unknown Item' && !products.includes(item)) {
+            products.push(item);
+          }
+        }
+      } else {
+        const item = (q.subject || q.productType || '').trim();
+        if (item && item !== 'Unknown Item' && !products.includes(item)) {
+          products.push(item);
+        }
+      }
+    }
+
+    const latestPo = targetQuotes.find(q => q.poNumber)?.poNumber || null;
+    const latestInv = targetQuotes.find(q => q.invoiceNumber)?.invoiceNumber || null;
+
+    result.set(it.key, {
+      products,
+      totalAmount,
+      quotationCount: targetQuotes.length,
+      latestPoNumber: latestPo,
+      latestInvoiceNumber: latestInv
+    });
+  }
+
+  return result;
+}
+

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import prisma from '@/app/lib/db';
-import { resolveSalespersonBatch } from '@/app/lib/satisfactionServerHelper';
+import { resolveSalespersonBatch, resolvePurchasesBatch } from '@/app/lib/satisfactionServerHelper';
 
 function generateSatisfactionPDFHTML(survey: any): string {
   const scores = [
@@ -16,6 +16,13 @@ function generateSatisfactionPDFHTML(survey: any): string {
 
   const purchaseReasonsHtml = survey.purchaseReasons.length > 0
     ? survey.purchaseReasons.map((r: string) => `<span style="display:inline-block; padding: 4px 10px; background: #e5f6fd; color: #0288d1; border-radius: 20px; font-size: 12px; margin-right: 5px; margin-bottom: 5px;">${r}</span>`).join('')
+    : '-';
+
+  const formattedPurchaseValue = survey.purchaseValue
+    ? `฿${new Intl.NumberFormat('th-TH').format(survey.purchaseValue)}`
+    : '-';
+  const productsList = (survey.purchasedProducts && survey.purchasedProducts.length > 0)
+    ? survey.purchasedProducts.join(', ')
     : '-';
 
   return `
@@ -67,6 +74,8 @@ function generateSatisfactionPDFHTML(survey: any): string {
     <table>
       <tr><td class="td-label">ชื่อบริษัทลูกค้า (Company Name)</td><td><strong>${survey.company.companyName}</strong></td></tr>
       <tr><td class="td-label">ชื่อผู้ติดต่อ / ลูกค้า (Contact Person)</td><td><strong>${survey.contactName || '-'}</strong></td></tr>
+      <tr><td class="td-label">สินค้าที่ลูกค้าซื้อ (Purchased Products)</td><td>${productsList}</td></tr>
+      <tr><td class="td-label">มูลค่าการซื้อ (Purchase Value)</td><td><strong style="color: #059669;">${formattedPurchaseValue}</strong></td></tr>
       <tr><td class="td-label">พนักงานขายผู้รับผิดชอบ (Salesperson)</td><td><strong>${survey.salespersonName || survey.company?.assignedUser?.fullName || '-'}</strong></td></tr>
       <tr><td class="td-label">เบอร์โทรศัพท์ (Phone)</td><td>${survey.phone || '-'}</td></tr>
       <tr><td class="td-label">จังหวัด (Province)</td><td>${survey.province || '-'}</td></tr>
@@ -148,16 +157,26 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
     }
 
-    const salespersonMap = await resolveSalespersonBatch([{
-      companyId: survey.companyId,
-      quotationNumbers: survey.quotationIds || [],
-      assignedUserFullName: survey.company?.assignedUser?.fullName
-    }]);
+    const [salespersonMap, purchaseMap] = await Promise.all([
+      resolveSalespersonBatch([{
+        companyId: survey.companyId,
+        quotationNumbers: survey.quotationIds || [],
+        assignedUserFullName: survey.company?.assignedUser?.fullName
+      }]),
+      resolvePurchasesBatch([{
+        key: survey.id,
+        companyId: survey.companyId,
+        quotationNumbers: survey.quotationIds || []
+      }])
+    ]);
 
     const salespersonName = survey.company?.assignedUser?.fullName || salespersonMap.get(survey.companyId) || null;
+    const purchaseInfo = purchaseMap.get(survey.id) || { products: [], totalAmount: 0, quotationCount: 0 };
     const enrichedSurvey = {
       ...survey,
       salespersonName,
+      purchasedProducts: purchaseInfo.products,
+      purchaseValue: purchaseInfo.totalAmount,
       company: {
         ...survey.company,
         assignedUser: survey.company?.assignedUser || (salespersonName ? { fullName: salespersonName } : null)

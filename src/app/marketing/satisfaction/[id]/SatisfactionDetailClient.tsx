@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle, CheckCircle2, Wrench, Share2, FileText, Download, Loader2, Save, User as UserIcon, Phone } from 'lucide-react';
+import { ArrowLeft, CheckCircle, CheckCircle2, Wrench, Share2, FileText, Download, Loader2, Save, User as UserIcon, Phone, Package } from 'lucide-react';
 import { CustomerSatisfaction, Company, User } from '@/generated/client';
 
 type SurveyData = CustomerSatisfaction & {
@@ -18,6 +18,8 @@ type SurveyData = CustomerSatisfaction & {
     orderNo?: string | null;
     plannedDate?: string | null;
   };
+  purchasedProducts?: string[];
+  purchaseValue?: number;
 };
 
 export default function SatisfactionDetailClient({ id }: { id: string }) {
@@ -133,6 +135,11 @@ export default function SatisfactionDetailClient({ id }: { id: string }) {
                   ผู้แทนขาย: {survey.salespersonName || survey.company?.assignedUser?.fullName}
                 </span>
               )}
+              {survey.purchaseValue && survey.purchaseValue > 0 ? (
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                  ยอดซื้อ: {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', maximumFractionDigits: 0 }).format(survey.purchaseValue)}
+                </span>
+              ) : null}
               <span className="text-gray-300">•</span>
               <span className="text-gray-500">รอบประเมินที่ {survey.surveyRound} / ปี {survey.surveyYear}</span>
               {survey.installationStatus?.status === 'COMPLETED' ? (
@@ -198,6 +205,43 @@ export default function SatisfactionDetailClient({ id }: { id: string }) {
                 <span className="text-gray-600">After-Sales (บริการหลังการขาย)</span>
                 <span className="font-bold">{survey.scoreAfterSales}/5</span>
               </div>
+            </div>
+          </div>
+
+          {/* Products & Purchase Value Card */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Package size={20} className="text-[#ff2301]" />
+                ข้อมูลสินค้าและยอดสั่งซื้อ
+              </h2>
+              {survey.purchaseValue && survey.purchaseValue > 0 ? (
+                <div className="text-right">
+                  <span className="text-xs text-gray-500 block">มูลค่าการซื้อ (ก่อน VAT)</span>
+                  <span className="text-lg font-black text-emerald-700">
+                    {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', maximumFractionDigits: 0 }).format(survey.purchaseValue)}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+
+            <div>
+              <span className="text-sm font-semibold text-gray-500 block mb-2">รายการสินค้าที่ลูกค้าซื้อ:</span>
+              {survey.purchasedProducts && survey.purchasedProducts.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {survey.purchasedProducts.map((prod: string, idx: number) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-800 rounded-xl text-xs font-bold border border-slate-200"
+                    >
+                      <Package size={13} className="text-slate-400" />
+                      {prod}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-gray-400 text-sm italic">ไม่มีระบุรายการสินค้า</span>
+              )}
             </div>
           </div>
 

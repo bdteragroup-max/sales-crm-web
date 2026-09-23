@@ -25,7 +25,8 @@ import {
   PhoneCall,
   Calendar,
   Layers,
-  X
+  X,
+  Package
 } from 'lucide-react';
 import { CustomerSatisfaction, Company } from '@/generated/client';
 import { SATISFACTION_SCORE_LEGEND, formatPhoneForTel } from '@/app/lib/satisfactionScore';
@@ -36,6 +37,8 @@ type SurveyWithRelations = CustomerSatisfaction & {
   company: Company & { assignedUser?: { fullName: string } | null };
   salespersonName?: string | null;
   installationStatus?: InstallationStatusInfo;
+  purchasedProducts?: string[];
+  purchaseValue?: number;
 };
 
 export default function SatisfactionDashboardClient() {
@@ -127,7 +130,8 @@ export default function SatisfactionDashboardClient() {
       const provMatch = (s.province || s.company?.province)?.toLowerCase().includes(q);
       const orderMatch = s.installationStatus?.orderNo?.toLowerCase().includes(q);
       const techMatch = s.installationStatus?.technician?.toLowerCase().includes(q);
-      if (!companyMatch && !contactMatch && !phoneMatch && !salesMatch && !provMatch && !orderMatch && !techMatch) {
+      const productMatch = s.purchasedProducts?.some(p => p.toLowerCase().includes(q));
+      if (!companyMatch && !contactMatch && !phoneMatch && !salesMatch && !provMatch && !orderMatch && !techMatch && !productMatch) {
         return false;
       }
     }
@@ -180,6 +184,15 @@ export default function SatisfactionDashboardClient() {
     return { label: 'น้อยที่สุด (เร่งด่วน)', color: 'text-rose-700 bg-rose-50 border-rose-200' };
   };
 
+  const formatCurrency = (amount: number | null | undefined) => {
+    if (amount === null || amount === undefined || isNaN(amount) || amount === 0) return '-';
+    return new Intl.NumberFormat('th-TH', {
+      style: 'currency',
+      currency: 'THB',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
   const handleExport = (format: 'xlsx' | 'csv') => {
     if (displayedSurveys.length === 0) {
       alert('ไม่มีข้อมูลสำหรับส่งออกตามเงื่อนไขที่เลือก');
@@ -206,6 +219,8 @@ export default function SatisfactionDashboardClient() {
         'ผู้ติดต่อ': survey.contactName || '-',
         'เบอร์โทรศัพท์': survey.phone || '-',
         'จังหวัด': survey.province || survey.company?.province || '-',
+        'สินค้าที่ลูกค้าซื้อ': (survey.purchasedProducts && survey.purchasedProducts.length > 0) ? survey.purchasedProducts.join(', ') : '-',
+        'มูลค่าการซื้อ (บาท)': survey.purchaseValue || 0,
         'ผู้แทนขายที่ดูแล': salesperson,
         'สถานะงานติดตั้ง': survey.installationStatus?.label || 'ไม่มีข้อมูลงานติดตั้ง',
         'เลขที่ใบงานติดตั้ง': survey.installationStatus?.orderNo || '-',
@@ -240,6 +255,8 @@ export default function SatisfactionDashboardClient() {
       { wch: 20 }, // ผู้ติดต่อ
       { wch: 16 }, // เบอร์โทร
       { wch: 16 }, // จังหวัด
+      { wch: 32 }, // สินค้าที่ลูกค้าซื้อ
+      { wch: 18 }, // มูลค่าการซื้อ
       { wch: 22 }, // ผู้แทนขาย
       { wch: 20 }, // สถานะติดตั้ง
       { wch: 18 }, // เลขที่ใบงานติดตั้ง
@@ -676,7 +693,7 @@ export default function SatisfactionDashboardClient() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ค้นหาชื่อลูกค้า, ผู้แทนขาย, ช่าง, เบอร์โทร..."
+                  placeholder="ค้นหาชื่อลูกค้า, สินค้า, ผู้แทนขาย, ช่าง, เบอร์โทร..."
                   className="w-full pl-10 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#ff2301] focus:bg-white transition-all"
                 />
                 {searchQuery && (
@@ -759,11 +776,13 @@ export default function SatisfactionDashboardClient() {
 
           {/* Table Container */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[900px]">
+            <table className="w-full text-left border-collapse min-w-[1100px]">
               <thead>
                 <tr className="bg-slate-50/70 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
                   <th className="p-4 font-bold whitespace-nowrap pl-6">วันที่ & ช่องทาง</th>
                   <th className="p-4 font-bold whitespace-nowrap">ข้อมูลลูกค้า / ผู้ติดต่อ</th>
+                  <th className="p-4 font-bold whitespace-nowrap">สินค้าที่ลูกค้าซื้อ</th>
+                  <th className="p-4 font-bold whitespace-nowrap text-right">มูลค่าการซื้อ</th>
                   <th className="p-4 font-bold whitespace-nowrap">ผู้แทนขายผู้ดูแล</th>
                   <th className="p-4 font-bold whitespace-nowrap">สถานะงานติดตั้ง</th>
                   <th className="p-4 font-bold whitespace-nowrap text-center">คะแนนเฉลี่ย</th>
@@ -774,7 +793,7 @@ export default function SatisfactionDashboardClient() {
               <tbody className="divide-y divide-slate-100 text-sm">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="p-16 text-center">
+                    <td colSpan={9} className="p-16 text-center">
                       <div className="flex flex-col items-center justify-center text-slate-400 gap-3">
                         <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#ff2301] border-t-transparent"></div>
                         <span className="font-bold text-slate-500">กำลังโหลดข้อมูลการประเมิน...</span>
@@ -783,7 +802,7 @@ export default function SatisfactionDashboardClient() {
                   </tr>
                 ) : displayedSurveys.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-16 text-center">
+                    <td colSpan={9} className="p-16 text-center">
                       <div className="flex flex-col items-center justify-center text-slate-400 gap-3">
                         <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
                           <AlertTriangle size={24} />
@@ -821,7 +840,7 @@ export default function SatisfactionDashboardClient() {
                         </td>
 
                         {/* 2. Customer & Contact Info */}
-                        <td className="p-4 min-w-[240px]">
+                        <td className="p-4 min-w-[220px]">
                           <div className="font-bold text-slate-900 leading-tight">
                             {survey.company.companyName}
                           </div>
@@ -846,7 +865,46 @@ export default function SatisfactionDashboardClient() {
                           </div>
                         </td>
 
-                        {/* 3. Assigned Salesperson */}
+                        {/* 3. Products Purchased */}
+                        <td className="p-4 min-w-[200px] max-w-[260px]">
+                          {survey.purchasedProducts && survey.purchasedProducts.length > 0 ? (
+                            <div className="flex flex-col gap-1">
+                              <div
+                                className="text-xs font-bold text-slate-800 line-clamp-2 leading-relaxed"
+                                title={survey.purchasedProducts.join(', ')}
+                              >
+                                {survey.purchasedProducts[0]}
+                              </div>
+                              {survey.purchasedProducts.length > 1 && (
+                                <span
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md w-fit cursor-help"
+                                  title={survey.purchasedProducts.join('\n')}
+                                >
+                                  <Package size={11} className="text-slate-400" />
+                                  +{survey.purchasedProducts.length - 1} รายการเพิ่มเติม
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-300 italic">ไม่ระบุสินค้า</span>
+                          )}
+                        </td>
+
+                        {/* 4. Purchase Value */}
+                        <td className="p-4 text-right whitespace-nowrap min-w-[130px]">
+                          {survey.purchaseValue && survey.purchaseValue > 0 ? (
+                            <div className="flex flex-col items-end">
+                              <span className="font-extrabold text-slate-900 text-xs sm:text-sm tabular-nums">
+                                {formatCurrency(survey.purchaseValue)}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-semibold">ก่อน VAT</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-300 font-medium italic">-</span>
+                          )}
+                        </td>
+
+                        {/* 5. Assigned Salesperson */}
                         <td className="p-4 whitespace-nowrap">
                           {salesperson ? (
                             <div className="flex items-center gap-2">

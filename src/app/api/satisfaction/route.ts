@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
-import { resolveInstallationStatusBatch, resolveSalespersonBatch } from '@/app/lib/satisfactionServerHelper';
+import { resolveInstallationStatusBatch, resolveSalespersonBatch, resolvePurchasesBatch } from '@/app/lib/satisfactionServerHelper';
 
 export async function GET(req: Request) {
   try {
@@ -34,20 +34,33 @@ export async function GET(req: Request) {
       quotationNumbers: s.quotationIds || []
     }));
 
-    const [installStatusMap, salespersonMap] = await Promise.all([
+    const [installStatusMap, salespersonMap, purchasesMap] = await Promise.all([
       resolveInstallationStatusBatch(batchItems),
       resolveSalespersonBatch(surveys.map(s => ({
         companyId: s.companyId,
         quotationNumbers: s.quotationIds || [],
         assignedUserFullName: s.company?.assignedUser?.fullName
+      }))),
+      resolvePurchasesBatch(surveys.map(s => ({
+        key: s.id,
+        companyId: s.companyId,
+        quotationNumbers: s.quotationIds || []
       })))
     ]);
 
     const enrichedSurveys = surveys.map(s => {
       const salespersonName = s.company?.assignedUser?.fullName || salespersonMap.get(s.companyId) || null;
+      const purchaseInfo = purchasesMap.get(s.id) || {
+        products: [],
+        totalAmount: 0,
+        quotationCount: 0
+      };
+
       return {
         ...s,
         salespersonName,
+        purchasedProducts: purchaseInfo.products,
+        purchaseValue: purchaseInfo.totalAmount,
         company: {
           ...s.company,
           assignedUser: s.company?.assignedUser || (salespersonName ? { fullName: salespersonName } : null)
