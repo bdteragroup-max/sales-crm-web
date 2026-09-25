@@ -12,6 +12,7 @@ export default function DailyLogTab({ project, currentUser, isManager }: { proje
   const [date, setDate] = useState<Date>(startOfDay(new Date()));
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
   const [formData, setFormData] = useState({
     weather: 'Sunny',
     temperature: 30,
@@ -138,9 +139,41 @@ export default function DailyLogTab({ project, currentUser, isManager }: { proje
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // Simulate upload for now (In real app: use /api/upload)
-    const newUrls = Array.from(files).map(file => URL.createObjectURL(file));
-    setFormData(prev => ({ ...prev, imageUrls: [...prev.imageUrls, ...newUrls] }));
+    setIsUploadingPhotos(true);
+    try {
+      const uploadedUrls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('bucket', 'uploadsService');
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json?.url) {
+            uploadedUrls.push(json.url);
+          }
+        } else {
+          const err = await res.json().catch(() => ({}));
+          console.error(`Failed to upload ${file.name}:`, err);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        setFormData(prev => ({ ...prev, imageUrls: [...prev.imageUrls, ...uploadedUrls] }));
+      }
+    } catch (err: any) {
+      console.error('Photo upload error:', err);
+      alert('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+    } finally {
+      setIsUploadingPhotos(false);
+      e.target.value = '';
+    }
   };
 
   const handleImageDelete = (index: number) => {
@@ -672,9 +705,10 @@ export default function DailyLogTab({ project, currentUser, isManager }: { proje
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold">6. รูปภาพหน้างาน (On-site Photos)</h3>
             <div>
-              <input type="file" multiple accept="image/*" id="photo-upload" className="hidden" onChange={handleFileUpload} />
-              <label htmlFor="photo-upload" className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm hover:bg-gray-50 font-medium">
-                <Camera size={16} /> อัปโหลดรูป
+              <input type="file" multiple accept="image/*" id="photo-upload" className="hidden" disabled={isUploadingPhotos} onChange={handleFileUpload} />
+              <label htmlFor="photo-upload" className={`cursor-pointer flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm hover:bg-gray-50 font-medium ${isUploadingPhotos ? 'opacity-50 pointer-events-none' : ''}`}>
+                {isUploadingPhotos ? <Loader2 size={16} className="animate-spin text-brand-red" /> : <Camera size={16} />}
+                {isUploadingPhotos ? 'กำลังอัปโหลด...' : 'อัปโหลดรูป'}
               </label>
             </div>
           </div>

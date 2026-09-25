@@ -425,23 +425,51 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
       const storageFileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `kanban/${card.id}/${storageFileName}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('marketing_assets')
-        .upload(filePath, file, {
-          contentType: mimeType,
-          upsert: false
-        });
+      let publicUrl = '';
 
-      if (uploadError) {
-        if (uploadError.message.includes('exceeded the maximum allowed size') || (uploadError as any).statusCode === '413') {
-          throw new Error(`ขนาดไฟล์เกิน 50MB`);
+      // Attempt 1: Direct Supabase client upload
+      try {
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('marketing_assets')
+          .upload(filePath, file, {
+            contentType: mimeType,
+            upsert: false
+          });
+
+        if (!uploadError && uploadData?.path) {
+          const { data: urlData } = supabase.storage
+            .from('marketing_assets')
+            .getPublicUrl(uploadData.path);
+          publicUrl = urlData.publicUrl;
+        } else if (uploadError) {
+          console.warn('Direct Supabase upload error, attempting fallback to /api/upload:', uploadError.message);
         }
-        throw new Error(uploadError.message);
+      } catch (directErr: any) {
+        console.warn('Direct Supabase upload exception, attempting fallback to /api/upload:', directErr?.message || directErr);
       }
 
-      const { data: urlData } = supabase.storage
-        .from('marketing_assets')
-        .getPublicUrl(filePath);
+      // Attempt 2: Fallback to server API /api/upload
+      if (!publicUrl) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('bucket', 'marketing_assets');
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json().catch(() => ({}));
+          throw new Error(errData?.error || `อัปโหลดไม่สำเร็จ (HTTP ${uploadRes.status})`);
+        }
+
+        const uploadJson = await uploadRes.json();
+        if (!uploadJson?.success || !uploadJson?.url) {
+          throw new Error(uploadJson?.error || 'อัปโหลดไฟล์ล้มเหลว');
+        }
+        publicUrl = uploadJson.url;
+      }
 
       const res = await fetch('/api/marketing/kanban/attachments', {
         method: 'POST',
@@ -449,10 +477,11 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
         body: JSON.stringify({
           cardId: card.id,
           fileName: file.name,
-          fileUrl: urlData.publicUrl,
+          fileUrl: publicUrl,
           fileType: mimeType,
           fileSize: file.size,
-          attachmentType: isVideo ? 'video' : 'general'
+          attachmentType: isVideo ? 'video' : 'general',
+          userId: currentUser?.id
         })
       });
 
@@ -548,11 +577,18 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
         // Fallback to Supabase SDK download
         if (!blob) {
           try {
-            const urlParts = att.fileUrl.split('/marketing_assets/');
-            if (urlParts.length > 1) {
-              const storagePath = decodeURIComponent(urlParts[1]);
+            let bucket = 'marketing_assets';
+            let storagePath = '';
+            if (att.fileUrl.includes('/uploadsService/')) {
+              bucket = 'uploadsService';
+              storagePath = decodeURIComponent(att.fileUrl.split('/uploadsService/')[1]);
+            } else if (att.fileUrl.includes('/marketing_assets/')) {
+              bucket = 'marketing_assets';
+              storagePath = decodeURIComponent(att.fileUrl.split('/marketing_assets/')[1]);
+            }
+            if (storagePath) {
               const { data, error } = await supabase.storage
-                .from('marketing_assets')
+                .from(bucket)
                 .download(storagePath);
               if (data && !error) {
                 blob = data;

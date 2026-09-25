@@ -97,22 +97,54 @@ export default function SolarChecklist({ formData, setFormData }: SolarChecklist
 
     setUploading(true);
     try {
-      // Dynamic import to avoid SSR issues
-      const supabase = (await import('@supabase/supabase-js')).createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      let publicUrl = '';
 
-      const { data: uploadData, error: uploadError } = await supabase
-        .storage
-        .from('uploadsService')
-        .upload(filename, file, { contentType: file.type, upsert: false });
+      try {
+        // Dynamic import to avoid SSR issues
+        const supabase = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          { auth: { persistSession: false } }
+        );
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
 
-      if (uploadError) throw new Error(uploadError.message);
+        const { data: uploadData, error: uploadError } = await supabase
+          .storage
+          .from('uploadsService')
+          .upload(filename, file, { contentType: file.type, upsert: false });
 
-      const { data: { publicUrl } } = supabase.storage.from('uploadsService').getPublicUrl(uploadData.path);
+        if (!uploadError && uploadData?.path) {
+          const { data: urlData } = supabase.storage.from('uploadsService').getPublicUrl(uploadData.path);
+          publicUrl = urlData.publicUrl;
+        } else if (uploadError) {
+          console.warn('Direct Supabase upload error in SolarChecklist, falling back to /api/upload:', uploadError.message);
+        }
+      } catch (directErr) {
+        console.warn('Direct upload exception in SolarChecklist, falling back to /api/upload:', directErr);
+      }
+
+      if (!publicUrl) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('bucket', 'uploadsService');
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData?.error || 'อัปโหลดรูปภาพไม่สำเร็จ');
+        }
+
+        const json = await res.json();
+        if (!json?.success || !json?.url) {
+          throw new Error(json?.error || 'อัปโหลดรูปภาพไม่สำเร็จ');
+        }
+        publicUrl = json.url;
+      }
 
       const { key, index } = uploadTarget;
       setFormData((prev: any) => {

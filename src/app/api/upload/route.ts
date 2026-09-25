@@ -27,27 +27,43 @@ export async function POST(request: Request) {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
     
-    // Upload to Supabase Storage bucket named 'uploadsService'
-    const { data: uploadData, error: uploadError } = await supabase
+    const bucket = (data.get('bucket') as string) || 'uploadsService';
+
+    // Upload to Supabase Storage bucket
+    let targetBucket = bucket;
+    let uploadResult = await supabase
       .storage
-      .from('uploadsService')
+      .from(targetBucket)
       .upload(filename, buffer, {
-        contentType: file.type,
+        contentType: file.type || 'application/octet-stream',
         upsert: false
       });
 
-    if (uploadError) {
-      console.error('Supabase upload error:', uploadError);
-      return NextResponse.json({ success: false, error: uploadError.message || 'Failed to upload file to storage' }, { status: 500 });
+    // If custom bucket fails, attempt fallback to uploadsService
+    if (uploadResult.error && targetBucket !== 'uploadsService') {
+      console.warn(`Upload to ${targetBucket} failed, trying uploadsService:`, uploadResult.error.message);
+      targetBucket = 'uploadsService';
+      uploadResult = await supabase
+        .storage
+        .from(targetBucket)
+        .upload(filename, buffer, {
+          contentType: file.type || 'application/octet-stream',
+          upsert: false
+        });
+    }
+
+    if (uploadResult.error) {
+      console.error('Supabase upload error:', uploadResult.error);
+      return NextResponse.json({ success: false, error: uploadResult.error.message || 'Failed to upload file to storage' }, { status: 500 });
     }
 
     // Get the public URL for the uploaded file
     const { data: { publicUrl } } = supabase
       .storage
-      .from('uploadsService')
-      .getPublicUrl(uploadData.path);
+      .from(targetBucket)
+      .getPublicUrl(uploadResult.data.path);
 
-    console.log(`File uploaded to Supabase Storage: ${publicUrl}`);
+    console.log(`File uploaded to Supabase Storage (${targetBucket}): ${publicUrl}`);
 
     return NextResponse.json({ success: true, url: publicUrl });
   } catch (error: any) {

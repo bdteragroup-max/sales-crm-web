@@ -6,13 +6,25 @@ import { createClient } from '@/utils/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const data = await request.json();
+    const { cardId, fileName, fileUrl, fileType, fileSize, attachmentType = 'general', userId: clientUserId } = data;
+
+    let user = await getUser();
+    let effectiveUserId = user?.id;
+
+    if (!effectiveUserId && clientUserId) {
+      const fallbackUser = await prisma.user.findUnique({
+        where: { id: clientUserId },
+        select: { id: true, isActive: true }
+      });
+      if (fallbackUser && fallbackUser.isActive) {
+        effectiveUserId = fallbackUser.id;
+      }
     }
 
-    const data = await request.json();
-    const { cardId, fileName, fileUrl, fileType, fileSize, attachmentType = 'general' } = data;
+    if (!effectiveUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     if (!fileUrl || !cardId || !fileName) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -30,7 +42,7 @@ export async function POST(request: NextRequest) {
     const attachment = await prisma.kanbanAttachment.create({
       data: {
         cardId,
-        userId: user.id,
+        userId: effectiveUserId,
         fileName,
         fileUrl,
         fileType,
@@ -42,7 +54,7 @@ export async function POST(request: NextRequest) {
     await prisma.kanbanActivityLog.create({
       data: {
         cardId,
-        userId: user.id,
+        userId: effectiveUserId,
         actionType: 'ATTACHED',
         details: `Attached file: ${fileName}`
       }

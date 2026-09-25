@@ -21,29 +21,35 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: 'Attachment not found' }, { status: 404 });
     }
 
-    // Attempt to extract the relative path in the bucket from the fileUrl
-    // Typical URL: https://.../storage/v1/object/public/marketing_assets/kanban/cardId/123.jpg
-    const bucketName = 'marketing_assets';
-    let storagePath = null;
-    
-    if (attachment.fileUrl.includes(bucketName)) {
-      const parts = attachment.fileUrl.split(`${bucketName}/`);
-      if (parts.length > 1) {
-        storagePath = parts[1];
-      }
+    // Attempt to extract bucket name and relative path from fileUrl
+    let bucketName = 'marketing_assets';
+    let storagePath: string | null = null;
+
+    if (attachment.fileUrl.includes('uploadsService/')) {
+      bucketName = 'uploadsService';
+      storagePath = attachment.fileUrl.split('uploadsService/')[1] || null;
+    } else if (attachment.fileUrl.includes('marketing_assets/')) {
+      bucketName = 'marketing_assets';
+      storagePath = attachment.fileUrl.split('marketing_assets/')[1] || null;
     }
 
     if (storagePath) {
-      const cookieStore = await cookies();
-      const supabase = createClient(cookieStore);
+      try {
+        const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+        const supabase = createSupabaseClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          { auth: { persistSession: false } }
+        );
+        const { error: deleteError } = await supabase.storage
+          .from(bucketName)
+          .remove([decodeURIComponent(storagePath)]);
 
-      const { error: deleteError } = await supabase.storage
-        .from(bucketName)
-        .remove([storagePath]);
-
-      if (deleteError) {
-        console.error('Error deleting file from Supabase:', deleteError);
-        // We log the error but still proceed to delete the DB record.
+        if (deleteError) {
+          console.error('Error deleting file from Supabase:', deleteError);
+        }
+      } catch (err) {
+        console.error('Exception deleting file from Supabase:', err);
       }
     }
 
