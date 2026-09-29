@@ -32,7 +32,7 @@ export default async function StoreRequisitionsPage() {
       }
     },
     orderBy: { createdAt: 'desc' },
-    take: 300
+    take: 1000
   });
 
   const serializedRequisitions = requisitions.map(req => ({

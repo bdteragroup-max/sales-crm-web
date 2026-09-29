@@ -8,6 +8,7 @@ import prisma from '@/app/lib/db'
 import { getUser } from '@/app/lib/dal'
 import { isSuperUser } from '@/app/lib/roleHelper'
 import { logSuperAdminAction } from './audit'
+import { reclaimCoinsOnInactive } from '@/lib/coinReclaim'
 
 export async function signup(state: FormState, formData: FormData) {
   const sessionUser = await getUser()
@@ -250,13 +251,24 @@ export async function deactivateUser(id: string) {
   }
 
   try {
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id },
-      data: { isActive: false }
+      data: { isActive: false },
+      select: { id: true, employeeId: true, fullName: true }
     })
     
+    // Automatically claw back all tokens immediately
+    if (updatedUser.employeeId) {
+      await prisma.employees.updateMany({
+        where: { emp_id: updatedUser.employeeId },
+        data: { is_active: false }
+      }).catch(() => null);
+
+      await reclaimCoinsOnInactive(updatedUser.employeeId);
+    }
+
     if (sessionUser && isSuperUser(sessionUser.role)) {
-      await logSuperAdminAction(sessionUser.id, 'DEACTIVATE_USER', 'User', id, 'Deactivated user')
+      await logSuperAdminAction(sessionUser.id, 'DEACTIVATE_USER', 'User', id, `Deactivated user ${updatedUser.fullName} and clawed back all tokens`)
     }
 
     redirect('/team')

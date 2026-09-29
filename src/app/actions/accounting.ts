@@ -62,7 +62,7 @@ export async function syncFinancialAdjustments(jobId: string) {
       orderBy: [{ installmentNo: 'asc' }, { dueDate: 'asc' }]
     });
 
-    const allCompleted = updatedTasks.every(t => t.status === 'ตรวจสอบและบันทึกแล้ว');
+    const allCompleted = updatedTasks.length > 0 && updatedTasks.every(t => t.status === 'ตรวจสอบและบันทึกแล้ว');
     const hasAnyPaid = updatedTasks.some(t => (t.paidAmount && t.paidAmount > 0) || t.status === 'ชำระมัดจำแล้ว' || t.status === 'ตรวจสอบและบันทึกแล้ว');
     const nextPendingTask = updatedTasks.find(t => t.status !== 'ตรวจสอบและบันทึกแล้ว' && t.dueDate);
 
@@ -81,10 +81,14 @@ export async function syncFinancialAdjustments(jobId: string) {
       data: jobUpdateData
     });
 
+    // GATE AT EARNING: Award gold coins ONLY when accounting has verified all installments as 'ตรวจสอบและบันทึกแล้ว'
     if (allCompleted && job.quotationId) {
       try {
         const { awardGoldOnDealClosed } = await import('@/app/actions/coins');
-        await awardGoldOnDealClosed(job.quotationId);
+        const awardResult = await awardGoldOnDealClosed(job.quotationId);
+        if (awardResult.success && 'awardedGold' in awardResult && awardResult.awardedGold > 0) {
+          console.log(`[Accounting] Successfully awarded ${awardResult.awardedGold} gold coins for quotation ${job.quotationId} upon full payment verification.`);
+        }
       } catch (coinErr) {
         console.error("Coin award error on financial sync:", coinErr);
       }
@@ -159,8 +163,14 @@ export type SavePaymentScheduleItemInput = {
 export async function savePaymentScheduleItem(input: SavePaymentScheduleItemInput) {
   const { id, jobId, type, installmentNo, installmentAmount, dueDate, note, creditType, invoiceNumber, invoiceDate } = input;
 
-  const parsedDueDate = dueDate ? new Date(dueDate) : null;
-  const parsedInvoiceDate = invoiceDate ? new Date(invoiceDate) : null;
+  let parsedDueDate = dueDate ? new Date(dueDate) : null;
+  if (parsedDueDate && !isNaN(parsedDueDate.getTime()) && parsedDueDate.getFullYear() >= 2500) {
+    parsedDueDate.setFullYear(parsedDueDate.getFullYear() - 543);
+  }
+  let parsedInvoiceDate = invoiceDate ? new Date(invoiceDate) : null;
+  if (parsedInvoiceDate && !isNaN(parsedInvoiceDate.getTime()) && parsedInvoiceDate.getFullYear() >= 2500) {
+    parsedInvoiceDate.setFullYear(parsedInvoiceDate.getFullYear() - 543);
+  }
   const numAmount = Number(installmentAmount) || 0;
 
   if (id) {
@@ -326,7 +336,11 @@ export async function updatePaymentTaskStatus(taskId: string, status: string, no
     dataToUpdate.invoiceNumber = invoiceNumber;
   }
   if (invoiceDate) {
-    dataToUpdate.invoiceDate = new Date(invoiceDate);
+    const d = new Date(invoiceDate);
+    if (!isNaN(d.getTime()) && d.getFullYear() >= 2500) {
+      d.setFullYear(d.getFullYear() - 543);
+    }
+    dataToUpdate.invoiceDate = d;
   }
 
   const task = await prisma.paymentTask.update({

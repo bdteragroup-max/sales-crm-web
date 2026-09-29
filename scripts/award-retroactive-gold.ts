@@ -8,7 +8,10 @@ async function main() {
   
   // Find all quotations that are already marked as closed
   const closedQuotations = await prisma.quotation.findMany({
-    where: { status: 'เปิดบิลแล้ว' },
+    where: {
+      status: 'เปิดบิลแล้ว',
+      billingDate: { gte: new Date('2026-06-01T00:00:00+07:00') }
+    },
     select: { id: true, quotationNumber: true }
   });
 

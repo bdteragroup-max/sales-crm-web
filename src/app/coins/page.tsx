@@ -81,6 +81,11 @@ export default async function CoinsDashboard() {
   const translateDescription = (desc?: string) => {
     if (!desc) return '-';
     const d = desc.toLowerCase();
+    if (d.includes('reclaim') && (d.includes('deal') || d.includes('gold'))) {
+      const match = desc.match(/\(([^)]+)\)/);
+      const quoteNo = match ? ` (${match[1]})` : '';
+      return `ดึงเหรียญทองคืนจากการปิดดีลก่อนเดือนมิถุนายน 2026${quoteNo}`;
+    }
     if (d.includes('deal_closed') || d.includes('won')) return 'ได้รับรางวัลจากปิดดีลการขายสำเร็จ';
     if (d.includes('manual_adjustment')) return 'ปรับปรุงยอดโดยแอดมิน';
     if (d.includes('sales_crm')) return 'รายการจากระบบ Sales CRM';

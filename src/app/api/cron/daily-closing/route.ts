@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import { pushLineMessage } from '@/app/lib/lineNotify';
+import { syncAndClawbackResignedEmployees } from '@/lib/coinReclaim';
 
 export async function GET(request: Request) {
   try {
@@ -9,6 +10,9 @@ export async function GET(request: Request) {
     if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
+
+    // Automatically check for resigned employees and claw back tokens
+    await syncAndClawbackResignedEmployees().catch(e => console.error('Failed to sync resigned coins in daily closing', e));
 
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 1);

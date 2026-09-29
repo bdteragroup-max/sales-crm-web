@@ -67,6 +67,31 @@ export async function awardGoldOnDealClosed(quotationId: string, goldCoinTypeId:
 
       if (!quotation || !quotation.salesperson?.employeeId) return;
 
+      // Medal system only applies to sales made from June 2026 onwards
+      const june2026Start = new Date('2026-06-01T00:00:00+07:00');
+      if (quotation.billingDate && quotation.billingDate < june2026Start) return;
+
+      // Gate at Earning: Verify that accounting has verified full payment for all installments
+      const job = await tx.job.findFirst({
+        where: { quotationId },
+        include: { paymentTasks: true }
+      });
+
+      if (!job) {
+        result.message = 'ยังไม่พบข้อมูลงวดการชำระเงินของงาน (Job) ในระบบ จึงยังไม่สามารถแจกเหรียญได้';
+        return;
+      }
+
+      const tasks = job.paymentTasks || [];
+      const hasPaymentTasks = tasks.length > 0;
+      const allInstallmentsVerified = hasPaymentTasks && tasks.every(t => t.status === 'ตรวจสอบและบันทึกแล้ว');
+      const isPaymentComplete = job.paymentStatus === 'paid' && allInstallmentsVerified;
+
+      if (!isPaymentComplete) {
+        result.message = 'ยังไม่สามารถแจกเหรียญได้ เนื่องจากฝ่ายบัญชียังไม่ได้ตรวจสอบและบันทึกการชำระเงินครบทุกงวด';
+        return;
+      }
+
       const salesGold = calculateSalesGold(quotation.totalAmountBeforeVat || 0);
       if (salesGold === 0) return; // Deal too small
 
@@ -86,7 +111,7 @@ export async function awardGoldOnDealClosed(quotationId: string, goldCoinTypeId:
           amount: salesGold,
           transaction_type: "EARN",
           source_key: `deal_closed:${quotationId}:sales`,
-          description: `Deal closed - value ${quotation.totalAmountBeforeVat} THB`
+          description: `ปิดการขายสำเร็จ (เงินเข้าครบแล้ว - ${job.jobNumber || quotation.quotationNumber}) - ยอดขาย ${quotation.totalAmountBeforeVat} บาท`
         }
       });
 
@@ -109,7 +134,7 @@ export async function awardGoldOnDealClosed(quotationId: string, goldCoinTypeId:
             amount: 1,
             transaction_type: "EARN",
             source_key: `deal_closed:${quotationId}:manager`,
-            description: `Team member closed deal ${quotationId}`
+            description: `ลูกทีมปิดการขายสำเร็จ (เงินเข้าครบแล้ว - ${job.jobNumber || quotation.quotationNumber})`
           }
         });
       }
@@ -117,7 +142,7 @@ export async function awardGoldOnDealClosed(quotationId: string, goldCoinTypeId:
       result = {
         success: true,
         awardedGold: salesGold,
-        message: `คุณได้รับ ${salesGold} เหรียญทอง จากยอดขาย ${quotation.totalAmountBeforeVat?.toLocaleString() || 0} บาท`
+        message: `คุณได้รับ ${salesGold} เหรียญทอง จากยอดขาย ${quotation.totalAmountBeforeVat?.toLocaleString() || 0} บาท (ฝ่ายบัญชีตรวจสอบการชำระเงินครบถ้วนแล้ว)`
       };
     });
     return result;

@@ -51,6 +51,9 @@ function formatDate(d: string | Date | null | undefined) {
   if (!d) return '-';
   const date = new Date(d);
   if (isNaN(date.getTime())) return '-';
+  if (date.getFullYear() >= 2500) {
+    date.setFullYear(date.getFullYear() - 543);
+  }
   try {
     return new Intl.DateTimeFormat('th-TH', {
       timeZone: 'Asia/Bangkok',
@@ -59,8 +62,7 @@ function formatDate(d: string | Date | null | undefined) {
       year: 'numeric'
     }).format(date);
   } catch {
-    let year = date.getFullYear();
-    if (year < 2500) year += 543;
+    let year = date.getFullYear() + 543;
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${year}`;
   }
 }
@@ -826,7 +828,15 @@ function JobDetailModal({
                 </button>
                 <button
                   onClick={() => {
-                    onConfirmPayment(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote, invoiceNumber, invoiceDate);
+                    let normalizedInvoiceDate = invoiceDate;
+                    if (normalizedInvoiceDate) {
+                      const d = new Date(normalizedInvoiceDate);
+                      if (!isNaN(d.getTime()) && d.getFullYear() >= 2500) {
+                        d.setFullYear(d.getFullYear() - 543);
+                        normalizedInvoiceDate = d.toISOString().slice(0, 10);
+                      }
+                    }
+                    onConfirmPayment(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote, invoiceNumber, normalizedInvoiceDate);
                     setData((prev: any) => ({
                       ...prev,
                       paymentTasks: prev.paymentTasks?.map((pt: any) => pt.id === confirmPaymentModal.id ? {
@@ -834,7 +844,7 @@ function JobDetailModal({
                         status: confirmPaymentModal.status,
                         note: paymentNote || pt.note,
                         invoiceNumber: invoiceNumber || pt.invoiceNumber,
-                        invoiceDate: invoiceDate ? new Date(invoiceDate).toISOString() : pt.invoiceDate,
+                        invoiceDate: normalizedInvoiceDate ? new Date(normalizedInvoiceDate).toISOString() : pt.invoiceDate,
                         paidDate: confirmPaymentModal.status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : pt.paidDate
                       } : pt)
                     }));
@@ -1510,7 +1520,15 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
               </button>
               <button
                 onClick={() => {
-                  handleUpdate(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote, invoiceNumber, invoiceDate);
+                  let normalizedInvoiceDate = invoiceDate;
+                  if (normalizedInvoiceDate) {
+                    const d = new Date(normalizedInvoiceDate);
+                    if (!isNaN(d.getTime()) && d.getFullYear() >= 2500) {
+                      d.setFullYear(d.getFullYear() - 543);
+                      normalizedInvoiceDate = d.toISOString().slice(0, 10);
+                    }
+                  }
+                  handleUpdate(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote, invoiceNumber, normalizedInvoiceDate);
                   setConfirmPaymentModal(null);
                   setPaymentNote('');
                   setInvoiceNumber('');

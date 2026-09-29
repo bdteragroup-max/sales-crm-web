@@ -27,8 +27,16 @@ import {
   X,
   Layers,
   Check,
-  FileCheck
+  FileCheck,
+  ChevronDown,
+  BarChart3,
+  FileSpreadsheet,
+  Download,
+  TrendingUp,
+  PieChart,
+  Filter
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 import { updateRequisitionStatus } from '@/app/actions/requisitions';
 
@@ -74,6 +82,13 @@ export default function StoreRequisitionsClient({
 
   // Modal State
   const [detailReq, setDetailReq] = useState<Requisition | null>(null);
+
+  // Summary Report & Export States
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportScope, setReportScope] = useState<'FILTERED' | 'ALL'>('FILTERED');
+  const [reportSearchQuery, setReportSearchQuery] = useState('');
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [reportActiveTab, setReportActiveTab] = useState<'OVERVIEW' | 'ALL_ITEMS'>('OVERVIEW');
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -337,6 +352,411 @@ export default function StoreRequisitionsClient({
     monthFilter !== 'ALL' ||
     yearFilter !== 'ALL';
 
+  // Active dataset for reporting
+  const reportSourceData = useMemo(() => {
+    return reportScope === 'FILTERED' ? filteredRequisitions : requisitions;
+  }, [reportScope, filteredRequisitions, requisitions]);
+
+  // Comprehensive Aggregate Calculations for Summary Report
+  const reportStats = useMemo(() => {
+    const totalReqs = reportSourceData.length;
+    let approved = 0;
+    let completed = 0;
+    let pendingApproval = 0;
+    let rejected = 0;
+    let totalItems = 0;
+    let totalQuantity = 0;
+
+    const companyBreakdown: Record<string, { count: number; itemsCount: number; quantity: number }> = {
+      TE: { count: 0, itemsCount: 0, quantity: 0 },
+      TP: { count: 0, itemsCount: 0, quantity: 0 },
+      TG: { count: 0, itemsCount: 0, quantity: 0 },
+      OTHER: { count: 0, itemsCount: 0, quantity: 0 },
+    };
+
+    const requesterMap: Record<string, { name: string; reqCount: number; itemsCount: number; quantity: number }> = {};
+    const itemAggregateMap: Record<string, {
+      detail: string;
+      totalQty: number;
+      unit: string;
+      reqCount: number;
+      jobs: Set<string>;
+      companies: Set<string>;
+      sampleRequesters: Set<string>;
+    }> = {};
+
+    reportSourceData.forEach(req => {
+      if (req.status === 'APPROVED') approved++;
+      else if (req.status === 'COMPLETED') completed++;
+      else if (req.status === 'PENDING_APPROVAL') pendingApproval++;
+      else if (req.status === 'REJECTED') rejected++;
+
+      const comp = normalizeCompany(req.company);
+      if (companyBreakdown[comp]) {
+        companyBreakdown[comp].count++;
+      } else {
+        companyBreakdown.OTHER.count++;
+      }
+
+      const requester = req.requesterName || 'ไม่ระบุ';
+      if (!requesterMap[requester]) {
+        requesterMap[requester] = { name: requester, reqCount: 0, itemsCount: 0, quantity: 0 };
+      }
+      requesterMap[requester].reqCount++;
+
+      if (Array.isArray(req.items)) {
+        req.items.forEach(it => {
+          totalItems++;
+          const qty = Number(it.quantity) || 1;
+          totalQuantity += qty;
+
+          if (companyBreakdown[comp]) {
+            companyBreakdown[comp].itemsCount++;
+            companyBreakdown[comp].quantity += qty;
+          }
+
+          requesterMap[requester].itemsCount++;
+          requesterMap[requester].quantity += qty;
+
+          const normName = (it.detail || '').trim();
+          if (normName) {
+            const key = normName.toLowerCase();
+            if (!itemAggregateMap[key]) {
+              itemAggregateMap[key] = {
+                detail: normName,
+                totalQty: 0,
+                unit: it.unit || 'ชิ้น',
+                reqCount: 0,
+                jobs: new Set(),
+                companies: new Set(),
+                sampleRequesters: new Set(),
+              };
+            }
+            itemAggregateMap[key].totalQty += qty;
+            itemAggregateMap[key].reqCount++;
+            if (it.job) itemAggregateMap[key].jobs.add(it.job);
+            if (req.company) itemAggregateMap[key].companies.add(comp);
+            if (req.requesterName) itemAggregateMap[key].sampleRequesters.add(req.requesterName);
+          }
+        });
+      }
+    });
+
+    const sortedMaterials = Object.values(itemAggregateMap).sort((a, b) => b.totalQty - a.totalQty);
+    const sortedRequesters = Object.values(requesterMap).sort((a, b) => b.reqCount - a.reqCount);
+
+    return {
+      totalReqs,
+      approved,
+      completed,
+      pendingApproval,
+      rejected,
+      totalItems,
+      totalQuantity,
+      fulfillRate: totalReqs > 0 ? Math.round((completed / totalReqs) * 100) : 0,
+      companyBreakdown,
+      sortedMaterials,
+      sortedRequesters
+    };
+  }, [reportSourceData]);
+
+  // Filtered materials inside the summary report modal
+  const filteredReportMaterials = useMemo(() => {
+    if (!reportSearchQuery.trim()) return reportStats.sortedMaterials;
+    const q = reportSearchQuery.toLowerCase().trim();
+    return reportStats.sortedMaterials.filter(m =>
+      m.detail.toLowerCase().includes(q) ||
+      m.unit.toLowerCase().includes(q) ||
+      Array.from(m.jobs).some(j => j.toLowerCase().includes(q))
+    );
+  }, [reportStats.sortedMaterials, reportSearchQuery]);
+
+  // Export to Excel handler
+  const handleExportExcel = (scope: 'FILTERED' | 'ALL' = reportScope) => {
+    try {
+      const dataToExport = scope === 'FILTERED' ? filteredRequisitions : requisitions;
+
+      if (!dataToExport || dataToExport.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ไม่มีข้อมูลสำหรับส่งออก',
+          text: 'ไม่พบรายการใบเบิกที่ตรงตามเงื่อนไขที่เลือก',
+          confirmButtonText: 'ตกลง'
+        });
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+      const dateNow = new Date();
+      const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+      const dateStr = `${dateNow.getDate()} ${thaiMonths[dateNow.getMonth()]} ${dateNow.getFullYear() + 543}`;
+      const isoDate = dateNow.toISOString().slice(0, 10);
+
+      // --- Sheet 1: สรุปภาพรวม (Summary) ---
+      let approvedCount = 0;
+      let completedCount = 0;
+      let pendingCount = 0;
+      let rejectedCount = 0;
+      let totalItems = 0;
+      let totalQty = 0;
+      const compStats: Record<string, number> = { TE: 0, TP: 0, TG: 0, OTHER: 0 };
+      const itemAggMap: Record<string, { detail: string; qty: number; unit: string; count: number; jobs: Set<string> }> = {};
+
+      dataToExport.forEach(r => {
+        if (r.status === 'APPROVED') approvedCount++;
+        else if (r.status === 'COMPLETED') completedCount++;
+        else if (r.status === 'PENDING_APPROVAL') pendingCount++;
+        else if (r.status === 'REJECTED') rejectedCount++;
+
+        const c = normalizeCompany(r.company);
+        compStats[c] = (compStats[c] || 0) + 1;
+
+        if (Array.isArray(r.items)) {
+          r.items.forEach(it => {
+            totalItems++;
+            const q = Number(it.quantity) || 1;
+            totalQty += q;
+            const key = (it.detail || '').trim().toLowerCase();
+            if (key) {
+              if (!itemAggMap[key]) {
+                itemAggMap[key] = { detail: (it.detail || '').trim(), qty: 0, unit: it.unit || 'ชิ้น', count: 0, jobs: new Set() };
+              }
+              itemAggMap[key].qty += q;
+              itemAggMap[key].count++;
+              if (it.job) itemAggMap[key].jobs.add(it.job);
+            }
+          });
+        }
+      });
+
+      const top15 = Object.values(itemAggMap).sort((a, b) => b.qty - a.qty).slice(0, 15);
+
+      const summaryRows: any[][] = [
+        ['รายงานสรุปการเบิกและยืมวัสดุอุปกรณ์ - คลังสินค้า Tera Group'],
+        [`วันที่ส่งออกข้อมูล: ${dateStr}`, `ขอบเขตข้อมูล: ${scope === 'FILTERED' ? 'ตามตัวกรองปัจจุบัน' : 'ข้อมูลทั้งหมด'}`],
+        [],
+        ['1. สรุปภาพรวมสถานะใบเบิก'],
+        ['สถานะ', 'จำนวนใบเบิก (ฉบับ)', 'สัดส่วน (%)'],
+        ['ส่งมอบเรียบร้อย (Completed)', completedCount, dataToExport.length > 0 ? `${((completedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        ['รอจัดของ / รอส่งมอบ (Approved)', approvedCount, dataToExport.length > 0 ? `${((approvedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        ['รอหัวหน้าอนุมัติ (Pending Approval)', pendingCount, dataToExport.length > 0 ? `${((pendingCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        ['ไม่อนุมัติ (Rejected)', rejectedCount, dataToExport.length > 0 ? `${((rejectedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        ['รวมใบเบิกทั้งหมด', dataToExport.length, '100%'],
+        [],
+        ['2. สถิติวัสดุอุปกรณ์'],
+        ['ตัวชี้วัด', 'ค่า'],
+        ['จำนวนรายการวัสดุรวม (Item entries)', totalItems],
+        ['ยอดจำนวนชิ้น/หน่วยรวม (Total units)', totalQty],
+        ['อัตราส่งมอบสำเร็จ (Fulfill rate)', dataToExport.length > 0 ? `${((completedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        [],
+        ['3. แยกตามบริษัท'],
+        ['บริษัท', 'จำนวนใบเบิก'],
+        ['TE (Tera Electric)', compStats.TE || 0],
+        ['TP (Tera Power)', compStats.TP || 0],
+        ['TG (Tera Group)', compStats.TG || 0],
+        ['อื่นๆ / ไม่ระบุ', compStats.OTHER || 0],
+        [],
+        ['4. รายการวัสดุ/อุปกรณ์ที่มีการเบิกมากที่สุด (Top 15 Items)'],
+        ['อันดับ', 'ชื่อรายการวัสดุอุปกรณ์', 'จำนวนรวมที่เบิก', 'หน่วยนับ', 'จำนวนครั้งที่เบิก', 'งาน/โครงการที่นำไปใช้'],
+        ...top15.map((item, idx) => [
+          idx + 1,
+          item.detail,
+          item.qty,
+          item.unit,
+          item.count,
+          Array.from(item.jobs).slice(0, 3).join(', ') || '-'
+        ])
+      ];
+
+      const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+      wsSummary['!cols'] = [{ wch: 35 }, { wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 40 }];
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'สรุปภาพรวม');
+
+      // --- Sheet 2: รายการวัสดุรายชิ้น (Items Detail) ---
+      const itemsHeader = [
+        'ลำดับ',
+        'เลขที่ใบเบิก',
+        'วันที่เบิก',
+        'บริษัท',
+        'ผู้ขอเบิก',
+        'ผู้อนุมัติ',
+        'สถานะ',
+        'ลำดับรายการ',
+        'ชื่อรายการวัสดุ/อุปกรณ์',
+        'จำนวน',
+        'หน่วยนับ',
+        'งาน/Job ที่ใช้',
+        'หมายเหตุ'
+      ];
+
+      const itemsRows: any[][] = [];
+      let globalItemIndex = 1;
+
+      dataToExport.forEach(req => {
+        const reqDate = req.date ? formatThaiDate(req.date) : (req.createdAt ? formatThaiDate(req.createdAt) : '-');
+        const comp = normalizeCompany(req.company);
+        const statusLabel = getStatusBadge(req.status).label;
+
+        if (Array.isArray(req.items) && req.items.length > 0) {
+          req.items.forEach((item, itemIdx) => {
+            itemsRows.push([
+              globalItemIndex++,
+              req.requisitionNumber,
+              reqDate,
+              comp,
+              req.requesterName || '-',
+              req.approverName || '-',
+              statusLabel,
+              itemIdx + 1,
+              item.detail || '-',
+              Number(item.quantity) || item.quantity || 1,
+              item.unit || '-',
+              item.job || '-',
+              item.remark || '-'
+            ]);
+          });
+        } else {
+          itemsRows.push([
+            globalItemIndex++,
+            req.requisitionNumber,
+            reqDate,
+            comp,
+            req.requesterName || '-',
+            req.approverName || '-',
+            statusLabel,
+            '-',
+            '(ไม่มีรายการ)',
+            0,
+            '-',
+            '-',
+            '-'
+          ]);
+        }
+      });
+
+      const wsItems = XLSX.utils.aoa_to_sheet([itemsHeader, ...itemsRows]);
+      wsItems['!cols'] = [
+        { wch: 8 },  // ลำดับ
+        { wch: 18 }, // เลขที่ใบเบิก
+        { wch: 16 }, // วันที่เบิก
+        { wch: 10 }, // บริษัท
+        { wch: 24 }, // ผู้ขอเบิก
+        { wch: 24 }, // ผู้อนุมัติ
+        { wch: 22 }, // สถานะ
+        { wch: 12 }, // ลำดับรายการ
+        { wch: 40 }, // ชื่อรายการวัสดุ
+        { wch: 12 }, // จำนวน
+        { wch: 12 }, // หน่วยนับ
+        { wch: 25 }, // งานที่ใช้
+        { wch: 25 }  // หมายเหตุ
+      ];
+      XLSX.utils.book_append_sheet(wb, wsItems, 'รายการวัสดุรายชิ้น');
+
+      // --- Sheet 3: สรุปตามใบเบิก (Requisitions List) ---
+      const reqsHeader = [
+        'ลำดับ',
+        'เลขที่ใบเบิก',
+        'วันที่ขอเบิก',
+        'บริษัท',
+        'ผู้ขอเบิก',
+        'ผู้อนุมัติ',
+        'สถานะ',
+        'จำนวนชนิดสิ่งของ (รายการ)',
+        'จำนวนชิ้นรวม (หน่วย)',
+        'รายการอุปกรณ์ (สรุป)'
+      ];
+
+      const reqsRows = dataToExport.map((req, idx) => {
+        const reqDate = req.date ? formatThaiDate(req.date) : (req.createdAt ? formatThaiDate(req.createdAt) : '-');
+        const comp = normalizeCompany(req.company);
+        const statusLabel = getStatusBadge(req.status).label;
+        const itemCount = req.items?.length || 0;
+        const totalUnits = req.items?.reduce((sum, it) => sum + (Number(it.quantity) || 1), 0) || 0;
+        const itemsSummary = req.items?.map(it => `${it.detail} (${it.quantity} ${it.unit})`).slice(0, 5).join('; ') || '-';
+
+        return [
+          idx + 1,
+          req.requisitionNumber,
+          reqDate,
+          comp,
+          req.requesterName || '-',
+          req.approverName || '-',
+          statusLabel,
+          itemCount,
+          totalUnits,
+          itemsSummary
+        ];
+      });
+
+      const wsReqs = XLSX.utils.aoa_to_sheet([reqsHeader, ...reqsRows]);
+      wsReqs['!cols'] = [
+        { wch: 8 },  // ลำดับ
+        { wch: 18 }, // เลขที่ใบเบิก
+        { wch: 16 }, // วันที่
+        { wch: 10 }, // บริษัท
+        { wch: 24 }, // ผู้ขอเบิก
+        { wch: 24 }, // ผู้อนุมัติ
+        { wch: 22 }, // สถานะ
+        { wch: 24 }, // จำนวนชนิด
+        { wch: 20 }, // จำนวนชิ้นรวม
+        { wch: 60 }  // สรุปอุปกรณ์
+      ];
+      XLSX.utils.book_append_sheet(wb, wsReqs, 'สรุปตามใบเบิก');
+
+      // --- Sheet 4: สรุปยอดรวมตามวัสดุ (Material Aggregates) ---
+      const aggHeader = [
+        'ลำดับ',
+        'ชื่อรายการวัสดุ/อุปกรณ์',
+        'ยอดรวมจำนวนที่เบิก',
+        'หน่วยนับ',
+        'จำนวนใบเบิกที่ขอ',
+        'งาน/โครงการที่นำไปใช้'
+      ];
+
+      const allAggregated = Object.values(itemAggMap).sort((a, b) => b.qty - a.qty);
+      const aggRows = allAggregated.map((it, idx) => [
+        idx + 1,
+        it.detail,
+        it.qty,
+        it.unit,
+        it.count,
+        Array.from(it.jobs).join(', ') || '-'
+      ]);
+
+      const wsAgg = XLSX.utils.aoa_to_sheet([aggHeader, ...aggRows]);
+      wsAgg['!cols'] = [
+        { wch: 8 },  // ลำดับ
+        { wch: 45 }, // ชื่อรายการ
+        { wch: 20 }, // ยอดรวมจำนวน
+        { wch: 12 }, // หน่วยนับ
+        { wch: 18 }, // จำนวนใบเบิก
+        { wch: 45 }  // งานที่ใช้
+      ];
+      XLSX.utils.book_append_sheet(wb, wsAgg, 'สรุปยอดรวมตามวัสดุ');
+
+      const filename = `รายงานการเบิกวัสดุอุปกรณ์_คลังสินค้า_${isoDate}.xlsx`;
+      XLSX.writeFile(wb, filename);
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'ส่งออกไฟล์ Excel สำเร็จแล้ว',
+        text: `ไฟล์: ${filename}`,
+        showConfirmButton: false,
+        timer: 3000
+      });
+    } catch (err: any) {
+      console.error('Export Excel Error:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาดในการส่งออกไฟล์',
+        text: err?.message || 'ไม่สามารถสร้างไฟล์ Excel ได้',
+        confirmButtonText: 'ตกลง'
+      });
+    }
+  };
+
   // Copy Helper
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -466,12 +886,73 @@ export default function StoreRequisitionsClient({
 
           <button
             onClick={() => router.refresh()}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-semibold border border-blue-200 shadow-sm transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 shadow-sm transition-all"
             title="รีเฟรชข้อมูล"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4 text-slate-500" />
             <span>รีเฟรช</span>
           </button>
+
+          <button
+            onClick={() => setShowReportModal(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-semibold border border-indigo-200 shadow-sm transition-all hover:scale-[1.02]"
+            title="ดูรายงานสรุปสถิติการเบิกและยืมวัสดุอุปกรณ์"
+          >
+            <BarChart3 className="w-4 h-4 text-indigo-600" />
+            <span>รายงานสรุป</span>
+          </button>
+
+          <div className="relative">
+            <button
+              onClick={() => setShowExportDropdown(!showExportDropdown)}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all hover:scale-[1.02]"
+              title="ส่งออกรายงานเป็นไฟล์ Excel (.xlsx)"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>ส่งออก Excel</span>
+              <ChevronDown className="w-3.5 h-3.5 ml-0.5 opacity-80" />
+            </button>
+
+            {showExportDropdown && (
+              <>
+                <div
+                  className="fixed inset-0 z-20"
+                  onClick={() => setShowExportDropdown(false)}
+                />
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-1.5 z-30 animate-in fade-in-50 duration-150">
+                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    เลือกขอบเขตข้อมูล Excel
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowExportDropdown(false);
+                      handleExportExcel('FILTERED');
+                    }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 rounded-xl flex items-center justify-between text-xs text-slate-700 hover:text-emerald-900 transition-colors"
+                  >
+                    <div>
+                      <div className="font-semibold">ตามตัวกรองปัจจุบัน</div>
+                      <div className="text-[10px] text-slate-400">จำนวน {filteredRequisitions.length} ใบเบิก</div>
+                    </div>
+                    <Download className="w-4 h-4 text-emerald-600" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowExportDropdown(false);
+                      handleExportExcel('ALL');
+                    }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 rounded-xl flex items-center justify-between text-xs text-slate-700 hover:text-emerald-900 transition-colors mt-0.5"
+                  >
+                    <div>
+                      <div className="font-semibold">ข้อมูลทั้งหมดในระบบ</div>
+                      <div className="text-[10px] text-slate-400">จำนวน {requisitions.length} ใบเบิก</div>
+                    </div>
+                    <Download className="w-4 h-4 text-emerald-600" />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -1257,6 +1738,434 @@ export default function StoreRequisitionsClient({
                     <span>บันทึกส่งมอบเรียบร้อย</span>
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 8. Summary Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div
+            className="fixed inset-0"
+            onClick={() => setShowReportModal(false)}
+          />
+
+          <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-indigo-50/40">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-200">
+                  <BarChart3 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <span>รายงานสรุปการเบิกและยืมวัสดุอุปกรณ์</span>
+                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-semibold border border-indigo-200">
+                      Summary Report
+                    </span>
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                    สถิติการขอเบิก สัดส่วนการส่งมอบ การแยกตามบริษัท และยอดรวมวัสดุยอดนิยม
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                {/* Data Scope Switcher */}
+                <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-medium">
+                  <button
+                    onClick={() => setReportScope('FILTERED')}
+                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                      reportScope === 'FILTERED'
+                        ? 'bg-white text-indigo-700 font-bold shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    ตามตัวกรอง ({filteredRequisitions.length})
+                  </button>
+                  <button
+                    onClick={() => setReportScope('ALL')}
+                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                      reportScope === 'ALL'
+                        ? 'bg-white text-indigo-700 font-bold shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    ทั้งหมด ({requisitions.length})
+                  </button>
+                </div>
+
+                {/* Export Button */}
+                <button
+                  onClick={() => handleExportExcel(reportScope)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition-all hover:scale-[1.02]"
+                  title="ดาวน์โหลดไฟล์ Excel รายงานฉบับเต็ม"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span className="hidden sm:inline">ส่งออก</span> Excel
+                </button>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowReportModal(false)}
+                  className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 space-y-6 overflow-y-auto">
+              {/* Scope Notice */}
+              <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-600">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-indigo-600" />
+                  <span>
+                    กำลังสรุปข้อมูล:{' '}
+                    <strong className="text-slate-900">
+                      {reportScope === 'FILTERED'
+                        ? `รายการที่ตรงตามตัวกรองปัจจุบัน (${reportSourceData.length} ฉบับ)`
+                        : `ข้อมูลทั้งหมดในระบบ (${reportSourceData.length} ฉบับ)`}
+                    </strong>
+                  </span>
+                </div>
+                {reportScope === 'FILTERED' && hasActiveFilters && (
+                  <button
+                    onClick={() => setReportScope('ALL')}
+                    className="text-indigo-600 hover:text-indigo-800 font-medium underline"
+                  >
+                    สลับไปดูข้อมูลทั้งหมด
+                  </button>
+                )}
+              </div>
+
+              {/* 1. Metric Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
+                    <span>ใบเบิกทั้งหมด</span>
+                    <Package className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">
+                    {reportStats.totalReqs.toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-slate-500">ใบ</span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1">
+                    รวมทุกสถานะในระบบ
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
+                    <span>จำนวนชิ้นรวม</span>
+                    <TrendingUp className="w-4 h-4 text-indigo-500" />
+                  </div>
+                  <div className="text-2xl font-bold text-indigo-600">
+                    {reportStats.totalQuantity.toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-slate-500">หน่วย</span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1">
+                    จาก {reportStats.totalItems.toLocaleString()} รายการย่อย
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-xl border border-emerald-200/80 bg-emerald-50/20 shadow-sm">
+                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
+                    <span>ส่งมอบสำเร็จ</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <div className="text-2xl font-bold text-emerald-600">
+                    {reportStats.completed.toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-slate-500">ใบ</span>
+                  </div>
+                  <div className="text-[11px] text-emerald-700 font-medium mt-1">
+                    อัตราสำเร็จ {reportStats.fulfillRate}%
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-xl border border-amber-200/80 bg-amber-50/20 shadow-sm">
+                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
+                    <span>รอสโตร์ส่งมอบ</span>
+                    <Clock className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <div className="text-2xl font-bold text-amber-600">
+                    {reportStats.approved.toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-slate-500">ใบ</span>
+                  </div>
+                  <div className="text-[11px] text-amber-700 font-medium mt-1">
+                    อนุมัติแล้ว พร้อมจัดเตรียม
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Company & Requester Distribution (2 columns) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {/* 2A. Company Breakdown */}
+                <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-indigo-600" />
+                      <span>สัดส่วนการเบิกแยกตามบริษัท</span>
+                    </h3>
+                    <span className="text-xs text-slate-400">
+                      รวม {reportStats.totalReqs} ใบ
+                    </span>
+                  </div>
+
+                  <div className="space-y-3.5">
+                    {[
+                      { key: 'TE', label: 'TE (Tera Electric)', color: 'bg-blue-600', badge: 'bg-blue-50 text-blue-700 border-blue-200' },
+                      { key: 'TP', label: 'TP (Tera Power)', color: 'bg-emerald-600', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                      { key: 'TG', label: 'TG (Tera Group)', color: 'bg-purple-600', badge: 'bg-purple-50 text-purple-700 border-purple-200' },
+                      { key: 'OTHER', label: 'อื่นๆ / ไม่ระบุ', color: 'bg-slate-400', badge: 'bg-slate-50 text-slate-600 border-slate-200' },
+                    ].map(comp => {
+                      const data = reportStats.companyBreakdown[comp.key] || { count: 0, itemsCount: 0, quantity: 0 };
+                      const pct = reportStats.totalReqs > 0 ? Math.round((data.count / reportStats.totalReqs) * 100) : 0;
+                      return (
+                        <div key={comp.key} className="space-y-1.5">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-slate-700">{comp.label}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-slate-500 font-medium">
+                                {data.count} ใบ ({pct}%)
+                              </span>
+                              <span className="text-slate-400 text-[11px]">
+                                • {data.quantity.toLocaleString()} ชิ้น
+                              </span>
+                            </div>
+                          </div>
+                          <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${comp.color} rounded-full transition-all duration-500`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2B. Top Requesters */}
+                <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <User className="w-4 h-4 text-indigo-600" />
+                      <span>ผู้ขอเบิกสูงสุด (Top Requesters)</span>
+                    </h3>
+                    <span className="text-xs text-slate-400">
+                      {reportStats.sortedRequesters.length} ท่าน
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+                    {reportStats.sortedRequesters.slice(0, 5).map((req, idx) => (
+                      <div
+                        key={req.name + idx}
+                        className="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl text-xs transition-colors border border-slate-100"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                              idx === 0
+                                ? 'bg-amber-100 text-amber-800'
+                                : idx === 1
+                                ? 'bg-slate-200 text-slate-700'
+                                : idx === 2
+                                ? 'bg-amber-700/20 text-amber-900'
+                                : 'bg-slate-100 text-slate-500'
+                            }`}
+                          >
+                            {idx + 1}
+                          </span>
+                          <span className="font-semibold text-slate-800 truncate">
+                            {req.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-right">
+                          <span className="font-bold text-slate-900">
+                            {req.reqCount} <span className="font-normal text-slate-500">ใบ</span>
+                          </span>
+                          <span className="text-slate-400 text-[11px]">
+                            ({req.quantity.toLocaleString()} หน่วย)
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+
+                    {reportStats.sortedRequesters.length === 0 && (
+                      <div className="text-center py-6 text-slate-400 text-xs">
+                        ไม่มีข้อมูลผู้ขอเบิก
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Material Requisition Analytics */}
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center bg-slate-200/80 p-1 rounded-xl text-xs font-semibold">
+                      <button
+                        onClick={() => setReportActiveTab('OVERVIEW')}
+                        className={`px-3 py-1.5 rounded-lg transition-all ${
+                          reportActiveTab === 'OVERVIEW'
+                            ? 'bg-white text-indigo-700 shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        วัสดุยอดนิยม (Top 10)
+                      </button>
+                      <button
+                        onClick={() => setReportActiveTab('ALL_ITEMS')}
+                        className={`px-3 py-1.5 rounded-lg transition-all ${
+                          reportActiveTab === 'ALL_ITEMS'
+                            ? 'bg-white text-indigo-700 shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        รายการวัสดุทั้งหมด ({reportStats.sortedMaterials.length})
+                      </button>
+                    </div>
+                  </div>
+
+                  {reportActiveTab === 'ALL_ITEMS' && (
+                    <div className="relative min-w-[240px]">
+                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        value={reportSearchQuery}
+                        onChange={(e) => setReportSearchQuery(e.target.value)}
+                        placeholder="ค้นหาชื่อวัสดุ หรือ โครงการ..."
+                        className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      />
+                      {reportSearchQuery && (
+                        <button
+                          onClick={() => setReportSearchQuery('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Table Content */}
+                <div className="overflow-x-auto max-h-[380px] overflow-y-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead className="sticky top-0 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 z-10">
+                      <tr>
+                        <th className="py-2.5 px-3.5 w-12 text-center">อันดับ</th>
+                        <th className="py-2.5 px-3.5">ชื่อรายการวัสดุ / อุปกรณ์</th>
+                        <th className="py-2.5 px-3.5 text-right">ยอดรวมที่เบิก</th>
+                        <th className="py-2.5 px-3.5 w-20 text-center">หน่วยนับ</th>
+                        <th className="py-2.5 px-3.5 text-center">จำนวนใบเบิก</th>
+                        <th className="py-2.5 px-3.5">งาน/โครงการที่นำไปใช้</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                      {(reportActiveTab === 'OVERVIEW'
+                        ? reportStats.sortedMaterials.slice(0, 10)
+                        : filteredReportMaterials
+                      ).map((item, idx) => {
+                        const rank = idx + 1;
+                        return (
+                          <tr key={item.detail + idx} className="hover:bg-indigo-50/30 transition-colors">
+                            <td className="py-2.5 px-3.5 text-center">
+                              {reportActiveTab === 'OVERVIEW' ? (
+                                <span
+                                  className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ${
+                                    rank === 1
+                                      ? 'bg-amber-100 text-amber-800'
+                                      : rank === 2
+                                      ? 'bg-slate-200 text-slate-700'
+                                      : rank === 3
+                                      ? 'bg-amber-700/20 text-amber-900'
+                                      : 'text-slate-500 font-medium'
+                                  }`}
+                                >
+                                  {rank}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400 font-mono text-[11px]">{rank}</span>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-3.5 font-semibold text-slate-900">
+                              {item.detail}
+                            </td>
+                            <td className="py-2.5 px-3.5 text-right font-bold text-indigo-700">
+                              {item.totalQty.toLocaleString()}
+                            </td>
+                            <td className="py-2.5 px-3.5 text-center text-slate-600">
+                              <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
+                                {item.unit || 'ชิ้น'}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3.5 text-center font-medium text-slate-600">
+                              {item.reqCount} ครั้ง
+                            </td>
+                            <td className="py-2.5 px-3.5 text-slate-500 truncate max-w-xs">
+                              {Array.from(item.jobs).length > 0 ? (
+                                <div className="flex flex-wrap gap-1">
+                                  {Array.from(item.jobs).slice(0, 3).map((jb, jIdx) => (
+                                    <span
+                                      key={jIdx}
+                                      className="px-1.5 py-0.5 rounded bg-slate-100 text-[10px] text-slate-600 font-mono"
+                                    >
+                                      {jb}
+                                    </span>
+                                  ))}
+                                  {Array.from(item.jobs).length > 3 && (
+                                    <span className="text-[10px] text-slate-400 self-center">
+                                      +{Array.from(item.jobs).length - 3}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-slate-400">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+
+                      {reportStats.sortedMaterials.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="py-8 text-center text-slate-400">
+                            ไม่พบรายการวัสดุในชุดข้อมูลนี้
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between gap-3 p-4 sm:p-5 border-t border-slate-200 bg-slate-50">
+              <div className="text-xs text-slate-500">
+                ข้อมูลสรุปจาก {reportSourceData.length} ใบเบิก • อัปเดตล่าสุด ณ ปัจจุบัน
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleExportExcel(reportScope)}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition-all hover:scale-[1.02]"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>ส่งออกเป็น Excel (.xlsx)</span>
+                </button>
+                <button
+                  onClick={() => setShowReportModal(false)}
+                  className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all"
+                >
+                  ปิดหน้าต่าง
+                </button>
               </div>
             </div>
           </div>

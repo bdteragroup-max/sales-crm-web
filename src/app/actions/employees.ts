@@ -5,23 +5,18 @@ import { reclaimCoinsOnInactive } from '@/lib/coinReclaim';
 
 export async function setEmployeeInactive(empId: string) {
   try {
-    const previous = await prisma.employees.findUnique({
-      where: { emp_id: empId },
-      select: { is_active: true }
-    });
-
-    // Prevent reclaiming if already inactive
-    if (!previous?.is_active) {
-      return { success: false, reason: "already_inactive" };
-    }
-
-    await prisma.employees.update({
+    await prisma.employees.updateMany({
       where: { emp_id: empId },
       data: { is_active: false }
     });
 
-    await reclaimCoinsOnInactive(empId);
-    return { success: true };
+    await prisma.user.updateMany({
+      where: { employeeId: empId, isActive: true },
+      data: { isActive: false }
+    });
+
+    const res = await reclaimCoinsOnInactive(empId);
+    return { success: true, ...res };
   } catch (error: any) {
     console.error("Error setting employee inactive:", error);
     return { success: false, reason: error.message };
