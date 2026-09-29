@@ -88,6 +88,72 @@ export async function getMarketingLeads() {
       );
       const statusMap = new Map(rawStatuses.map(r => [r.id, r.isContacted]));
       leads.forEach((l: any) => l.isContacted = statusMap.get(l.id) || false);
+
+      // Batch fetch latest Telesale log (call outcome, result, sales reason) for each lead
+      const companyNames = leads.map((l: any) => l.customerName).filter(Boolean);
+      const matchedCompanyIds = leads.map((l: any) => l.matchedCompanyId).filter(Boolean);
+      const companyNamedLeads = leads.map((l: any) => l.companyName).filter(Boolean);
+      const allCompanyNames = Array.from(new Set([...companyNames, ...companyNamedLeads]));
+
+      const companies = await prisma.company.findMany({
+        where: {
+          OR: [
+            { id: { in: matchedCompanyIds } },
+            { companyName: { in: allCompanyNames } }
+          ]
+        },
+        select: {
+          id: true,
+          companyName: true,
+          telesales: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: {
+              id: true,
+              callOutcome: true,
+              result: true,
+              conversationSummary: true,
+              callDate: true,
+              createdAt: true,
+              user: {
+                select: {
+                  fullName: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const companyById = new Map<string, any>();
+      const companyByName = new Map<string, any>();
+      for (const c of companies) {
+        if (c.id) companyById.set(c.id, c);
+        if (c.companyName) companyByName.set(c.companyName.toLowerCase().trim(), c);
+      }
+
+      leads.forEach((lead: any) => {
+        let comp = lead.matchedCompanyId ? companyById.get(lead.matchedCompanyId) : null;
+        if (!comp && lead.customerName) {
+          comp = companyByName.get(lead.customerName.toLowerCase().trim());
+        }
+        if (!comp && lead.companyName) {
+          comp = companyByName.get(lead.companyName.toLowerCase().trim());
+        }
+
+        const latestT = comp?.telesales?.[0] || null;
+        lead.latestTelesale = latestT
+          ? {
+              id: latestT.id,
+              callOutcome: latestT.callOutcome || latestT.result || null,
+              result: latestT.result || null,
+              conversationSummary: latestT.conversationSummary || null,
+              callDate: latestT.callDate || null,
+              createdAt: latestT.createdAt,
+              salesPerson: latestT.user?.fullName || null
+            }
+          : null;
+      });
     }
 
     return { success: true, data: leads }
@@ -151,6 +217,72 @@ export async function getAssignedLeads(userId: string) {
       );
       const statusMap = new Map(rawStatuses.map(r => [r.id, r.isContacted]));
       leads.forEach((l: any) => l.isContacted = statusMap.get(l.id) || false);
+
+      // Batch fetch latest Telesale log
+      const companyNames = leads.map((l: any) => l.customerName).filter(Boolean);
+      const matchedCompanyIds = leads.map((l: any) => l.matchedCompanyId).filter(Boolean);
+      const companyNamedLeads = leads.map((l: any) => l.companyName).filter(Boolean);
+      const allCompanyNames = Array.from(new Set([...companyNames, ...companyNamedLeads]));
+
+      const companies = await prisma.company.findMany({
+        where: {
+          OR: [
+            { id: { in: matchedCompanyIds } },
+            { companyName: { in: allCompanyNames } }
+          ]
+        },
+        select: {
+          id: true,
+          companyName: true,
+          telesales: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: {
+              id: true,
+              callOutcome: true,
+              result: true,
+              conversationSummary: true,
+              callDate: true,
+              createdAt: true,
+              user: {
+                select: {
+                  fullName: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const companyById = new Map<string, any>();
+      const companyByName = new Map<string, any>();
+      for (const c of companies) {
+        if (c.id) companyById.set(c.id, c);
+        if (c.companyName) companyByName.set(c.companyName.toLowerCase().trim(), c);
+      }
+
+      leads.forEach((lead: any) => {
+        let comp = lead.matchedCompanyId ? companyById.get(lead.matchedCompanyId) : null;
+        if (!comp && lead.customerName) {
+          comp = companyByName.get(lead.customerName.toLowerCase().trim());
+        }
+        if (!comp && lead.companyName) {
+          comp = companyByName.get(lead.companyName.toLowerCase().trim());
+        }
+
+        const latestT = comp?.telesales?.[0] || null;
+        lead.latestTelesale = latestT
+          ? {
+              id: latestT.id,
+              callOutcome: latestT.callOutcome || latestT.result || null,
+              result: latestT.result || null,
+              conversationSummary: latestT.conversationSummary || null,
+              callDate: latestT.callDate || null,
+              createdAt: latestT.createdAt,
+              salesPerson: latestT.user?.fullName || null
+            }
+          : null;
+      });
     }
 
     return { success: true, data: leads }
@@ -212,9 +344,20 @@ export async function getMarketingLeadById(id: string) {
         lead.isContacted = rawStatuses[0].isContacted;
       }
       
-      const company = await prisma.company.findFirst({
-        where: { companyName: lead.customerName }
-      });
+      let company = null;
+      if (lead.matchedCompanyId) {
+        company = await prisma.company.findUnique({ where: { id: lead.matchedCompanyId } });
+      }
+      if (!company && lead.customerName) {
+        company = await prisma.company.findFirst({
+          where: { companyName: lead.customerName }
+        });
+      }
+      if (!company && lead.companyName) {
+        company = await prisma.company.findFirst({
+          where: { companyName: lead.companyName }
+        });
+      }
       if (company) {
         const telesales = await prisma.telesale.findMany({
           where: { companyId: company.id },

@@ -191,7 +191,7 @@ export default function LeadSourceBadge({ lead }: { lead: LeadMarketingInfo }) {
     : (adSetCode || adSetName)
 
   return (
-    <div className="flex flex-col gap-1.5 min-w-[160px] max-w-[260px]">
+    <div className="flex flex-col gap-1 w-full max-w-full overflow-hidden">
       {/* Channel Badge with Brand Icon */}
       <div className="flex items-center gap-1.5 flex-wrap">
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${channelStyle.bg}`}>
@@ -203,7 +203,7 @@ export default function LeadSourceBadge({ lead }: { lead: LeadMarketingInfo }) {
       {/* Ad Set Pill with Layers Icon */}
       {formattedAdSetLabel && (
         <div 
-          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 text-slate-800 border border-slate-200/90 text-[11px] font-bold w-fit max-w-full shadow-xs"
+          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 text-slate-800 border border-slate-200/90 text-[11px] font-bold max-w-full shadow-xs truncate"
           title={`ชุดโฆษณา (Ad Set): ${formattedAdSetLabel}`}
         >
           <Layers size={11} className="text-brand-red shrink-0" />

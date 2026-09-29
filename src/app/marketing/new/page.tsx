@@ -64,15 +64,10 @@ export default async function NewMarketingLeadPage() {
   })
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-xl font-black text-gray-900 tracking-tight">สร้างข้อมูลติดต่อใหม่ (New Lead)</h1>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">เพิ่มข้อมูลผู้ติดต่อใหม่เข้าระบบ</p>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <main className="min-h-screen bg-[#F9FAFB]">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full">
         <NewLeadClient userId={payload.userId as string} salesReps={salesReps} campaigns={campaigns} />
       </div>
-    </div>
+    </main>
   )
 }

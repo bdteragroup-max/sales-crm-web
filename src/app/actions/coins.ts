@@ -668,9 +668,21 @@ export async function evaluateBDMonthlyGold(bdUserId: string, month: number, yea
         }
       });
 
-      const totalValidTasks = validTaskCount + tasklessProjects;
+      // 3. Fetch Resolved / Closed Support Tickets from /bd/tickets
+      const resolvedTickets = await tx.supportTicket.count({
+        where: {
+          assigneeId: bdUserId,
+          status: { in: ['RESOLVED', 'CLOSED'] },
+          OR: [
+            { resolvedAt: { gte: monthStart, lte: monthEnd } },
+            { resolvedAt: null, updatedAt: { gte: monthStart, lte: monthEnd } }
+          ]
+        }
+      });
 
-      // 3. Calculate Medals based on tasks
+      const totalValidTasks = validTaskCount + tasklessProjects + resolvedTickets;
+
+      // 4. Calculate Medals based on tasks & tickets
       let targetTierGold = 0;
       if (totalValidTasks >= 50) targetTierGold = 3;
       else if (totalValidTasks >= 30) targetTierGold = 2;
@@ -697,7 +709,7 @@ export async function evaluateBDMonthlyGold(bdUserId: string, month: number, yea
               amount: targetTierGold,
               transaction_type: "EARN",
               source_key: sourceKey,
-              description: `Business Development milestone: ${totalValidTasks} items completed within SLA this month (tier ${targetTierGold})`
+              description: `ผลงานฝ่ายพัฒนาธุรกิจ (BD): ปฏิบัติงานและแก้ไขปัญหาสำเร็จ ${totalValidTasks} รายการประจำเดือน ได้รับระดับ ${targetTierGold}`
             }
           });
         }
@@ -706,7 +718,7 @@ export async function evaluateBDMonthlyGold(bdUserId: string, month: number, yea
       return {
         success: true,
         awardedGold: targetTierGold,
-        stats: { totalValidTasks, validTaskCount, tasklessProjects }
+        stats: { totalValidTasks, validTaskCount, tasklessProjects, resolvedTickets }
       };
     });
   } catch (error) {
@@ -1303,10 +1315,9 @@ export async function evaluatePurchasingMonthlyGold(staffUserId: string, month: 
     const monthKey = `${year}-${String(month).padStart(2, '0')}`;
 
     return await prisma.$transaction(async (tx) => {
-      // Find all POs received in the specified month and reported by this user
+      // Find all POs received in the specified month across the company (Purchasing Team model)
       const purchaseOrders = await tx.purchaseOrder.findMany({
         where: {
-          reportedBy: user.fullName,
           receivedAt: { gte: monthStart, lt: monthEnd }
         },
         include: { purchaseRequest: true }
@@ -1369,7 +1380,7 @@ export async function evaluatePurchasingMonthlyGold(staffUserId: string, month: 
               amount: targetTierGold,
               transaction_type: "EARN",
               source_key: sourceKey,
-              description: `Purchasing milestone: ${validPOCount} valid POs this month (tier ${targetTierGold})`
+              description: `ผลงานทีมฝ่ายจัดซื้อ: ผ่านเกณฑ์ SLA ใบสั่งซื้อ (PO) คุณภาพ ${validPOCount} รายการประจำเดือน ได้รับระดับ ${targetTierGold}`
             }
           });
         }

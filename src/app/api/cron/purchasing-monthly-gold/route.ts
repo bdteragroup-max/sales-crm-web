@@ -14,13 +14,17 @@ export async function GET(request: Request) {
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
 
-    // Find all users with purchasing/procurement roles
+    // Find all active users with purchasing/procurement roles or positions
     const purchasingUsers = await prisma.user.findMany({
       where: {
+        isActive: true,
         OR: [
           { role: { contains: 'purchasing', mode: 'insensitive' } },
           { role: { contains: 'procurement', mode: 'insensitive' } },
-          { role: { contains: 'จัดซื้อ', mode: 'insensitive' } }
+          { role: { contains: 'จัดซื้อ', mode: 'insensitive' } },
+          { position: { contains: 'purchasing', mode: 'insensitive' } },
+          { position: { contains: 'procurement', mode: 'insensitive' } },
+          { position: { contains: 'จัดซื้อ', mode: 'insensitive' } }
         ],
         employeeId: { not: '' }
       }

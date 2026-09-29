@@ -5,6 +5,11 @@ import prisma from '@/app/lib/db'
 import { getMarketingLeadById } from '@/app/actions/marketing'
 import LeadDetailClient from './LeadDetailClient'
 
+export const metadata = {
+  title: 'รายละเอียด Lead | Marketing Leads CRM',
+  description: 'หน้ารายละเอียดและติดตามสถานะลูกค้ามุ่งหวัง การส่งต่องานฝ่ายขาย และช่องทางโฆษณา'
+}
+
 export default async function MarketingLeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const session = (await cookies()).get('session')?.value
@@ -55,8 +60,10 @@ export default async function MarketingLeadDetailPage({ params }: { params: Prom
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <LeadDetailClient lead={lead} salesReps={salesReps} />
-    </div>
+    <main className="min-h-screen bg-[#F9FAFB]">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full">
+        <LeadDetailClient lead={lead} salesReps={salesReps} />
+      </div>
+    </main>
   )
 }

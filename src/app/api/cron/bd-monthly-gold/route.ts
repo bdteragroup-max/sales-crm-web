@@ -18,12 +18,15 @@ export async function GET(request: Request) {
     const month = now.getMonth() + 1; // 1-indexed
     const year = now.getFullYear();
 
-    // Find all BD users
+    // Find all BD users (role or position containing business development or bd)
     const bdUsers = await prisma.user.findMany({
       where: {
+        isActive: true,
         OR: [
           { role: { contains: 'business development', mode: 'insensitive' } },
-          { role: { contains: 'bd', mode: 'insensitive' } }
+          { role: { contains: 'bd', mode: 'insensitive' } },
+          { position: { contains: 'business development', mode: 'insensitive' } },
+          { position: { contains: 'bd', mode: 'insensitive' } }
         ],
         employeeId: { not: '' }
       }
