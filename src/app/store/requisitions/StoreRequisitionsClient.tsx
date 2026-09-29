@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
-import { updateRequisitionStatus } from '@/app/actions/requisitions';
+import { updateRequisitionStatus, returnMaterialRequisition } from '@/app/actions/requisitions';
 
 export interface RequisitionItem {
   detail: string;
@@ -46,6 +46,12 @@ export interface RequisitionItem {
   unit: string;
   job?: string;
   remark?: string;
+  returnedQuantity?: number;
+  returnDate?: string;
+  returnCondition?: string;
+  returnRemark?: string;
+  returnReceiver?: string;
+  returnerName?: string;
 }
 
 export interface Requisition {
@@ -78,17 +84,35 @@ export default function StoreRequisitionsClient({
 
   const [requisitions, setRequisitions] = useState<Requisition[]>(initialRequisitions);
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'ALL' | 'APPROVED' | 'COMPLETED' | 'PENDING_APPROVAL'>('APPROVED');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'APPROVED' | 'COMPLETED' | 'RETURNED' | 'PENDING_APPROVAL'>('APPROVED');
 
   // Modal State
   const [detailReq, setDetailReq] = useState<Requisition | null>(null);
+
+  // Return Modal State
+  const [returnModalReq, setReturnModalReq] = useState<Requisition | null>(null);
+  const [returnDate, setReturnDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [returnerName, setReturnerName] = useState<string>('');
+  const [receiverName, setReceiverName] = useState<string>(userName || '');
+  const [returnNote, setReturnNote] = useState<string>('');
+  const [returnItemsState, setReturnItemsState] = useState<Array<{
+    index: number;
+    isSelected: boolean;
+    detail: string;
+    quantity: number;
+    returnedQuantity: number;
+    unit: string;
+    condition: string;
+    remark: string;
+  }>>([]);
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
 
   // Summary Report & Export States
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportScope, setReportScope] = useState<'FILTERED' | 'ALL'>('FILTERED');
   const [reportSearchQuery, setReportSearchQuery] = useState('');
   const [showExportDropdown, setShowExportDropdown] = useState(false);
-  const [reportActiveTab, setReportActiveTab] = useState<'OVERVIEW' | 'ALL_ITEMS'>('OVERVIEW');
+  const [reportActiveTab, setReportActiveTab] = useState<'OVERVIEW' | 'ALL_ITEMS' | 'RETURN_TRACKING'>('OVERVIEW');
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -136,10 +160,24 @@ export default function StoreRequisitionsClient({
         };
       case 'COMPLETED':
         return {
-          label: 'ส่งมอบเรียบร้อย',
+          label: 'ส่งมอบแล้ว (รอคืน/ใช้งาน)',
           badge: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold',
           icon: CheckCircle2,
           iconColor: 'text-emerald-600'
+        };
+      case 'RETURNED':
+        return {
+          label: 'คืนของเรียบร้อย',
+          badge: 'bg-teal-50 text-teal-800 border-teal-300 font-semibold',
+          icon: RotateCcw,
+          iconColor: 'text-teal-600'
+        };
+      case 'PARTIALLY_RETURNED':
+        return {
+          label: 'คืนบางส่วน',
+          badge: 'bg-indigo-50 text-indigo-800 border-indigo-200 font-semibold',
+          icon: RotateCcw,
+          iconColor: 'text-indigo-600'
         };
       case 'PENDING_APPROVAL':
         return {
@@ -217,12 +255,14 @@ export default function StoreRequisitionsClient({
   const metrics = useMemo(() => {
     let approvedCount = 0;
     let completedCount = 0;
+    let returnedCount = 0;
     let pendingApprovalCount = 0;
     let totalItemsCount = 0;
 
     requisitions.forEach(req => {
       if (req.status === 'APPROVED') approvedCount++;
-      if (req.status === 'COMPLETED') completedCount++;
+      if (req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED') completedCount++;
+      if (req.status === 'RETURNED') returnedCount++;
       if (req.status === 'PENDING_APPROVAL') pendingApprovalCount++;
       if (Array.isArray(req.items)) {
         totalItemsCount += req.items.length;
@@ -233,6 +273,7 @@ export default function StoreRequisitionsClient({
       total: requisitions.length,
       approvedCount,
       completedCount,
+      returnedCount,
       pendingApprovalCount,
       totalItemsCount
     };
@@ -252,10 +293,11 @@ export default function StoreRequisitionsClient({
 
   // Tab Counts
   const tabCounts = useMemo(() => {
-    const counts = { ALL: requisitions.length, APPROVED: 0, COMPLETED: 0, PENDING_APPROVAL: 0 };
+    const counts = { ALL: requisitions.length, APPROVED: 0, COMPLETED: 0, RETURNED: 0, PENDING_APPROVAL: 0 };
     requisitions.forEach(req => {
       if (req.status === 'APPROVED') counts.APPROVED++;
-      if (req.status === 'COMPLETED') counts.COMPLETED++;
+      if (req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED') counts.COMPLETED++;
+      if (req.status === 'RETURNED') counts.RETURNED++;
       if (req.status === 'PENDING_APPROVAL') counts.PENDING_APPROVAL++;
     });
     return counts;
@@ -265,8 +307,12 @@ export default function StoreRequisitionsClient({
   const filteredRequisitions = useMemo(() => {
     return requisitions.filter(req => {
       // 1. Tab Status Filter
-      if (activeTab !== 'ALL' && req.status !== activeTab) {
-        return false;
+      if (activeTab !== 'ALL') {
+        if (activeTab === 'COMPLETED') {
+          if (req.status !== 'COMPLETED' && req.status !== 'PARTIALLY_RETURNED') return false;
+        } else if (req.status !== activeTab) {
+          return false;
+        }
       }
 
       // 2. Company Filter
@@ -331,7 +377,7 @@ export default function StoreRequisitionsClient({
     return filteredRequisitions.slice(start, start + pageSize);
   }, [filteredRequisitions, currentPage]);
 
-  const handleTabChange = (tab: 'ALL' | 'APPROVED' | 'COMPLETED' | 'PENDING_APPROVAL') => {
+  const handleTabChange = (tab: 'ALL' | 'APPROVED' | 'COMPLETED' | 'RETURNED' | 'PENDING_APPROVAL') => {
     setActiveTab(tab);
     setCurrentPage(1);
   };
@@ -362,24 +408,35 @@ export default function StoreRequisitionsClient({
     const totalReqs = reportSourceData.length;
     let approved = 0;
     let completed = 0;
+    let returned = 0;
+    let partiallyReturned = 0;
     let pendingApproval = 0;
     let rejected = 0;
     let totalItems = 0;
     let totalQuantity = 0;
+    let totalReturnedQuantity = 0;
 
-    const companyBreakdown: Record<string, { count: number; itemsCount: number; quantity: number }> = {
-      TE: { count: 0, itemsCount: 0, quantity: 0 },
-      TP: { count: 0, itemsCount: 0, quantity: 0 },
-      TG: { count: 0, itemsCount: 0, quantity: 0 },
-      OTHER: { count: 0, itemsCount: 0, quantity: 0 },
+    const conditionCounts: Record<string, number> = {
+      NORMAL: 0,
+      DAMAGED: 0,
+      LOST: 0
     };
 
-    const requesterMap: Record<string, { name: string; reqCount: number; itemsCount: number; quantity: number }> = {};
+    const companyBreakdown: Record<string, { count: number; itemsCount: number; quantity: number; returnedQuantity: number }> = {
+      TE: { count: 0, itemsCount: 0, quantity: 0, returnedQuantity: 0 },
+      TP: { count: 0, itemsCount: 0, quantity: 0, returnedQuantity: 0 },
+      TG: { count: 0, itemsCount: 0, quantity: 0, returnedQuantity: 0 },
+      OTHER: { count: 0, itemsCount: 0, quantity: 0, returnedQuantity: 0 },
+    };
+
+    const requesterMap: Record<string, { name: string; reqCount: number; itemsCount: number; quantity: number; returnedQuantity: number }> = {};
     const itemAggregateMap: Record<string, {
       detail: string;
       totalQty: number;
+      totalReturnedQty: number;
       unit: string;
       reqCount: number;
+      returnCount: number;
       jobs: Set<string>;
       companies: Set<string>;
       sampleRequesters: Set<string>;
@@ -388,6 +445,8 @@ export default function StoreRequisitionsClient({
     reportSourceData.forEach(req => {
       if (req.status === 'APPROVED') approved++;
       else if (req.status === 'COMPLETED') completed++;
+      else if (req.status === 'RETURNED') returned++;
+      else if (req.status === 'PARTIALLY_RETURNED') partiallyReturned++;
       else if (req.status === 'PENDING_APPROVAL') pendingApproval++;
       else if (req.status === 'REJECTED') rejected++;
 
@@ -400,7 +459,7 @@ export default function StoreRequisitionsClient({
 
       const requester = req.requesterName || 'ไม่ระบุ';
       if (!requesterMap[requester]) {
-        requesterMap[requester] = { name: requester, reqCount: 0, itemsCount: 0, quantity: 0 };
+        requesterMap[requester] = { name: requester, reqCount: 0, itemsCount: 0, quantity: 0, returnedQuantity: 0 };
       }
       requesterMap[requester].reqCount++;
 
@@ -410,13 +469,29 @@ export default function StoreRequisitionsClient({
           const qty = Number(it.quantity) || 1;
           totalQuantity += qty;
 
+          const retQty = it.returnedQuantity !== undefined 
+            ? Number(it.returnedQuantity) 
+            : (req.status === 'RETURNED' ? qty : 0);
+          totalReturnedQuantity += retQty;
+
+          if (it.returnCondition) {
+            const cond = it.returnCondition.toUpperCase();
+            if (conditionCounts[cond] !== undefined) {
+              conditionCounts[cond] += (retQty > 0 ? retQty : 1);
+            }
+          } else if (req.status === 'RETURNED') {
+            conditionCounts.NORMAL += qty;
+          }
+
           if (companyBreakdown[comp]) {
             companyBreakdown[comp].itemsCount++;
             companyBreakdown[comp].quantity += qty;
+            companyBreakdown[comp].returnedQuantity += retQty;
           }
 
           requesterMap[requester].itemsCount++;
           requesterMap[requester].quantity += qty;
+          requesterMap[requester].returnedQuantity += retQty;
 
           const normName = (it.detail || '').trim();
           if (normName) {
@@ -425,15 +500,19 @@ export default function StoreRequisitionsClient({
               itemAggregateMap[key] = {
                 detail: normName,
                 totalQty: 0,
+                totalReturnedQty: 0,
                 unit: it.unit || 'ชิ้น',
                 reqCount: 0,
+                returnCount: 0,
                 jobs: new Set(),
                 companies: new Set(),
                 sampleRequesters: new Set(),
               };
             }
             itemAggregateMap[key].totalQty += qty;
+            itemAggregateMap[key].totalReturnedQty += retQty;
             itemAggregateMap[key].reqCount++;
+            if (retQty > 0) itemAggregateMap[key].returnCount++;
             if (it.job) itemAggregateMap[key].jobs.add(it.job);
             if (req.company) itemAggregateMap[key].companies.add(comp);
             if (req.requesterName) itemAggregateMap[key].sampleRequesters.add(req.requesterName);
@@ -442,6 +521,10 @@ export default function StoreRequisitionsClient({
       }
     });
 
+    const totalPendingReturnQuantity = Math.max(0, totalQuantity - totalReturnedQuantity);
+    const returnRate = totalQuantity > 0 ? Math.round((totalReturnedQuantity / totalQuantity) * 100) : 0;
+    const fulfillRate = totalReqs > 0 ? Math.round(((completed + returned + partiallyReturned) / totalReqs) * 100) : 0;
+
     const sortedMaterials = Object.values(itemAggregateMap).sort((a, b) => b.totalQty - a.totalQty);
     const sortedRequesters = Object.values(requesterMap).sort((a, b) => b.reqCount - a.reqCount);
 
@@ -449,11 +532,17 @@ export default function StoreRequisitionsClient({
       totalReqs,
       approved,
       completed,
+      returned,
+      partiallyReturned,
       pendingApproval,
       rejected,
       totalItems,
       totalQuantity,
-      fulfillRate: totalReqs > 0 ? Math.round((completed / totalReqs) * 100) : 0,
+      totalReturnedQuantity,
+      totalPendingReturnQuantity,
+      returnRate,
+      fulfillRate,
+      conditionCounts,
       companyBreakdown,
       sortedMaterials,
       sortedRequesters
@@ -462,14 +551,18 @@ export default function StoreRequisitionsClient({
 
   // Filtered materials inside the summary report modal
   const filteredReportMaterials = useMemo(() => {
-    if (!reportSearchQuery.trim()) return reportStats.sortedMaterials;
+    let list = reportStats.sortedMaterials;
+    if (reportActiveTab === 'RETURN_TRACKING') {
+      list = [...reportStats.sortedMaterials].sort((a, b) => b.totalReturnedQty - a.totalReturnedQty);
+    }
+    if (!reportSearchQuery.trim()) return list;
     const q = reportSearchQuery.toLowerCase().trim();
-    return reportStats.sortedMaterials.filter(m =>
+    return list.filter(m =>
       m.detail.toLowerCase().includes(q) ||
       m.unit.toLowerCase().includes(q) ||
       Array.from(m.jobs).some(j => j.toLowerCase().includes(q))
     );
-  }, [reportStats.sortedMaterials, reportSearchQuery]);
+  }, [reportStats.sortedMaterials, reportSearchQuery, reportActiveTab]);
 
   // Export to Excel handler
   const handleExportExcel = (scope: 'FILTERED' | 'ALL' = reportScope) => {
@@ -495,16 +588,28 @@ export default function StoreRequisitionsClient({
       // --- Sheet 1: สรุปภาพรวม (Summary) ---
       let approvedCount = 0;
       let completedCount = 0;
+      let returnedCount = 0;
+      let partiallyReturnedCount = 0;
       let pendingCount = 0;
       let rejectedCount = 0;
       let totalItems = 0;
       let totalQty = 0;
+      let totalReturnedQty = 0;
+
+      const conditionStats: Record<string, number> = {
+        NORMAL: 0,
+        DAMAGED: 0,
+        LOST: 0,
+      };
+
       const compStats: Record<string, number> = { TE: 0, TP: 0, TG: 0, OTHER: 0 };
-      const itemAggMap: Record<string, { detail: string; qty: number; unit: string; count: number; jobs: Set<string> }> = {};
+      const itemAggMap: Record<string, { detail: string; qty: number; returnedQty: number; unit: string; count: number; jobs: Set<string> }> = {};
 
       dataToExport.forEach(r => {
         if (r.status === 'APPROVED') approvedCount++;
         else if (r.status === 'COMPLETED') completedCount++;
+        else if (r.status === 'RETURNED') returnedCount++;
+        else if (r.status === 'PARTIALLY_RETURNED') partiallyReturnedCount++;
         else if (r.status === 'PENDING_APPROVAL') pendingCount++;
         else if (r.status === 'REJECTED') rejectedCount++;
 
@@ -516,12 +621,28 @@ export default function StoreRequisitionsClient({
             totalItems++;
             const q = Number(it.quantity) || 1;
             totalQty += q;
+
+            const retQ = it.returnedQuantity !== undefined 
+              ? Number(it.returnedQuantity) 
+              : (r.status === 'RETURNED' ? q : 0);
+            totalReturnedQty += retQ;
+
+            if (it.returnCondition) {
+              const cond = it.returnCondition.toUpperCase();
+              if (conditionStats[cond] !== undefined) {
+                conditionStats[cond] += (retQ > 0 ? retQ : 1);
+              }
+            } else if (r.status === 'RETURNED') {
+              conditionStats.NORMAL += q;
+            }
+
             const key = (it.detail || '').trim().toLowerCase();
             if (key) {
               if (!itemAggMap[key]) {
-                itemAggMap[key] = { detail: (it.detail || '').trim(), qty: 0, unit: it.unit || 'ชิ้น', count: 0, jobs: new Set() };
+                itemAggMap[key] = { detail: (it.detail || '').trim(), qty: 0, returnedQty: 0, unit: it.unit || 'ชิ้น', count: 0, jobs: new Set() };
               }
               itemAggMap[key].qty += q;
+              itemAggMap[key].returnedQty += retQ;
               itemAggMap[key].count++;
               if (it.job) itemAggMap[key].jobs.add(it.job);
             }
@@ -529,39 +650,53 @@ export default function StoreRequisitionsClient({
         }
       });
 
+      const totalPendingReturnQty = Math.max(0, totalQty - totalReturnedQty);
+      const returnRate = totalQty > 0 ? `${((totalReturnedQty / totalQty) * 100).toFixed(1)}%` : '0%';
+      const fulfillRate = dataToExport.length > 0 ? `${(((completedCount + returnedCount + partiallyReturnedCount) / dataToExport.length) * 100).toFixed(1)}%` : '0%';
+
       const top15 = Object.values(itemAggMap).sort((a, b) => b.qty - a.qty).slice(0, 15);
 
       const summaryRows: any[][] = [
-        ['รายงานสรุปการเบิกและยืมวัสดุอุปกรณ์ - คลังสินค้า Tera Group'],
+        ['รายงานสรุปการเบิกและยืม-คืนวัสดุอุปกรณ์ - คลังสินค้า Tera Group'],
         [`วันที่ส่งออกข้อมูล: ${dateStr}`, `ขอบเขตข้อมูล: ${scope === 'FILTERED' ? 'ตามตัวกรองปัจจุบัน' : 'ข้อมูลทั้งหมด'}`],
         [],
         ['1. สรุปภาพรวมสถานะใบเบิก'],
-        ['สถานะ', 'จำนวนใบเบิก (ฉบับ)', 'สัดส่วน (%)'],
-        ['ส่งมอบเรียบร้อย (Completed)', completedCount, dataToExport.length > 0 ? `${((completedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        ['สถานะใบเบิก', 'จำนวนใบเบิก (ฉบับ)', 'สัดส่วน (%)'],
+        ['ส่งมอบแล้ว / รอคืน (Completed)', completedCount, dataToExport.length > 0 ? `${((completedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        ['คืนของเรียบร้อย (Returned)', returnedCount, dataToExport.length > 0 ? `${((returnedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        ['คืนบางส่วน (Partially Returned)', partiallyReturnedCount, dataToExport.length > 0 ? `${((partiallyReturnedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
         ['รอจัดของ / รอส่งมอบ (Approved)', approvedCount, dataToExport.length > 0 ? `${((approvedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
         ['รอหัวหน้าอนุมัติ (Pending Approval)', pendingCount, dataToExport.length > 0 ? `${((pendingCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
         ['ไม่อนุมัติ (Rejected)', rejectedCount, dataToExport.length > 0 ? `${((rejectedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
         ['รวมใบเบิกทั้งหมด', dataToExport.length, '100%'],
         [],
-        ['2. สถิติวัสดุอุปกรณ์'],
-        ['ตัวชี้วัด', 'ค่า'],
-        ['จำนวนรายการวัสดุรวม (Item entries)', totalItems],
-        ['ยอดจำนวนชิ้น/หน่วยรวม (Total units)', totalQty],
-        ['อัตราส่งมอบสำเร็จ (Fulfill rate)', dataToExport.length > 0 ? `${((completedCount / dataToExport.length) * 100).toFixed(1)}%` : '0%'],
+        ['2. สถิติวัสดุอุปกรณ์และการคืนของ'],
+        ['ตัวชี้วัด', 'ค่า', 'หน่วย'],
+        ['จำนวนรายการวัสดุรวม (Item entries)', totalItems, 'รายการ'],
+        ['ยอดจำนวนชิ้นที่เบิกทั้งหมด (Total Requisitioned Units)', totalQty, 'หน่วย/ชิ้น'],
+        ['ยอดจำนวนชิ้นที่รับคืนเข้าสโตร์แล้ว (Total Returned Units)', totalReturnedQty, 'หน่วย/ชิ้น'],
+        ['ยอดจำนวนชิ้นคงค้างยังไม่คืน (Pending Return Units)', totalPendingReturnQty, 'หน่วย/ชิ้น'],
+        ['อัตราการรับคืนของ (Return Rate)', returnRate, '-'],
+        ['อัตราการส่งมอบของ (Fulfill Rate)', fulfillRate, '-'],
+        ['สภาพอุปกรณ์ที่รับคืน: สภาพปกติ (พร้อมใช้งาน)', conditionStats.NORMAL, 'หน่วย/ชิ้น'],
+        ['สภาพอุปกรณ์ที่รับคืน: ชำรุด (ส่งซ่อม)', conditionStats.DAMAGED, 'หน่วย/ชิ้น'],
+        ['สภาพอุปกรณ์ที่รับคืน: สูญหาย', conditionStats.LOST, 'หน่วย/ชิ้น'],
         [],
         ['3. แยกตามบริษัท'],
-        ['บริษัท', 'จำนวนใบเบิก'],
+        ['บริษัท', 'จำนวนใบเบิก (ฉบับ)'],
         ['TE (Tera Electric)', compStats.TE || 0],
         ['TP (Tera Power)', compStats.TP || 0],
         ['TG (Tera Group)', compStats.TG || 0],
         ['อื่นๆ / ไม่ระบุ', compStats.OTHER || 0],
         [],
         ['4. รายการวัสดุ/อุปกรณ์ที่มีการเบิกมากที่สุด (Top 15 Items)'],
-        ['อันดับ', 'ชื่อรายการวัสดุอุปกรณ์', 'จำนวนรวมที่เบิก', 'หน่วยนับ', 'จำนวนครั้งที่เบิก', 'งาน/โครงการที่นำไปใช้'],
+        ['อันดับ', 'ชื่อรายการวัสดุอุปกรณ์', 'จำนวนเบิกทั้งหมด', 'จำนวนที่คืนแล้ว', 'คงค้างคืน', 'หน่วยนับ', 'จำนวนครั้งที่เบิก', 'งาน/โครงการที่นำไปใช้'],
         ...top15.map((item, idx) => [
           idx + 1,
           item.detail,
           item.qty,
+          item.returnedQty,
+          Math.max(0, item.qty - item.returnedQty),
           item.unit,
           item.count,
           Array.from(item.jobs).slice(0, 3).join(', ') || '-'
@@ -580,13 +715,21 @@ export default function StoreRequisitionsClient({
         'บริษัท',
         'ผู้ขอเบิก',
         'ผู้อนุมัติ',
-        'สถานะ',
+        'สถานะใบเบิก',
         'ลำดับรายการ',
         'ชื่อรายการวัสดุ/อุปกรณ์',
-        'จำนวน',
+        'จำนวนที่เบิก',
+        'จำนวนที่คืนแล้ว',
+        'จำนวนคงค้างคืน',
         'หน่วยนับ',
+        'สถานะการคืน',
+        'สภาพอุปกรณ์ที่คืน',
+        'วันที่รับคืน',
+        'ผู้ส่งคืนอุปกรณ์',
+        'เจ้าหน้าที่สโตร์ผู้รับคืน',
+        'หมายเหตุการคืน',
         'งาน/Job ที่ใช้',
-        'หมายเหตุ'
+        'หมายเหตุการเบิก'
       ];
 
       const itemsRows: any[][] = [];
@@ -599,6 +742,39 @@ export default function StoreRequisitionsClient({
 
         if (Array.isArray(req.items) && req.items.length > 0) {
           req.items.forEach((item, itemIdx) => {
+            const origQty = Number(item.quantity) || 1;
+            const retQty = item.returnedQuantity !== undefined 
+              ? Number(item.returnedQuantity) 
+              : (req.status === 'RETURNED' ? origQty : 0);
+            const pendingQty = Math.max(0, origQty - retQty);
+
+            let returnStatusText = 'ยังไม่คืน';
+            if (req.status === 'APPROVED' || req.status === 'PENDING_APPROVAL') {
+              returnStatusText = 'ยังไม่ส่งมอบ';
+            } else if (retQty >= origQty && origQty > 0) {
+              returnStatusText = 'คืนครบถ้วน';
+            } else if (retQty > 0) {
+              returnStatusText = 'คืนบางส่วน';
+            }
+
+            let conditionText = '-';
+            if (item.returnCondition) {
+              const c = item.returnCondition.toUpperCase();
+              if (c === 'NORMAL') conditionText = 'สภาพปกติ (พร้อมใช้)';
+              else if (c === 'DAMAGED') conditionText = 'ชำรุด (ส่งซ่อม)';
+              else if (c === 'LOST') conditionText = 'สูญหาย';
+              else conditionText = item.returnCondition;
+            } else if (req.status === 'RETURNED') {
+              conditionText = 'สภาพปกติ (พร้อมใช้)';
+            }
+
+            const retDate = item.returnDate 
+              ? formatThaiDate(item.returnDate) 
+              : (req.status === 'RETURNED' && req.updatedAt ? formatThaiDate(req.updatedAt) : '-');
+            const returner = item.returnerName || (retQty > 0 ? (req.requesterName || '-') : '-');
+            const receiver = item.returnReceiver || (retQty > 0 ? 'เจ้าหน้าที่สโตร์' : '-');
+            const retRemark = item.returnRemark || '-';
+
             itemsRows.push([
               globalItemIndex++,
               req.requisitionNumber,
@@ -609,8 +785,16 @@ export default function StoreRequisitionsClient({
               statusLabel,
               itemIdx + 1,
               item.detail || '-',
-              Number(item.quantity) || item.quantity || 1,
+              origQty,
+              retQty,
+              pendingQty,
               item.unit || '-',
+              returnStatusText,
+              conditionText,
+              retDate,
+              returner,
+              receiver,
+              retRemark,
               item.job || '-',
               item.remark || '-'
             ]);
@@ -627,6 +811,14 @@ export default function StoreRequisitionsClient({
             '-',
             '(ไม่มีรายการ)',
             0,
+            0,
+            0,
+            '-',
+            '-',
+            '-',
+            '-',
+            '-',
+            '-',
             '-',
             '-',
             '-'
@@ -640,15 +832,23 @@ export default function StoreRequisitionsClient({
         { wch: 18 }, // เลขที่ใบเบิก
         { wch: 16 }, // วันที่เบิก
         { wch: 10 }, // บริษัท
-        { wch: 24 }, // ผู้ขอเบิก
-        { wch: 24 }, // ผู้อนุมัติ
+        { wch: 22 }, // ผู้ขอเบิก
+        { wch: 22 }, // ผู้อนุมัติ
         { wch: 22 }, // สถานะ
         { wch: 12 }, // ลำดับรายการ
-        { wch: 40 }, // ชื่อรายการวัสดุ
-        { wch: 12 }, // จำนวน
-        { wch: 12 }, // หน่วยนับ
-        { wch: 25 }, // งานที่ใช้
-        { wch: 25 }  // หมายเหตุ
+        { wch: 35 }, // ชื่อรายการวัสดุ
+        { wch: 12 }, // จำนวนเบิก
+        { wch: 14 }, // จำนวนคืนแล้ว
+        { wch: 14 }, // คงค้างคืน
+        { wch: 10 }, // หน่วยนับ
+        { wch: 16 }, // สถานะการคืน
+        { wch: 22 }, // สภาพอุปกรณ์
+        { wch: 16 }, // วันที่รับคืน
+        { wch: 20 }, // ผู้ส่งคืน
+        { wch: 22 }, // เจ้าหน้าที่รับคืน
+        { wch: 25 }, // หมายเหตุการคืน
+        { wch: 22 }, // งานที่ใช้
+        { wch: 22 }  // หมายเหตุเดิม
       ];
       XLSX.utils.book_append_sheet(wb, wsItems, 'รายการวัสดุรายชิ้น');
 
@@ -660,9 +860,15 @@ export default function StoreRequisitionsClient({
         'บริษัท',
         'ผู้ขอเบิก',
         'ผู้อนุมัติ',
-        'สถานะ',
+        'สถานะใบเบิก',
         'จำนวนชนิดสิ่งของ (รายการ)',
-        'จำนวนชิ้นรวม (หน่วย)',
+        'จำนวนชิ้นเบิกรวม (หน่วย)',
+        'จำนวนชิ้นคืนแล้ว (หน่วย)',
+        'จำนวนชิ้นคงค้างคืน (หน่วย)',
+        'สถานะการคืนภาพรวม',
+        'วันที่รับคืนล่าสุด',
+        'ผู้ส่งคืน',
+        'เจ้าหน้าที่สโตร์ผู้รับคืน',
         'รายการอุปกรณ์ (สรุป)'
       ];
 
@@ -672,7 +878,33 @@ export default function StoreRequisitionsClient({
         const statusLabel = getStatusBadge(req.status).label;
         const itemCount = req.items?.length || 0;
         const totalUnits = req.items?.reduce((sum, it) => sum + (Number(it.quantity) || 1), 0) || 0;
-        const itemsSummary = req.items?.map(it => `${it.detail} (${it.quantity} ${it.unit})`).slice(0, 5).join('; ') || '-';
+        const returnedUnits = req.items?.reduce((sum, it) => {
+          const q = Number(it.quantity) || 1;
+          const rq = it.returnedQuantity !== undefined ? Number(it.returnedQuantity) : (req.status === 'RETURNED' ? q : 0);
+          return sum + rq;
+        }, 0) || 0;
+        const pendingUnits = Math.max(0, totalUnits - returnedUnits);
+
+        let overallReturnStatus = '-';
+        if (req.status === 'RETURNED') overallReturnStatus = 'คืนของครบแล้ว';
+        else if (req.status === 'PARTIALLY_RETURNED') overallReturnStatus = 'คืนบางส่วน';
+        else if (req.status === 'COMPLETED') overallReturnStatus = 'ส่งมอบแล้ว / รอคืน';
+        else if (req.status === 'APPROVED') overallReturnStatus = 'รอจัดของส่งมอบ';
+        else if (req.status === 'PENDING_APPROVAL') overallReturnStatus = 'รออนุมัติ';
+
+        const latestRetDateItem = req.items?.find(it => it.returnDate);
+        const latestRetDate = latestRetDateItem?.returnDate 
+          ? formatThaiDate(latestRetDateItem.returnDate) 
+          : (req.status === 'RETURNED' && req.updatedAt ? formatThaiDate(req.updatedAt) : '-');
+
+        const returner = latestRetDateItem?.returnerName || (req.status === 'RETURNED' ? (req.requesterName || '-') : '-');
+        const receiver = latestRetDateItem?.returnReceiver || (req.status === 'RETURNED' ? 'เจ้าหน้าที่สโตร์' : '-');
+
+        const itemsSummary = req.items?.map(it => {
+          const q = it.quantity;
+          const rq = it.returnedQuantity !== undefined ? ` (คืนแล้ว ${it.returnedQuantity})` : '';
+          return `${it.detail} [${q} ${it.unit}]${rq}`;
+        }).slice(0, 5).join('; ') || '-';
 
         return [
           idx + 1,
@@ -684,6 +916,12 @@ export default function StoreRequisitionsClient({
           statusLabel,
           itemCount,
           totalUnits,
+          returnedUnits,
+          pendingUnits,
+          overallReturnStatus,
+          latestRetDate,
+          returner,
+          receiver,
           itemsSummary
         ];
       });
@@ -694,11 +932,17 @@ export default function StoreRequisitionsClient({
         { wch: 18 }, // เลขที่ใบเบิก
         { wch: 16 }, // วันที่
         { wch: 10 }, // บริษัท
-        { wch: 24 }, // ผู้ขอเบิก
-        { wch: 24 }, // ผู้อนุมัติ
+        { wch: 22 }, // ผู้ขอเบิก
+        { wch: 22 }, // ผู้อนุมัติ
         { wch: 22 }, // สถานะ
         { wch: 24 }, // จำนวนชนิด
-        { wch: 20 }, // จำนวนชิ้นรวม
+        { wch: 18 }, // เบิกรวม
+        { wch: 18 }, // คืนแล้ว
+        { wch: 18 }, // คงค้างคืน
+        { wch: 20 }, // สถานะการคืนภาพรวม
+        { wch: 18 }, // วันที่คืนล่าสุด
+        { wch: 20 }, // ผู้ส่งคืน
+        { wch: 22 }, // เจ้าหน้าที่รับคืน
         { wch: 60 }  // สรุปอุปกรณ์
       ];
       XLSX.utils.book_append_sheet(wb, wsReqs, 'สรุปตามใบเบิก');
@@ -708,33 +952,138 @@ export default function StoreRequisitionsClient({
         'ลำดับ',
         'ชื่อรายการวัสดุ/อุปกรณ์',
         'ยอดรวมจำนวนที่เบิก',
+        'ยอดรวมจำนวนที่คืนแล้ว',
+        'ยอดรวมคงค้างคืน',
         'หน่วยนับ',
+        'อัตราการคืน (%)',
         'จำนวนใบเบิกที่ขอ',
         'งาน/โครงการที่นำไปใช้'
       ];
 
       const allAggregated = Object.values(itemAggMap).sort((a, b) => b.qty - a.qty);
-      const aggRows = allAggregated.map((it, idx) => [
-        idx + 1,
-        it.detail,
-        it.qty,
-        it.unit,
-        it.count,
-        Array.from(it.jobs).join(', ') || '-'
-      ]);
+      const aggRows = allAggregated.map((it, idx) => {
+        const retRate = it.qty > 0 ? `${((it.returnedQty / it.qty) * 100).toFixed(1)}%` : '0%';
+        const pending = Math.max(0, it.qty - it.returnedQty);
+        return [
+          idx + 1,
+          it.detail,
+          it.qty,
+          it.returnedQty,
+          pending,
+          it.unit,
+          retRate,
+          it.count,
+          Array.from(it.jobs).join(', ') || '-'
+        ];
+      });
 
       const wsAgg = XLSX.utils.aoa_to_sheet([aggHeader, ...aggRows]);
       wsAgg['!cols'] = [
         { wch: 8 },  // ลำดับ
-        { wch: 45 }, // ชื่อรายการ
-        { wch: 20 }, // ยอดรวมจำนวน
-        { wch: 12 }, // หน่วยนับ
-        { wch: 18 }, // จำนวนใบเบิก
+        { wch: 40 }, // ชื่อรายการ
+        { wch: 18 }, // ยอดเบิก
+        { wch: 18 }, // ยอดคืนแล้ว
+        { wch: 18 }, // คงค้างคืน
+        { wch: 10 }, // หน่วยนับ
+        { wch: 16 }, // อัตราการคืน
+        { wch: 16 }, // จำนวนใบเบิก
         { wch: 45 }  // งานที่ใช้
       ];
       XLSX.utils.book_append_sheet(wb, wsAgg, 'สรุปยอดรวมตามวัสดุ');
 
-      const filename = `รายงานการเบิกวัสดุอุปกรณ์_คลังสินค้า_${isoDate}.xlsx`;
+      // --- Sheet 5: ประวัติการรับคืนอุปกรณ์ (Return Records) ---
+      const returnHeader = [
+        'ลำดับ',
+        'เลขที่ใบเบิก',
+        'วันที่รับคืน',
+        'บริษัท',
+        'ผู้ขอเบิก/ผู้ยืม',
+        'ผู้ส่งคืนอุปกรณ์',
+        'เจ้าหน้าที่สโตร์ผู้รับคืน',
+        'ชื่อรายการวัสดุ/อุปกรณ์',
+        'จำนวนที่เบิกไป',
+        'จำนวนที่รับคืน',
+        'จำนวนคงค้าง',
+        'หน่วยนับ',
+        'สภาพอุปกรณ์',
+        'หมายเหตุการคืน',
+        'งาน/โครงการที่นำไปใช้'
+      ];
+
+      const returnRows: any[][] = [];
+      let globalReturnIndex = 1;
+
+      dataToExport.forEach(req => {
+        const comp = normalizeCompany(req.company);
+        if (Array.isArray(req.items)) {
+          req.items.forEach(item => {
+            const origQty = Number(item.quantity) || 1;
+            const retQty = item.returnedQuantity !== undefined 
+              ? Number(item.returnedQuantity) 
+              : (req.status === 'RETURNED' ? origQty : 0);
+
+            if (retQty > 0 || req.status === 'RETURNED' || req.status === 'PARTIALLY_RETURNED') {
+              const pendingQty = Math.max(0, origQty - retQty);
+              let conditionText = 'สภาพปกติ (พร้อมใช้)';
+              if (item.returnCondition) {
+                const c = item.returnCondition.toUpperCase();
+                if (c === 'NORMAL') conditionText = 'สภาพปกติ (พร้อมใช้)';
+                else if (c === 'DAMAGED') conditionText = 'ชำรุด (ส่งซ่อม)';
+                else if (c === 'LOST') conditionText = 'สูญหาย';
+                else conditionText = item.returnCondition;
+              }
+
+              const retDate = item.returnDate 
+                ? formatThaiDate(item.returnDate) 
+                : (req.updatedAt ? formatThaiDate(req.updatedAt) : '-');
+
+              returnRows.push([
+                globalReturnIndex++,
+                req.requisitionNumber,
+                retDate,
+                comp,
+                req.requesterName || '-',
+                item.returnerName || req.requesterName || '-',
+                item.returnReceiver || 'เจ้าหน้าที่สโตร์',
+                item.detail || '-',
+                origQty,
+                retQty,
+                pendingQty,
+                item.unit || '-',
+                conditionText,
+                item.returnRemark || '-',
+                item.job || '-'
+              ]);
+            }
+          });
+        }
+      });
+
+      if (returnRows.length === 0) {
+        returnRows.push(['-', '-', '-', '-', '-', '-', '-', 'ยังไม่มีประวัติการรับคืนอุปกรณ์ในชุดข้อมูลนี้', 0, 0, 0, '-', '-', '-', '-']);
+      }
+
+      const wsReturn = XLSX.utils.aoa_to_sheet([returnHeader, ...returnRows]);
+      wsReturn['!cols'] = [
+        { wch: 8 },  // ลำดับ
+        { wch: 18 }, // เลขที่ใบเบิก
+        { wch: 16 }, // วันที่รับคืน
+        { wch: 10 }, // บริษัท
+        { wch: 22 }, // ผู้ขอเบิก
+        { wch: 22 }, // ผู้ส่งคืน
+        { wch: 24 }, // เจ้าหน้าที่รับคืน
+        { wch: 35 }, // รายการอุปกรณ์
+        { wch: 14 }, // เบิกไป
+        { wch: 14 }, // รับคืน
+        { wch: 14 }, // คงค้าง
+        { wch: 10 }, // หน่วยนับ
+        { wch: 22 }, // สภาพอุปกรณ์
+        { wch: 25 }, // หมายเหตุการคืน
+        { wch: 25 }  // งานที่ใช้
+      ];
+      XLSX.utils.book_append_sheet(wb, wsReturn, 'ประวัติการรับคืนอุปกรณ์');
+
+      const filename = `รายงานการเบิกและคืนวัสดุอุปกรณ์_คลังสินค้า_${isoDate}.xlsx`;
       XLSX.writeFile(wb, filename);
 
       Swal.fire({
@@ -831,6 +1180,177 @@ export default function StoreRequisitionsClient({
         title: 'เกิดข้อผิดพลาด',
         text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'
       });
+    } finally {
+      setLoadingMap(prev => ({ ...prev, [req.id]: false }));
+    }
+  };
+
+  // Action: Open Return Modal
+  const openReturnModal = (req: Requisition) => {
+    setReturnModalReq(req);
+    setReturnDate(new Date().toISOString().slice(0, 10));
+    setReturnerName(req.requesterName || '');
+    setReceiverName(userName || 'เจ้าหน้าที่สโตร์');
+    setReturnNote('');
+
+    const items = Array.isArray(req.items) ? req.items : [];
+    const initialItemsState = items.map((it, idx) => {
+      const origQty = Number(it.quantity) || 1;
+      const prevReturnedQty = it.returnedQuantity !== undefined ? Number(it.returnedQuantity) : origQty;
+      return {
+        index: idx,
+        isSelected: true,
+        detail: it.detail || `รายการที่ ${idx + 1}`,
+        quantity: origQty,
+        returnedQuantity: prevReturnedQty,
+        unit: it.unit || 'ชิ้น',
+        condition: it.returnCondition || 'NORMAL',
+        remark: it.returnRemark || '',
+      };
+    });
+    setReturnItemsState(initialItemsState);
+  };
+
+  // Action: Submit Return
+  const handleSubmitReturn = async () => {
+    if (!returnModalReq) return;
+
+    const selectedItems = returnItemsState.filter(it => it.isSelected);
+    if (selectedItems.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณาเลือกรายการที่คืน',
+        text: 'ต้องมีรายการอุปกรณ์ที่เลือกรับคืนอย่างน้อย 1 รายการ',
+      });
+      return;
+    }
+
+    const allItemsSelected = returnItemsState.every(it => it.isSelected && it.returnedQuantity >= it.quantity);
+    const targetStatus = allItemsSelected ? 'RETURNED' : 'PARTIALLY_RETURNED';
+
+    setIsSubmittingReturn(true);
+    try {
+      const res = await returnMaterialRequisition(returnModalReq.id, {
+        status: targetStatus,
+        returnedItems: returnItemsState.filter(it => it.isSelected).map(it => ({
+          index: it.index,
+          returnedQuantity: it.returnedQuantity,
+          returnDate: returnDate,
+          returnCondition: it.condition,
+          returnRemark: it.remark,
+        })),
+        returnNote,
+        returnerName,
+        receiverName,
+      });
+
+      if (res.success) {
+        setRequisitions(prev =>
+          prev.map(r => {
+            if (r.id === returnModalReq.id) {
+              const updatedItems = (Array.isArray(r.items) ? r.items : []).map((it, idx) => {
+                const retInfo = returnItemsState.find(ri => ri.index === idx && ri.isSelected);
+                if (retInfo) {
+                  return {
+                    ...it,
+                    returnedQuantity: retInfo.returnedQuantity,
+                    returnDate,
+                    returnCondition: retInfo.condition,
+                    returnRemark: retInfo.remark,
+                    returnReceiver: receiverName,
+                    returnerName,
+                  };
+                }
+                return it;
+              });
+              return {
+                ...r,
+                status: targetStatus,
+                items: updatedItems,
+              };
+            }
+            return r;
+          })
+        );
+
+        if (detailReq?.id === returnModalReq.id) {
+          setDetailReq(prev => prev ? { ...prev, status: targetStatus } : null);
+        }
+
+        setReturnModalReq(null);
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: targetStatus === 'RETURNED'
+            ? `บันทึกรับคืนครบถ้วน (ใบเบิก ${returnModalReq.requisitionNumber})`
+            : `บันทึกรับคืนบางส่วน (ใบเบิก ${returnModalReq.requisitionNumber})`,
+          showConfirmButton: false,
+          timer: 2500,
+        });
+
+        router.refresh();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: res.error || 'ไม่สามารถบันทึกรับคืนได้',
+        });
+      }
+    } catch (e: any) {
+      console.error(e);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
+      });
+    } finally {
+      setIsSubmittingReturn(false);
+    }
+  };
+
+  // Action: Cancel / Revert Return
+  const handleCancelReturn = async (req: Requisition) => {
+    const result = await Swal.fire({
+      title: 'ยกเลิกสถานะการคืนของ?',
+      text: `ต้องการเปลี่ยนสถานะใบเบิก ${req.requisitionNumber} กลับเป็น "ส่งมอบเรียบร้อย" (รอคืน) หรือไม่?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d97706',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'ใช่, เปลี่ยนกลับ',
+      cancelButtonText: 'ยกเลิก',
+    });
+
+    if (!result.isConfirmed) return;
+
+    setLoadingMap(prev => ({ ...prev, [req.id]: true }));
+    try {
+      const res = await updateRequisitionStatus(req.id, 'COMPLETED');
+      if (res.success) {
+        setRequisitions(prev =>
+          prev.map(r => (r.id === req.id ? { ...r, status: 'COMPLETED' } : r))
+        );
+        if (detailReq?.id === req.id) {
+          setDetailReq(prev => prev ? { ...prev, status: 'COMPLETED' } : null);
+        }
+        setReturnModalReq(null);
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: `เปลี่ยนสถานะใบเบิก ${req.requisitionNumber} กลับเป็นส่งมอบแล้ว`,
+          showConfirmButton: false,
+          timer: 2000,
+        });
+        router.refresh();
+      } else {
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: res.error });
+      }
+    } catch (e: any) {
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message });
     } finally {
       setLoadingMap(prev => ({ ...prev, [req.id]: false }));
     }
@@ -957,7 +1477,7 @@ export default function StoreRequisitionsClient({
       </div>
 
       {/* 2. Top KPI Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
         {/* Card 1: Approved - Waiting for Dispatch */}
         <div
           onClick={() => handleTabChange('APPROVED')}
@@ -983,7 +1503,7 @@ export default function StoreRequisitionsClient({
           </div>
         </div>
 
-        {/* Card 2: Completed */}
+        {/* Card 2: Completed / Awaiting Return */}
         <div
           onClick={() => handleTabChange('COMPLETED')}
           className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
@@ -993,7 +1513,7 @@ export default function StoreRequisitionsClient({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-700">ส่งมอบเรียบร้อย</span>
+            <span className="text-xs font-semibold text-emerald-700">ส่งมอบแล้ว / รอคืน</span>
             <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
@@ -1003,12 +1523,37 @@ export default function StoreRequisitionsClient({
               {metrics.completedCount.toLocaleString()} <span className="text-sm font-normal text-emerald-400">รายการ</span>
             </div>
             <div className="text-xs text-emerald-700/80 mt-1 font-medium">
-              ส่งมอบของและบันทึกเสร็จสิ้น
+              ส่งมอบของแล้ว / อยู่ระหว่างใช้งาน
             </div>
           </div>
         </div>
 
-        {/* Card 3: Pending Approval */}
+        {/* Card 3: Returned */}
+        <div
+          onClick={() => handleTabChange('RETURNED')}
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
+            activeTab === 'RETURNED'
+              ? 'border-teal-400 ring-2 ring-teal-100'
+              : 'border-slate-200/80 hover:border-teal-300'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-teal-700">รับคืนของแล้ว</span>
+            <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+              <RotateCcw className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-2xl font-extrabold text-teal-600 tracking-tight">
+              {metrics.returnedCount.toLocaleString()} <span className="text-sm font-normal text-teal-400">รายการ</span>
+            </div>
+            <div className="text-xs text-teal-700/80 mt-1 font-medium">
+              รับอุปกรณ์คืนเข้าสโตร์เรียบร้อย
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Pending Approval */}
         <div
           onClick={() => handleTabChange('PENDING_APPROVAL')}
           className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
@@ -1033,7 +1578,7 @@ export default function StoreRequisitionsClient({
           </div>
         </div>
 
-        {/* Card 4: Total Items */}
+        {/* Card 5: Total Items */}
         <div
           onClick={() => handleTabChange('ALL')}
           className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
@@ -1043,14 +1588,14 @@ export default function StoreRequisitionsClient({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-700">รายการสิ่งของรวมทั้งหมด</span>
+            <span className="text-xs font-semibold text-blue-700">รายการสิ่งของรวม</span>
             <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <Layers className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <div className="text-2xl font-extrabold text-blue-600 tracking-tight">
-              {metrics.totalItemsCount.toLocaleString()} <span className="text-sm font-normal text-blue-400">ชิ้น/รายการ</span>
+              {metrics.totalItemsCount.toLocaleString()} <span className="text-sm font-normal text-blue-400">ชิ้น</span>
             </div>
             <div className="text-xs text-blue-700/80 mt-1 font-medium">
               จากใบเบิกทั้งหมด {metrics.total} ฉบับ
@@ -1097,7 +1642,7 @@ export default function StoreRequisitionsClient({
           </div>
 
           {/* Status Tabs */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl flex-wrap">
             <button
               onClick={() => handleTabChange('APPROVED')}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
@@ -1118,7 +1663,18 @@ export default function StoreRequisitionsClient({
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>ส่งมอบแล้ว ({tabCounts.COMPLETED})</span>
+              <span>ส่งมอบแล้ว / รอคืน ({tabCounts.COMPLETED})</span>
+            </button>
+            <button
+              onClick={() => handleTabChange('RETURNED')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === 'RETURNED'
+                  ? 'bg-white text-teal-700 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>คืนของแล้ว ({tabCounts.RETURNED})</span>
             </button>
             <button
               onClick={() => handleTabChange('ALL')}
@@ -1398,6 +1954,44 @@ export default function StoreRequisitionsClient({
                                 <span>ฟอร์มจัดของ</span>
                               </Link>
                             </>
+                          ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' ? (
+                            <>
+                              <button
+                                onClick={() => openReturnModal(req)}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02]"
+                                title="บันทึกรับคืนวัสดุและอุปกรณ์เข้าสโตร์"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                                <span>{req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
+                              </button>
+
+                              <button
+                                onClick={() => setDetailReq(req)}
+                                className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all"
+                                title="ดูรายละเอียด"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          ) : req.status === 'RETURNED' ? (
+                            <>
+                              <button
+                                onClick={() => openReturnModal(req)}
+                                className="flex items-center gap-1 px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-lg text-xs font-bold transition-all"
+                                title="ดูหรือแก้ไขบันทึกการรับคืนของ"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5 text-teal-600" />
+                                <span>ดูการคืนของ</span>
+                              </button>
+
+                              <button
+                                onClick={() => setDetailReq(req)}
+                                className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all"
+                                title="ดูรายละเอียด"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                            </>
                           ) : (
                             <button
                               onClick={() => setDetailReq(req)}
@@ -1517,6 +2111,38 @@ export default function StoreRequisitionsClient({
                         <Check className="w-3.5 h-3.5" />
                         <span>{isLoading ? 'กำลังบันทึก...' : 'ส่งมอบแล้ว'}</span>
                       </button>
+                    ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' ? (
+                      <div className="flex-1 flex items-center gap-2">
+                        <button
+                          onClick={() => openReturnModal(req)}
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>{req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
+                        </button>
+                        <button
+                          onClick={() => setDetailReq(req)}
+                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : req.status === 'RETURNED' ? (
+                      <div className="flex-1 flex items-center gap-2">
+                        <button
+                          onClick={() => openReturnModal(req)}
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5 text-teal-600" />
+                          <span>ดูการคืนของ</span>
+                        </button>
+                        <button
+                          onClick={() => setDetailReq(req)}
+                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     ) : (
                       <button
                         onClick={() => setDetailReq(req)}
@@ -1663,6 +2289,45 @@ export default function StoreRequisitionsClient({
                 </div>
               </div>
 
+              {/* Return Overview Card */}
+              {(detailReq.status === 'RETURNED' || detailReq.status === 'PARTIALLY_RETURNED' || detailReq.items?.some(it => it.returnedQuantity !== undefined)) && (
+                <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-teal-900 flex items-center gap-1.5">
+                      <RotateCcw className="w-4 h-4 text-teal-600" />
+                      <span>ข้อมูลการรับคืนอุปกรณ์เข้าสโตร์</span>
+                    </span>
+                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                      detailReq.status === 'RETURNED'
+                        ? 'bg-teal-100 text-teal-800 border-teal-300'
+                        : 'bg-indigo-100 text-indigo-800 border-indigo-200'
+                    }`}>
+                      {detailReq.status === 'RETURNED' ? 'คืนของครบถ้วนแล้ว' : 'คืนของบางส่วน'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-700 pt-1">
+                    <div>
+                      <span className="text-slate-500">วันที่รับคืน:</span>{' '}
+                      <span className="font-semibold text-slate-900">
+                        {formatThaiDate(detailReq.items?.find(it => it.returnDate)?.returnDate || detailReq.updatedAt)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">ผู้ส่งคืน:</span>{' '}
+                      <span className="font-semibold text-slate-900">
+                        {detailReq.items?.find(it => it.returnerName)?.returnerName || detailReq.requesterName || '-'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">ผู้รับคืน (สโตร์):</span>{' '}
+                      <span className="font-semibold text-slate-900">
+                        {detailReq.items?.find(it => it.returnReceiver)?.returnReceiver || '-'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Items Table */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -1678,27 +2343,77 @@ export default function StoreRequisitionsClient({
                       <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600">
                         <th className="py-2.5 px-3 w-10 text-center">#</th>
                         <th className="py-2.5 px-3">รายละเอียดสิ่งของ</th>
-                        <th className="py-2.5 px-3 text-right">จำนวน</th>
+                        <th className="py-2.5 px-3 text-right">จำนวนเบิก</th>
                         <th className="py-2.5 px-3">หน่วย</th>
                         <th className="py-2.5 px-3">งานที่ใช้ / โครงการ</th>
+                        <th className="py-2.5 px-3">สถานะการคืน</th>
                         <th className="py-2.5 px-3">หมายเหตุ</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-xs">
                       {detailReq.items && detailReq.items.length > 0 ? (
-                        detailReq.items.map((item, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50/60">
-                            <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{idx + 1}</td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-900">{item.detail}</td>
-                            <td className="py-2.5 px-3 text-right font-bold text-slate-900">{item.quantity}</td>
-                            <td className="py-2.5 px-3 text-slate-600">{item.unit}</td>
-                            <td className="py-2.5 px-3 text-slate-700">{item.job || '-'}</td>
-                            <td className="py-2.5 px-3 text-slate-500">{item.remark || '-'}</td>
-                          </tr>
-                        ))
+                        detailReq.items.map((item, idx) => {
+                          const origQty = Number(item.quantity) || 1;
+                          const hasReturnInfo = item.returnedQuantity !== undefined;
+                          const retQty = Number(item.returnedQuantity) || 0;
+                          return (
+                            <tr key={idx} className="hover:bg-slate-50/60">
+                              <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{idx + 1}</td>
+                              <td className="py-2.5 px-3 font-semibold text-slate-900">{item.detail}</td>
+                              <td className="py-2.5 px-3 text-right font-bold text-slate-900">{item.quantity}</td>
+                              <td className="py-2.5 px-3 text-slate-600">{item.unit}</td>
+                              <td className="py-2.5 px-3 text-slate-700">{item.job || '-'}</td>
+                              <td className="py-2.5 px-3">
+                                {hasReturnInfo ? (
+                                  <div className="space-y-1">
+                                    <span
+                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                        retQty >= origQty
+                                          ? 'bg-teal-50 text-teal-800 border-teal-200'
+                                          : retQty > 0
+                                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                          : 'bg-slate-100 text-slate-600 border-slate-200'
+                                      }`}
+                                    >
+                                      <RotateCcw className="w-2.5 h-2.5" />
+                                      {retQty >= origQty
+                                        ? `คืนครบ (${retQty}/${origQty})`
+                                        : retQty > 0
+                                        ? `คืนแล้ว ${retQty}/${origQty}`
+                                        : 'ยังไม่คืน'}
+                                    </span>
+                                    {item.returnCondition && (
+                                      <div className="text-[10px] text-slate-500">
+                                        สภาพ:{' '}
+                                        {item.returnCondition === 'NORMAL'
+                                          ? 'ปกติ'
+                                          : item.returnCondition === 'DAMAGED'
+                                          ? 'ชำรุด'
+                                          : item.returnCondition === 'LOST'
+                                          ? 'สูญหาย'
+                                          : item.returnCondition}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : detailReq.status === 'COMPLETED' ? (
+                                  <span className="text-[11px] text-slate-400">ยังไม่บันทึกคืน</span>
+                                ) : (
+                                  <span className="text-[11px] text-slate-400">-</span>
+                                )}
+                              </td>
+                              <td className="py-2.5 px-3 text-slate-500">
+                                {item.returnRemark ? (
+                                  <span className="text-teal-700 font-medium">คืน: {item.returnRemark}</span>
+                                ) : (
+                                  item.remark || '-'
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
                       ) : (
                         <tr>
-                          <td colSpan={6} className="py-6 text-center text-slate-400">
+                          <td colSpan={7} className="py-6 text-center text-slate-400">
                             ไม่มีรายการสิ่งของ
                           </td>
                         </tr>
@@ -1738,6 +2453,375 @@ export default function StoreRequisitionsClient({
                     <span>บันทึกส่งมอบเรียบร้อย</span>
                   </button>
                 )}
+
+                {(detailReq.status === 'COMPLETED' || detailReq.status === 'PARTIALLY_RETURNED') && (
+                  <button
+                    onClick={() => {
+                      const r = detailReq;
+                      setDetailReq(null);
+                      openReturnModal(r);
+                    }}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow transition-all hover:scale-[1.02]"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>{detailReq.status === 'PARTIALLY_RETURNED' ? 'บันทึกคืนของเพิ่มเติม' : 'บันทึกรับคืนของ'}</span>
+                  </button>
+                )}
+
+                {detailReq.status === 'RETURNED' && (
+                  <button
+                    onClick={() => {
+                      const r = detailReq;
+                      setDetailReq(null);
+                      openReturnModal(r);
+                    }}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition-all hover:scale-[1.02]"
+                  >
+                    <RotateCcw className="w-4 h-4 text-teal-600" />
+                    <span>ดู / แก้ไขบันทึกการคืนของ</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Return Modal */}
+      {returnModalReq && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in">
+          <div
+            className="fixed inset-0"
+            onClick={() => !isSubmittingReturn && setReturnModalReq(null)}
+          />
+
+          <div className="relative bg-white rounded-3xl shadow-2xl border border-slate-200/90 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden z-10 animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r from-teal-50/60 via-slate-50 to-blue-50/40">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-md shadow-teal-200">
+                  <RotateCcw className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                      บันทึกรับคืนวัสดุและอุปกรณ์เข้าคลัง
+                    </h2>
+                    {(() => {
+                      const s = getStatusBadge(returnModalReq.status);
+                      const Icon = s.icon;
+                      return (
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border ${s.badge}`}>
+                          <Icon className={`w-3 h-3 ${s.iconColor}`} />
+                          <span>{s.label}</span>
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-2">
+                    <span>เลขที่ใบเบิก: <strong className="text-slate-700">{returnModalReq.requisitionNumber}</strong></span>
+                    <span>•</span>
+                    <span>บริษัท: <strong className="text-slate-700">{returnModalReq.company || '-'}</strong></span>
+                    <span>•</span>
+                    <span>ผู้ขอเบิกเดิม: <strong className="text-slate-700">{returnModalReq.requesterName || '-'}</strong></span>
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => !isSubmittingReturn && setReturnModalReq(null)}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 rounded-full transition-colors"
+                title="ปิดหน้าต่าง"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-xs text-slate-700">
+              {/* Return Form Metadata */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200/70">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-teal-600" />
+                    <span>วันที่รับคืน *</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={returnDate}
+                    onChange={e => setReturnDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <User className="w-3.5 h-3.5 text-teal-600" />
+                    <span>ผู้ส่งคืนอุปกรณ์ *</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={returnerName}
+                    onChange={e => setReturnerName(e.target.value)}
+                    placeholder="ระบุชื่อผู้ส่งคืน"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <PackageCheck className="w-3.5 h-3.5 text-teal-600" />
+                    <span>เจ้าหน้าที่สโตร์ผู้รับคืน *</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={receiverName}
+                    onChange={e => setReceiverName(e.target.value)}
+                    placeholder="ระบุชื่อเจ้าหน้าที่รับคืน"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                  />
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    หมายเหตุภาพรวมการรับคืน (ถ้ามี)
+                  </label>
+                  <input
+                    type="text"
+                    value={returnNote}
+                    onChange={e => setReturnNote(e.target.value)}
+                    placeholder="เช่น ส่งคืนหลังเสร็จงานติดตั้งไซต์งาน, ตรวจสอบสภาพแล้วใช้งานได้ปกติ"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                  />
+                </div>
+              </div>
+
+              {/* Items Section */}
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <Layers className="w-4 h-4 text-teal-600" />
+                      <span>รายการอุปกรณ์ที่รับคืน ({returnItemsState.length} รายการ)</span>
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      (เลือกแล้ว {returnItemsState.filter(it => it.isSelected).length} รายการ)
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setReturnItemsState(prev => prev.map(it => ({ ...it, isSelected: true })))}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-all"
+                    >
+                      เลือกทั้งหมด
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setReturnItemsState(prev => prev.map(it => ({ ...it, isSelected: true, returnedQuantity: it.quantity })))}
+                      className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 rounded-lg text-[11px] font-semibold transition-all"
+                    >
+                      คืนเต็มจำนวนทุกชิ้น
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setReturnItemsState(prev => prev.map(it => ({ ...it, isSelected: false })))}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[11px] font-medium transition-all"
+                    >
+                      ล้างการเลือก
+                    </button>
+                  </div>
+                </div>
+
+                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[700px]">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600">
+                          <th className="py-2.5 px-3 w-12 text-center">รับคืน</th>
+                          <th className="py-2.5 px-3 w-10 text-center">#</th>
+                          <th className="py-2.5 px-3">รายละเอียดสิ่งของ</th>
+                          <th className="py-2.5 px-3 text-center w-24">เบิกไป</th>
+                          <th className="py-2.5 px-3 text-center w-36">จำนวนรับคืน</th>
+                          <th className="py-2.5 px-3 w-40">สภาพอุปกรณ์</th>
+                          <th className="py-2.5 px-3">หมายเหตุเฉพาะรายการ</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-xs">
+                        {returnItemsState.map(item => {
+                          return (
+                            <tr
+                              key={item.index}
+                              className={`transition-colors ${
+                                item.isSelected ? 'bg-teal-50/20 hover:bg-teal-50/40' : 'bg-slate-50/40 opacity-60'
+                              }`}
+                            >
+                              <td className="py-3 px-3 text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={item.isSelected}
+                                  onChange={e => {
+                                    const checked = e.target.checked;
+                                    setReturnItemsState(prev =>
+                                      prev.map(it => it.index === item.index ? { ...it, isSelected: checked } : it)
+                                    );
+                                  }}
+                                  className="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 cursor-pointer"
+                                />
+                              </td>
+                              <td className="py-3 px-3 text-center text-slate-400 font-mono">
+                                {item.index + 1}
+                              </td>
+                              <td className="py-3 px-3">
+                                <div className="font-bold text-slate-900">{item.detail}</div>
+                                <div className="text-[11px] text-slate-400">หน่วยนับ: {item.unit}</div>
+                              </td>
+                              <td className="py-3 px-3 text-center font-bold text-slate-700">
+                                {item.quantity} {item.unit}
+                              </td>
+                              <td className="py-3 px-3">
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    max={item.quantity}
+                                    disabled={!item.isSelected}
+                                    value={item.returnedQuantity}
+                                    onChange={e => {
+                                      const val = Math.max(0, Math.min(item.quantity, Number(e.target.value) || 0));
+                                      setReturnItemsState(prev =>
+                                        prev.map(it => it.index === item.index ? { ...it, returnedQuantity: val } : it)
+                                      );
+                                    }}
+                                    className="w-20 px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-400"
+                                  />
+                                  <span className="text-[11px] text-slate-500">{item.unit}</span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-3">
+                                <select
+                                  disabled={!item.isSelected}
+                                  value={item.condition}
+                                  onChange={e => {
+                                    const c = e.target.value;
+                                    setReturnItemsState(prev =>
+                                      prev.map(it => it.index === item.index ? { ...it, condition: c } : it)
+                                    );
+                                  }}
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100"
+                                >
+                                  <option value="NORMAL">สภาพปกติ (พร้อมใช้)</option>
+                                  <option value="DAMAGED">ชำรุด (ส่งซ่อม)</option>
+                                  <option value="LOST">สูญหาย</option>
+                                </select>
+                              </td>
+                              <td className="py-3 px-3">
+                                <input
+                                  type="text"
+                                  disabled={!item.isSelected}
+                                  value={item.remark}
+                                  onChange={e => {
+                                    const r = e.target.value;
+                                    setReturnItemsState(prev =>
+                                      prev.map(it => it.index === item.index ? { ...it, remark: r } : it)
+                                    );
+                                  }}
+                                  placeholder="หมายเหตุ..."
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100"
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Preview Banner */}
+              {(() => {
+                const selectedItems = returnItemsState.filter(it => it.isSelected);
+                const allSelected = returnItemsState.length > 0 && returnItemsState.every(it => it.isSelected && it.returnedQuantity >= it.quantity);
+                if (selectedItems.length === 0) {
+                  return (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                      <span>กรุณาติ๊กเลือกรายการที่ต้องการรับคืนอย่างน้อย 1 รายการ</span>
+                    </div>
+                  );
+                }
+                if (allSelected) {
+                  return (
+                    <div className="p-3.5 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                        <span>
+                          <strong>คืนอุปกรณ์ครบถ้วนทุกรายการ:</strong> สถานะใบเบิกจะถูกบันทึกเป็น{' '}
+                          <span className="font-bold text-teal-700 underline">"คืนของเรียบร้อย" (RETURNED)</span>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="p-3.5 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 text-xs flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <RotateCcw className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                      <span>
+                        <strong>คืนอุปกรณ์บางรายการ / บางจำนวน:</strong> สถานะใบเบิกจะถูกบันทึกเป็น{' '}
+                        <span className="font-bold text-indigo-700 underline">"คืนบางส่วน" (PARTIALLY_RETURNED)</span>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Footer */}
+            <div className="p-5 border-t border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                {(returnModalReq.status === 'RETURNED' || returnModalReq.status === 'PARTIALLY_RETURNED') && (
+                  <button
+                    type="button"
+                    disabled={isSubmittingReturn}
+                    onClick={() => handleCancelReturn(returnModalReq)}
+                    className="px-3.5 py-2 text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-xs font-semibold transition-all disabled:opacity-50"
+                  >
+                    ยกเลิกสถานะการคืน (เปลี่ยนกลับเป็นส่งมอบแล้ว)
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={isSubmittingReturn}
+                  onClick={() => setReturnModalReq(null)}
+                  className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all disabled:opacity-50"
+                >
+                  ยกเลิก
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isSubmittingReturn}
+                  onClick={handleSubmitReturn}
+                  className="flex items-center gap-2 px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-600/20 transition-all hover:scale-[1.02] disabled:opacity-50"
+                >
+                  {isSubmittingReturn ? (
+                    <>
+                      <RotateCcw className="w-4 h-4 animate-spin" />
+                      <span>กำลังบันทึก...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>บันทึกการรับคืนของเข้าสโตร์</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
@@ -1767,7 +2851,7 @@ export default function StoreRequisitionsClient({
                     </span>
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                    สถิติการขอเบิก สัดส่วนการส่งมอบ การแยกตามบริษัท และยอดรวมวัสดุยอดนิยม
+                    สถิติการขอเบิก การส่งมอบ การรับคืนของเข้าคลัง สภาพอุปกรณ์ และสรุปยอดรวมวัสดุ
                   </p>
                 </div>
               </div>
@@ -1842,170 +2926,341 @@ export default function StoreRequisitionsClient({
                 )}
               </div>
 
-              {/* 1. Metric Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+              {/* 1. Metric Cards (6 cards) */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
                   <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
                     <span>ใบเบิกทั้งหมด</span>
                     <Package className="w-4 h-4 text-slate-400" />
                   </div>
-                  <div className="text-2xl font-bold text-slate-900">
+                  <div className="text-xl sm:text-2xl font-bold text-slate-900">
                     {reportStats.totalReqs.toLocaleString()}{' '}
                     <span className="text-xs font-normal text-slate-500">ใบ</span>
                   </div>
                   <div className="text-[11px] text-slate-500 mt-1">
-                    รวมทุกสถานะในระบบ
+                    จาก {reportStats.totalItems.toLocaleString()} รายการ
                   </div>
                 </div>
 
-                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-indigo-100 bg-indigo-50/10 shadow-sm flex flex-col justify-between">
                   <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
-                    <span>จำนวนชิ้นรวม</span>
+                    <span>ยอดเบิกรวม</span>
                     <TrendingUp className="w-4 h-4 text-indigo-500" />
                   </div>
-                  <div className="text-2xl font-bold text-indigo-600">
+                  <div className="text-xl sm:text-2xl font-bold text-indigo-600">
                     {reportStats.totalQuantity.toLocaleString()}{' '}
                     <span className="text-xs font-normal text-slate-500">หน่วย</span>
                   </div>
                   <div className="text-[11px] text-slate-500 mt-1">
-                    จาก {reportStats.totalItems.toLocaleString()} รายการย่อย
+                    จำนวนชิ้นที่ขอเบิก
                   </div>
                 </div>
 
-                <div className="p-4 bg-white rounded-xl border border-emerald-200/80 bg-emerald-50/20 shadow-sm">
+                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-emerald-200/80 bg-emerald-50/20 shadow-sm flex flex-col justify-between">
                   <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
                     <span>ส่งมอบสำเร็จ</span>
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   </div>
-                  <div className="text-2xl font-bold text-emerald-600">
+                  <div className="text-xl sm:text-2xl font-bold text-emerald-600">
                     {reportStats.completed.toLocaleString()}{' '}
                     <span className="text-xs font-normal text-slate-500">ใบ</span>
                   </div>
                   <div className="text-[11px] text-emerald-700 font-medium mt-1">
-                    อัตราสำเร็จ {reportStats.fulfillRate}%
+                    อัตราส่งมอบ {reportStats.fulfillRate}%
                   </div>
                 </div>
 
-                <div className="p-4 bg-white rounded-xl border border-amber-200/80 bg-amber-50/20 shadow-sm">
+                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-teal-200/80 bg-teal-50/30 shadow-sm flex flex-col justify-between">
                   <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
-                    <span>รอสโตร์ส่งมอบ</span>
+                    <span className="font-semibold text-teal-900">รับคืนของแล้ว</span>
+                    <RotateCcw className="w-4 h-4 text-teal-600" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bold text-teal-700">
+                    {reportStats.totalReturnedQuantity.toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-teal-600">หน่วย</span>
+                  </div>
+                  <div className="text-[11px] text-teal-700 font-medium mt-1 flex items-center justify-between">
+                    <span>อัตราคืน {reportStats.returnRate}%</span>
+                    <span className="text-[10px] text-teal-600">({reportStats.returned} คืนครบ)</span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-amber-200/80 bg-amber-50/30 shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
+                    <span className="font-semibold text-amber-900">คงค้างยังไม่คืน</span>
                     <Clock className="w-4 h-4 text-amber-500" />
                   </div>
-                  <div className="text-2xl font-bold text-amber-600">
+                  <div className="text-xl sm:text-2xl font-bold text-amber-600">
+                    {reportStats.totalPendingReturnQuantity.toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-amber-600">หน่วย</span>
+                  </div>
+                  <div className="text-[11px] text-amber-700 font-medium mt-1">
+                    {reportStats.totalPendingReturnQuantity > 0 ? 'รอส่งคืนเข้าคลัง' : 'คืนครบถ้วน'}
+                  </div>
+                </div>
+
+                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-purple-200/80 bg-purple-50/20 shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
+                    <span>รอจัดส่งมอบ</span>
+                    <PackageCheck className="w-4 h-4 text-purple-500" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bold text-purple-700">
                     {reportStats.approved.toLocaleString()}{' '}
                     <span className="text-xs font-normal text-slate-500">ใบ</span>
                   </div>
-                  <div className="text-[11px] text-amber-700 font-medium mt-1">
+                  <div className="text-[11px] text-purple-700 font-medium mt-1">
                     อนุมัติแล้ว พร้อมจัดเตรียม
                   </div>
                 </div>
               </div>
 
-              {/* 2. Company & Requester Distribution (2 columns) */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                {/* 2A. Company Breakdown */}
-                <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-indigo-600" />
-                      <span>สัดส่วนการเบิกแยกตามบริษัท</span>
-                    </h3>
-                    <span className="text-xs text-slate-400">
-                      รวม {reportStats.totalReqs} ใบ
-                    </span>
+              {/* 2. Return Analytics, Company & Requester Distribution (3 columns) */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+                {/* 2A. Return & Equipment Condition Analytics */}
+                <div className="p-4 sm:p-5 bg-white rounded-xl border border-teal-200/70 bg-gradient-to-b from-teal-50/30 via-white to-white shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <RotateCcw className="w-4 h-4 text-teal-600" />
+                        <span>ภาพรวมการคืนและสภาพอุปกรณ์</span>
+                      </h3>
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
+                        {reportStats.returnRate}% คืนแล้ว
+                      </span>
+                    </div>
+
+                    {/* Return Progress Bar */}
+                    <div className="space-y-1.5 mb-4">
+                      <div className="flex items-center justify-between text-xs text-slate-600">
+                        <span>ความคืบหน้าการส่งคืน</span>
+                        <span className="font-semibold text-teal-800">
+                          {reportStats.totalReturnedQuantity.toLocaleString()} / {reportStats.totalQuantity.toLocaleString()} หน่วย
+                        </span>
+                      </div>
+                      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+                        <div
+                          className="h-full bg-teal-500 transition-all duration-500 rounded-l-full"
+                          style={{ width: `${Math.min(100, reportStats.returnRate)}%` }}
+                          title={`คืนแล้ว ${reportStats.totalReturnedQuantity} หน่วย`}
+                        />
+                        <div
+                          className="h-full bg-amber-200 transition-all duration-500 rounded-r-full"
+                          style={{ width: `${Math.max(0, 100 - reportStats.returnRate)}%` }}
+                          title={`คงค้าง ${reportStats.totalPendingReturnQuantity} หน่วย`}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                        <span className="flex items-center gap-1 text-teal-700">
+                          <span className="w-2 h-2 rounded-full bg-teal-500 inline-block" />
+                          คืนแล้ว {reportStats.totalReturnedQuantity.toLocaleString()} หน่วย
+                        </span>
+                        <span className="flex items-center gap-1 text-amber-700">
+                          <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+                          คงค้าง {reportStats.totalPendingReturnQuantity.toLocaleString()} หน่วย
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Status Breakdown Grid */}
+                    <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+                      <div className="p-2.5 rounded-lg bg-teal-50/80 border border-teal-200/80">
+                        <div className="text-[11px] text-teal-700 font-medium">คืนของครบถ้วน</div>
+                        <div className="text-base font-bold text-teal-900 mt-0.5">
+                          {reportStats.returned} <span className="text-[10px] font-normal">ใบ</span>
+                        </div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-indigo-50/80 border border-indigo-200/80">
+                        <div className="text-[11px] text-indigo-700 font-medium">คืนบางส่วน</div>
+                        <div className="text-base font-bold text-indigo-900 mt-0.5">
+                          {reportStats.partiallyReturned} <span className="text-[10px] font-normal">ใบ</span>
+                        </div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-emerald-50/80 border border-emerald-200/80">
+                        <div className="text-[11px] text-emerald-700 font-medium">ส่งมอบแล้ว/รอคืน</div>
+                        <div className="text-base font-bold text-emerald-900 mt-0.5">
+                          {reportStats.completed} <span className="text-[10px] font-normal">ใบ</span>
+                        </div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-amber-50/80 border border-amber-200/80">
+                        <div className="text-[11px] text-amber-700 font-medium">รอจัดของส่งมอบ</div>
+                        <div className="text-base font-bold text-amber-900 mt-0.5">
+                          {reportStats.approved} <span className="text-[10px] font-normal">ใบ</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="space-y-3.5">
-                    {[
-                      { key: 'TE', label: 'TE (Tera Electric)', color: 'bg-blue-600', badge: 'bg-blue-50 text-blue-700 border-blue-200' },
-                      { key: 'TP', label: 'TP (Tera Power)', color: 'bg-emerald-600', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-                      { key: 'TG', label: 'TG (Tera Group)', color: 'bg-purple-600', badge: 'bg-purple-50 text-purple-700 border-purple-200' },
-                      { key: 'OTHER', label: 'อื่นๆ / ไม่ระบุ', color: 'bg-slate-400', badge: 'bg-slate-50 text-slate-600 border-slate-200' },
-                    ].map(comp => {
-                      const data = reportStats.companyBreakdown[comp.key] || { count: 0, itemsCount: 0, quantity: 0 };
-                      const pct = reportStats.totalReqs > 0 ? Math.round((data.count / reportStats.totalReqs) * 100) : 0;
-                      return (
-                        <div key={comp.key} className="space-y-1.5">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-semibold text-slate-700">{comp.label}</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-slate-500 font-medium">
-                                {data.count} ใบ ({pct}%)
-                              </span>
-                              <span className="text-slate-400 text-[11px]">
-                                • {data.quantity.toLocaleString()} ชิ้น
-                              </span>
-                            </div>
-                          </div>
-                          <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full ${comp.color} rounded-full transition-all duration-500`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
+                  {/* Condition Summary */}
+                  <div className="pt-3 border-t border-slate-100">
+                    <div className="text-[11px] font-bold text-slate-700 mb-2 flex items-center justify-between">
+                      <span>สภาพอุปกรณ์ที่รับคืนเข้าคลัง:</span>
+                      <span className="text-slate-400 font-normal">รวม {reportStats.totalReturnedQuantity} หน่วย</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      <div className="p-1.5 bg-emerald-50 rounded-lg border border-emerald-200">
+                        <div className="text-[10px] text-emerald-700 font-medium">ปกติ</div>
+                        <div className="text-sm font-bold text-emerald-800">
+                          {reportStats.conditionCounts.NORMAL || 0}
                         </div>
-                      );
-                    })}
+                      </div>
+                      <div className="p-1.5 bg-amber-50 rounded-lg border border-amber-200">
+                        <div className="text-[10px] text-amber-700 font-medium">ชำรุด/ซ่อม</div>
+                        <div className="text-sm font-bold text-amber-800">
+                          {reportStats.conditionCounts.DAMAGED || 0}
+                        </div>
+                      </div>
+                      <div className="p-1.5 bg-rose-50 rounded-lg border border-rose-200">
+                        <div className="text-[10px] text-rose-700 font-medium">สูญหาย</div>
+                        <div className="text-sm font-bold text-rose-800">
+                          {reportStats.conditionCounts.LOST || 0}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* 2B. Top Requesters */}
-                <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <User className="w-4 h-4 text-indigo-600" />
-                      <span>ผู้ขอเบิกสูงสุด (Top Requesters)</span>
-                    </h3>
-                    <span className="text-xs text-slate-400">
-                      {reportStats.sortedRequesters.length} ท่าน
-                    </span>
+                {/* 2B. Company Breakdown */}
+                <div className="p-4 sm:p-5 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-indigo-600" />
+                        <span>สัดส่วนการเบิก-คืนแยกตามบริษัท</span>
+                      </h3>
+                      <span className="text-xs text-slate-400">
+                        รวม {reportStats.totalReqs} ใบ
+                      </span>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      {[
+                        { key: 'TE', label: 'TE (Tera Electric)', color: 'bg-blue-600' },
+                        { key: 'TP', label: 'TP (Tera Power)', color: 'bg-emerald-600' },
+                        { key: 'TG', label: 'TG (Tera Group)', color: 'bg-purple-600' },
+                        { key: 'OTHER', label: 'อื่นๆ / ไม่ระบุ', color: 'bg-slate-400' },
+                      ].map(comp => {
+                        const data = reportStats.companyBreakdown[comp.key] || { count: 0, itemsCount: 0, quantity: 0, returnedQuantity: 0 };
+                        const pct = reportStats.totalReqs > 0 ? Math.round((data.count / reportStats.totalReqs) * 100) : 0;
+                        const retPct = data.quantity > 0 ? Math.round((data.returnedQuantity / data.quantity) * 100) : 0;
+                        return (
+                          <div key={comp.key} className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-semibold text-slate-700">{comp.label}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-slate-600 font-medium">
+                                  {data.count} ใบ ({pct}%)
+                                </span>
+                              </div>
+                            </div>
+                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full ${comp.color} rounded-full transition-all duration-500`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between text-[11px] text-slate-500">
+                              <span>เบิก: <strong className="text-slate-700">{data.quantity.toLocaleString()}</strong> ชิ้น</span>
+                              <span className="text-teal-700">
+                                คืนแล้ว: <strong>{data.returnedQuantity.toLocaleString()}</strong> ({retPct}%)
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
-                    {reportStats.sortedRequesters.slice(0, 5).map((req, idx) => (
-                      <div
-                        key={req.name + idx}
-                        className="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl text-xs transition-colors border border-slate-100"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span
-                            className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                              idx === 0
-                                ? 'bg-amber-100 text-amber-800'
-                                : idx === 1
-                                ? 'bg-slate-200 text-slate-700'
-                                : idx === 2
-                                ? 'bg-amber-700/20 text-amber-900'
-                                : 'bg-slate-100 text-slate-500'
-                            }`}
-                          >
-                            {idx + 1}
-                          </span>
-                          <span className="font-semibold text-slate-800 truncate">
-                            {req.name}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3 text-right">
-                          <span className="font-bold text-slate-900">
-                            {req.reqCount} <span className="font-normal text-slate-500">ใบ</span>
-                          </span>
-                          <span className="text-slate-400 text-[11px]">
-                            ({req.quantity.toLocaleString()} หน่วย)
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+                    <span>ยอดคืนรวมทุกบริษัท:</span>
+                    <span className="font-bold text-teal-700">
+                      {reportStats.totalReturnedQuantity.toLocaleString()} ชิ้น ({reportStats.returnRate}%)
+                    </span>
+                  </div>
+                </div>
 
-                    {reportStats.sortedRequesters.length === 0 && (
-                      <div className="text-center py-6 text-slate-400 text-xs">
-                        ไม่มีข้อมูลผู้ขอเบิก
-                      </div>
-                    )}
+                {/* 2C. Top Requesters */}
+                <div className="p-4 sm:p-5 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <User className="w-4 h-4 text-indigo-600" />
+                        <span>ผู้ขอเบิกสูงสุดและสถานะคืน</span>
+                      </h3>
+                      <span className="text-xs text-slate-400">
+                        {reportStats.sortedRequesters.length} ท่าน
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                      {reportStats.sortedRequesters.slice(0, 5).map((req, idx) => {
+                        const isFullyReturned = req.quantity > 0 && req.returnedQuantity >= req.quantity;
+                        const hasPartialReturn = req.returnedQuantity > 0 && req.returnedQuantity < req.quantity;
+                        return (
+                          <div
+                            key={req.name + idx}
+                            className="p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl text-xs transition-colors border border-slate-100"
+                          >
+                            <div className="flex items-center justify-between min-w-0 mb-1">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span
+                                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                                    idx === 0
+                                      ? 'bg-amber-100 text-amber-800'
+                                      : idx === 1
+                                      ? 'bg-slate-200 text-slate-700'
+                                      : idx === 2
+                                      ? 'bg-amber-700/20 text-amber-900'
+                                      : 'bg-slate-100 text-slate-500'
+                                  }`}
+                                >
+                                  {idx + 1}
+                                </span>
+                                <span className="font-semibold text-slate-800 truncate">
+                                  {req.name}
+                                </span>
+                              </div>
+                              <span className="font-bold text-slate-900 flex-shrink-0">
+                                {req.reqCount} <span className="font-normal text-slate-500">ใบ</span>
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between text-[11px] text-slate-500 pl-7">
+                              <span>
+                                เบิก {req.quantity.toLocaleString()} หน่วย
+                              </span>
+                              {isFullyReturned ? (
+                                <span className="px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 text-[10px] font-semibold">
+                                  คืนครบแล้ว ({req.returnedQuantity})
+                                </span>
+                              ) : hasPartialReturn ? (
+                                <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-semibold">
+                                  คืนแล้ว {req.returnedQuantity} / {req.quantity}
+                                </span>
+                              ) : (
+                                <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 text-[10px]">
+                                  คงค้าง {req.quantity} หน่วย
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {reportStats.sortedRequesters.length === 0 && (
+                        <div className="text-center py-6 text-slate-400 text-xs">
+                          ไม่มีข้อมูลผู้ขอเบิก
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-right">
+                    แสดง 5 ลำดับแรกจากผู้ขอเบิกทั้งหมด
                   </div>
                 </div>
               </div>
 
-              {/* 3. Material Requisition Analytics */}
+              {/* 3. Material Requisition & Return Analytics */}
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
                   <div className="flex items-center gap-3">
@@ -2030,10 +3285,21 @@ export default function StoreRequisitionsClient({
                       >
                         รายการวัสดุทั้งหมด ({reportStats.sortedMaterials.length})
                       </button>
+                      <button
+                        onClick={() => setReportActiveTab('RETURN_TRACKING')}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                          reportActiveTab === 'RETURN_TRACKING'
+                            ? 'bg-white text-teal-700 shadow-sm font-bold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>ติดตามการคืนอุปกรณ์</span>
+                      </button>
                     </div>
                   </div>
 
-                  {reportActiveTab === 'ALL_ITEMS' && (
+                  {(reportActiveTab === 'ALL_ITEMS' || reportActiveTab === 'RETURN_TRACKING') && (
                     <div className="relative min-w-[240px]">
                       <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
@@ -2055,6 +3321,18 @@ export default function StoreRequisitionsClient({
                   )}
                 </div>
 
+                {reportActiveTab === 'RETURN_TRACKING' && (
+                  <div className="px-4 py-2.5 bg-teal-50/60 border-b border-teal-100 flex items-center justify-between text-xs text-teal-900">
+                    <div className="flex items-center gap-2">
+                      <RotateCcw className="w-3.5 h-3.5 text-teal-600" />
+                      <span>แสดงยอดการรับคืนและคงค้างของแต่ละอุปกรณ์ เรียงตามจำนวนชิ้นที่มีการส่งคืนมากที่สุด</span>
+                    </div>
+                    <span className="font-semibold text-teal-800">
+                      ยอดคืนรวม: {reportStats.totalReturnedQuantity.toLocaleString()} / {reportStats.totalQuantity.toLocaleString()} หน่วย ({reportStats.returnRate}%)
+                    </span>
+                  </div>
+                )}
+
                 {/* Table Content */}
                 <div className="overflow-x-auto max-h-[380px] overflow-y-auto">
                   <table className="w-full text-left border-collapse text-xs">
@@ -2062,7 +3340,10 @@ export default function StoreRequisitionsClient({
                       <tr>
                         <th className="py-2.5 px-3.5 w-12 text-center">อันดับ</th>
                         <th className="py-2.5 px-3.5">ชื่อรายการวัสดุ / อุปกรณ์</th>
-                        <th className="py-2.5 px-3.5 text-right">ยอดรวมที่เบิก</th>
+                        <th className="py-2.5 px-3.5 text-right">ยอดเบิก</th>
+                        <th className="py-2.5 px-3.5 text-right text-teal-700">คืนแล้ว</th>
+                        <th className="py-2.5 px-3.5 text-right text-amber-700">คงค้างคืน</th>
+                        <th className="py-2.5 px-3.5 text-center w-28">อัตราการคืน</th>
                         <th className="py-2.5 px-3.5 w-20 text-center">หน่วยนับ</th>
                         <th className="py-2.5 px-3.5 text-center">จำนวนใบเบิก</th>
                         <th className="py-2.5 px-3.5">งาน/โครงการที่นำไปใช้</th>
@@ -2074,6 +3355,9 @@ export default function StoreRequisitionsClient({
                         : filteredReportMaterials
                       ).map((item, idx) => {
                         const rank = idx + 1;
+                        const pendingQty = Math.max(0, item.totalQty - item.totalReturnedQty);
+                        const itemReturnRate = item.totalQty > 0 ? Math.round((item.totalReturnedQty / item.totalQty) * 100) : 0;
+                        const isFullyReturned = item.totalQty > 0 && item.totalReturnedQty >= item.totalQty;
                         return (
                           <tr key={item.detail + idx} className="hover:bg-indigo-50/30 transition-colors">
                             <td className="py-2.5 px-3.5 text-center">
@@ -2096,10 +3380,56 @@ export default function StoreRequisitionsClient({
                               )}
                             </td>
                             <td className="py-2.5 px-3.5 font-semibold text-slate-900">
-                              {item.detail}
+                              <div>{item.detail}</div>
+                              {reportActiveTab === 'RETURN_TRACKING' && item.totalReturnedQty > 0 && (
+                                <div className="text-[10px] text-teal-700 font-normal">
+                                  รับคืนแล้ว {item.returnCount} ครั้ง
+                                </div>
+                              )}
                             </td>
                             <td className="py-2.5 px-3.5 text-right font-bold text-indigo-700">
                               {item.totalQty.toLocaleString()}
+                            </td>
+                            <td className="py-2.5 px-3.5 text-right font-bold text-teal-700">
+                              {item.totalReturnedQty > 0 ? (
+                                item.totalReturnedQty.toLocaleString()
+                              ) : (
+                                <span className="text-slate-300 font-normal">0</span>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-3.5 text-right font-medium">
+                              {isFullyReturned ? (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+                                  คืนครบ
+                                </span>
+                              ) : pendingQty > 0 ? (
+                                <span className="text-amber-700 font-semibold">
+                                  {pendingQty.toLocaleString()}
+                                </span>
+                              ) : (
+                                <span className="text-slate-300">-</span>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-3.5 text-center">
+                              <div className="flex items-center justify-center gap-1.5">
+                                <div className="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full transition-all ${
+                                      itemReturnRate >= 100
+                                        ? 'bg-emerald-500'
+                                        : itemReturnRate > 0
+                                        ? 'bg-teal-500'
+                                        : 'bg-slate-200'
+                                    }`}
+                                    style={{ width: `${Math.min(100, itemReturnRate)}%` }}
+                                  />
+                                </div>
+                                <span className={`text-[11px] font-semibold w-8 text-right ${
+                                  itemReturnRate >= 100 ? 'text-emerald-700' : itemReturnRate > 0 ? 'text-teal-700' : 'text-slate-400'
+                                }`}>
+                                  {itemReturnRate}%
+                                </span>
+                              </div>
                             </td>
                             <td className="py-2.5 px-3.5 text-center text-slate-600">
                               <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
@@ -2136,7 +3466,7 @@ export default function StoreRequisitionsClient({
 
                       {reportStats.sortedMaterials.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="py-8 text-center text-slate-400">
+                          <td colSpan={9} className="py-8 text-center text-slate-400">
                             ไม่พบรายการวัสดุในชุดข้อมูลนี้
                           </td>
                         </tr>

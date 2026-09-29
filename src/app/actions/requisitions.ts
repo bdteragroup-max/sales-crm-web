@@ -274,25 +274,112 @@ export async function updateRequisitionStatus(id: string, status: string) {
     });
 
     if (requisition.requesterId) {
-      const statusText = status === 'FULFILLED' ? 'จัดเตรียมของเรียบร้อยแล้ว' 
+      const statusText = status === 'FULFILLED' || status === 'COMPLETED' ? 'จัดเตรียมและส่งมอบของเรียบร้อยแล้ว' 
+                       : status === 'RETURNED' ? 'บันทึกรับคืนอุปกรณ์เข้าสโตร์เรียบร้อยแล้ว'
+                       : status === 'PARTIALLY_RETURNED' ? 'บันทึกรับคืนอุปกรณ์เข้าสโตร์บางส่วนแล้ว'
                        : status === 'REJECTED' ? 'ถูกปฏิเสธการจ่ายของ' 
                        : `ถูกเปลี่ยนสถานะเป็น ${status}`;
 
       sendPushToUser(requisition.requesterId, {
         title: 'อัปเดตสถานะใบเบิก/ยืมของ',
         body: `ใบเบิก/ยืมของหมายเลข ${requisition.requisitionNumber} ${statusText}`,
-        url: `/requisitions`,
+        url: `/requisitions/${id}`,
         category: 'REQUISITION_UPDATE',
       }).catch(console.error);
     }
 
     revalidatePath("/requisitions");
+    revalidatePath(`/requisitions/${id}`);
     revalidatePath("/store/requisitions");
     revalidatePath(`/store/requisitions/${id}`);
+    revalidatePath("/store/dashboard");
     return { success: true, id: requisition.id };
   } catch (error: any) {
     console.error("Error updating requisition status:", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function returnMaterialRequisition(
+  id: string,
+  data: {
+    status?: 'RETURNED' | 'PARTIALLY_RETURNED' | 'COMPLETED';
+    returnedItems?: Array<{
+      index: number;
+      returnedQuantity: number;
+      returnDate?: string;
+      returnCondition?: string;
+      returnRemark?: string;
+    }>;
+    returnNote?: string;
+    returnerName?: string;
+    receiverName?: string;
+  }
+) {
+  try {
+    const session = await getUser();
+    if (!session) return { success: false, error: "Unauthorized" };
+
+    const existingReq = await prisma.materialRequisition.findUnique({
+      where: { id },
+    });
+    if (!existingReq) return { success: false, error: "Requisition not found" };
+
+    const currentItems = Array.isArray(existingReq.items) ? (existingReq.items as any[]) : [];
+    const nowIso = new Date().toISOString();
+
+    // Map items with return info
+    const updatedItems = currentItems.map((item, idx) => {
+      const returnInfo = data.returnedItems?.find(ri => ri.index === idx);
+      if (returnInfo) {
+        return {
+          ...item,
+          returnedQuantity: Number(returnInfo.returnedQuantity) || 0,
+          returnDate: returnInfo.returnDate || nowIso,
+          returnCondition: returnInfo.returnCondition || 'NORMAL',
+          returnRemark: returnInfo.returnRemark || '',
+          returnReceiver: data.receiverName || session.fullName || 'เจ้าหน้าที่สโตร์',
+          returnerName: data.returnerName || '',
+        };
+      }
+      return item;
+    });
+
+    const targetStatus = data.status || 'RETURNED';
+
+    const requisition = await prisma.materialRequisition.update({
+      where: { id },
+      data: {
+        status: targetStatus,
+        items: updatedItems,
+      },
+    });
+
+    if (requisition.requesterId) {
+      const statusText = targetStatus === 'RETURNED'
+        ? 'สโตร์ได้รับคืนอุปกรณ์ครบถ้วนเรียบร้อยแล้ว'
+        : targetStatus === 'PARTIALLY_RETURNED'
+        ? 'สโตร์ได้รับคืนอุปกรณ์บางส่วนแล้ว'
+        : 'ได้อัปเดตข้อมูลการคืนของ';
+
+      sendPushToUser(requisition.requesterId, {
+        title: 'บันทึกรับคืนอุปกรณ์เข้าสโตร์',
+        body: `ใบเบิก/ยืมของหมายเลข ${requisition.requisitionNumber} ${statusText}`,
+        url: `/requisitions/${id}`,
+        category: 'REQUISITION_UPDATE',
+      }).catch(console.error);
+    }
+
+    revalidatePath("/requisitions");
+    revalidatePath(`/requisitions/${id}`);
+    revalidatePath("/store/requisitions");
+    revalidatePath(`/store/requisitions/${id}`);
+    revalidatePath("/store/dashboard");
+
+    return { success: true, id: requisition.id };
+  } catch (error: any) {
+    console.error("Error returning material requisition:", error);
+    return { success: false, error: error.message || "Failed to process return" };
   }
 }
 

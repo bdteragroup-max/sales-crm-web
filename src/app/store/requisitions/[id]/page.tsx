@@ -39,7 +39,10 @@ export default async function StoreRequisitionDetailPage({ params }: { params: P
         </div>
       </div>
 
-      <StoreFulfillForm requisition={requisition} />
+      <StoreFulfillForm 
+        requisition={requisition} 
+        currentUserName={session.fullName || 'เจ้าหน้าที่สโตร์'} 
+      />
     </div>
   );
 }
