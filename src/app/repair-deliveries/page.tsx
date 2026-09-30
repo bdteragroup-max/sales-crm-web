@@ -1,26 +1,40 @@
-export const dynamic = 'force-dynamic';
-import { getRepairDeliveries } from "@/app/actions/repairDeliveries"
-import RepairDeliveriesClientPage from "./RepairDeliveriesClientPage"
-import { getUser } from "@/app/lib/dal"
-import { redirect } from "next/navigation"
+export const dynamic = "force-dynamic";
+
+import { getRepairDeliveries } from "@/app/actions/repairDeliveries";
+import RepairDeliveriesClientPage from "./RepairDeliveriesClientPage";
+import { getUser } from "@/app/lib/dal";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export const metadata = {
-  title: "Outsource Repairs (ส่งซ่อมนอก) | Sales CRM",
-}
+  title: "ใบส่งมอบงาน (Repair Deliveries) | Sales CRM",
+};
 
 export default async function RepairDeliveriesPage() {
-  const session = await getUser()
+  const session = await getUser();
   if (!session) {
-    redirect("/login")
+    redirect("/login");
   }
 
-  // default filters if any
-  const res = await getRepairDeliveries()
-  const deliveries = res.success ? res.data : []
+  const res = await getRepairDeliveries();
+  const deliveries = res.success ? res.data : [];
 
   return (
-    <main className="flex-1 flex flex-col overflow-y-auto bg-[#fafbfc] p-4 md:p-6">
-      <RepairDeliveriesClientPage initialDeliveries={deliveries as any} currentUser={session} />
-    </main>
-  )
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-400 font-medium">
+          กำลังโหลดข้อมูลใบส่งมอบงาน...
+        </div>
+      }
+    >
+      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50/60 min-h-0 custom-scrollbar">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-32">
+          <RepairDeliveriesClientPage
+            initialDeliveries={deliveries as any}
+            currentUser={session}
+          />
+        </div>
+      </main>
+    </Suspense>
+  );
 }

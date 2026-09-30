@@ -274,8 +274,45 @@ export async function importServiceCallsCommit(records: any[]) {
 export async function getServiceUsers() {
   const user = await getUser();
   if (!user) throw new Error("Unauthorized");
-  return await prisma.user.findMany({
-    select: { id: true, fullName: true, role: true },
-    orderBy: { fullName: 'asc' }
+  const rawUsers = await prisma.user.findMany({
+    select: {
+      id: true,
+      fullName: true,
+      role: true,
+      employeeSale: { select: { nickname: true } },
+    },
+    orderBy: { fullName: 'asc' },
   });
+
+  return rawUsers.map((u) => ({
+    id: u.id,
+    fullName: u.fullName,
+    role: u.role,
+    nickname: u.employeeSale?.nickname || null,
+  }));
 }
+
+export async function deleteServiceCallLog(id: string) {
+  const user = await getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const isMgrOrAdmin = 
+    user.role === "Service Engineer MGR" || 
+    user.role === "Service Engineer MGR." || 
+    user.role === "SUPER_ADMIN" ||
+    user.role === "Admin" ||
+    user.role === "ADMIN";
+
+  if (!isMgrOrAdmin) {
+    throw new Error("เฉพาะผู้จัดการฝ่ายบริการหรือผู้ดูแลระบบเท่านั้นที่สามารถลบเคสได้");
+  }
+
+  const result = await prisma.serviceCallLog.delete({
+    where: { id }
+  });
+
+  revalidatePath('/service/calls');
+  revalidatePath('/service-mgr/calls');
+  return { success: true, data: result };
+}
+

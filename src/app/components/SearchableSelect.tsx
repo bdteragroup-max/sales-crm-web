@@ -10,6 +10,7 @@ export default function SearchableSelect({
   placeholder,
   disabled = false,
   className = "",
+  inputClassName = "",
   onCreate,
   isCreating = false
 }: { 
@@ -19,6 +20,7 @@ export default function SearchableSelect({
   placeholder: string,
   disabled?: boolean,
   className?: string,
+  inputClassName?: string,
   onCreate?: (val: string) => void,
   isCreating?: boolean
 }) {
@@ -56,7 +58,7 @@ export default function SearchableSelect({
       <div className="relative flex items-center">
         <input 
           type="text"
-          className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-8"
+          className={`w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] pr-8 transition-all ${inputClassName}`}
           placeholder={placeholder}
           value={query}
           onChange={(e) => {
@@ -74,7 +76,7 @@ export default function SearchableSelect({
           {filteredOptions.map((opt, i) => (
             <div 
               key={i}
-              className={`px-3 py-2 text-sm rounded-md cursor-pointer transition-colors ${value === opt.value ? 'bg-orange-50 text-orange-700 font-bold' : 'hover:bg-gray-50 text-gray-700'}`}
+              className={`px-3 py-2 text-sm rounded-md cursor-pointer transition-colors ${value === opt.value ? 'bg-red-50 text-[#ff2301] font-bold' : 'hover:bg-gray-50 text-gray-700'}`}
               onClick={() => {
                 onChange(opt.value)
                 setIsOpen(false)

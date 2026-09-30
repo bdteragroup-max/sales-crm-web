@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getUser } from "@/app/lib/dal";
 import { redirect } from "next/navigation";
 import prisma from "@/app/lib/db";
@@ -7,7 +9,10 @@ export const metadata = {
   title: "สร้างใบส่งซ่อมภายนอก | Sales CRM",
 };
 
-export default async function NewOutsourceRepairPage() {
+export default async function NewOutsourceRepairPage(
+  props: { searchParams?: Promise<{ jobId?: string }> }
+) {
+  const searchParams = props.searchParams ? await props.searchParams : {};
   const session = await getUser();
   if (!session) {
     redirect("/login");
@@ -18,24 +23,44 @@ export default async function NewOutsourceRepairPage() {
     select: {
       id: true,
       fullName: true,
+      role: true,
       employeeSale: {
-        select: { position: true }
-      }
+        select: { position: true },
+      },
     },
-    orderBy: { fullName: 'asc' }
+    orderBy: { fullName: "asc" },
   });
 
   const users = usersData.map((u: any) => ({
     id: u.id,
     name: u.fullName,
-    position: u.employeeSale?.position || 'Sales Rep'
+    position: u.employeeSale?.position || u.role || "เจ้าหน้าที่",
   }));
 
+  let initialJob: any = null;
+  if (searchParams.jobId) {
+    initialJob = await prisma.job.findUnique({
+      where: { id: searchParams.jobId },
+      select: {
+        id: true,
+        jobNumber: true,
+        customerName: true,
+        companyCode: true,
+        sellerName: true,
+        item: true,
+      },
+    });
+  }
+
   return (
-    <div className="p-4 md:p-8 bg-gray-50/50 min-h-full">
-      <div className="max-w-5xl mx-auto">
-        <NewOutsourceRepairForm users={users} currentUserId={session.id} />
+    <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50/60 min-h-0 custom-scrollbar">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-36">
+        <NewOutsourceRepairForm
+          users={users}
+          currentUserId={session.id}
+          initialJob={initialJob}
+        />
       </div>
-    </div>
+    </main>
   );
 }

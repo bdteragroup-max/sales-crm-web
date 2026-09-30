@@ -2,9 +2,34 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Wrench, Plus, Trash2, X, Upload, ArrowLeft, ClipboardList, Users, FileSignature, CheckCircle2, Loader2, Save } from "lucide-react";
+import Link from "next/link";
+import {
+  Wrench,
+  Plus,
+  Trash2,
+  X,
+  Upload,
+  ArrowLeft,
+  ClipboardList,
+  Building2,
+  User,
+  Calendar,
+  Phone,
+  CheckCircle2,
+  Loader2,
+  Save,
+  Printer,
+  FileSignature,
+  RotateCcw,
+  CheckSquare,
+  AlertCircle,
+  Cpu,
+  Layers,
+  Search,
+} from "lucide-react";
 import { createRepairOrder } from "@/app/actions/repairOrders";
 import { searchCompanies, searchContacts, getPostalInfo } from "@/app/actions/sales";
+import Swal from "sweetalert2";
 
 interface UserOption {
   id: string;
@@ -22,6 +47,20 @@ interface RepairOrderItem {
   qty: number;
   remark: string;
 }
+
+const CHECKLIST_ITEMS = [
+  { k: "Front", l: "ด้านหน้า / Front", isVideo: false },
+  { k: "Top", l: "ด้านบน / Top", isVideo: false },
+  { k: "SideLeft", l: "ด้านข้าง (ซ้าย) / Left", isVideo: false },
+  { k: "SideRight", l: "ด้านข้าง (ขวา) / Right", isVideo: false },
+  { k: "Inside", l: "ด้านใน / Inside", isVideo: false },
+  { k: "Nameplate", l: "Nameplate", isVideo: false },
+  { k: "Bottom", l: "ด้านล่าง / Bottom", isVideo: false },
+  { k: "TerminalNut", l: "Terminal / Nut", isVideo: false },
+  { k: "TermCover", l: "Term. Cover", isVideo: false },
+  { k: "Cover", l: "ฝาครอบ / Cover", isVideo: false },
+  { k: "Video", l: "วิดีโอตรวจสอบ / Video", isVideo: true },
+];
 
 export default function NewRepairOrderForm({
   users,
@@ -49,9 +88,9 @@ export default function NewRepairOrderForm({
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
-  
+
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
-  
+
   const [contactSearchQuery, setContactSearchQuery] = useState("");
   const [isSearchingContact, setIsSearchingContact] = useState(false);
   const [contactSearchResults, setContactSearchResults] = useState<any[]>([]);
@@ -76,12 +115,17 @@ export default function NewRepairOrderForm({
   const [symptoms, setSymptoms] = useState("");
   const [settings, setSettings] = useState("");
   const [checklist, setChecklist] = useState<Record<string, boolean>>({
-    Front: false, Top: false,
-    SideLeft: false, SideRight: false,
-    Inside: false, Nameplate: false,
-    Bottom: false, TerminalNut: false,
-    TermCover: false, Cover: false,
-    Video: false
+    Front: false,
+    Top: false,
+    SideLeft: false,
+    SideRight: false,
+    Inside: false,
+    Nameplate: false,
+    Bottom: false,
+    TerminalNut: false,
+    TermCover: false,
+    Cover: false,
+    Video: false,
   });
 
   // Images State
@@ -95,8 +139,7 @@ export default function NewRepairOrderForm({
   const [sentDate, setSentDate] = useState(new Date().toISOString().split("T")[0]);
 
   useEffect(() => {
-    // Populate receiver text based on dropdown default
-    const u = users.find(u => u.id === receiverId);
+    const u = users.find((u) => u.id === receiverId);
     if (u && !receiverNameText) {
       setReceiverNameText(u.name);
     }
@@ -117,6 +160,7 @@ export default function NewRepairOrderForm({
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
+  // Handle Search Contact
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (contactSearchQuery.length >= 2) {
@@ -140,8 +184,8 @@ export default function NewRepairOrderForm({
         setContactSearchResults([]);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSelectCompany = (company: any) => {
@@ -194,7 +238,10 @@ export default function NewRepairOrderForm({
 
   // Handle Items
   const addItem = () => {
-    setItems([...items, { id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" }]);
+    setItems([
+      ...items,
+      { id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" },
+    ]);
   };
 
   const removeItem = (id: string) => {
@@ -209,7 +256,7 @@ export default function NewRepairOrderForm({
 
   // Handle Checklist
   const toggleChecklist = (key: string) => {
-    setChecklist(prev => ({ ...prev, [key]: !prev[key] }));
+    setChecklist((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   // Handle Images per Checklist Item
@@ -219,65 +266,117 @@ export default function NewRepairOrderForm({
       const validFiles: File[] = [];
       for (const file of newFiles) {
         if (file.size > 50 * 1024 * 1024) {
-          alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (รองรับสูงสุด 50MB)`);
+          Swal.fire({
+            icon: "warning",
+            title: "ไฟล์มีขนาดใหญ่เกินไป",
+            text: `ไฟล์ ${file.name} มีขนาดใหญ่เกิน 50MB`,
+            confirmButtonColor: "#ff2301",
+          });
         } else {
           validFiles.push(file);
         }
       }
-      setChecklistFiles(prev => ({
+      setChecklistFiles((prev) => ({
         ...prev,
-        [key]: [...(prev[key] || []), ...validFiles]
+        [key]: [...(prev[key] || []), ...validFiles],
       }));
     }
   };
 
   const removeFile = (key: string, index: number) => {
-    setChecklistFiles(prev => ({
+    setChecklistFiles((prev) => ({
       ...prev,
-      [key]: prev[key].filter((_, i) => i !== index)
+      [key]: prev[key].filter((_, i) => i !== index),
     }));
+  };
+
+  // Reset form
+  const handleReset = () => {
+    setWorkType("ซ่อม");
+    setInvoiceNo("");
+    setReceiverId(currentUserId);
+    setForwardedBy("");
+    setSalesPerson("");
+    setPhoneNumber("");
+    setDeliveryNoteNo("");
+    setCustomerCompany("");
+    setServiceProviderCompany("TERA GROUP");
+    setCustomerAddress("");
+    setPostalCode("");
+    setSubDistrict("");
+    setDistrict("");
+    setProvince("");
+    setSearchQuery("");
+    setContactSearchQuery("");
+    setSelectedCompanyId("");
+    setItems([{ id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" }]);
+    setSymptoms("");
+    setSettings("");
+    setChecklist({
+      Front: false,
+      Top: false,
+      SideLeft: false,
+      SideRight: false,
+      Inside: false,
+      Nameplate: false,
+      Bottom: false,
+      TerminalNut: false,
+      TermCover: false,
+      Cover: false,
+      Video: false,
+    });
+    setChecklistFiles({});
+    setSenderName("");
+    setReceivedDate(new Date().toISOString().split("T")[0]);
+    setSentDate(new Date().toISOString().split("T")[0]);
   };
 
   // Submit Handler
   const handleSubmit = async (action: "save" | "print") => {
+    if (!customerCompany.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาระบุชื่อบริษัท/ลูกค้า",
+        text: "จำเป็นต้องระบุชื่อบริษัทหรือลูกค้าในการเปิดใบแจ้งซ่อม",
+        confirmButtonColor: "#ff2301",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
-    
+
     try {
       // 1. Upload Images/Videos directly from browser to Supabase Storage
       const uploadedFilesMap: Record<string, string[]> = {};
       const allFiles = Object.values(checklistFiles).flat();
       if (allFiles.length > 0) {
         setIsUploading(true);
-        
-        const { createClient } = await import('@/utils/supabase/client');
+
+        const { createClient } = await import("@/utils/supabase/client");
         const supabase = createClient();
-        
+
         for (const [key, files] of Object.entries(checklistFiles)) {
           if (files.length === 0) continue;
           uploadedFilesMap[key] = [];
           for (const file of files) {
-            // Create unique filename
             const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-            const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-            
-            const { data: uploadData, error: uploadError } = await supabase
-              .storage
-              .from('uploadsService')
+            const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from("uploadsService")
               .upload(filename, file, {
                 contentType: file.type,
-                upsert: false
+                upsert: false,
               });
-            
+
             if (uploadError) {
-              console.error('Upload error:', uploadError);
-              alert(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}\nสาเหตุ: ${uploadError.message}`);
-              throw new Error('Upload failed');
+              console.error("Upload error:", uploadError);
+              throw new Error(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}`);
             }
 
-            const { data: { publicUrl } } = supabase
-              .storage
-              .from('uploadsService')
-              .getPublicUrl(uploadData.path);
+            const {
+              data: { publicUrl },
+            } = supabase.storage.from("uploadsService").getPublicUrl(uploadData.path);
 
             uploadedFilesMap[key].push(publicUrl);
           }
@@ -286,9 +385,9 @@ export default function NewRepairOrderForm({
       }
 
       // 2. Prepare Data
-      const selectedUser = users.find(u => u.id === receiverId);
+      const selectedUser = users.find((u) => u.id === receiverId);
 
-      const formData = {
+      const payload = {
         jobId: initialData?.jobId,
         workType,
         invoiceNo,
@@ -300,12 +399,18 @@ export default function NewRepairOrderForm({
         company: serviceProviderCompany,
         salesPerson: salesPerson,
         customerAddress: `${customerAddress} ${subDistrict} ${district} ${province} ${postalCode}`.trim(),
-        items: items.map(i => ({
-          type: i.type, brand: i.brand, model: i.model, size: i.size, serial: i.serial, qty: i.qty, remark: i.remark
+        items: items.map((i) => ({
+          type: i.type,
+          brand: i.brand,
+          model: i.model,
+          size: i.size,
+          serial: i.serial,
+          qty: i.qty,
+          remark: i.remark,
         })),
         symptoms,
         settings,
-        checklist: checklist,
+        checklist,
         checklistImages: uploadedFilesMap,
         senderName,
         receivedDate,
@@ -313,434 +418,884 @@ export default function NewRepairOrderForm({
       };
 
       // 3. Save
-      const result = await createRepairOrder(formData);
+      const result = await createRepairOrder(payload);
 
       if (result.success) {
+        Swal.fire({
+          icon: "success",
+          title: "บันทึกสำเร็จ",
+          text: "สร้างใบแจ้งซ่อมใหม่เรียบร้อยแล้ว",
+          timer: 1600,
+          showConfirmButton: false,
+        });
+
         if (action === "print" && result.jobId) {
           router.push(`/repair-orders/${result.jobId}/print`);
         } else {
           router.push("/repair-orders");
         }
       } else {
-        alert(result.error || "เกิดข้อผิดพลาดในการบันทึก");
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+          confirmButtonColor: "#ff2301",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("เกิดข้อผิดพลาดในการดำเนินการ");
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: error.message || "เกิดข้อผิดพลาดในการดำเนินการ กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#ff2301",
+      });
     } finally {
       setIsSubmitting(false);
+      setIsUploading(false);
     }
   };
 
-  const inputClass = "w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all";
-  const labelClass = "block text-xs font-bold text-gray-600 mb-1.5";
+  const inputClass =
+    "w-full px-3.5 py-2.5 bg-white text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-900 placeholder:text-gray-400";
+  const labelClass = "block text-xs font-semibold text-gray-700 mb-1.5";
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden mb-12 relative">
-      <div className="bg-gradient-to-r from-red-50 to-white border-b border-red-100/50 px-4 md:px-8 py-5 md:py-6 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-3 md:gap-4">
-          <button type="button" onClick={() => router.back()} className="p-2 -ml-2 text-red-400 hover:text-red-600 hover:bg-red-100/50 rounded-xl transition-colors">
-            <ArrowLeft size={20} />
-          </button>
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d01800] text-white shadow-lg shadow-red-500/30 flex items-center justify-center">
-              <Wrench size={22} />
+    <div className="space-y-8">
+      {/* ── Top Header Card (Matching User's Reference Screenshot) ── */}
+      <div className="bg-white border border-gray-200/80 rounded-3xl p-6 sm:p-7 shadow-sm transition-all relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          {/* Left: Red Squircle Badge + Title + Subtitle */}
+          <div className="flex items-center gap-4 sm:gap-5">
+            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] flex items-center justify-center text-white shadow-lg shadow-red-500/25 shrink-0">
+              <Wrench className="w-7 h-7" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#ff2301]" />
+              </span>
             </div>
-            <div>
-              <h1 className="text-lg md:text-xl font-black text-gray-900 tracking-tight uppercase">สร้างใบแจ้งซ่อมใหม่</h1>
-              <p className="text-[10px] md:text-xs font-bold text-[#ff2301] uppercase tracking-widest">New Repair Order</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="p-4 md:p-8 space-y-6 md:space-y-8 bg-slate-50/30 pb-32">
-        {initialData?.job && (
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50/30 p-5 md:p-6 rounded-2xl border border-blue-100 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-            <h2 className="text-sm font-black text-blue-800 uppercase tracking-wide mb-4 flex items-center gap-2">
-              <ClipboardList size={16} className="text-blue-600" />
-              ข้อมูลงานเบื้องต้นจาก Sales
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 relative z-10">
-              <div>
-                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">เลขที่งาน (Job)</p>
-                <p className="text-sm font-bold text-gray-800">{initialData.job.jobNumber || "-"}</p>
+            <div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+                  สร้างใบแจ้งซ่อมใหม่
+                </h1>
+                <span className="px-3 py-0.5 bg-red-50 text-[#ff2301] border border-red-200/80 rounded-full text-xs font-bold tracking-wide">
+                  เปิดงานใหม่
+                </span>
               </div>
-              <div>
-                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">ลูกค้า/บริษัท</p>
-                <p className="text-sm font-bold text-gray-800">{initialData.job.customerName || "-"}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">พนักงานขาย</p>
-                <p className="text-sm font-bold text-gray-800">{initialData.job.sellerName || "-"}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">ใบเสนอราคา / PO</p>
-                <p className="text-sm font-bold text-gray-800">{initialData.job.quotationNumber || "-"} / {initialData.job.poNumber || "-"}</p>
-              </div>
-              <div className="sm:col-span-2 lg:col-span-4">
-                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">สินค้า/อาการเสียเบื้องต้น</p>
-                <p className="text-sm font-medium text-gray-700 bg-white/60 p-2.5 rounded-lg border border-blue-50/50 mt-1">{initialData.job.item || "-"}</p>
+
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400 mt-1">
+                <span className="font-bold uppercase tracking-wider text-gray-500">
+                  REPAIR ORDER & SERVICE MANAGEMENT
+                </span>
+                <span className="text-gray-300">•</span>
+                <span className="text-gray-500">
+                  ระบบบันทึกรับซ่อมและตรวจเช็คอุปกรณ์
+                </span>
               </div>
             </div>
           </div>
-        )}
 
-        {/* Section 1: ข้อมูลการรับซ่อม */}
-        <div className="bg-white p-5 md:p-7 rounded-2xl border border-gray-100 shadow-sm">
-          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wide mb-6 flex items-center gap-3">
-            <div className="p-2 bg-blue-50 text-blue-500 rounded-lg">
-              <ClipboardList size={18} />
-            </div>
-            1. ข้อมูลการรับซ่อม
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            <div>
-              <label className={labelClass}>บริษัทผู้รับบริการ</label>
-              <select 
-                value={serviceProviderCompany} 
-                onChange={(e) => setServiceProviderCompany(e.target.value)} 
-                className={inputClass}
-              >
-                <option value="TERA GROUP">TERA GROUP</option>
-                <option value="TERA ELECTRIC">TERA ELECTRIC</option>
-                <option value="TERA POWER">TERA POWER</option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>วันที่รับซ่อม</label>
-              <input type="date" value={receivedDate} onChange={(e) => setReceivedDate(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>รูปแบบงาน (Job Type)</label>
-              <select 
-                value={workType} 
-                onChange={(e) => setWorkType(e.target.value)} 
-                className={inputClass}
-              >
-                <option value="ซ่อม">ซ่อม</option>
-                <option value="เคลม">เคลม</option>
-                <option value="ไม่ซ่อม/คืนสินค้า">ไม่ซ่อม/คืนสินค้า</option>
-                <option value="ตรวจเช็ค">ตรวจเช็ค</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className={labelClass}>Invoice No.</label>
-              <input type="text" value={invoiceNo} onChange={(e) => setInvoiceNo(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>Delivery Note / Ref Job No.</label>
-              <input type="text" value={deliveryNoteNo} onChange={(e) => setDeliveryNoteNo(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>ผู้รับซ่อม (Receiver)</label>
-              <select value={receiverId} onChange={(e) => setReceiverId(e.target.value)} className={inputClass}>
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>{u.name} ({u.position})</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>เซลล์ที่รับผิดชอบ (Salesperson)</label>
-              <input type="text" value={salesPerson} onChange={(e) => setSalesPerson(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>ส่งต่อโดย (Forwarded By)</label>
-              <input type="text" value={forwardedBy} onChange={(e) => setForwardedBy(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>เบอร์โทรติดต่อ</label>
-              <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className={inputClass} />
-            </div>
-          </div>
-        </div>
+          {/* Right: Actions (Back, Reset, and Save Buttons) */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/repair-orders"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 transition-colors shadow-sm"
+            >
+              <ArrowLeft className="w-4 h-4 text-gray-500" />
+              <span>กลับหน้ารายการ</span>
+            </Link>
 
-        {/* Section 2: ข้อมูลลูกค้า */}
-        <div className="bg-white p-5 md:p-7 rounded-2xl border border-gray-100 shadow-sm">
-          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wide mb-6 flex items-center gap-3">
-            <div className="p-2 bg-orange-50 text-orange-500 rounded-lg">
-              <Users size={18} />
-            </div>
-            2. ข้อมูลลูกค้า
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6" ref={searchRef}>
-            <div className="relative md:col-span-1">
-              <label className={labelClass}>ชื่อบริษัท/ลูกค้า</label>
-              <input 
-                type="text" 
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCustomerCompany(e.target.value);
-                }}
-                className={inputClass} 
-                placeholder="พิมพ์เพื่อค้นหาบริษัท..."
-              />
-              {isSearching && (
-                <div className="absolute right-3 top-9">
-                  <div className="animate-spin h-4 w-4 border-2 border-red-500 border-t-transparent rounded-full"></div>
-                </div>
-              )}
-              {searchResults.length > 0 && (
-                <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-auto mt-2 py-2">
-                  {searchResults.map((company) => (
-                    <li 
-                      key={company.id} 
-                      onClick={() => handleSelectCompany(company)}
-                      className="px-4 py-2 hover:bg-red-50 hover:text-red-600 cursor-pointer text-sm font-medium transition-colors"
-                    >
-                      {company.companyName}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={isSubmitting}
+              className="p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 transition-colors shadow-sm disabled:opacity-40"
+              title="ล้างข้อมูลฟอร์ม"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
 
-            <div className="relative md:col-span-1" ref={contactSearchRef}>
-              <label className={labelClass}>ผู้ติดต่อ (Contact Person)</label>
-              <input 
-                type="text" 
-                value={contactSearchQuery}
-                onChange={(e) => {
-                  setContactSearchQuery(e.target.value);
-                  setSenderName(e.target.value);
-                }}
-                className={inputClass} 
-                placeholder="พิมพ์เพื่อค้นหาผู้ติดต่อ..."
-              />
-              {isSearchingContact && (
-                <div className="absolute right-3 top-9">
-                  <div className="animate-spin h-4 w-4 border-2 border-red-500 border-t-transparent rounded-full"></div>
-                </div>
+            <button
+              type="button"
+              onClick={() => handleSubmit("save")}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs shadow-md transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
               )}
-              {contactSearchResults.length > 0 && (
-                <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-auto mt-2 py-2">
-                  {contactSearchResults.map((contact) => (
-                    <li 
-                      key={contact.id} 
-                      onClick={() => handleSelectContact(contact)}
-                      className="px-4 py-2 hover:bg-red-50 hover:text-red-600 cursor-pointer text-sm font-medium transition-colors"
-                    >
-                      <div className="font-bold">{contact.contactName}</div>
-                      <div className="text-[10px] text-gray-500">{contact.phone || contact.mobile}</div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            
-            <div className="md:col-span-2">
-              <label className={labelClass}>ที่อยู่</label>
-              <input type="text" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} className={inputClass} />
-            </div>
+              <span>บันทึก</span>
+            </button>
 
-            <div className="relative">
-              <label className={labelClass}>รหัสไปรษณีย์</label>
-              <input type="text" value={postalCode} onChange={(e) => handlePostalCodeChange(e.target.value)} className={inputClass} maxLength={5} />
-              {postalOptions.length > 0 && (
-                <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-auto mt-2 py-2">
-                  {postalOptions.map((opt, i) => (
-                    <li 
-                      key={i} 
-                      onClick={() => handlePostalSelect(opt)}
-                      className="px-4 py-2 hover:bg-red-50 hover:text-red-600 cursor-pointer text-sm font-medium transition-colors"
-                    >
-                      {opt.subDistrict} &gt; {opt.district} &gt; {opt.province}
-                    </li>
-                  ))}
-                </ul>
+            <button
+              type="button"
+              onClick={() => handleSubmit("print")}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white font-bold text-xs shadow-lg shadow-red-500/25 transition-all transform active:scale-95 disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Printer className="w-4 h-4" />
               )}
-            </div>
-            
-            <div>
-              <label className={labelClass}>แขวง/ตำบล</label>
-              <input type="text" value={subDistrict} readOnly className={`${inputClass} bg-gray-100/50`} />
-            </div>
-            <div>
-              <label className={labelClass}>เขต/อำเภอ</label>
-              <input type="text" value={district} readOnly className={`${inputClass} bg-gray-100/50`} />
-            </div>
-            <div>
-              <label className={labelClass}>จังหวัด</label>
-              <input type="text" value={province} readOnly className={`${inputClass} bg-gray-100/50`} />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3: รายการสินค้า */}
-        <div className="bg-white p-5 md:p-7 rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wide flex items-center gap-3">
-              <div className="p-2 bg-emerald-50 text-emerald-500 rounded-lg">
-                <Wrench size={18} />
-              </div>
-              3. รายการสินค้า
-            </h2>
-            <button type="button" onClick={addItem} className="flex items-center gap-2 text-xs font-bold bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-xl transition-all shadow-sm">
-              <Plus className="w-4 h-4" /> เพิ่มรายการ
+              <span>บันทึก + พิมพ์</span>
             </button>
           </div>
-          <div className="overflow-x-auto rounded-xl border border-gray-100">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100">
-                <tr>
-                  <th className="px-4 py-3 font-bold">ลำดับ</th>
-                  <th className="px-4 py-3 font-bold min-w-[150px]">ประเภทสินค้า</th>
-                  <th className="px-4 py-3 font-bold min-w-[120px]">ยี่ห้อ</th>
-                  <th className="px-4 py-3 font-bold min-w-[150px]">รุ่น/โมเดล</th>
-                  <th className="px-4 py-3 font-bold min-w-[100px]">ขนาด</th>
-                  <th className="px-4 py-3 font-bold min-w-[150px]">Serial No.</th>
-                  <th className="px-4 py-3 font-bold w-[80px]">จำนวน</th>
-                  <th className="px-4 py-3 font-bold min-w-[150px]">หมายเหตุ</th>
-                  <th className="px-4 py-3 font-bold w-[50px]"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {items.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-red-50/30 transition-colors">
-                    <td className="px-4 py-2 text-center font-bold text-gray-400">{index + 1}</td>
-                    <td className="px-2 py-2"><input type="text" value={item.type} onChange={(e) => updateItem(item.id, "type", e.target.value)} className={inputClass} placeholder="เช่น Motor, Pump" /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.brand} onChange={(e) => updateItem(item.id, "brand", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.model} onChange={(e) => updateItem(item.id, "model", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.size} onChange={(e) => updateItem(item.id, "size", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.serial} onChange={(e) => updateItem(item.id, "serial", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="number" min="1" value={item.qty} onChange={(e) => updateItem(item.id, "qty", parseInt(e.target.value) || 1)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.remark} onChange={(e) => updateItem(item.id, "remark", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2 text-center">
-                      <button type="button" onClick={() => removeItem(item.id)} disabled={items.length === 1} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg disabled:opacity-30 transition-colors">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
+        </div>
+
+        {/* Mini Meta Info */}
+        <div className="mt-6 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-gray-500">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#ff2301]" />
+            <span>เลขที่ใบแจ้งซ่อม <strong className="font-mono text-gray-800">RO{new Date().getFullYear() + 543}-XXXX</strong> จะถูกสร้างอัตโนมัติเมื่อกดบันทึก</span>
+          </div>
+          <div className="flex items-center gap-2 font-medium">
+            <span>ผู้ทำรายการ: <strong className="text-gray-800">{users.find((u) => u.id === currentUserId)?.name || "เจ้าหน้าที่"}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Sales Job Reference Callout (If Linked to a Job) ── */}
+      {initialData?.job && (
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                <ClipboardList className="w-4 h-4" />
+              </div>
+              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
+                ข้อมูลงานเบื้องต้นจากฝ่ายขาย (Sales Job Reference)
+              </h2>
+            </div>
+            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-gray-900 text-white">
+              {initialData.job.jobNumber || "-"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span className="text-gray-400 block font-semibold mb-0.5">ลูกค้า/บริษัท</span>
+              <span className="font-bold text-gray-800 text-sm">{initialData.job.customerName || "-"}</span>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span className="text-gray-400 block font-semibold mb-0.5">พนักงานขาย</span>
+              <span className="font-bold text-gray-800 text-sm">{initialData.job.sellerName || "-"}</span>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span className="text-gray-400 block font-semibold mb-0.5">ใบเสนอราคา / PO</span>
+              <span className="font-bold text-gray-800 text-sm">
+                {initialData.job.quotationNumber || "-"} / {initialData.job.poNumber || "-"}
+              </span>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span className="text-gray-400 block font-semibold mb-0.5">สินค้าเบื้องต้น</span>
+              <span className="font-bold text-gray-800 text-sm truncate block">{initialData.job.item || "-"}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Section 1 & 2: Symmetrical 2-Column Balance ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        {/* ════════════════════════════════════════════════
+            COLUMN 1 (LEFT): 1. ข้อมูลการรับซ่อม
+            ════════════════════════════════════════════════ */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                <ClipboardList className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-gray-900">
+                  1. ข้อมูลการรับซ่อมและเอกสาร
+                </h2>
+                <p className="text-xs text-gray-400">ORDER & DOCUMENT SPECIFICATIONS</p>
+              </div>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 bg-red-50 text-[#ff2301] rounded-lg border border-red-200">
+              ข้อมูลหลัก *
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {/* บริษัทผู้รับบริการ & วันที่รับซ่อม */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>บริษัทผู้รับบริการ <span className="text-[#ff2301]">*</span></label>
+                <select
+                  value={serviceProviderCompany}
+                  onChange={(e) => setServiceProviderCompany(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="TERA GROUP">TERA GROUP</option>
+                  <option value="TERA ELECTRIC">TERA ELECTRIC</option>
+                  <option value="TERA POWER">TERA POWER</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>วันที่รับซ่อม <span className="text-[#ff2301]">*</span></label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                  <input
+                    type="date"
+                    value={receivedDate}
+                    onChange={(e) => setReceivedDate(e.target.value)}
+                    className={`${inputClass} pl-10`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* รูปแบบงาน (Job Type) */}
+            <div>
+              <label className={labelClass}>รูปแบบงาน (Job Type) <span className="text-[#ff2301]">*</span></label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {["ซ่อม", "เคลม", "ไม่ซ่อม/คืนสินค้า", "ตรวจเช็ค"].map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setWorkType(type)}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                      workType === type
+                        ? "bg-gray-900 text-white border-gray-900 shadow-sm"
+                        : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-red-50 hover:border-red-200 hover:text-[#ff2301]"
+                    }`}
+                  >
+                    {type}
+                  </button>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </div>
+
+            {/* Invoice No. & Delivery Note No. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Invoice No.</label>
+                <input
+                  type="text"
+                  placeholder="เช่น INV-XXXX"
+                  value={invoiceNo}
+                  onChange={(e) => setInvoiceNo(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Delivery Note / Ref Job No.</label>
+                <input
+                  type="text"
+                  placeholder="เลขที่ใบส่งของ / อ้างอิง"
+                  value={deliveryNoteNo}
+                  onChange={(e) => setDeliveryNoteNo(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            {/* ผู้รับซ่อม (Receiver) */}
+            <div>
+              <label className={labelClass}>ผู้รับซ่อม (Receiver) <span className="text-[#ff2301]">*</span></label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <select
+                  value={receiverId}
+                  onChange={(e) => setReceiverId(e.target.value)}
+                  className={`${inputClass} pl-10`}
+                >
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.position})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* เซลล์ที่รับผิดชอบ & ส่งต่อโดย */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>เซลล์ที่รับผิดชอบ (Salesperson)</label>
+                <input
+                  type="text"
+                  placeholder="ชื่อพนักงานขาย"
+                  value={salesPerson}
+                  onChange={(e) => setSalesPerson(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>ส่งต่อโดย (Forwarded By)</label>
+                <input
+                  type="text"
+                  placeholder="ผู้ส่งต่อเรื่อง"
+                  value={forwardedBy}
+                  onChange={(e) => setForwardedBy(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            {/* เบอร์โทรติดต่อ */}
+            <div>
+              <label className={labelClass}>เบอร์โทรศัพท์ติดต่อ</label>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <input
+                  type="tel"
+                  placeholder="เช่น 081-234-5678"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className={`${inputClass} pl-10`}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Section 4: อาการเสีย + Checklist */}
-        <div className="bg-white p-5 md:p-7 rounded-2xl border border-gray-100 shadow-sm">
-          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wide mb-6 flex items-center gap-3">
-            <div className="p-2 bg-purple-50 text-purple-500 rounded-lg">
-              <ClipboardList size={18} />
-            </div>
-            4. อาการเสียและการตรวจสอบ
-          </h2>
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="space-y-4 xl:col-span-1 flex flex-col">
-              <div className="flex-1 flex flex-col">
-                <label className={labelClass}>อาการเสีย (Symptoms)</label>
-                <textarea rows={5} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} className={`${inputClass} flex-1 resize-none`}></textarea>
+        {/* ════════════════════════════════════════════════
+            COLUMN 2 (RIGHT): 2. ข้อมูลลูกค้า
+            ════════════════════════════════════════════════ */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                <Building2 className="w-5 h-5" />
               </div>
-              <div className="flex-1 flex flex-col">
-                <label className={labelClass}>การตั้งค่า (Setting)</label>
-                <textarea rows={5} value={settings} onChange={(e) => setSettings(e.target.value)} className={`${inputClass} flex-1 resize-none`}></textarea>
+              <div>
+                <h2 className="text-base font-bold text-gray-900">
+                  2. ข้อมูลลูกค้าและสถานที่ติดต่อ
+                </h2>
+                <p className="text-xs text-gray-400">CUSTOMER & SITE DETAILS</p>
               </div>
             </div>
-            
-            <div className="xl:col-span-2 flex flex-col">
-              <label className={labelClass}>Checklist ก่อนซ่อม</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/50 p-5 rounded-2xl border border-gray-100 flex-1">
-                {[
-                  { k: "Front", l: "ด้านหน้า/Front", isVideo: false }, { k: "Top", l: "ด้านบน/Top", isVideo: false },
-                  { k: "SideLeft", l: "ด้านข้าง(ซ้าย)/Side Left", isVideo: false }, { k: "SideRight", l: "ด้านข้าง(ขวา)/Side Right", isVideo: false },
-                  { k: "Inside", l: "ด้านใน/Inside", isVideo: false }, { k: "Nameplate", l: "Nameplate", isVideo: false },
-                  { k: "Bottom", l: "ด้านล่าง/Bottom", isVideo: false }, { k: "TerminalNut", l: "Terminal/Nut", isVideo: false },
-                  { k: "TermCover", l: "Term.Cover", isVideo: false }, { k: "Cover", l: "ฝาครอบ/Cover", isVideo: false },
-                  { k: "Video", l: "Video", isVideo: true }
-                ].map(({ k, l, isVideo }) => (
-                  <div key={k} className="flex flex-col gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
-                    <label className="flex items-center gap-3 cursor-pointer group w-fit">
-                      <div className="relative flex items-center justify-center">
-                        <input type="checkbox" checked={checklist[k] || false} onChange={() => toggleChecklist(k)} className="peer w-5 h-5 opacity-0 absolute" />
-                        <div className="w-5 h-5 rounded border-2 border-gray-300 peer-checked:bg-red-500 peer-checked:border-red-500 transition-colors flex items-center justify-center">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
-                        </div>
-                      </div>
-                      <span className="text-sm font-bold text-gray-700 group-hover:text-red-500 transition-colors">{l}</span>
-                    </label>
+            <span className="text-xs font-semibold px-2.5 py-1 bg-red-50 text-[#ff2301] rounded-lg border border-red-200">
+              ข้อมูลลูกค้า *
+            </span>
+          </div>
 
-                    {checklist[k] && (
-                      <div className="flex flex-wrap gap-2 items-start pl-8 mt-1">
-                        <label className="cursor-pointer border-2 border-dashed border-red-200 hover:border-red-500 hover:bg-red-50 rounded-xl w-20 h-20 flex flex-col items-center justify-center text-red-400 hover:text-red-600 transition-all shrink-0">
-                          <Upload className="w-5 h-5 mb-1" />
-                          <span className="text-[9px] font-bold uppercase tracking-wider">{isVideo ? "เพิ่มวิดีโอ" : "เพิ่มรูป"}</span>
-                          <span className="text-[8px] text-red-400 mt-0.5 text-center px-1 font-medium leading-tight">(สูงสุด 50MB)</span>
-                          <input type="file" accept={isVideo ? "video/*" : "image/*"} multiple className="hidden" onChange={(e) => handleFileChange(e, k)} />
-                        </label>
-                        
-                        {(checklistFiles[k] || []).map((file, idx) => {
-                          const previewUrl = URL.createObjectURL(file);
-                          const isVid = file.type.startsWith("video/");
-                          return (
-                            <div key={idx} className="relative group w-20 h-20 rounded-xl overflow-hidden shadow-sm shrink-0 border border-gray-200">
-                              {isVid ? (
-                                <video src={previewUrl} className="w-full h-full object-cover" muted />
-                              ) : (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={previewUrl} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
-                              )}
-                              <button type="button" onClick={() => removeFile(k, idx)} className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500">
-                                <X className="w-3 h-3" />
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+          <div className="space-y-4">
+            {/* ค้นหาและระบุชื่อบริษัท/ลูกค้า */}
+            <div className="relative" ref={searchRef}>
+              <label className={labelClass}>ชื่อบริษัท / ลูกค้า <span className="text-[#ff2301]">*</span></label>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery || customerCompany}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCustomerCompany(e.target.value);
+                  }}
+                  className={`${inputClass} pl-10`}
+                  placeholder="พิมพ์เพื่อค้นหาบริษัทจากฐานข้อมูล..."
+                />
+                {isSearching && (
+                  <div className="absolute right-3.5 top-3">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#ff2301]" />
                   </div>
-                ))}
+                )}
+              </div>
+
+              {searchResults.length > 0 && (
+                <ul className="absolute z-20 w-full bg-white border border-gray-200 rounded-2xl shadow-xl max-h-56 overflow-auto mt-2 py-2">
+                  {searchResults.map((company) => (
+                    <li
+                      key={company.id}
+                      onClick={() => handleSelectCompany(company)}
+                      className="px-4 py-2.5 hover:bg-red-50 hover:text-[#ff2301] cursor-pointer text-sm font-medium transition-colors border-b border-gray-50 last:border-0"
+                    >
+                      <div className="font-bold text-gray-900">{company.companyName}</div>
+                      {company.address && (
+                        <div className="text-xs text-gray-400 truncate">{company.address}</div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* ผู้ติดต่อ (Contact Person) */}
+            <div className="relative" ref={contactSearchRef}>
+              <label className={labelClass}>ผู้ติดต่อ (Contact Person)</label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={contactSearchQuery || senderName}
+                  onChange={(e) => {
+                    setContactSearchQuery(e.target.value);
+                    setSenderName(e.target.value);
+                  }}
+                  className={`${inputClass} pl-10`}
+                  placeholder="พิมพ์เพื่อค้นหาผู้ติดต่อ..."
+                />
+                {isSearchingContact && (
+                  <div className="absolute right-3.5 top-3">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#ff2301]" />
+                  </div>
+                )}
+              </div>
+
+              {contactSearchResults.length > 0 && (
+                <ul className="absolute z-20 w-full bg-white border border-gray-200 rounded-2xl shadow-xl max-h-56 overflow-auto mt-2 py-2">
+                  {contactSearchResults.map((contact) => (
+                    <li
+                      key={contact.id}
+                      onClick={() => handleSelectContact(contact)}
+                      className="px-4 py-2.5 hover:bg-red-50 hover:text-[#ff2301] cursor-pointer text-sm font-medium transition-colors border-b border-gray-50 last:border-0"
+                    >
+                      <div className="font-bold text-gray-900">{contact.contactName}</div>
+                      <div className="text-xs text-gray-400">{contact.phone || contact.mobile || "-"}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* ที่อยู่ */}
+            <div>
+              <label className={labelClass}>ที่อยู่ (Address)</label>
+              <textarea
+                rows={2}
+                value={customerAddress}
+                onChange={(e) => setCustomerAddress(e.target.value)}
+                className={`${inputClass} resize-none`}
+                placeholder="เลขที่, ถนน, ซอย..."
+              />
+            </div>
+
+            {/* รหัสไปรษณีย์ และ ที่อยู่ย่อย */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="relative">
+                <label className={labelClass}>รหัสไปรษณีย์</label>
+                <input
+                  type="text"
+                  maxLength={5}
+                  value={postalCode}
+                  onChange={(e) => handlePostalCodeChange(e.target.value)}
+                  className={inputClass}
+                  placeholder="เช่น 10110"
+                />
+
+                {postalOptions.length > 0 && (
+                  <ul className="absolute z-20 w-full bg-white border border-gray-200 rounded-2xl shadow-xl max-h-56 overflow-auto mt-2 py-2">
+                    {postalOptions.map((opt, i) => (
+                      <li
+                        key={i}
+                        onClick={() => handlePostalSelect(opt)}
+                        className="px-4 py-2.5 hover:bg-red-50 hover:text-[#ff2301] cursor-pointer text-xs font-medium transition-colors border-b border-gray-50 last:border-0"
+                      >
+                        {opt.subDistrict} &gt; {opt.district} &gt; {opt.province}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div>
+                <label className={labelClass}>แขวง / ตำบล</label>
+                <input
+                  type="text"
+                  value={subDistrict}
+                  onChange={(e) => setSubDistrict(e.target.value)}
+                  className={`${inputClass} bg-gray-50`}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>เขต / อำเภอ</label>
+                <input
+                  type="text"
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  className={`${inputClass} bg-gray-50`}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>จังหวัด</label>
+                <input
+                  type="text"
+                  value={province}
+                  onChange={(e) => setProvince(e.target.value)}
+                  className={`${inputClass} bg-gray-50`}
+                />
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Section 5: ลายเซ็น */}
-        <div className="bg-white p-5 md:p-7 rounded-2xl border border-gray-100 shadow-sm">
-          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wide mb-6 flex items-center gap-3">
-            <div className="p-2 bg-pink-50 text-pink-500 rounded-lg">
-              <FileSignature size={18} />
+      {/* ── Section 3: รายการสินค้า (Items Table) ── */}
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-gray-100 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+              <Layers className="w-5 h-5" />
             </div>
-            5. การส่งมอบและการรับมอบ
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-gray-50/50 p-6 md:p-8 rounded-2xl border border-gray-200 text-center flex flex-col items-center justify-center min-h-[200px]">
-              <div className="font-bold text-gray-500 uppercase tracking-wider text-sm mb-8">ผู้ส่งซ่อม (ลูกค้า)</div>
-              <input type="text" value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="พิมพ์ชื่อผู้ส่งซ่อม" className="w-full max-w-[250px] text-center bg-transparent border-b-2 border-dashed border-gray-300 focus:border-red-500 px-4 py-2 font-medium text-gray-900 outline-none transition-colors" />
+            <div>
+              <h2 className="text-base font-bold text-gray-900">
+                3. รายการสินค้าส่งซ่อม
+              </h2>
+              <p className="text-xs text-gray-400">EQUIPMENT & REPAIR ITEMS LIST</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={addItem}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            <span>เพิ่มรายการสินค้า</span>
+          </button>
+        </div>
+
+        <div className="overflow-x-auto rounded-2xl border border-gray-200">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-200 font-bold">
+              <tr>
+                <th className="px-4 py-3 text-center w-12">#</th>
+                <th className="px-3 py-3 min-w-[140px]">ประเภทสินค้า</th>
+                <th className="px-3 py-3 min-w-[120px]">ยี่ห้อ</th>
+                <th className="px-3 py-3 min-w-[140px]">รุ่น / โมเดล</th>
+                <th className="px-3 py-3 min-w-[100px]">ขนาด</th>
+                <th className="px-3 py-3 min-w-[140px]">Serial No.</th>
+                <th className="px-3 py-3 w-24 text-center">จำนวน</th>
+                <th className="px-3 py-3 min-w-[150px]">หมายเหตุ</th>
+                <th className="px-3 py-3 w-12 text-center">ลบ</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {items.map((item, index) => (
+                <tr key={item.id} className="hover:bg-red-50/20 transition-colors">
+                  <td className="px-4 py-2.5 text-center font-mono font-bold text-gray-400 text-xs">
+                    {index + 1}
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={item.type}
+                      onChange={(e) => updateItem(item.id, "type", e.target.value)}
+                      className={inputClass}
+                      placeholder="เช่น Inverter, Motor"
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={item.brand}
+                      onChange={(e) => updateItem(item.id, "brand", e.target.value)}
+                      className={inputClass}
+                      placeholder="ยี่ห้อ"
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={item.model}
+                      onChange={(e) => updateItem(item.id, "model", e.target.value)}
+                      className={inputClass}
+                      placeholder="รุ่น/โมเดล"
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={item.size}
+                      onChange={(e) => updateItem(item.id, "size", e.target.value)}
+                      className={inputClass}
+                      placeholder="ขนาด/พิกัด"
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={item.serial}
+                      onChange={(e) => updateItem(item.id, "serial", e.target.value)}
+                      className={`${inputClass} font-mono`}
+                      placeholder="S/N"
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="number"
+                      min={1}
+                      value={item.qty}
+                      onChange={(e) => updateItem(item.id, "qty", parseInt(e.target.value) || 1)}
+                      className={`${inputClass} text-center font-bold`}
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={item.remark}
+                      onChange={(e) => updateItem(item.id, "remark", e.target.value)}
+                      className={inputClass}
+                      placeholder="หมายเหตุอาการ"
+                    />
+                  </td>
+                  <td className="px-2 py-2 text-center">
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      disabled={items.length === 1}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl disabled:opacity-30 transition-colors"
+                      title="ลบแถว"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── Section 4: อาการเสีย + Checklist ── */}
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900">
+                4. อาการเสียและการตรวจสอบสภาพก่อนซ่อม
+              </h2>
+              <p className="text-xs text-gray-400">SYMPTOMS & PHYSICAL INSPECTION CHECKLIST</p>
+            </div>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200">
+            การตรวจสอบ
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
+          {/* Left Column: Symptoms & Settings */}
+          <div className="space-y-5">
+            <div>
+              <label className={labelClass}>อาการเสียที่พบ (Symptoms)</label>
+              <textarea
+                rows={5}
+                value={symptoms}
+                onChange={(e) => setSymptoms(e.target.value)}
+                className={`${inputClass} resize-y leading-relaxed`}
+                placeholder="ระบุอาการเสียอย่างละเอียด เช่น มอเตอร์ไม่หมุน, ไฟ Overload ติดค้าง, มีเสียงเตือนดัง..."
+              />
             </div>
 
-            <div className="bg-gray-50/50 p-6 md:p-8 rounded-2xl border border-gray-200 text-center flex flex-col items-center justify-center min-h-[200px]">
-              <div className="font-bold text-gray-500 uppercase tracking-wider text-sm mb-8">ผู้รับซ่อม (Tera Group)</div>
-              <input type="text" value={receiverNameText} onChange={(e) => setReceiverNameText(e.target.value)} placeholder="พิมพ์ชื่อผู้รับซ่อม" className="w-full max-w-[250px] text-center bg-transparent border-b-2 border-dashed border-gray-300 focus:border-red-500 px-4 py-2 font-medium text-gray-900 outline-none transition-colors" />
+            <div>
+              <label className={labelClass}>การตั้งค่า / ค่าพารามิเตอร์ (Setting)</label>
+              <textarea
+                rows={4}
+                value={settings}
+                onChange={(e) => setSettings(e.target.value)}
+                className={`${inputClass} resize-y leading-relaxed`}
+                placeholder="ระบุค่าความถี่, แรงดัน, กระแส หรือการตั้งค่าที่ใช้งาน..."
+              />
+            </div>
+          </div>
+
+          {/* Right Column: Checklist with Photos */}
+          <div>
+            <label className={labelClass}>Checklist ตรวจสอบสภาพภายนอกก่อนซ่อม</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-gray-50/70 p-4 sm:p-5 rounded-2xl border border-gray-200">
+              {CHECKLIST_ITEMS.map(({ k, l, isVideo }) => (
+                <div
+                  key={k}
+                  className="flex flex-col gap-2 p-3 bg-white rounded-xl border border-gray-200/80 shadow-sm"
+                >
+                  <label className="flex items-center gap-2.5 cursor-pointer group select-none">
+                    <div className="relative flex items-center justify-center">
+                      <input
+                        type="checkbox"
+                        checked={checklist[k] || false}
+                        onChange={() => toggleChecklist(k)}
+                        className="peer w-4 h-4 opacity-0 absolute"
+                      />
+                      <div className="w-4 h-4 rounded border-2 border-gray-300 peer-checked:bg-[#ff2301] peer-checked:border-[#ff2301] transition-colors flex items-center justify-center">
+                        <CheckCircle2 className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-gray-800 group-hover:text-[#ff2301] transition-colors">
+                      {l}
+                    </span>
+                  </label>
+
+                  {checklist[k] && (
+                    <div className="flex flex-wrap gap-2 items-start pl-6 mt-1">
+                      <label className="cursor-pointer border-2 border-dashed border-red-200 hover:border-[#ff2301] hover:bg-red-50 rounded-xl w-16 h-16 flex flex-col items-center justify-center text-red-400 hover:text-[#ff2301] transition-all shrink-0">
+                        <Upload className="w-4 h-4 mb-0.5" />
+                        <span className="text-[9px] font-bold uppercase">{isVideo ? "วิดีโอ" : "รูปภาพ"}</span>
+                        <input
+                          type="file"
+                          accept={isVideo ? "video/*" : "image/*"}
+                          multiple
+                          className="hidden"
+                          onChange={(e) => handleFileChange(e, k)}
+                        />
+                      </label>
+
+                      {(checklistFiles[k] || []).map((file, idx) => {
+                        const previewUrl = URL.createObjectURL(file);
+                        const isVid = file.type.startsWith("video/");
+                        return (
+                          <div
+                            key={idx}
+                            className="relative group w-16 h-16 rounded-xl overflow-hidden shadow-sm shrink-0 border border-gray-200"
+                          >
+                            {isVid ? (
+                              <video src={previewUrl} className="w-full h-full object-cover" muted />
+                            ) : (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={previewUrl} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeFile(k, idx)}
+                              className="absolute top-1 right-1 bg-black/70 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sticky Action Bar */}
-      <div className="absolute bottom-0 left-0 w-full bg-white/80 backdrop-blur-md border-t border-gray-100 p-4 px-6 flex justify-between items-center shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)]">
-        <button type="button" onClick={() => router.back()} disabled={isSubmitting} className="px-6 py-2.5 text-sm font-bold bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all disabled:opacity-50">
-          ยกเลิก
-        </button>
-        <div className="flex gap-3">
-          <button type="button" onClick={() => handleSubmit("save")} disabled={isSubmitting} className="px-6 py-2.5 text-sm font-bold bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/20 disabled:opacity-50 flex items-center gap-2">
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            บันทึก
-          </button>
-          <button type="button" onClick={() => handleSubmit("print")} disabled={isSubmitting} className="px-6 py-2.5 text-sm font-bold bg-[#ff2301] text-white rounded-xl hover:bg-[#d61e00] transition-all shadow-lg shadow-red-500/30 disabled:opacity-50 flex items-center gap-2">
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSignature className="w-4 h-4" />}
-            บันทึก + พิมพ์ PDF
-          </button>
+      {/* ── Section 5: การส่งมอบและการรับมอบ ── */}
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+              <FileSignature className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900">
+                5. การส่งมอบและการรับมอบสินค้า
+              </h2>
+              <p className="text-xs text-gray-400">HANDOVER & RECEIPT CONFIRMATION</p>
+            </div>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200">
+            ลายเซ็นกำกับ
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gray-50/60 p-6 rounded-2xl border border-gray-200 text-center flex flex-col items-center justify-center min-h-[180px]">
+            <div className="font-bold text-gray-500 uppercase tracking-wider text-xs mb-6">
+              ผู้ส่งซ่อม (ลูกค้า / ตัวแทน)
+            </div>
+            <input
+              type="text"
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              placeholder="พิมพ์ชื่อ-นามสกุล ผู้ส่งซ่อม"
+              className="w-full max-w-[280px] text-center bg-transparent border-b-2 border-dashed border-gray-300 focus:border-[#ff2301] px-4 py-2 font-medium text-gray-900 outline-none transition-colors text-sm"
+            />
+          </div>
+
+          <div className="bg-gray-50/60 p-6 rounded-2xl border border-gray-200 text-center flex flex-col items-center justify-center min-h-[180px]">
+            <div className="font-bold text-gray-500 uppercase tracking-wider text-xs mb-6">
+              ผู้รับซ่อม (เจ้าหน้าที่ Tera Group)
+            </div>
+            <input
+              type="text"
+              value={receiverNameText}
+              onChange={(e) => setReceiverNameText(e.target.value)}
+              placeholder="พิมพ์ชื่อ-นามสกุล ผู้รับซ่อม"
+              className="w-full max-w-[280px] text-center bg-transparent border-b-2 border-dashed border-gray-300 focus:border-[#ff2301] px-4 py-2 font-medium text-gray-900 outline-none transition-colors text-sm"
+            />
+          </div>
         </div>
       </div>
 
+      {/* ── Fixed Symmetrical Bottom Action Dock ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <Link
+              href="/repair-orders"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-gray-600 hover:text-[#ff2301] transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>ยกเลิกและกลับหน้ารายการ</span>
+            </Link>
+
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={isSubmitting}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 rounded-xl transition-all"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                ล้างฟอร์ม
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSubmit("save")}
+                disabled={isSubmitting}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs shadow-md transition-all disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                <span>บันทึกข้อมูล</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSubmit("print")}
+                disabled={isSubmitting}
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] disabled:opacity-50 rounded-xl shadow-lg shadow-red-500/25 transition-all transform active:scale-95"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>กำลังบันทึก...</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="w-4 h-4" />
+                    <span>บันทึก + พิมพ์เอกสาร</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Uploading Overlay Modal */}
       {isUploading && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 text-red-500 animate-spin" />
-            <div className="font-bold text-gray-800">กำลังอัปโหลดรูปภาพ...</div>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4 text-center max-w-sm w-full">
+            <Loader2 className="w-10 h-10 text-[#ff2301] animate-spin" />
+            <div>
+              <div className="font-bold text-gray-900 text-base">กำลังอัปโหลดรูปภาพ / วิดีโอ...</div>
+              <div className="text-xs text-gray-500 mt-1">กรุณารอสักครู่ ระบบกำลังจัดเก็บไฟล์ไปยังคลาวด์</div>
+            </div>
           </div>
         </div>
       )}

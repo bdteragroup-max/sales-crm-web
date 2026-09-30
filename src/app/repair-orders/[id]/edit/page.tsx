@@ -21,17 +21,8 @@ export default async function EditRepairOrderPage({ params }: { params: Promise<
   ]);
 
   return (
-    <main className="flex-1 flex flex-col overflow-y-auto bg-[#fafbfc] p-4 md:p-6 custom-scrollbar">
-      <div className="max-w-7xl mx-auto w-full pb-32">
-        <div className="mb-6">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
-            แก้ไขใบรับซ่อม
-          </h1>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
-            Edit Repair Order • {repairOrder.job?.jobNumber || '-'}
-          </p>
-        </div>
-        
+    <main className="flex-1 flex flex-col overflow-y-auto bg-slate-50/80 min-h-0 custom-scrollbar">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 pb-36">
         <EditRepairOrderForm 
           initialData={repairOrder} 
           users={users} 

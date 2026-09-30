@@ -5,8 +5,10 @@ import OutsourceRepairsClientPage from "./ClientPage";
 import { getOutsourceRepairs } from "@/app/actions/outsourceRepairs";
 
 export const metadata = {
-  title: "ซ่อมภายนอก | Sales CRM",
+  title: "ใบส่งซ่อมภายนอก (Outsource Repairs) - CRM",
 };
+
+export const dynamic = "force-dynamic";
 
 export default async function OutsourceRepairsPage() {
   const session = await getUser();
@@ -18,8 +20,19 @@ export default async function OutsourceRepairsPage() {
   const repairs = res.success ? res.data : [];
 
   return (
-    <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading...</div>}>
-      <OutsourceRepairsClientPage initialData={repairs || []} currentUser={session} />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-400 font-medium">
+          กำลังโหลดข้อมูลใบส่งซ่อมภายนอก...
+        </div>
+      }
+    >
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-32">
+        <OutsourceRepairsClientPage
+          initialData={repairs || []}
+          currentUser={session}
+        />
+      </div>
     </Suspense>
   );
 }

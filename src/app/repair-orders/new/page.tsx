@@ -23,6 +23,7 @@ export default async function NewRepairOrderPage(
     select: {
       id: true,
       fullName: true,
+      role: true,
       employeeSale: {
         select: { position: true }
       }
@@ -33,7 +34,7 @@ export default async function NewRepairOrderPage(
   const formattedUsers = users.map(u => ({
     id: u.id,
     name: u.fullName,
-    position: u.employeeSale?.position || 'Sales Rep'
+    position: u.employeeSale?.position || u.role || 'เจ้าหน้าที่บริการ'
   }));
 
   let initialData: any = undefined;
@@ -53,14 +54,14 @@ export default async function NewRepairOrderPage(
   }
 
   return (
-    <div className="flex-1 w-full h-full bg-gray-50/50 p-4 md:p-8 overflow-y-auto custom-scrollbar relative">
-      <div className="w-full max-w-5xl mx-auto">
+    <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50/60 min-h-0 custom-scrollbar">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-36">
         <NewRepairOrderForm 
           users={formattedUsers} 
           currentUserId={currentUser.id} 
           initialData={initialData}
         />
       </div>
-    </div>
+    </main>
   );
 }

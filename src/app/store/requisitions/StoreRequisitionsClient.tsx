@@ -565,7 +565,10 @@ export default function StoreRequisitionsClient({
   }, [reportStats.sortedMaterials, reportSearchQuery, reportActiveTab]);
 
   // Export to Excel handler
-  const handleExportExcel = (scope: 'FILTERED' | 'ALL' = reportScope) => {
+  const handleExportExcel = (
+    scope: 'FILTERED' | 'ALL' = reportScope,
+    mode: 'FULL_REPORT' | 'BORROW_SUMMARY_ONLY' = 'FULL_REPORT'
+  ) => {
     try {
       const dataToExport = scope === 'FILTERED' ? filteredRequisitions : requisitions;
 
@@ -579,11 +582,329 @@ export default function StoreRequisitionsClient({
         return;
       }
 
-      const wb = XLSX.utils.book_new();
       const dateNow = new Date();
       const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
       const dateStr = `${dateNow.getDate()} ${thaiMonths[dateNow.getMonth()]} ${dateNow.getFullYear() + 543}`;
       const isoDate = dateNow.toISOString().slice(0, 10);
+
+      // Helper: Format Date in Thai Buddhist Era (e.g. 25/9/2569)
+      const formatSheetDate = (d?: string | Date | null) => {
+        if (!d) return '';
+        const dateObj = new Date(d);
+        if (isNaN(dateObj.getTime())) return '';
+        const day = dateObj.getDate();
+        const month = dateObj.getMonth() + 1;
+        const yearBe = dateObj.getFullYear() + 543;
+        return `${day}/${month}/${yearBe}`;
+      };
+
+      // Helper: Smart Item Code & Detail extraction
+      const getItemCodeAndDetail = (item: RequisitionItem) => {
+        if ((item as any).code) return { code: (item as any).code, detail: item.detail };
+        if ((item as any).itemCode) return { code: (item as any).itemCode, detail: item.detail };
+        if ((item as any).sku) return { code: (item as any).sku, detail: item.detail };
+
+        const raw = (item.detail || '').trim();
+        if (!raw) return { code: '-', detail: '-' };
+
+        // [CODE] Description
+        const mBracket = raw.match(/^\[([A-Za-z0-9-_/.]+)\]\s*(.*)$/);
+        if (mBracket) return { code: mBracket[1], detail: mBracket[2] || raw };
+
+        // CODE: Description
+        const mColon = raw.match(/^([A-Za-z0-9-_/.]{2,30}):\s*(.*)$/);
+        if (mColon) return { code: mColon[1], detail: mColon[2] || raw };
+
+        // Starts with uppercase alphanumeric code like INV-AC10T22R2GB or TRD
+        const mToken = raw.match(/^([A-Z0-9][A-Z0-9-_/.]{1,24})\s+(.*)$/);
+        if (mToken && (mToken[1].includes('-') || mToken[1].length <= 8 || mToken[1].startsWith('INV') || mToken[1].startsWith('TRD') || mToken[1].startsWith('XS'))) {
+          return { code: mToken[1], detail: mToken[2] };
+        }
+
+        return { code: '-', detail: raw };
+      };
+
+      // =========================================================================
+      // --- Sheet: สรุปใบยืม XS ประจำเดือน (Borrowing Summary with Signatures) ---
+      // =========================================================================
+      const borrowHeader = [
+        'ลำดับ',
+        'เลขที่ใบยืมสินค้า',
+        'วันที่ออกเอกสาร',
+        'ลูกค้า',
+        'รหัส',
+        'รายการ',
+        'จำนวน',
+        'หน่วยนับ',
+        'ผู้ยืม',
+        'วันที่คืน',
+        'เลขที่ใบรับสินค้าคืน',
+        'ผู้รับ',
+        'หมายเหตุ'
+      ];
+
+      const borrowRows: any[][] = [];
+      let borrowIdx = 1;
+      let totalBorrowQty = 0;
+      let totalReturnedBorrowQty = 0;
+
+      dataToExport.forEach((req) => {
+        const reqDate = formatSheetDate(req.date || req.createdAt);
+        const borrower = req.requesterName || '-';
+
+        if (Array.isArray(req.items) && req.items.length > 0) {
+          req.items.forEach((item) => {
+            const { code, detail } = getItemCodeAndDetail(item);
+            const qty = Number(item.quantity) || 1;
+            totalBorrowQty += qty;
+
+            const retQty = item.returnedQuantity !== undefined 
+              ? Number(item.returnedQuantity) 
+              : (req.status === 'RETURNED' ? qty : 0);
+            totalReturnedBorrowQty += retQty;
+
+            const retDate = item.returnDate
+              ? formatSheetDate(item.returnDate)
+              : (req.status === 'RETURNED' && req.updatedAt ? formatSheetDate(req.updatedAt) : '');
+
+            const returnDocNo = (item as any).returnDocNo || (item as any).returnSlipNo || (retQty > 0 ? `RET-${req.requisitionNumber.replace(/^REQ-/, '')}` : '');
+            const receiver = item.returnReceiver || (retQty > 0 ? 'เจ้าหน้าที่สโตร์' : '');
+
+            let remarks = item.returnRemark || item.remark || '';
+            if (!remarks && retQty > 0) {
+              remarks = retQty >= qty ? 'คืนครบถ้วน' : `คืนแล้ว ${retQty} ชิ้น (ค้าง ${qty - retQty})`;
+            }
+
+            const customer = item.job || req.company || '-';
+
+            borrowRows.push([
+              borrowIdx++,
+              req.requisitionNumber,
+              reqDate,
+              customer,
+              code,
+              detail,
+              qty,
+              item.unit || 'EA',
+              item.returnerName || borrower,
+              retDate,
+              returnDocNo,
+              receiver,
+              remarks
+            ]);
+          });
+        } else {
+          borrowRows.push([
+            borrowIdx++,
+            req.requisitionNumber,
+            reqDate,
+            req.company || '-',
+            '-',
+            '(ไม่มีรายการอุปกรณ์)',
+            0,
+            'EA',
+            borrower,
+            '',
+            '',
+            '',
+            ''
+          ]);
+        }
+      });
+
+      const totalPendingBorrowQty = Math.max(0, totalBorrowQty - totalReturnedBorrowQty);
+
+      // Summary Total Row
+      const totalRow = [
+        'รวมทั้งสิ้น',
+        '',
+        '',
+        '',
+        '',
+        `รวม ${borrowRows.length} รายการ`,
+        totalBorrowQty,
+        'ชิ้น/หน่วย',
+        '',
+        '',
+        '',
+        '',
+        `รับคืนแล้ว ${totalReturnedBorrowQty} / ค้างคืน ${totalPendingBorrowQty} ชิ้น`
+      ];
+
+      const sigRowStart = 3 + borrowRows.length + 3;
+
+      const sheetBorrowAoa: any[][] = [
+        [], // Row 1 padding
+        ['สรุปใบยืม XS ประจำเดือน'], // Row 2 Header Banner
+        borrowHeader, // Row 3 Table Header
+        ...borrowRows, // Row 4..N Data Rows
+        totalRow, // Row N+1 Total Row
+        [], // Row N+2 blank
+        [], // Row N+3 blank
+        // Signature Block: Borrower & Receiver
+        [
+          '',
+          'ลงชื่อ ................................................................ ผู้ส่งคืน / ผู้ยืม',
+          '',
+          '',
+          '',
+          '',
+          '',
+          'ลงชื่อ ................................................................ ผู้รับคืน (เจ้าหน้าที่คลังสินค้า)',
+          '',
+          '',
+          '',
+          '',
+          ''
+        ],
+        [
+          '',
+          '     ( ................................................................ )',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '     ( ................................................................ )',
+          '',
+          '',
+          '',
+          '',
+          ''
+        ],
+        [
+          '',
+          'ตำแหน่ง .................................................................',
+          '',
+          '',
+          '',
+          '',
+          '',
+          'ตำแหน่ง .................................................................',
+          '',
+          '',
+          '',
+          '',
+          ''
+        ],
+        [
+          '',
+          'วันที่ ...... / ...... / 25......',
+          '',
+          '',
+          '',
+          '',
+          '',
+          'วันที่ ...... / ...... / 25......',
+          '',
+          '',
+          '',
+          '',
+          ''
+        ],
+        [], // Blank separator
+        // Supervisor Signature Block
+        [
+          '',
+          '',
+          '',
+          '',
+          'ลงชื่อ ................................................................ ผู้ตรวจสอบ / หัวหน้าฝ่ายคลังสินค้า',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          ''
+        ],
+        [
+          '',
+          '',
+          '',
+          '',
+          '     ( ................................................................ )',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          ''
+        ],
+        [
+          '',
+          '',
+          '',
+          '',
+          'วันที่ ...... / ...... / 25......',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          ''
+        ]
+      ];
+
+      const wsBorrow = XLSX.utils.aoa_to_sheet(sheetBorrowAoa);
+      wsBorrow['!cols'] = [
+        { wch: 8 },  // ลำดับ
+        { wch: 20 }, // เลขที่ใบยืมสินค้า
+        { wch: 16 }, // วันที่ออกเอกสาร
+        { wch: 32 }, // ลูกค้า
+        { wch: 20 }, // รหัส
+        { wch: 50 }, // รายการ
+        { wch: 10 }, // จำนวน
+        { wch: 10 }, // หน่วยนับ
+        { wch: 22 }, // ผู้ยืม
+        { wch: 16 }, // วันที่คืน
+        { wch: 22 }, // เลขที่ใบรับสินค้าคืน
+        { wch: 22 }, // ผู้รับ
+        { wch: 30 }  // หมายเหตุ
+      ];
+
+      // Merges configuration for Title, Total, and Signatures
+      wsBorrow['!merges'] = [
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 12 } }, // Title Banner across A2:M2
+        { s: { r: 3 + borrowRows.length, c: 0 }, e: { r: 3 + borrowRows.length, c: 4 } }, // Total label A..E
+        // Signatures merges
+        { s: { r: sigRowStart, c: 1 }, e: { r: sigRowStart, c: 5 } },
+        { s: { r: sigRowStart, c: 7 }, e: { r: sigRowStart, c: 11 } },
+        { s: { r: sigRowStart + 1, c: 1 }, e: { r: sigRowStart + 1, c: 5 } },
+        { s: { r: sigRowStart + 1, c: 7 }, e: { r: sigRowStart + 1, c: 11 } },
+        { s: { r: sigRowStart + 2, c: 1 }, e: { r: sigRowStart + 2, c: 5 } },
+        { s: { r: sigRowStart + 2, c: 7 }, e: { r: sigRowStart + 2, c: 11 } },
+        { s: { r: sigRowStart + 3, c: 1 }, e: { r: sigRowStart + 3, c: 5 } },
+        { s: { r: sigRowStart + 3, c: 7 }, e: { r: sigRowStart + 3, c: 11 } },
+        // Supervisor merges
+        { s: { r: sigRowStart + 5, c: 4 }, e: { r: sigRowStart + 5, c: 8 } },
+        { s: { r: sigRowStart + 6, c: 4 }, e: { r: sigRowStart + 6, c: 8 } },
+        { s: { r: sigRowStart + 7, c: 4 }, e: { r: sigRowStart + 7, c: 8 } }
+      ];
+
+      // If dedicated borrow summary sheet requested
+      if (mode === 'BORROW_SUMMARY_ONLY') {
+        const wbSingle = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wbSingle, wsBorrow, 'สรุปใบยืม XS ประจำเดือน');
+        const filename = `สรุปใบยืมสินค้า_XS_ประจำเดือน_${isoDate}.xlsx`;
+        XLSX.writeFile(wbSingle, filename);
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'ส่งออกไฟล์สรุปใบยืม XS สำเร็จแล้ว',
+          text: `ไฟล์: ${filename}`,
+          showConfirmButton: false,
+          timer: 3000
+        });
+        return;
+      }
 
       // --- Sheet 1: สรุปภาพรวม (Summary) ---
       let approvedCount = 0;
@@ -705,7 +1026,6 @@ export default function StoreRequisitionsClient({
 
       const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
       wsSummary['!cols'] = [{ wch: 35 }, { wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 40 }];
-      XLSX.utils.book_append_sheet(wb, wsSummary, 'สรุปภาพรวม');
 
       // --- Sheet 2: รายการวัสดุรายชิ้น (Items Detail) ---
       const itemsHeader = [
@@ -850,7 +1170,6 @@ export default function StoreRequisitionsClient({
         { wch: 22 }, // งานที่ใช้
         { wch: 22 }  // หมายเหตุเดิม
       ];
-      XLSX.utils.book_append_sheet(wb, wsItems, 'รายการวัสดุรายชิ้น');
 
       // --- Sheet 3: สรุปตามใบเบิก (Requisitions List) ---
       const reqsHeader = [
@@ -945,7 +1264,6 @@ export default function StoreRequisitionsClient({
         { wch: 22 }, // เจ้าหน้าที่รับคืน
         { wch: 60 }  // สรุปอุปกรณ์
       ];
-      XLSX.utils.book_append_sheet(wb, wsReqs, 'สรุปตามใบเบิก');
 
       // --- Sheet 4: สรุปยอดรวมตามวัสดุ (Material Aggregates) ---
       const aggHeader = [
@@ -989,7 +1307,6 @@ export default function StoreRequisitionsClient({
         { wch: 16 }, // จำนวนใบเบิก
         { wch: 45 }  // งานที่ใช้
       ];
-      XLSX.utils.book_append_sheet(wb, wsAgg, 'สรุปยอดรวมตามวัสดุ');
 
       // --- Sheet 5: ประวัติการรับคืนอุปกรณ์ (Return Records) ---
       const returnHeader = [
@@ -1081,6 +1398,16 @@ export default function StoreRequisitionsClient({
         { wch: 25 }, // หมายเหตุการคืน
         { wch: 25 }  // งานที่ใช้
       ];
+
+      // Assemble Workbook
+      const wb = XLSX.utils.book_new();
+      // Primary Sheet 1: สรุปใบยืม XS ประจำเดือน พร้อมช่องลงนาม
+      XLSX.utils.book_append_sheet(wb, wsBorrow, 'สรุปใบยืม XS ประจำเดือน');
+      // Secondary Detailed & Analytical Sheets
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'สรุปภาพรวม');
+      XLSX.utils.book_append_sheet(wb, wsItems, 'รายการวัสดุรายชิ้น');
+      XLSX.utils.book_append_sheet(wb, wsReqs, 'สรุปตามใบเบิก');
+      XLSX.utils.book_append_sheet(wb, wsAgg, 'สรุปยอดรวมตามวัสดุ');
       XLSX.utils.book_append_sheet(wb, wsReturn, 'ประวัติการรับคืนอุปกรณ์');
 
       const filename = `รายงานการเบิกและคืนวัสดุอุปกรณ์_คลังสินค้า_${isoDate}.xlsx`;
@@ -1439,33 +1766,52 @@ export default function StoreRequisitionsClient({
                   className="fixed inset-0 z-20"
                   onClick={() => setShowExportDropdown(false)}
                 />
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-1.5 z-30 animate-in fade-in-50 duration-150">
+                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-30 animate-in fade-in-50 duration-150">
                   <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    เลือกขอบเขตข้อมูล Excel
+                    เลือกรูปแบบการส่งออก Excel
                   </div>
                   <button
                     onClick={() => {
                       setShowExportDropdown(false);
-                      handleExportExcel('FILTERED');
+                      handleExportExcel('FILTERED', 'FULL_REPORT');
                     }}
                     className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 rounded-xl flex items-center justify-between text-xs text-slate-700 hover:text-emerald-900 transition-colors"
                   >
                     <div>
-                      <div className="font-semibold">ตามตัวกรองปัจจุบัน</div>
-                      <div className="text-[10px] text-slate-400">จำนวน {filteredRequisitions.length} ใบเบิก</div>
+                      <div className="font-semibold">รายงานรวมทุกชีต (ตามตัวกรอง)</div>
+                      <div className="text-[10px] text-slate-400">รวมชีตสรุปใบยืม XS + ช่องลงนาม ({filteredRequisitions.length} ใบเบิก)</div>
                     </div>
                     <Download className="w-4 h-4 text-emerald-600" />
                   </button>
                   <button
                     onClick={() => {
                       setShowExportDropdown(false);
-                      handleExportExcel('ALL');
+                      handleExportExcel('ALL', 'FULL_REPORT');
                     }}
                     className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 rounded-xl flex items-center justify-between text-xs text-slate-700 hover:text-emerald-900 transition-colors mt-0.5"
                   >
                     <div>
-                      <div className="font-semibold">ข้อมูลทั้งหมดในระบบ</div>
-                      <div className="text-[10px] text-slate-400">จำนวน {requisitions.length} ใบเบิก</div>
+                      <div className="font-semibold">รายงานรวมทุกชีต (ทั้งหมดในระบบ)</div>
+                      <div className="text-[10px] text-slate-400">รวมชีตสรุปใบยืม XS + ช่องลงนาม ({requisitions.length} ใบเบิก)</div>
+                    </div>
+                    <Download className="w-4 h-4 text-emerald-600" />
+                  </button>
+
+                  <div className="my-1.5 border-t border-slate-100" />
+
+                  <button
+                    onClick={() => {
+                      setShowExportDropdown(false);
+                      handleExportExcel(reportScope, 'BORROW_SUMMARY_ONLY');
+                    }}
+                    className="w-full text-left px-3 py-2.5 bg-emerald-50/60 hover:bg-emerald-100/70 rounded-xl flex items-center justify-between text-xs text-emerald-950 transition-colors"
+                  >
+                    <div>
+                      <div className="font-bold flex items-center gap-1.5 text-emerald-800">
+                        <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>สรุปใบยืม XS ประจำเดือน</span>
+                      </div>
+                      <div className="text-[10px] text-emerald-700/80">แบบฟอร์มสรุปการยืม-คืน พร้อมช่องลงนามผู้ยืมและผู้รับคืน</div>
                     </div>
                     <Download className="w-4 h-4 text-emerald-600" />
                   </button>
@@ -2830,40 +3176,42 @@ export default function StoreRequisitionsClient({
 
       {/* 8. Summary Report Modal */}
       {showReportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm overflow-hidden">
           <div
             className="fixed inset-0"
             onClick={() => setShowReportModal(false)}
           />
 
-          <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/90 w-full max-w-6xl xl:max-w-7xl h-[90vh] max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-indigo-50/40">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-200">
-                  <BarChart3 className="w-6 h-6" />
+            <div className="shrink-0 flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-4 sm:p-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-slate-50/60">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                    <span>รายงานสรุปการเบิกและยืมวัสดุอุปกรณ์</span>
-                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-semibold border border-indigo-200">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate">
+                      รายงานสรุปการเบิกและยืมวัสดุอุปกรณ์
+                    </h2>
+                    <span className="text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300 shrink-0">
                       Summary Report
                     </span>
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5 truncate">
                     สถิติการขอเบิก การส่งมอบ การรับคืนของเข้าคลัง สภาพอุปกรณ์ และสรุปยอดรวมวัสดุ
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 self-end sm:self-center">
+              <div className="flex items-center gap-2 shrink-0 self-end lg:self-center">
                 {/* Data Scope Switcher */}
-                <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-medium">
+                <div className="inline-flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-semibold h-9">
                   <button
                     onClick={() => setReportScope('FILTERED')}
-                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                    className={`h-7 px-3 rounded-lg transition-all whitespace-nowrap flex items-center ${
                       reportScope === 'FILTERED'
-                        ? 'bg-white text-indigo-700 font-bold shadow-sm'
+                        ? 'bg-white text-slate-900 font-bold shadow-2xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
@@ -2871,9 +3219,9 @@ export default function StoreRequisitionsClient({
                   </button>
                   <button
                     onClick={() => setReportScope('ALL')}
-                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                    className={`h-7 px-3 rounded-lg transition-all whitespace-nowrap flex items-center ${
                       reportScope === 'ALL'
-                        ? 'bg-white text-indigo-700 font-bold shadow-sm'
+                        ? 'bg-white text-slate-900 font-bold shadow-2xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
@@ -2881,35 +3229,47 @@ export default function StoreRequisitionsClient({
                   </button>
                 </div>
 
-                {/* Export Button */}
+                {/* Export Buttons */}
                 <button
-                  onClick={() => handleExportExcel(reportScope)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition-all hover:scale-[1.02]"
-                  title="ดาวน์โหลดไฟล์ Excel รายงานฉบับเต็ม"
+                  onClick={() => handleExportExcel(reportScope, 'BORROW_SUMMARY_ONLY')}
+                  className="h-9 inline-flex items-center gap-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold whitespace-nowrap shadow-2xs transition-all hover:scale-[1.01]"
+                  title="ดาวน์โหลดเฉพาะแผ่นสรุปใบยืม XS พร้อมช่องลงนาม"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                  <span className="hidden sm:inline">สรุปใบยืม XS (ลงนาม)</span>
+                  <span className="sm:hidden">ใบยืม XS</span>
+                </button>
+
+                <button
+                  onClick={() => handleExportExcel(reportScope, 'FULL_REPORT')}
+                  className="h-9 inline-flex items-center gap-1.5 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-sm transition-all hover:scale-[1.01]"
+                  title="ดาวน์โหลดไฟล์ Excel รายงานฉบับเต็มทุกชีต"
                 >
                   <FileSpreadsheet className="w-4 h-4" />
-                  <span className="hidden sm:inline">ส่งออก</span> Excel
+                  <span className="hidden sm:inline">ส่งออกทุกชีต (.xlsx)</span>
+                  <span className="sm:hidden">Excel</span>
                 </button>
 
                 {/* Close Button */}
                 <button
                   onClick={() => setShowReportModal(false)}
-                  className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors shrink-0 border border-slate-200/60"
+                  title="ปิดหน้าต่าง"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-5 sm:p-6 space-y-6 overflow-y-auto">
+            {/* Modal Body: flex-1 min-h-0 overflow-y-auto ensures it strictly scrolls within the modal */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-4 sm:space-y-5">
               {/* Scope Notice */}
-              <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-600">
-                <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-indigo-600" />
-                  <span>
+              <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-xs text-slate-600">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Filter className="w-4 h-4 text-slate-600 shrink-0" />
+                  <span className="truncate">
                     กำลังสรุปข้อมูล:{' '}
-                    <strong className="text-slate-900">
+                    <strong className="text-slate-900 font-bold">
                       {reportScope === 'FILTERED'
                         ? `รายการที่ตรงตามตัวกรองปัจจุบัน (${reportSourceData.length} ฉบับ)`
                         : `ข้อมูลทั้งหมดในระบบ (${reportSourceData.length} ฉบับ)`}
@@ -2919,125 +3279,158 @@ export default function StoreRequisitionsClient({
                 {reportScope === 'FILTERED' && hasActiveFilters && (
                   <button
                     onClick={() => setReportScope('ALL')}
-                    className="text-indigo-600 hover:text-indigo-800 font-medium underline"
+                    className="text-slate-800 hover:text-slate-950 font-bold underline whitespace-nowrap shrink-0"
                   >
                     สลับไปดูข้อมูลทั้งหมด
                   </button>
                 )}
               </div>
 
-              {/* 1. Metric Cards (6 cards) */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
-                    <span>ใบเบิกทั้งหมด</span>
-                    <Package className="w-4 h-4 text-slate-400" />
+              {/* 1. Metric Cards (6 cards with perfectly symmetrical heights and alignments) */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5">
+                {/* 1. All Requisitions */}
+                <div className="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col justify-between h-[110px] transition-all hover:border-slate-300">
+                  <div className="flex items-center justify-between gap-1 text-slate-500 text-xs">
+                    <span className="font-semibold text-slate-700 truncate">ใบเบิกทั้งหมด</span>
+                    <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                      <Package className="w-3.5 h-3.5" />
+                    </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold text-slate-900">
-                    {reportStats.totalReqs.toLocaleString()}{' '}
-                    <span className="text-xs font-normal text-slate-500">ใบ</span>
+                  <div className="flex items-baseline gap-1.5 leading-none">
+                    <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      {reportStats.totalReqs.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">ใบ</span>
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-1">
-                    จาก {reportStats.totalItems.toLocaleString()} รายการ
-                  </div>
-                </div>
-
-                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-indigo-100 bg-indigo-50/10 shadow-sm flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
-                    <span>ยอดเบิกรวม</span>
-                    <TrendingUp className="w-4 h-4 text-indigo-500" />
-                  </div>
-                  <div className="text-xl sm:text-2xl font-bold text-indigo-600">
-                    {reportStats.totalQuantity.toLocaleString()}{' '}
-                    <span className="text-xs font-normal text-slate-500">หน่วย</span>
-                  </div>
-                  <div className="text-[11px] text-slate-500 mt-1">
-                    จำนวนชิ้นที่ขอเบิก
+                  <div className="text-[11px] text-slate-500 truncate h-4 flex items-center">
+                    จาก {reportStats.totalItems.toLocaleString()} รายการวัสดุ
                   </div>
                 </div>
 
-                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-emerald-200/80 bg-emerald-50/20 shadow-sm flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
-                    <span>ส่งมอบสำเร็จ</span>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                {/* 2. Total Quantity */}
+                <div className="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col justify-between h-[110px] transition-all hover:border-slate-300">
+                  <div className="flex items-center justify-between gap-1 text-slate-500 text-xs">
+                    <span className="font-semibold text-slate-700 truncate">ยอดเบิกรวม</span>
+                    <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                      <TrendingUp className="w-3.5 h-3.5" />
+                    </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold text-emerald-600">
-                    {reportStats.completed.toLocaleString()}{' '}
-                    <span className="text-xs font-normal text-slate-500">ใบ</span>
+                  <div className="flex items-baseline gap-1.5 leading-none">
+                    <span className="text-xl sm:text-2xl font-black text-indigo-600 tracking-tight">
+                      {reportStats.totalQuantity.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">หน่วย</span>
                   </div>
-                  <div className="text-[11px] text-emerald-700 font-medium mt-1">
+                  <div className="text-[11px] text-slate-500 truncate h-4 flex items-center">
+                    รวมชิ้นวัสดุที่ขอเบิก
+                  </div>
+                </div>
+
+                {/* 3. Completed Requisitions */}
+                <div className="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col justify-between h-[110px] transition-all hover:border-slate-300">
+                  <div className="flex items-center justify-between gap-1 text-slate-500 text-xs">
+                    <span className="font-semibold text-slate-700 truncate">ส่งมอบสำเร็จ</span>
+                    <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline gap-1.5 leading-none">
+                    <span className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight">
+                      {reportStats.completed.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">ใบ</span>
+                  </div>
+                  <div className="text-[11px] text-emerald-700 font-semibold truncate h-4 flex items-center">
                     อัตราส่งมอบ {reportStats.fulfillRate}%
                   </div>
                 </div>
 
-                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-teal-200/80 bg-teal-50/30 shadow-sm flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
-                    <span className="font-semibold text-teal-900">รับคืนของแล้ว</span>
-                    <RotateCcw className="w-4 h-4 text-teal-600" />
+                {/* 4. Returned Items */}
+                <div className="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col justify-between h-[110px] transition-all hover:border-slate-300">
+                  <div className="flex items-center justify-between gap-1 text-slate-500 text-xs">
+                    <span className="font-semibold text-slate-700 truncate">รับคืนของแล้ว</span>
+                    <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold text-teal-700">
-                    {reportStats.totalReturnedQuantity.toLocaleString()}{' '}
-                    <span className="text-xs font-normal text-teal-600">หน่วย</span>
+                  <div className="flex items-baseline gap-1.5 leading-none">
+                    <span className="text-xl sm:text-2xl font-black text-teal-700 tracking-tight">
+                      {reportStats.totalReturnedQuantity.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">หน่วย</span>
                   </div>
-                  <div className="text-[11px] text-teal-700 font-medium mt-1 flex items-center justify-between">
-                    <span>อัตราคืน {reportStats.returnRate}%</span>
-                    <span className="text-[10px] text-teal-600">({reportStats.returned} คืนครบ)</span>
-                  </div>
-                </div>
-
-                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-amber-200/80 bg-amber-50/30 shadow-sm flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
-                    <span className="font-semibold text-amber-900">คงค้างยังไม่คืน</span>
-                    <Clock className="w-4 h-4 text-amber-500" />
-                  </div>
-                  <div className="text-xl sm:text-2xl font-bold text-amber-600">
-                    {reportStats.totalPendingReturnQuantity.toLocaleString()}{' '}
-                    <span className="text-xs font-normal text-amber-600">หน่วย</span>
-                  </div>
-                  <div className="text-[11px] text-amber-700 font-medium mt-1">
-                    {reportStats.totalPendingReturnQuantity > 0 ? 'รอส่งคืนเข้าคลัง' : 'คืนครบถ้วน'}
+                  <div className="text-[11px] text-teal-700 font-semibold truncate h-4 flex items-center">
+                    อัตราคืน {reportStats.returnRate}% ({reportStats.returned} คืนครบ)
                   </div>
                 </div>
 
-                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-purple-200/80 bg-purple-50/20 shadow-sm flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
-                    <span>รอจัดส่งมอบ</span>
-                    <PackageCheck className="w-4 h-4 text-purple-500" />
+                {/* 5. Pending Return Items */}
+                <div className="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col justify-between h-[110px] transition-all hover:border-slate-300">
+                  <div className="flex items-center justify-between gap-1 text-slate-500 text-xs">
+                    <span className="font-semibold text-slate-700 truncate">คงค้างยังไม่คืน</span>
+                    <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                      <Clock className="w-3.5 h-3.5" />
+                    </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold text-purple-700">
-                    {reportStats.approved.toLocaleString()}{' '}
-                    <span className="text-xs font-normal text-slate-500">ใบ</span>
+                  <div className="flex items-baseline gap-1.5 leading-none">
+                    <span className="text-xl sm:text-2xl font-black text-amber-600 tracking-tight">
+                      {reportStats.totalPendingReturnQuantity.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">หน่วย</span>
                   </div>
-                  <div className="text-[11px] text-purple-700 font-medium mt-1">
+                  <div className="text-[11px] text-amber-700 font-semibold truncate h-4 flex items-center">
+                    {reportStats.totalPendingReturnQuantity > 0 ? 'รอส่งคืนเข้าคลัง' : 'คืนครบถ้วนสมบูรณ์'}
+                  </div>
+                </div>
+
+                {/* 6. Awaiting Delivery */}
+                <div className="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col justify-between h-[110px] transition-all hover:border-slate-300">
+                  <div className="flex items-center justify-between gap-1 text-slate-500 text-xs">
+                    <span className="font-semibold text-slate-700 truncate">รอจัดส่งมอบ</span>
+                    <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                      <PackageCheck className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline gap-1.5 leading-none">
+                    <span className="text-xl sm:text-2xl font-black text-purple-700 tracking-tight">
+                      {reportStats.approved.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">ใบ</span>
+                  </div>
+                  <div className="text-[11px] text-purple-700 font-semibold truncate h-4 flex items-center">
                     อนุมัติแล้ว พร้อมจัดเตรียม
                   </div>
                 </div>
               </div>
 
-              {/* 2. Return Analytics, Company & Requester Distribution (3 columns) */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+              {/* 2. Return Analytics, Company & Requester Distribution (3 columns with uniform card containers) */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 items-stretch">
                 {/* 2A. Return & Equipment Condition Analytics */}
-                <div className="p-4 sm:p-5 bg-white rounded-xl border border-teal-200/70 bg-gradient-to-b from-teal-50/30 via-white to-white shadow-sm flex flex-col justify-between">
+                <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between min-h-[320px]">
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <RotateCcw className="w-4 h-4 text-teal-600" />
-                        <span>ภาพรวมการคืนและสภาพอุปกรณ์</span>
-                      </h3>
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
+                    <div className="flex items-center justify-between mb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 border border-teal-200/60">
+                          <RotateCcw className="w-4 h-4" />
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-900">
+                          ภาพรวมการคืนและสภาพอุปกรณ์
+                        </h3>
+                      </div>
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 whitespace-nowrap">
                         {reportStats.returnRate}% คืนแล้ว
                       </span>
                     </div>
 
                     {/* Return Progress Bar */}
-                    <div className="space-y-1.5 mb-4">
+                    <div className="space-y-1.5 mb-3.5">
                       <div className="flex items-center justify-between text-xs text-slate-600">
                         <span>ความคืบหน้าการส่งคืน</span>
                         <span className="font-semibold text-teal-800">
                           {reportStats.totalReturnedQuantity.toLocaleString()} / {reportStats.totalQuantity.toLocaleString()} หน่วย
                         </span>
                       </div>
-                      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+                      <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
                         <div
                           className="h-full bg-teal-500 transition-all duration-500 rounded-l-full"
                           style={{ width: `${Math.min(100, reportStats.returnRate)}%` }}
@@ -3050,11 +3443,11 @@ export default function StoreRequisitionsClient({
                         />
                       </div>
                       <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                        <span className="flex items-center gap-1 text-teal-700">
+                        <span className="flex items-center gap-1.5 text-teal-700">
                           <span className="w-2 h-2 rounded-full bg-teal-500 inline-block" />
                           คืนแล้ว {reportStats.totalReturnedQuantity.toLocaleString()} หน่วย
                         </span>
-                        <span className="flex items-center gap-1 text-amber-700">
+                        <span className="flex items-center gap-1.5 text-amber-700">
                           <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
                           คงค้าง {reportStats.totalPendingReturnQuantity.toLocaleString()} หน่วย
                         </span>
@@ -3062,26 +3455,26 @@ export default function StoreRequisitionsClient({
                     </div>
 
                     {/* Status Breakdown Grid */}
-                    <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
-                      <div className="p-2.5 rounded-lg bg-teal-50/80 border border-teal-200/80">
+                    <div className="grid grid-cols-2 gap-2 mb-3.5 text-xs">
+                      <div className="p-2 rounded-xl bg-teal-50/80 border border-teal-200/80">
                         <div className="text-[11px] text-teal-700 font-medium">คืนของครบถ้วน</div>
                         <div className="text-base font-bold text-teal-900 mt-0.5">
                           {reportStats.returned} <span className="text-[10px] font-normal">ใบ</span>
                         </div>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-indigo-50/80 border border-indigo-200/80">
+                      <div className="p-2 rounded-xl bg-indigo-50/80 border border-indigo-200/80">
                         <div className="text-[11px] text-indigo-700 font-medium">คืนบางส่วน</div>
                         <div className="text-base font-bold text-indigo-900 mt-0.5">
                           {reportStats.partiallyReturned} <span className="text-[10px] font-normal">ใบ</span>
                         </div>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-emerald-50/80 border border-emerald-200/80">
+                      <div className="p-2 rounded-xl bg-emerald-50/80 border border-emerald-200/80">
                         <div className="text-[11px] text-emerald-700 font-medium">ส่งมอบแล้ว/รอคืน</div>
                         <div className="text-base font-bold text-emerald-900 mt-0.5">
                           {reportStats.completed} <span className="text-[10px] font-normal">ใบ</span>
                         </div>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-amber-50/80 border border-amber-200/80">
+                      <div className="p-2 rounded-xl bg-amber-50/80 border border-amber-200/80">
                         <div className="text-[11px] text-amber-700 font-medium">รอจัดของส่งมอบ</div>
                         <div className="text-base font-bold text-amber-900 mt-0.5">
                           {reportStats.approved} <span className="text-[10px] font-normal">ใบ</span>
@@ -3096,20 +3489,20 @@ export default function StoreRequisitionsClient({
                       <span>สภาพอุปกรณ์ที่รับคืนเข้าคลัง:</span>
                       <span className="text-slate-400 font-normal">รวม {reportStats.totalReturnedQuantity} หน่วย</span>
                     </div>
-                    <div className="grid grid-cols-3 gap-1.5 text-center">
-                      <div className="p-1.5 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="p-1.5 bg-emerald-50/80 rounded-xl border border-emerald-200">
                         <div className="text-[10px] text-emerald-700 font-medium">ปกติ</div>
                         <div className="text-sm font-bold text-emerald-800">
                           {reportStats.conditionCounts.NORMAL || 0}
                         </div>
                       </div>
-                      <div className="p-1.5 bg-amber-50 rounded-lg border border-amber-200">
+                      <div className="p-1.5 bg-amber-50/80 rounded-xl border border-amber-200">
                         <div className="text-[10px] text-amber-700 font-medium">ชำรุด/ซ่อม</div>
                         <div className="text-sm font-bold text-amber-800">
                           {reportStats.conditionCounts.DAMAGED || 0}
                         </div>
                       </div>
-                      <div className="p-1.5 bg-rose-50 rounded-lg border border-rose-200">
+                      <div className="p-1.5 bg-rose-50/80 rounded-xl border border-rose-200">
                         <div className="text-[10px] text-rose-700 font-medium">สูญหาย</div>
                         <div className="text-sm font-bold text-rose-800">
                           {reportStats.conditionCounts.LOST || 0}
@@ -3120,19 +3513,23 @@ export default function StoreRequisitionsClient({
                 </div>
 
                 {/* 2B. Company Breakdown */}
-                <div className="p-4 sm:p-5 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between min-h-[320px]">
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-indigo-600" />
-                        <span>สัดส่วนการเบิก-คืนแยกตามบริษัท</span>
-                      </h3>
-                      <span className="text-xs text-slate-400">
+                    <div className="flex items-center justify-between mb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0 border border-indigo-200/60">
+                          <Building2 className="w-4 h-4" />
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-900">
+                          สัดส่วนการเบิก-คืนแยกตามบริษัท
+                        </h3>
+                      </div>
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
                         รวม {reportStats.totalReqs} ใบ
                       </span>
                     </div>
 
-                    <div className="space-y-3.5">
+                    <div className="space-y-3">
                       {[
                         { key: 'TE', label: 'TE (Tera Electric)', color: 'bg-blue-600' },
                         { key: 'TP', label: 'TP (Tera Power)', color: 'bg-emerald-600' },
@@ -3160,7 +3557,7 @@ export default function StoreRequisitionsClient({
                             </div>
                             <div className="flex items-center justify-between text-[11px] text-slate-500">
                               <span>เบิก: <strong className="text-slate-700">{data.quantity.toLocaleString()}</strong> ชิ้น</span>
-                              <span className="text-teal-700">
+                              <span className="text-teal-700 font-medium">
                                 คืนแล้ว: <strong>{data.returnedQuantity.toLocaleString()}</strong> ({retPct}%)
                               </span>
                             </div>
@@ -3170,7 +3567,7 @@ export default function StoreRequisitionsClient({
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+                  <div className="mt-3.5 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
                     <span>ยอดคืนรวมทุกบริษัท:</span>
                     <span className="font-bold text-teal-700">
                       {reportStats.totalReturnedQuantity.toLocaleString()} ชิ้น ({reportStats.returnRate}%)
@@ -3179,26 +3576,30 @@ export default function StoreRequisitionsClient({
                 </div>
 
                 {/* 2C. Top Requesters */}
-                <div className="p-4 sm:p-5 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div className="p-4 sm:p-5 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between min-h-[320px]">
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <User className="w-4 h-4 text-indigo-600" />
-                        <span>ผู้ขอเบิกสูงสุดและสถานะคืน</span>
-                      </h3>
-                      <span className="text-xs text-slate-400">
+                    <div className="flex items-center justify-between mb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0 border border-purple-200/60">
+                          <User className="w-4 h-4" />
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-900">
+                          ผู้ขอเบิกสูงสุดและสถานะคืน
+                        </h3>
+                      </div>
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200 whitespace-nowrap">
                         {reportStats.sortedRequesters.length} ท่าน
                       </span>
                     </div>
 
-                    <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                       {reportStats.sortedRequesters.slice(0, 5).map((req, idx) => {
                         const isFullyReturned = req.quantity > 0 && req.returnedQuantity >= req.quantity;
                         const hasPartialReturn = req.returnedQuantity > 0 && req.returnedQuantity < req.quantity;
                         return (
                           <div
                             key={req.name + idx}
-                            className="p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl text-xs transition-colors border border-slate-100"
+                            className="p-2 bg-slate-50 hover:bg-slate-100/80 rounded-xl text-xs transition-colors border border-slate-100"
                           >
                             <div className="flex items-center justify-between min-w-0 mb-1">
                               <div className="flex items-center gap-2 min-w-0">
@@ -3254,67 +3655,67 @@ export default function StoreRequisitionsClient({
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-right">
+                  <div className="mt-3.5 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-right">
                     แสดง 5 ลำดับแรกจากผู้ขอเบิกทั้งหมด
                   </div>
                 </div>
               </div>
 
               {/* 3. Material Requisition & Return Analytics */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center bg-slate-200/80 p-1 rounded-xl text-xs font-semibold">
-                      <button
-                        onClick={() => setReportActiveTab('OVERVIEW')}
-                        className={`px-3 py-1.5 rounded-lg transition-all ${
-                          reportActiveTab === 'OVERVIEW'
-                            ? 'bg-white text-indigo-700 shadow-sm'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        วัสดุยอดนิยม (Top 10)
-                      </button>
-                      <button
-                        onClick={() => setReportActiveTab('ALL_ITEMS')}
-                        className={`px-3 py-1.5 rounded-lg transition-all ${
-                          reportActiveTab === 'ALL_ITEMS'
-                            ? 'bg-white text-indigo-700 shadow-sm'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        รายการวัสดุทั้งหมด ({reportStats.sortedMaterials.length})
-                      </button>
-                      <button
-                        onClick={() => setReportActiveTab('RETURN_TRACKING')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
-                          reportActiveTab === 'RETURN_TRACKING'
-                            ? 'bg-white text-teal-700 shadow-sm font-bold'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>ติดตามการคืนอุปกรณ์</span>
-                      </button>
-                    </div>
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/60">
+                  <div className="inline-flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold h-10">
+                    <button
+                      onClick={() => setReportActiveTab('OVERVIEW')}
+                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        reportActiveTab === 'OVERVIEW'
+                          ? 'bg-white text-slate-900 font-bold shadow-2xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <TrendingUp className="w-3.5 h-3.5" />
+                      <span>วัสดุยอดนิยม (Top 10)</span>
+                    </button>
+                    <button
+                      onClick={() => setReportActiveTab('ALL_ITEMS')}
+                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        reportActiveTab === 'ALL_ITEMS'
+                          ? 'bg-white text-slate-900 font-bold shadow-2xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <Package className="w-3.5 h-3.5" />
+                      <span>รายการวัสดุทั้งหมด ({reportStats.sortedMaterials.length})</span>
+                    </button>
+                    <button
+                      onClick={() => setReportActiveTab('RETURN_TRACKING')}
+                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        reportActiveTab === 'RETURN_TRACKING'
+                          ? 'bg-white text-teal-800 font-bold shadow-2xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 text-teal-600" />
+                      <span>ติดตามการคืนอุปกรณ์</span>
+                    </button>
                   </div>
 
                   {(reportActiveTab === 'ALL_ITEMS' || reportActiveTab === 'RETURN_TRACKING') && (
-                    <div className="relative min-w-[240px]">
-                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <div className="relative min-w-[260px] h-10 flex items-center">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text"
                         value={reportSearchQuery}
                         onChange={(e) => setReportSearchQuery(e.target.value)}
                         placeholder="ค้นหาชื่อวัสดุ หรือ โครงการ..."
-                        className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        className="w-full h-10 pl-9 pr-8 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-slate-400 focus:outline-none transition-all shadow-2xs"
                       />
                       {reportSearchQuery && (
                         <button
                           onClick={() => setReportSearchQuery('')}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>
@@ -3334,7 +3735,7 @@ export default function StoreRequisitionsClient({
                 )}
 
                 {/* Table Content */}
-                <div className="overflow-x-auto max-h-[380px] overflow-y-auto">
+                <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead className="sticky top-0 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 z-10">
                       <tr>
@@ -3477,22 +3878,32 @@ export default function StoreRequisitionsClient({
               </div>
             </div>
 
-            {/* Modal Footer */}
-            <div className="flex items-center justify-between gap-3 p-4 sm:p-5 border-t border-slate-200 bg-slate-50">
-              <div className="text-xs text-slate-500">
-                ข้อมูลสรุปจาก {reportSourceData.length} ใบเบิก • อัปเดตล่าสุด ณ ปัจจุบัน
+            {/* Modal Footer: shrink-0 keeps it permanently pinned at the bottom */}
+            <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 border-t border-slate-200 bg-slate-50/90">
+              <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />
+                <span>ข้อมูลสรุปจาก {reportSourceData.length} ใบเบิก • อัปเดตล่าสุด ณ ปัจจุบัน</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                 <button
-                  onClick={() => handleExportExcel(reportScope)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition-all hover:scale-[1.02]"
+                  onClick={() => handleExportExcel(reportScope, 'BORROW_SUMMARY_ONLY')}
+                  className="h-9 inline-flex items-center gap-1.5 px-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold whitespace-nowrap shadow-2xs transition-all hover:scale-[1.01]"
+                  title="ดาวน์โหลดเฉพาะแผ่นสรุปใบยืม XS พร้อมช่องลงนาม"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                  <span>สรุปใบยืม XS (ลงนาม)</span>
+                </button>
+                <button
+                  onClick={() => handleExportExcel(reportScope, 'FULL_REPORT')}
+                  className="h-9 inline-flex items-center gap-1.5 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-sm transition-all hover:scale-[1.01]"
+                  title="ดาวน์โหลดไฟล์ Excel รายงานฉบับเต็มทุกชีต"
                 >
                   <FileSpreadsheet className="w-4 h-4" />
-                  <span>ส่งออกเป็น Excel (.xlsx)</span>
+                  <span>ส่งออกทุกชีต (.xlsx)</span>
                 </button>
                 <button
                   onClick={() => setShowReportModal(false)}
-                  className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all"
+                  className="h-9 inline-flex items-center justify-center px-4 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-2xs"
                 >
                   ปิดหน้าต่าง
                 </button>

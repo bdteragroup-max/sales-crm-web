@@ -38,7 +38,7 @@ export default async function RepairOrdersPage() {
   const users = JSON.parse(JSON.stringify(rawUsers));
 
   return (
-    <main className="flex-1 flex flex-col overflow-y-auto bg-[#fafbfc] p-4 md:p-6">
+    <main className="flex-1 flex flex-col overflow-y-auto bg-slate-50/80 min-h-0 custom-scrollbar">
       <RepairOrdersClientPage
         initialRepairOrders={repairOrders}
         companies={companies}

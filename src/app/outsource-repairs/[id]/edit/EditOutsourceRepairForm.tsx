@@ -1,8 +1,36 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Wrench, Plus, Trash2, Search, Save, Loader2, FileSignature } from "lucide-react";
+import Link from "next/link";
+import Swal from "sweetalert2";
+import {
+  Truck,
+  Building2,
+  UserCheck,
+  Calendar,
+  Clock,
+  User,
+  Cpu,
+  Plus,
+  Trash2,
+  Save,
+  FileSignature,
+  RotateCcw,
+  ArrowLeft,
+  AlertCircle,
+  Settings,
+  FileText,
+  Phone,
+  MapPin,
+  Search,
+  Loader2,
+  X,
+  ClipboardList,
+  Printer,
+  CheckCircle2,
+  Wrench,
+} from "lucide-react";
 import { updateOutsourceRepair } from "@/app/actions/outsourceRepairs";
 import { searchCompanies } from "@/app/actions/sales";
 
@@ -12,293 +40,1117 @@ interface UserOption {
   position: string;
 }
 
-export default function EditOutsourceRepairForm({ users, currentUserId, initialData }: { users: UserOption[], currentUserId: string, initialData: any }) {
+interface ItemRow {
+  id: string;
+  type: string;
+  brand: string;
+  model: string;
+  size: string;
+  serial: string;
+  qty: number;
+  remark: string;
+}
+
+interface Props {
+  users: UserOption[];
+  currentUserId: string;
+  initialData: any;
+}
+
+export default function EditOutsourceRepairForm({
+  users,
+  currentUserId,
+  initialData,
+}: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Vendor State (Supplier)
-  const [vendorSearchQuery, setVendorSearchQuery] = useState("");
+  // Helper date formatter
+  const formatDateForInput = (isoStr?: string | Date | null) => {
+    if (!isoStr) return "";
+    try {
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return "";
+      return d.toISOString().split("T")[0];
+    } catch {
+      return "";
+    }
+  };
+
+  // ── Document & Schedule State ──
+  const [outsourceNumber, setOutsourceNumber] = useState(
+    initialData?.outsourceNumber || ""
+  );
+  const [sentDate, setSentDate] = useState(
+    formatDateForInput(initialData?.sentDate) ||
+      new Date().toISOString().split("T")[0]
+  );
+  const [expectedReturnDate, setExpectedReturnDate] = useState(
+    formatDateForInput(initialData?.expectedReturnDate)
+  );
+  const [senderName, setSenderName] = useState(initialData?.sender || "");
+  const [status, setStatus] = useState<"SENT" | "RETURNED">(
+    initialData?.status === "RETURNED" ? "RETURNED" : "SENT"
+  );
+  const [jobId, setJobId] = useState(initialData?.jobId || "");
+
+  // ── Vendor State with Smart Search ──
+  const [vendorName, setVendorName] = useState(initialData?.vendorName || "");
+  const [vendorAddress, setVendorAddress] = useState(
+    initialData?.vendorAddress || ""
+  );
+  const [vendorPhone, setVendorPhone] = useState(initialData?.vendorPhone || "");
+  const [vendorSearchQuery, setVendorSearchQuery] = useState(
+    initialData?.vendorName || ""
+  );
   const [isVendorSearching, setIsVendorSearching] = useState(false);
   const [vendorSearchResults, setVendorSearchResults] = useState<any[]>([]);
+  const [showVendorDropdown, setShowVendorDropdown] = useState(false);
   const vendorSearchRef = useRef<HTMLDivElement>(null);
-  
-  const [vendorName, setVendorName] = useState(initialData?.vendorName || "");
-  const [vendorAddress, setVendorAddress] = useState(initialData?.vendorAddress || "");
-  const [vendorPhone, setVendorPhone] = useState(initialData?.vendorPhone || "");
 
-  // Customer State
-  const [customerName, setCustomerName] = useState(initialData?.customerName || "");
-  const [customerAddress, setCustomerAddress] = useState(initialData?.customerAddress || "");
-  const [customerPhone, setCustomerPhone] = useState(initialData?.customerPhone || "");
-
-  // Job search (Optional)
-  const [jobId, setJobId] = useState(initialData?.jobId || "");
-  const [outsourceNumber, setOutsourceNumber] = useState(initialData?.outsourceNumber || "");
-  
-  const formatDate = (isoStr: string) => isoStr ? new Date(isoStr).toISOString().split("T")[0] : "";
-  const [sentDate, setSentDate] = useState(formatDate(initialData?.sentDate) || new Date().toISOString().split("T")[0]);
-  const [expectedReturnDate, setExpectedReturnDate] = useState(formatDate(initialData?.expectedReturnDate) || "");
-  const [senderName, setSenderName] = useState(initialData?.sender || "");
-  const [status, setStatus] = useState(initialData?.status || "SENT");
-
-  // Items State
-  const [items, setItems] = useState<any[]>(initialData?.items && initialData.items.length > 0 
-    ? initialData.items.map((item: any) => ({ ...item, id: item.id || crypto.randomUUID() }))
-    : [{ id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" }]
+  // ── Customer State with Smart Search ──
+  const [customerName, setCustomerName] = useState(
+    initialData?.customerName || ""
   );
+  const [customerAddress, setCustomerAddress] = useState(
+    initialData?.customerAddress || ""
+  );
+  const [customerPhone, setCustomerPhone] = useState(
+    initialData?.customerPhone || ""
+  );
+  const [customerSearchQuery, setCustomerSearchQuery] = useState(
+    initialData?.customerName || ""
+  );
+  const [isCustomerSearching, setIsCustomerSearching] = useState(false);
+  const [customerSearchResults, setCustomerSearchResults] = useState<any[]>([]);
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+  const customerSearchRef = useRef<HTMLDivElement>(null);
 
+  // ── Items State ──
+  const initialItems: ItemRow[] = useMemo(() => {
+    if (Array.isArray(initialData?.items) && initialData.items.length > 0) {
+      return initialData.items.map((item: any) => ({
+        id: item.id || crypto.randomUUID(),
+        type: item.type || "",
+        brand: item.brand || "",
+        model: item.model || "",
+        size: item.size || "",
+        serial: item.serial || "",
+        qty: Number(item.qty) || 1,
+        remark: item.remark || "",
+      }));
+    }
+    return [
+      {
+        id: crypto.randomUUID(),
+        type: "",
+        brand: "",
+        model: "",
+        size: "",
+        serial: "",
+        qty: 1,
+        remark: "",
+      },
+    ];
+  }, [initialData]);
+
+  const [items, setItems] = useState<ItemRow[]>(initialItems);
+
+  // ── Symptoms, Settings & Remarks ──
   const [symptoms, setSymptoms] = useState(initialData?.symptoms || "");
   const [settings, setSettings] = useState(initialData?.settings || "");
   const [remark, setRemark] = useState(initialData?.remark || "");
 
+  // Default Sender Name fallback
   useEffect(() => {
-    const u = users.find(u => u.id === currentUserId);
+    const u = users.find((u) => u.id === currentUserId);
     if (u && !senderName) {
       setSenderName(u.name);
     }
   }, [currentUserId, users, senderName]);
 
-  // Handle Vendor Search
+  // Vendor Search Debounce
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
-      if (vendorSearchQuery.length >= 2) {
+      if (
+        vendorSearchQuery.trim().length >= 2 &&
+        vendorSearchQuery !== vendorName
+      ) {
         setIsVendorSearching(true);
-        const results = await searchCompanies(vendorSearchQuery);
-        setVendorSearchResults(results);
-        setIsVendorSearching(false);
+        try {
+          const results = await searchCompanies(vendorSearchQuery);
+          setVendorSearchResults(results || []);
+          setShowVendorDropdown(true);
+        } catch (err) {
+          console.error("Vendor search error:", err);
+        } finally {
+          setIsVendorSearching(false);
+        }
       } else {
         setVendorSearchResults([]);
+        setShowVendorDropdown(false);
       }
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [vendorSearchQuery]);
+    }, 400);
 
+    return () => clearTimeout(delayDebounceFn);
+  }, [vendorSearchQuery, vendorName]);
+
+  // Customer Search Debounce
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (
+        customerSearchQuery.trim().length >= 2 &&
+        customerSearchQuery !== customerName
+      ) {
+        setIsCustomerSearching(true);
+        try {
+          const results = await searchCompanies(customerSearchQuery);
+          setCustomerSearchResults(results || []);
+          setShowCustomerDropdown(true);
+        } catch (err) {
+          console.error("Customer search error:", err);
+        } finally {
+          setIsCustomerSearching(false);
+        }
+      } else {
+        setCustomerSearchResults([]);
+        setShowCustomerDropdown(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [customerSearchQuery, customerName]);
+
+  // Click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (vendorSearchRef.current && !vendorSearchRef.current.contains(event.target as Node)) {
-        setVendorSearchResults([]);
+      if (
+        vendorSearchRef.current &&
+        !vendorSearchRef.current.contains(event.target as Node)
+      ) {
+        setShowVendorDropdown(false);
+      }
+      if (
+        customerSearchRef.current &&
+        !customerSearchRef.current.contains(event.target as Node)
+      ) {
+        setShowCustomerDropdown(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Handle Autocomplete Selection
   const handleSelectVendor = (company: any) => {
-    setVendorName(company.companyName || "");
-    const addressStr = `${company.address || ""} ${company.subDistrict || ""} ${company.district || ""} ${company.province || ""} ${company.postalCode || ""}`.trim();
-    setVendorAddress(addressStr);
-    setVendorPhone(""); // Companies table might not have phone easily accessible here, leave blank
-    setVendorSearchQuery(company.companyName || "");
-    setVendorSearchResults([]);
+    const name = company.companyName || "";
+    setVendorName(name);
+    setVendorSearchQuery(name);
+
+    const addressParts = [
+      company.address,
+      company.subDistrict,
+      company.district,
+      company.province,
+      company.postalCode,
+    ].filter(Boolean);
+    setVendorAddress(addressParts.join(" ").trim());
+    if (company.phone) setVendorPhone(company.phone);
+
+    setShowVendorDropdown(false);
   };
 
-  // Handle Items
+  const handleSelectCustomer = (company: any) => {
+    const name = company.companyName || "";
+    setCustomerName(name);
+    setCustomerSearchQuery(name);
+
+    const addressParts = [
+      company.address,
+      company.subDistrict,
+      company.district,
+      company.province,
+      company.postalCode,
+    ].filter(Boolean);
+    setCustomerAddress(addressParts.join(" ").trim());
+    if (company.phone) setCustomerPhone(company.phone);
+
+    setShowCustomerDropdown(false);
+  };
+
+  // Item Table Handlers
   const addItem = () => {
-    setItems([...items, { id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" }]);
+    setItems((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        type: "",
+        brand: "",
+        model: "",
+        size: "",
+        serial: "",
+        qty: 1,
+        remark: "",
+      },
+    ]);
   };
 
   const removeItem = (id: string) => {
     if (items.length > 1) {
-      setItems(items.filter((item) => item.id !== id));
+      setItems((prev) => prev.filter((item) => item.id !== id));
     }
   };
 
-  const updateItem = (id: string, field: string, value: string | number) => {
-    setItems(items.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
+  const updateItem = (id: string, field: keyof ItemRow, value: any) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+    );
   };
 
-  // Submit
+  // Total quantity calculation
+  const totalQty = useMemo(() => {
+    return items.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+  }, [items]);
+
+  // Revert changes to initial data
+  const handleRevert = async () => {
+    const confirm = await Swal.fire({
+      title: "ยืนยันการยกเลิกการแก้ไข?",
+      text: "ระบบจะคืนค่าข้อมูลทั้งหมดกลับเป็นค่าที่บันทึกล่าสุด",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ff2301",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "คืนค่าเดิม",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (confirm.isConfirmed) {
+      setOutsourceNumber(initialData?.outsourceNumber || "");
+      setSentDate(
+        formatDateForInput(initialData?.sentDate) ||
+          new Date().toISOString().split("T")[0]
+      );
+      setExpectedReturnDate(formatDateForInput(initialData?.expectedReturnDate));
+      setVendorName(initialData?.vendorName || "");
+      setVendorSearchQuery(initialData?.vendorName || "");
+      setVendorAddress(initialData?.vendorAddress || "");
+      setVendorPhone(initialData?.vendorPhone || "");
+      setCustomerName(initialData?.customerName || "");
+      setCustomerSearchQuery(initialData?.customerName || "");
+      setCustomerAddress(initialData?.customerAddress || "");
+      setCustomerPhone(initialData?.customerPhone || "");
+      setItems(initialItems);
+      setSymptoms(initialData?.symptoms || "");
+      setSettings(initialData?.settings || "");
+      setRemark(initialData?.remark || "");
+      setStatus(initialData?.status === "RETURNED" ? "RETURNED" : "SENT");
+      setSenderName(initialData?.sender || "");
+    }
+  };
+
+  // Submit Handler
   const handleSubmit = async (action: "save" | "print") => {
+    if (!vendorName.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาระบุซัพพลายเออร์",
+        text: "จำเป็นต้องระบุชื่อบริษัทหรือซัพพลายเออร์ผู้รับซ่อม",
+        confirmButtonColor: "#ff2301",
+      });
+      return;
+    }
+
+    const hasValidItem = items.some((i) => i.type.trim() || i.model.trim());
+    if (!hasValidItem) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาระบุรายการอุปกรณ์",
+        text: "โปรดระบุประเภทสินค้าหรือรุ่นโมเดลอย่างน้อย 1 รายการ",
+        confirmButtonColor: "#ff2301",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
+
     try {
-      const formData = {
-        outsourceNumber,
+      const payload = {
+        outsourceNumber: outsourceNumber.trim() || null,
         jobId: jobId || null,
-        vendorName,
-        vendorAddress,
-        vendorPhone,
-        customerName,
-        customerAddress,
-        customerPhone,
+        vendorName: vendorName.trim(),
+        vendorAddress: vendorAddress.trim() || null,
+        vendorPhone: vendorPhone.trim() || null,
+        customerName: customerName.trim() || null,
+        customerAddress: customerAddress.trim() || null,
+        customerPhone: customerPhone.trim() || null,
         sentDate,
-        expectedReturnDate,
-        items: items.map(i => ({
-          type: i.type, brand: i.brand, model: i.model, size: i.size, serial: i.serial, qty: i.qty, remark: i.remark
+        expectedReturnDate: expectedReturnDate || null,
+        items: items.map((i) => ({
+          type: i.type.trim(),
+          brand: i.brand.trim(),
+          model: i.model.trim(),
+          size: i.size.trim(),
+          serial: i.serial.trim(),
+          qty: Number(i.qty) || 1,
+          remark: i.remark.trim(),
         })),
-        symptoms,
-        settings,
-        remark,
-        sender: senderName,
+        symptoms: symptoms.trim() || null,
+        settings: settings.trim() || null,
+        remark: remark.trim() || null,
+        sender: senderName.trim() || null,
         status: status,
       };
 
-      const result = await updateOutsourceRepair(initialData.id, formData);
+      const result = await updateOutsourceRepair(initialData.id, payload);
 
       if (result.success) {
+        await Swal.fire({
+          icon: "success",
+          title: "บันทึกสำเร็จ",
+          text: "อัปเดตข้อมูลใบส่งซ่อมภายนอกเรียบร้อยแล้ว",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         if (action === "print") {
           router.push(`/outsource-repairs/${initialData.id}/pdf`);
         } else {
           router.push("/outsource-repairs");
         }
       } else {
-        alert(result.error || "เกิดข้อผิดพลาดในการบันทึก");
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+          confirmButtonColor: "#ff2301",
+        });
       }
-    } catch (error) {
-      console.error(error);
-      alert("เกิดข้อผิดพลาดในการดำเนินการ");
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: error.message || "เกิดข้อผิดพลาดในการดำเนินการ กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#ff2301",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const sectionHeaderClass = "flex items-center gap-2 pb-2 mb-4 border-b-2 border-red-500 font-semibold text-lg text-gray-800";
-  const inputClass = "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-red-500 focus:border-red-500 bg-white";
-  const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+  const inputClass =
+    "w-full px-3.5 py-2.5 bg-white text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-900 placeholder:text-gray-400";
+  const labelClass = "block text-xs font-bold text-gray-700 mb-1.5";
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden relative">
-      <div className="bg-gradient-to-r from-red-600 to-red-500 px-6 py-4">
-        <div className="flex items-center gap-2 text-white">
-          <Wrench className="h-6 w-6" />
-          <h1 className="text-xl font-bold">สร้างใบส่งซ่อมภายนอก</h1>
+    <div className="space-y-8">
+      {/* ── Top Hero Header Card (Symmetrical & Modern Red/White/Gray) ── */}
+      <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm transition-all relative overflow-hidden">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 sm:gap-6">
+          {/* Left: Branded Squircle Icon & Titles */}
+          <div className="flex items-center gap-4 sm:gap-5">
+            <div className="relative group shrink-0">
+              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] flex items-center justify-center text-white shadow-lg shadow-red-500/25 transition-transform duration-300 group-hover:scale-105">
+                <Wrench className="w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center border-2 border-white shadow-sm">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    status === "RETURNED" ? "bg-gray-800" : "bg-[#ff2301] animate-ping"
+                  }`}
+                />
+              </span>
+            </div>
+
+            <div>
+              {/* Badges Row above Title */}
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center font-mono px-2.5 py-0.5 bg-red-50 text-[#ff2301] border border-red-200/90 rounded-lg text-xs font-black tracking-wide whitespace-nowrap">
+                  {outsourceNumber || "ไม่ระบุเลขที่"}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold border shadow-xs whitespace-nowrap ${
+                    status === "RETURNED"
+                      ? "bg-gray-900 text-white border-gray-900"
+                      : "bg-red-50 text-[#ff2301] border-red-200"
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      status === "RETURNED" ? "bg-white" : "bg-[#ff2301] animate-pulse"
+                    }`}
+                  />
+                  <span className="whitespace-nowrap">
+                    {status === "RETURNED" ? "รับคืนแล้ว" : "อยู่ระหว่างส่งซ่อม"}
+                  </span>
+                </span>
+              </div>
+
+              {/* Title: Unwrapped, Bold, Symmetrical */}
+              <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight whitespace-nowrap">
+                แก้ไขใบส่งซ่อมภายนอก
+              </h1>
+
+              {/* Subtitle */}
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1 flex flex-wrap items-center gap-2">
+                <span>OUTSOURCE REPAIR & VENDOR MANAGEMENT</span>
+                <span className="text-gray-300">•</span>
+                <span className="text-gray-400 font-normal">
+                  แก้ไขและอัปเดตข้อมูลการส่งซ่อมภายนอกโรงงาน
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {/* Right: Symmetrical Action Button Cluster (Single Row, Unified h-10 Heights) */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-nowrap w-full xl:w-auto justify-start xl:justify-end overflow-x-auto pb-1 xl:pb-0">
+            {/* Back Button */}
+            <Link
+              href="/outsource-repairs"
+              className="inline-flex items-center gap-2 px-3.5 sm:px-4 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0 whitespace-nowrap"
+            >
+              <ArrowLeft className="w-4 h-4 text-gray-500 shrink-0" />
+              <span className="hidden sm:inline">กลับหน้ารายการ</span>
+              <span className="sm:hidden">กลับ</span>
+            </Link>
+
+            {/* Print PDF View Button */}
+            <Link
+              href={`/outsource-repairs/${initialData.id}/pdf`}
+              target="_blank"
+              className="inline-flex items-center gap-2 px-3.5 sm:px-4 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0 whitespace-nowrap"
+              title="พิมพ์ใบส่งซ่อม (PDF)"
+            >
+              <Printer className="w-4 h-4 text-gray-500 shrink-0" />
+              <span>พิมพ์ PDF</span>
+            </Link>
+
+            {/* Revert Button */}
+            <button
+              type="button"
+              onClick={handleRevert}
+              disabled={isSubmitting}
+              className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0 disabled:opacity-40"
+              title="คืนค่าเดิมที่บันทึกไว้"
+            >
+              <RotateCcw className="w-4 h-4 shrink-0" />
+            </button>
+
+            {/* Save Button */}
+            <button
+              type="button"
+              onClick={() => handleSubmit("save")}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-4 sm:px-5 h-10 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs tracking-wide shadow-md transition-all active:scale-95 shrink-0 whitespace-nowrap disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              ) : (
+                <Save className="w-4 h-4 shrink-0" />
+              )}
+              <span>บันทึกการแก้ไข</span>
+            </button>
+
+            {/* Save + Print PDF Button */}
+            <button
+              type="button"
+              onClick={() => handleSubmit("print")}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-4 sm:px-5 h-10 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all active:scale-95 shrink-0 whitespace-nowrap disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              ) : (
+                <FileSignature className="w-4 h-4 shrink-0" />
+              )}
+              <span>บันทึก + พิมพ์</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Mini Meta Info Strip */}
+        <div className="mt-6 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-gray-500">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#ff2301]" />
+            <span>
+              รหัสเอกสารในระบบ: <strong className="font-mono text-gray-900">{initialData.id}</strong>
+            </span>
+          </div>
+          <div className="flex items-center gap-3 font-medium">
+            <span>
+              ผู้ส่งซ่อม:{" "}
+              <strong className="text-gray-900">{senderName || "-"}</strong>
+            </span>
+            <span className="text-gray-300">•</span>
+            <span>
+              สร้างเมื่อ:{" "}
+              <strong className="text-gray-800">
+                {initialData.createdAt
+                  ? new Date(initialData.createdAt).toLocaleDateString("th-TH")
+                  : "-"}
+              </strong>
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="p-6 space-y-8 pb-32">
-        {/* Section 1: ข้อมูลเอกสาร */}
-        <section>
-          <div className={sectionHeaderClass}>1. ข้อมูลเอกสาร</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div>
-              <label className={labelClass}>เลขที่เอกสาร (ถ้ามี)</label>
-              <input type="text" value={outsourceNumber} onChange={(e) => setOutsourceNumber(e.target.value)} className={inputClass} placeholder="เช่น EXT-2405-001" />
+      {/* ── Linked Sales Job Callout (If Linked to a Job) ── */}
+      {initialData?.job && (
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                <ClipboardList className="w-4 h-4" />
+              </div>
+              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
+                เชื่อมโยงจากงานขาย (Sales Job Reference)
+              </h2>
+            </div>
+            <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-gray-900 text-white">
+              {initialData.job.jobNumber || "-"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span className="text-gray-400 block font-semibold mb-0.5">
+                ลูกค้า/บริษัท
+              </span>
+              <span className="font-bold text-gray-800 text-sm">
+                {initialData.job.customerName || "-"}
+              </span>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span className="text-gray-400 block font-semibold mb-0.5">
+                พนักงานขาย
+              </span>
+              <span className="font-bold text-gray-800 text-sm">
+                {initialData.job.sellerName || "-"}
+              </span>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span className="text-gray-400 block font-semibold mb-0.5">
+                สังกัดบริษัท
+              </span>
+              <span className="font-bold text-gray-800 text-sm">
+                {initialData.job.companyCode || "TERA"}
+              </span>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span className="text-gray-400 block font-semibold mb-0.5">
+                สินค้าจาก Job
+              </span>
+              <span className="font-bold text-gray-800 text-sm truncate block">
+                {initialData.job.item || "-"}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Section 1: ข้อมูลเอกสาร สถานะ และกำหนดเวลา ── */}
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+              <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <label className={labelClass}>วันที่ส่งซ่อม</label>
-              <input type="date" value={sentDate} onChange={(e) => setSentDate(e.target.value)} className={inputClass} />
+              <h2 className="text-base font-bold text-gray-900">
+                1. ข้อมูลเอกสาร สถานะ และกำหนดเวลา
+              </h2>
+              <p className="text-xs text-gray-400">
+                DOCUMENT SPECIFICATIONS, STATUS & SCHEDULE TIMELINE
+              </p>
             </div>
-            <div>
-              <label className={labelClass}>วันที่คาดว่าจะเสร็จ</label>
-              <input type="date" value={expectedReturnDate} onChange={(e) => setExpectedReturnDate(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>ผู้ส่งซ่อม</label>
-              <input type="text" value={senderName} onChange={(e) => setSenderName(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>สถานะ (Status)</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass + " font-bold"}>
-                <option value="SENT">ส่งซ่อมแล้ว (SENT)</option>
-                <option value="RETURNED">รับคืนแล้ว (RETURNED)</option>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 bg-red-50 text-[#ff2301] rounded-lg border border-red-200">
+            ข้อมูลหลัก
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Outsource Doc Number */}
+          <div>
+            <label className={labelClass}>เลขที่ใบส่งซ่อม</label>
+            <input
+              type="text"
+              value={outsourceNumber}
+              onChange={(e) => setOutsourceNumber(e.target.value)}
+              placeholder="เช่น EXT-2609-001"
+              className={inputClass}
+            />
+          </div>
+
+          {/* Status Dropdown */}
+          <div>
+            <label className={labelClass}>
+              สถานะเอกสาร <span className="text-[#ff2301]">*</span>
+            </label>
+            <div className="relative">
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as "SENT" | "RETURNED")}
+                className={`${inputClass} font-bold ${
+                  status === "RETURNED"
+                    ? "text-gray-900 bg-gray-100/70"
+                    : "text-[#ff2301] bg-red-50/40"
+                }`}
+              >
+                <option value="SENT">อยู่ระหว่างส่งซ่อม (SENT)</option>
+                <option value="RETURNED">รับคืนเรียบร้อยแล้ว (RETURNED)</option>
               </select>
             </div>
           </div>
-        </section>
 
-        {/* Section 2: ข้อมูลผู้รับซ่อม (ซัพพลายเออร์) */}
-        <section>
-          <div className={sectionHeaderClass}>2. ข้อมูลผู้รับซ่อม (ซัพพลายเออร์)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" ref={vendorSearchRef}>
+          {/* Sent Date */}
+          <div>
+            <label className={labelClass}>
+              วันที่ส่งซ่อม <span className="text-[#ff2301]">*</span>
+            </label>
             <div className="relative">
-              <label className={labelClass}>ชื่อบริษัท/ซัพพลายเออร์</label>
-              <input 
-                type="text" 
-                value={vendorSearchQuery}
-                onChange={(e) => {
-                  setVendorSearchQuery(e.target.value);
-                  setVendorName(e.target.value);
-                }}
-                className={inputClass} 
-                placeholder="พิมพ์เพื่อค้นหา..."
+              <Calendar className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+              <input
+                type="date"
+                value={sentDate}
+                onChange={(e) => setSentDate(e.target.value)}
+                className={`${inputClass} pl-10`}
+                required
               />
-              {isVendorSearching && (
-                <div className="absolute right-3 top-9">
-                  <div className="animate-spin h-4 w-4 border-2 border-red-500 border-t-transparent rounded-full"></div>
+            </div>
+          </div>
+
+          {/* Expected Return Date */}
+          <div>
+            <label className={labelClass}>วันที่คาดว่าจะเสร็จ / กำหนดคืน</label>
+            <div className="relative">
+              <Clock className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+              <input
+                type="date"
+                value={expectedReturnDate}
+                onChange={(e) => setExpectedReturnDate(e.target.value)}
+                className={`${inputClass} pl-10`}
+              />
+            </div>
+          </div>
+
+          {/* Sender */}
+          <div>
+            <label className={labelClass}>
+              ผู้ส่งซ่อม <span className="text-[#ff2301]">*</span>
+            </label>
+            <div className="relative">
+              <User className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={senderName}
+                onChange={(e) => setSenderName(e.target.value)}
+                placeholder="ชื่อเจ้าหน้าที่ส่งซ่อม"
+                className={`${inputClass} pl-10`}
+                required
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Sections 2 & 3: Symmetrical 2-Column Side-by-Side Balance ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        {/* ════════════════════════════════════════════════
+            CARD 1 (LEFT): 2. ข้อมูลผู้รับซ่อม (ซัพพลายเออร์)
+            ════════════════════════════════════════════════ */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-gray-900">
+                  2. ข้อมูลผู้รับซ่อม (ซัพพลายเออร์)
+                </h2>
+                <p className="text-xs text-gray-400">OUTSOURCE VENDOR & SUPPLIER</p>
+              </div>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 bg-red-50 text-[#ff2301] rounded-lg border border-red-200">
+              จำเป็น *
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {/* Vendor Name Search / Autocomplete */}
+            <div className="relative" ref={vendorSearchRef}>
+              <label className={labelClass}>
+                ชื่อบริษัท / ซัพพลายเออร์ <span className="text-[#ff2301]">*</span>
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={vendorSearchQuery}
+                  onChange={(e) => {
+                    setVendorSearchQuery(e.target.value);
+                    setVendorName(e.target.value);
+                  }}
+                  onFocus={() => {
+                    if (vendorSearchResults.length > 0) setShowVendorDropdown(true);
+                  }}
+                  placeholder="พิมพ์ค้นหาหรือกรอกชื่อซัพพลายเออร์..."
+                  className={`${inputClass} pl-10 pr-9`}
+                  required
+                />
+                {isVendorSearching && (
+                  <div className="absolute right-3 top-3">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#ff2301]" />
+                  </div>
+                )}
+                {vendorSearchQuery && !isVendorSearching && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVendorSearchQuery("");
+                      setVendorName("");
+                    }}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Autocomplete Dropdown */}
+              {showVendorDropdown && vendorSearchResults.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-gray-200 rounded-2xl shadow-xl max-h-56 overflow-y-auto z-30 divide-y divide-gray-100">
+                  <div className="p-2 text-[11px] font-bold uppercase tracking-wider text-gray-400 bg-gray-50/80 px-3">
+                    เลือกซัพพลายเออร์จากฐานข้อมูล ({vendorSearchResults.length})
+                  </div>
+                  {vendorSearchResults.map((comp) => (
+                    <button
+                      key={comp.id}
+                      type="button"
+                      onClick={() => handleSelectVendor(comp)}
+                      className="w-full text-left px-3.5 py-2.5 hover:bg-red-50/50 transition-colors flex flex-col group"
+                    >
+                      <span className="font-bold text-sm text-gray-900 group-hover:text-[#ff2301]">
+                        {comp.companyName}
+                      </span>
+                      {comp.province && (
+                        <span className="text-xs text-gray-400">
+                          {comp.district || ""} {comp.province}
+                        </span>
+                      )}
+                    </button>
+                  ))}
                 </div>
               )}
-              {vendorSearchResults.length > 0 && (
-                <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto mt-1">
-                  {vendorSearchResults.map((company) => (
-                    <li 
-                      key={company.id} 
-                      onClick={() => handleSelectVendor(company)}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            </div>
+
+            {/* Vendor Phone */}
+            <div>
+              <label className={labelClass}>เบอร์โทรติดต่อซัพพลายเออร์</label>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={vendorPhone}
+                  onChange={(e) => setVendorPhone(e.target.value)}
+                  placeholder="เช่น 02-123-4567, 081-xxx-xxxx"
+                  className={`${inputClass} pl-10`}
+                />
+              </div>
+            </div>
+
+            {/* Vendor Address */}
+            <div>
+              <label className={labelClass}>ที่อยู่ซัพพลายเออร์ / สถานที่จัดส่ง</label>
+              <div className="relative">
+                <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <textarea
+                  rows={3}
+                  value={vendorAddress}
+                  onChange={(e) => setVendorAddress(e.target.value)}
+                  placeholder="ระบุที่อยู่ เลขที่ ถนน อำเภอ จังหวัด..."
+                  className={`${inputClass} pl-10`}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ════════════════════════════════════════════════
+            CARD 2 (RIGHT): 3. ข้อมูลลูกค้าและเจ้าของเครื่อง
+            ════════════════════════════════════════════════ */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-700">
+                <UserCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-gray-900">
+                  3. ข้อมูลลูกค้าและเจ้าของเครื่อง
+                </h2>
+                <p className="text-xs text-gray-400">CUSTOMER & EQUIPMENT OWNER</p>
+              </div>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg border border-gray-200">
+              เจ้าของสินค้า
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {/* Customer Name Search / Autocomplete */}
+            <div className="relative" ref={customerSearchRef}>
+              <label className={labelClass}>ชื่อลูกค้า / บริษัทเจ้าของเครื่อง</label>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={customerSearchQuery}
+                  onChange={(e) => {
+                    setCustomerSearchQuery(e.target.value);
+                    setCustomerName(e.target.value);
+                  }}
+                  onFocus={() => {
+                    if (customerSearchResults.length > 0) setShowCustomerDropdown(true);
+                  }}
+                  placeholder="พิมพ์ค้นหาหรือกรอกชื่อลูกค้า..."
+                  className={`${inputClass} pl-10 pr-9`}
+                />
+                {isCustomerSearching && (
+                  <div className="absolute right-3 top-3">
+                    <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
+                  </div>
+                )}
+                {customerSearchQuery && !isCustomerSearching && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomerSearchQuery("");
+                      setCustomerName("");
+                    }}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Autocomplete Dropdown */}
+              {showCustomerDropdown && customerSearchResults.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-gray-200 rounded-2xl shadow-xl max-h-56 overflow-y-auto z-30 divide-y divide-gray-100">
+                  <div className="p-2 text-[11px] font-bold uppercase tracking-wider text-gray-400 bg-gray-50/80 px-3">
+                    เลือกลูกค้าจากฐานข้อมูล ({customerSearchResults.length})
+                  </div>
+                  {customerSearchResults.map((comp) => (
+                    <button
+                      key={comp.id}
+                      type="button"
+                      onClick={() => handleSelectCustomer(comp)}
+                      className="w-full text-left px-3.5 py-2.5 hover:bg-gray-100 transition-colors flex flex-col group"
                     >
-                      {company.companyName}
-                    </li>
+                      <span className="font-bold text-sm text-gray-900 group-hover:text-[#ff2301]">
+                        {comp.companyName}
+                      </span>
+                      {comp.province && (
+                        <span className="text-xs text-gray-400">
+                          {comp.district || ""} {comp.province}
+                        </span>
+                      )}
+                    </button>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
-            <div>
-              <label className={labelClass}>เบอร์โทรติดต่อ</label>
-              <input type="text" value={vendorPhone} onChange={(e) => setVendorPhone(e.target.value)} className={inputClass} />
-            </div>
-            <div className="md:col-span-2">
-              <label className={labelClass}>ที่อยู่</label>
-              <input type="text" value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} className={inputClass} />
-            </div>
-          </div>
-        </section>
 
-        {/* Section 3: ข้อมูลลูกค้า (เจ้าของเครื่อง) */}
-        <section>
-          <div className={sectionHeaderClass}>3. ข้อมูลลูกค้า (เจ้าของเครื่อง)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Customer Phone */}
             <div>
-              <label className={labelClass}>ชื่อลูกค้า / บริษัท</label>
-              <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className={inputClass} />
+              <label className={labelClass}>เบอร์โทรติดต่อลูกค้า</label>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  placeholder="เช่น 081-xxx-xxxx"
+                  className={`${inputClass} pl-10`}
+                />
+              </div>
             </div>
-            <div>
-              <label className={labelClass}>เบอร์โทรติดต่อ</label>
-              <input type="text" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className={inputClass} />
-            </div>
-            <div className="md:col-span-2">
-              <label className={labelClass}>ที่อยู่</label>
-              <input type="text" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} className={inputClass} />
-            </div>
-          </div>
-        </section>
 
-        {/* Section 4: รายการสินค้า */}
-        <section>
-          <div className="flex justify-between items-center pb-2 mb-4 border-b-2 border-red-500">
-            <div className="flex items-center gap-2 font-semibold text-lg text-gray-800">
-              4. รายการสินค้า
+            {/* Customer Address */}
+            <div>
+              <label className={labelClass}>ที่อยู่ลูกค้า / ไซต์งาน</label>
+              <div className="relative">
+                <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                <textarea
+                  rows={3}
+                  value={customerAddress}
+                  onChange={(e) => setCustomerAddress(e.target.value)}
+                  placeholder="ระบุที่อยู่ลูกค้า หรือที่ตั้งโครงการ..."
+                  className={`${inputClass} pl-10`}
+                />
+              </div>
             </div>
-            <button type="button" onClick={addItem} className="flex items-center gap-1 text-sm bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-md font-medium transition-colors">
-              <Plus className="w-4 h-4" /> เพิ่มรายการ
-            </button>
           </div>
-          <div className="overflow-x-auto border border-gray-200 rounded-xl">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-gray-700 bg-gray-50 uppercase">
+        </div>
+      </div>
+
+      {/* ── Section 4: รายการอุปกรณ์ที่ส่งซ่อม ── */}
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+              <Cpu className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-base font-bold text-gray-900">
+                  4. รายการอุปกรณ์ที่ส่งซ่อม
+                </h2>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-[#ff2301] border border-red-200">
+                  {items.length} รายการ
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                  รวม {totalQty} ชิ้น
+                </span>
+              </div>
+              <p className="text-xs text-gray-400">EQUIPMENT & MACHINE SPECIFICATIONS</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={addItem}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-[#ff2301] border border-red-200 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            <span>เพิ่มรายการอุปกรณ์</span>
+          </button>
+        </div>
+
+        {/* Responsive Table */}
+        <div className="border border-gray-200/90 rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left border-collapse">
+              <thead className="text-xs text-gray-600 uppercase bg-gray-50 border-b border-gray-200 select-none">
                 <tr>
-                  <th className="px-4 py-3 whitespace-nowrap">ลำดับ</th>
-                  <th className="px-4 py-3 whitespace-nowrap min-w-[150px]">ประเภทสินค้า</th>
-                  <th className="px-4 py-3 whitespace-nowrap min-w-[120px]">ยี่ห้อ</th>
-                  <th className="px-4 py-3 whitespace-nowrap min-w-[150px]">รุ่น/โมเดล</th>
-                  <th className="px-4 py-3 whitespace-nowrap min-w-[100px]">ขนาด</th>
-                  <th className="px-4 py-3 whitespace-nowrap min-w-[150px]">Serial No.</th>
-                  <th className="px-4 py-3 whitespace-nowrap w-[80px]">จำนวน</th>
-                  <th className="px-4 py-3 whitespace-nowrap min-w-[150px]">หมายเหตุ</th>
-                  <th className="px-4 py-3 whitespace-nowrap w-[50px]"></th>
+                  <th className="px-3.5 py-3 w-12 text-center">ลำดับ</th>
+                  <th className="px-3 py-3 min-w-[150px]">
+                    ประเภทสินค้า <span className="text-[#ff2301]">*</span>
+                  </th>
+                  <th className="px-3 py-3 min-w-[120px]">ยี่ห้อ (Brand)</th>
+                  <th className="px-3 py-3 min-w-[150px]">รุ่น / โมเดล</th>
+                  <th className="px-3 py-3 min-w-[110px]">ขนาด / พิกัด</th>
+                  <th className="px-3 py-3 min-w-[150px]">Serial No.</th>
+                  <th className="px-3 py-3 w-24 text-center">จำนวน</th>
+                  <th className="px-3 py-3 min-w-[150px]">หมายเหตุ</th>
+                  <th className="px-3 py-3 w-12 text-center"></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100 bg-white">
                 {items.map((item, index) => (
-                  <tr key={item.id} className="border-b bg-white">
-                    <td className="px-4 py-2 text-center">{index + 1}</td>
-                    <td className="px-2 py-2"><input type="text" value={item.type} onChange={(e) => updateItem(item.id, "type", e.target.value)} className={inputClass} placeholder="เช่น Motor, Pump" /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.brand} onChange={(e) => updateItem(item.id, "brand", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.model} onChange={(e) => updateItem(item.id, "model", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.size} onChange={(e) => updateItem(item.id, "size", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.serial} onChange={(e) => updateItem(item.id, "serial", e.target.value)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="number" min="1" value={item.qty} onChange={(e) => updateItem(item.id, "qty", parseInt(e.target.value) || 1)} className={inputClass} /></td>
-                    <td className="px-2 py-2"><input type="text" value={item.remark} onChange={(e) => updateItem(item.id, "remark", e.target.value)} className={inputClass} /></td>
+                  <tr
+                    key={item.id}
+                    className="hover:bg-red-50/20 transition-colors group"
+                  >
+                    {/* Index */}
+                    <td className="px-3.5 py-2.5 text-center font-mono font-bold text-xs text-gray-400">
+                      {index + 1}
+                    </td>
+
+                    {/* Type */}
+                    <td className="px-2 py-2">
+                      <input
+                        type="text"
+                        value={item.type}
+                        onChange={(e) => updateItem(item.id, "type", e.target.value)}
+                        placeholder="เช่น Motor, Pump, Inverter"
+                        className="w-full text-xs font-semibold px-2.5 py-2 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all"
+                        required
+                      />
+                    </td>
+
+                    {/* Brand */}
+                    <td className="px-2 py-2">
+                      <input
+                        type="text"
+                        value={item.brand}
+                        onChange={(e) => updateItem(item.id, "brand", e.target.value)}
+                        placeholder="เช่น ABB, Siemens"
+                        className="w-full text-xs font-semibold px-2.5 py-2 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all"
+                      />
+                    </td>
+
+                    {/* Model */}
+                    <td className="px-2 py-2">
+                      <input
+                        type="text"
+                        value={item.model}
+                        onChange={(e) => updateItem(item.id, "model", e.target.value)}
+                        placeholder="เช่น ACS580"
+                        className="w-full text-xs font-semibold font-mono px-2.5 py-2 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all"
+                      />
+                    </td>
+
+                    {/* Size */}
+                    <td className="px-2 py-2">
+                      <input
+                        type="text"
+                        value={item.size}
+                        onChange={(e) => updateItem(item.id, "size", e.target.value)}
+                        placeholder="เช่น 15 kW, 20 HP"
+                        className="w-full text-xs font-semibold px-2.5 py-2 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all"
+                      />
+                    </td>
+
+                    {/* Serial */}
+                    <td className="px-2 py-2">
+                      <input
+                        type="text"
+                        value={item.serial}
+                        onChange={(e) => updateItem(item.id, "serial", e.target.value)}
+                        placeholder="S/N ของอุปกรณ์"
+                        className="w-full text-xs font-semibold font-mono px-2.5 py-2 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all"
+                      />
+                    </td>
+
+                    {/* Qty */}
+                    <td className="px-2 py-2">
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.qty}
+                        onChange={(e) =>
+                          updateItem(item.id, "qty", parseInt(e.target.value) || 1)
+                        }
+                        className="w-full text-xs font-bold text-center px-2 py-2 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all"
+                      />
+                    </td>
+
+                    {/* Remark */}
+                    <td className="px-2 py-2">
+                      <input
+                        type="text"
+                        value={item.remark}
+                        onChange={(e) => updateItem(item.id, "remark", e.target.value)}
+                        placeholder="หมายเหตุเฉพาะรายการ"
+                        className="w-full text-xs px-2.5 py-2 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all"
+                      />
+                    </td>
+
+                    {/* Delete Action */}
                     <td className="px-2 py-2 text-center">
-                      <button type="button" onClick={() => removeItem(item.id)} disabled={items.length === 1} className="text-gray-400 hover:text-red-500 disabled:opacity-30">
-                        <Trash2 className="w-5 h-5" />
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        disabled={items.length === 1}
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-20 disabled:hover:bg-transparent"
+                        title={items.length === 1 ? "ต้องมีอย่างน้อย 1 รายการ" : "ลบรายการนี้"}
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>
@@ -306,42 +1158,174 @@ export default function EditOutsourceRepairForm({ users, currentUserId, initialD
               </tbody>
             </table>
           </div>
-        </section>
 
-        {/* Section 5: รายละเอียดเพิ่มเติม */}
-        <section>
-          <div className={sectionHeaderClass}>5. รายละเอียดเพิ่มเติม</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>อาการเสีย</label>
-              <textarea rows={3} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} className={inputClass}></textarea>
-            </div>
-            <div>
-              <label className={labelClass}>การตั้งค่า / ข้อมูลอื่นๆ</label>
-              <textarea rows={3} value={settings} onChange={(e) => setSettings(e.target.value)} className={inputClass}></textarea>
-            </div>
-            <div className="md:col-span-2">
-              <label className={labelClass}>หมายเหตุ</label>
-              <textarea rows={2} value={remark} onChange={(e) => setRemark(e.target.value)} className={inputClass}></textarea>
+          {/* Table Summary Footer */}
+          <div className="bg-gray-50/90 border-t border-gray-200 px-4 py-3 flex items-center justify-between text-xs">
+            <span className="text-gray-500 font-medium">
+              แสดง {items.length} รายการอุปกรณ์
+            </span>
+            <div className="flex items-center gap-4">
+              <span className="font-bold text-gray-700">
+                รวมจำนวนสินค้าทั้งหมด:{" "}
+                <span className="text-[#ff2301] font-mono text-sm ml-1">
+                  {totalQty}
+                </span>{" "}
+                ชิ้น
+              </span>
+              <button
+                type="button"
+                onClick={addItem}
+                className="text-[#ff2301] hover:underline font-bold flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>เพิ่มแถว</span>
+              </button>
             </div>
           </div>
-        </section>
+        </div>
       </div>
 
-      {/* Sticky Action Bar */}
-      <div className="absolute bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 px-6 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <button type="button" onClick={() => router.back()} disabled={isSubmitting} className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50">
-          ← ยกเลิก
-        </button>
-        <div className="flex gap-3">
-          <button type="button" onClick={() => handleSubmit("save")} disabled={isSubmitting} className="px-6 py-2.5 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2">
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            บันทึก
-          </button>
-          <button type="button" onClick={() => handleSubmit("print")} disabled={isSubmitting} className="px-6 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm shadow-red-200 disabled:opacity-50 flex items-center gap-2">
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSignature className="w-4 h-4" />}
-            บันทึก + พิมพ์ PDF
-          </button>
+      {/* ── Section 5: รายละเอียดเพิ่มเติมและการตั้งค่า ── */}
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900">
+                5. รายละเอียดเพิ่มเติมและการตั้งค่า
+              </h2>
+              <p className="text-xs text-gray-400">
+                DEFECT SYMPTOMS, PARAMETERS & TECHNICAL NOTES
+              </p>
+            </div>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200">
+            รายละเอียดงาน
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Symptoms */}
+          <div>
+            <label className={labelClass}>
+              อาการเสียที่แจ้งซ่อม (Symptoms / Issues)
+            </label>
+            <div className="relative">
+              <textarea
+                rows={4}
+                value={symptoms}
+                onChange={(e) => setSymptoms(e.target.value)}
+                placeholder="ระบุอาการผิดปกติ โค้ด Error หรือสาเหตุที่ต้องส่งซ่อมภายนอก..."
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          {/* Settings / Parameters */}
+          <div>
+            <label className={labelClass}>
+              การตั้งค่า / ข้อมูลทางเทคนิคที่ต้องการ (Settings & Requirements)
+            </label>
+            <div className="relative">
+              <textarea
+                rows={4}
+                value={settings}
+                onChange={(e) => setSettings(e.target.value)}
+                placeholder="ระบุพารามิเตอร์ ค่าความถี่ แรงดัน หรือการปรับแต่งที่ต้องการ..."
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          {/* Remarks (Full-width) */}
+          <div className="lg:col-span-2">
+            <label className={labelClass}>
+              หมายเหตุเพิ่มเติม / ข้อตกลงพิเศษ (Additional Remarks)
+            </label>
+            <div className="relative">
+              <textarea
+                rows={2}
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                placeholder="ระบุเงื่อนไขการรับประกัน การส่งมอบ หรือบันทึกเพิ่มเติม..."
+                className={inputClass}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Sticky Bottom Action Bar ── */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/90 shadow-2xl p-4 sm:px-8 z-40">
+        <div className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-xs text-gray-500">
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                status === "RETURNED" ? "bg-gray-900" : "bg-[#ff2301] animate-pulse"
+              }`}
+            />
+            <span>
+              สถานะ:{" "}
+              <strong className="text-gray-900 font-bold">
+                {status === "RETURNED" ? "รับคืนแล้ว" : "อยู่ระหว่างส่งซ่อม"}
+              </strong>
+            </span>
+            <span className="text-gray-300">•</span>
+            <span>
+              ซัพพลายเออร์:{" "}
+              <strong className="text-gray-900">
+                {vendorName || "ยังไม่ได้ระบุ"}
+              </strong>
+            </span>
+            <span className="text-gray-300">•</span>
+            <span>
+              อุปกรณ์:{" "}
+              <strong className="text-gray-900 font-mono">
+                {items.length} รายการ ({totalQty} ชิ้น)
+              </strong>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              disabled={isSubmitting}
+              className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 font-bold text-xs rounded-xl hover:bg-gray-50 transition-colors shadow-sm disabled:opacity-50"
+            >
+              ยกเลิก
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSubmit("save")}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              <span>บันทึกการแก้ไข</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSubmit("print")}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all transform active:scale-95 disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <FileSignature className="w-4 h-4" />
+              )}
+              <span>บันทึก + พิมพ์ PDF</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
