@@ -4,9 +4,6 @@ import prisma from '@/app/lib/db'
 import { redirect } from "next/navigation"
 import Sidebar from '@/app/components/Sidebar'
 import AccountingClientPage from "./AccountingClientPage"
-
-import { syncProjectInstallmentsToPaymentTasks } from '@/app/actions/projects'
-
 export const dynamic = 'force-dynamic'
 
 export default async function AccountingPage() {
@@ -24,48 +21,65 @@ export default async function AccountingPage() {
   
   if (!isAccounting && !isExecutive) redirect('/dashboard')
 
-  // Synchronize all projects linked to jobs with PaymentTasks
-  const projectsWithJobs = await prisma.project.findMany({
-    where: { jobId: { not: null } },
-    select: { id: true }
-  });
-  for (const proj of projectsWithJobs) {
-    await syncProjectInstallmentsToPaymentTasks(proj.id);
-  }
-  // ----------------------------------------------------------------
-
-  // --- TEMPORARY CLEANUP FOR DUPLICATE PAYMENT TASKS ---
-  const allTasksForCleanup = await prisma.paymentTask.findMany({
-    orderBy: { createdAt: 'asc' }
-  });
-  const seenInstallments = new Set();
-  const duplicateTaskIds = [];
-  for (const t of allTasksForCleanup) {
-    if (t.installmentNo) {
-      const key = `${t.jobId}-${t.installmentNo}`;
-      if (seenInstallments.has(key)) {
-        duplicateTaskIds.push(t.id);
-      } else {
-        seenInstallments.add(key);
-      }
-    }
-  }
-  if (duplicateTaskIds.length > 0) {
-    await prisma.paymentTask.deleteMany({
-      where: { id: { in: duplicateTaskIds } }
-    });
-  }
-  // ----------------------------------------------------------------
-
-  // Fetch Payment Tasks
+  // Fetch Payment Tasks with optimized field selection (omits heavy checklist image blobs & unneeded JSONs)
   const paymentTasks = await prisma.paymentTask.findMany({
-    include: {
+    select: {
+      id: true,
+      jobId: true,
+      status: true,
+      creditType: true,
+      installmentNo: true,
+      installmentTotal: true,
+      installmentAmount: true,
+      paidAmount: true,
+      dueDate: true,
+      paidDate: true,
+      invoiceNumber: true,
+      invoiceDate: true,
+      note: true,
+      createdAt: true,
       job: {
-        include: {
-          quotation: true,
-          project: true
-        }
-      }
+        select: {
+          id: true,
+          jobNumber: true,
+          customerName: true,
+          companyCode: true,
+          item: true,
+          sellerName: true,
+          paymentMethod: true,
+          jobType: true,
+          month: true,
+          yearBe: true,
+          deliveryDate: true,
+          creditTerms: true,
+          createdAt: true,
+          quotationNumber: true,
+          quotation: {
+            select: {
+              id: true,
+              quotationNumber: true,
+              quotationDate: true,
+              subject: true,
+              totalAmountBeforeVat: true,
+              actualClosingAmount: true,
+              salesperson: {
+                select: {
+                  fullName: true,
+                },
+              },
+            },
+          },
+          project: {
+            select: {
+              id: true,
+              projectNumber: true,
+              name: true,
+              projectValue: true,
+              contractSignatory: true,
+            },
+          },
+        },
+      },
     },
     orderBy: [
       { createdAt: 'desc' }

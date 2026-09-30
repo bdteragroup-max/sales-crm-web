@@ -387,3 +387,22 @@ export async function getPendingPaymentTaskCount() {
   }
 }
 
+export async function syncAllAccountingTasks() {
+  try {
+    const { syncProjectInstallmentsToPaymentTasks } = await import('@/app/actions/projects');
+    const projectsWithJobs = await prisma.project.findMany({
+      where: { jobId: { not: null } },
+      select: { id: true }
+    });
+    for (const proj of projectsWithJobs) {
+      await syncProjectInstallmentsToPaymentTasks(proj.id);
+    }
+    safeRevalidatePath('/accounting');
+    return { success: true, count: projectsWithJobs.length };
+  } catch (error: any) {
+    console.error("syncAllAccountingTasks error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+
