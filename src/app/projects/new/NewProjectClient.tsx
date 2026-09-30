@@ -31,6 +31,10 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
   ]);
   
   const initialJob = jobs.find((j: any) => j.id === initialJobId);
+  const initialQuotationVal = initialJob?.quotation
+    ? (Number(initialJob.quotation.actualClosingAmount) || Number(initialJob.quotation.totalAmountBeforeVat) || 0)
+    : 0;
+
   const [formData, setFormData] = useState({
     // Basic Info
     name: initialJob ? (initialJob.item || '') : '',
@@ -56,15 +60,14 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
     contractSignatory: '',
     contractSigningDate: '',
     contractReturnStatus: '',
-    projectValue: '',
+    amountBeforeVat: initialQuotationVal > 0 ? initialQuotationVal.toFixed(2) : '',
+    projectValue: initialQuotationVal > 0 ? (initialQuotationVal * 1.07).toFixed(2) : '',
     securityDeposit: '',
     depositCollectionSchedule: '',
     depositRefundRequestNo: '',
     penaltyPerDay: '',
-    amountIncludingVat: '',
-    budget: initialJob && initialJob.quotation
-      ? (initialJob.quotation.actualClosingAmount || initialJob.quotation.totalAmountBeforeVat || '').toString() 
-      : '',
+    amountIncludingVat: initialQuotationVal > 0 ? (initialQuotationVal * 1.07).toFixed(2) : '',
+    budget: initialQuotationVal > 0 ? initialQuotationVal.toString() : '',
 
     // Installments & Payments
     installment1: '',
@@ -295,6 +298,50 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
     setFormData(prev => ({ ...prev, [name]: val }));
   };
 
+  const handleAmountBeforeVatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const num = parseFloat(val);
+    if (!isNaN(num) && num >= 0) {
+      const incVat = (num * 1.07).toFixed(2);
+      setFormData(prev => ({
+        ...prev,
+        amountBeforeVat: val,
+        projectValue: incVat,
+        amountIncludingVat: incVat,
+        budget: prev.budget || val,
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        amountBeforeVat: val,
+        projectValue: '',
+        amountIncludingVat: '',
+      }));
+    }
+  };
+
+  const handleProjectValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const num = parseFloat(val);
+    if (!isNaN(num) && num >= 0) {
+      const exVat = ((num * 100) / 107).toFixed(2);
+      setFormData(prev => ({
+        ...prev,
+        projectValue: val,
+        amountIncludingVat: val,
+        amountBeforeVat: exVat,
+        budget: prev.budget || exVat,
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        projectValue: val,
+        amountIncludingVat: val,
+        amountBeforeVat: '',
+      }));
+    }
+  };
+
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
@@ -361,12 +408,16 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
                 onChange={e => {
                   const newJobId = e.target.value;
                   const selectedJob = jobs.find(j => j.id === newJobId);
+                  const qVal = selectedJob?.quotation 
+                    ? (Number(selectedJob.quotation.actualClosingAmount) || Number(selectedJob.quotation.totalAmountBeforeVat) || 0)
+                    : 0;
                   setFormData(prev => ({
                     ...prev, 
                     jobId: newJobId,
-                    budget: selectedJob?.quotation 
-                      ? (selectedJob.quotation.actualClosingAmount || selectedJob.quotation.totalAmountBeforeVat || '').toString() || prev.budget
-                      : prev.budget,
+                    amountBeforeVat: qVal > 0 ? qVal.toFixed(2) : prev.amountBeforeVat,
+                    projectValue: qVal > 0 ? (qVal * 1.07).toFixed(2) : prev.projectValue,
+                    amountIncludingVat: qVal > 0 ? (qVal * 1.07).toFixed(2) : prev.amountIncludingVat,
+                    budget: qVal > 0 ? qVal.toString() : prev.budget,
                     name: selectedJob?.item || prev.name,
                     clientName: selectedJob?.customerName || prev.clientName
                   }));
@@ -447,57 +498,162 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
             <h2 className="text-lg font-bold text-gray-900">3. สัญญาและการเงิน (Contract & Financials)</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">เลขที่สัญญา (Contract No.)</label>
-              <input type="text" name="contractNumber" value={formData.contractNumber} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
-            </div>
-            
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">ผู้เซ็นสัญญา (Signatory)</label>
-              <input type="text" name="contractSignatory" value={formData.contractSignatory} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">วันที่เซ็นสัญญา (Sign Date)</label>
-              <input type="date" name="contractSigningDate" value={formData.contractSigningDate} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">มูลค่าโครงการ รวม VAT (Project Value)</label>
-              <input type="number" step="0.01" name="projectValue" value={formData.projectValue} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
-            </div>
-
-            {(currentUserRole?.toLowerCase().includes('account') || currentUserRole?.includes('บัญชี') || currentUserRole?.toLowerCase().includes('admin') || currentUserRole?.includes('แอดมิน') || currentUserRole?.toLowerCase().includes('manage') || currentUserRole?.includes('ผู้จัดการ')) && (
+          {/* Group 1: Contract Info (3 Columns) */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">ข้อมูลสัญญา (Contract Information)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-1.5">
-                <label className="text-sm font-bold text-gray-700">มูลค่าโครงการ ไม่รวม VAT (Excl. VAT)</label>
-                <input type="text" readOnly value={formData.projectValue ? (Number(formData.projectValue) * 100 / 107).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''} className="w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 font-medium outline-none" />
+                <label className="text-sm font-bold text-gray-700">เลขที่สัญญา (Contract No.)</label>
+                <input type="text" name="contractNumber" value={formData.contractNumber} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
               </div>
-            )}
+              
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-gray-700">ผู้เซ็นสัญญา (Signatory)</label>
+                <input type="text" name="contractSignatory" value={formData.contractSignatory} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">งบประมาณภายใน (Internal Budget)</label>
-              <input type="number" step="0.01" name="budget" value={formData.budget} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-gray-700">วันที่เซ็นสัญญา (Sign Date)</label>
+                <input type="date" name="contractSigningDate" value={formData.contractSigningDate} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              </div>
             </div>
+          </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">ค่าปรับ/วัน (Penalty/Day)</label>
-              <input type="number" step="0.01" name="penaltyPerDay" value={formData.penaltyPerDay} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+          {/* Group 2: VAT Breakdown Equation (3 Columns) */}
+          <div className="space-y-3 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">โครงสร้างมูลค่าสัญญาและภาษี (Contract & VAT Breakdown)</h3>
+              <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-sans font-medium">Auto-Calculated 7%</span>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-1">
+                  <label className="text-sm font-bold text-gray-700 truncate">มูลค่าโครงการ ก่อน VAT (Excl. VAT)</label>
+                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded whitespace-nowrap shrink-0">ฐานหักภาษี</span>
+                </div>
+                <div className="relative">
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    name="amountBeforeVat" 
+                    value={formData.amountBeforeVat} 
+                    onChange={handleAmountBeforeVatChange} 
+                    placeholder="0.00"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none font-mono font-bold text-gray-900" 
+                  />
+                </div>
+              </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">เงินค้ำประกัน 5% (Security Deposit)</label>
-              <input type="number" step="0.01" name="securityDeposit" value={formData.securityDeposit} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-1">
+                  <label className="text-sm font-bold text-gray-700 truncate">ภาษีมูลค่าเพิ่ม (VAT 7%)</label>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">คำนวณอัตโนมัติ</span>
+                </div>
+                <div className="w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-gray-700 font-mono font-bold flex items-center justify-between h-[42px]">
+                  <span>
+                    {formData.amountBeforeVat || formData.projectValue ? `฿${(
+                      (parseFloat(formData.amountBeforeVat) || (parseFloat(formData.projectValue) ? parseFloat(formData.projectValue) * 100 / 107 : 0)) * 0.07
+                    ).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '฿0.00'}
+                  </span>
+                  <span className="text-xs text-gray-400 font-medium">7%</span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-1">
+                  <label className="text-sm font-bold text-gray-700 truncate">มูลค่าโครงการ รวม VAT (Project Value) *</label>
+                  <span className="text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded whitespace-nowrap shrink-0">ยอดตามสัญญา</span>
+                </div>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  name="projectValue" 
+                  value={formData.projectValue} 
+                  onChange={handleProjectValueChange} 
+                  placeholder="0.00"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none font-mono font-bold text-gray-900" 
+                />
+              </div>
             </div>
+          </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">กำหนดเก็บเงินค้ำประกัน (Deposit Collection)</label>
-              <input type="date" name="depositCollectionSchedule" value={formData.depositCollectionSchedule} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+          {/* Group 3: Budget & Penalty (3 Columns Symmetrical) */}
+          <div className="space-y-3 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">งบประมาณและเงื่อนไข (Budget & Terms)</h3>
+              <span className="text-[10px] text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full font-sans font-medium">Est. Margin Real-Time</span>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-1">
+                  <label className="text-sm font-bold text-gray-700 truncate">งบประมาณภายใน (Internal Budget)</label>
+                  <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded whitespace-nowrap shrink-0">ต้นทุน</span>
+                </div>
+                <input type="number" step="0.01" name="budget" value={formData.budget} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none font-mono font-bold" />
+              </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">เลขขอคืนเงินค้ำประกัน (Refund Req No.)</label>
-              <input type="text" name="depositRefundRequestNo" value={formData.depositRefundRequestNo} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              <div className="space-y-1.5">
+                {(() => {
+                  const beforeVatVal = parseFloat(formData.amountBeforeVat) || (parseFloat(formData.projectValue) ? parseFloat(formData.projectValue) * 100 / 107 : 0);
+                  const budgetVal = parseFloat(formData.budget) || 0;
+                  const estProfit = beforeVatVal ? (beforeVatVal - budgetVal) : 0;
+                  const marginPct = beforeVatVal > 0 ? ((estProfit / beforeVatVal) * 100).toFixed(1) : "0.0";
+                  const isPositive = estProfit >= 0;
+                  return (
+                    <>
+                      <div className="flex items-center justify-between gap-1">
+                        <label className="text-sm font-bold text-gray-700 truncate">กำไรประเมิน (Est. Margin)</label>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 border ${
+                          isPositive
+                            ? "text-blue-700 bg-blue-50 border-blue-200"
+                            : "text-rose-700 bg-rose-50 border-rose-200"
+                        }`}>
+                          {isPositive ? `+${marginPct}%` : `${marginPct}%`}
+                        </span>
+                      </div>
+                      <div className={`w-full px-4 py-2 border rounded-xl font-mono font-bold flex items-center justify-between h-[42px] ${
+                        isPositive
+                          ? "bg-blue-50/50 border-blue-200 text-blue-900"
+                          : "bg-rose-50/50 border-rose-200 text-rose-900"
+                      }`}>
+                        <span>
+                          {`฿${estProfit.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                        </span>
+                        <span className="text-xs font-semibold text-gray-500">Margin</span>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-1">
+                  <label className="text-sm font-bold text-gray-700 truncate">ค่าปรับ/วัน (Penalty/Day)</label>
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded whitespace-nowrap shrink-0">เงื่อนไข</span>
+                </div>
+                <input type="number" step="0.01" name="penaltyPerDay" value={formData.penaltyPerDay} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none font-mono font-medium" />
+              </div>
+            </div>
+          </div>
+
+          {/* Group 4: Security Deposit (3 Columns Symmetrical) */}
+          <div className="space-y-3 pt-4 border-t border-gray-100">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">เงินค้ำประกันผลงาน (Security Deposit)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-gray-700">เงินค้ำประกัน 5% (Security Deposit)</label>
+                <input type="number" step="0.01" name="securityDeposit" value={formData.securityDeposit} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none font-mono" />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-gray-700">กำหนดเก็บเงินค้ำประกัน (Deposit Collection)</label>
+                <input type="date" name="depositCollectionSchedule" value={formData.depositCollectionSchedule} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-gray-700">เลขขอคืนเงินค้ำประกัน (Refund Req No.)</label>
+                <input type="text" name="depositRefundRequestNo" value={formData.depositRefundRequestNo} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              </div>
             </div>
           </div>
 

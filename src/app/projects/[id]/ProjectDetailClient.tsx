@@ -172,16 +172,25 @@ export default function ProjectDetailClient({
     [pos]
   );
 
-  const projectRevenue = Number(
-    project.amountIncludingVat ||
-    project.projectValue ||
-    project.job?.quotation?.actualClosingAmount ||
-    project.job?.quotation?.totalAmountBeforeVat ||
-    0
-  );
+  const rawProjectValue = Number(project.amountIncludingVat || project.projectValue || 0);
+  const quotationBeforeVat = Number(project.job?.quotation?.actualClosingAmount || project.job?.quotation?.totalAmountBeforeVat || 0);
 
-  const revenueExVat = projectRevenue > 0 ? (projectRevenue * 100) / 107 : 0;
-  const internalBudget = Number(project.budget || 0);
+  // Revenue including VAT (standardized for both projectValue and quotation fallback)
+  const projectRevenue = rawProjectValue > 0
+    ? rawProjectValue
+    : quotationBeforeVat > 0
+      ? quotationBeforeVat * 1.07
+      : 0;
+
+  // Revenue excluding VAT
+  const revenueExVat = rawProjectValue > 0
+    ? (rawProjectValue * 100) / 107
+    : quotationBeforeVat > 0
+      ? quotationBeforeVat
+      : 0;
+
+  const vatAmount = Math.max(0, projectRevenue - revenueExVat);
+  const internalBudget = Number(project.budget || (quotationBeforeVat > 0 ? quotationBeforeVat : 0));
   const profit = projectRevenue - totalExpenditures;
   const profitMargin =
     projectRevenue > 0 ? Math.round((profit / projectRevenue) * 100) : 0;
@@ -683,23 +692,31 @@ export default function ProjectDetailClient({
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between space-y-3 h-full">
           <div className="flex items-center justify-between">
             <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Receipt size={13} className="text-gray-500" />
+              <Receipt size={13} className="text-red-600" />
               มูลค่าโครงการ (รวม VAT)
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">
               VAT 7%
             </span>
           </div>
           <p className="text-xl font-black text-gray-900 font-mono">
             {projectRevenue > 0
-              ? `฿${projectRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+              ? `฿${projectRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
               : "ไม่ระบุ"}
           </p>
-          <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium pt-0.5">
-            <span>ก่อน VAT:</span>
-            <span className="font-bold text-gray-700 font-mono">
-              {revenueExVat > 0 ? `฿${revenueExVat.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "-"}
-            </span>
+          <div className="pt-1.5 border-t border-gray-100 space-y-0.5 text-[11px]">
+            <div className="flex items-center justify-between text-gray-500 font-medium">
+              <span>ก่อน VAT:</span>
+              <span className="font-bold text-gray-900 font-mono">
+                {revenueExVat > 0 ? `฿${revenueExVat.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "-"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-gray-400 font-medium">
+              <span>ภาษี 7%:</span>
+              <span className="font-semibold text-emerald-700 font-mono">
+                {vatAmount > 0 ? `+฿${vatAmount.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "-"}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -963,6 +980,23 @@ export default function ProjectDetailClient({
                       : project.job?.salesOrderDate
                       ? new Date(project.job.salesOrderDate).toLocaleDateString("th-TH")
                       : "-"}
+                  </p>
+                </div>
+
+                <div className="space-y-1 p-3 rounded-xl bg-gray-50/70 border border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+                      มูลค่าโครงการ (รวม VAT)
+                    </span>
+                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                      VAT 7%
+                    </span>
+                  </div>
+                  <p className="font-bold text-gray-900 text-sm font-mono truncate">
+                    {projectRevenue > 0 ? `฿${projectRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "-"}
+                  </p>
+                  <p className="text-[10px] text-gray-500 font-mono truncate">
+                    ก่อน VAT: {revenueExVat > 0 ? `฿${revenueExVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "-"}
                   </p>
                 </div>
 

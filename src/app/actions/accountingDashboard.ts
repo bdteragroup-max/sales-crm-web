@@ -174,6 +174,23 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
         return true;
       });
 
+function getTaskBilledAmount(pt: any): number {
+  if (pt.installmentAmount && Number(pt.installmentAmount) > 0) {
+    return Number(pt.installmentAmount);
+  }
+  if (pt.job?.project?.projectValue && Number(pt.job.project.projectValue) > 0) {
+    return Number(pt.job.project.projectValue);
+  }
+  if (pt.job?.project?.amountIncludingVat && Number(pt.job.project.amountIncludingVat) > 0) {
+    return Number(pt.job.project.amountIncludingVat);
+  }
+  const qAmount = Number(pt.job?.quotation?.actualClosingAmount) || Number(pt.job?.quotation?.totalAmountBeforeVat) || 0;
+  if (qAmount > 0) {
+    return qAmount * 1.07;
+  }
+  return 0;
+}
+
   const now = new Date();
 
   // 1. Calculate Core Financial Metrics
@@ -186,7 +203,7 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
 
   filteredPaymentTasks.forEach((pt: any) => {
     const isCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
-    const amount = Number(pt.installmentAmount) || Number(pt.job?.project?.projectValue) || Number(pt.job?.quotation?.actualClosingAmount) || Number(pt.job?.quotation?.totalAmountBeforeVat) || 0;
+    const amount = getTaskBilledAmount(pt);
 
     totalSales += amount;
 
@@ -331,7 +348,7 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
 
   filteredPaymentTasks.forEach((pt: any) => {
     const isCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
-    const amount = Number(pt.installmentAmount) || Number(pt.job?.project?.projectValue) || Number(pt.job?.quotation?.actualClosingAmount) || Number(pt.job?.quotation?.totalAmountBeforeVat) || 0;
+    const amount = getTaskBilledAmount(pt);
     const paid = Number(pt.paidAmount) || (isCompleted ? amount : 0);
     const outstanding = Math.max(0, amount - paid);
 
@@ -485,7 +502,7 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
 
   const cashSalesSummary = {
     totalCashJobs: cashJobs.length,
-    totalCashAmount: cashJobs.reduce((sum, pt) => sum + (Number(pt.installmentAmount) || Number(pt.job?.quotation?.actualClosingAmount) || 0), 0),
+    totalCashAmount: cashJobs.reduce((sum, pt) => sum + getTaskBilledAmount(pt), 0),
     deliveredWithoutFullPaymentCount: deliveredNotPaidTasks.length,
     deliveredWithoutFullPaymentAmount: deliveredNotPaidTasks.reduce((sum, item) => sum + item.outstandingAmount, 0),
     deliveredWithoutFullPaymentItems
@@ -967,7 +984,7 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
       const d = new Date(dateToUse);
       const key = getMonthKey(d);
       const amount = isCompleted
-        ? (Number(pt.installmentAmount) || Number(pt.job?.project?.projectValue) || Number(pt.job?.quotation?.actualClosingAmount) || Number(pt.job?.quotation?.totalAmountBeforeVat) || 0)
+        ? getTaskBilledAmount(pt)
         : (Number(pt.paidAmount) || 0);
 
       if (amount > 0) {
@@ -1085,8 +1102,8 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
 
   const topOverdue = overdueTasks
     .sort((a: any, b: any) => {
-      const remainA = (Number(a.installmentAmount) || Number(a.job?.project?.projectValue) || Number(a.job?.quotation?.actualClosingAmount) || Number(a.job?.quotation?.totalAmountBeforeVat) || 0) - (Number(a.paidAmount) || 0);
-      const remainB = (Number(b.installmentAmount) || Number(b.job?.project?.projectValue) || Number(b.job?.quotation?.actualClosingAmount) || Number(b.job?.quotation?.totalAmountBeforeVat) || 0) - (Number(b.paidAmount) || 0);
+      const remainA = getTaskBilledAmount(a) - (Number(a.paidAmount) || 0);
+      const remainB = getTaskBilledAmount(b) - (Number(b.paidAmount) || 0);
       return remainB - remainA;
     })
     .slice(0, 50);

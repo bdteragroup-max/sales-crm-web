@@ -1871,9 +1871,27 @@ export default function JobsClientPage({
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-slate-700">
-                        {val > 0 ? formatCurrency(val) : "—"}
-                      </span>
+                      {(() => {
+                        const beforeVatVal = val > 0 
+                          ? val 
+                          : (job.project?.projectValue ? Number(job.project.projectValue) / 1.07 : 0);
+                        const incVatVal = job.project?.projectValue 
+                          ? Number(job.project.projectValue) 
+                          : (beforeVatVal > 0 ? beforeVatVal * 1.07 : 0);
+
+                        return (
+                          <div className="text-right">
+                            <span className="text-xs font-bold text-slate-800 font-mono block">
+                              {beforeVatVal > 0 ? formatCurrency(beforeVatVal) : "—"}
+                            </span>
+                            {incVatVal > 0 && (
+                              <span className="text-[9px] text-slate-400 font-mono block">
+                                รวม {formatCurrency(incVatVal)}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                       {isOpen ? (
                         <ChevronDown size={16} className="text-slate-400" />
                       ) : (
@@ -1969,7 +1987,7 @@ export default function JobsClientPage({
                   className="py-3.5 px-4 cursor-pointer hover:text-slate-800 transition-colors"
                 >
                   <div className="flex items-center gap-1">
-                    <span>ยอดประเมิน</span>
+                    <span>ยอดประเมิน (ก่อน/รวม VAT)</span>
                     <ArrowUpDown size={12} className="text-slate-400" />
                   </div>
                 </th>
@@ -2129,8 +2147,35 @@ export default function JobsClientPage({
                         </td>
 
                         {/* Estimated Amount */}
-                        <td className="py-3.5 px-4 whitespace-nowrap font-mono font-bold text-slate-800">
-                          {val > 0 ? formatCurrency(val) : "—"}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          {(() => {
+                            const beforeVatVal = val > 0 
+                              ? val 
+                              : (job.project?.projectValue ? Number(job.project.projectValue) / 1.07 : 0);
+                            const incVatVal = job.project?.projectValue 
+                              ? Number(job.project.projectValue) 
+                              : (beforeVatVal > 0 ? beforeVatVal * 1.07 : 0);
+
+                            if (beforeVatVal <= 0 && incVatVal <= 0) {
+                              return <span className="text-slate-300 font-mono">—</span>;
+                            }
+
+                            return (
+                              <div className="flex flex-col">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-mono font-bold text-slate-900 text-xs">
+                                    {formatCurrency(beforeVatVal)}
+                                  </span>
+                                  <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1 py-0.2 rounded">
+                                    ก่อน VAT
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-medium font-mono text-slate-400">
+                                  รวม VAT: {formatCurrency(incVatVal)}
+                                </span>
+                              </div>
+                            );
+                          })()}
                         </td>
 
                         {/* Date Closed */}
