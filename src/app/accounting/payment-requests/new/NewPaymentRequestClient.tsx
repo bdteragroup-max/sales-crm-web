@@ -1,0 +1,2004 @@
+"use client";
+
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  createPaymentRequest,
+  checkDuplicates,
+  getPaymentRequests,
+  PaymentRequestRecord,
+} from '@/app/actions/paymentRequests';
+import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
+import { thaiBahtText } from '@/app/lib/thaiBahtText';
+import {
+  ChevronLeft,
+  ChevronDown,
+  Search,
+  X,
+  Paperclip,
+  Upload,
+  AlertTriangle,
+  AlertCircle,
+  ShieldAlert,
+  CheckCircle2,
+  FileText,
+  DollarSign,
+  Building2,
+  Calendar,
+  User,
+  Info,
+  ExternalLink,
+  Trash2,
+  Sparkles,
+  Zap,
+  CreditCard,
+  Send,
+  Layers,
+  Check,
+  ShieldCheck,
+  Clock,
+  RefreshCw,
+  Printer,
+  Copy,
+  ArrowRight,
+  SlidersHorizontal,
+} from 'lucide-react';
+import Swal from 'sweetalert2';
+
+type Props = {
+  currentUser?: {
+    id: string;
+    fullName: string;
+    role?: string;
+  } | null;
+  branches?: { id: string; name: string }[];
+  initialBranch?: string;
+  initialDept?: string;
+  initialPhone?: string;
+  initialMyRequests?: PaymentRequestRecord[];
+};
+
+function formatDisplayDate(val: any): string {
+  if (!val) return '';
+  if (val instanceof Date) {
+    const y = val.getFullYear();
+    const m = String(val.getMonth() + 1).padStart(2, '0');
+    const d = String(val.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  const s = String(val);
+  return s.includes('T') ? s.split('T')[0] : s;
+}
+
+const DEFAULT_BRANCHES = [
+  { id: 'BKK-HQ', name: 'สำนักงานใหญ่' },
+  { id: 'BKK-WH', name: 'Tera Warehouse 62' },
+  { id: 'CMI01', name: 'เชียงใหม่' },
+  { id: 'KK01', name: 'ขอนแก่น' },
+  { id: 'KRI01', name: 'กาญจนบุรี' },
+  { id: 'NRT', name: 'นครศรีธรรมราช' },
+  { id: 'PSNL01', name: 'พิษณุโลก' },
+  { id: 'ROI01', name: 'ร้อยเอ็ด' },
+  { id: 'SMK', name: 'สมุทรสาคร' },
+  { id: 'SN01', name: 'สกลนคร' },
+  { id: 'SRN01', name: 'สุรินทร์' },
+  { id: 'SRT01', name: 'สุราษฎร์ธานี' },
+  { id: 'UB01', name: 'อุบลราชธานี' },
+  { id: 'UDN01', name: 'อุดรธานี' },
+];
+
+export default function NewPaymentRequestClient({
+  currentUser,
+  branches,
+  initialBranch,
+  initialDept,
+  initialPhone,
+  initialMyRequests,
+}: Props) {
+  const router = useRouter();
+
+  const branchList = branches && branches.length > 0 ? branches : DEFAULT_BRANCHES;
+
+  // Tab State: 'create' for new form, 'my_requests' to view own request statuses
+  const [activeTab, setActiveTab] = useState<'create' | 'my_requests'>('create');
+  const [myRequests, setMyRequests] = useState<PaymentRequestRecord[]>(initialMyRequests || []);
+  const [isLoadingRequests, setIsLoadingRequests] = useState(false);
+  const [selectedVoucherRequest, setSelectedVoucherRequest] = useState<PaymentRequestRecord | null>(null);
+  const [requestSearchQuery, setRequestSearchQuery] = useState('');
+  const [requestStatusFilter, setRequestStatusFilter] = useState('ALL');
+  const [copiedPayNo, setCopiedPayNo] = useState<string | null>(null);
+
+  const refreshMyRequests = async () => {
+    if (!currentUser) return;
+    setIsLoadingRequests(true);
+    try {
+      const res = await getPaymentRequests({
+        requesterId: currentUser.id,
+        requesterName: currentUser.fullName,
+      });
+      setMyRequests(res || []);
+    } catch (e) {
+      console.error('Failed to refresh my requests', e);
+    } finally {
+      setIsLoadingRequests(false);
+    }
+  };
+
+  const handleCopyPayNo = (payNo: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(payNo);
+    }
+    setCopiedPayNo(payNo);
+    setTimeout(() => setCopiedPayNo(null), 2000);
+  };
+
+  // Status Metrics
+  const pendingCount = useMemo(() => {
+    return myRequests.filter((r) =>
+      ['SUBMITTED', 'DUPLICATE_CHECK', 'DOCUMENT_CHECK', 'ACCOUNTING_CHECKED'].includes(r.status)
+    ).length;
+  }, [myRequests]);
+
+  const approvedCount = useMemo(() => {
+    return myRequests.filter((r) =>
+      ['APPROVED', 'READY_TO_PAY'].includes(r.status)
+    ).length;
+  }, [myRequests]);
+
+  const paidCount = useMemo(() => {
+    return myRequests.filter((r) =>
+      ['PAID', 'POSTED_TO_GL', 'ORIGINAL_RECEIVED'].includes(r.status)
+    ).length;
+  }, [myRequests]);
+
+  const attentionCount = useMemo(() => {
+    return myRequests.filter((r) =>
+      ['HOLD_DUPLICATE', 'RETURN_DOCUMENT'].includes(r.status)
+    ).length;
+  }, [myRequests]);
+
+  const filteredMyRequests = useMemo(() => {
+    return myRequests.filter((r) => {
+      if (requestStatusFilter === 'PENDING') {
+        if (!['SUBMITTED', 'DUPLICATE_CHECK', 'DOCUMENT_CHECK', 'ACCOUNTING_CHECKED'].includes(r.status)) return false;
+      } else if (requestStatusFilter === 'READY') {
+        if (!['APPROVED', 'READY_TO_PAY'].includes(r.status)) return false;
+      } else if (requestStatusFilter === 'PAID') {
+        if (!['PAID', 'POSTED_TO_GL', 'ORIGINAL_RECEIVED'].includes(r.status)) return false;
+      } else if (requestStatusFilter === 'ATTENTION') {
+        if (!['HOLD_DUPLICATE', 'RETURN_DOCUMENT'].includes(r.status)) return false;
+      }
+
+      if (requestSearchQuery.trim()) {
+        const q = requestSearchQuery.toLowerCase().trim();
+        const matchPay = r.pay_number?.toLowerCase().includes(q);
+        const matchSupplier = r.supplier_name?.toLowerCase().includes(q);
+        const matchPurpose = r.purpose?.toLowerCase().includes(q);
+        const matchBranch = r.branch?.toLowerCase().includes(q);
+        const matchInv = r.invoice_number?.toLowerCase().includes(q);
+        if (!matchPay && !matchSupplier && !matchPurpose && !matchBranch && !matchInv) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [myRequests, requestStatusFilter, requestSearchQuery]);
+
+  // Form States
+  const [company, setCompany] = useState<'TG' | 'TE' | 'TP'>('TG');
+  const [branch, setBranch] = useState(
+    initialBranch || (branchList[0] ? branchList[0].name : 'สำนักงานใหญ่')
+  );
+  const [customBranch, setCustomBranch] = useState('');
+  const [classification, setClassification] = useState<
+    'VENDOR_BILL' | 'REIMBURSEMENT' | 'BRANCH_SITE' | 'PETTY_CASH' | 'CASH_ADVANCE'
+  >('VENDOR_BILL');
+  const [urgency, setUrgency] = useState<'NORMAL' | 'EMERGENCY'>('NORMAL');
+
+  // Searchable Branch Combobox State
+  const [branchSearchQuery, setBranchSearchQuery] = useState(
+    initialBranch || (branchList[0] ? branchList[0].name : 'สำนักงานใหญ่')
+  );
+  const [isBranchDropdownOpen, setIsBranchDropdownOpen] = useState(false);
+  const branchDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Filtered branches based on query (searches both name and id)
+  const filteredBranches = useMemo(() => {
+    if (!branchSearchQuery.trim()) return branchList;
+    const q = branchSearchQuery.toLowerCase().trim();
+    return branchList.filter(
+      (b) =>
+        b.name.toLowerCase().includes(q) ||
+        b.id.toLowerCase().includes(q)
+    );
+  }, [branchList, branchSearchQuery]);
+
+  // Click outside to close branch dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (branchDropdownRef.current && !branchDropdownRef.current.contains(e.target as Node)) {
+        setIsBranchDropdownOpen(false);
+        if (branch !== 'อื่นๆ (ระบุ)') {
+          setBranchSearchQuery(branch);
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [branch]);
+
+  const handleSelectBranch = (selectedBranchName: string) => {
+    setBranch(selectedBranchName);
+    if (selectedBranchName === 'อื่นๆ (ระบุ)') {
+      setBranchSearchQuery('อื่นๆ (ระบุ)');
+    } else {
+      setBranchSearchQuery(selectedBranchName);
+      setCustomBranch('');
+    }
+    setIsBranchDropdownOpen(false);
+  };
+
+  // Requester
+  const [requesterName, setRequesterName] = useState(currentUser?.fullName || '');
+  const [requesterDept, setRequesterDept] = useState(initialDept || '');
+  const [requesterPhone, setRequesterPhone] = useState(initialPhone || '');
+
+  // Supplier / Payee
+  const [supplierName, setSupplierName] = useState('');
+  const [supplierTaxId, setSupplierTaxId] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [bankAccountNo, setBankAccountNo] = useState('');
+  const [payeePhone, setPayeePhone] = useState('');
+
+  // Document details
+  const [documentDate, setDocumentDate] = useState(new Date().toISOString().split('T')[0]);
+  const [hasNoDocNumber, setHasNoDocNumber] = useState(false);
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [subtotalAmount, setSubtotalAmount] = useState<string>('');
+  const [vatType, setVatType] = useState<'NONE' | '7%' | 'CUSTOM'>('7%');
+  const [customVatAmount, setCustomVatAmount] = useState<string>('');
+  const [whtType, setWhtType] = useState<'NONE' | '1%' | '2%' | '3%' | '5%' | 'CUSTOM'>('NONE');
+  const [customWhtPercent, setCustomWhtPercent] = useState<string>('');
+  const [customWhtAmount, setCustomWhtAmount] = useState<string>('');
+
+  const [purpose, setPurpose] = useState('');
+  const [costCenter, setCostCenter] = useState('');
+  const [poPrNumber, setPoPrNumber] = useState('');
+  const [requestedPaymentDate, setRequestedPaymentDate] = useState('');
+  const [submissionChannel, setSubmissionChannel] = useState<'WEB' | 'LINE' | 'EMAIL' | 'PHYSICAL'>('WEB');
+
+  // Attachments
+  const [attachments, setAttachments] = useState<{ url: string; fileName: string; fileType?: string }[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Duplicate Check Feedback State
+  const [dupResult, setDupResult] = useState<{
+    isExactDuplicate: boolean;
+    isPossibleDuplicate: boolean;
+    exactMatches: any[];
+    possibleMatches: any[];
+  } | null>(null);
+  const [isCheckingDup, setIsCheckingDup] = useState(false);
+
+  // Submitting state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Calculate VAT, WHT, and Net
+  const subtotal = parseFloat(subtotalAmount) || 0;
+
+  let calculatedVat = 0;
+  if (vatType === '7%') {
+    calculatedVat = Math.round(subtotal * 0.07 * 100) / 100;
+  } else if (vatType === 'CUSTOM') {
+    calculatedVat = parseFloat(customVatAmount) || 0;
+  }
+
+  let calculatedWht = 0;
+  let whtPercentValue = 0;
+  if (whtType === '1%') {
+    whtPercentValue = 1;
+    calculatedWht = Math.round(subtotal * 0.01 * 100) / 100;
+  } else if (whtType === '2%') {
+    whtPercentValue = 2;
+    calculatedWht = Math.round(subtotal * 0.02 * 100) / 100;
+  } else if (whtType === '3%') {
+    whtPercentValue = 3;
+    calculatedWht = Math.round(subtotal * 0.03 * 100) / 100;
+  } else if (whtType === '5%') {
+    whtPercentValue = 5;
+    calculatedWht = Math.round(subtotal * 0.05 * 100) / 100;
+  } else if (whtType === 'CUSTOM') {
+    whtPercentValue = parseFloat(customWhtPercent) || 0;
+    calculatedWht = parseFloat(customWhtAmount) || Math.round((subtotal * whtPercentValue) / 100 * 100) / 100;
+  }
+
+  const netPayable = Math.round((subtotal + calculatedVat - calculatedWht) * 100) / 100;
+  const bahtText = thaiBahtText(netPayable);
+
+  // Approval matrix tier
+  const approvalTier =
+    netPayable <= 3000
+      ? 'วงเงินไม่เกิน 3,000 บาท (เงินสดย่อย / หัวหน้างาน)'
+      : netPayable <= 10000
+      ? 'วงเงิน 3,001 - 10,000 บาท (หัวหน้าสาขา / แผนก)'
+      : netPayable <= 30000
+      ? 'วงเงิน 10,001 - 30,000 บาท (ผู้จัดการฝ่าย)'
+      : 'วงเงินเกิน 30,000 บาท (ฝ่ายการเงินส่วนกลาง / ผู้บริหารระดับสูง)';
+
+  // Real-time Debounced Duplicate Check
+  useEffect(() => {
+    if (!supplierName.trim()) {
+      setDupResult(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsCheckingDup(true);
+      try {
+        const finalBranch = branch === 'อื่นๆ (ระบุ)' ? customBranch : branch;
+        const res = await checkDuplicates({
+          company,
+          supplierName,
+          invoiceNumber: hasNoDocNumber ? null : invoiceNumber,
+          hasNoDocNumber,
+          netAmount: netPayable,
+          documentDate,
+          branch: finalBranch,
+        });
+        setDupResult(res);
+      } catch (err) {
+        console.error('Error checking duplicates:', err);
+      } finally {
+        setIsCheckingDup(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [company, supplierName, invoiceNumber, hasNoDocNumber, netPayable, documentDate, branch, customBranch]);
+
+  // File Upload Handler
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    const newItems: { url: string; fileName: string; fileType?: string }[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucket', 'uploadsService');
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+          newItems.push({
+            url: data.url,
+            fileName: file.name,
+            fileType: file.type,
+          });
+        }
+      } catch (err) {
+        console.error('Upload error:', err);
+      }
+    }
+
+    setAttachments((prev) => [...prev, ...newItems]);
+    setIsUploading(false);
+    e.target.value = '';
+  };
+
+  const handleRemoveAttachment = (idx: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  // Form Submit Handler
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!requesterName.trim()) {
+      Swal.fire({ title: 'กรุณาระบุชื่อผู้ขอเบิก', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return;
+    }
+    if (!supplierName.trim()) {
+      Swal.fire({ title: 'กรุณาระบุชื่อผู้รับเงิน / เจ้าหนี้', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return;
+    }
+    if (!hasNoDocNumber && !invoiceNumber.trim()) {
+      Swal.fire({
+        title: 'กรุณาระบุเลขที่ใบเสร็จ/ใบกำกับ',
+        text: 'หากเป็นบิลไม่มีเลขที่ กรุณาติ๊กเลือก "ไม่มีเลขที่เอกสาร"',
+        icon: 'warning',
+        confirmButtonColor: '#dc2626',
+      });
+      return;
+    }
+    if (subtotal <= 0) {
+      Swal.fire({ title: 'กรุณาระบุยอดเงินที่ถูกต้อง', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return;
+    }
+    if (!purpose.trim()) {
+      Swal.fire({ title: 'กรุณาระบุรายละเอียดวัตถุประสงค์การจ่ายเงิน', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return;
+    }
+
+    // Exact Duplicate Confirmation
+    if (dupResult?.isExactDuplicate) {
+      const confirm = await Swal.fire({
+        title: '⚠️ ตรวจพบเอกสารซ้ำซ้อน 100%!',
+        html: `<p class="text-sm text-gray-700">เลขที่บิล <b>${invoiceNumber}</b> ของ <b>${supplierName}</b> เคยถูกบันทึกในระบบแล้ว (${dupResult.exactMatches[0].pay_number})</p><p class="text-xs text-red-600 mt-2 font-semibold">หากยืนยันการส่ง คำขอนี้จะถูกระงับชั่วคราว (HOLD-DUPLICATE) ทันทีเพื่อรอการตรวจสอบจากฝ่ายบัญชี</p>`,
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        confirmButtonText: 'ยืนยันส่ง (เข้าสู่สถานะ HOLD)',
+        cancelButtonText: 'ยกเลิก / แก้ไขข้อมูล',
+      });
+      if (!confirm.isConfirmed) return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const finalBranch = branch === 'อื่นๆ (ระบุ)' ? (customBranch || 'สำนักงานใหญ่') : branch;
+
+      const res = await createPaymentRequest({
+        company,
+        branch: finalBranch,
+        classification,
+        urgency,
+        requester_id: currentUser?.id,
+        requester_name: requesterName.trim(),
+        requester_department: requesterDept.trim() || undefined,
+        requester_phone: requesterPhone.trim() || undefined,
+        supplier_name: supplierName.trim(),
+        supplier_tax_id: supplierTaxId.trim() || undefined,
+        bank_name: bankName.trim() || undefined,
+        bank_account_no: bankAccountNo.trim() || undefined,
+        payee_phone: payeePhone.trim() || undefined,
+        document_date: documentDate,
+        has_no_doc_number: hasNoDocNumber,
+        invoice_number: hasNoDocNumber ? undefined : invoiceNumber.trim(),
+        subtotal_amount: subtotal,
+        vat_type: vatType,
+        vat_amount: calculatedVat,
+        wht_type: whtType,
+        wht_percent: whtPercentValue,
+        wht_amount: calculatedWht,
+        net_amount: netPayable,
+        purpose: purpose.trim(),
+        cost_center: costCenter.trim() || undefined,
+        po_pr_number: poPrNumber.trim() || undefined,
+        requested_payment_date: requestedPaymentDate || undefined,
+        submission_channel: submissionChannel,
+        attachments,
+      });
+
+      if (res.success && res.id) {
+        await Swal.fire({
+          title: 'สร้างใบขออนุมัติจ่ายเงินสำเร็จ!',
+          html: `<div class="text-left text-xs text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200">
+            <p>เลขที่คำขอ: <b class="font-mono text-red-600 text-sm">${res.payNumber}</b></p>
+            <p>สถานะ: <b>${res.status}</b></p>
+            ${res.isPossibleDuplicate ? `<p class="text-red-700 mt-1">⚠️ ระบบแจ้งเตือนตรวจสอบความซ้ำซ้อน</p>` : ''}
+          </div>`,
+          icon: 'success',
+          confirmButtonColor: '#dc2626',
+        });
+        router.push(`/accounting/payment-requests/${res.id}`);
+      } else {
+        Swal.fire({
+          title: 'เกิดข้อผิดพลาด',
+          text: res.error || 'ไม่สามารถสร้างคำขอได้',
+          icon: 'error',
+          confirmButtonColor: '#dc2626',
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: err.message || 'ระบบขัดข้อง',
+        icon: 'error',
+        confirmButtonColor: '#dc2626',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getStatusMeta = (status: string) => {
+    switch (status) {
+      case 'SUBMITTED':
+      case 'DUPLICATE_CHECK':
+      case 'DOCUMENT_CHECK':
+        return {
+          label: 'รอตรวจสอบบัญชี',
+          bg: 'bg-amber-50',
+          text: 'text-amber-800',
+          border: 'border-amber-200',
+          dot: 'bg-amber-500',
+          step: 1,
+        };
+      case 'ACCOUNTING_CHECKED':
+        return {
+          label: 'บัญชีตรวจสอบแล้ว (รออนุมัติ)',
+          bg: 'bg-blue-50',
+          text: 'text-blue-800',
+          border: 'border-blue-200',
+          dot: 'bg-blue-500',
+          step: 2,
+        };
+      case 'APPROVED':
+      case 'READY_TO_PAY':
+        return {
+          label: 'อนุมัติจ่ายแล้ว (พร้อมโอน)',
+          bg: 'bg-indigo-50',
+          text: 'text-indigo-800',
+          border: 'border-indigo-200',
+          dot: 'bg-indigo-500',
+          step: 3,
+        };
+      case 'PAID':
+      case 'POSTED_TO_GL':
+      case 'ORIGINAL_RECEIVED':
+        return {
+          label: 'โอนเงินสำเร็จแล้ว',
+          bg: 'bg-emerald-50',
+          text: 'text-emerald-800',
+          border: 'border-emerald-200',
+          dot: 'bg-emerald-500',
+          step: 4,
+        };
+      case 'HOLD_DUPLICATE':
+        return {
+          label: 'ระงับตรวจสอบซ้ำซ้อน',
+          bg: 'bg-red-50',
+          text: 'text-red-800',
+          border: 'border-red-200',
+          dot: 'bg-red-500',
+          step: -1,
+        };
+      case 'RETURN_DOCUMENT':
+        return {
+          label: 'ส่งคืนแก้ไขเอกสาร',
+          bg: 'bg-orange-50',
+          text: 'text-orange-800',
+          border: 'border-orange-200',
+          dot: 'bg-orange-500',
+          step: -2,
+        };
+      case 'CANCELLED':
+      case 'REJECTED':
+        return {
+          label: 'ยกเลิก / ไม่อนุมัติ',
+          bg: 'bg-gray-100',
+          text: 'text-gray-700',
+          border: 'border-gray-200',
+          dot: 'bg-gray-400',
+          step: -3,
+        };
+      default:
+        return {
+          label: status,
+          bg: 'bg-gray-50',
+          text: 'text-gray-700',
+          border: 'border-gray-200',
+          dot: 'bg-gray-400',
+          step: 1,
+        };
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Symmetrical Top Header: Red, White & Gray */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <div>
+          <Link
+            href="/accounting/payment-requests"
+            className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-600 transition mb-2 font-medium"
+          >
+            <ChevronLeft className="w-4 h-4" /> กลับสู่ทะเบียนขอจ่ายเงิน (Payment Register)
+          </Link>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 tracking-wide uppercase">
+              TERA GROUP • PAYMENT SYSTEM
+            </span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5 mt-1">
+            <Building2 className="w-6 h-6 text-red-600" />
+            สร้างใบขออนุมัติจ่ายเงิน (New Payment Request)
+          </h1>
+          <p className="text-xs text-gray-500 mt-1">
+            ระบบศูนย์กลางการขอเบิกจ่ายและควบคุมป้องกันการจ่ายเงินซ้ำซ้อน เครือ Tera Group (TG, TE, TP)
+          </p>
+        </div>
+
+        {/* Right Policy Badge Card */}
+        <div className="bg-gray-50 border border-red-200/80 rounded-xl p-3.5 text-xs text-gray-800 max-w-sm">
+          <p className="font-bold flex items-center gap-1.5 text-red-700">
+            <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
+            กฎเหล็ก: No PAY No. = No Payment
+          </p>
+          <p className="text-[11px] text-gray-600 mt-0.5 leading-relaxed">
+            เอกสารทุกช่องทาง (LINE / Email / ตัวจริง) ต้องอ้างอิงเลข PAY No. เสมอ ฝ่ายการเงินจ่ายเฉพาะรายการใน Approved List
+          </p>
+        </div>
+      </div>
+
+      {/* Tab Switcher: Create Request vs My Requests Status */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-gray-200 shadow-2xs">
+        <div className="flex items-center gap-1.5 p-1 bg-gray-100/90 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setActiveTab('create')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
+              activeTab === 'create'
+                ? 'bg-white text-red-600 shadow-2xs border border-gray-200/80'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            สร้างคำขอเบิกเงินใหม่
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('my_requests');
+              refreshMyRequests();
+            }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition relative ${
+              activeTab === 'my_requests'
+                ? 'bg-white text-red-600 shadow-2xs border border-gray-200/80'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Clock className="w-4 h-4" />
+            ติดตามสถานะคำขอเบิกของฉัน
+            {myRequests.length > 0 && (
+              <span
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  activeTab === 'my_requests'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
+              >
+                {myRequests.length}
+              </span>
+            )}
+            {attentionCount > 0 && (
+              <span
+                className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute -top-0.5 -right-0.5"
+                title="มีรายการต้องตรวจสอบหรือแก้ไขเอกสาร"
+              />
+            )}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 px-2">
+          {activeTab === 'my_requests' ? (
+            <button
+              type="button"
+              onClick={refreshMyRequests}
+              disabled={isLoadingRequests}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingRequests ? 'animate-spin text-red-600' : ''}`} />
+              รีเฟรชข้อมูล
+            </button>
+          ) : (
+            myRequests.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('my_requests')}
+                className="text-xs text-gray-500 hover:text-red-600 font-medium inline-flex items-center gap-1.5 transition"
+              >
+                <span>คำขอของฉัน ({myRequests.length} รายการ)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )
+          )}
+        </div>
+      </div>
+
+      {activeTab === 'create' ? (
+        <>
+          {/* Quick link banner if user has requests */}
+          {myRequests.length > 0 && (
+            <div className="bg-gradient-to-r from-red-50/90 via-amber-50/40 to-white border border-red-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-2xs">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">
+                    คุณมีประวัติคำขอเบิกเงินในระบบทั้งหมด <span className="font-bold text-red-600 font-mono">{myRequests.length}</span> รายการ
+                    {pendingCount > 0 && (
+                      <span className="ml-1 text-gray-700 font-normal">
+                        (อยู่ระหว่างตรวจสอบ/รออนุมัติ <b className="text-amber-800 font-mono font-bold">{pendingCount}</b> รายการ)
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">
+                    คุณสามารถสลับไปที่แท็บ <b className="text-red-700 font-semibold">"ติดตามสถานะคำขอเบิกของฉัน"</b> เพื่อเช็คขั้นตอนการอนุมัติ โอนเงิน หรือพิมพ์ใบสำคัญจ่ายได้ทันที
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('my_requests')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-red-600 border border-red-200 hover:border-red-400 font-bold rounded-xl shadow-2xs hover:bg-red-50/50 transition shrink-0"
+              >
+                ดูสถานะคำขอของฉัน <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          {/* Duplicate Check Warning Banners */}
+          {dupResult?.isExactDuplicate && (
+        <div className="bg-red-50 border-2 border-red-400 rounded-2xl p-5 shadow-xs animate-in fade-in">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2 bg-red-100 text-red-700 rounded-xl shrink-0">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div className="flex-1 text-xs text-red-950">
+              <h3 className="font-bold text-sm text-red-800 flex items-center gap-2">
+                🚨 ตรวจพบเอกสารซ้ำซ้อน 100% (Exact Duplicate Detected)
+                <span className="px-2 py-0.5 bg-red-600 text-white rounded text-[10px] font-mono">
+                  BLOCK / HOLD
+                </span>
+              </h3>
+              <p className="mt-1 leading-relaxed">
+                เลขที่บิล <b className="font-mono text-red-900">{invoiceNumber}</b> ของผู้ขาย{' '}
+                <b className="text-red-900">{supplierName}</b> เคยถูกบันทึกในระบบแล้ว:
+              </p>
+              <div className="mt-2.5 space-y-1.5 bg-white p-3 rounded-xl border border-red-200">
+                {dupResult.exactMatches.map((m: any, idx: number) => (
+                  <div key={idx} className="flex flex-wrap items-center justify-between font-mono text-[11px] gap-2">
+                    <span className="font-bold text-red-700">{m.pay_number}</span>
+                    <span>{m.company}</span>
+                    <span>ยอด: {Number(m.net_amount).toLocaleString()} ฿</span>
+                    <span>วันที่: {formatDisplayDate(m.document_date)}</span>
+                    <span className="px-2 py-0.5 bg-gray-100 rounded text-gray-700 font-sans">{m.status}</span>
+                    <Link
+                      href={`/accounting/payment-requests/${m.id}`}
+                      target="_blank"
+                      className="text-red-600 hover:text-red-700 font-bold hover:underline inline-flex items-center gap-1 font-sans"
+                    >
+                      ดูรายการเดิม <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-red-700 font-medium">
+                * หากเป็นการส่งเอกสารเพิ่มเติม กรุณานำเอกสารไปแนบที่ใบขอจ่ายเดิม ห้ามสร้างคำขอใหม่
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {dupResult?.isPossibleDuplicate && !dupResult.isExactDuplicate && (
+        <div className="bg-gray-50 border-2 border-red-200 rounded-2xl p-5 shadow-xs animate-in fade-in">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2 bg-red-100 text-red-700 rounded-xl shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div className="flex-1 text-xs text-gray-900">
+              <h3 className="font-bold text-sm text-red-800">
+                ⚠️ แจ้งเตือน: พบรายการที่อาจซ้ำซ้อน (Possible Duplicate Alert)
+              </h3>
+              <p className="mt-1 leading-relaxed text-gray-600">
+                ตรวจพบยอดเงิน <b className="text-gray-900 font-mono">{netPayable.toLocaleString()} บาท</b> วันที่{' '}
+                <b className="text-gray-900">{formatDisplayDate(documentDate)}</b> ของ <b className="text-gray-900">{supplierName}</b>{' '}
+                ใกล้เคียงกับคำขอที่มีอยู่แล้ว:
+              </p>
+              <div className="mt-2 space-y-1 bg-white p-2.5 rounded-xl border border-gray-200">
+                {dupResult.possibleMatches.map((m: any, idx: number) => (
+                  <div key={idx} className="flex flex-wrap items-center justify-between font-mono text-[11px] gap-2">
+                    <span className="font-bold text-red-600">{m.pay_number}</span>
+                    <span>{m.branch}</span>
+                    <span>{Number(m.net_amount).toLocaleString()} ฿</span>
+                    <span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-700 font-sans">{m.status}</span>
+                    <Link
+                      href={`/accounting/payment-requests/${m.id}`}
+                      target="_blank"
+                      className="text-red-600 hover:underline inline-flex items-center gap-1 font-sans"
+                    >
+                      ตรวจสอบ <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Symmetrical Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Row 1: Two Symmetrical Cards (Card 1: Organization & Channel | Card 2: Requester & Payee) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Card 1: สังกัดบริษัท & ข้อมูลการส่ง */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
+                <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  1
+                </span>
+                <h2 className="text-sm font-bold text-gray-900">
+                  สังกัดบริษัทและประเภทรายการ (Organization & Classification)
+                </h2>
+              </div>
+
+              <div className="space-y-4">
+                {/* Company Selector */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                    บริษัทผู้จ่ายเงิน <span className="text-red-600">*</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['TG', 'TE', 'TP'] as const).map((c) => {
+                      const isSelected = company === c;
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setCompany(c)}
+                          className={`py-2 px-3 text-xs font-bold rounded-xl border transition text-center ${
+                            isSelected
+                              ? 'bg-red-600 text-white border-red-600 shadow-sm'
+                              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                          }`}
+                        >
+                          <span className="block text-sm">{c}</span>
+                          <span className={`block text-[10px] font-normal ${isSelected ? 'text-red-100' : 'text-gray-400'}`}>
+                            {c === 'TG' ? 'Tera Group' : c === 'TE' ? 'Tera Electric' : 'Tera Power'}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Branch Selection (Searchable Combobox) */}
+                <div className="relative" ref={branchDropdownRef}>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-gray-700">
+                      สาขาที่เกิดค่าใช้จ่าย <span className="text-red-600">*</span>
+                    </label>
+                    <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                      <Search size={10} className="text-red-500" />
+                      พิมพ์ค้นหาชื่อหรือรหัสสาขาได้
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={branch === 'อื่นๆ (ระบุ)' ? 'อื่นๆ (ระบุสาขา / ไซต์งานโครงการ)' : branchSearchQuery}
+                      onChange={(e) => {
+                        setBranchSearchQuery(e.target.value);
+                        setIsBranchDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsBranchDropdownOpen(true)}
+                      placeholder="-- พิมพ์ชื่อสาขา หรือรหัส เช่น BKK, เชียงใหม่, ขอนแก่น --"
+                      className="w-full text-xs rounded-xl border border-gray-300 py-2.5 pl-3 pr-16 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 font-medium shadow-xs transition"
+                      autoComplete="off"
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                      {branchSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setBranchSearchQuery('');
+                            setIsBranchDropdownOpen(true);
+                          }}
+                          className="p-1 text-gray-400 hover:text-red-600 rounded-md hover:bg-gray-100 transition"
+                          title="ล้างคำค้นหา"
+                        >
+                          <X size={13} />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setIsBranchDropdownOpen((prev) => !prev)}
+                        className="p-1 text-gray-400 hover:text-gray-700 rounded-md hover:bg-gray-100 transition"
+                        title="เปิด/ปิด รายการสาขา"
+                      >
+                        <ChevronDown
+                          size={14}
+                          className={`transition-transform duration-150 ${
+                            isBranchDropdownOpen ? 'rotate-180 text-red-600' : ''
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Dropdown Menu */}
+                  {isBranchDropdownOpen && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto divide-y divide-gray-100">
+                      <div className="p-1.5 space-y-0.5">
+                        {filteredBranches.map((b) => {
+                          const isSelected = branch === b.name;
+                          return (
+                            <button
+                              key={b.id}
+                              type="button"
+                              onClick={() => handleSelectBranch(b.name)}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition-colors ${
+                                isSelected
+                                  ? 'bg-red-50 text-red-800 font-semibold'
+                                  : 'hover:bg-gray-50 text-gray-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">
+                                  {b.id === 'BKK-HQ' ? 'สำนักงานใหญ่ (Head Office)' : b.name}
+                                </span>
+                                <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                                  {b.id}
+                                </span>
+                              </div>
+                              {isSelected && <Check size={14} className="text-red-600 shrink-0" />}
+                            </button>
+                          );
+                        })}
+
+                        {/* Option to specify custom / other */}
+                        <button
+                          type="button"
+                          onClick={() => handleSelectBranch('อื่นๆ (ระบุ)')}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between border-t border-gray-100 mt-1 transition-colors ${
+                            branch === 'อื่นๆ (ระบุ)'
+                              ? 'bg-red-50 text-red-800 font-semibold'
+                              : 'hover:bg-gray-50 text-gray-600'
+                          }`}
+                        >
+                          <span className="font-medium text-gray-700">
+                            + อื่นๆ (ระบุสาขา / ไซต์งานโครงการ)
+                          </span>
+                          {branch === 'อื่นๆ (ระบุ)' && (
+                            <Check size={14} className="text-red-600 shrink-0" />
+                          )}
+                        </button>
+
+                        {/* When no match found */}
+                        {filteredBranches.length === 0 && (
+                          <div className="p-3 text-center">
+                            <p className="text-xs text-gray-500">
+                              ไม่พบสาขาที่ตรงกับ &ldquo;{branchSearchQuery}&rdquo;
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setBranch('อื่นๆ (ระบุ)');
+                                setCustomBranch(branchSearchQuery);
+                                setIsBranchDropdownOpen(false);
+                              }}
+                              className="mt-2 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 py-1.5 px-3 rounded-lg transition inline-flex items-center gap-1"
+                            >
+                              + ใช้ &ldquo;{branchSearchQuery}&rdquo; เป็นสาขา/ไซต์งานพิเศษ
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Custom Branch text input */}
+                  {branch === 'อื่นๆ (ระบุ)' && (
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        placeholder="ระบุชื่อสาขา / ไซต์งาน / โครงการพิเศษ *"
+                        value={customBranch}
+                        onChange={(e) => setCustomBranch(e.target.value)}
+                        className="w-full text-xs rounded-xl border border-red-300 bg-red-50/20 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900 font-medium"
+                        autoFocus
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Classification & Channel (Symmetrical 2 cols) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      หมวดหมู่การเบิกจ่าย <span className="text-red-600">*</span>
+                    </label>
+                    <select
+                      value={classification}
+                      onChange={(e: any) => setClassification(e.target.value)}
+                      className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900"
+                    >
+                      <option value="VENDOR_BILL">ชำระเจ้าหนี้การค้า</option>
+                      <option value="REIMBURSEMENT">เบิกจ่ายพนักงาน/สำรองจ่าย</option>
+                      <option value="BRANCH_SITE">ขอเบิกสาขา/ไซต์งาน</option>
+                      <option value="PETTY_CASH">เงินสดย่อย</option>
+                      <option value="CASH_ADVANCE">เงินทดรองจ่าย</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      ช่องทางต้นทางของเอกสาร
+                    </label>
+                    <select
+                      value={submissionChannel}
+                      onChange={(e: any) => setSubmissionChannel(e.target.value)}
+                      className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900"
+                    >
+                      <option value="WEB">ระบบศูนย์กลางเว็บไซต์ (Web Direct)</option>
+                      <option value="LINE">ส่งรูปผ่าน LINE (ต้องระบุ PAY No.)</option>
+                      <option value="EMAIL">ส่งทางอีเมล (Email)</option>
+                      <option value="PHYSICAL">ส่งเอกสารตัวจริงมาแผนกบัญชี</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Urgency Selection */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                    ระดับความเร่งด่วน <span className="text-red-600">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setUrgency('NORMAL')}
+                      className={`py-2 px-3 text-xs font-medium rounded-xl border transition ${
+                        urgency === 'NORMAL'
+                          ? 'bg-gray-800 text-white border-gray-800 shadow-xs'
+                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      ปกติ (Normal Workflow)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUrgency('EMERGENCY')}
+                      className={`py-2 px-3 text-xs font-bold rounded-xl border transition flex items-center justify-center gap-1.5 ${
+                        urgency === 'EMERGENCY'
+                          ? 'bg-red-600 text-white border-red-600 shadow-xs ring-2 ring-red-200'
+                          : 'bg-white text-red-600 border-red-200 hover:bg-red-50'
+                      }`}
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      ด่วนที่สุด (Emergency)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: ผู้ขอเบิก & ผู้รับเงิน */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
+                <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  2
+                </span>
+                <h2 className="text-sm font-bold text-gray-900">
+                  ข้อมูลผู้ขอเบิกและผู้รับเงิน (Requester & Payee)
+                </h2>
+              </div>
+
+              <div className="space-y-4">
+                {/* Requester Group */}
+                <div className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200 space-y-3">
+                  <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider block">
+                    ข้อมูลผู้ขอเบิก / ผู้รับผิดชอบ
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
+                        ชื่อ-นามสกุล <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={requesterName}
+                        onChange={(e) => setRequesterName(e.target.value)}
+                        placeholder="ชื่อผู้ขอเบิก"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">แผนก/ฝ่าย</label>
+                      <input
+                        type="text"
+                        value={requesterDept}
+                        onChange={(e) => setRequesterDept(e.target.value)}
+                        placeholder="เช่น จัดซื้อ, ช่าง"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">เบอร์โทรศัพท์</label>
+                      <input
+                        type="text"
+                        value={requesterPhone}
+                        onChange={(e) => setRequesterPhone(e.target.value)}
+                        placeholder="08X-XXX-XXXX"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payee Group */}
+                <div className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200 space-y-3">
+                  <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider block">
+                    ข้อมูลผู้รับเงิน / เจ้าหนี้ (Payee / Supplier)
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
+                        ชื่อผู้รับเงิน / บริษัทคู่ค้า <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={supplierName}
+                        onChange={(e) => setSupplierName(e.target.value)}
+                        placeholder="เช่น บจก. สยามคอมเพรสเซอร์ หรือ นายสมชาย (สำรองจ่าย)"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-2 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
+                        เลขประจำตัวผู้เสียภาษี (Tax ID)
+                      </label>
+                      <input
+                        type="text"
+                        value={supplierTaxId}
+                        onChange={(e) => setSupplierTaxId(e.target.value)}
+                        placeholder="13 หลัก (ถ้ามี)"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">เบอร์โทรศัพท์ผู้รับเงิน</label>
+                      <input
+                        type="text"
+                        value={payeePhone}
+                        onChange={(e) => setPayeePhone(e.target.value)}
+                        placeholder="08X-XXX-XXXX"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">ธนาคารผู้รับเงิน</label>
+                      <input
+                        type="text"
+                        value={bankName}
+                        onChange={(e) => setBankName(e.target.value)}
+                        placeholder="เช่น กสิกรไทย, ไทยพาณิชย์"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
+                        เลขที่บัญชี / พร้อมเพย์
+                      </label>
+                      <input
+                        type="text"
+                        value={bankAccountNo}
+                        onChange={(e) => setBankAccountNo(e.target.value)}
+                        placeholder="xxx-x-xxxxx-x"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2: Two Symmetrical Cards (Card 3: Document & Purpose | Card 4: Financial Calculation & Net Payable) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Card 3: รายละเอียดเอกสาร & วัตถุประสงค์ */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
+                <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  3
+                </span>
+                <h2 className="text-sm font-bold text-gray-900">
+                  ข้อมูลเอกสารและวัตถุประสงค์ (Document & Purpose)
+                </h2>
+              </div>
+
+              <div className="space-y-4">
+                {/* Symmetrical Date Pickers */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      วันที่ในเอกสาร / วันที่เกิดค่าใช้จ่าย <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={documentDate}
+                      onChange={(e) => setDocumentDate(e.target.value)}
+                      className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      วันที่ต้องการให้จ่าย (Due Date)
+                    </label>
+                    <input
+                      type="date"
+                      value={requestedPaymentDate}
+                      onChange={(e) => setRequestedPaymentDate(e.target.value)}
+                      className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900"
+                    />
+                  </div>
+                </div>
+
+                {/* Invoice No. & No Document Number Checkbox */}
+                <div className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-semibold text-gray-800">
+                      เลขที่ใบกำกับภาษี / ใบเสร็จ
+                    </label>
+                    <label className="text-xs text-gray-600 flex items-center gap-1.5 cursor-pointer font-medium">
+                      <input
+                        type="checkbox"
+                        checked={hasNoDocNumber}
+                        onChange={(e) => {
+                          setHasNoDocNumber(e.target.checked);
+                          if (e.target.checked) setInvoiceNumber('');
+                        }}
+                        className="rounded text-red-600 focus:ring-red-500 w-4 h-4"
+                      />
+                      <span>ไม่มีเลขที่เอกสาร</span>
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    disabled={hasNoDocNumber}
+                    value={hasNoDocNumber ? '(ไม่มีเลขที่เอกสาร - ระบบจะใช้เลขที่ PAY No. อ้างอิง)' : invoiceNumber}
+                    onChange={(e) => setInvoiceNumber(e.target.value)}
+                    placeholder={hasNoDocNumber ? '' : 'เช่น INV-2026-0012'}
+                    className={`w-full text-xs rounded-xl border py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono ${
+                      hasNoDocNumber
+                        ? 'bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed italic'
+                        : 'border-gray-300 bg-white text-gray-900'
+                    }`}
+                  />
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    * ระเบียบข้อ 8: ห้ามสร้างเลขที่บิลสมมติ (เช่น INV001) ขึ้นมาเองเด็ดขาด
+                  </p>
+                </div>
+
+                {/* Purpose Textarea */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    วัตถุประสงค์และรายละเอียดค่าใช้จ่าย (Purpose) <span className="text-red-600">*</span>
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    placeholder="ระบุลักษณะการจ่ายเงิน เช่น ค่าอะไหล่ซ่อมตู้ MDB, ค่าเช่าเครื่องจักร, ค่าอุปกรณ์ติดตั้งโซลาร์"
+                    className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 leading-relaxed"
+                  />
+                </div>
+
+                {/* Cost Center & PO/PR (Symmetrical 2 cols) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      โครงการ / ศูนย์ต้นทุน (Cost Center)
+                    </label>
+                    <input
+                      type="text"
+                      value={costCenter}
+                      onChange={(e) => setCostCenter(e.target.value)}
+                      placeholder="เช่น PRJ-CHONBURI-01"
+                      className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      เลขที่ PO / PR อ้างอิง
+                    </label>
+                    <input
+                      type="text"
+                      value={poPrNumber}
+                      onChange={(e) => setPoPrNumber(e.target.value)}
+                      placeholder="ระบุเลขที่ หรือ เหตุผลที่ไม่มี"
+                      className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: การคำนวณยอดเงิน & ภาษี + Red Net Amount Box */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
+                <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  4
+                </span>
+                <h2 className="text-sm font-bold text-gray-900">
+                  จำนวนเงินและภาษี (Financial Breakdown)
+                </h2>
+              </div>
+
+              <div className="space-y-4">
+                {/* Subtotal Input */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-800 mb-1">
+                    จำนวนเงินก่อนภาษี (Pre-VAT Subtotal) <span className="text-red-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      required
+                      value={subtotalAmount}
+                      onChange={(e) => setSubtotalAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full text-base font-bold text-gray-900 rounded-xl border border-gray-300 py-2.5 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-mono"
+                    />
+                    <span className="absolute right-3.5 top-3 text-xs text-gray-400 font-bold">฿</span>
+                  </div>
+                </div>
+
+                {/* Symmetrical VAT & WHT Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* VAT Selector */}
+                  <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      ภาษีมูลค่าเพิ่ม (VAT)
+                    </label>
+                    <select
+                      value={vatType}
+                      onChange={(e: any) => setVatType(e.target.value)}
+                      className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                    >
+                      <option value="NONE">ไม่มี VAT (0%)</option>
+                      <option value="7%">VAT 7% (คำนวณอัตโนมัติ)</option>
+                      <option value="CUSTOM">ระบุจำนวนเงินเอง</option>
+                    </select>
+                    {vatType === 'CUSTOM' ? (
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="จำนวนเงิน VAT"
+                        value={customVatAmount}
+                        onChange={(e) => setCustomVatAmount(e.target.value)}
+                        className="mt-1.5 w-full text-xs rounded-lg border border-gray-300 py-1 px-2 font-mono bg-white"
+                      />
+                    ) : (
+                      <span className="block text-[11px] text-gray-600 font-mono mt-1">
+                        +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                      </span>
+                    )}
+                  </div>
+
+                  {/* WHT Selector */}
+                  <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      หัก ณ ที่จ่าย (WHT)
+                    </label>
+                    <select
+                      value={whtType}
+                      onChange={(e: any) => setWhtType(e.target.value)}
+                      className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                    >
+                      <option value="NONE">ไม่หัก (0%)</option>
+                      <option value="1%">1% (ค่าขนส่ง/ระวาง)</option>
+                      <option value="2%">2% (ค่าโฆษณา)</option>
+                      <option value="3%">3% (บริการ/จ้างทำของ/รับเหมา)</option>
+                      <option value="5%">5% (ค่าเช่า)</option>
+                      <option value="CUSTOM">กำหนดเอง</option>
+                    </select>
+                    {whtType === 'CUSTOM' ? (
+                      <div className="grid grid-cols-2 gap-1 mt-1.5">
+                        <input
+                          type="number"
+                          step="0.1"
+                          placeholder="%"
+                          value={customWhtPercent}
+                          onChange={(e) => setCustomWhtPercent(e.target.value)}
+                          className="w-full text-xs rounded border border-gray-300 py-1 px-1.5 font-mono bg-white"
+                        />
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="บาท"
+                          value={customWhtAmount}
+                          onChange={(e) => setCustomWhtAmount(e.target.value)}
+                          className="w-full text-xs rounded border border-gray-300 py-1 px-1.5 font-mono bg-white"
+                        />
+                      </div>
+                    ) : (
+                      <span className="block text-[11px] text-red-600 font-mono font-medium mt-1">
+                        -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Symmetrical Modern Red Net Payable Box */}
+                <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl p-5 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold tracking-wider uppercase text-red-100">
+                      ยอดชำระสุทธิ (NET PAYMENT AMOUNT)
+                    </span>
+                    <span className="text-[11px] font-mono font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">
+                      THB (฿)
+                    </span>
+                  </div>
+
+                  <div className="text-3xl font-mono font-extrabold tracking-tight">
+                    {netPayable.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    <span className="text-base font-normal ml-1.5 text-red-100">บาท</span>
+                  </div>
+
+                  {/* Thai Baht text preview */}
+                  <div className="bg-black/15 backdrop-blur-xs p-2 rounded-xl text-xs text-white/95 font-medium flex items-center gap-1.5 truncate">
+                    <span className="opacity-75 shrink-0">ตัวอักษร:</span>
+                    <span className="truncate font-semibold">({bahtText})</span>
+                  </div>
+
+                  {/* Subtotal calculation note */}
+                  <div className="pt-2 border-t border-white/20 flex flex-wrap justify-between text-[11px] text-red-100/90 font-mono">
+                    <span>ก่อน VAT: {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                    <span>VAT: +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                    <span>WHT: -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+
+                {/* Approval Tier Notice */}
+                <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-[11px] text-gray-600 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-red-600 shrink-0" />
+                  <div>
+                    <span className="font-bold text-gray-800">ระดับการอนุมัติ: </span>
+                    <span>{approvalTier}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: Card 5 (Full Width Symmetrical Evidence Card) */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                5
+              </span>
+              <div>
+                <h2 className="text-sm font-bold text-gray-900">
+                  เอกสารหลักฐานแนบ (Supporting Evidence)
+                </h2>
+                <p className="text-xs text-gray-500">
+                  แนบใบเสร็จ, ใบกำกับภาษี, ใบส่งของ, ภาพถ่ายสินค้า หรืองานบริการ (PDF, PNG, JPG ไม่เกิน 50MB)
+                </p>
+              </div>
+            </div>
+
+            <span className="text-xs text-gray-500 font-mono">
+              แนบแล้ว {attachments.length} ไฟล์
+            </span>
+          </div>
+
+          {/* Upload Area */}
+          <div className="border-2 border-dashed border-gray-300 hover:border-red-400 bg-gray-50/60 hover:bg-red-50/20 rounded-2xl p-6 text-center transition">
+            <input
+              type="file"
+              multiple
+              id="file-upload"
+              onChange={handleFileUpload}
+              disabled={isUploading}
+              className="hidden"
+            />
+            <label
+              htmlFor="file-upload"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 hover:border-red-500 hover:text-red-600 rounded-xl text-xs font-bold text-gray-700 cursor-pointer shadow-2xs transition"
+            >
+              <Upload className="w-4 h-4 text-red-600" />
+              {isUploading ? 'กำลังอัปโหลดไฟล์...' : '+ คลิกเพื่อเลือกไฟล์เอกสารแนบ'}
+            </label>
+            <p className="text-[11px] text-gray-400 mt-2">
+              สามารถเลือกหลายไฟล์พร้อมกันได้ (ระบบจะจัดเก็บใน Supabase Storage)
+            </p>
+          </div>
+
+          {/* Uploaded File Grid */}
+          {attachments.length > 0 && (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {attachments.map((att, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs hover:border-gray-300 transition"
+                >
+                  <div className="flex items-center gap-2.5 truncate mr-2">
+                    <div className="p-2 bg-white rounded-lg border border-gray-200 text-red-600 shrink-0">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <div className="truncate">
+                      <a
+                        href={att.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-medium text-gray-900 hover:text-red-600 truncate block underline"
+                      >
+                        {att.fileName}
+                      </a>
+                      <span className="text-[10px] text-gray-400 font-mono">ไฟล์ #{idx + 1}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAttachment(idx)}
+                    className="p-1 text-gray-400 hover:text-red-600 rounded transition"
+                    title="ลบไฟล์นี้"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Symmetrical Action Bar */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-xs text-gray-500">
+            <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-bold border border-gray-200">
+              สถานะเริ่มต้น: SUBMITTED
+            </span>
+            <span>
+              ระบบจะสร้างเลขที่ <b className="font-mono text-gray-900">PAY-{company}-YYMM-XXXXX</b> อัตโนมัติ
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Link
+              href="/accounting/payment-requests"
+              className="w-1/2 sm:w-auto px-5 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-center transition"
+            >
+              ยกเลิก
+            </Link>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-1/2 sm:w-auto px-6 py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50 rounded-xl shadow-sm transition flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="animate-spin text-sm">⏳</span> กำลังส่งคำขอ...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" /> ส่งคำขอเบิกจ่าย (Submit Request)
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </form>
+        </>
+      ) : (
+        /* My Requests Status Dashboard */
+        <div className="space-y-6 animate-in fade-in">
+          {/* Summary KPIs */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+              <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">คำขอทั้งหมดของฉัน</span>
+              <div className="flex items-baseline justify-between mt-1">
+                <span className="text-2xl font-bold font-mono text-gray-900">{myRequests.length}</span>
+                <span className="text-xs text-gray-400">รายการ</span>
+              </div>
+            </div>
+
+            <div className="bg-white p-4 rounded-2xl border border-amber-200/80 shadow-2xs">
+              <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-amber-600" /> รอตรวจสอบ / รออนุมัติ
+              </span>
+              <div className="flex items-baseline justify-between mt-1">
+                <span className="text-2xl font-bold font-mono text-amber-600">{pendingCount}</span>
+                <span className="text-xs text-amber-600/70">รายการ</span>
+              </div>
+            </div>
+
+            <div className="bg-white p-4 rounded-2xl border border-indigo-200/80 shadow-2xs">
+              <span className="text-[11px] font-semibold text-indigo-700 uppercase tracking-wider block flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" /> อนุมัติแล้ว / พร้อมโอน
+              </span>
+              <div className="flex items-baseline justify-between mt-1">
+                <span className="text-2xl font-bold font-mono text-indigo-600">{approvedCount}</span>
+                <span className="text-xs text-indigo-600/70">รายการ</span>
+              </div>
+            </div>
+
+            <div className="bg-white p-4 rounded-2xl border border-emerald-200/80 shadow-2xs">
+              <span className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> โอนเงินสำเร็จแล้ว
+              </span>
+              <div className="flex items-baseline justify-between mt-1">
+                <span className="text-2xl font-bold font-mono text-emerald-600">{paidCount}</span>
+                <span className="text-xs text-emerald-600/70">รายการ</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Search & Filter Toolbar */}
+          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={requestSearchQuery}
+                onChange={(e) => setRequestSearchQuery(e.target.value)}
+                placeholder="ค้นหาเลขที่ PAY No., ผู้รับเงิน/ผู้ขาย, วัตถุประสงค์, สาขา, เลขบิล..."
+                className="w-full pl-9 pr-8 py-2 text-xs bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-red-500 rounded-xl outline-none transition"
+              />
+              {requestSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setRequestSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-gray-500" />
+                <select
+                  value={requestStatusFilter}
+                  onChange={(e) => setRequestStatusFilter(e.target.value)}
+                  className="bg-transparent text-gray-700 font-medium text-xs outline-none cursor-pointer"
+                >
+                  <option value="ALL">สถานะทั้งหมด ({myRequests.length})</option>
+                  <option value="PENDING">รอตรวจสอบ/รออนุมัติ ({pendingCount})</option>
+                  <option value="READY">อนุมัติแล้ว/พร้อมโอน ({approvedCount})</option>
+                  <option value="PAID">โอนเงินสำเร็จ ({paidCount})</option>
+                  {attentionCount > 0 && (
+                    <option value="ATTENTION">⚠️ ต้องตรวจสอบ/ส่งคืน ({attentionCount})</option>
+                  )}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={refreshMyRequests}
+                disabled={isLoadingRequests}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition disabled:opacity-50"
+                title="รีเฟรชข้อมูลสถานะล่าสุด"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoadingRequests ? 'animate-spin text-red-600' : ''}`} />
+                <span className="hidden sm:inline">รีเฟรช</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('create')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-2xs transition"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>สร้างคำขอใหม่</span>
+              </button>
+            </div>
+          </div>
+
+          {/* List of Requests */}
+          {filteredMyRequests.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-2xs space-y-4">
+              <div className="w-14 h-14 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center mx-auto border border-gray-100">
+                <FileText className="w-7 h-7" />
+              </div>
+              <div className="max-w-sm mx-auto">
+                <h3 className="text-base font-bold text-gray-800">
+                  {requestSearchQuery || requestStatusFilter !== 'ALL'
+                    ? 'ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา'
+                    : 'ยังไม่มีประวัติคำขอเบิกเงิน'}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  {requestSearchQuery || requestStatusFilter !== 'ALL'
+                    ? 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองสถานะใหม่อีกครั้ง'
+                    : 'เมื่อคุณส่งคำขอเบิกเงิน รายการทั้งหมดจะแสดงขั้นตอนและสถานะการอนุมัติที่นี่'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('create')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm transition"
+              >
+                <Sparkles className="w-4 h-4" /> เริ่มสร้างคำขอเบิกเงินใหม่
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredMyRequests.map((req) => {
+                const meta = getStatusMeta(req.status);
+                const isCopied = copiedPayNo === req.pay_number;
+                const isAttention = meta.step < 0;
+
+                return (
+                  <div
+                    key={req.id}
+                    className="bg-white rounded-2xl border border-gray-200 hover:border-gray-300 shadow-2xs transition-all overflow-hidden"
+                  >
+                    {/* Top Row: PAY No, Branch, Company, Status */}
+                    <div className="px-5 py-3.5 bg-gray-50/70 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200">
+                          <span className="font-mono text-xs font-bold text-gray-900 tracking-tight">
+                            {req.pay_number}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyPayNo(req.pay_number)}
+                            className="text-gray-400 hover:text-red-600 transition"
+                            title="คัดลอกเลขที่คำขอ"
+                          >
+                            {isCopied ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
+
+                        <span
+                          className={`px-2 py-0.5 rounded text-[11px] font-bold border ${
+                            req.company === 'TG'
+                              ? 'bg-red-50 text-red-700 border-red-200'
+                              : req.company === 'TE'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}
+                        >
+                          {req.company === 'TG' ? 'Tera Group' : req.company === 'TE' ? 'Tera Electric' : 'Tera Power'}
+                        </span>
+
+                        <span className="text-xs text-gray-600 flex items-center gap-1">
+                          <Building2 className="w-3.5 h-3.5 text-gray-400" />
+                          {req.branch}
+                        </span>
+
+                        {req.urgency === 'EMERGENCY' && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 flex items-center gap-1">
+                            <Zap className="w-3 h-3 fill-rose-600 text-rose-600" /> ด่วนที่สุด
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${meta.bg} ${meta.text} ${meta.border}`}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${meta.dot}`} />
+                          {meta.label}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Middle Details Grid */}
+                    <div className="p-5 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="md:col-span-2 space-y-2 text-xs">
+                          <div className="flex items-start gap-2">
+                            <span className="text-gray-400 font-medium w-24 shrink-0">ผู้รับเงิน / ผู้ขาย:</span>
+                            <span className="font-bold text-gray-900 text-sm">{req.supplier_name}</span>
+                          </div>
+
+                          <div className="flex items-start gap-2">
+                            <span className="text-gray-400 font-medium w-24 shrink-0">วัตถุประสงค์:</span>
+                            <span className="text-gray-700 leading-relaxed font-normal">{req.purpose}</span>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-gray-500 pt-1">
+                            {req.invoice_number && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-gray-400">เลขที่บิล:</span>
+                                <span className="font-mono font-medium text-gray-800">{req.invoice_number}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-gray-400">วันที่เอกสาร:</span>
+                              <span className="font-medium text-gray-800">{formatDisplayDate(req.document_date)}</span>
+                            </div>
+                            {req.bank_name && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-gray-400">ธนาคาร:</span>
+                                <span className="font-medium text-gray-800">{req.bank_name} {req.bank_account_no}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-50/70 p-4 rounded-xl border border-gray-100 flex flex-col justify-between">
+                          <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                            ยอดขอเบิกสุทธิ
+                          </span>
+                          <div className="my-1">
+                            <span className="text-xl sm:text-2xl font-bold font-mono text-red-600">
+                              ฿{Number(req.net_amount || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-gray-400 flex items-center justify-between border-t border-gray-200/60 pt-1 mt-1">
+                            <span>ก่อนภาษี: {Number(req.subtotal_amount || 0).toLocaleString()} ฿</span>
+                            {Number(req.vat_amount || 0) > 0 && <span>VAT: +{Number(req.vat_amount).toLocaleString()}</span>}
+                            {Number(req.wht_amount || 0) > 0 && <span>WHT: -{Number(req.wht_amount).toLocaleString()}</span>}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Visual Stepper / Status Alert */}
+                      <div className="border-t border-gray-100 pt-4">
+                        {isAttention ? (
+                          <div
+                            className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                              req.status === 'HOLD_DUPLICATE'
+                                ? 'bg-red-50/90 border-red-200 text-red-950'
+                                : 'bg-orange-50/90 border-orange-200 text-orange-950'
+                            }`}
+                          >
+                            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" />
+                            <div className="text-xs leading-relaxed space-y-1">
+                              <p className="font-bold text-sm">
+                                {req.status === 'HOLD_DUPLICATE'
+                                  ? '🚨 รายการนี้ถูกระงับชั่วคราวเพื่อตรวจสอบความซ้ำซ้อน (Hold Duplicate)'
+                                  : '📝 ฝ่ายบัญชีส่งคืนเอกสารเพื่อแก้ไข (Document Returned)'}
+                              </p>
+                              {req.duplicate_reason && (
+                                <p className="text-gray-700">สาเหตุ: {req.duplicate_reason}</p>
+                              )}
+                              {req.ap_notes && (
+                                <p className="text-gray-700 font-medium">หมายเหตุฝ่ายบัญชี: {req.ap_notes}</p>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="relative pt-1 pb-1">
+                            <div className="grid grid-cols-4 gap-2 relative">
+                              {[
+                                {
+                                  step: 1,
+                                  name: 'ยื่นคำขอ',
+                                  info: req.created_at ? new Date(req.created_at).toLocaleDateString('th-TH') : '',
+                                },
+                                {
+                                  step: 2,
+                                  name: 'บัญชีตรวจสอบ',
+                                  info: req.ap_checked_by ? req.ap_checked_by : 'รอตรวจสอบ',
+                                },
+                                {
+                                  step: 3,
+                                  name: 'อนุมัติสั่งจ่าย',
+                                  info: req.approved_by ? req.approved_by : 'รออนุมัติ',
+                                },
+                                {
+                                  step: 4,
+                                  name: 'โอนเงินแล้ว',
+                                  info: req.paid_date ? formatDisplayDate(req.paid_date) : 'รอรอบจ่าย',
+                                },
+                              ].map((st) => {
+                                const isDone = meta.step > st.step;
+                                const isCurrent = meta.step === st.step;
+                                return (
+                                  <div key={st.step} className="flex flex-col items-center text-center">
+                                    <div
+                                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition ${
+                                        isDone
+                                          ? 'bg-emerald-600 border-emerald-600 text-white'
+                                          : isCurrent
+                                          ? 'bg-white border-red-600 text-red-600 shadow-sm ring-4 ring-red-50'
+                                          : 'bg-white border-gray-200 text-gray-300'
+                                      }`}
+                                    >
+                                      {isDone ? <Check className="w-3.5 h-3.5" /> : st.step}
+                                    </div>
+                                    <span
+                                      className={`text-xs mt-1.5 font-medium ${
+                                        isCurrent
+                                          ? 'font-bold text-red-600'
+                                          : isDone
+                                          ? 'text-gray-800'
+                                          : 'text-gray-400'
+                                      }`}
+                                    >
+                                      {st.name}
+                                    </span>
+                                    <span className="text-[10px] text-gray-400 truncate max-w-full">
+                                      {st.info}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Actions Footer */}
+                    <div className="px-5 py-3 bg-gray-50/60 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-3 text-gray-400 text-[11px]">
+                        <span>สร้างเมื่อ {req.created_at ? new Date(req.created_at).toLocaleString('th-TH') : '-'}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {req.payment_slip_url && (
+                          <a
+                            href={req.payment_slip_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold transition"
+                          >
+                            <CreditCard className="w-3.5 h-3.5" /> สลิปโอนเงิน
+                          </a>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedVoucherRequest(req)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 text-gray-700 font-semibold transition shadow-2xs"
+                        >
+                          <Printer className="w-3.5 h-3.5 text-red-600" />
+                          พิมพ์ใบสำคัญจ่าย (PDF)
+                        </button>
+
+                        <Link
+                          href={`/accounting/payment-requests/${req.id}`}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold transition shadow-2xs"
+                        >
+                          ดูรายละเอียด <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal: Printable Payment Voucher */}
+      {selectedVoucherRequest && (
+        <PrintablePaymentVoucher
+          request={selectedVoucherRequest}
+          onClose={() => setSelectedVoucherRequest(null)}
+          onUpdate={(updated) => {
+            setSelectedVoucherRequest(updated);
+            setMyRequests((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+          }}
+        />
+      )}
+    </div>
+  );
+}

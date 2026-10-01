@@ -56,6 +56,8 @@ import {
   createTask,
   deleteTask,
 } from "@/app/actions/projects";
+import { deletePurchaseRequest } from "@/app/actions/procurement";
+import Swal from "sweetalert2";
 import GanttChart from "./GanttChart";
 import DailyLogTab from "./DailyLogTab";
 import WeeklyReportTab from "./WeeklyReportTab";
@@ -122,17 +124,88 @@ export default function ProjectDetailClient({
     );
   }, [pos, poSearch]);
 
+  const [localPrs, setLocalPrs] = useState<any[]>(prs);
+  const [isDeletingPr, setIsDeletingPr] = useState<number | null>(null);
+
+  React.useEffect(() => {
+    setLocalPrs(prs);
+  }, [prs]);
+
+  const roleLower = (currentUser?.role || "").toLowerCase();
+  const canDeletePR =
+    isManager ||
+    roleLower.includes("admin") ||
+    roleLower.includes("project") ||
+    roleLower.includes("purchasing") ||
+    roleLower.includes("จัดซื้อ") ||
+    roleLower.includes("ผู้จัดการ") ||
+    roleLower.includes("super_admin");
+
+  const handleDeletePR = async (pr: any) => {
+    const hasPO = pr.purchaseOrders && pr.purchaseOrders.length > 0;
+    const result = await Swal.fire({
+      title: "ยืนยันการลบใบขอซื้อ (PR)?",
+      html: `<div class="text-left text-xs text-gray-600 space-y-1.5">
+        <p>คุณต้องการลบใบขอซื้อเลขที่ <b class="font-mono text-red-600">${pr.prNumber}</b> ใช่หรือไม่?</p>
+        ${pr.projectName ? `<p><b>โครงการ:</b> ${pr.projectName}</p>` : ""}
+        ${pr.itemList ? `<p class="truncate text-gray-500"><b>รายการ:</b> ${pr.itemList}</p>` : ""}
+        ${hasPO ? `<div class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-medium mt-1">⚠️ ใบขอซื้อนี้มีใบสั่งซื้อ (PO) ที่เกี่ยวข้อง ${pr.purchaseOrders.length} ฉบับ</div>` : ""}
+        <p class="text-red-500 text-[11px] pt-1">เมื่อลบแล้ว รายการนี้จะถูกลบออกจากทั้งหน้านี้และหน้ารายการ PR จัดซื้อ (/admin/procurement/pr) โดยทันที</p>
+      </div>`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "ใช่, ลบใบขอซื้อนี้",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (!result.isConfirmed) return;
+
+    setIsDeletingPr(pr.id);
+    try {
+      const res = await deletePurchaseRequest(pr.id);
+      if (res.success) {
+        setLocalPrs((prev) => prev.filter((p) => p.id !== pr.id));
+        Swal.fire({
+          title: "ลบสำเร็จ",
+          text: `ลบใบขอซื้อ ${pr.prNumber} เรียบร้อยแล้ว`,
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        router.refresh();
+      } else {
+        Swal.fire({
+          title: "เกิดข้อผิดพลาด",
+          text: res.error || "ไม่สามารถลบใบขอซื้อได้",
+          icon: "error",
+        });
+      }
+    } catch (err: any) {
+      Swal.fire({
+        title: "เกิดข้อผิดพลาด",
+        text: err?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้",
+        icon: "error",
+      });
+    } finally {
+      setIsDeletingPr(null);
+    }
+  };
+
   const filteredPrs = useMemo(() => {
-    if (!prSearch.trim()) return prs;
+    if (!prSearch.trim()) return localPrs;
     const q = prSearch.toLowerCase();
-    return prs.filter(
+    return localPrs.filter(
       (pr: any) =>
         pr.prNumber?.toLowerCase().includes(q) ||
         pr.projectName?.toLowerCase().includes(q) ||
         pr.requestedBy?.toLowerCase().includes(q) ||
-        pr.status?.toLowerCase().includes(q)
+        pr.itemList?.toLowerCase().includes(q) ||
+        pr.status?.toLowerCase().includes(q) ||
+        pr.note?.toLowerCase().includes(q)
     );
-  }, [prs, prSearch]);
+  }, [localPrs, prSearch]);
 
   // Reports Sub-tab State
   const [reportSubTab, setReportSubTab] = useState<"daily" | "weekly">("daily");
@@ -2179,7 +2252,7 @@ export default function ProjectDetailClient({
                     </p>
                   </div>
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-200 font-mono ml-1">
-                    {prs.length} ฉบับ
+                    {localPrs.length} ฉบับ
                   </span>
                 </div>
 
@@ -2194,7 +2267,7 @@ export default function ProjectDetailClient({
               </div>
 
               {/* Search filter within matched PRs */}
-              {prs.length > 0 && (
+              {localPrs.length > 0 && (
                 <div className="relative">
                   <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
@@ -2239,22 +2312,41 @@ export default function ProjectDetailClient({
                               โครงการ: {pr.projectName}
                             </p>
                           )}
+                          {pr.itemList && (
+                            <p className="text-[11px] text-gray-500 truncate" title={pr.itemList}>
+                              รายการ: {pr.itemList}
+                            </p>
+                          )}
                           <p className="text-xs text-gray-500 truncate">
                             ผู้ขอ: {pr.requestedBy || "ไม่ระบุ"}
                           </p>
                         </div>
-                        <div className="text-right shrink-0 space-y-1">
+                        <div className="text-right shrink-0 space-y-1.5 flex flex-col items-end">
                           <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200 block">
                             {pr.status || "บันทึกแล้ว"}
                           </span>
-                          <Link
-                            href={`/admin/procurement/pr?search=${encodeURIComponent(pr.prNumber)}`}
-                            target="_blank"
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-400 group-hover:text-gray-900 transition-colors"
-                          >
-                            <span>เปิดดูใน PR</span>
-                            <ArrowUpRight size={11} />
-                          </Link>
+                          <div className="flex items-center gap-1.5">
+                            <Link
+                              href={`/admin/procurement/pr?search=${encodeURIComponent(pr.prNumber)}`}
+                              target="_blank"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-400 group-hover:text-gray-900 transition-colors"
+                            >
+                              <span>เปิดดูใน PR</span>
+                              <ArrowUpRight size={11} />
+                            </Link>
+                            {canDeletePR && (
+                              <button
+                                type="button"
+                                disabled={isDeletingPr === pr.id}
+                                onClick={() => handleDeletePR(pr)}
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-500 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 px-2 py-0.5 rounded-lg transition-all shadow-2xs"
+                                title="ลบใบขอซื้อที่ยกเลิก"
+                              >
+                                <Trash2 size={11} />
+                                <span>{isDeletingPr === pr.id ? "กำลังลบ..." : "ลบ PR"}</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-gray-400 pt-2 border-t border-gray-200/60 font-mono">
@@ -2270,7 +2362,7 @@ export default function ProjectDetailClient({
                     </div>
                   ))}
                 </div>
-              ) : prs.length > 0 ? (
+              ) : localPrs.length > 0 ? (
                 <div className="py-8 text-center text-gray-400 text-xs">
                   ไม่พบใบขอซื้อที่ตรงกับ "{prSearch}"
                 </div>

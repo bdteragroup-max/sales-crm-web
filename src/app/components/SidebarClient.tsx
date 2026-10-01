@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -50,6 +50,8 @@ const executiveNav = [
 
   // ── 4. Finance, Procurement & Rewards ──
   { icon: DollarSign, label: 'แดชบอร์ดการเงิน/บัญชี (Finance & Accounting)', href: '/accounting/dashboard' },
+  { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
+  { icon: FileCheck, label: 'ทะเบียนขอจ่ายเงิน (Payment Requests)', href: '/accounting/payment-requests' },
   { icon: Package, label: 'เจ้าหนี้การค้า (AP Payables)', href: '/accounting/payables' },
   { icon: ShoppingCart, label: 'ภาพรวมจัดซื้อ (Purchasing Overview)', href: '/executive/purchasing' },
   { icon: Coins, label: 'ภาพรวมเหรียญรางวัล (Coins & Rewards)', href: '/executive/coins' },
@@ -60,6 +62,8 @@ const executiveNav = [
 
 const managerNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมทีม', href: '/dashboard' },
+  { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
+  { icon: FileCheck, label: 'ทะเบียนขอจ่ายเงิน/อนุมัติ (Payment Requests)', href: '/accounting/payment-requests' },
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: GitCommit, label: 'ท่อดีลฝ่ายขาย', href: '/pipeline' },
   { icon: Bell, label: 'Leads จาก Marketing', href: '/sales/leads' },
@@ -194,6 +198,8 @@ const productionNav = [
 
 const accountingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี/การเงิน', href: '/accounting/dashboard' },
+  { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
+  { icon: FileCheck, label: 'ทะเบียนขอจ่ายเงิน (Payment Requests)', href: '/accounting/payment-requests' },
   { icon: ShieldCheck, label: 'ตั้งค่าเครดิตลูกค้า (Credit Settings)', href: '/accounting/credit-settings' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: DollarSign, label: 'ลูกหนี้การค้า (AR Collections)', href: '/accounting' },
@@ -212,12 +218,14 @@ const bdNav = [
   { icon: LifeBuoy, label: 'จัดการปัญหาระบบ (Tickets)', href: '/bd/tickets' },
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
   { icon: Tv, label: 'Team Overview (TV)', href: '/bd/tickets/tv' },
+  { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
   { icon: Package, label: 'เบิก/ยืมวัสดุอุปกรณ์', href: '/requisitions' }
 ];
 
 const commonNav = [
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests/new' },
+  { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
   { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' },
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
   { icon: Package, label: 'เบิก/ยืมวัสดุอุปกรณ์', href: '/requisitions' }
@@ -287,8 +295,11 @@ export default function SidebarClient(props: SidebarProps) {
 
   const isBdRole = ['business development', 'bd', 'พัฒนาธุรกิจ'].some(r => roleStr.includes(r));
   const isMarketingRole = ['marketing', 'การตลาด', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด'].some(r => roleStr.includes(r));
-  let navToAppend = (isBdRole || isExecutive) ? [] : commonNav;
+  let navToAppend = isExecutive ? [] : commonNav;
 
+  if (isBdRole) {
+    navToAppend = navToAppend.filter(item => !['/marketing/requests/new', '/requisitions', '/facility-repairs/new', '/support/tickets'].includes(item.href));
+  }
   if (isTechnician) {
     navToAppend = navToAppend.filter(item => item.href !== '/facility-repairs/new');
   }
@@ -297,6 +308,15 @@ export default function SidebarClient(props: SidebarProps) {
   }
 
   const finalNav = Array.from(new Map([...nav, ...navToAppend].map(item => [item.href, item])).values());
+
+  // Guarantee that /accounting/payment-requests/new is ALWAYS visible to all department roles
+  if (!finalNav.some(item => item.href === '/accounting/payment-requests/new')) {
+    finalNav.push({
+      icon: Receipt,
+      label: 'ขอเบิกจ่ายเงิน (Payment Request)',
+      href: '/accounting/payment-requests/new',
+    });
+  }
 
   const appendCommon = (items: NavItem[]) =>
     Array.from(new Map([...items, ...commonNav].map(item => [item.href, item])).values());

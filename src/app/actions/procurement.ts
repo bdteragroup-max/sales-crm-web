@@ -4,6 +4,7 @@ import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 import { syncSupplierPaymentsForPO } from "./supplierPayment";
+import { isSuperUser } from "@/app/lib/roleHelper";
 
 export async function createPurchaseRequest(data: {
   prNumber: string;
@@ -607,3 +608,84 @@ export async function batchRecordPurchaseOrderReceipt(data: {
     errors
   };
 }
+
+/**
+ * Delete a Purchase Request (PR)
+ * Allowed for Project Admins, Super Admins, Managers, and Purchasing team
+ */
+export async function deletePurchaseRequest(prId: number) {
+  const user = await getUser();
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการ" };
+
+  const userRoleStr = (user.role || '').toLowerCase();
+  const isAuthorized = isSuperUser(user.role) || [
+    'admin',
+    'project',
+    'purchasing',
+    'จัดซื้อ',
+    'ผู้จัดการ',
+    'manager',
+    'director',
+    'superadmin'
+  ].some(r => userRoleStr.includes(r));
+
+  if (!isAuthorized) {
+    return { success: false, error: "คุณไม่มีสิทธิ์ลบข้อมูล PR" };
+  }
+
+  try {
+    const existing = await prisma.purchaseRequest.findUnique({
+      where: { id: prId },
+      include: { purchaseOrders: true }
+    });
+
+    if (!existing) {
+      return { success: false, error: "ไม่พบข้อมูล PR นี้ในระบบ หรือถูกลบไปแล้ว" };
+    }
+
+    // Detach any related PurchaseOrder records before deleting PR
+    if (existing.prNumber) {
+      await prisma.purchaseOrder.updateMany({
+        where: { prNumber: existing.prNumber },
+        data: { prNumber: null }
+      });
+    }
+
+    // If orderId is linked and no other PRs exist for this order, reset prFulfilledAt
+    if (existing.orderId) {
+      const otherPrs = await prisma.purchaseRequest.count({
+        where: {
+          orderId: existing.orderId,
+          id: { not: prId }
+        }
+      });
+      if (otherPrs === 0) {
+        await prisma.order.update({
+          where: { id: existing.orderId },
+          data: { prFulfilledAt: null }
+        }).catch(() => {});
+      }
+    }
+
+    await prisma.purchaseRequest.delete({
+      where: { id: prId }
+    });
+
+    revalidatePath("/admin/procurement/pr");
+    revalidatePath("/admin/procurement/dashboard");
+    revalidatePath("/admin/procurement/po");
+    revalidatePath("/projects");
+    if (existing.orderId) {
+      revalidatePath(`/projects/${existing.orderId}`);
+    }
+
+    return { 
+      success: true, 
+      message: `ลบใบขอซื้อเลขที่ ${existing.prNumber} เรียบร้อยแล้ว` 
+    };
+  } catch (error: any) {
+    console.error("Error deleting PR:", error);
+    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการลบใบขอซื้อ" };
+  }
+}
+

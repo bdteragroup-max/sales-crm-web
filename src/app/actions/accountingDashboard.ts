@@ -28,6 +28,20 @@ function extractSearchKeywords(project: any) {
     if (clean.length >= 3) {
       terms.add(clean);
       primaryKeyword = clean;
+
+      // Extract sub-tokens separated by punctuation / delimiters
+      const tokens = clean
+        .split(/[-/:\(\)]+/)
+        .map((p: string) => p.trim())
+        .filter((p: string) => p.length >= 3);
+
+      tokens.forEach((tok: string) => {
+        terms.add(tok);
+        const sub = tok.replace(/\s*(SYSTEM|PROJECT|ระบบ)$/gi, "").trim();
+        if (sub.length >= 3 && sub !== tok) {
+          terms.add(sub);
+        }
+      });
     }
   }
 
@@ -45,6 +59,41 @@ function extractSearchKeywords(project: any) {
       terms.add(cleanClient);
     }
   }
+
+  // Cross-reference common normalized project aliases
+  const combinedText = `${project.name || ""} ${project.clientName || ""}`.toLowerCase();
+  if (combinedText.includes("water treatment") || combinedText.includes("egat")) {
+    terms.add("Water Treatment");
+    terms.add("EGAT");
+  }
+
+  if (combinedText.includes("กรมการข้าว")) terms.add("กรมการข้าว");
+  if (combinedText.includes("เซนิธ") || combinedText.includes("zenith")) {
+    terms.add("เซนิธ");
+    terms.add("Zenith");
+  }
+  if (combinedText.includes("อินโนเวชั่น") || combinedText.includes("innovation")) {
+    terms.add("อินโนเวชั่น");
+    terms.add("Innovation");
+  }
+  if (combinedText.includes("ชลบุรี ไฮท์")) terms.add("ชลบุรี ไฮท์");
+  if (combinedText.includes("นวรรณ") || combinedText.includes("หนองตาคง")) {
+    terms.add("นวรรณ");
+    terms.add("หนองตาคง");
+  }
+  if (combinedText.includes("พัฒนาที่ดินเลย")) {
+    terms.add("พัฒนาที่ดินเลย");
+    terms.add("พด.เลย");
+  } else if (combinedText.includes("พัฒนาที่ดิน")) {
+    terms.add("พัฒนาที่ดิน");
+  }
+  if (combinedText.includes("บาดาล") || combinedText.includes("dgr")) {
+    terms.add("บาดาล");
+    terms.add("DGR");
+  }
+  if (combinedText.includes("ชลประทาน")) terms.add("ชลประทาน");
+  if (combinedText.includes("เรือนจำลำปาง")) terms.add("เรือนจำลำปาง");
+  if (combinedText.includes("เรือนจำแม่สอด")) terms.add("เรือนจำแม่สอด");
 
   return {
     keywords: Array.from(terms).filter((t) => t && t.length >= 3),
@@ -240,7 +289,7 @@ function getTaskBilledAmount(pt: any): number {
       jobName: true,
       poNumber: true,
       purchaseRequest: {
-        select: { projectName: true }
+        select: { projectName: true, note: true }
       }
     }
   });
@@ -255,7 +304,7 @@ function getTaskBilledAmount(pt: any): number {
           poNumber: true,
           jobName: true,
           purchaseRequest: {
-            select: { projectName: true }
+            select: { projectName: true, note: true }
           }
         }
       })
@@ -1069,9 +1118,10 @@ function getTaskBilledAmount(pt: any): number {
         const prProj = (po.purchaseRequest?.projectName || "").toLowerCase();
 
         if (keywords.length > 0) {
+          const prNote = (po.purchaseRequest?.note || "").toLowerCase();
           matchesKeywords = keywords.some(kw => {
             const lower = kw.toLowerCase();
-            return jn.includes(lower) || prProj.includes(lower);
+            return jn.includes(lower) || prProj.includes(lower) || prNote.includes(lower);
           });
         }
 

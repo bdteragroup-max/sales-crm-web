@@ -95,6 +95,20 @@ function extractSearchKeywords(project: any): { keywords: string[]; primaryKeywo
     if (clean.length >= 3) {
       terms.add(clean);
       primaryKeyword = clean;
+
+      // Extract sub-tokens separated by punctuation / delimiters
+      const tokens = clean
+        .split(/[-/:\(\)]+/)
+        .map((p: string) => p.trim())
+        .filter((p: string) => p.length >= 3);
+
+      tokens.forEach((tok: string) => {
+        terms.add(tok);
+        const sub = tok.replace(/\s*(SYSTEM|PROJECT|ระบบ)$/gi, "").trim();
+        if (sub.length >= 3 && sub !== tok) {
+          terms.add(sub);
+        }
+      });
     }
   }
 
@@ -113,6 +127,41 @@ function extractSearchKeywords(project: any): { keywords: string[]; primaryKeywo
     }
   }
 
+  // Cross-reference common normalized project aliases
+  const combinedText = `${project.name || ""} ${project.clientName || ""}`.toLowerCase();
+  if (combinedText.includes("water treatment") || combinedText.includes("egat")) {
+    terms.add("Water Treatment");
+    terms.add("EGAT");
+  }
+
+  if (combinedText.includes("กรมการข้าว")) terms.add("กรมการข้าว");
+  if (combinedText.includes("เซนิธ") || combinedText.includes("zenith")) {
+    terms.add("เซนิธ");
+    terms.add("Zenith");
+  }
+  if (combinedText.includes("อินโนเวชั่น") || combinedText.includes("innovation")) {
+    terms.add("อินโนเวชั่น");
+    terms.add("Innovation");
+  }
+  if (combinedText.includes("ชลบุรี ไฮท์")) terms.add("ชลบุรี ไฮท์");
+  if (combinedText.includes("นวรรณ") || combinedText.includes("หนองตาคง")) {
+    terms.add("นวรรณ");
+    terms.add("หนองตาคง");
+  }
+  if (combinedText.includes("พัฒนาที่ดินเลย")) {
+    terms.add("พัฒนาที่ดินเลย");
+    terms.add("พด.เลย");
+  } else if (combinedText.includes("พัฒนาที่ดิน")) {
+    terms.add("พัฒนาที่ดิน");
+  }
+  if (combinedText.includes("บาดาล") || combinedText.includes("dgr")) {
+    terms.add("บาดาล");
+    terms.add("DGR");
+  }
+  if (combinedText.includes("ชลประทาน")) terms.add("ชลประทาน");
+  if (combinedText.includes("เรือนจำลำปาง")) terms.add("เรือนจำลำปาง");
+  if (combinedText.includes("เรือนจำแม่สอด")) terms.add("เรือนจำแม่สอด");
+
   const list = Array.from(terms).filter((t) => t && t.length >= 3);
   return { keywords: list, primaryKeyword: primaryKeyword || project.name || "" };
 }
@@ -124,7 +173,11 @@ function extractSearchKeywords(project: any): { keywords: string[]; primaryKeywo
       OR: searchTerms.flatMap((term) => [
         { jobName: { contains: term, mode: "insensitive" } },
         { purchaseRequest: { projectName: { contains: term, mode: "insensitive" } } },
+        { purchaseRequest: { note: { contains: term, mode: "insensitive" } } },
       ]),
+    },
+    include: {
+      purchaseRequest: true,
     },
     orderBy: [
       { recordedAt: "desc" },
@@ -134,7 +187,10 @@ function extractSearchKeywords(project: any): { keywords: string[]; primaryKeywo
 
   const prs = await prisma.purchaseRequest.findMany({
     where: {
-      OR: searchTerms.map((term) => ({ projectName: { contains: term, mode: "insensitive" } })),
+      OR: searchTerms.flatMap((term) => [
+        { projectName: { contains: term, mode: "insensitive" } },
+        { note: { contains: term, mode: "insensitive" } },
+      ]),
     },
     include: {
       purchaseOrders: true,

@@ -59,11 +59,12 @@ import Swal from 'sweetalert2';
 
 function isImageUrl(url: string) {
   if (!url) return false;
-  return (
-    /\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i.test(url) ||
-    url.includes('uploadsService') ||
-    url.includes('image')
-  );
+  try {
+    const cleanUrl = decodeURIComponent(url.split('?')[0].split('#')[0]);
+    return /\.(jpg|jpeg|png|webp|gif|svg|avif|bmp)$/i.test(cleanUrl);
+  } catch {
+    return /\.(jpg|jpeg|png|webp|gif|svg|avif|bmp)$/i.test(url);
+  }
 }
 
 function getFileNameFromUrl(url: string) {
@@ -104,6 +105,106 @@ function getRelativeTimeThai(dateInput: string | Date | null | undefined) {
   if (diffDays === 1) return 'เมื่อวานนี้';
   if (diffDays < 30) return `${diffDays} วันที่แล้ว`;
   return `${Math.floor(diffDays / 30)} เดือนที่แล้ว`;
+}
+
+function AttachmentCard({
+  url,
+  index,
+  onPreview,
+}: {
+  url: string;
+  index: number;
+  onPreview: (url: string) => void;
+}) {
+  const [imageError, setImageError] = useState(false);
+  const isImg = isImageUrl(url) && !imageError;
+  const fileName = getFileNameFromUrl(url);
+
+  if (isImg) {
+    return (
+      <div
+        onClick={() => onPreview(url)}
+        className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-100 aspect-video cursor-pointer hover:shadow-md hover:border-indigo-400 transition"
+      >
+        <img
+          src={url}
+          alt={`Attachment ${index + 1}`}
+          onError={() => setImageError(true)}
+          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+        />
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2 text-white text-xs font-medium">
+          <Maximize2 className="w-4 h-4" />
+          <span>คลิกเพื่อดูรูป</span>
+        </div>
+        <span className="absolute bottom-1.5 left-1.5 bg-black/60 backdrop-blur-xs text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
+          Image #{index + 1}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100/80 hover:border-slate-300 transition text-sm text-slate-700"
+    >
+      <div className="p-2 bg-white rounded-lg border border-slate-200 text-slate-500">
+        <FileText className="w-4 h-4" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-medium text-xs text-slate-800 truncate">{fileName}</p>
+        <p className="text-[10px] text-slate-400">คลิกเพื่อเปิด / ดาวน์โหลด</p>
+      </div>
+      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+    </a>
+  );
+}
+
+function CommentAttachmentItem({
+  url,
+  index,
+  isBDTeam,
+  onPreview,
+}: {
+  url: string;
+  index: number;
+  isBDTeam: boolean;
+  onPreview: (url: string) => void;
+}) {
+  const [imageError, setImageError] = useState(false);
+  const isImg = isImageUrl(url) && !imageError;
+  const fileName = getFileNameFromUrl(url);
+
+  if (isImg) {
+    return (
+      <div
+        onClick={() => onPreview(url)}
+        className="cursor-pointer w-20 h-14 rounded-lg overflow-hidden border border-white/30 hover:opacity-90 transition"
+      >
+        <img
+          src={url}
+          alt={`Comment attachment ${index + 1}`}
+          onError={() => setImageError(true)}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className={`inline-flex items-center gap-1 text-xs underline ${
+        isBDTeam ? 'text-indigo-100' : 'text-indigo-600'
+      }`}
+    >
+      <Paperclip className="w-3.5 h-3.5" /> {fileName || `ไฟล์แนบ ${index + 1}`}
+    </a>
+  );
 }
 
 export default function TicketManageDetailClient({ ticketId }: { ticketId: string }) {
@@ -918,52 +1019,14 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                     </h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      {ticket.attachments.map((url: string, i: number) => {
-                        const isImg = isImageUrl(url);
-                        const fileName = getFileNameFromUrl(url);
-
-                        if (isImg) {
-                          return (
-                            <div
-                              key={i}
-                              onClick={() => setPreviewImage(url)}
-                              className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-100 aspect-video cursor-pointer hover:shadow-md hover:border-indigo-400 transition"
-                            >
-                              <img
-                                src={url}
-                                alt={`Attachment ${i + 1}`}
-                                className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                              />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2 text-white text-xs font-medium">
-                                <Maximize2 className="w-4 h-4" />
-                                <span>คลิกเพื่อดูรูป</span>
-                              </div>
-                              <span className="absolute bottom-1.5 left-1.5 bg-black/60 backdrop-blur-xs text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
-                                Image #{i + 1}
-                              </span>
-                            </div>
-                          );
-                        }
-
-                        return (
-                          <a
-                            key={i}
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100/80 hover:border-slate-300 transition text-sm text-slate-700"
-                          >
-                            <div className="p-2 bg-white rounded-lg border border-slate-200 text-slate-500">
-                              <FileText className="w-4 h-4" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-xs text-slate-800 truncate">{fileName}</p>
-                              <p className="text-[10px] text-slate-400">คลิกเพื่อเปิด / ดาวน์โหลด</p>
-                            </div>
-                            <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                          </a>
-                        );
-                      })}
+                      {ticket.attachments.map((url: string, i: number) => (
+                        <AttachmentCard
+                          key={i}
+                          url={url}
+                          index={i}
+                          onPreview={setPreviewImage}
+                        />
+                      ))}
                     </div>
                   </div>
                 )}
@@ -1193,36 +1256,15 @@ export default function TicketManageDetailClient({ ticketId }: { ticketId: strin
                           {/* Comment Attachments */}
                           {c.attachments && c.attachments.length > 0 && (
                             <div className="mt-2.5 pt-2 border-t border-white/20 flex flex-wrap gap-2">
-                              {c.attachments.map((url: string, i: number) => {
-                                const isImg = isImageUrl(url);
-                                if (isImg) {
-                                  return (
-                                    <div
-                                      key={i}
-                                      onClick={() => setPreviewImage(url)}
-                                      className="cursor-pointer w-20 h-14 rounded-lg overflow-hidden border border-white/30 hover:opacity-90 transition"
-                                    >
-                                      <img
-                                        src={url}
-                                        alt={`Comment attachment ${i + 1}`}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                  );
-                                }
-                                return (
-                                  <a
-                                    key={i}
-                                    href={url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className={`inline-flex items-center gap-1 text-xs underline ${isBDTeam ? 'text-indigo-100' : 'text-indigo-600'
-                                      }`}
-                                  >
-                                    <Paperclip className="w-3.5 h-3.5" /> ไฟล์แนบ {i + 1}
-                                  </a>
-                                );
-                              })}
+                              {c.attachments.map((url: string, i: number) => (
+                                <CommentAttachmentItem
+                                  key={i}
+                                  url={url}
+                                  index={i}
+                                  isBDTeam={isBDTeam}
+                                  onPreview={setPreviewImage}
+                                />
+                              ))}
                             </div>
                           )}
                         </div>

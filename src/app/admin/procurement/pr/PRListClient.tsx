@@ -17,12 +17,13 @@ import {
   RotateCcw, 
   ArrowUpDown,
   Layers,
-  ShoppingBag
+  ShoppingBag,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
-import { updatePurchaseRequest } from '@/app/actions/procurement';
+import { updatePurchaseRequest, deletePurchaseRequest } from '@/app/actions/procurement';
 import SearchableProjectSelect, { ProjectOption } from '../components/SearchableProjectSelect';
 
 export function normalizeProjectName(name: string | null | undefined): string {
@@ -277,7 +278,9 @@ export default function PRListClient({
       if (searchTerm.trim()) {
         const query = searchTerm.toLowerCase();
         const matchesPrNumber = pr.prNumber?.toLowerCase().includes(query);
-        const matchesProject = pr.projectName?.toLowerCase().includes(query);
+        const matchesProject =
+          pr.projectName?.toLowerCase().includes(query) ||
+          normalizeProjectName(pr.projectName)?.toLowerCase().includes(query);
         const matchesRequester = pr.requestedBy?.toLowerCase().includes(query);
         const matchesItems = pr.itemList?.toLowerCase().includes(query);
         const matchesNote = pr.note?.toLowerCase().includes(query);
@@ -409,6 +412,60 @@ export default function PRListClient({
       });
     } finally {
       setIsSavingEdit(false);
+    }
+  };
+
+  const [isDeletingId, setIsDeletingId] = useState<number | null>(null);
+
+  const handleDeletePR = async (pr: any) => {
+    const hasPO = pr.purchaseOrders && pr.purchaseOrders.length > 0;
+    const result = await Swal.fire({
+      title: 'ยืนยันการลบใบขอซื้อ (PR)?',
+      html: `<div class="text-left text-xs text-gray-600 space-y-1.5">
+        <p>คุณต้องการลบใบขอซื้อเลขที่ <b class="font-mono text-red-600">${pr.prNumber}</b> ใช่หรือไม่?</p>
+        ${pr.projectName ? `<p><b>โครงการ:</b> ${pr.projectName}</p>` : ''}
+        ${pr.itemList ? `<p class="truncate text-gray-500"><b>รายการ:</b> ${pr.itemList}</p>` : ''}
+        ${hasPO ? `<div class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-medium mt-1">⚠️ ใบขอซื้อนี้มีใบสั่งซื้อ (PO) ที่เกี่ยวข้อง ${pr.purchaseOrders.length} ฉบับ</div>` : ''}
+        <p class="text-red-500 text-[11px] pt-1">เมื่อลบแล้ว รายการนี้จะถูกลบออกจากทั้งหน้ารายการจัดซื้อ และหน้ารายละเอียดโครงการที่เชื่อมโยงอยู่ทันที</p>
+      </div>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'ใช่, ลบใบขอซื้อนี้',
+      cancelButtonText: 'ยกเลิก',
+    });
+
+    if (!result.isConfirmed) return;
+
+    setIsDeletingId(pr.id);
+    try {
+      const res = await deletePurchaseRequest(pr.id);
+      if (res.success) {
+        setPrsList(prev => prev.filter(p => p.id !== pr.id));
+        Swal.fire({
+          title: 'ลบสำเร็จ',
+          text: `ลบใบขอซื้อ ${pr.prNumber} เรียบร้อยแล้ว`,
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        router.refresh();
+      } else {
+        Swal.fire({
+          title: 'เกิดข้อผิดพลาด',
+          text: res.error || 'ไม่สามารถลบใบขอซื้อได้',
+          icon: 'error',
+        });
+      }
+    } catch (err: any) {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: err?.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
+        icon: 'error',
+      });
+    } finally {
+      setIsDeletingId(null);
     }
   };
 
@@ -1015,15 +1072,27 @@ export default function PRListClient({
 
                         {/* Action Buttons */}
                         <td className="px-4 py-3.5 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            type="button"
-                            onClick={() => openEditModal(pr)}
-                            className="inline-flex items-center gap-1 text-xs px-2.5 py-1 text-blue-700 hover:text-white bg-blue-50 hover:bg-blue-600 border border-blue-200 hover:border-blue-600 rounded-lg transition-all font-medium shadow-2xs"
-                            title="แก้ไขข้อมูล PR"
-                          >
-                            <Edit3 size={13} />
-                            แก้ไข
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => openEditModal(pr)}
+                              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 text-blue-700 hover:text-white bg-blue-50 hover:bg-blue-600 border border-blue-200 hover:border-blue-600 rounded-lg transition-all font-medium shadow-2xs"
+                              title="แก้ไขข้อมูล PR"
+                            >
+                              <Edit3 size={13} />
+                              แก้ไข
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isDeletingId === pr.id}
+                              onClick={() => handleDeletePR(pr)}
+                              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 text-red-600 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 rounded-lg transition-all font-medium shadow-2xs"
+                              title="ลบใบขอซื้อ (PR)"
+                            >
+                              <Trash2 size={13} />
+                              {isDeletingId === pr.id ? 'กำลังลบ...' : 'ลบ'}
+                            </button>
+                          </div>
                         </td>
                       </tr>
 
@@ -1168,13 +1237,23 @@ export default function PRListClient({
                       <p className="text-xs text-gray-500 mt-0.5">{dateStr}</p>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(pr)}
-                      className="text-xs px-2.5 py-1 text-blue-700 bg-blue-50 border border-blue-200 rounded-lg font-medium inline-flex items-center gap-1"
-                    >
-                      <Edit3 size={12} /> แก้ไข
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(pr)}
+                        className="text-xs px-2.5 py-1 text-blue-700 bg-blue-50 border border-blue-200 rounded-lg font-medium inline-flex items-center gap-1"
+                      >
+                        <Edit3 size={12} /> แก้ไข
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isDeletingId === pr.id}
+                        onClick={() => handleDeletePR(pr)}
+                        className="text-xs px-2.5 py-1 text-red-600 bg-red-50 border border-red-200 rounded-lg font-medium inline-flex items-center gap-1"
+                      >
+                        <Trash2 size={12} /> ลบ
+                      </button>
+                    </div>
                   </div>
 
                   <div className="text-xs text-gray-700 space-y-1">
