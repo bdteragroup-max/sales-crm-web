@@ -69,11 +69,6 @@ model User {
   materialRequests        MaterialRequisition[]   @relation("MaterialRequester")
   bdMemberProjects        BDProject[]             @relation("BDProjectMembers")
   technicianOrders        Order[]                 @relation("OrderTechnicians")
-  marketingRequestsRequested  MarketingRequest[]      @relation("MarketingRequestRequester")
-  marketingRequestsAssigned   MarketingRequest[]      @relation("MarketingRequestAssignee")
-  marketingRequestsAssignedBy MarketingRequest[]      @relation("MarketingRequestAssigner")
-  marketingRequestComments    MarketingRequestComment[]
-  marketingRequestLogs        MarketingRequestLog[]
 }
 
 model MonthlyTarget {
@@ -506,21 +501,21 @@ model PaymentTask {
 }
 
 model CustomerCreditSetting {
-  id               String    @id @default(cuid())
-  customerName     String    @unique @map("customer_name")
-  taxId            String?   @map("tax_id")
-  companyId        String?   @map("company_id")
-  creditLimit      Float     @default(0) @map("credit_limit")
-  creditTermsDays  Int       @default(30) @map("credit_terms_days")
-  creditStatus     String    @default("ACTIVE") @map("credit_status")
-  billingCycleRule String?   @map("billing_cycle_rule")
-  notes            String?   @map("notes")
-  riskGrade        String?   @default("LOW") @map("risk_grade")
-  reviewedBy       String?   @map("reviewed_by")
-  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id               String   @id @default(cuid()) @db.VarChar(64)
+  customerName     String   @unique(map: "idx_customer_credit_settings_customer_name") @map("customer_name") @db.VarChar(255)
+  taxId            String?  @map("tax_id") @db.VarChar(50)
+  companyId        String?  @map("company_id") @db.VarChar(64)
+  creditLimit      Float    @default(0) @map("credit_limit")
+  creditTermsDays  Int      @default(30) @map("credit_terms_days")
+  creditStatus     String   @default("ACTIVE") @map("credit_status") @db.VarChar(50)
+  billingCycleRule String?  @map("billing_cycle_rule") @db.VarChar(255)
+  notes            String?  @map("notes")
+  riskGrade        String?  @default("LOW") @map("risk_grade") @db.VarChar(50)
+  reviewedBy       String?  @map("reviewed_by") @db.VarChar(100)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  @@index([taxId])
+  @@index([taxId], map: "idx_customer_credit_settings_tax_id")
   @@map("customer_credit_settings")
 }
 
@@ -2534,7 +2529,6 @@ model KanbanCard {
   attachments          KanbanAttachment[]
   list                 KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
   comments             KanbanComment[]
-  marketingRequests    MarketingRequest[]
 
   @@index([listId])
   @@index([assignedToId])
@@ -3438,10 +3432,6 @@ model MarketingRequest {
   kanbanCardId           String?
   createdAt              DateTime                     @default(now()) @db.Timestamptz(6)
   updatedAt              DateTime                     @default(now()) @updatedAt @db.Timestamptz(6)
-  requester              User                         @relation("MarketingRequestRequester", fields: [requesterId], references: [id])
-  assignedTo             User?                        @relation("MarketingRequestAssignee", fields: [assignedToId], references: [id])
-  assignedBy             User?                        @relation("MarketingRequestAssigner", fields: [assignedById], references: [id])
-  kanbanCard             KanbanCard?                  @relation(fields: [kanbanCardId], references: [id])
   attachments            MarketingRequestAttachment[]
   comments               MarketingRequestComment[]
   logs                   MarketingRequestLog[]
@@ -3476,10 +3466,8 @@ model MarketingRequestComment {
   createdAt  DateTime         @default(now()) @db.Timestamptz(6)
   updatedAt  DateTime         @default(now()) @updatedAt @db.Timestamptz(6)
   request    MarketingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  user       User             @relation(fields: [userId], references: [id])
 
   @@index([requestId])
-  @@index([userId])
 }
 
 model MarketingRequestLog {
@@ -3490,10 +3478,8 @@ model MarketingRequestLog {
   details    String?
   createdAt  DateTime         @default(now()) @db.Timestamptz(6)
   request    MarketingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  user       User?            @relation(fields: [userId], references: [id])
 
   @@index([requestId])
-  @@index([userId])
 }
 
 model MarketingAnnouncement {
@@ -3621,4 +3607,111 @@ model ad_import_jobs {
   createdAt    DateTime @default(now()) @db.Timestamptz(6)
 
   @@index([createdAt(sort: Desc)], map: "idx_ad_import_jobs_date")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_request_logs {
+  id                 BigInt           @id @default(autoincrement())
+  payment_request_id String           @db.VarChar(50)
+  action             String           @db.VarChar(100)
+  performed_by       String           @db.VarChar(255)
+  performed_by_id    String?          @db.VarChar(100)
+  from_status        String?          @db.VarChar(50)
+  to_status          String?          @db.VarChar(50)
+  notes              String?
+  created_at         DateTime?        @default(now()) @db.Timestamptz(6)
+  payment_requests   payment_requests @relation(fields: [payment_request_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([payment_request_id], map: "idx_payment_request_logs_req_id")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_request_sequences {
+  company       String @db.VarChar(20)
+  year_month    String @db.VarChar(10)
+  last_sequence Int    @default(0)
+
+  @@id([company, year_month])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_requests {
+  id                       String                 @id @db.VarChar(50)
+  pay_number               String                 @unique @db.VarChar(50)
+  company                  String                 @db.VarChar(20)
+  branch                   String                 @db.VarChar(100)
+  classification           String                 @db.VarChar(50)
+  urgency                  String                 @default("NORMAL") @db.VarChar(20)
+  status                   String                 @default("SUBMITTED") @db.VarChar(50)
+  requester_id             String?                @db.VarChar(100)
+  requester_name           String                 @db.VarChar(255)
+  requester_department     String?                @db.VarChar(100)
+  requester_phone          String?                @db.VarChar(50)
+  supplier_name            String                 @db.VarChar(255)
+  supplier_tax_id          String?                @db.VarChar(50)
+  bank_name                String?                @db.VarChar(100)
+  bank_account_no          String?                @db.VarChar(100)
+  payee_phone              String?                @db.VarChar(50)
+  document_date            DateTime               @db.Date
+  has_no_doc_number        Boolean?               @default(false)
+  invoice_number           String?                @db.VarChar(100)
+  subtotal_amount          Decimal                @default(0.00) @db.Decimal(14, 2)
+  vat_type                 String?                @default("NONE") @db.VarChar(20)
+  vat_amount               Decimal                @default(0.00) @db.Decimal(14, 2)
+  wht_type                 String?                @default("NONE") @db.VarChar(20)
+  wht_percent              Decimal?               @default(0.00) @db.Decimal(5, 2)
+  wht_amount               Decimal                @default(0.00) @db.Decimal(14, 2)
+  net_amount               Decimal                @default(0.00) @db.Decimal(14, 2)
+  purpose                  String
+  cost_center              String?                @db.VarChar(100)
+  po_pr_number             String?                @db.VarChar(100)
+  requested_payment_date   DateTime?              @db.Date
+  submission_channel       String?                @default("WEB") @db.VarChar(50)
+  ap_checked_by            String?                @db.VarChar(255)
+  ap_checked_at            DateTime?              @db.Timestamptz(6)
+  ap_notes                 String?
+  supervisor_checked_by    String?                @db.VarChar(255)
+  supervisor_checked_at    DateTime?              @db.Timestamptz(6)
+  supervisor_notes         String?
+  approved_by              String?                @db.VarChar(255)
+  approved_at              DateTime?              @db.Timestamptz(6)
+  approval_limit_tier      String?                @db.VarChar(50)
+  approval_notes           String?
+  paid_date                DateTime?              @db.Date
+  paid_by                  String?                @db.VarChar(255)
+  paid_from_bank           String?                @db.VarChar(100)
+  bank_reference_no        String?                @db.VarChar(100)
+  payment_slip_url         String?
+  payment_notes            String?
+  gl_posted_by             String?                @db.VarChar(255)
+  gl_posted_at             DateTime?              @db.Timestamptz(6)
+  gl_voucher_no            String?                @db.VarChar(100)
+  gl_notes                 String?
+  original_received_by     String?                @db.VarChar(255)
+  original_received_at     DateTime?              @db.Timestamptz(6)
+  original_stamp_text      String?                @default("RECEIVED ORIGINAL/PAID") @db.VarChar(255)
+  original_notes           String?
+  is_possible_duplicate    Boolean?               @default(false)
+  duplicate_reason         String?
+  duplicate_matches        Json?                  @default("[]")
+  attachments              Json?                  @default("[]")
+  cancelled_reason         String?
+  cancelled_by             String?                @db.VarChar(255)
+  cancelled_at             DateTime?              @db.Timestamptz(6)
+  created_at               DateTime?              @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime?              @default(now()) @db.Timestamptz(6)
+  requester_signature_url  String?
+  supervisor_signature_url String?
+  approver_signature_url   String?
+  bank_account_name        String?                @db.VarChar(255)
+  payment_method           String?                @db.VarChar(50)
+  payment_request_logs     payment_request_logs[]
+
+  @@index([branch], map: "idx_payment_requests_branch")
+  @@index([company], map: "idx_payment_requests_company")
+  @@index([created_at(sort: Desc)], map: "idx_payment_requests_created_at")
+  @@index([company, supplier_name, net_amount, document_date], map: "idx_payment_requests_duplicate_check")
+  @@index([company, supplier_name, invoice_number], map: "idx_payment_requests_invoice")
+  @@index([status], map: "idx_payment_requests_status")
+  @@index([supplier_name], map: "idx_payment_requests_supplier")
 }
