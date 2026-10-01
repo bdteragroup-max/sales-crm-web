@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS payment_requests (
   supplier_tax_id VARCHAR(50),
   bank_name VARCHAR(100),
   bank_account_no VARCHAR(100),
+  bank_account_name VARCHAR(255),
+  payment_method VARCHAR(50) DEFAULT 'BANK_TRANSFER',
   payee_phone VARCHAR(50),
   
   -- Document & Financial Breakdown

@@ -120,7 +120,7 @@ export default function PaymentRequestsClient({
       html: `<div class="text-xs text-gray-600 text-left space-y-1">
         <p>คุณต้องการลบคำขอเลขที่ <b class="text-red-600 font-mono">${r.pay_number}</b> ใช่หรือไม่?</p>
         <p class="text-gray-500">ผู้ขาย: <b>${r.supplier_name}</b> | ยอดสุทธิ: <b>${Number(r.net_amount).toLocaleString()} ฿</b></p>
-        <p class="text-red-500 font-medium mt-2">⚠️ ข้อมูลรายการและประวัติการตรวจสอบจะถูกลบอย่างถาวร</p>
+        <p class="text-red-500 font-medium mt-2">[คำเตือน] ข้อมูลรายการและประวัติการตรวจสอบจะถูกลบอย่างถาวร</p>
       </div>`,
       icon: 'warning',
       showCancelButton: true,
@@ -290,8 +290,10 @@ export default function PaymentRequestsClient({
       ยอดสุทธิ: Number(r.net_amount),
       วัตถุประสงค์: r.purpose,
       เลขที่PO_PR: r.po_pr_number || '-',
+      ช่องทางชำระ: r.payment_method === 'PROMPTPAY' ? 'พร้อมเพย์' : r.payment_method === 'CASH_CHEQUE' ? 'เงินสด/เช็ค' : 'โอนผ่านธนาคาร',
       ธนาคาร: r.bank_name || '-',
       เลขบัญชี: r.bank_account_no || '-',
+      ชื่อบัญชี: r.bank_account_name || r.supplier_name,
       วันที่จ่าย: r.paid_date || '-',
       เลขที่โอน: r.bank_reference_no || '-',
       ใบสำคัญGL: r.gl_voucher_no || '-',
@@ -687,8 +689,9 @@ export default function PaymentRequestsClient({
                           {statusStyle.label}
                         </span>
                         {r.is_possible_duplicate && r.status !== 'HOLD_DUPLICATE' && (
-                          <span className="block mt-1 text-[10px] font-bold text-red-700">
-                            ⚠️ ตรวจสอบซ้ำซ้อน
+                          <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-red-700">
+                            <AlertTriangle className="w-3 h-3 text-red-600 shrink-0" />
+                            <span>ตรวจสอบซ้ำซ้อน</span>
                           </span>
                         )}
                         {r.status === 'PAID' && !r.original_received_at && (
@@ -703,6 +706,20 @@ export default function PaymentRequestsClient({
                         <p className="font-bold text-gray-900 truncate max-w-[220px]">
                           {r.supplier_name}
                         </p>
+                        {r.bank_account_no && (
+                          <div className="flex items-center gap-1.5 mt-0.5 text-[11px]">
+                            <span className={`px-1 py-0.2 rounded text-[9px] font-bold ${
+                              r.payment_method === 'PROMPTPAY' || r.bank_name?.includes('พร้อมเพย์')
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : 'bg-slate-100 text-slate-700 border border-slate-200'
+                            }`}>
+                              {r.payment_method === 'PROMPTPAY' || r.bank_name?.includes('พร้อมเพย์') ? 'พร้อมเพย์' : 'ธนาคาร'}
+                            </span>
+                            <span className="font-mono font-medium text-gray-800 truncate max-w-[150px]" title={`${r.bank_name || ''} ${r.bank_account_no}`}>
+                              {r.bank_account_no}
+                            </span>
+                          </div>
+                        )}
                         <p className="text-[10px] text-gray-400 truncate max-w-[220px]">
                           {r.purpose}
                         </p>

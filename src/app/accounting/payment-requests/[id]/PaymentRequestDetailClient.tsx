@@ -15,8 +15,10 @@ import {
   cancelPaymentRequest,
   deletePaymentRequest,
   addPaymentRequestAttachments,
+  updatePaymentBankDetails,
 } from '@/app/actions/paymentRequests';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
+import { THAI_BANKS, PROMPTPAY_TYPES } from '../new/NewPaymentRequestClient';
 import {
   ChevronLeft,
   Building2,
@@ -45,6 +47,8 @@ import {
   CreditCard,
   BookOpen,
   Lock,
+  Edit2,
+  X,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { isAccountingManager } from '@/app/lib/roleHelper';
@@ -177,6 +181,50 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     navigator.clipboard.writeText(request.pay_number);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Copy Bank Number
+  const [copiedBankNo, setCopiedBankNo] = useState(false);
+  const handleCopyBankNumber = (val: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(val);
+      setCopiedBankNo(true);
+      setTimeout(() => setCopiedBankNo(false), 2000);
+    }
+  };
+
+  // Edit Bank Details State
+  const [isEditingBank, setIsEditingBank] = useState(false);
+  const [editPaymentMethod, setEditPaymentMethod] = useState(request.payment_method || (request.bank_name?.includes('พร้อมเพย์') ? 'PROMPTPAY' : 'BANK_TRANSFER'));
+  const [editBankName, setEditBankName] = useState(request.bank_name || '');
+  const [editBankAccountNo, setEditBankAccountNo] = useState(request.bank_account_no || '');
+  const [editBankAccountName, setEditBankAccountName] = useState(request.bank_account_name || '');
+  const [isSavingBank, setIsSavingBank] = useState(false);
+
+  const handleSaveBankDetails = async () => {
+    setIsSavingBank(true);
+    try {
+      const res = await updatePaymentBankDetails(request.id, {
+        payment_method: editPaymentMethod,
+        bank_name: editBankName.trim() || undefined,
+        bank_account_no: editBankAccountNo.trim() || undefined,
+        bank_account_name: editBankAccountName.trim() || undefined,
+        updated_by: userName,
+      });
+      if (res.success) {
+        request.payment_method = editPaymentMethod;
+        request.bank_name = editBankName.trim();
+        request.bank_account_no = editBankAccountNo.trim();
+        request.bank_account_name = editBankAccountName.trim();
+        setIsEditingBank(false);
+        Swal.fire({ title: 'อัปเดตข้อมูลบัญชีสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
+        router.refresh();
+      } else {
+        Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error, icon: 'error' });
+      }
+    } finally {
+      setIsSavingBank(false);
+    }
   };
 
   // AP Review Handler
@@ -421,7 +469,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       html: `<div class="text-xs text-gray-600 text-left space-y-1">
         <p>คุณต้องการลบคำขอเลขที่ <b class="text-red-600 font-mono">${request.pay_number}</b> ใช่หรือไม่?</p>
         <p class="text-gray-500">ผู้ขาย: <b>${request.supplier_name}</b> | ยอดสุทธิ: <b>${Number(request.net_amount).toLocaleString()} ฿</b></p>
-        <p class="text-red-500 font-medium mt-2">⚠️ ข้อมูลรายการและประวัติการตรวจสอบทั้งหมดจะถูกลบอย่างถาวร</p>
+        <p class="text-red-500 font-medium mt-2">[คำเตือน] ข้อมูลรายการและประวัติการตรวจสอบทั้งหมดจะถูกลบอย่างถาวร</p>
       </div>`,
       icon: 'warning',
       showCancelButton: true,
@@ -619,15 +667,69 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   </span>
                 )}
               </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">ข้อมูลบัญชีธนาคาร:</span>
-                <span className="font-semibold text-slate-800">
-                  {request.bank_name || 'พร้อมเพย์ / ไม่ระบุ'}
-                </span>
-                {request.bank_account_no && (
-                  <span className="block font-mono text-indigo-700 font-bold mt-0.5">
-                    เลขที่: {request.bank_account_no}
+              <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-200">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-slate-500 font-semibold text-[11px] flex items-center gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5 text-indigo-600" />
+                    ข้อมูลบัญชีสำหรับการโอนเงิน (Payment Destination):
                   </span>
+                  {!['PAID', 'POSTED_TO_GL', 'ORIGINAL_RECEIVED', 'CANCELLED'].includes(request.status) && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingBank(true)}
+                      className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold hover:underline inline-flex items-center gap-1"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                      <span>แก้ไขข้อมูลบัญชี</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    request.payment_method === 'PROMPTPAY' || request.bank_name?.includes('พร้อมเพย์')
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}>
+                    {request.payment_method === 'PROMPTPAY' || request.bank_name?.includes('พร้อมเพย์') ? 'พร้อมเพย์' : 'บัญชีธนาคาร'}
+                  </span>
+                  <span className="font-semibold text-slate-800">
+                    {request.bank_name || 'ไม่ระบุธนาคาร'}
+                  </span>
+                </div>
+
+                {request.bank_account_no ? (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="font-mono text-sm text-indigo-900 font-bold bg-white px-2.5 py-0.5 rounded border border-indigo-200 shadow-2xs">
+                      {request.bank_account_no}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyBankNumber(request.bank_account_no || '')}
+                      className="inline-flex items-center gap-1 text-[11px] text-slate-600 hover:text-indigo-700 bg-white hover:bg-slate-100 px-2 py-1 rounded border border-slate-200 transition"
+                      title="คัดลอกเลขบัญชี"
+                    >
+                      {copiedBankNo ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-600 font-medium">คัดลอกแล้ว</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>คัดลอก</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <span className="block text-slate-400 text-xs italic mt-0.5">ยังไม่ได้ระบุเลขที่บัญชี</span>
+                )}
+
+                {request.bank_account_name && (
+                  <div className="text-[11px] text-slate-600 mt-1">
+                    ชื่อบัญชี: <span className="font-semibold text-slate-900">{request.bank_account_name}</span>
+                  </div>
                 )}
               </div>
 
@@ -1165,6 +1267,150 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           </div>
         </div>
       </div>
+
+      {/* Edit Bank Details Modal for AR/Requester */}
+      {isEditingBank && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-200 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-sm font-bold text-slate-900">แก้ไขข้อมูลบัญชีสำหรับการโอนเงิน</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditingBank(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              {/* Method Switcher */}
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                  รูปแบบการรับเงิน
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditPaymentMethod('BANK_TRANSFER');
+                      if (editBankName.includes('พร้อมเพย์') || !editBankName) {
+                        setEditBankName('ธนาคารกสิกรไทย (KBANK)');
+                      }
+                    }}
+                    className={`py-2 px-3 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
+                      editPaymentMethod === 'BANK_TRANSFER'
+                        ? 'bg-indigo-50 text-indigo-700 border-indigo-300 shadow-2xs'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>บัญชีธนาคาร</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditPaymentMethod('PROMPTPAY');
+                      if (!editBankName.includes('พร้อมเพย์')) {
+                        setEditBankName('พร้อมเพย์ (เบอร์โทรศัพท์ (Mobile))');
+                      }
+                    }}
+                    className={`py-2 px-3 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
+                      editPaymentMethod === 'PROMPTPAY'
+                        ? 'bg-blue-50 text-blue-700 border-blue-300 shadow-2xs'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Zap className="w-3.5 h-3.5 text-blue-600" />
+                    <span>พร้อมเพย์</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Bank Name / Type */}
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                  {editPaymentMethod === 'PROMPTPAY' ? 'ประเภทพร้อมเพย์' : 'ธนาคารผู้รับเงิน'}
+                </label>
+                {editPaymentMethod === 'BANK_TRANSFER' ? (
+                  <select
+                    value={editBankName}
+                    onChange={(e) => setEditBankName(e.target.value)}
+                    className="w-full text-xs rounded-xl border border-slate-300 py-2 px-3 bg-white"
+                  >
+                    {THAI_BANKS.map((b) => (
+                      <option key={b.code} value={b.name}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <select
+                    value={editBankName}
+                    onChange={(e) => setEditBankName(e.target.value)}
+                    className="w-full text-xs rounded-xl border border-slate-300 py-2 px-3 bg-white"
+                  >
+                    {PROMPTPAY_TYPES.map((pt) => (
+                      <option key={pt.id} value={`พร้อมเพย์ (${pt.label})`}>
+                        {pt.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {/* Account Number */}
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                  {editPaymentMethod === 'PROMPTPAY' ? 'หมายเลขพร้อมเพย์' : 'เลขที่บัญชีธนาคาร'}
+                </label>
+                <input
+                  type="text"
+                  value={editBankAccountNo}
+                  onChange={(e) => setEditBankAccountNo(e.target.value)}
+                  placeholder="ระบุเลขที่บัญชี หรือ หมายเลขพร้อมเพย์"
+                  className="w-full text-xs font-mono font-bold rounded-xl border border-slate-300 py-2 px-3 bg-white"
+                />
+              </div>
+
+              {/* Account Name */}
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                  ชื่อบัญชีผู้รับเงิน (Account Name)
+                </label>
+                <input
+                  type="text"
+                  value={editBankAccountName}
+                  onChange={(e) => setEditBankAccountName(e.target.value)}
+                  placeholder={request.supplier_name ? `เช่น ${request.supplier_name}` : 'ชื่อเจ้าของบัญชี'}
+                  className="w-full text-xs rounded-xl border border-slate-300 py-2 px-3 bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsEditingBank(false)}
+                className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                disabled={isSavingBank}
+                onClick={handleSaveBankDetails}
+                className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition flex items-center gap-1.5 shadow-sm"
+              >
+                {isSavingBank ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Printable Payment Voucher Modal */}
       {showVoucherModal && (

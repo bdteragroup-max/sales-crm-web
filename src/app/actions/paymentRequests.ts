@@ -44,6 +44,8 @@ export type PaymentRequestRecord = {
   supplier_tax_id?: string | null;
   bank_name?: string | null;
   bank_account_no?: string | null;
+  bank_account_name?: string | null;
+  payment_method?: string | null;
   payee_phone?: string | null;
   document_date: string;
   has_no_doc_number: boolean;
@@ -442,6 +444,8 @@ export async function createPaymentRequest(data: {
   supplier_tax_id?: string;
   bank_name?: string;
   bank_account_no?: string;
+  bank_account_name?: string;
+  payment_method?: string;
   payee_phone?: string;
   document_date: string;
   has_no_doc_number: boolean;
@@ -520,7 +524,7 @@ export async function createPaymentRequest(data: {
       `INSERT INTO payment_requests (
         id, pay_number, company, branch, classification, urgency, status,
         requester_id, requester_name, requester_department, requester_phone,
-        supplier_name, supplier_tax_id, bank_name, bank_account_no, payee_phone,
+        supplier_name, supplier_tax_id, bank_name, bank_account_no, bank_account_name, payment_method, payee_phone,
         document_date, has_no_doc_number, invoice_number,
         subtotal_amount, vat_type, vat_amount, wht_type, wht_percent, wht_amount, net_amount,
         purpose, cost_center, po_pr_number, requested_payment_date, submission_channel,
@@ -528,11 +532,11 @@ export async function createPaymentRequest(data: {
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11,
-        $12, $13, $14, $15, $16,
-        $17, $18, $19,
-        $20, $21, $22, $23, $24, $25, $26,
-        $27, $28, $29, $30, $31,
-        $32, $33, $34, $35
+        $12, $13, $14, $15, $16, $17, $18,
+        $19, $20, $21,
+        $22, $23, $24, $25, $26, $27, $28,
+        $29, $30, $31, $32, $33,
+        $34, $35, $36, $37
       )`,
       [
         id,
@@ -550,6 +554,8 @@ export async function createPaymentRequest(data: {
         data.supplier_tax_id || null,
         data.bank_name || null,
         data.bank_account_no || null,
+        data.bank_account_name || null,
+        data.payment_method || 'BANK_TRANSFER',
         data.payee_phone || null,
         data.document_date,
         data.has_no_doc_number || false,
@@ -1104,4 +1110,64 @@ export async function updatePaymentRequestSignatures(
     return { success: false, error: err.message };
   }
 }
+
+// Update payment recipient bank details (for AR / AP / Requester updates)
+export async function updatePaymentBankDetails(
+  id: string,
+  data: {
+    payment_method?: string;
+    bank_name?: string;
+    bank_account_no?: string;
+    bank_account_name?: string;
+    updated_by: string;
+  }
+) {
+  const pool = getPool();
+  try {
+    const fields: string[] = [];
+    const values: any[] = [];
+    let idx = 1;
+
+    if (data.payment_method !== undefined) {
+      fields.push(`payment_method = $${idx++}`);
+      values.push(data.payment_method);
+    }
+    if (data.bank_name !== undefined) {
+      fields.push(`bank_name = $${idx++}`);
+      values.push(data.bank_name);
+    }
+    if (data.bank_account_no !== undefined) {
+      fields.push(`bank_account_no = $${idx++}`);
+      values.push(data.bank_account_no);
+    }
+    if (data.bank_account_name !== undefined) {
+      fields.push(`bank_account_name = $${idx++}`);
+      values.push(data.bank_account_name);
+    }
+
+    if (fields.length === 0) return { success: true };
+
+    values.push(id);
+    const sql = `UPDATE payment_requests SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $${idx}`;
+    await pool.query(sql, values);
+
+    // Audit log
+    const desc = `แก้ไขข้อมูลการโอนเงิน: ${data.bank_name || ''} ${data.bank_account_no || ''} ${data.bank_account_name ? `(${data.bank_account_name})` : ''}`.trim();
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, notes)
+       VALUES ($1, 'UPDATE_BANK_DETAILS', $2, $3)`,
+      [id, data.updated_by, desc]
+    );
+
+    revalidatePath(`/accounting/payment-requests/${id}`);
+    revalidatePath('/accounting/payment-requests');
+    revalidatePath('/accounting/payment-requests/new');
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Failed to update bank details:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 

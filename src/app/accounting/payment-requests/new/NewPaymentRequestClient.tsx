@@ -88,6 +88,32 @@ const DEFAULT_BRANCHES = [
   { id: 'UDN01', name: 'อุดรธานี' },
 ];
 
+export const THAI_BANKS = [
+  { code: 'KBANK', name: 'ธนาคารกสิกรไทย (KBANK)', shortName: 'กสิกรไทย', badgeBg: 'bg-emerald-50', badgeText: 'text-emerald-800', dotColor: 'bg-emerald-600', ringColor: 'ring-emerald-500' },
+  { code: 'SCB', name: 'ธนาคารไทยพาณิชย์ (SCB)', shortName: 'ไทยพาณิชย์', badgeBg: 'bg-purple-50', badgeText: 'text-purple-800', dotColor: 'bg-purple-700', ringColor: 'ring-purple-500' },
+  { code: 'BBL', name: 'ธนาคารกรุงเทพ (BBL)', shortName: 'กรุงเทพ', badgeBg: 'bg-blue-50', badgeText: 'text-blue-800', dotColor: 'bg-blue-800', ringColor: 'ring-blue-600' },
+  { code: 'KTB', name: 'ธนาคารกรุงไทย (KTB)', shortName: 'กรุงไทย', badgeBg: 'bg-sky-50', badgeText: 'text-sky-800', dotColor: 'bg-sky-500', ringColor: 'ring-sky-500' },
+  { code: 'TTB', name: 'ธนาคารทหารไทยธนชาต (ttb)', shortName: 'ทีทีบี (ttb)', badgeBg: 'bg-blue-50', badgeText: 'text-blue-900', dotColor: 'bg-blue-600', ringColor: 'ring-blue-500' },
+  { code: 'BAY', name: 'ธนาคารกรุงศรีอยุธยา (BAY)', shortName: 'กรุงศรี', badgeBg: 'bg-amber-50', badgeText: 'text-amber-800', dotColor: 'bg-amber-500', ringColor: 'ring-amber-500' },
+  { code: 'GSB', name: 'ธนาคารออมสิน (GSB)', shortName: 'ออมสิน', badgeBg: 'bg-pink-50', badgeText: 'text-pink-800', dotColor: 'bg-pink-600', ringColor: 'ring-pink-500' },
+  { code: 'BAAC', name: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส.)', shortName: 'ธ.ก.ส.', badgeBg: 'bg-green-50', badgeText: 'text-green-800', dotColor: 'bg-green-700', ringColor: 'ring-green-600' },
+  { code: 'UOB', name: 'ธนาคารยูโอบี (UOB)', shortName: 'ยูโอบี', badgeBg: 'bg-indigo-50', badgeText: 'text-indigo-800', dotColor: 'bg-indigo-800', ringColor: 'ring-indigo-600' },
+  { code: 'CIMB', name: 'ธนาคารซีไอเอ็มบีไทย (CIMB)', shortName: 'ซีไอเอ็มบี', badgeBg: 'bg-red-50', badgeText: 'text-red-800', dotColor: 'bg-red-700', ringColor: 'ring-red-600' },
+  { code: 'KKP', name: 'ธนาคารเกียรตินาคินภัทร (KKP)', shortName: 'เกียรตินาคิน', badgeBg: 'bg-purple-50', badgeText: 'text-purple-900', dotColor: 'bg-purple-900', ringColor: 'ring-purple-600' },
+  { code: 'TISCO', name: 'ธนาคารทิสโก้ (TISCO)', shortName: 'ทิสโก้', badgeBg: 'bg-blue-50', badgeText: 'text-blue-800', dotColor: 'bg-blue-700', ringColor: 'ring-blue-500' },
+  { code: 'LHBANK', name: 'ธนาคารแลนด์ แอนด์ เฮ้าส์ (LH Bank)', shortName: 'แลนด์ แอนด์ เฮ้าส์', badgeBg: 'bg-cyan-50', badgeText: 'text-cyan-800', dotColor: 'bg-cyan-700', ringColor: 'ring-cyan-600' },
+  { code: 'OTHER', name: 'ธนาคารอื่นๆ (ระบุเอง)', shortName: 'อื่นๆ', badgeBg: 'bg-gray-100', badgeText: 'text-gray-800', dotColor: 'bg-gray-500', ringColor: 'ring-gray-400' },
+];
+
+export const TOP_BANKS = THAI_BANKS.slice(0, 7);
+
+export const PROMPTPAY_TYPES = [
+  { id: 'PHONE', label: 'เบอร์โทรศัพท์ (Mobile)', placeholder: '08X-XXX-XXXX (10 หลัก)', hint: 'ระบุเบอร์โทรศัพท์มือถือที่ลงทะเบียนพร้อมเพย์' },
+  { id: 'CITIZEN_ID', label: 'เลขบัตรประชาชน (Citizen ID)', placeholder: 'X-XXXX-XXXXX-XX-X (13 หลัก)', hint: 'ระบุเลขประจำตัวประชาชน 13 หลักของผู้รับเงิน' },
+  { id: 'TAX_ID', label: 'เลขประจำตัวผู้เสียภาษี (Tax ID)', placeholder: '0-XXXXXXXXXX-XX (13 หลัก)', hint: 'ระบุเลขประจำตัวผู้เสียภาษี 13 หลักของนิติบุคคลหรือร้านค้า' },
+  { id: 'E_WALLET', label: 'e-Wallet ID', placeholder: '15 หลัก', hint: 'ระบุ e-Wallet ID 15 หลัก' },
+];
+
 export default function NewPaymentRequestClient({
   currentUser,
   branches,
@@ -247,9 +273,23 @@ export default function NewPaymentRequestClient({
   // Supplier / Payee
   const [supplierName, setSupplierName] = useState('');
   const [supplierTaxId, setSupplierTaxId] = useState('');
-  const [bankName, setBankName] = useState('');
-  const [bankAccountNo, setBankAccountNo] = useState('');
   const [payeePhone, setPayeePhone] = useState('');
+
+  // Payment Destination & Bank / PromptPay Details (for AR / AP Team)
+  const [paymentMethod, setPaymentMethod] = useState<'BANK_TRANSFER' | 'PROMPTPAY' | 'CASH_CHEQUE'>('BANK_TRANSFER');
+  const [selectedBankCode, setSelectedBankCode] = useState<string>('KBANK');
+  const [bankName, setBankName] = useState('ธนาคารกสิกรไทย (KBANK)');
+  const [customBankName, setCustomBankName] = useState('');
+  const [bankAccountNo, setBankAccountNo] = useState('');
+  const [bankAccountName, setBankAccountName] = useState('');
+
+  // PromptPay specifics
+  const [promptPayType, setPromptPayType] = useState<'PHONE' | 'CITIZEN_ID' | 'TAX_ID' | 'E_WALLET'>('PHONE');
+  const [promptPayNumber, setPromptPayNumber] = useState('');
+  const [promptPayAccountName, setPromptPayAccountName] = useState('');
+
+  // Cash / Cheque specifics
+  const [cashChequeNote, setCashChequeNote] = useState('');
 
   // Document details
   const [documentDate, setDocumentDate] = useState(new Date().toISOString().split('T')[0]);
@@ -431,7 +471,7 @@ export default function NewPaymentRequestClient({
     // Exact Duplicate Confirmation
     if (dupResult?.isExactDuplicate) {
       const confirm = await Swal.fire({
-        title: '⚠️ ตรวจพบเอกสารซ้ำซ้อน 100%!',
+        title: 'ตรวจพบเอกสารซ้ำซ้อน 100%!',
         html: `<p class="text-sm text-gray-700">เลขที่บิล <b>${invoiceNumber}</b> ของ <b>${supplierName}</b> เคยถูกบันทึกในระบบแล้ว (${dupResult.exactMatches[0].pay_number})</p><p class="text-xs text-red-600 mt-2 font-semibold">หากยืนยันการส่ง คำขอนี้จะถูกระงับชั่วคราว (HOLD-DUPLICATE) ทันทีเพื่อรอการตรวจสอบจากฝ่ายบัญชี</p>`,
         icon: 'error',
         showCancelButton: true,
@@ -446,6 +486,26 @@ export default function NewPaymentRequestClient({
     try {
       const finalBranch = branch === 'อื่นๆ (ระบุ)' ? (customBranch || 'สำนักงานใหญ่') : branch;
 
+      let finalBankName = bankName;
+      let finalAccountNo = bankAccountNo;
+      let finalAccountName = bankAccountName;
+
+      if (paymentMethod === 'BANK_TRANSFER') {
+        const found = THAI_BANKS.find((b) => b.code === selectedBankCode);
+        finalBankName = selectedBankCode === 'OTHER' ? (customBankName.trim() || 'ธนาคารอื่นๆ') : (found ? found.name : selectedBankCode);
+        finalAccountNo = bankAccountNo.trim();
+        finalAccountName = bankAccountName.trim() || supplierName.trim();
+      } else if (paymentMethod === 'PROMPTPAY') {
+        const pt = PROMPTPAY_TYPES.find((t) => t.id === promptPayType);
+        finalBankName = `พร้อมเพย์ (${pt?.label || 'PromptPay'})`;
+        finalAccountNo = promptPayNumber.trim();
+        finalAccountName = promptPayAccountName.trim() || supplierName.trim();
+      } else if (paymentMethod === 'CASH_CHEQUE') {
+        finalBankName = 'เงินสด / เช็ค';
+        finalAccountNo = cashChequeNote.trim() || 'ชำระเงินสดหรือเช็ค';
+        finalAccountName = supplierName.trim();
+      }
+
       const res = await createPaymentRequest({
         company,
         branch: finalBranch,
@@ -457,8 +517,10 @@ export default function NewPaymentRequestClient({
         requester_phone: requesterPhone.trim() || undefined,
         supplier_name: supplierName.trim(),
         supplier_tax_id: supplierTaxId.trim() || undefined,
-        bank_name: bankName.trim() || undefined,
-        bank_account_no: bankAccountNo.trim() || undefined,
+        payment_method: paymentMethod,
+        bank_name: finalBankName.trim() || undefined,
+        bank_account_no: finalAccountNo.trim() || undefined,
+        bank_account_name: finalAccountName.trim() || undefined,
         payee_phone: payeePhone.trim() || undefined,
         document_date: documentDate,
         has_no_doc_number: hasNoDocNumber,
@@ -484,7 +546,7 @@ export default function NewPaymentRequestClient({
           html: `<div class="text-left text-xs text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200">
             <p>เลขที่คำขอ: <b class="font-mono text-red-600 text-sm">${res.payNumber}</b></p>
             <p>สถานะ: <b>${res.status}</b></p>
-            ${res.isPossibleDuplicate ? `<p class="text-red-700 mt-1">⚠️ ระบบแจ้งเตือนตรวจสอบความซ้ำซ้อน</p>` : ''}
+            ${res.isPossibleDuplicate ? `<p class="text-red-700 mt-1 font-medium">[แจ้งเตือน] ระบบส่งสัญญาณตรวจสอบความซ้ำซ้อน</p>` : ''}
           </div>`,
           icon: 'success',
           confirmButtonColor: '#dc2626',
@@ -748,7 +810,8 @@ export default function NewPaymentRequestClient({
             </div>
             <div className="flex-1 text-xs text-red-950">
               <h3 className="font-bold text-sm text-red-800 flex items-center gap-2">
-                🚨 ตรวจพบเอกสารซ้ำซ้อน 100% (Exact Duplicate Detected)
+                <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
+                <span>ตรวจพบเอกสารซ้ำซ้อน 100% (Exact Duplicate Detected)</span>
                 <span className="px-2 py-0.5 bg-red-600 text-white rounded text-[10px] font-mono">
                   BLOCK / HOLD
                 </span>
@@ -790,8 +853,9 @@ export default function NewPaymentRequestClient({
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div className="flex-1 text-xs text-gray-900">
-              <h3 className="font-bold text-sm text-red-800">
-                ⚠️ แจ้งเตือน: พบรายการที่อาจซ้ำซ้อน (Possible Duplicate Alert)
+              <h3 className="font-bold text-sm text-red-800 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>แจ้งเตือน: พบรายการที่อาจซ้ำซ้อน (Possible Duplicate Alert)</span>
               </h3>
               <p className="mt-1 leading-relaxed text-gray-600">
                 ตรวจพบยอดเงิน <b className="text-gray-900 font-mono">{netPayable.toLocaleString()} บาท</b> วันที่{' '}
@@ -1178,30 +1242,329 @@ export default function NewPaymentRequestClient({
                         className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
                       />
                     </div>
+                  </div>
+                </div>
 
-                    <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">ธนาคารผู้รับเงิน</label>
-                      <input
-                        type="text"
-                        value={bankName}
-                        onChange={(e) => setBankName(e.target.value)}
-                        placeholder="เช่น กสิกรไทย, ไทยพาณิชย์"
-                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
-                      />
+                {/* Dedicated Payment Method & Bank / PromptPay Section for AR Team */}
+                <div className="p-4 bg-slate-50/90 rounded-xl border border-slate-200/90 space-y-3.5 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                        <CreditCard className="w-3.5 h-3.5" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-gray-900 block leading-tight">
+                          ข้อมูลการรับเงิน (ช่องทางโอนเงิน / พร้อมเพย์)
+                        </span>
+                        <span className="text-[10px] text-gray-500">
+                          ข้อมูลสำหรับฝ่ายการเงินและบัญชี (AR / AP Team) ใช้ในการโอนเงิน
+                        </span>
+                      </div>
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
-                        เลขที่บัญชี / พร้อมเพย์
+                  {/* Payment Method Switcher */}
+                  <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-200/70 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod('BANK_TRANSFER');
+                        const found = THAI_BANKS.find(b => b.code === selectedBankCode);
+                        if (found) setBankName(found.name);
+                      }}
+                      className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                        paymentMethod === 'BANK_TRANSFER'
+                          ? 'bg-white text-gray-900 shadow-xs border border-gray-200/60'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                      <span>บัญชีธนาคาร</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('PROMPTPAY')}
+                      className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                        paymentMethod === 'PROMPTPAY'
+                          ? 'bg-white text-blue-700 shadow-xs border border-gray-200/60'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-500" />
+                      <span>พร้อมเพย์</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('CASH_CHEQUE')}
+                      className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                        paymentMethod === 'CASH_CHEQUE'
+                          ? 'bg-white text-gray-900 shadow-xs border border-gray-200/60'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>เงินสด / เช็ค</span>
+                    </button>
+                  </div>
+
+                  {/* BANK TRANSFER TAB */}
+                  {paymentMethod === 'BANK_TRANSFER' && (
+                    <div className="space-y-3 pt-1 animate-in fade-in duration-150">
+                      {/* Top Banks Quick Selector Chips */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-[11px] font-semibold text-gray-700">
+                            เลือกธนาคารผู้รับเงิน <span className="text-red-600">*</span>
+                          </label>
+                          <span className="text-[10px] text-gray-400">เลือกจากยอดนิยม หรือค้นหาจากรายการ</span>
+                        </div>
+                        <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 mb-2">
+                          {TOP_BANKS.map((b) => {
+                            const isSelected = selectedBankCode === b.code;
+                            return (
+                              <button
+                                key={b.code}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedBankCode(b.code);
+                                  setBankName(b.name);
+                                }}
+                                className={`py-1.5 px-1 rounded-lg text-[11px] font-bold border transition text-center flex flex-col items-center justify-center gap-0.5 ${
+                                  isSelected
+                                    ? `${b.badgeBg} ${b.badgeText} ring-2 ${b.ringColor} border-transparent shadow-xs`
+                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                }`}
+                              >
+                                <span className={`w-2.5 h-2.5 rounded-full ${b.dotColor}`} />
+                                <span className="truncate w-full text-[10px]">{b.shortName}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Full Bank Selection Dropdown */}
+                        <select
+                          value={selectedBankCode}
+                          onChange={(e) => {
+                            const code = e.target.value;
+                            setSelectedBankCode(code);
+                            const found = THAI_BANKS.find((b) => b.code === code);
+                            if (found && code !== 'OTHER') {
+                              setBankName(found.name);
+                            } else if (code === 'OTHER') {
+                              setBankName(customBankName);
+                            }
+                          }}
+                          className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 font-medium"
+                        >
+                          {THAI_BANKS.map((b) => (
+                            <option key={b.code} value={b.code}>
+                              {b.name}
+                            </option>
+                          ))}
+                        </select>
+
+                        {selectedBankCode === 'OTHER' && (
+                          <input
+                            type="text"
+                            required
+                            placeholder="ระบุชื่อธนาคาร เช่น ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร"
+                            value={customBankName}
+                            onChange={(e) => {
+                              setCustomBankName(e.target.value);
+                              setBankName(e.target.value);
+                            }}
+                            className="mt-2 w-full text-xs rounded-xl border border-red-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                          />
+                        )}
+                      </div>
+
+                      {/* Bank Account Number & Account Name */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-gray-700 mb-0.5">
+                            เลขที่บัญชีธนาคาร <span className="text-red-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={bankAccountNo}
+                            onChange={(e) => setBankAccountNo(e.target.value)}
+                            placeholder="เช่น 045-2-99881-2 (10-12 หลัก)"
+                            className="w-full text-xs font-mono font-bold rounded-lg border border-gray-300 py-2 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 placeholder:text-gray-400 placeholder:font-normal"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <label className="block text-[11px] font-semibold text-gray-700">
+                              ชื่อบัญชีผู้รับเงิน (Account Name)
+                            </label>
+                            {supplierName.trim() && (
+                              <button
+                                type="button"
+                                onClick={() => setBankAccountName(supplierName.trim())}
+                                className="text-[10px] text-red-600 hover:text-red-700 font-semibold hover:underline"
+                              >
+                                + ใช้ชื่อผู้รับเงิน
+                              </button>
+                            )}
+                          </div>
+                          <input
+                            type="text"
+                            value={bankAccountName}
+                            onChange={(e) => setBankAccountName(e.target.value)}
+                            placeholder={supplierName ? `เช่น ${supplierName}` : 'ชื่อบัญชีที่ระบุในสมุดบัญชี'}
+                            className="w-full text-xs rounded-lg border border-gray-300 py-2 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PROMPTPAY TAB */}
+                  {paymentMethod === 'PROMPTPAY' && (
+                    <div className="space-y-3 pt-1 animate-in fade-in duration-150">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-700 mb-1.5">
+                          ประเภทพร้อมเพย์ (PromptPay Type) <span className="text-red-600">*</span>
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                          {PROMPTPAY_TYPES.map((pt) => {
+                            const isSelected = promptPayType === pt.id;
+                            return (
+                              <button
+                                key={pt.id}
+                                type="button"
+                                onClick={() => setPromptPayType(pt.id as any)}
+                                className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition text-center ${
+                                  isSelected
+                                    ? 'bg-blue-50 text-blue-800 border-blue-300 ring-2 ring-blue-100 shadow-xs'
+                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                }`}
+                              >
+                                {pt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <label className="block text-[11px] font-semibold text-gray-700">
+                              หมายเลขพร้อมเพย์ <span className="text-red-600">*</span>
+                            </label>
+                            {promptPayType === 'PHONE' && payeePhone.trim() && (
+                              <button
+                                type="button"
+                                onClick={() => setPromptPayNumber(payeePhone.trim())}
+                                className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+                              >
+                                + ใช้เบอร์โทร
+                              </button>
+                            )}
+                            {promptPayType === 'TAX_ID' && supplierTaxId.trim() && (
+                              <button
+                                type="button"
+                                onClick={() => setPromptPayNumber(supplierTaxId.trim())}
+                                className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+                              >
+                                + ใช้เลขผู้เสียภาษี
+                              </button>
+                            )}
+                          </div>
+                          <input
+                            type="text"
+                            value={promptPayNumber}
+                            onChange={(e) => setPromptPayNumber(e.target.value)}
+                            placeholder={
+                              promptPayType === 'PHONE'
+                                ? '08X-XXX-XXXX'
+                                : promptPayType === 'CITIZEN_ID'
+                                ? 'X-XXXX-XXXXX-XX-X'
+                                : promptPayType === 'TAX_ID'
+                                ? '0-XXXXXXXXXX-XX'
+                                : 'ระบุรหัส e-Wallet 15 หลัก'
+                            }
+                            className="w-full text-xs font-mono font-bold rounded-lg border border-gray-300 py-2 px-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder:text-gray-400 placeholder:font-normal"
+                          />
+                          <span className="text-[10px] text-gray-400 mt-0.5 block">
+                            {PROMPTPAY_TYPES.find((t) => t.id === promptPayType)?.hint}
+                          </span>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <label className="block text-[11px] font-semibold text-gray-700">
+                              ชื่อบัญชีพร้อมเพย์ (Account Name)
+                            </label>
+                            {supplierName.trim() && (
+                              <button
+                                type="button"
+                                onClick={() => setPromptPayAccountName(supplierName.trim())}
+                                className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+                              >
+                                + ใช้ชื่อผู้รับเงิน
+                              </button>
+                            )}
+                          </div>
+                          <input
+                            type="text"
+                            value={promptPayAccountName}
+                            onChange={(e) => setPromptPayAccountName(e.target.value)}
+                            placeholder={supplierName ? `เช่น ${supplierName}` : 'ชื่อเจ้าของบัญชีพร้อมเพย์'}
+                            className="w-full text-xs rounded-lg border border-gray-300 py-2 px-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CASH / CHEQUE TAB */}
+                  {paymentMethod === 'CASH_CHEQUE' && (
+                    <div className="space-y-2 pt-1 animate-in fade-in duration-150">
+                      <label className="block text-[11px] font-semibold text-gray-700 mb-0.5">
+                        รายละเอียดการจ่ายเงินสด / สั่งจ่ายเช็ค
                       </label>
                       <input
                         type="text"
-                        value={bankAccountNo}
-                        onChange={(e) => setBankAccountNo(e.target.value)}
-                        placeholder="xxx-x-xxxxx-x"
-                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-mono"
+                        value={cashChequeNote}
+                        onChange={(e) => setCashChequeNote(e.target.value)}
+                        placeholder="เช่น เบิกเงินสดจากฝ่ายการเงินสำนักงานใหญ่ หรือ สั่งจ่ายเช็คขีดคร่อม A/C Payee Only"
+                        className="w-full text-xs rounded-lg border border-gray-300 py-2 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-gray-900"
                       />
                     </div>
+                  )}
+
+                  {/* Live AR / AP Preview Summary Card */}
+                  <div className="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] flex items-center justify-between text-gray-700 shadow-2xs">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <span className="font-semibold text-gray-900">สรุปข้อมูลโอนเงินสำหรับฝ่ายบัญชี (AR/AP): </span>
+                        <span className="text-gray-600">
+                          {paymentMethod === 'BANK_TRANSFER' ? (
+                            bankAccountNo.trim() ? (
+                              <>
+                                <b className="text-gray-900">{selectedBankCode === 'OTHER' ? (customBankName || 'ธนาคารอื่นๆ') : THAI_BANKS.find(b => b.code === selectedBankCode)?.shortName}</b> • เลขที่ <b className="font-mono text-red-600">{bankAccountNo}</b> {bankAccountName || supplierName ? `(${bankAccountName || supplierName})` : ''}
+                              </>
+                            ) : <span className="text-amber-600">ยังไม่ได้ระบุเลขที่บัญชี</span>
+                          ) : paymentMethod === 'PROMPTPAY' ? (
+                            promptPayNumber.trim() ? (
+                              <>
+                                <b className="text-blue-700">พร้อมเพย์ ({PROMPTPAY_TYPES.find(t => t.id === promptPayType)?.label})</b> • หมายเลข <b className="font-mono text-blue-700">{promptPayNumber}</b> {promptPayAccountName || supplierName ? `(${promptPayAccountName || supplierName})` : ''}
+                              </>
+                            ) : <span className="text-amber-600">ยังไม่ได้ระบุหมายเลขพร้อมเพย์</span>
+                          ) : (
+                            cashChequeNote ? `เงินสด/เช็ค: ${cashChequeNote}` : 'เงินสด / เช็ค'
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-gray-400 font-mono hidden sm:inline">
+                      {paymentMethod === 'BANK_TRANSFER' ? 'BANK' : paymentMethod === 'PROMPTPAY' ? 'PROMPTPAY' : 'CASH'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1595,7 +1958,7 @@ export default function NewPaymentRequestClient({
             >
               {isSubmitting ? (
                 <>
-                  <span className="animate-spin text-sm">⏳</span> กำลังส่งคำขอ...
+                  <RefreshCw className="w-4 h-4 animate-spin" /> กำลังส่งคำขอ...
                 </>
               ) : (
                 <>
@@ -1686,7 +2049,7 @@ export default function NewPaymentRequestClient({
                   <option value="READY">อนุมัติแล้ว/พร้อมโอน ({approvedCount})</option>
                   <option value="PAID">โอนเงินสำเร็จ ({paidCount})</option>
                   {attentionCount > 0 && (
-                    <option value="ATTENTION">⚠️ ต้องตรวจสอบ/ส่งคืน ({attentionCount})</option>
+                    <option value="ATTENTION">ต้องตรวจสอบ / ส่งคืน ({attentionCount})</option>
                   )}
                 </select>
               </div>
@@ -1831,10 +2194,33 @@ export default function NewPaymentRequestClient({
                               <span className="text-gray-400">วันที่เอกสาร:</span>
                               <span className="font-medium text-gray-800">{formatDisplayDate(req.document_date)}</span>
                             </div>
-                            {req.bank_name && (
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-gray-400">ธนาคาร:</span>
-                                <span className="font-medium text-gray-800">{req.bank_name} {req.bank_account_no}</span>
+                            {(req.bank_name || req.bank_account_no) && (
+                              <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-200 text-[11px]">
+                                {req.payment_method === 'PROMPTPAY' || req.bank_name?.includes('พร้อมเพย์') ? (
+                                  <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-blue-100 text-blue-700">พร้อมเพย์</span>
+                                ) : (
+                                  <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-200 text-slate-800">ธนาคาร</span>
+                                )}
+                                <span className="font-medium text-gray-800">{req.bank_name}</span>
+                                {req.bank_account_no && (
+                                  <span className="font-mono font-bold text-gray-900">{req.bank_account_no}</span>
+                                )}
+                                {req.bank_account_name && (
+                                  <span className="text-gray-500 text-[10px]">({req.bank_account_name})</span>
+                                )}
+                                {req.bank_account_no && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleCopyPayNo(req.bank_account_no || '');
+                                    }}
+                                    title="คัดลอกเลขบัญชี"
+                                    className="text-gray-400 hover:text-gray-700 p-0.5"
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </button>
+                                )}
                               </div>
                             )}
                           </div>
@@ -1869,10 +2255,18 @@ export default function NewPaymentRequestClient({
                           >
                             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" />
                             <div className="text-xs leading-relaxed space-y-1">
-                              <p className="font-bold text-sm">
-                                {req.status === 'HOLD_DUPLICATE'
-                                  ? '🚨 รายการนี้ถูกระงับชั่วคราวเพื่อตรวจสอบความซ้ำซ้อน (Hold Duplicate)'
-                                  : '📝 ฝ่ายบัญชีส่งคืนเอกสารเพื่อแก้ไข (Document Returned)'}
+                              <p className="font-bold text-sm flex items-center gap-1.5">
+                                {req.status === 'HOLD_DUPLICATE' ? (
+                                  <>
+                                    <ShieldAlert className="w-4 h-4 text-red-600 shrink-0 inline" />
+                                    <span>รายการนี้ถูกระงับชั่วคราวเพื่อตรวจสอบความซ้ำซ้อน (Hold Duplicate)</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <FileText className="w-4 h-4 text-orange-600 shrink-0 inline" />
+                                    <span>ฝ่ายบัญชีส่งคืนเอกสารเพื่อแก้ไข (Document Returned)</span>
+                                  </>
+                                )}
                               </p>
                               {req.duplicate_reason && (
                                 <p className="text-gray-700">สาเหตุ: {req.duplicate_reason}</p>

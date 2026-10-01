@@ -577,6 +577,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                 <span>
                   {request.bank_name || 'พร้อมเพย์ / ไม่ระบุ'}
                   {request.bank_account_no ? ` เลขที่ ${request.bank_account_no}` : ''}
+                  {request.bank_account_name ? ` (ชื่อบัญชี: ${request.bank_account_name})` : ''}
                 </span>
               </div>
 
