@@ -10,7 +10,7 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
 
     // RBAC Enforcement
     const isExecutive = ['SUPER_ADMIN', 'ผู้จัดการ'].includes(currentUser.role) || currentUser.role?.toLowerCase().includes('mgr') || currentUser.role?.toLowerCase().includes('manager');
-    const isBDLead = ['Business Development'].includes(currentUser.role);
+    const isBDLead = !!currentUser.role?.toLowerCase().includes('business development');
     const isBDIntern = currentUser.role === 'BD Intern';
     const isBD = isBDLead || isBDIntern;
 

@@ -3709,6 +3709,8 @@ model payment_requests {
   duplicate_reason         String?
   duplicate_matches        Json?                  @default("[]")
   attachments              Json?                  @default("[]")
+  items                    Json?                  @default("[]")
+  credit_card_deduction    Decimal?               @default(0.00) @db.Decimal(14, 2)
   cancelled_reason         String?
   cancelled_by             String?                @db.VarChar(255)
   cancelled_at             DateTime?              @db.Timestamptz(6)

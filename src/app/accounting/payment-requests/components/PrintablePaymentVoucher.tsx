@@ -600,70 +600,147 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
               </div>
             </div>
 
-            {/* 4. Financial Details Table (Gray header, solid black borders) */}
+            {/* 4. Financial Details Table */}
             <div className="border border-black mb-2">
-              <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                <thead>
-                  <tr className="bg-gray-200 text-black font-bold border-b border-black">
-                    <th className="py-2 px-2 w-14 text-center border-r border-black align-middle leading-normal">
-                      ลำดับ<br />(No.)
-                    </th>
-                    <th className="py-2 px-3 text-center border-r border-black align-middle leading-normal">
-                      รายละเอียดค่าใช้จ่ายและวัตถุประสงค์ (Purpose)
-                    </th>
-                    <th className="py-2 px-3 w-44 text-center align-middle leading-normal">
-                      จำนวนเงิน (บาท)<br />(Amount THB)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white text-black">
-                  <tr className="border-b border-black min-h-[45px]">
-                    <td className="py-2.5 px-2 text-center border-r border-black align-middle leading-normal">
-                      1
-                    </td>
-                    <td className="py-2.5 px-3 border-r border-black align-middle leading-normal">
-                      <p className="whitespace-pre-wrap">{request.purpose}</p>
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-mono align-middle leading-normal font-medium">
-                      {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
+              {Array.isArray(request.items) && request.items.length > 0 ? (
+                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-gray-200 text-black font-bold border-b border-black text-center">
+                      <th className="py-2 px-1 w-12 border-r border-black align-middle">ลำดับ</th>
+                      <th className="py-2 px-2 w-24 border-r border-black align-middle">วันที่บิล</th>
+                      <th className="py-2 px-2.5 w-48 border-r border-black align-middle">ผู้จำหน่าย</th>
+                      <th className="py-2 px-3 border-r border-black align-middle">รายการ</th>
+                      <th className="py-2 px-3 w-32 border-r border-black align-middle">จำนวนเงิน</th>
+                      <th className="py-2 px-2 w-28 align-middle">หมายเหตุ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white text-black">
+                    {request.items.map((it: any, idx: number) => (
+                      <tr key={idx} className="border-b border-black">
+                        <td className="py-2 px-1 text-center border-r border-black align-top font-mono">
+                          {idx + 1}
+                        </td>
+                        <td className="py-2 px-2 text-center border-r border-black align-top font-mono text-[11px]">
+                          {it.billDate || '-'}
+                        </td>
+                        <td className="py-2 px-2.5 border-r border-black align-top leading-tight">
+                          <p className="font-semibold">{it.supplierName || '-'}</p>
+                          {it.invoiceNumber && (
+                            <span className="text-[10px] text-gray-700 block font-mono">บิล: {it.invoiceNumber}</span>
+                          )}
+                        </td>
+                        <td className="py-2 px-3 border-r border-black align-top leading-tight">
+                          <p className="whitespace-pre-wrap">{it.description}</p>
+                        </td>
+                        <td className="py-2 px-3 text-right font-mono border-r border-black align-top font-medium">
+                          {Number(it.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-2 px-2 text-center align-top text-[11px] text-gray-700">
+                          {it.remarks || '-'}
+                        </td>
+                      </tr>
+                    ))}
 
-                  {/* Summary Rows (Vertically centered, comfortable padding, no line overlapping) */}
-                  <tr className="border-b border-black">
-                    <td colSpan={2} className="py-2 px-3 text-right font-bold border-r border-black align-middle leading-normal">
-                      ยอดเงินก่อนภาษีมูลค่าเพิ่ม (Pre-VAT Subtotal):
-                    </td>
-                    <td className="py-2 px-3 text-right font-mono align-middle leading-normal font-medium">
-                      {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                  <tr className="border-b border-black">
-                    <td colSpan={2} className="py-2 px-3 text-right font-bold border-r border-black align-middle leading-normal">
-                      ภาษีมูลค่าเพิ่ม (VAT {request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type}):
-                    </td>
-                    <td className="py-2 px-3 text-right font-mono align-middle leading-normal font-medium">
-                      {vat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                  <tr className="border-b border-black">
-                    <td colSpan={2} className="py-2 px-3 text-right font-bold border-r border-black align-middle leading-normal">
-                      หัก ภาษี ณ ที่จ่าย (Withholding Tax {Number(request.wht_percent || 0).toFixed(2)}%):
-                    </td>
-                    <td className="py-2 px-3 text-right font-mono align-middle leading-normal font-medium">
-                      {wht > 0 ? `-${wht.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00'}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colSpan={2} className="py-2.5 px-3 text-right font-bold border-r border-black align-middle leading-normal">
-                      ยอดชำระสุทธิ (Net Payment Amount):
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-mono font-bold align-middle leading-normal text-sm sm:text-base">
-                      {netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    {/* Credit Card Deduction Row (if applicable) */}
+                    {Number(request.credit_card_deduction || 0) > 0 && (
+                      <tr className="border-b border-black bg-gray-50/50">
+                        <td colSpan={4} className="py-2 px-3 text-right font-bold border-r border-black">
+                          หักยอดที่จ่ายด้วยบัตรเครดิต:
+                        </td>
+                        <td className="py-2 px-3 text-right font-mono font-bold text-red-700 border-r border-black">
+                          -{Number(request.credit_card_deduction).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-2 px-2 text-center text-[10px] text-gray-500">จ่ายผ่านบัตร</td>
+                      </tr>
+                    )}
+
+                    {/* Total Amount Row */}
+                    <tr className="border-b border-black font-bold">
+                      <td colSpan={4} className="py-2 px-3 text-right border-r border-black">
+                        จำนวนเงินรวม (Total Amount):
+                      </td>
+                      <td className="py-2 px-3 text-right font-mono border-r border-black">
+                        {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                      <td className="bg-gray-100"></td>
+                    </tr>
+
+                    {/* Net Payable Row */}
+                    <tr className="font-bold bg-gray-100/70">
+                      <td colSpan={4} className="py-2.5 px-3 text-right border-r border-black">
+                        ยอดสุทธิที่เบิกจ่าย (Net Payable):
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono text-sm sm:text-base border-r border-black">
+                        {netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              ) : (
+                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-gray-200 text-black font-bold border-b border-black">
+                      <th className="py-2 px-2 w-14 text-center border-r border-black align-middle leading-normal">
+                        ลำดับ<br />(No.)
+                      </th>
+                      <th className="py-2 px-3 text-center border-r border-black align-middle leading-normal">
+                        รายละเอียดค่าใช้จ่ายและวัตถุประสงค์ (Purpose)
+                      </th>
+                      <th className="py-2 px-3 w-44 text-center align-middle leading-normal">
+                        จำนวนเงิน (บาท)<br />(Amount THB)
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white text-black">
+                    <tr className="border-b border-black min-h-[45px]">
+                      <td className="py-2.5 px-2 text-center border-r border-black align-middle leading-normal">
+                        1
+                      </td>
+                      <td className="py-2.5 px-3 border-r border-black align-middle leading-normal">
+                        <p className="whitespace-pre-wrap">{request.purpose}</p>
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono align-middle leading-normal font-medium">
+                        {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+
+                    {/* Summary Rows (Vertically centered, comfortable padding, no line overlapping) */}
+                    <tr className="border-b border-black">
+                      <td colSpan={2} className="py-2 px-3 text-right font-bold border-r border-black align-middle leading-normal">
+                        ยอดเงินก่อนภาษีมูลค่าเพิ่ม (Pre-VAT Subtotal):
+                      </td>
+                      <td className="py-2 px-3 text-right font-mono align-middle leading-normal font-medium">
+                        {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-black">
+                      <td colSpan={2} className="py-2 px-3 text-right font-bold border-r border-black align-middle leading-normal">
+                        ภาษีมูลค่าเพิ่ม (VAT {request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type}):
+                      </td>
+                      <td className="py-2 px-3 text-right font-mono align-middle leading-normal font-medium">
+                        {vat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-black">
+                      <td colSpan={2} className="py-2 px-3 text-right font-bold border-r border-black align-middle leading-normal">
+                        หัก ภาษี ณ ที่จ่าย (Withholding Tax {Number(request.wht_percent || 0).toFixed(2)}%):
+                      </td>
+                      <td className="py-2 px-3 text-right font-mono align-middle leading-normal font-medium">
+                        {wht > 0 ? `-${wht.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2} className="py-2.5 px-3 text-right font-bold border-r border-black align-middle leading-normal">
+                        ยอดชำระสุทธิ (Net Payment Amount):
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono font-bold align-middle leading-normal text-sm sm:text-base">
+                        {netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              )}
             </div>
 
             {/* 5. Thai Baht Text Left-aligned */}
@@ -740,7 +817,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                   </div>
                   <div className="p-2 flex flex-col justify-between h-28 text-black">
                     <div className="text-gray-400 font-mono text-[11px] select-none">
-                      {request.supervisor_checked_by || request.ap_checked_by || '....................................................'}
+                      {request.accounting_manager_checked_by || request.ap_checked_by || '....................................................'}
                     </div>
 
                     {/* Digital Signature Slot */}

@@ -2,7 +2,7 @@ import { getUser } from '@/app/lib/dal';
 import { redirect, notFound } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
 import PaymentRequestDetailClient from './PaymentRequestDetailClient';
-import { getPaymentRequestById } from '@/app/actions/paymentRequests';
+import { getPaymentRequestById, getUserProfileDetails } from '@/app/actions/paymentRequests';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +17,10 @@ export default async function PaymentRequestDetailPage({
   }
 
   const { id } = await params;
-  const request = await getPaymentRequestById(id);
+  const [request, profile] = await Promise.all([
+    getPaymentRequestById(id),
+    getUserProfileDetails(user.id, user.employeeId),
+  ]);
 
   if (!request) {
     notFound();
@@ -38,6 +41,9 @@ export default async function PaymentRequestDetailPage({
             id: user.id,
             fullName: user.fullName,
             role: user.role,
+            employeeId: user.employeeId,
+            department: profile.defaultDept,
+            branch: profile.defaultBranch,
           }}
         />
       </main>

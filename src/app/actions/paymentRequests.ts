@@ -7,7 +7,13 @@ import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
 import { getUser } from '@/app/lib/dal';
-import { isAccountingManager } from '@/app/lib/roleHelper';
+import {
+  isAccountingManager,
+  isAccountingStaff,
+  canManageAllPaymentRequests,
+  isSupervisorOrManager,
+  canSupervisorApproveRequest,
+} from '@/app/lib/roleHelper';
 
 let poolInstance: Pool | null = null;
 function getPool(): Pool {
@@ -71,6 +77,11 @@ export type PaymentRequestRecord = {
   supervisor_checked_by?: string | null;
   supervisor_checked_at?: string | null;
   supervisor_notes?: string | null;
+  assigned_supervisor_id?: string | null;
+  assigned_supervisor_name?: string | null;
+  accounting_manager_checked_by?: string | null;
+  accounting_manager_checked_at?: string | null;
+  accounting_manager_notes?: string | null;
   approved_by?: string | null;
   approved_at?: string | null;
   approval_limit_tier?: string | null;
@@ -93,11 +104,25 @@ export type PaymentRequestRecord = {
   duplicate_reason?: string | null;
   duplicate_matches?: any;
   attachments?: any;
+  items?: RequisitionItem[];
+  credit_card_deduction?: number;
   cancelled_reason?: string | null;
   cancelled_by?: string | null;
   cancelled_at?: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type RequisitionItem = {
+  id?: string;
+  billDate: string;
+  supplierName: string;
+  supplierTaxId?: string;
+  invoiceNumber?: string;
+  description: string;
+  amount: number;
+  remarks?: string;
+  paidByCreditCard?: boolean;
 };
 
 export type PaymentRequestLog = {
@@ -156,6 +181,8 @@ function sanitizePaymentRequest(row: any): PaymentRequestRecord {
     wht_percent: Number(row.wht_percent || 0),
     wht_amount: Number(row.wht_amount || 0),
     net_amount: Number(row.net_amount || 0),
+    credit_card_deduction: Number(row.credit_card_deduction || 0),
+    items: Array.isArray(row.items) ? row.items : [],
   };
 }
 
@@ -167,12 +194,18 @@ function sanitizePaymentRequestLog(row: any): PaymentRequestLog {
   };
 }
 
-// Helper: Calculate Thai Buddhist Era YYMM
+// Helper: Calculate Thai Buddhist Era YYMM using Thailand Timezone (UTC+7)
 function getCurrentYYMM(): string {
-  const d = new Date();
-  const yearBE = d.getFullYear() + 543;
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric',
+    month: '2-digit',
+  });
+  const parts = formatter.formatToParts(new Date());
+  const yearStr = parts.find((p) => p.type === 'year')?.value || '2026';
+  const mm = parts.find((p) => p.type === 'month')?.value || '10';
+  const yearBE = parseInt(yearStr, 10) + 543;
   const yy = String(yearBE).slice(-2);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
   return `${yy}${mm}`;
 }
 
@@ -192,67 +225,208 @@ export async function generateNextPayNumber(company: 'TG' | 'TE' | 'TP'): Promis
   return `PAY-${company}-${ym}-${String(seq).padStart(5, '0')}`;
 }
 
-// Duplicate Detection Engine
-export async function checkDuplicates(params: {
-  company: string;
-  supplierName: string;
-  invoiceNumber?: string | null;
-  hasNoDocNumber?: boolean;
-  netAmount: number;
-  documentDate: string;
-  branch?: string;
+// Attachment Duplicate Detection Engine
+export async function checkAttachmentDuplicates(params: {
+  fileHashes: string[];
   excludeId?: string;
 }) {
   const pool = getPool();
-  const { company, supplierName, invoiceNumber, hasNoDocNumber, netAmount, documentDate, branch, excludeId } = params;
+  const { fileHashes, excludeId } = params;
+  const cleanHashes = fileHashes.filter((h) => typeof h === 'string' && h.trim().length > 0);
+
+  if (cleanHashes.length === 0) {
+    return { isDuplicate: false, matches: [] };
+  }
+
+  // Check each hash in JSON attachments
+  const hashConditions = cleanHashes.map((_, idx) => `attachments::text LIKE $${idx + 1}`).join(' OR ');
+  const values: any[] = cleanHashes.map((h) => `%"${h.trim()}"%`);
+
+  let query = `
+    SELECT 
+      id, pay_number, company, branch, supplier_name, supplier_tax_id, 
+      invoice_number, net_amount, document_date, status, requester_name, created_at
+    FROM payment_requests
+    WHERE status NOT IN ('CANCELLED', 'REJECTED')
+      AND (${hashConditions})
+  `;
+
+  if (excludeId) {
+    values.push(excludeId);
+    query += ` AND id != $${values.length}`;
+  }
+
+  query += ` ORDER BY created_at DESC LIMIT 5`;
+
+  try {
+    const res = await pool.query(query, values);
+    const matches = res.rows.map((r: any) => ({
+      ...r,
+      document_date: toDateString(r.document_date) || '',
+      created_at: toTimestampString(r.created_at) || '',
+      net_amount: Number(r.net_amount || 0),
+      matchType: 'ATTACHMENT_HASH',
+    }));
+
+    return {
+      isDuplicate: matches.length > 0,
+      matches,
+    };
+  } catch (err) {
+    console.error('Error checking attachment duplicates:', err);
+    return { isDuplicate: false, matches: [] };
+  }
+}
+
+// Duplicate Detection Engine
+export async function checkDuplicates(params: {
+  company: string;
+  supplierName?: string;
+  supplierTaxId?: string | null;
+  invoiceNumber?: string | null;
+  poPrNumber?: string | null;
+  hasNoDocNumber?: boolean;
+  netAmount?: number;
+  documentDate?: string;
+  branch?: string;
+  excludeId?: string;
+  fileHashes?: string[];
+  items?: RequisitionItem[];
+}) {
+  const pool = getPool();
+  const {
+    company,
+    supplierName,
+    supplierTaxId,
+    invoiceNumber,
+    poPrNumber,
+    hasNoDocNumber,
+    netAmount = 0,
+    documentDate,
+    branch,
+    excludeId,
+    fileHashes,
+    items,
+  } = params;
 
   let exactMatches: any[] = [];
   let possibleMatches: any[] = [];
 
-  // 1. Exact Duplicate: Company + Supplier + Invoice Number (if invoice exists and not marked hasNoDocNumber)
-  if (!hasNoDocNumber && invoiceNumber && invoiceNumber.trim().length > 0) {
-    const cleanInv = invoiceNumber.trim();
-    const cleanSupplier = supplierName.trim();
+  // Normalize inputs
+  const cleanInv = invoiceNumber ? invoiceNumber.replace(/[^a-zA-Z0-9ก-๙]/g, '').toLowerCase() : '';
+  const cleanTaxId = supplierTaxId ? supplierTaxId.replace(/[^0-9]/g, '') : '';
+  const cleanSupplier = supplierName ? supplierName.trim() : '';
+  const cleanPoPr = poPrNumber ? poPrNumber.trim().toLowerCase() : '';
+
+  // 1. Exact Duplicate Rule:
+  // Match company + normalized invoice number + (matching Tax ID OR matching Supplier Name)
+  if (!hasNoDocNumber && cleanInv.length >= 3 && (cleanTaxId.length >= 10 || cleanSupplier.length >= 2)) {
     const query = `
-      SELECT id, pay_number, company, supplier_name, invoice_number, net_amount, document_date, status, created_at
+      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
       FROM payment_requests
       WHERE company = $1
-        AND LOWER(TRIM(supplier_name)) = LOWER($2)
-        AND LOWER(TRIM(invoice_number)) = LOWER($3)
-        AND status != 'CANCELLED'
-        ${excludeId ? `AND id != $4` : ''}
+        AND status NOT IN ('CANCELLED', 'REJECTED')
+        AND regexp_replace(LOWER(invoice_number), '[^a-zA-Z0-9ก-๙]', '', 'g') = $2
+        AND (
+          ($3 != '' AND regexp_replace(COALESCE(supplier_tax_id, ''), '[^0-9]', '', 'g') = $3)
+          OR ($4 != '' AND LOWER(TRIM(supplier_name)) = LOWER(TRIM($4)))
+        )
+        ${excludeId ? `AND id != $5` : ''}
+      ORDER BY created_at DESC
       LIMIT 5
     `;
-    const values = excludeId ? [company, cleanSupplier, cleanInv, excludeId] : [company, cleanSupplier, cleanInv];
+    const values = excludeId
+      ? [company, cleanInv, cleanTaxId, cleanSupplier, excludeId]
+      : [company, cleanInv, cleanTaxId, cleanSupplier];
     const res = await pool.query(query, values);
     exactMatches = res.rows.map((r: any) => ({
       ...r,
       document_date: toDateString(r.document_date) || '',
       created_at: toTimestampString(r.created_at) || '',
       net_amount: Number(r.net_amount || 0),
+      matchType: 'INVOICE_NUMBER',
     }));
   }
 
-  // 2. Possible Duplicate: Company + Supplier + Net Amount (+/- 1 Baht) + Document Date + Branch/CostCenter
-  if (supplierName && netAmount > 0 && documentDate) {
-    const cleanSupplier = supplierName.trim();
-    const query = `
-      SELECT id, pay_number, company, branch, supplier_name, invoice_number, net_amount, document_date, status, created_at
+  // 2. Exact Duplicate by PO / PR Number (if PO/PR is filled)
+  if (cleanPoPr.length >= 4 && exactMatches.length === 0) {
+    const poQuery = `
+      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, po_pr_number, net_amount, document_date, status, created_at
       FROM payment_requests
       WHERE company = $1
-        AND LOWER(TRIM(supplier_name)) = LOWER($2)
-        AND ABS(net_amount - $3) < 1.00
-        AND document_date = $4
-        AND status != 'CANCELLED'
-        ${excludeId ? `AND id != $5` : ''}
+        AND status NOT IN ('CANCELLED', 'REJECTED')
+        AND LOWER(TRIM(po_pr_number)) = $2
+        ${excludeId ? `AND id != $3` : ''}
+      ORDER BY created_at DESC
+      LIMIT 5
+    `;
+    const poValues = excludeId ? [company, cleanPoPr, excludeId] : [company, cleanPoPr];
+    const poRes = await pool.query(poQuery, poValues);
+    if (poRes.rows.length > 0) {
+      exactMatches = poRes.rows.map((r: any) => ({
+        ...r,
+        document_date: toDateString(r.document_date) || '',
+        created_at: toTimestampString(r.created_at) || '',
+        net_amount: Number(r.net_amount || 0),
+        matchType: 'PO_PR_NUMBER',
+      }));
+    }
+  }
+
+  // 3. Exact Duplicate by Attachment File Hashes (if any file hashes provided)
+  if (fileHashes && fileHashes.length > 0 && exactMatches.length === 0) {
+    const cleanHashes = fileHashes.filter((h) => typeof h === 'string' && h.trim().length > 0);
+    if (cleanHashes.length > 0) {
+      const hashConditions = cleanHashes.map((_, idx) => `attachments::text LIKE $${idx + 1}`).join(' OR ');
+      const values: any[] = cleanHashes.map((h) => `%"${h.trim()}"%`);
+      let hashQuery = `
+        SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
+        FROM payment_requests
+        WHERE status NOT IN ('CANCELLED', 'REJECTED')
+          AND (${hashConditions})
+      `;
+      if (excludeId) {
+        values.push(excludeId);
+        hashQuery += ` AND id != $${values.length}`;
+      }
+      hashQuery += ` ORDER BY created_at DESC LIMIT 5`;
+      const hashRes = await pool.query(hashQuery, values);
+      if (hashRes.rows.length > 0) {
+        exactMatches = hashRes.rows.map((r: any) => ({
+          ...r,
+          document_date: toDateString(r.document_date) || '',
+          created_at: toTimestampString(r.created_at) || '',
+          net_amount: Number(r.net_amount || 0),
+          matchType: 'ATTACHMENT_HASH',
+        }));
+      }
+    }
+  }
+
+  // 4. Possible Duplicate: Company + Supplier (or Tax ID) + Net Amount (+/- 1 Baht) + Document Date
+  if ((cleanSupplier.length >= 2 || cleanTaxId.length >= 10) && netAmount > 0 && documentDate) {
+    const query = `
+      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
+      FROM payment_requests
+      WHERE company = $1
+        AND status NOT IN ('CANCELLED', 'REJECTED')
+        AND (
+          ($2 != '' AND LOWER(TRIM(supplier_name)) = LOWER(TRIM($2)))
+          OR ($3 != '' AND regexp_replace(COALESCE(supplier_tax_id, ''), '[^0-9]', '', 'g') = $3)
+        )
+        AND ABS(net_amount - $4) < 1.00
+        AND document_date = $5
+        ${excludeId ? `AND id != $6` : ''}
+      ORDER BY created_at DESC
       LIMIT 5
     `;
     const values = excludeId
-      ? [company, cleanSupplier, netAmount, documentDate, excludeId]
-      : [company, cleanSupplier, netAmount, documentDate];
+      ? [company, cleanSupplier, cleanTaxId, netAmount, documentDate, excludeId]
+      : [company, cleanSupplier, cleanTaxId, netAmount, documentDate];
     const res = await pool.query(query, values);
+
     // Filter out if already in exact matches
-    const exactIds = new Set(exactMatches.map(m => m.id));
+    const exactIds = new Set(exactMatches.map((m) => m.id));
     possibleMatches = res.rows
       .filter((r: any) => !exactIds.has(r.id))
       .map((r: any) => ({
@@ -260,7 +434,100 @@ export async function checkDuplicates(params: {
         document_date: toDateString(r.document_date) || '',
         created_at: toTimestampString(r.created_at) || '',
         net_amount: Number(r.net_amount || 0),
+        matchType: 'AMOUNT_AND_DATE',
       }));
+  }
+
+  // 5. Multi-Item Duplicate Check: Check each requisition item across active requests
+  if (items && items.length > 0) {
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const itSupplier = it.supplierName ? it.supplierName.trim() : '';
+      const itInv = it.invoiceNumber ? it.invoiceNumber.replace(/[^a-zA-Z0-9ก-๙]/g, '').toLowerCase() : '';
+      const itAmount = Number(it.amount || 0);
+      const itDate = it.billDate || documentDate;
+
+      // 5.1 Item exact invoice check
+      if (itInv.length >= 3 && itSupplier.length >= 2) {
+        const itemInvQuery = `
+          SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
+          FROM payment_requests
+          WHERE company = $1
+            AND status NOT IN ('CANCELLED', 'REJECTED')
+            AND (
+              regexp_replace(LOWER(invoice_number), '[^a-zA-Z0-9ก-๙]', '', 'g') = $2
+              OR items::text ILIKE $3
+            )
+            AND (
+              LOWER(TRIM(supplier_name)) = LOWER(TRIM($4))
+              OR items::text ILIKE $5
+            )
+            ${excludeId ? `AND id != $6` : ''}
+          ORDER BY created_at DESC
+          LIMIT 3
+        `;
+        const itemInvValues = excludeId
+          ? [company, itInv, `%"invoiceNumber":"${it.invoiceNumber?.trim()}"%`, itSupplier, `%"supplierName":"${itSupplier}"%`, excludeId]
+          : [company, itInv, `%"invoiceNumber":"${it.invoiceNumber?.trim()}"%`, itSupplier, `%"supplierName":"${itSupplier}"%`];
+
+        const itemRes = await pool.query(itemInvQuery, itemInvValues);
+        if (itemRes.rows.length > 0) {
+          itemRes.rows.forEach((r: any) => {
+            exactMatches.push({
+              ...r,
+              document_date: toDateString(r.document_date) || '',
+              created_at: toTimestampString(r.created_at) || '',
+              net_amount: Number(r.net_amount || 0),
+              matchType: 'ITEM_DUPLICATE',
+              matchedItemIndex: i + 1,
+              matchedItemDesc: it.description,
+              matchedItemSupplier: it.supplierName,
+              matchedItemAmount: itAmount,
+            });
+          });
+        }
+      }
+
+      // 5.2 Item amount + supplier + date duplicate check
+      if (itSupplier.length >= 2 && itAmount > 0 && itDate) {
+        const itemAmountQuery = `
+          SELECT id, pay_number, company, branch, supplier_name, invoice_number, net_amount, document_date, status, created_at
+          FROM payment_requests
+          WHERE company = $1
+            AND status NOT IN ('CANCELLED', 'REJECTED')
+            AND (
+              (LOWER(TRIM(supplier_name)) = LOWER(TRIM($2)) AND ABS(net_amount - $3) < 1.00 AND document_date = $4)
+              OR (items::text ILIKE $5 AND items::text ILIKE $6)
+            )
+            ${excludeId ? `AND id != $7` : ''}
+          ORDER BY created_at DESC
+          LIMIT 3
+        `;
+        const itemAmountValues = excludeId
+          ? [company, itSupplier, itAmount, itDate, `%"supplierName":"${itSupplier}"%`, `%"amount":${itAmount}%`, excludeId]
+          : [company, itSupplier, itAmount, itDate, `%"supplierName":"${itSupplier}"%`, `%"amount":${itAmount}%`];
+
+        const itemAmountRes = await pool.query(itemAmountQuery, itemAmountValues);
+        if (itemAmountRes.rows.length > 0) {
+          const exactIds = new Set(exactMatches.map((m) => m.id));
+          itemAmountRes.rows
+            .filter((r: any) => !exactIds.has(r.id))
+            .forEach((r: any) => {
+              possibleMatches.push({
+                ...r,
+                document_date: toDateString(r.document_date) || '',
+                created_at: toTimestampString(r.created_at) || '',
+                net_amount: Number(r.net_amount || 0),
+                matchType: 'ITEM_AMOUNT_AND_DATE',
+                matchedItemIndex: i + 1,
+                matchedItemDesc: it.description,
+                matchedItemSupplier: it.supplierName,
+                matchedItemAmount: itAmount,
+              });
+            });
+        }
+      }
+    }
   }
 
   return {
@@ -284,6 +551,19 @@ export async function getPaymentRequests(filters: {
   requesterId?: string;
   requesterName?: string;
 } = {}) {
+  const currentUser = await getUser();
+  const isStaff = currentUser ? canManageAllPaymentRequests(currentUser.role) : false;
+  const isManager = currentUser ? isSupervisorOrManager(currentUser.role) : false;
+
+  // Role Scope Guard:
+  // - Accounting staff, Executives, Super Admin: can view all company requests
+  // - Department Managers / Supervisors: can view requests needing supervisor approval or all requests
+  // - General employees: only see their own requests!
+  if (currentUser && !isStaff && !isManager) {
+    filters.requesterId = currentUser.id;
+    filters.requesterName = currentUser.fullName;
+  }
+
   const pool = getPool();
   const whereClauses: string[] = [];
   const values: any[] = [];
@@ -324,6 +604,9 @@ export async function getPaymentRequests(filters: {
   // Tab Filtering (Standard accounting operational views)
   if (filters.tab) {
     switch (filters.tab) {
+      case 'PENDING_SUPERVISOR':
+        whereClauses.push(`status = 'PENDING_SUPERVISOR'`);
+        break;
       case 'PENDING_REVIEW':
         whereClauses.push(`status IN ('SUBMITTED', 'DUPLICATE_CHECK', 'DOCUMENT_CHECK')`);
         break;
@@ -391,10 +674,23 @@ export async function getPaymentRequests(filters: {
 // Get Dashboard Statistics
 export async function getPaymentRequestDashboardStats() {
   const pool = getPool();
+  const currentUser = await getUser();
+  const isStaff = currentUser ? canManageAllPaymentRequests(currentUser.role) : false;
+  const isManager = currentUser ? isSupervisorOrManager(currentUser.role) : false;
+
+  let userScopeClause = '';
+  const values: any[] = [];
+  if (currentUser && !isStaff && !isManager) {
+    userScopeClause = ' AND (requester_id = $1 OR requester_name ILIKE $2)';
+    values.push(currentUser.id, `%${currentUser.fullName}%`);
+  }
+
   const sql = `
     SELECT
       COUNT(*)::int as total_count,
       COALESCE(SUM(net_amount), 0)::float as total_amount,
+      COUNT(CASE WHEN status = 'PENDING_SUPERVISOR' THEN 1 END)::int as pending_supervisor_count,
+      COALESCE(SUM(CASE WHEN status = 'PENDING_SUPERVISOR' THEN net_amount ELSE 0 END), 0)::float as pending_supervisor_amount,
       COUNT(CASE WHEN status IN ('SUBMITTED', 'DUPLICATE_CHECK', 'DOCUMENT_CHECK') THEN 1 END)::int as pending_review_count,
       COALESCE(SUM(CASE WHEN status IN ('SUBMITTED', 'DUPLICATE_CHECK', 'DOCUMENT_CHECK') THEN net_amount ELSE 0 END), 0)::float as pending_review_amount,
       COUNT(CASE WHEN status = 'ACCOUNTING_CHECKED' THEN 1 END)::int as pending_approval_count,
@@ -407,17 +703,31 @@ export async function getPaymentRequestDashboardStats() {
       COUNT(CASE WHEN status = 'PAID' AND original_received_at IS NULL THEN 1 END)::int as missing_originals_count,
       COUNT(CASE WHEN urgency = 'EMERGENCY' AND status NOT IN ('PAID', 'CLOSED', 'CANCELLED') THEN 1 END)::int as urgent_pending_count
     FROM payment_requests
-    WHERE status != 'CANCELLED'
+    WHERE status != 'CANCELLED' ${userScopeClause}
   `;
-  const res = await pool.query(sql);
+  const res = await pool.query(sql, values);
   return res.rows[0];
 }
 
 // Get single request by ID with full audit log
 export async function getPaymentRequestById(id: string) {
   const pool = getPool();
+  const currentUser = await getUser();
   const reqRes = await pool.query('SELECT * FROM payment_requests WHERE id = $1', [id]);
   if (reqRes.rows.length === 0) return null;
+
+  const row = reqRes.rows[0];
+  const isStaff = currentUser ? canManageAllPaymentRequests(currentUser.role) : false;
+  const isManager = currentUser ? isSupervisorOrManager(currentUser.role) : false;
+  if (currentUser && !isStaff && !isManager) {
+    const isOwner =
+      (row.requester_id && row.requester_id === currentUser.id) ||
+      (row.requester_name && currentUser.fullName && row.requester_name.trim().toLowerCase() === currentUser.fullName.trim().toLowerCase());
+    if (!isOwner) {
+      // General employees cannot view requests belonging to other people!
+      return null;
+    }
+  }
 
   const logsRes = await pool.query(
     'SELECT * FROM payment_request_logs WHERE payment_request_id = $1 ORDER BY created_at ASC',
@@ -425,7 +735,7 @@ export async function getPaymentRequestById(id: string) {
   );
 
   return {
-    ...sanitizePaymentRequest(reqRes.rows[0]),
+    ...sanitizePaymentRequest(row),
     logs: logsRes.rows.map(sanitizePaymentRequestLog),
   };
 }
@@ -463,6 +773,8 @@ export async function createPaymentRequest(data: {
   requested_payment_date?: string;
   submission_channel?: string;
   attachments?: any[];
+  items?: RequisitionItem[];
+  credit_card_deduction?: number;
 }) {
   const pool = getPool();
   const client = await pool.connect();
@@ -480,14 +792,48 @@ export async function createPaymentRequest(data: {
     const dupCheck = await checkDuplicates({
       company: data.company,
       supplierName: data.supplier_name,
+      supplierTaxId: data.supplier_tax_id,
       invoiceNumber: data.invoice_number,
+      poPrNumber: data.po_pr_number,
       hasNoDocNumber: data.has_no_doc_number,
       netAmount: net,
       documentDate: data.document_date,
       branch: data.branch,
+      fileHashes: Array.isArray(data.attachments)
+        ? (data.attachments as any[]).map((a: any) => a.fileHash).filter(Boolean)
+        : [],
+      items: data.items,
     });
 
-    let initialStatus = 'SUBMITTED';
+    const currentUser = await getUser();
+    let assignedSupId: string | null = null;
+    let assignedSupName: string | null = null;
+    let isManagerOrAdmin = currentUser ? isSupervisorOrManager(currentUser.role) : false;
+
+    if (currentUser?.employeeId) {
+      try {
+        const { teraDb } = await import('@/app/lib/teraDb');
+        const emp = await teraDb.employees.findUnique({
+          where: { emp_id: currentUser.employeeId },
+        });
+        if (emp?.supervisor_id) {
+          const sup = await teraDb.employees.findUnique({
+            where: { emp_id: emp.supervisor_id },
+          });
+          if (sup) {
+            assignedSupId = sup.emp_id;
+            assignedSupName = sup.name;
+          }
+        }
+      } catch (e) {
+        console.warn('Error resolving assigned supervisor:', e);
+      }
+    }
+
+    // Disbursement request initial status:
+    // If the requester reports to a direct supervisor, supervisor approval is required (PENDING_SUPERVISOR)
+    // If no direct supervisor exists (e.g. Executive / Super Admin), it bypasses directly to AP (SUBMITTED)
+    let initialStatus = assignedSupId ? 'PENDING_SUPERVISOR' : (isManagerOrAdmin ? 'SUBMITTED' : 'PENDING_SUPERVISOR');
     let isPossibleDuplicate = false;
     let duplicateReason: string | null = null;
     let duplicateMatches: any[] = [];
@@ -496,12 +842,24 @@ export async function createPaymentRequest(data: {
       initialStatus = 'HOLD_DUPLICATE';
       isPossibleDuplicate = true;
       const firstMatch = dupCheck.exactMatches[0];
-      duplicateReason = `[Exact Duplicate] ตรวจพบเลขที่เอกสาร ${firstMatch.invoice_number} ของ ${firstMatch.supplier_name} ตรงกับใบขอจ่าย ${firstMatch.pay_number} (ระงับชั่วคราวเพื่อตรวจสอบ)`;
+      const matchDetail =
+        firstMatch.matchType === 'ITEM_DUPLICATE'
+          ? `รายการที่ ${firstMatch.matchedItemIndex || 1} "${firstMatch.matchedItemDesc || ''}" ของ ${firstMatch.matchedItemSupplier || ''} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`
+          : firstMatch.matchType === 'ATTACHMENT_HASH'
+          ? `ไฟล์แนบตรงกับเอกสารในใบขอจ่าย ${firstMatch.pay_number}`
+          : firstMatch.matchType === 'PO_PR_NUMBER'
+            ? `เลขที่ PO/PR ${firstMatch.po_pr_number} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`
+            : `เลขที่เอกสาร ${firstMatch.invoice_number || '-'} ของ ${firstMatch.supplier_name} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`;
+      duplicateReason = `[Exact Duplicate] ${matchDetail} (ระงับชั่วคราวเพื่อตรวจสอบ)`;
       duplicateMatches = dupCheck.exactMatches;
     } else if (dupCheck.isPossibleDuplicate) {
       isPossibleDuplicate = true;
       const firstMatch = dupCheck.possibleMatches[0];
-      duplicateReason = `[Possible Duplicate] ตรวจพบยอดเงิน ${net.toLocaleString()} บาท วันที่ ${data.document_date} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`;
+      const matchDetail =
+        firstMatch.matchType === 'ITEM_AMOUNT_AND_DATE'
+          ? `รายการที่ ${firstMatch.matchedItemIndex || 1} "${firstMatch.matchedItemDesc || ''}" ยอด ${Number(firstMatch.matchedItemAmount || 0).toLocaleString()} ฿ ใกล้เคียงกับคำขอ ${firstMatch.pay_number}`
+          : `ยอดเงิน ${net.toLocaleString()} บาท วันที่ ${data.document_date} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`;
+      duplicateReason = `[Possible Duplicate] ${matchDetail}`;
       duplicateMatches = dupCheck.possibleMatches;
     }
 
@@ -524,19 +882,23 @@ export async function createPaymentRequest(data: {
       `INSERT INTO payment_requests (
         id, pay_number, company, branch, classification, urgency, status,
         requester_id, requester_name, requester_department, requester_phone,
+        assigned_supervisor_id, assigned_supervisor_name,
         supplier_name, supplier_tax_id, bank_name, bank_account_no, bank_account_name, payment_method, payee_phone,
         document_date, has_no_doc_number, invoice_number,
         subtotal_amount, vat_type, vat_amount, wht_type, wht_percent, wht_amount, net_amount,
         purpose, cost_center, po_pr_number, requested_payment_date, submission_channel,
-        is_possible_duplicate, duplicate_reason, duplicate_matches, attachments
+        is_possible_duplicate, duplicate_reason, duplicate_matches, attachments,
+        items, credit_card_deduction
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11,
-        $12, $13, $14, $15, $16, $17, $18,
-        $19, $20, $21,
-        $22, $23, $24, $25, $26, $27, $28,
-        $29, $30, $31, $32, $33,
-        $34, $35, $36, $37
+        $12, $13,
+        $14, $15, $16, $17, $18, $19, $20,
+        $21, $22, $23,
+        $24, $25, $26, $27, $28, $29, $30,
+        $31, $32, $33, $34, $35,
+        $36, $37, $38, $39,
+        $40, $41
       )`,
       [
         id,
@@ -550,6 +912,8 @@ export async function createPaymentRequest(data: {
         data.requester_name,
         data.requester_department || null,
         data.requester_phone || null,
+        assignedSupId,
+        assignedSupName,
         data.supplier_name,
         data.supplier_tax_id || null,
         data.bank_name || null,
@@ -576,13 +940,17 @@ export async function createPaymentRequest(data: {
         duplicateReason,
         JSON.stringify(duplicateMatches),
         JSON.stringify(data.attachments || []),
+        JSON.stringify(data.items || []),
+        Number(data.credit_card_deduction || 0),
       ]
     );
 
     // 5. Audit Log
     const logNote = isPossibleDuplicate
       ? `สร้างคำขอเบิกจ่าย (ระบบส่งสัญญาณเตือน: ${duplicateReason})`
-      : 'สร้างคำขอเบิกจ่ายในระบบกลางสำเร็จ';
+      : initialStatus === 'PENDING_SUPERVISOR'
+      ? 'สร้างคำขอเบิกจ่ายสำเร็จ - รอหัวหน้างาน/ผู้จัดการฝ่ายอนุมัติก่อนส่งฝ่ายบัญชี'
+      : 'สร้างคำขอเบิกจ่ายสำเร็จ (ผู้ขอเบิกมีสิทธิ์ระดับหัวหน้างาน/ผู้จัดการ - ส่งต่อฝ่ายบัญชีทันที)';
 
     await client.query(
       `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
@@ -610,6 +978,198 @@ export async function createPaymentRequest(data: {
   }
 }
 
+// Department Supervisor Approval (Step 1: Before Accounting Review)
+export async function supervisorApprovePaymentRequest(
+  id: string,
+  data: {
+    notes?: string;
+    signatureUrl?: string;
+    approvedBy?: string;
+  }
+) {
+  const currentUser = await getUser();
+  if (!currentUser) {
+    return {
+      success: false,
+      error: 'ไม่มีสิทธิ์: กรุณาเข้าสู่ระบบก่อนทำรายการ',
+    };
+  }
+
+  const pool = getPool();
+  const currentReq = await pool.query(
+    'SELECT status, pay_number, company, branch, requester_id, requester_name, requester_department, assigned_supervisor_id, assigned_supervisor_name FROM payment_requests WHERE id = $1',
+    [id]
+  );
+  if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
+
+  const reqRow = currentReq.rows[0];
+
+  // Resolve current user department, branch, and check direct subordinate relationship
+  let userDept = '';
+  let userBranch = '';
+  let isDirectSupervisor = false;
+  try {
+    const profile = await getUserProfileDetails(currentUser.id, currentUser.employeeId);
+    userDept = profile.defaultDept;
+    userBranch = profile.defaultBranch;
+    if (currentUser.employeeId) {
+      const { teraDb } = await import('@/app/lib/teraDb');
+      const directSub = await teraDb.employees.findFirst({
+        where: {
+          supervisor_id: currentUser.employeeId,
+          name: { contains: reqRow.requester_name?.trim() },
+        },
+      });
+      if (directSub) isDirectSupervisor = true;
+    }
+  } catch (e) {
+    console.warn('Error verifying supervisor department / hierarchy:', e);
+  }
+
+  const auth = canSupervisorApproveRequest({
+    userRole: currentUser.role,
+    userDepartment: userDept,
+    userBranch: userBranch,
+    userId: currentUser.id,
+    userFullName: currentUser.fullName,
+    userEmployeeId: currentUser.employeeId,
+    requestRequesterId: reqRow.requester_id,
+    requestRequesterName: reqRow.requester_name,
+    requestDepartment: reqRow.requester_department,
+    requestBranch: reqRow.branch,
+    requestAssignedSupervisorId: reqRow.assigned_supervisor_id,
+    requestAssignedSupervisorName: reqRow.assigned_supervisor_name,
+    isDirectSupervisor,
+  });
+
+  if (!auth.canApprove) {
+    return {
+      success: false,
+      error: auth.reason || `ไม่มีสิทธิ์: เฉพาะหัวหน้างานฝ่าย ${reqRow.requester_department || 'ที่เกี่ยวข้อง'} สาขา ${reqRow.branch || ''} เท่านั้นที่สามารถอนุมัติได้`,
+    };
+  }
+
+  const prevStatus = reqRow.status;
+  const approverName = data.approvedBy || currentUser.fullName;
+
+  await pool.query(
+    `UPDATE payment_requests
+     SET status = 'SUBMITTED',
+         supervisor_checked_by = $1,
+         supervisor_checked_at = NOW(),
+         supervisor_notes = $2,
+         supervisor_signature_url = COALESCE($3, supervisor_signature_url),
+         updated_at = NOW()
+     WHERE id = $4`,
+    [approverName, data.notes || 'หัวหน้างานอนุมัติส่งฝ่ายบัญชี', data.signatureUrl || null, id]
+  );
+
+  await pool.query(
+    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+     VALUES ($1, 'SUPERVISOR_APPROVED', $2, $3, 'SUBMITTED', $4)`,
+    [id, approverName, prevStatus, data.notes ? `หัวหน้างานอนุมัติส่งฝ่ายบัญชี: ${data.notes}` : 'หัวหน้างานตรวจสอบความถูกต้องและอนุมัติส่งฝ่ายบัญชี (AP)']
+  );
+
+  revalidatePath('/accounting/payment-requests');
+  revalidatePath(`/accounting/payment-requests/${id}`);
+  return { success: true };
+}
+
+// Department Supervisor Return (Send back to Requester for revision)
+export async function supervisorReturnPaymentRequest(
+  id: string,
+  data: {
+    reason: string;
+    returnedBy?: string;
+  }
+) {
+  const currentUser = await getUser();
+  if (!currentUser) {
+    return {
+      success: false,
+      error: 'ไม่มีสิทธิ์: กรุณาเข้าสู่ระบบก่อนทำรายการ',
+    };
+  }
+
+  const pool = getPool();
+  const currentReq = await pool.query(
+    'SELECT status, pay_number, company, branch, requester_id, requester_name, requester_department, assigned_supervisor_id, assigned_supervisor_name FROM payment_requests WHERE id = $1',
+    [id]
+  );
+  if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
+
+  const reqRow = currentReq.rows[0];
+
+  // Resolve current user department, branch, and check direct subordinate relationship
+  let userDept = '';
+  let userBranch = '';
+  let isDirectSupervisor = false;
+  try {
+    const profile = await getUserProfileDetails(currentUser.id, currentUser.employeeId);
+    userDept = profile.defaultDept;
+    userBranch = profile.defaultBranch;
+    if (currentUser.employeeId) {
+      const { teraDb } = await import('@/app/lib/teraDb');
+      const directSub = await teraDb.employees.findFirst({
+        where: {
+          supervisor_id: currentUser.employeeId,
+          name: { contains: reqRow.requester_name?.trim() },
+        },
+      });
+      if (directSub) isDirectSupervisor = true;
+    }
+  } catch (e) {
+    console.warn('Error verifying supervisor department / hierarchy:', e);
+  }
+
+  const auth = canSupervisorApproveRequest({
+    userRole: currentUser.role,
+    userDepartment: userDept,
+    userBranch: userBranch,
+    userId: currentUser.id,
+    userFullName: currentUser.fullName,
+    userEmployeeId: currentUser.employeeId,
+    requestRequesterId: reqRow.requester_id,
+    requestRequesterName: reqRow.requester_name,
+    requestDepartment: reqRow.requester_department,
+    requestBranch: reqRow.branch,
+    requestAssignedSupervisorId: reqRow.assigned_supervisor_id,
+    requestAssignedSupervisorName: reqRow.assigned_supervisor_name,
+    isDirectSupervisor,
+  });
+
+  if (!auth.canApprove) {
+    return {
+      success: false,
+      error: auth.reason || `ไม่มีสิทธิ์: เฉพาะหัวหน้างานฝ่าย ${reqRow.requester_department || 'ที่เกี่ยวข้อง'} สาขา ${reqRow.branch || ''} เท่านั้นที่สามารถส่งคืนคำขอนี้ได้`,
+    };
+  }
+
+  const prevStatus = reqRow.status;
+  const returnerName = data.returnedBy || currentUser.fullName;
+
+  await pool.query(
+    `UPDATE payment_requests
+     SET status = 'RETURN_DOCUMENT',
+         supervisor_checked_by = $1,
+         supervisor_checked_at = NOW(),
+         supervisor_notes = $2,
+         updated_at = NOW()
+     WHERE id = $3`,
+    [returnerName, data.reason, id]
+  );
+
+  await pool.query(
+    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+     VALUES ($1, 'SUPERVISOR_RETURNED', $2, $3, 'RETURN_DOCUMENT', $4)`,
+    [id, returnerName, prevStatus, `หัวหน้างานส่งคืนแก้ไข: ${data.reason}`]
+  );
+
+  revalidatePath('/accounting/payment-requests');
+  revalidatePath(`/accounting/payment-requests/${id}`);
+  return { success: true };
+}
+
 // AP Review: Verify documents, tax, PO/PR, and duplicate check
 export async function apReviewPaymentRequest(
   id: string,
@@ -619,6 +1179,14 @@ export async function apReviewPaymentRequest(
     checkedBy: string;
   }
 ) {
+  const currentUser = await getUser();
+  if (!currentUser || !isAccountingStaff(currentUser.role)) {
+    return {
+      success: false,
+      error: 'ไม่มีสิทธิ์: เฉพาะฝ่ายบัญชีเจ้าหนี้ (AP) หรือผู้มีสิทธิ์ฝ่ายบัญชีเท่านั้นที่สามารถตรวจสอบขั้นตอนนี้ได้',
+    };
+  }
+
   const pool = getPool();
   const currentReq = await pool.query('SELECT status, pay_number FROM payment_requests WHERE id = $1', [id]);
   if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
@@ -636,10 +1204,14 @@ export async function apReviewPaymentRequest(
     [data.status, data.checkedBy, data.notes || null, id]
   );
 
+  const apLogNote = data.status === 'RETURN_DOCUMENT'
+    ? (data.notes ? `AP ส่งคืนแก้ไขเอกสาร: ${data.notes}` : 'AP ส่งคืนแก้ไขเอกสาร')
+    : (data.notes || 'AP ดำเนินการตรวจสอบเอกสารและภาษี');
+
   await pool.query(
     `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
      VALUES ($1, 'AP_CHECKED', $2, $3, $4, $5)`,
-    [id, data.checkedBy, prevStatus, data.status, data.notes || 'AP ดำเนินการตรวจสอบเอกสารและภาษี']
+    [id, data.checkedBy, prevStatus, data.status, apLogNote]
   );
 
   revalidatePath('/accounting/payment-requests');
@@ -672,9 +1244,9 @@ export async function supervisorReviewPaymentRequest(
   await pool.query(
     `UPDATE payment_requests
      SET status = $1,
-         supervisor_checked_by = $2,
-         supervisor_checked_at = NOW(),
-         supervisor_notes = $3,
+         accounting_manager_checked_by = $2,
+         accounting_manager_checked_at = NOW(),
+         accounting_manager_notes = $3,
          updated_at = NOW()
      WHERE id = $4`,
     [data.status, data.reviewedBy, data.notes || null, id]
@@ -682,8 +1254,8 @@ export async function supervisorReviewPaymentRequest(
 
   await pool.query(
     `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
-     VALUES ($1, 'SUPERVISOR_CHECKED', $2, $3, $4, $5)`,
-    [id, data.reviewedBy, prevStatus, data.status, data.notes || 'หัวหน้าฝ่ายบัญชีสอบทานรายการ']
+     VALUES ($1, 'ACCOUNTING_MANAGER_CHECKED', $2, $3, $4, $5)`,
+    [id, data.reviewedBy, prevStatus, data.status, data.notes || 'ผู้จัดการฝ่ายบัญชีสอบทานรายการ']
   );
 
   revalidatePath('/accounting/payment-requests');
@@ -699,20 +1271,19 @@ export async function approvePaymentRequest(
     notes?: string;
   }
 ) {
+  const currentUser = await getUser();
+  if (!currentUser || !isAccountingManager(currentUser.role)) {
+    return {
+      success: false,
+      error: 'เฉพาะผู้จัดการฝ่ายบัญชี (Accounting Manager) หรือผู้มีอำนาจอนุมัติเท่านั้นที่มีสิทธิ์อนุมัติการจ่ายเงิน',
+    };
+  }
+
   const pool = getPool();
   const reqRes = await pool.query('SELECT net_amount, status FROM payment_requests WHERE id = $1', [id]);
   if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
 
   const prevStatus = reqRes.rows[0].status;
-  if (prevStatus === 'ACCOUNTING_CHECKED') {
-    const currentUser = await getUser();
-    if (!currentUser || !isAccountingManager(currentUser.role)) {
-      return {
-        success: false,
-        error: 'เฉพาะผู้จัดการฝ่ายบัญชี (Accounting Manager) เท่านั้นที่มีสิทธิ์สอบทานและอนุมัติขั้นตอนนี้',
-      };
-    }
-  }
 
   const net = Number(reqRes.rows[0].net_amount);
 
@@ -761,6 +1332,14 @@ export async function financeDisbursePayment(
     paymentNotes?: string;
   }
 ) {
+  const currentUser = await getUser();
+  if (!currentUser || !isAccountingStaff(currentUser.role)) {
+    return {
+      success: false,
+      error: 'ไม่มีสิทธิ์: เฉพาะฝ่ายการเงิน/บัญชีเท่านั้นที่สามารถบันทึกการจ่ายเงินได้',
+    };
+  }
+
   const pool = getPool();
   const reqRes = await pool.query('SELECT status, pay_number, net_amount FROM payment_requests WHERE id = $1', [id]);
   if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
@@ -838,27 +1417,37 @@ export async function postPaymentRequestToGL(
     glNotes?: string;
   }
 ) {
+  const currentUser = await getUser();
+  if (!currentUser || !isAccountingStaff(currentUser.role)) {
+    return {
+      success: false,
+      error: 'ไม่มีสิทธิ์: เฉพาะฝ่ายบัญชีเท่านั้นที่สามารถบันทึกลงโปรแกรมบัญชี Express/Odoo ได้',
+    };
+  }
+
   const pool = getPool();
-  const reqRes = await pool.query('SELECT status FROM payment_requests WHERE id = $1', [id]);
+  const reqRes = await pool.query('SELECT status, original_received_at FROM payment_requests WHERE id = $1', [id]);
   if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
   const prevStatus = reqRes.rows[0].status;
+  const hasOriginal = !!reqRes.rows[0].original_received_at;
+  const newStatus = hasOriginal ? 'CLOSED' : 'POSTED_TO_GL';
 
   await pool.query(
     `UPDATE payment_requests
-     SET status = 'POSTED_TO_GL',
-         gl_voucher_no = $1,
-         gl_posted_by = $2,
+     SET status = $1,
+         gl_voucher_no = $2,
+         gl_posted_by = $3,
          gl_posted_at = NOW(),
-         gl_notes = $3,
+         gl_notes = $4,
          updated_at = NOW()
-     WHERE id = $4`,
-    [data.glVoucherNo.trim(), data.glPostedBy, data.glNotes || null, id]
+     WHERE id = $5`,
+    [newStatus, data.glVoucherNo.trim(), data.glPostedBy, data.glNotes || null, id]
   );
 
   await pool.query(
     `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
-     VALUES ($1, 'POSTED_TO_GL', $2, $3, 'POSTED_TO_GL', $4)`,
-    [id, data.glPostedBy, prevStatus, `บันทึกบัญชี Express/Odoo เรียบร้อยแล้ว เลขที่ใบสำคัญ: ${data.glVoucherNo}`]
+     VALUES ($1, 'POSTED_TO_GL', $2, $3, $4, $5)`,
+    [id, data.glPostedBy, prevStatus, newStatus, `บันทึกบัญชี Express/Odoo เรียบร้อยแล้ว เลขที่ใบสำคัญ: ${data.glVoucherNo}${hasOriginal ? ' (ได้รับเอกสารตัวจริงแล้ว - ปิดรายการสมบูรณ์)' : ''}`]
   );
 
   revalidatePath('/accounting/payment-requests');
@@ -875,12 +1464,22 @@ export async function recordOriginalDocumentReceipt(
     notes?: string;
   }
 ) {
+  const currentUser = await getUser();
+  if (!currentUser || !isAccountingStaff(currentUser.role)) {
+    return {
+      success: false,
+      error: 'ไม่มีสิทธิ์: เฉพาะฝ่ายบัญชีเท่านั้นที่สามารถบันทึกรับเอกสารตัวจริงได้',
+    };
+  }
+
   const pool = getPool();
-  const reqRes = await pool.query('SELECT status, pay_number FROM payment_requests WHERE id = $1', [id]);
+  const reqRes = await pool.query('SELECT status, gl_voucher_no, gl_posted_at FROM payment_requests WHERE id = $1', [id]);
   if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
   const prevStatus = reqRes.rows[0].status;
+  const hasGL = !!(reqRes.rows[0].gl_voucher_no || reqRes.rows[0].gl_posted_at || reqRes.rows[0].status === 'POSTED_TO_GL');
+  const newStatus = hasGL ? 'CLOSED' : 'ORIGINAL_RECEIVED';
 
-  const defaultStamp = `RECEIVED ORIGINAL/PAID - ${new Date().toLocaleDateString('th-TH')}`;
+  const defaultStamp = `RECEIVED ORIGINAL/PAID - ${new Date().toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok' })}`;
   const finalStamp = data.stampText?.trim() || defaultStamp;
 
   await pool.query(
@@ -889,16 +1488,16 @@ export async function recordOriginalDocumentReceipt(
          original_received_at = NOW(),
          original_stamp_text = $2,
          original_notes = $3,
-         status = CASE WHEN status = 'POSTED_TO_GL' THEN 'CLOSED' ELSE 'ORIGINAL_RECEIVED' END,
+         status = $4,
          updated_at = NOW()
-     WHERE id = $4`,
-    [data.originalReceivedBy, finalStamp, data.notes || null, id]
+     WHERE id = $5`,
+    [data.originalReceivedBy, finalStamp, data.notes || null, newStatus, id]
   );
 
   await pool.query(
     `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
-     VALUES ($1, 'ORIGINAL_RECEIVED', $2, $3, 'ORIGINAL_RECEIVED', $4)`,
-    [id, data.originalReceivedBy, prevStatus, `ได้รับเอกสารตัวจริงแล้ว ปั๊มตรา: "${finalStamp}" โดย ${data.originalReceivedBy}`]
+     VALUES ($1, 'ORIGINAL_RECEIVED', $2, $3, $4, $5)`,
+    [id, data.originalReceivedBy, prevStatus, newStatus, `ได้รับเอกสารตัวจริงแล้ว ปั๊มตรา: "${finalStamp}" โดย ${data.originalReceivedBy}${hasGL ? ' (ลงบัญชี GL เรียบร้อย - ปิดรายการสมบูรณ์)' : ''}`]
   );
 
   revalidatePath('/accounting/payment-requests');
@@ -914,11 +1513,22 @@ export async function cancelPaymentRequest(
     cancelledBy: string;
   }
 ) {
-  const pool = getPool();
-  const reqRes = await pool.query('SELECT status, pay_number FROM payment_requests WHERE id = $1', [id]);
-  if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
-  const prevStatus = reqRes.rows[0].status;
+  const currentUser = await getUser();
+  if (!currentUser) return { success: false, error: 'Unauthorized' };
 
+  const pool = getPool();
+  const reqRes = await pool.query('SELECT status, pay_number, requester_id, requester_name FROM payment_requests WHERE id = $1', [id]);
+  if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
+  const current = reqRes.rows[0];
+
+  const isStaff = isAccountingStaff(currentUser.role);
+  const isOwner = current.requester_id === currentUser.id || current.requester_name === currentUser.fullName;
+
+  if (!isStaff && !isOwner) {
+    return { success: false, error: 'ไม่มีสิทธิ์: คุณสามารถยกเลิกได้เฉพาะคำขอของตนเองเท่านั้น' };
+  }
+
+  const prevStatus = current.status;
   if (prevStatus === 'PAID' || prevStatus === 'POSTED_TO_GL' || prevStatus === 'CLOSED') {
     return { success: false, error: 'ไม่สามารถยกเลิกรายการที่จ่ายเงินแล้วได้' };
   }
@@ -948,7 +1558,7 @@ export async function cancelPaymentRequest(
 // Add attachments to existing request
 export async function addPaymentRequestAttachments(
   id: string,
-  newAttachments: { url: string; fileName: string; fileType?: string }[],
+  newAttachments: { url: string; fileName: string; fileType?: string; fileHash?: string; fileSize?: number }[],
   userName: string
 ) {
   const pool = getPool();
@@ -970,6 +1580,213 @@ export async function addPaymentRequestAttachments(
     `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, notes)
      VALUES ($1, 'ATTACHMENT_ADDED', $2, $3)`,
     [id, userName, `แนบเอกสารเพิ่มเติม ${newAttachments.length} ไฟล์`]
+  );
+
+  revalidatePath('/accounting/payment-requests');
+  revalidatePath(`/accounting/payment-requests/${id}`);
+  return { success: true };
+}
+
+// Resubmit Payment Request after revision
+export async function resubmitPaymentRequest(
+  id: string,
+  data?: {
+    notes?: string;
+    resubmittedBy?: string;
+  }
+) {
+  const currentUser = await getUser();
+  if (!currentUser) return { success: false, error: 'Unauthorized' };
+
+  const pool = getPool();
+  const reqRes = await pool.query(
+    'SELECT status, pay_number, requester_id, requester_name, ap_checked_by, supervisor_checked_by FROM payment_requests WHERE id = $1',
+    [id]
+  );
+  if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
+
+  const current = reqRes.rows[0];
+  const isStaff = isAccountingStaff(currentUser.role);
+  const isOwner =
+    (currentUser.id && current.requester_id === currentUser.id) ||
+    (currentUser.fullName && current.requester_name?.trim().toLowerCase() === currentUser.fullName.trim().toLowerCase());
+
+  if (!isStaff && !isOwner) {
+    return { success: false, error: 'ไม่มีสิทธิ์: เฉพาะผู้ขอเบิกหรือเจ้าหน้าที่ฝ่ายบัญชีเท่านั้นที่สามารถส่งตรวจคำขอนี้ได้' };
+  }
+
+  if (current.status !== 'RETURN_DOCUMENT' && current.status !== 'DRAFT') {
+    return { success: false, error: `คำขอนี้อยู่ในสถานะ "${current.status}" ไม่สามารถส่งตรวจใหม่ได้` };
+  }
+
+  // If AP had already checked it before returning, it goes back directly to SUBMITTED (AP review)
+  // If only supervisor had checked it (or neither), and requester is not manager, it goes to PENDING_SUPERVISOR
+  let targetStatus = 'SUBMITTED';
+  const role = currentUser.role || '';
+  if (!isSupervisorOrManager(role) && !current.supervisor_checked_by && !current.ap_checked_by) {
+    targetStatus = 'PENDING_SUPERVISOR';
+  } else if (current.ap_checked_by) {
+    targetStatus = 'SUBMITTED';
+  }
+
+  const resubmitter = data?.resubmittedBy || currentUser.fullName;
+  const resubmitNote = data?.notes ? `ผู้ขอเบิกแก้ไขข้อมูลและส่งตรวจอีกครั้ง: ${data.notes}` : 'ผู้ขอเบิกแก้ไขข้อมูลและส่งตรวจอีกครั้ง';
+
+  await pool.query(
+    `UPDATE payment_requests
+     SET status = $1,
+         updated_at = NOW()
+     WHERE id = $2`,
+    [targetStatus, id]
+  );
+
+  await pool.query(
+    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+     VALUES ($1, 'RESUBMITTED', $2, $3, $4, $5)`,
+    [id, resubmitter, current.status, targetStatus, resubmitNote]
+  );
+
+  revalidatePath('/accounting/payment-requests');
+  revalidatePath(`/accounting/payment-requests/${id}`);
+  return { success: true, targetStatus };
+}
+
+// Update Requisition Details when in editable states (e.g. RETURN_DOCUMENT, DRAFT)
+export async function updatePaymentRequestRequisition(
+  id: string,
+  data: {
+    purpose?: string;
+    invoice_number?: string | null;
+    has_no_doc_number?: boolean;
+    supplier_name?: string;
+    supplier_tax_id?: string | null;
+    document_date?: string;
+    requested_payment_date?: string | null;
+    subtotal_amount?: number;
+    vat_type?: string;
+    vat_amount?: number;
+    wht_type?: string;
+    wht_percent?: number;
+    wht_amount?: number;
+    net_amount?: number;
+    cost_center?: string | null;
+    po_pr_number?: string | null;
+    urgency?: string;
+    items?: RequisitionItem[];
+    updated_by: string;
+  }
+) {
+  const currentUser = await getUser();
+  if (!currentUser) return { success: false, error: 'Unauthorized' };
+
+  const pool = getPool();
+  const reqRes = await pool.query(
+    'SELECT status, pay_number, requester_id, requester_name FROM payment_requests WHERE id = $1',
+    [id]
+  );
+  if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
+
+  const current = reqRes.rows[0];
+  const isStaff = isAccountingStaff(currentUser.role);
+  const isOwner =
+    (currentUser.id && current.requester_id === currentUser.id) ||
+    (currentUser.fullName && current.requester_name?.trim().toLowerCase() === currentUser.fullName.trim().toLowerCase());
+
+  if (!isStaff && !isOwner) {
+    return { success: false, error: 'ไม่มีสิทธิ์แก้ไขคำขอนี้' };
+  }
+
+  if (!['RETURN_DOCUMENT', 'DRAFT', 'PENDING_SUPERVISOR', 'SUBMITTED'].includes(current.status)) {
+    return { success: false, error: `ไม่สามารถแก้ไขข้อมูลได้ในสถานะ "${current.status}"` };
+  }
+
+  const itemsJson = data.items ? JSON.stringify(data.items) : null;
+
+  await pool.query(
+    `UPDATE payment_requests
+     SET purpose = COALESCE($1, purpose),
+         invoice_number = $2,
+         has_no_doc_number = COALESCE($3, has_no_doc_number),
+         supplier_name = COALESCE($4, supplier_name),
+         supplier_tax_id = $5,
+         document_date = COALESCE($6, document_date),
+         requested_payment_date = $7,
+         subtotal_amount = COALESCE($8, subtotal_amount),
+         vat_type = COALESCE($9, vat_type),
+         vat_amount = COALESCE($10, vat_amount),
+         wht_type = COALESCE($11, wht_type),
+         wht_percent = COALESCE($12, wht_percent),
+         wht_amount = COALESCE($13, wht_amount),
+         net_amount = COALESCE($14, net_amount),
+         cost_center = $15,
+         po_pr_number = $16,
+         urgency = COALESCE($17, urgency),
+         items = CASE WHEN $18::jsonb IS NOT NULL THEN $18::jsonb ELSE items END,
+         updated_at = NOW()
+     WHERE id = $19`,
+    [
+      data.purpose,
+      data.has_no_doc_number ? null : (data.invoice_number || null),
+      data.has_no_doc_number,
+      data.supplier_name,
+      data.supplier_tax_id || null,
+      data.document_date,
+      data.requested_payment_date || null,
+      data.subtotal_amount,
+      data.vat_type,
+      data.vat_amount,
+      data.wht_type,
+      data.wht_percent,
+      data.wht_amount,
+      data.net_amount,
+      data.cost_center || null,
+      data.po_pr_number || null,
+      data.urgency,
+      itemsJson,
+      id,
+    ]
+  );
+
+  await pool.query(
+    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, notes)
+     VALUES ($1, 'UPDATED', $2, $3)`,
+    [id, data.updated_by, 'แก้ไขรายละเอียดคำขอเบิกจ่าย']
+  );
+
+  revalidatePath('/accounting/payment-requests');
+  revalidatePath(`/accounting/payment-requests/${id}`);
+  return { success: true };
+}
+
+// Delete single attachment
+export async function deletePaymentRequestAttachment(
+  id: string,
+  attachmentIndex: number,
+  userName: string
+) {
+  const pool = getPool();
+  const reqRes = await pool.query('SELECT attachments FROM payment_requests WHERE id = $1', [id]);
+  if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
+
+  const existing = Array.isArray(reqRes.rows[0].attachments) ? [...reqRes.rows[0].attachments] : [];
+  if (attachmentIndex < 0 || attachmentIndex >= existing.length) {
+    return { success: false, error: 'Invalid attachment index' };
+  }
+
+  const removed = existing.splice(attachmentIndex, 1);
+
+  await pool.query(
+    `UPDATE payment_requests
+     SET attachments = $1,
+         updated_at = NOW()
+     WHERE id = $2`,
+    [JSON.stringify(existing), id]
+  );
+
+  await pool.query(
+    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, notes)
+     VALUES ($1, 'ATTACHMENT_DELETED', $2, $3)`,
+    [id, userName, `ลบเอกสารแนบ "${removed[0]?.fileName || 'เอกสาร'}"`]
   );
 
   revalidatePath('/accounting/payment-requests');
@@ -1055,6 +1872,14 @@ export async function getUserProfileDetails(userId: string, employeeId?: string 
 }
 
 export async function deletePaymentRequest(id: string) {
+  const currentUser = await getUser();
+  if (!currentUser || !isAccountingManager(currentUser.role)) {
+    return {
+      success: false,
+      error: 'ไม่มีสิทธิ์: เฉพาะผู้จัดการฝ่ายบัญชี (Accounting Manager) หรือ Super Admin เท่านั้นที่สามารถลบรายการได้',
+    };
+  }
+
   const pool = getPool();
   try {
     await pool.query('DELETE FROM payment_requests WHERE id = $1', [id]);
@@ -1169,5 +1994,3 @@ export async function updatePaymentBankDetails(
     return { success: false, error: err.message };
   }
 }
-
-

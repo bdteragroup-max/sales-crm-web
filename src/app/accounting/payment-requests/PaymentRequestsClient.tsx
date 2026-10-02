@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { canManageAllPaymentRequests, isAccountingManager, matchBranch } from '@/app/lib/roleHelper';
 
 type Props = {
   initialRequests: PaymentRequestRecord[];
@@ -48,7 +49,8 @@ const COMPANY_COLORS: Record<string, { bg: string; text: string; border: string 
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; border: string }> = {
   DRAFT: { label: 'แบบร่าง', bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200' },
-  SUBMITTED: { label: 'ส่งคำขอแล้ว', bg: 'bg-gray-50', text: 'text-gray-800', border: 'border-gray-300' },
+  PENDING_SUPERVISOR: { label: 'รอหัวหน้างานอนุมัติ', bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-300' },
+  SUBMITTED: { label: 'ส่งคำขอแล้ว (รอ AP ตรวจ)', bg: 'bg-blue-50', text: 'text-blue-800', border: 'border-blue-200' },
   DUPLICATE_CHECK: { label: 'AP ตรวจความซ้ำซ้อน', bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' },
   DOCUMENT_CHECK: { label: 'AP ตรวจเอกสาร/ภาษี', bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200' },
   ACCOUNTING_CHECKED: { label: 'หัวหน้าบัญชีสอบทานแล้ว', bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-300' },
@@ -109,6 +111,9 @@ export default function PaymentRequestsClient({
 }: Props) {
   const [requests, setRequests] = useState<PaymentRequestRecord[]>(initialRequests);
   const [stats, setStats] = useState<any>(initialStats);
+
+  const isAccountingUser = canManageAllPaymentRequests(userRole);
+  const isManager = isAccountingManager(userRole);
 
   useEffect(() => {
     setRequests(initialRequests);
@@ -206,7 +211,9 @@ export default function PaymentRequestsClient({
   const filteredRequests = useMemo(() => {
     return requests.filter((r) => {
       // Tab filter
-      if (activeTab === 'PENDING_REVIEW') {
+      if (activeTab === 'PENDING_SUPERVISOR') {
+        if (r.status !== 'PENDING_SUPERVISOR') return false;
+      } else if (activeTab === 'PENDING_REVIEW') {
         if (!['SUBMITTED', 'DUPLICATE_CHECK', 'DOCUMENT_CHECK'].includes(r.status)) return false;
       } else if (activeTab === 'PENDING_APPROVAL') {
         if (r.status !== 'ACCOUNTING_CHECKED') return false;
@@ -227,16 +234,7 @@ export default function PaymentRequestsClient({
 
       // Branch
       if (selectedBranch !== 'ALL') {
-        const sel = selectedBranch.toLowerCase();
-        const b = (r.branch || '').toLowerCase();
-        const isSelHQ = sel === 'สำนักงานใหญ่' || sel === 'head office' || sel === 'bkk-hq';
-        const isRowHQ = b.includes('สำนักงานใหญ่') || b.includes('head office') || b.includes('bkk-hq');
-
-        if (isSelHQ) {
-          if (!isRowHQ) return false;
-        } else if (!b.includes(sel)) {
-          return false;
-        }
+        if (!matchBranch(selectedBranch, r.branch)) return false;
       }
 
       // Classification
@@ -311,21 +309,43 @@ export default function PaymentRequestsClient({
       {/* Header Banner */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-xs">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider bg-red-50 text-red-700 border border-red-200 uppercase">
-              Central Payment Register
-            </span>
-            <span className="text-xs text-gray-400 font-mono">TG • TE • TP</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
-            <div className="p-2 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-red-600" />
-            </div>
-            <span>ทะเบียนคุมการเบิกจ่ายกลาง (Payment Request & Register)</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
-            ระบบควบคุมการเบิกจ่าย ตรวจสอบเอกสาร และป้องกันการจ่ายเงินซ้ำซ้อน ทั้งสำนักงานใหญ่และสาขาต่างจังหวัด
-          </p>
+          {isAccountingUser ? (
+            <>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider bg-red-50 text-red-700 border border-red-200 uppercase">
+                  Central Payment Register
+                </span>
+                <span className="text-xs text-gray-400 font-mono">TG • TE • TP</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+                <div className="p-2 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-red-600" />
+                </div>
+                <span>ทะเบียนคุมการเบิกจ่ายกลาง (Payment Request & Register)</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
+                ระบบควบคุมการเบิกจ่าย ตรวจสอบเอกสาร และป้องกันการจ่ายเงินซ้ำซ้อน ทั้งสำนักงานใหญ่และสาขาต่างจังหวัด
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider bg-blue-50 text-blue-700 border border-blue-200 uppercase">
+                  My Requests Portal
+                </span>
+                <span className="text-xs text-gray-400 font-medium">คำขอเบิกจ่ายส่วนตัว</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+                <div className="p-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-blue-600" />
+                </div>
+                <span>รายการขอเบิกจ่ายเงินของฉัน (My Payment Requests)</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
+                ติดตามสถานะการตรวจสอบเอกสาร การอนุมัติ และความคืบหน้าการโอนเงินของคำขอที่คุณเป็นผู้เบิก
+              </p>
+            </>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -467,6 +487,12 @@ export default function PaymentRequestsClient({
       <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-gray-200">
         {[
           { key: 'ALL', label: 'ทั้งหมด (All)', count: requests.length },
+          {
+            key: 'PENDING_SUPERVISOR',
+            label: 'รอหัวหน้างานอนุมัติ',
+            count: stats?.pending_supervisor_count || 0,
+            alert: (stats?.pending_supervisor_count || 0) > 0,
+          },
           {
             key: 'PENDING_REVIEW',
             label: 'รอ AP ตรวจสอบ',
@@ -740,7 +766,10 @@ export default function PaymentRequestsClient({
                       {/* Branch & Requester */}
                       <td className="py-3.5 px-4">
                         <span className="font-medium text-gray-800">{r.branch}</span>
-                        <div className="text-[10px] text-gray-400">ผู้ขอ: {r.requester_name}</div>
+                        <div className="text-[10px] text-gray-400">
+                          ผู้ขอ: {r.requester_name}
+                          {r.requester_department ? ` (${r.requester_department})` : ''}
+                        </div>
                       </td>
 
                       {/* Net Amount */}
@@ -778,13 +807,15 @@ export default function PaymentRequestsClient({
                             <span>ดูรายการ</span>
                             <ChevronRight className="w-3.5 h-3.5" />
                           </Link>
-                          <button
-                            onClick={() => handleDelete(r)}
-                            title="ลบคำขอนี้"
-                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {isManager && (
+                            <button
+                              onClick={() => handleDelete(r)}
+                              title="ลบคำขอนี้"
+                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

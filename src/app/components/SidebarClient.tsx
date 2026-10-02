@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
   LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt
 } from 'lucide-react';
-import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
@@ -315,6 +315,15 @@ export default function SidebarClient(props: SidebarProps) {
       icon: Receipt,
       label: 'ขอเบิกจ่ายเงิน (Payment Request)',
       href: '/accounting/payment-requests/new',
+    });
+  }
+
+  const isAccountingUser = canManageAllPaymentRequests(props.userRole);
+  if (!finalNav.some(item => item.href === '/accounting/payment-requests')) {
+    finalNav.push({
+      icon: FileCheck,
+      label: isAccountingUser ? 'ทะเบียนขอจ่ายเงิน (Payment Requests)' : 'สถานะคำขอเบิกเงิน (My Requests)',
+      href: '/accounting/payment-requests',
     });
   }
 
