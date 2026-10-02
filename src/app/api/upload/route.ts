@@ -65,7 +65,33 @@ export async function POST(request: Request) {
 
     console.log(`File uploaded to Supabase Storage (${targetBucket}): ${publicUrl}`);
 
-    return NextResponse.json({ success: true, url: publicUrl });
+    // Compute 64-bit visual difference hash (dHash) for images (invariant to compression, device differences, metadata)
+    let visualHash: string | null = null;
+    if (file.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
+      try {
+        const sharp = (await import('sharp')).default;
+        const { data: rawData } = await sharp(buffer)
+          .resize(9, 8, { fit: 'fill' })
+          .greyscale()
+          .raw()
+          .toBuffer({ resolveWithObject: true });
+
+        let hashHex = '';
+        for (let y = 0; y < 8; y++) {
+          let byte = 0;
+          for (let x = 0; x < 8; x++) {
+            const bit = rawData[y * 9 + x] > rawData[y * 9 + (x + 1)] ? 1 : 0;
+            byte = (byte << 1) | bit;
+          }
+          hashHex += byte.toString(16).padStart(2, '0');
+        }
+        visualHash = hashHex;
+      } catch (e) {
+        console.warn('Could not compute visualHash in upload route:', e);
+      }
+    }
+
+    return NextResponse.json({ success: true, url: publicUrl, visualHash });
   } catch (error: any) {
     console.error('Error uploading file:', error);
     const isPayloadTooLarge = error?.message?.includes('payload') || error?.message?.includes('too large') || error?.status === 413;

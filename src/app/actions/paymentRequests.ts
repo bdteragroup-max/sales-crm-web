@@ -14,6 +14,12 @@ import {
   isSupervisorOrManager,
   canSupervisorApproveRequest,
 } from '@/app/lib/roleHelper';
+import type { AttachmentCheckItem } from '@/lib/attachmentUtils';
+import {
+  normalizeAttachmentName,
+  isDistinctiveAttachmentName,
+  visualHammingDistance,
+} from '@/lib/attachmentUtils';
 
 let poolInstance: Pool | null = null;
 function getPool(): Pool {
@@ -227,46 +233,125 @@ export async function generateNextPayNumber(company: 'TG' | 'TE' | 'TP'): Promis
 
 // Attachment Duplicate Detection Engine
 export async function checkAttachmentDuplicates(params: {
-  fileHashes: string[];
+  fileHashes?: string[];
+  items?: AttachmentCheckItem[];
   excludeId?: string;
 }) {
   const pool = getPool();
-  const { fileHashes, excludeId } = params;
-  const cleanHashes = fileHashes.filter((h) => typeof h === 'string' && h.trim().length > 0);
+  const { fileHashes = [], items = [], excludeId } = params;
 
-  if (cleanHashes.length === 0) {
+  // Unify check items
+  const checkItems: AttachmentCheckItem[] = [...items];
+  for (const h of fileHashes) {
+    if (typeof h === 'string' && h.trim() && !checkItems.some((it) => it.fileHash === h.trim())) {
+      checkItems.push({ fileHash: h.trim() });
+    }
+  }
+
+  if (checkItems.length === 0) {
     return { isDuplicate: false, matches: [] };
   }
 
-  // Check each hash in JSON attachments
-  const hashConditions = cleanHashes.map((_, idx) => `attachments::text LIKE $${idx + 1}`).join(' OR ');
-  const values: any[] = cleanHashes.map((h) => `%"${h.trim()}"%`);
-
-  let query = `
-    SELECT 
-      id, pay_number, company, branch, supplier_name, supplier_tax_id, 
-      invoice_number, net_amount, document_date, status, requester_name, created_at
-    FROM payment_requests
-    WHERE status NOT IN ('CANCELLED', 'REJECTED')
-      AND (${hashConditions})
-  `;
-
-  if (excludeId) {
-    values.push(excludeId);
-    query += ` AND id != $${values.length}`;
-  }
-
-  query += ` ORDER BY created_at DESC LIMIT 5`;
-
   try {
+    let query = `
+      SELECT 
+        id, pay_number, company, branch, supplier_name, supplier_tax_id, 
+        invoice_number, net_amount, document_date, status, requester_name, attachments, created_at
+      FROM payment_requests
+      WHERE status NOT IN ('CANCELLED', 'REJECTED')
+        AND attachments IS NOT NULL
+    `;
+    const values: any[] = [];
+    if (excludeId) {
+      values.push(excludeId);
+      query += ` AND id != $1`;
+    }
+    query += ` ORDER BY created_at DESC LIMIT 100`;
+
     const res = await pool.query(query, values);
-    const matches = res.rows.map((r: any) => ({
-      ...r,
-      document_date: toDateString(r.document_date) || '',
-      created_at: toTimestampString(r.created_at) || '',
-      net_amount: Number(r.net_amount || 0),
-      matchType: 'ATTACHMENT_HASH',
-    }));
+    const matches: any[] = [];
+    const matchedReqIds = new Set<string>();
+
+    for (const row of res.rows) {
+      if (!Array.isArray(row.attachments)) continue;
+      for (const att of row.attachments) {
+        for (const item of checkItems) {
+          let isMatch = false;
+          let matchType = '';
+          let reason = '';
+
+          // 1. Exact SHA-256 binary hash
+          if (item.fileHash && att.fileHash && item.fileHash.toLowerCase() === att.fileHash.toLowerCase()) {
+            isMatch = true;
+            matchType = 'ATTACHMENT_HASH';
+            reason = `ไฟล์ดิจิทัลตรงกัน 100% (SHA-256 ตรงกับ "${att.fileName || 'เอกสารเดิม'}")`;
+          }
+
+          // 2. Visual Perceptual Hash match (dHash Hamming distance <= 4)
+          if (!isMatch && item.visualHash && att.visualHash) {
+            const dist = visualHammingDistance(item.visualHash, att.visualHash);
+            if (dist <= 4) {
+              isMatch = true;
+              matchType = 'ATTACHMENT_VISUAL';
+              const similarity = ((64 - dist) / 64 * 100).toFixed(1);
+              reason = `ตรวจพบลายนิ้วมือภาพตรงกัน ${similarity}% (ตรงกับ "${att.fileName || 'เอกสารเดิม'}" แม้จะส่งจากคนละอุปกรณ์หรือบีบอัดใหม่)`;
+            }
+          }
+
+          // 3. Normalized Distinctive Filename + Similarity
+          if (!isMatch && item.fileName && att.fileName) {
+            const normIn = normalizeAttachmentName(item.fileName);
+            const normAtt = normalizeAttachmentName(att.fileName);
+            if (normIn && normIn === normAtt && isDistinctiveAttachmentName(normIn)) {
+              if (item.visualHash && att.visualHash) {
+                const dist = visualHammingDistance(item.visualHash, att.visualHash);
+                if (dist <= 6) {
+                  isMatch = true;
+                  matchType = 'ATTACHMENT_VISUAL';
+                  reason = `ตรวจพบชื่อเอกสารและลายนิ้วมือภาพตรงกับ "${att.fileName}"`;
+                }
+              } else if (item.fileSize && att.fileSize) {
+                const ratio = item.fileSize / att.fileSize;
+                if (ratio >= 0.4 && ratio <= 2.5) {
+                  isMatch = true;
+                  matchType = 'ATTACHMENT_NAME_SIMILAR';
+                  reason = `ตรวจพบชื่อเอกสารตรงกัน (${att.fileName}) และขนาดไฟล์ใกล้เคียงกัน`;
+                }
+              } else {
+                isMatch = true;
+                matchType = 'ATTACHMENT_NAME_SIMILAR';
+                reason = `ตรวจพบชื่อเอกสารตรงกัน (${att.fileName})`;
+              }
+            }
+          }
+
+          if (isMatch && !matchedReqIds.has(row.id)) {
+            matchedReqIds.add(row.id);
+            matches.push({
+              id: row.id,
+              pay_number: row.pay_number,
+              company: row.company,
+              branch: row.branch,
+              supplier_name: row.supplier_name,
+              supplier_tax_id: row.supplier_tax_id,
+              invoice_number: row.invoice_number,
+              net_amount: Number(row.net_amount || 0),
+              document_date: toDateString(row.document_date) || '',
+              created_at: toTimestampString(row.created_at) || '',
+              status: row.status,
+              requester_name: row.requester_name,
+              matchType,
+              matchedFileName: att.fileName,
+              duplicateFileName: item.fileName,
+              reason,
+            });
+            break;
+          }
+        }
+        if (matchedReqIds.has(row.id)) break;
+      }
+      if (matches.length >= 5) break;
+    }
 
     return {
       isDuplicate: matches.length > 0,
@@ -291,6 +376,8 @@ export async function checkDuplicates(params: {
   branch?: string;
   excludeId?: string;
   fileHashes?: string[];
+  attachmentItems?: AttachmentCheckItem[];
+  attachments?: any[];
   items?: RequisitionItem[];
 }) {
   const pool = getPool();
@@ -306,6 +393,8 @@ export async function checkDuplicates(params: {
     branch,
     excludeId,
     fileHashes,
+    attachmentItems,
+    attachments,
     items,
   } = params;
 
@@ -373,33 +462,31 @@ export async function checkDuplicates(params: {
     }
   }
 
-  // 3. Exact Duplicate by Attachment File Hashes (if any file hashes provided)
-  if (fileHashes && fileHashes.length > 0 && exactMatches.length === 0) {
-    const cleanHashes = fileHashes.filter((h) => typeof h === 'string' && h.trim().length > 0);
-    if (cleanHashes.length > 0) {
-      const hashConditions = cleanHashes.map((_, idx) => `attachments::text LIKE $${idx + 1}`).join(' OR ');
-      const values: any[] = cleanHashes.map((h) => `%"${h.trim()}"%`);
-      let hashQuery = `
-        SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
-        FROM payment_requests
-        WHERE status NOT IN ('CANCELLED', 'REJECTED')
-          AND (${hashConditions})
-      `;
-      if (excludeId) {
-        values.push(excludeId);
-        hashQuery += ` AND id != $${values.length}`;
+  // 3. Exact Duplicate by Attachments (Multi-Signal: SHA-256, Visual Hash, Normalized Filename)
+  const allAttItems: AttachmentCheckItem[] = [
+    ...(attachmentItems || []),
+    ...(Array.isArray(attachments) ? attachments : []),
+  ];
+  if (fileHashes && fileHashes.length > 0) {
+    for (const h of fileHashes) {
+      if (typeof h === 'string' && h.trim() && !allAttItems.some((it) => it.fileHash === h.trim())) {
+        allAttItems.push({ fileHash: h.trim() });
       }
-      hashQuery += ` ORDER BY created_at DESC LIMIT 5`;
-      const hashRes = await pool.query(hashQuery, values);
-      if (hashRes.rows.length > 0) {
-        exactMatches = hashRes.rows.map((r: any) => ({
-          ...r,
-          document_date: toDateString(r.document_date) || '',
-          created_at: toTimestampString(r.created_at) || '',
-          net_amount: Number(r.net_amount || 0),
-          matchType: 'ATTACHMENT_HASH',
-        }));
-      }
+    }
+  }
+
+  if (allAttItems.length > 0 && exactMatches.length === 0) {
+    const attDupRes = await checkAttachmentDuplicates({
+      items: allAttItems,
+      excludeId,
+    });
+    if (attDupRes.isDuplicate && attDupRes.matches.length > 0) {
+      attDupRes.matches.forEach((m) => {
+        exactMatches.push({
+          ...m,
+          matchType: m.matchType || 'ATTACHMENT_HASH',
+        });
+      });
     }
   }
 
@@ -799,6 +886,7 @@ export async function createPaymentRequest(data: {
       netAmount: net,
       documentDate: data.document_date,
       branch: data.branch,
+      attachments: Array.isArray(data.attachments) ? data.attachments : [],
       fileHashes: Array.isArray(data.attachments)
         ? (data.attachments as any[]).map((a: any) => a.fileHash).filter(Boolean)
         : [],
@@ -845,6 +933,10 @@ export async function createPaymentRequest(data: {
       const matchDetail =
         firstMatch.matchType === 'ITEM_DUPLICATE'
           ? `รายการที่ ${firstMatch.matchedItemIndex || 1} "${firstMatch.matchedItemDesc || ''}" ของ ${firstMatch.matchedItemSupplier || ''} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`
+          : firstMatch.matchType === 'ATTACHMENT_VISUAL'
+          ? `ภาพเอกสารตรงกับ ${firstMatch.matchedFileName || 'เอกสาร'} ในใบขอจ่าย ${firstMatch.pay_number} (ตรวจพบลายนิ้วมือภาพตรงกัน)`
+          : firstMatch.matchType === 'ATTACHMENT_NAME_SIMILAR'
+          ? `ชื่อเอกสารตรงกับ ${firstMatch.matchedFileName || 'เอกสาร'} ในใบขอจ่าย ${firstMatch.pay_number}`
           : firstMatch.matchType === 'ATTACHMENT_HASH'
           ? `ไฟล์แนบตรงกับเอกสารในใบขอจ่าย ${firstMatch.pay_number}`
           : firstMatch.matchType === 'PO_PR_NUMBER'
@@ -1558,7 +1650,7 @@ export async function cancelPaymentRequest(
 // Add attachments to existing request
 export async function addPaymentRequestAttachments(
   id: string,
-  newAttachments: { url: string; fileName: string; fileType?: string; fileHash?: string; fileSize?: number }[],
+  newAttachments: { url: string; fileName: string; fileType?: string; fileHash?: string; visualHash?: string; fileSize?: number }[],
   userName: string
 ) {
   const pool = getPool();

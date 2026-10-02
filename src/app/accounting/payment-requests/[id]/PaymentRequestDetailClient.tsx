@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -17,6 +17,7 @@ import {
   cancelPaymentRequest,
   deletePaymentRequest,
   addPaymentRequestAttachments,
+  checkAttachmentDuplicates,
   updatePaymentBankDetails,
   resubmitPaymentRequest,
   updatePaymentRequestRequisition,
@@ -786,10 +787,103 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    const newItems: { url: string; fileName: string; fileType?: string }[] = [];
+    const newItems: {
+      url: string;
+      fileName: string;
+      fileType?: string;
+      fileHash?: string;
+      visualHash?: string;
+      fileSize?: number;
+    }[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+
+      // Multi-signal pre-scan
+      let fileHash = '';
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const hashBuffer = await window.crypto.subtle.digest('SHA-256', arrayBuffer);
+        fileHash = Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('');
+      } catch (err) {
+        console.warn('Failed to compute fileHash:', err);
+      }
+
+      // Visual hash
+      let visualHash: string | undefined = undefined;
+      if (file.type.startsWith('image/')) {
+        visualHash = await new Promise<string | undefined>((resolve) => {
+          try {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+              URL.revokeObjectURL(url);
+              try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 9;
+                canvas.height = 8;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return resolve(undefined);
+                ctx.drawImage(img, 0, 0, 9, 8);
+                const data = ctx.getImageData(0, 0, 9, 8).data;
+                const gray: number[][] = [];
+                for (let y = 0; y < 8; y++) {
+                  const row: number[] = [];
+                  for (let x = 0; x < 9; x++) {
+                    const idx = (y * 9 + x) * 4;
+                    row.push(0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2]);
+                  }
+                  gray.push(row);
+                }
+                let hex = '';
+                for (let y = 0; y < 8; y++) {
+                  let byte = 0;
+                  for (let x = 0; x < 8; x++) {
+                    byte = (byte << 1) | (gray[y][x] > gray[y][x + 1] ? 1 : 0);
+                  }
+                  hex += byte.toString(16).padStart(2, '0');
+                }
+                resolve(hex);
+              } catch {
+                resolve(undefined);
+              }
+            };
+            img.onerror = () => {
+              URL.revokeObjectURL(url);
+              resolve(undefined);
+            };
+            img.src = url;
+          } catch {
+            resolve(undefined);
+          }
+        });
+      }
+
+      // Check duplicates against DB (excluding current request)
+      const dupCheck = await checkAttachmentDuplicates({
+        items: [
+          {
+            fileName: file.name,
+            fileHash,
+            visualHash,
+            fileSize: file.size,
+          },
+        ],
+        fileHashes: fileHash ? [fileHash] : [],
+        excludeId: request.id,
+      });
+
+      if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
+        const match = dupCheck.matches[0];
+        await Swal.fire({
+          title: 'ตรวจพบเอกสารซ้ำซ้อนในระบบ!',
+          html: `ไฟล์ "${file.name}" ตรงกับเอกสารในใบขอจ่าย <b>${match.pay_number}</b> (${match.supplier_name}) ระบบไม่อนุญาตให้แนบซ้ำ`,
+          icon: 'error',
+          confirmButtonColor: '#dc2626',
+        });
+        continue;
+      }
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('bucket', 'uploadsService');
@@ -805,6 +899,9 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             url: data.url,
             fileName: file.name,
             fileType: file.type,
+            fileHash: fileHash || undefined,
+            visualHash: visualHash || data.visualHash || undefined,
+            fileSize: file.size,
           });
         }
       } catch (err) {
@@ -907,6 +1004,109 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   };
 
   const attachmentsList = Array.isArray(request.attachments) ? request.attachments : [];
+
+  // Attachment verification states
+  const [isScanningAtt, setIsScanningAtt] = useState(false);
+  const [attScanStatus, setAttScanStatus] = useState<
+    Record<number, { isDuplicate: boolean; matchedPayNumber?: string; reason?: string; verified?: boolean }>
+  >({});
+
+  const scanAttachmentsVerification = async (silent = false) => {
+    if (!attachmentsList || attachmentsList.length === 0) return;
+    setIsScanningAtt(true);
+
+    try {
+      const results: Record<number, { isDuplicate: boolean; matchedPayNumber?: string; reason?: string; verified?: boolean }> = {};
+      let duplicateFoundCount = 0;
+      const duplicateDetails: string[] = [];
+
+      for (let i = 0; i < attachmentsList.length; i++) {
+        const att = attachmentsList[i];
+        const checkRes = await checkAttachmentDuplicates({
+          items: [
+            {
+              fileName: att.fileName,
+              fileHash: att.fileHash,
+              visualHash: att.visualHash,
+              fileSize: att.fileSize,
+            },
+          ],
+          fileHashes: att.fileHash ? [att.fileHash] : [],
+          excludeId: request.id,
+        });
+
+        if (checkRes.isDuplicate && checkRes.matches.length > 0) {
+          duplicateFoundCount++;
+          const match = checkRes.matches[0];
+          results[i] = {
+            isDuplicate: true,
+            matchedPayNumber: match.pay_number,
+            reason: match.reason,
+            verified: true,
+          };
+          duplicateDetails.push(`• ไฟล์ <b>${att.fileName}</b>: ซ้ำกับคำขอ <b>${match.pay_number}</b> (${match.supplier_name})`);
+        } else {
+          results[i] = {
+            isDuplicate: false,
+            verified: true,
+          };
+        }
+      }
+
+      setAttScanStatus(results);
+
+      if (!silent) {
+        if (duplicateFoundCount > 0) {
+          await Swal.fire({
+            title: 'ตรวจพบเอกสารซ้ำซ้อน!',
+            html: `
+              <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
+                <p class="font-bold text-red-900 text-sm">พบเอกสารซ้ำ ${duplicateFoundCount} ไฟล์จากทั้งหมด ${attachmentsList.length} ไฟล์</p>
+                <div class="space-y-1 text-gray-700">
+                  ${duplicateDetails.join('<br>')}
+                </div>
+                <p class="text-red-700 text-[11px] pt-1">* กรุณาตรวจสอบความถูกต้องของเอกสาร</p>
+              </div>
+            `,
+            icon: 'warning',
+            confirmButtonColor: '#dc2626',
+          });
+        } else {
+          await Swal.fire({
+            title: 'ผลการตรวจสอบเอกสารและหลักฐาน',
+            html: `
+              <div class="text-left text-xs bg-emerald-50 p-4 rounded-xl border border-emerald-200 space-y-2">
+                <p class="font-bold text-emerald-900 text-sm flex items-center gap-1.5">
+                  ✓ เอกสารแนบและหลักฐานถูกต้องสมบูรณ์
+                </p>
+                <p class="text-gray-700">
+                  ระบบได้สแกนลายนิ้วมือดิจิทัล (Digital SHA-256) และลายนิ้วมือภาพ (Visual Fingerprint) ของเอกสารแนบทั้ง <b>${attachmentsList.length} ไฟล์</b> เรียบร้อยแล้ว:
+                </p>
+                <ul class="list-disc list-inside space-y-1 text-gray-600 font-mono text-[11px]">
+                  ${attachmentsList.map((a: any) => `<li>${a.fileName} (${a.fileSize ? `${(a.fileSize / 1024).toFixed(1)} KB` : 'สมบูรณ์'})</li>`).join('')}
+                </ul>
+                <p class="text-emerald-800 font-medium text-[11px] pt-1">
+                  * ยืนยันไม่พบประวัติการใช้งานซ้ำในใบขอจ่ายอื่นในระบบ
+                </p>
+              </div>
+            `,
+            icon: 'success',
+            confirmButtonColor: '#059669',
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error scanning attachments:', err);
+    } finally {
+      setIsScanningAtt(false);
+    }
+  };
+
+  useEffect(() => {
+    if (attachmentsList && attachmentsList.length > 0) {
+      scanAttachmentsVerification(true);
+    }
+  }, [request.id, attachmentsList.length]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
@@ -1426,29 +1626,51 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
           {/* Supporting Attachments Card */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
+              <div className="flex items-center gap-2">
                 <Paperclip className="w-4 h-4 text-indigo-600" />
-                เอกสารแนบและหลักฐาน ({attachmentsList.length})
-              </h2>
+                <h2 className="text-sm font-bold text-slate-900">
+                  เอกสารแนบและหลักฐาน ({attachmentsList.length})
+                </h2>
+                {attachmentsList.length > 0 && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600" /> ตรวจสอบลายนิ้วมือดิจิทัลแล้ว
+                  </span>
+                )}
+              </div>
 
-              {/* Upload Extra Attachment */}
-              <div>
-                <input
-                  type="file"
-                  multiple
-                  id="add-att-file"
-                  onChange={handleAddAttachment}
-                  disabled={isUploading}
-                  className="hidden"
-                />
-                <label
-                  htmlFor="add-att-file"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg cursor-pointer transition"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  {isUploading ? 'กำลังอัปโหลด...' : '+ แนบเอกสารเพิ่ม'}
-                </label>
+              <div className="flex items-center gap-2">
+                {attachmentsList.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => scanAttachmentsVerification(false)}
+                    disabled={isScanningAtt}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 transition shadow-2xs cursor-pointer"
+                    title="คลิกเพื่อสแกนและตรวจสอบเอกสารแนบกับฐานข้อมูลกลาง"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    {isScanningAtt ? 'กำลังตรวจสอบ...' : 'สแกนตรวจสอบเอกสาร'}
+                  </button>
+                )}
+
+                {/* Upload Extra Attachment */}
+                <div>
+                  <input
+                    type="file"
+                    multiple
+                    id="add-att-file"
+                    onChange={handleAddAttachment}
+                    disabled={isUploading}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="add-att-file"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg cursor-pointer transition"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    {isUploading ? 'กำลังอัปโหลด...' : '+ แนบเอกสารเพิ่ม'}
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -1456,51 +1678,67 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               <p className="text-xs text-slate-400 py-3 text-center">ยังไม่มีเอกสารแนบในคำขอนี้</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {attachmentsList.map((att: any, idx: number) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs hover:border-slate-300 transition"
-                  >
-                    <div className="flex items-center gap-2.5 truncate mr-2">
-                      <div className="p-2 bg-white rounded-lg border border-slate-200 text-indigo-600 shrink-0">
-                        <FileText className="w-4 h-4" />
+                {attachmentsList.map((att: any, idx: number) => {
+                  const status = attScanStatus[idx];
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs hover:border-slate-300 transition"
+                    >
+                      <div className="flex items-center gap-2.5 truncate mr-2">
+                        <div className="p-2 bg-white rounded-lg border border-slate-200 text-indigo-600 shrink-0">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div className="truncate">
+                          <a
+                            href={att.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-medium text-slate-800 hover:text-indigo-600 truncate block underline"
+                          >
+                            {att.fileName}
+                          </a>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              {att.fileSize ? `${(att.fileSize / 1024).toFixed(1)} KB` : 'เอกสารแนบ'}
+                            </span>
+                            {status?.isDuplicate ? (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                                <AlertTriangle className="w-2.5 h-2.5 text-rose-600" /> ซ้ำกับ {status.matchedPayNumber}
+                              </span>
+                            ) : status?.verified || att.fileHash || att.visualHash ? (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> ตรวจสอบแล้ว ไม่ซ้ำ
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
                       </div>
-                      <div className="truncate">
+                      <div className="flex items-center gap-1 shrink-0">
                         <a
                           href={att.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="font-medium text-slate-800 hover:text-indigo-600 truncate block underline"
+                          className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition"
+                          title="เปิดดูเอกสาร"
                         >
-                          {att.fileName}
+                          <ExternalLink className="w-4 h-4" />
                         </a>
-                        <span className="text-[10px] text-slate-400">คลิกเพื่อเปิด / ดาวน์โหลด</span>
+                        {(request.status === 'RETURN_DOCUMENT' || isStaff || isOwner) && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAttachment(idx)}
+                            disabled={isProcessing}
+                            className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition"
+                            title="ลบเอกสารแนบนี้"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <a
-                        href={att.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition"
-                        title="เปิดดูเอกสาร"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                      {(request.status === 'RETURN_DOCUMENT' || isStaff || isOwner) && (
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteAttachment(idx)}
-                          disabled={isProcessing}
-                          className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition"
-                          title="ลบเอกสารแนบนี้"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

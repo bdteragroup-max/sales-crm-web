@@ -11,6 +11,11 @@ import {
   PaymentRequestRecord,
   RequisitionItem,
 } from '@/app/actions/paymentRequests';
+import {
+  normalizeAttachmentName,
+  isDistinctiveAttachmentName,
+  visualHammingDistance,
+} from '@/lib/attachmentUtils';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
 import { thaiBahtText } from '@/app/lib/thaiBahtText';
 import {
@@ -440,7 +445,7 @@ export default function NewPaymentRequestClient({
 
   // Attachments
   const [attachments, setAttachments] = useState<
-    { url: string; fileName: string; fileType?: string; fileHash?: string; fileSize?: number }[]
+    { url: string; fileName: string; fileType?: string; fileHash?: string; visualHash?: string; fileSize?: number }[]
   >([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadScanStatus, setUploadScanStatus] = useState<string | null>(null);
@@ -562,6 +567,7 @@ export default function NewPaymentRequestClient({
           netAmount: netPayable,
           documentDate,
           branch: finalBranch,
+          attachments,
           fileHashes: attachments.map((a) => a.fileHash).filter(Boolean) as string[],
           items: validItems,
         });
@@ -598,7 +604,61 @@ export default function NewPaymentRequestClient({
     return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   };
 
-  // File Upload Handler with Instant Pre-Scan
+  // Helper to compute 64-bit visual difference hash (dHash) using HTML5 Canvas (perceptually detects same receipt across devices)
+  const computeVisualHash = async (file: File): Promise<string | null> => {
+    if (!file.type.startsWith('image/')) return null;
+    return new Promise((resolve) => {
+      try {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 9;
+            canvas.height = 8;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return resolve(null);
+            ctx.drawImage(img, 0, 0, 9, 8);
+            const imgData = ctx.getImageData(0, 0, 9, 8);
+            const data = imgData.data;
+            const gray: number[][] = [];
+            for (let y = 0; y < 8; y++) {
+              const row: number[] = [];
+              for (let x = 0; x < 9; x++) {
+                const idx = (y * 9 + x) * 4;
+                const val = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+                row.push(val);
+              }
+              gray.push(row);
+            }
+            let hashHex = '';
+            for (let y = 0; y < 8; y++) {
+              let byte = 0;
+              for (let x = 0; x < 8; x++) {
+                const bit = gray[y][x] > gray[y][x + 1] ? 1 : 0;
+                byte = (byte << 1) | bit;
+              }
+              hashHex += byte.toString(16).padStart(2, '0');
+            }
+            resolve(hashHex);
+          } catch (err) {
+            console.warn('Canvas dHash failed:', err);
+            resolve(null);
+          }
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve(null);
+        };
+        img.src = url;
+      } catch {
+        resolve(null);
+      }
+    });
+  };
+
+  // File Upload Handler with Instant Multi-Signal Pre-Scan
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -609,6 +669,7 @@ export default function NewPaymentRequestClient({
       fileName: string;
       fileType?: string;
       fileHash?: string;
+      visualHash?: string;
       fileSize?: number;
     }[] = [];
 
@@ -616,15 +677,22 @@ export default function NewPaymentRequestClient({
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        // 1. Calculate SHA-256 Fingerprint
-        setUploadScanStatus(`กำลังตรวจสอบความซ้ำซ้อนของไฟล์ ${file.name}...`);
+        // 1. Calculate Multi-Signal Fingerprints (SHA-256 + Visual dHash)
+        setUploadScanStatus(`กำลังสแกนตรวจสอบเอกสาร ${file.name}...`);
         const fileHash = await computeFileHash(file);
+        const visualHash = await computeVisualHash(file);
 
         // Check if file is already in current form's attachments list
-        if (
-          attachments.some((a) => a.fileHash === fileHash) ||
-          newItems.some((a) => a.fileHash === fileHash)
-        ) {
+        const normName = normalizeAttachmentName(file.name);
+        const isDistinct = isDistinctiveAttachmentName(normName);
+        const isAlreadyAttached = [...attachments, ...newItems].some((a) => {
+          if (a.fileHash && a.fileHash === fileHash) return true;
+          if (visualHash && a.visualHash && visualHammingDistance(visualHash, a.visualHash) <= 4) return true;
+          if (isDistinct && normalizeAttachmentName(a.fileName) === normName) return true;
+          return false;
+        });
+
+        if (isAlreadyAttached) {
           await Swal.fire({
             title: 'ไฟล์นี้ถูกแนบอยู่แล้ว',
             text: `ไฟล์ "${file.name}" มีอยู่ในรายการเอกสารแนบแล้ว`,
@@ -634,21 +702,42 @@ export default function NewPaymentRequestClient({
           continue;
         }
 
-        // 2. Pre-scan: Check if this file hash already exists in any active payment request in the DB
-        const dupCheck = await checkAttachmentDuplicates({ fileHashes: [fileHash] });
+        // 2. Pre-scan: Check if this file exists in any active payment request across ANY device
+        const dupCheck = await checkAttachmentDuplicates({
+          items: [
+            {
+              fileName: file.name,
+              fileHash,
+              visualHash: visualHash || undefined,
+              fileSize: file.size,
+            },
+          ],
+          fileHashes: [fileHash],
+        });
+
         if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
           const match = dupCheck.matches[0];
+          let explanationText = '';
+          if (match.matchType === 'ATTACHMENT_VISUAL') {
+            explanationText = `ระบบตรวจพบว่าภาพเอกสารนี้ (Visual Fingerprint / ลายนิ้วมือภาพ) ตรงกับเอกสารที่เคยแนบในระบบกลาง แม้จะส่งจากคนละอุปกรณ์ (มือถือ/คอมฯ) หรือไฟล์ถูกบีบอัดใหม่`;
+          } else if (match.matchType === 'ATTACHMENT_NAME_SIMILAR') {
+            explanationText = `ระบบตรวจพบว่าชื่อเอกสารและขนาดไฟล์นี้ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
+          } else {
+            explanationText = `ระบบตรวจพบว่าเนื้อหาของไฟล์นี้ (Digital Fingerprint) ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
+          }
+
           const result = await Swal.fire({
             title: 'ตรวจพบเอกสารซ้ำซ้อนในระบบ!',
             html: `
               <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
                 <p class="font-bold text-red-900 text-sm">ไฟล์ "${file.name}" เคยถูกใช้งานแล้ว</p>
-                <p class="text-gray-700">ระบบตรวจพบว่าเนื้อหาของไฟล์นี้ (Digital Fingerprint) ตรงกับเอกสารที่เคยแนบในระบบกลาง:</p>
+                <p class="text-gray-700">${explanationText}:</p>
                 <div class="bg-white p-3 rounded-lg border border-red-100 font-mono text-[11px] space-y-1">
                   <p><span class="text-gray-500 font-sans">เลขที่คำขอ:</span> <b class="text-red-700 font-bold">${match.pay_number}</b></p>
                   <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${match.supplier_name}</b></p>
                   ${match.invoice_number ? `<p><span class="text-gray-500 font-sans">เลขที่บิล:</span> <b>${match.invoice_number}</b></p>` : ''}
                   <p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b>${Number(match.net_amount).toLocaleString()} ฿</b></p>
+                  <p><span class="text-gray-500 font-sans">เอกสารที่ตรวจพบ:</span> <b class="text-gray-800">${match.matchedFileName || file.name}</b></p>
                   <p><span class="text-gray-500 font-sans">ผู้ขอเบิกเดิม:</span> <b>${match.requester_name || '-'}</b></p>
                   <p><span class="text-gray-500 font-sans">สถานะคำขอเดิม:</span> <span class="px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded font-semibold">${match.status}</span></p>
                 </div>
@@ -688,6 +777,7 @@ export default function NewPaymentRequestClient({
             fileName: file.name,
             fileType: file.type,
             fileHash,
+            visualHash: visualHash || data.visualHash || undefined,
             fileSize: file.size,
           });
         } else {
@@ -2900,7 +2990,7 @@ export default function NewPaymentRequestClient({
                       </a>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-[10px] text-gray-400 font-mono">ไฟล์ #{idx + 1}</span>
-                        {att.fileHash && (
+                        {(att.fileHash || att.visualHash) && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                             <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> สแกนแล้ว ไม่ซ้ำ
                           </span>
