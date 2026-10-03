@@ -67,6 +67,7 @@ export async function POST(request: Request) {
 
     // Compute 64-bit visual difference hash (dHash) and extract QR/Slip payload for images
     let visualHash: string | null = null;
+    let coreVisualHash: string | null = null;
     let qrPayload: string | null = null;
     if (file.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
       try {
@@ -90,6 +91,36 @@ export async function POST(request: Request) {
           hashHex += byte.toString(16).padStart(2, '0');
         }
         visualHash = hashHex;
+
+        // 1b. Core Visual Hash (center 70% crop invariant to borders/clutter)
+        try {
+          const meta = await sharp(buffer).metadata();
+          const w = meta.width || 800;
+          const h = meta.height || 600;
+          const cropW = Math.round(w * 0.7);
+          const cropH = Math.round(h * 0.7);
+          const cropL = Math.round((w - cropW) / 2);
+          const cropT = Math.round((h - cropH) / 2);
+          const { data: coreData } = await sharp(buffer)
+            .extract({ left: cropL, top: cropT, width: cropW, height: cropH })
+            .resize(9, 8, { fit: 'fill' })
+            .greyscale()
+            .raw()
+            .toBuffer({ resolveWithObject: true });
+
+          let coreHex = '';
+          for (let y = 0; y < 8; y++) {
+            let byte = 0;
+            for (let x = 0; x < 8; x++) {
+              const bit = coreData[y * 9 + x] > coreData[y * 9 + (x + 1)] ? 1 : 0;
+              byte = (byte << 1) | bit;
+            }
+            coreHex += byte.toString(16).padStart(2, '0');
+          }
+          coreVisualHash = coreHex;
+        } catch (coreErr) {
+          console.debug('Core hash in upload route skipped:', coreErr);
+        }
 
         // 2. Extract QR Code / Slip Payload
         try {
@@ -121,7 +152,7 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, url: publicUrl, visualHash, qrPayload });
+    return NextResponse.json({ success: true, url: publicUrl, visualHash, coreVisualHash, qrPayload });
   } catch (error: any) {
     console.error('Error uploading file:', error);
     const isPayloadTooLarge = error?.message?.includes('payload') || error?.message?.includes('too large') || error?.status === 413;

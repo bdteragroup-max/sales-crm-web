@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { extractDocumentFields } from '@/lib/attachmentUtils';
+import { fastOcrManager } from '@/lib/ocrService';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,63 +31,89 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file or image provided' }, { status: 400 });
     }
 
-    // 1. QR Code / Barcode detection on server using sharp + jsQR
+    const skipQr = formData.get('skipQr') === 'true';
+    if (formData.get('restart') === 'true') {
+      fastOcrManager.restart();
+    }
+
+    // 1. Fast QR Code / Barcode detection (only if not already scanned by client)
     let qrPayload: string | null = null;
-    try {
-      const sharp = (await import('sharp')).default;
-      const jsQR = (await import('jsqr')).default;
-      const meta = await sharp(buffer).metadata();
-      const origW = meta.width || 800;
-      const origH = meta.height || 600;
+    if (!skipQr) {
+      try {
+        const sharp = (await import('sharp')).default;
+        const jsQR = (await import('jsqr')).default;
+        const meta = await sharp(buffer).metadata();
+        const origW = meta.width || 800;
+        const origH = meta.height || 600;
 
-      // Check at scaled dimensions for speed & accuracy
-      const maxDim = Math.max(origW, origH);
-      const scales = maxDim > 1200 ? [1200 / maxDim, 800 / maxDim, 1.0] : [1.0, 0.7];
+        // Downscale to max 800px for instant single-pass QR decode (< 40ms)
+        const maxDim = Math.max(origW, origH);
+        const scale = maxDim > 800 ? 800 / maxDim : 1.0;
 
-      for (const s of scales) {
         let pipeline = sharp(buffer).ensureAlpha();
-        if (s < 1.0) {
-          pipeline = pipeline.resize(Math.round(origW * s), Math.round(origH * s));
+        if (scale < 1.0) {
+          pipeline = pipeline.resize(Math.round(origW * scale), Math.round(origH * scale));
         }
         const { data, info } = await pipeline.raw().toBuffer({ resolveWithObject: true });
         const qr = jsQR(new Uint8ClampedArray(data), info.width, info.height, {
-          inversionAttempts: 'attemptBoth',
+          inversionAttempts: 'dontInvert',
         });
         if (qr && qr.data) {
           qrPayload = qr.data;
-          break;
         }
+      } catch (qrErr) {
+        console.warn('Server QR scan error:', qrErr);
       }
-    } catch (qrErr) {
-      console.warn('Server QR scan error:', qrErr);
     }
 
-    // 2. OCR Auto-Scan using Tesseract
+    // 2. High-Performance Short-Circuit:
+    // If QR code was detected (bank transfer slip or QR receipt), it already has a 100% unique payload!
+    // Skip heavy OCR entirely for instantaneous response (~50ms)!
+    if (qrPayload) {
+      return NextResponse.json({
+        success: true,
+        fileName,
+        qrPayload,
+        barcode: qrPayload,
+        extractedTaxId: null,
+        extractedInvoiceNo: null,
+        extractedAmount: null,
+        extractedDate: null,
+        extractedSupplier: null,
+        extractedPhone: null,
+        extractedDescription: null,
+        extractedLineItems: [],
+        rawTextSnippet: null,
+      });
+    }
+
+    // 3. Fast OCR Auto-Scan via dedicated warm worker process
     let rawText = '';
     try {
-      const { createWorker } = await import('tesseract.js');
-      const worker = await createWorker('tha+eng');
-      const ret = await worker.recognize(buffer);
-      rawText = ret.data.text || '';
-      await worker.terminate();
+      const ocrRes = await fastOcrManager.recognizeBuffer(buffer, 25000);
+      rawText = ocrRes.text || '';
     } catch (ocrErr) {
       console.warn('Server OCR recognize error:', ocrErr);
     }
 
-    // 3. Extract structured business fields
+    // 4. Extract structured business fields
     const parsed = extractDocumentFields(rawText);
 
     return NextResponse.json({
       success: true,
       fileName,
-      qrPayload,
-      barcode: qrPayload,
+      qrPayload: null,
+      barcode: null,
       extractedTaxId: parsed.taxId,
       extractedInvoiceNo: parsed.invoiceNo,
       extractedAmount: parsed.amount,
       extractedDate: parsed.date,
       extractedSupplier: parsed.supplier,
-      rawTextSnippet: rawText.slice(0, 300),
+      extractedPhone: parsed.phone,
+      extractedDescription: parsed.itemsSummary,
+      extractedLineItems: parsed.lineItems,
+      distinctiveTokens: parsed.distinctiveTokens,
+      rawTextSnippet: rawText.slice(0, 2000),
     });
   } catch (error: any) {
     console.error('Scan document API error:', error);

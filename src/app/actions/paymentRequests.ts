@@ -337,14 +337,82 @@ export async function checkAttachmentDuplicates(params: {
             reason = `ไฟล์ดิจิทัลตรงกัน 100% (SHA-256 ตรงกับ "${att.fileName || 'เอกสารเดิม'}")`;
           }
 
-          // 2. Visual Perceptual Hash match (dHash Hamming distance <= 4)
-          if (!isMatch && item.visualHash && att.visualHash) {
-            const dist = visualHammingDistance(item.visualHash, att.visualHash);
-            if (dist <= 4) {
+          // 2. Visual Perceptual Hash match (Full-Frame & Center Core Crop)
+          if (!isMatch) {
+            let bestDist = 999;
+            let hashType = 'ภาพรวม';
+
+            if (item.visualHash && att.visualHash) {
+              const d = visualHammingDistance(item.visualHash, att.visualHash);
+              if (d < bestDist) {
+                bestDist = d;
+                hashType = 'ภาพรวม';
+              }
+            }
+
+            if (item.coreVisualHash && att.coreVisualHash) {
+              const d = visualHammingDistance(item.coreVisualHash, att.coreVisualHash);
+              if (d < bestDist) {
+                bestDist = d;
+                hashType = 'แกนกลางเอกสาร';
+              }
+            } else if (item.visualHash && att.coreVisualHash) {
+              const d = visualHammingDistance(item.visualHash, att.coreVisualHash);
+              if (d < bestDist) {
+                bestDist = d;
+                hashType = 'โครงสร้างเอกสาร';
+              }
+            } else if (item.coreVisualHash && att.visualHash) {
+              const d = visualHammingDistance(item.coreVisualHash, att.visualHash);
+              if (d < bestDist) {
+                bestDist = d;
+                hashType = 'โครงสร้างเอกสาร';
+              }
+            }
+
+            // Shared OCR Token Overlap Check
+            let sharedTokenCount = 0;
+            if (Array.isArray(item.distinctiveTokens) && Array.isArray(att.distinctiveTokens) && item.distinctiveTokens.length > 0 && att.distinctiveTokens.length > 0) {
+              const attTokenSet = new Set(att.distinctiveTokens.map((t: string) => t.toLowerCase()));
+              sharedTokenCount = item.distinctiveTokens.filter((t: string) => attTokenSet.has(t.toLowerCase())).length;
+            }
+
+            // Context alignment: Amount, Supplier, Date
+            const effectiveItemAmt = item.currentAmount || item.extractedAmount;
+            const amtMatch = effectiveItemAmt && row.net_amount && Math.abs(effectiveItemAmt - Number(row.net_amount)) < 1.00;
+            const effectiveItemSupp = item.currentSupplier || item.extractedSupplier;
+            const suppMatch = effectiveItemSupp && row.supplier_name && (
+              effectiveItemSupp.toLowerCase().includes(row.supplier_name.toLowerCase()) ||
+              row.supplier_name.toLowerCase().includes(effectiveItemSupp.toLowerCase())
+            );
+            const phoneMatch = item.extractedPhone && att.extractedPhone && item.extractedPhone === att.extractedPhone;
+
+            // Tier A: High visual similarity (<= 16 bits diff, >= 75% similarity)
+            // Invariant to separate cameras, different distances, and surrounding clutter!
+            if (bestDist <= 16) {
               isMatch = true;
               matchType = 'ATTACHMENT_VISUAL';
-              const similarity = ((64 - dist) / 64 * 100).toFixed(1);
-              reason = `ตรวจพบลายนิ้วมือภาพตรงกัน ${similarity}% (ตรงกับ "${att.fileName || 'เอกสารเดิม'}" แม้จะส่งจากคนละอุปกรณ์หรือบีบอัดใหม่)`;
+              const similarity = ((64 - bestDist) / 64 * 100).toFixed(1);
+              reason = `ตรวจพบลายนิ้วมือโครงสร้างภาพเอกสาร (${hashType}) ตรงกัน ${similarity}% (ตรงกับ "${att.fileName || 'เอกสารเดิม'}" แม้จะถ่ายจากต่างกล้อง คนละมุม หรือมีสิ่งของวางข้างบิล)`;
+            }
+            // Tier B: Context-Assisted Visual match: Similarity >= 65% (bestDist <= 22) + Matching Amount or Supplier or Phone
+            else if (bestDist <= 22 && (amtMatch || suppMatch || phoneMatch || sharedTokenCount >= 2)) {
+              isMatch = true;
+              matchType = 'ATTACHMENT_VISUAL_CONTEXT';
+              const similarity = ((64 - bestDist) / 64 * 100).toFixed(1);
+              const extraDetails = [
+                amtMatch ? `ยอดเงินตรงกัน (${Number(row.net_amount).toLocaleString()} ฿)` : '',
+                suppMatch ? `ผู้ขายตรงกัน (${row.supplier_name})` : '',
+                phoneMatch ? `เบอร์โทรตรายางร้านตรงกัน` : '',
+                sharedTokenCount >= 2 ? `ข้อความบนบิลตรงกัน` : '',
+              ].filter(Boolean).join(', ');
+              reason = `ตรวจพบลักษณะเอกสารใกล้เคียงกัน ${similarity}% (${extraDetails}) ตรงกับคำขอเดิม (${row.pay_number})`;
+            }
+            // Tier C: Distinctive Phone/Stamp Match + Same Amount
+            else if (phoneMatch && amtMatch) {
+              isMatch = true;
+              matchType = 'ATTACHMENT_OCR';
+              reason = `ตรวจพบเบอร์โทรบนตรายางร้าน (${item.extractedPhone}) และยอดเงิน (${effectiveItemAmt} ฿) ตรงกับคำขอเดิม (${row.pay_number})`;
             }
           }
 
@@ -355,7 +423,7 @@ export async function checkAttachmentDuplicates(params: {
             if (normIn && normIn === normAtt && isDistinctiveAttachmentName(normIn)) {
               if (item.visualHash && att.visualHash) {
                 const dist = visualHammingDistance(item.visualHash, att.visualHash);
-                if (dist <= 6) {
+                if (dist <= 8) {
                   isMatch = true;
                   matchType = 'ATTACHMENT_VISUAL';
                   reason = `ตรวจพบชื่อเอกสารและลายนิ้วมือภาพตรงกับ "${att.fileName}"`;
@@ -516,7 +584,11 @@ export async function checkDuplicates(params: {
   const allAttItems: AttachmentCheckItem[] = [
     ...(attachmentItems || []),
     ...(Array.isArray(attachments) ? attachments : []),
-  ];
+  ].map((it) => ({
+    ...it,
+    currentAmount: it.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
+    currentSupplier: it.currentSupplier ?? (cleanSupplier || undefined),
+  }));
   if (fileHashes && fileHashes.length > 0) {
     for (const h of fileHashes) {
       if (typeof h === 'string' && h.trim() && !allAttItems.some((it) => it.fileHash === h.trim())) {
@@ -664,6 +736,49 @@ export async function checkDuplicates(params: {
             });
         }
       }
+    }
+  }
+
+  // 6. Attachment Multi-Signal Cross-Check (Invariance across separate cameras, angles, and phone models)
+  if (Array.isArray(attachments) && attachments.length > 0) {
+    const checkItems: AttachmentCheckItem[] = attachments.map((a: any) => ({
+      fileName: a.fileName,
+      fileHash: a.fileHash,
+      visualHash: a.visualHash,
+      coreVisualHash: a.coreVisualHash,
+      fileSize: a.fileSize,
+      qrPayload: a.qrPayload,
+      barcode: a.barcode,
+      extractedTaxId: a.extractedTaxId,
+      extractedInvoiceNo: a.extractedInvoiceNo,
+      extractedAmount: a.extractedAmount,
+      extractedDate: a.extractedDate,
+      extractedSupplier: a.extractedSupplier,
+      extractedPhone: a.extractedPhone,
+      extractedDescription: a.extractedDescription,
+      extractedLineItems: a.extractedLineItems,
+      rawTextSnippet: a.rawTextSnippet,
+      distinctiveTokens: a.distinctiveTokens,
+      currentAmount: netAmount,
+      currentSupplier: cleanSupplier,
+    }));
+
+    const attRes = await checkAttachmentDuplicates({
+      items: checkItems,
+      fileHashes: checkItems.map((c) => c.fileHash).filter(Boolean) as string[],
+      excludeId,
+    });
+
+    if (attRes.isDuplicate && attRes.matches.length > 0) {
+      const exactIds = new Set(exactMatches.map((m) => m.id));
+      attRes.matches.forEach((m) => {
+        if (!exactIds.has(m.id)) {
+          exactMatches.push({
+            ...m,
+            matchType: m.matchType || 'ATTACHMENT_VISUAL',
+          });
+        }
+      });
     }
   }
 

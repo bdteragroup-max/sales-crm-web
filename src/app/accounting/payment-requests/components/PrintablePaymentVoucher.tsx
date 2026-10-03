@@ -3,7 +3,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { PaymentRequestRecord, updatePaymentRequestSignatures } from '@/app/actions/paymentRequests';
 import { thaiBahtText } from '@/app/lib/thaiBahtText';
-import { Printer, X, Zap, Upload, ZoomIn, ZoomOut, RotateCcw, Download, Loader2, Check } from 'lucide-react';
+import { Printer, X, Zap, Upload, ZoomIn, ZoomOut, RotateCcw, Download, Loader2, Check, FileSpreadsheet } from 'lucide-react';
+import { exportPaymentVoucherToExcel } from '../utils/exportPaymentVoucherExcel';
 
 type Props = {
   request: PaymentRequestRecord;
@@ -78,6 +79,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
   // Font size adjustment state (percentage from 80% to 125%)
   const [fontScale, setFontScale] = useState<number>(100);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
+  const [isGeneratingExcel, setIsGeneratingExcel] = useState<boolean>(false);
 
   // Digital Signatures state for each role
   const [signatures, setSignatures] = useState<{
@@ -307,6 +309,18 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
     }
   };
 
+  const handleExportExcel = async () => {
+    try {
+      setIsGeneratingExcel(true);
+      await exportPaymentVoucherToExcel(request, signatures);
+    } catch (error) {
+      console.error('Error generating Excel voucher:', error);
+      alert('เกิดข้อผิดพลาดในการสร้างไฟล์ Excel');
+    } finally {
+      setIsGeneratingExcel(false);
+    }
+  };
+
   const netAmount = Number(request.net_amount) || 0;
   const subtotal = Number(request.subtotal_amount) || 0;
   const vat = Number(request.vat_amount) || 0;
@@ -413,10 +427,30 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
               </button>
             </div>
 
+            {/* Direct Excel (.xlsx) Download */}
+            <button
+              onClick={handleExportExcel}
+              disabled={isGeneratingExcel || isGeneratingPdf}
+              className="inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-[0.99]"
+              title="ส่งออกเอกสารใบขออนุมัติจ่ายเงินเป็นไฟล์ Excel (.xlsx)"
+            >
+              {isGeneratingExcel ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>กำลังสร้าง Excel...</span>
+                </>
+              ) : (
+                <>
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>ส่งออก Excel (.xlsx)</span>
+                </>
+              )}
+            </button>
+
             {/* Direct PDF Download / Print */}
             <button
               onClick={handleDownloadPDF}
-              disabled={isGeneratingPdf}
+              disabled={isGeneratingPdf || isGeneratingExcel}
               className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-[0.99]"
               title="สร้างและดาวน์โหลดไฟล์เอกสาร PDF ทันที"
             >
@@ -436,7 +470,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
             {/* Standard Browser Print Button */}
             <button
               onClick={handlePrint}
-              disabled={isGeneratingPdf}
+              disabled={isGeneratingPdf || isGeneratingExcel}
               className="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl border border-gray-200 transition active:scale-[0.99]"
               title="สั่งพิมพ์ผ่านหน้าต่างเบราว์เซอร์ / เครื่องพิมพ์"
             >

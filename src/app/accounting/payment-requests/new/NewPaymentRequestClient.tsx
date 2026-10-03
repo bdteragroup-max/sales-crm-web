@@ -16,8 +16,10 @@ import {
   isDistinctiveAttachmentName,
   visualHammingDistance,
   normalizeInvoiceNo,
+  ExtractedLineItem,
+  formatDateToISO,
 } from '@/lib/attachmentUtils';
-import { detectSlipQrAndBarcode } from '@/lib/slipDetector';
+import { detectSlipQrAndBarcode, downscaleImageForScan, computeVisualHashes } from '@/lib/slipDetector';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
 import { thaiBahtText } from '@/app/lib/thaiBahtText';
 import {
@@ -56,6 +58,7 @@ import {
   ListPlus,
   Scan,
   QrCode,
+  Eye,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -455,6 +458,7 @@ export default function NewPaymentRequestClient({
       fileType?: string;
       fileHash?: string;
       visualHash?: string;
+      coreVisualHash?: string;
       fileSize?: number;
       qrPayload?: string;
       barcode?: string;
@@ -463,11 +467,26 @@ export default function NewPaymentRequestClient({
       extractedAmount?: number;
       extractedDate?: string;
       extractedSupplier?: string;
+      extractedPhone?: string;
+      extractedDescription?: string;
+      extractedLineItems?: ExtractedLineItem[];
+      rawTextSnippet?: string;
+      distinctiveTokens?: string[];
     }[]
   >([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadScanStatus, setUploadScanStatus] = useState<string | null>(null);
   const [ocrAutoScanEnabled, setOcrAutoScanEnabled] = useState(true);
+
+  // Sync OCR Auto-Scan toggle preference with localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('pr_ocr_autoscan_enabled');
+      if (saved !== null) {
+        setOcrAutoScanEnabled(saved === 'true');
+      }
+    } catch {}
+  }, []);
 
   // Duplicate Check Feedback State
   const [dupResult, setDupResult] = useState<{
@@ -689,6 +708,7 @@ export default function NewPaymentRequestClient({
       fileType?: string;
       fileHash?: string;
       visualHash?: string;
+      coreVisualHash?: string;
       fileSize?: number;
       qrPayload?: string;
       barcode?: string;
@@ -697,16 +717,23 @@ export default function NewPaymentRequestClient({
       extractedAmount?: number;
       extractedDate?: string;
       extractedSupplier?: string;
+      extractedPhone?: string;
+      extractedDescription?: string;
+      extractedLineItems?: ExtractedLineItem[];
+      rawTextSnippet?: string;
+      distinctiveTokens?: string[];
     }[] = [];
 
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        // 1. Calculate Multi-Signal Fingerprints (SHA-256 + Visual dHash)
+        // 1. Calculate Multi-Signal Fingerprints (SHA-256 + Full dHash + Core Center dHash)
         setUploadScanStatus(`กำลังตรวจจับ QR/สลิป และคำนวณลายนิ้วมือ (${file.name})...`);
         const fileHash = await computeFileHash(file);
-        const visualHash = await computeVisualHash(file);
+        const visualHashes = await computeVisualHashes(file);
+        const visualHash = visualHashes?.visualHash;
+        const coreVisualHash = visualHashes?.coreVisualHash;
 
         // 2. Client-Side Instant QR/Barcode Slip Detection (<50ms)
         let qrPayload: string | undefined = undefined;
@@ -723,21 +750,34 @@ export default function NewPaymentRequestClient({
           }
         }
 
-        // 3. OCR Auto-Scan (extract Tax ID, Invoice No, Net Amount, Date, Supplier)
+        // 3. OCR Auto-Scan (extract Tax ID, Invoice No, Net Amount, Date, Supplier, Stamp Phone, Tokens, Line Items)
         let extractedTaxId: string | undefined = undefined;
         let extractedInvoiceNo: string | undefined = undefined;
         let extractedAmount: number | undefined = undefined;
         let extractedDate: string | undefined = undefined;
         let extractedSupplier: string | undefined = undefined;
+        let extractedPhone: string | undefined = undefined;
+        let extractedDescription: string | undefined = undefined;
+        let extractedLineItems: ExtractedLineItem[] | undefined = undefined;
+        let rawTextSnippet: string | undefined = undefined;
+        let distinctiveTokens: string[] | undefined = undefined;
 
-        if (ocrAutoScanEnabled && file.type.startsWith('image/')) {
+        // HIGH-PERFORMANCE OPTIMIZATION:
+        // If a QR Code was already detected from the slip/receipt (<50ms), skip heavy OCR!
+        // PromptPay and e-slip QR payloads uniquely identify the document 100% without waiting for OCR.
+        if (ocrAutoScanEnabled && file.type.startsWith('image/') && !qrPayload) {
           setUploadScanStatus(`กำลังสแกนอ่านข้อมูลเอกสารด้วย OCR Auto-Scan (${file.name})...`);
           try {
+            // Preserve crisp resolution for Thai character and table clarity
+            const downscaledBlob = await downscaleImageForScan(file, 3200);
             const scanForm = new FormData();
-            scanForm.append('file', file);
+            scanForm.append('file', downscaledBlob, file.name);
+            scanForm.append('skipQr', 'true');
+
             const scanRes = await fetch('/api/scan-document', {
               method: 'POST',
               body: scanForm,
+              signal: AbortSignal.timeout(30000), // Safe 30s timeout guard for OCR
             });
             if (scanRes.ok) {
               const scanData = await scanRes.json();
@@ -749,21 +789,29 @@ export default function NewPaymentRequestClient({
                 if (scanData.extractedAmount) extractedAmount = scanData.extractedAmount;
                 if (scanData.extractedDate) extractedDate = scanData.extractedDate;
                 if (scanData.extractedSupplier) extractedSupplier = scanData.extractedSupplier;
+                if (scanData.extractedPhone) extractedPhone = scanData.extractedPhone;
+                if (scanData.extractedDescription) extractedDescription = scanData.extractedDescription;
+                if (Array.isArray(scanData.extractedLineItems) && scanData.extractedLineItems.length > 0) {
+                  extractedLineItems = scanData.extractedLineItems;
+                }
+                if (scanData.rawTextSnippet) rawTextSnippet = scanData.rawTextSnippet;
+                if (Array.isArray(scanData.distinctiveTokens)) distinctiveTokens = scanData.distinctiveTokens;
               }
             }
           } catch (ocrErr) {
-            console.warn('OCR Auto-Scan request failed:', ocrErr);
+            console.warn('OCR Auto-Scan timed out or skipped:', ocrErr);
           }
         }
 
         // Check if file is already in current form's attachments list
         const normName = normalizeAttachmentName(file.name);
         const isDistinct = isDistinctiveAttachmentName(normName);
-        const isAlreadyAttached = [...attachments, ...newItems].some((a) => {
+        const isAlreadyAttached = [...attachments, ...newItems].some((a: any) => {
           if (a.fileHash && a.fileHash === fileHash) return true;
           if (qrPayload && a.qrPayload && (a.qrPayload === qrPayload || (qrPayload.length >= 15 && a.qrPayload.includes(qrPayload)))) return true;
           if (extractedInvoiceNo && a.extractedInvoiceNo && normalizeInvoiceNo(a.extractedInvoiceNo) === normalizeInvoiceNo(extractedInvoiceNo)) return true;
           if (visualHash && a.visualHash && visualHammingDistance(visualHash, a.visualHash) <= 4) return true;
+          if (coreVisualHash && a.coreVisualHash && visualHammingDistance(coreVisualHash, a.coreVisualHash) <= 6) return true;
           if (isDistinct && normalizeAttachmentName(a.fileName) === normName) return true;
           return false;
         });
@@ -786,12 +834,22 @@ export default function NewPaymentRequestClient({
               fileName: file.name,
               fileHash,
               visualHash: visualHash || undefined,
+              coreVisualHash: coreVisualHash || undefined,
               fileSize: file.size,
               qrPayload,
               barcode,
               extractedTaxId,
               extractedInvoiceNo,
               extractedAmount,
+              extractedDate,
+              extractedSupplier,
+              extractedPhone,
+              extractedDescription,
+              extractedLineItems,
+              rawTextSnippet,
+              distinctiveTokens,
+              currentAmount: netPayable > 0 ? netPayable : (extractedAmount || undefined),
+              currentSupplier: (supplierName.trim() || extractedSupplier || undefined),
             },
           ],
           fileHashes: [fileHash],
@@ -805,11 +863,13 @@ export default function NewPaymentRequestClient({
           } else if (match.matchType === 'ATTACHMENT_BARCODE') {
             explanationText = `ระบบตรวจพบบาร์โค้ด (${match.barcode || barcode}) ตรงกับเอกสารเดิมในระบบกลาง`;
           } else if (match.matchType === 'ATTACHMENT_OCR') {
-            explanationText = `ระบบตรวจพบข้อมูล OCR (เลขที่ใบกำกับภาษี "${match.invoice_number || extractedInvoiceNo}" และเลขผู้เสียภาษี) ตรงกับเอกสารเดิมในระบบ แม้จะถ่ายจากคนละกล้อง`;
+            explanationText = match.reason || `ระบบตรวจพบข้อมูล OCR (เลขที่ใบกำกับภาษี "${match.invoice_number || extractedInvoiceNo}" หรือเบอร์โทรตรายางร้าน) ตรงกับเอกสารเดิมในระบบ แม้จะถ่ายจากคนละกล้อง`;
           } else if (match.matchType === 'ATTACHMENT_OCR_RECORD') {
             explanationText = `ระบบตรวจพบเลขที่ใบกำกับภาษี "${extractedInvoiceNo}" จากภาพถ่าย ตรงกับคำขอเดิม (${match.pay_number}) ในระบบ`;
+          } else if (match.matchType === 'ATTACHMENT_VISUAL_CONTEXT') {
+            explanationText = match.reason || `ระบบตรวจพบลักษณะโครงสร้างภาพเอกสารใกล้เคียงกับเอกสารเดิมในระบบกลาง ร่วมกับยอดเงินหรือร้านค้าตรงกัน แม้จะถ่ายจากคนละกล้อง/คนละมุม`;
           } else if (match.matchType === 'ATTACHMENT_VISUAL') {
-            explanationText = `ระบบตรวจพบว่าภาพเอกสารนี้ (Visual Fingerprint / ลายนิ้วมือภาพ) ตรงกับเอกสารที่เคยแนบในระบบกลาง แม้จะส่งจากคนละอุปกรณ์ (มือถือ/คอมฯ) หรือไฟล์ถูกบีบอัดใหม่`;
+            explanationText = match.reason || `ระบบตรวจพบว่าภาพเอกสารนี้ (Visual Fingerprint / ลายนิ้วมือโครงสร้างภาพ) ตรงกับเอกสารที่เคยแนบในระบบกลาง แม้จะถ่ายจากต่างกล้อง คนละมุม หรือมีสิ่งของวางข้างบิล`;
           } else if (match.matchType === 'ATTACHMENT_NAME_SIMILAR') {
             explanationText = `ระบบตรวจพบว่าชื่อเอกสารและขนาดไฟล์นี้ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
           } else {
@@ -837,15 +897,10 @@ export default function NewPaymentRequestClient({
               </div>
             `,
             icon: 'error',
-            showCancelButton: true,
-            confirmButtonText: 'เปิดดูคำขอเดิม',
-            confirmButtonColor: '#dc2626',
-            cancelButtonText: 'ยกเลิกไฟล์นี้',
+            confirmButtonText: 'ปิดหน้าต่าง',
+            confirmButtonColor: '#64748b',
           });
 
-          if (result.isConfirmed) {
-            window.open(`/accounting/payment-requests/${match.id}`, '_blank');
-          }
           // Do not upload this duplicate file!
           continue;
         }
@@ -868,6 +923,7 @@ export default function NewPaymentRequestClient({
             fileType: file.type,
             fileHash,
             visualHash: visualHash || data.visualHash || undefined,
+            coreVisualHash: coreVisualHash || undefined,
             qrPayload: qrPayload || data.qrPayload || undefined,
             barcode: barcode || undefined,
             fileSize: file.size,
@@ -876,13 +932,19 @@ export default function NewPaymentRequestClient({
             extractedAmount,
             extractedDate,
             extractedSupplier,
+            extractedPhone,
+            extractedDescription,
+            extractedLineItems,
+            rawTextSnippet,
+            distinctiveTokens,
           });
 
-          // Smart Auto-Fill prompt if invoice number / amount / tax ID detected and form is empty
-          if (extractedInvoiceNo || (extractedAmount && extractedAmount > 0)) {
+          // Smart Auto-Fill prompt if invoice number / amount / tax ID / description detected and form needs filling
+          if (extractedInvoiceNo || (extractedAmount && extractedAmount > 0) || extractedDescription) {
             const hasExistingInvoice = !!invoiceNumber;
             const hasExistingAmount = Number(subtotalAmount || 0) > 0;
-            if (!hasExistingInvoice || !hasExistingAmount) {
+            const hasExistingDesc = !!purpose || requisitionItems.some((it) => it.description.trim());
+            if (!hasExistingInvoice || !hasExistingAmount || !hasExistingDesc) {
               const confirmFill = await Swal.fire({
                 title: 'พบข้อมูลในเอกสาร (OCR Auto-Scan)',
                 html: `
@@ -893,6 +955,16 @@ export default function NewPaymentRequestClient({
                       ${extractedTaxId ? `<p><span class="text-gray-500 font-sans">เลขผู้เสียภาษี:</span> <b>${extractedTaxId}</b></p>` : ''}
                       ${extractedAmount ? `<p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b class="text-emerald-700">${Number(extractedAmount).toLocaleString()} ฿</b></p>` : ''}
                       ${extractedSupplier ? `<p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${extractedSupplier}</b></p>` : ''}
+                      ${extractedDate ? `<p><span class="text-gray-500 font-sans">วันที่บิล:</span> <b>${extractedDate}</b></p>` : ''}
+                      ${extractedDescription ? `<p><span class="text-gray-500 font-sans">รายการสินค้า/บริการ:</span> <b class="text-indigo-700">${extractedDescription}</b></p>` : ''}
+                      ${extractedLineItems && extractedLineItems.length > 1 ? `
+                        <div class="pt-1.5 border-t border-dashed border-gray-200 text-left">
+                          <p class="text-gray-600 font-sans text-[10px] font-semibold mb-1">รายการสินค้าที่ตรวจพบ (${extractedLineItems.length} รายการ):</p>
+                          <ul class="list-disc list-inside text-[10px] text-gray-700 space-y-0.5">
+                            ${extractedLineItems.map((li) => `<li>${li.description} ${li.amount ? `(${Number(li.amount).toLocaleString()} ฿)` : ''}</li>`).join('')}
+                          </ul>
+                        </div>
+                      ` : ''}
                     </div>
                     <p class="text-blue-800 text-[11px]">ต้องการให้นำข้อมูลเหล่านี้กรอกลงในฟอร์มคำขอเบิกจ่ายอัตโนมัติหรือไม่?</p>
                   </div>
@@ -914,8 +986,51 @@ export default function NewPaymentRequestClient({
                 if (extractedSupplier && !supplierName) {
                   setSupplierName(extractedSupplier);
                 }
+                if (extractedDate && !documentDate) {
+                  const isoDate = formatDateToISO(extractedDate) || extractedDate;
+                  setDocumentDate(isoDate);
+                }
                 if (extractedAmount && (!subtotalAmount || Number(subtotalAmount) === 0)) {
                   setSubtotalAmount(String(extractedAmount));
+                }
+                if (extractedDescription && !purpose) {
+                  setPurpose(extractedDescription);
+                }
+
+                // Auto-fill into Requisition Items Table
+                const effectiveDate = (extractedDate ? formatDateToISO(extractedDate) : null) || extractedDate || documentDate || new Date().toISOString().split('T')[0];
+                if (extractedLineItems && extractedLineItems.length > 0) {
+                  setRequisitionItems(
+                    extractedLineItems.map((li, lIdx) => ({
+                      id: `item_${Date.now()}_${lIdx}`,
+                      billDate: effectiveDate,
+                      supplierName: extractedSupplier || supplierName || '',
+                      supplierTaxId: extractedTaxId || supplierTaxId || '',
+                      invoiceNumber: extractedInvoiceNo || invoiceNumber || '',
+                      description: li.description,
+                      amount: li.amount || (extractedLineItems!.length === 1 && extractedAmount ? extractedAmount : 0),
+                      remarks: '',
+                      paidByCreditCard: false,
+                    }))
+                  );
+                } else if (extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(extractedDescription)) {
+                  setRequisitionItems((prev) => {
+                    const first = prev[0];
+                    if (prev.length === 1 && (!first.description || !first.amount)) {
+                      return [
+                        {
+                          ...first,
+                          billDate: effectiveDate,
+                          supplierName: extractedSupplier || first.supplierName || supplierName || '',
+                          supplierTaxId: extractedTaxId || first.supplierTaxId || supplierTaxId || '',
+                          invoiceNumber: extractedInvoiceNo || first.invoiceNumber || invoiceNumber || '',
+                          description: extractedDescription!,
+                          amount: extractedAmount || first.amount || 0,
+                        },
+                      ];
+                    }
+                    return prev;
+                  });
                 }
               }
             }
@@ -1060,15 +1175,9 @@ export default function NewPaymentRequestClient({
           </div>
         `,
         icon: 'error',
-        showCancelButton: true,
-        confirmButtonText: 'เปิดดูคำขอเดิม',
-        confirmButtonColor: '#dc2626',
-        cancelButtonText: 'แก้ไขข้อมูล',
+        confirmButtonText: 'ปิดหน้าต่าง',
+        confirmButtonColor: '#64748b',
       });
-
-      if (result.isConfirmed) {
-        window.open(`/accounting/payment-requests/${match.id}`, '_blank');
-      }
       return;
     }
 
@@ -1561,19 +1670,38 @@ export default function NewPaymentRequestClient({
                     setVatType('NONE');
                   }
                   if (requisitionItems.length === 1 && !requisitionItems[0].description) {
-                    setRequisitionItems([
-                      {
-                        id: `item_${Date.now()}`,
-                        billDate: documentDate || new Date().toISOString().split('T')[0],
-                        supplierName: supplierName || '',
-                        supplierTaxId: supplierTaxId || '',
-                        invoiceNumber: invoiceNumber || '',
-                        description: purpose || '',
-                        amount: parseFloat(subtotalAmount) || 0,
-                        remarks: '',
-                        paidByCreditCard: false,
-                      }
-                    ]);
+                    const attWithItems = attachments.find(
+                      (a) => (a.extractedLineItems && a.extractedLineItems.length > 0) || a.extractedDescription
+                    );
+                    if (attWithItems?.extractedLineItems && attWithItems.extractedLineItems.length > 0) {
+                      setRequisitionItems(
+                        attWithItems.extractedLineItems.map((li, lIdx) => ({
+                          id: `item_${Date.now()}_${lIdx}`,
+                          billDate: attWithItems.extractedDate || documentDate || new Date().toISOString().split('T')[0],
+                          supplierName: attWithItems.extractedSupplier || supplierName || '',
+                          supplierTaxId: attWithItems.extractedTaxId || supplierTaxId || '',
+                          invoiceNumber: attWithItems.extractedInvoiceNo || invoiceNumber || '',
+                          description: li.description,
+                          amount: li.amount || (attWithItems.extractedLineItems!.length === 1 ? (parseFloat(subtotalAmount) || 0) : 0),
+                          remarks: '',
+                          paidByCreditCard: false,
+                        }))
+                      );
+                    } else {
+                      setRequisitionItems([
+                        {
+                          id: `item_${Date.now()}`,
+                          billDate: documentDate || new Date().toISOString().split('T')[0],
+                          supplierName: supplierName || '',
+                          supplierTaxId: supplierTaxId || '',
+                          invoiceNumber: invoiceNumber || '',
+                          description: purpose || attWithItems?.extractedDescription || '',
+                          amount: parseFloat(subtotalAmount) || 0,
+                          remarks: '',
+                          paidByCreditCard: false,
+                        },
+                      ]);
+                    }
                   }
                 }}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition ${
@@ -2540,6 +2668,47 @@ export default function NewPaymentRequestClient({
                               placeholder="เช่น BK CLIPBOARD MIX 1s A4"
                               className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:ring-1 focus:ring-red-500 bg-white"
                             />
+                            {/* Smart OCR Item Suggestions */}
+                            {!item.description &&
+                              attachments.some(
+                                (a) => (a.extractedLineItems && a.extractedLineItems.length > 0) || a.extractedDescription
+                              ) && (
+                                <div className="flex flex-wrap items-center gap-1 mt-1">
+                                  {attachments
+                                    .flatMap((a) => {
+                                      if (a.extractedLineItems && a.extractedLineItems.length > 0) {
+                                        return a.extractedLineItems;
+                                      }
+                                      if (a.extractedDescription) {
+                                        return [{ description: a.extractedDescription, amount: a.extractedAmount }];
+                                      }
+                                      return [];
+                                    })
+                                    .slice(0, 4)
+                                    .map((sug, sIdx) => (
+                                      <button
+                                        key={sIdx}
+                                        type="button"
+                                        onClick={() => {
+                                          handleUpdateItem(idx, 'description', sug.description);
+                                          if (sug.amount && (!item.amount || item.amount === 0)) {
+                                            handleUpdateItem(idx, 'amount', sug.amount);
+                                          }
+                                        }}
+                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition font-medium text-left"
+                                        title="คลิกเพื่อเลือกรายการสินค้านี้"
+                                      >
+                                        <Sparkles className="w-2.5 h-2.5 text-indigo-500 shrink-0" />
+                                        <span className="truncate max-w-[180px]">{sug.description}</span>
+                                        {sug.amount ? (
+                                          <span className="text-[9px] text-indigo-500 font-mono">
+                                            ({Number(sug.amount).toLocaleString()}฿)
+                                          </span>
+                                        ) : null}
+                                      </button>
+                                    ))}
+                                </div>
+                              )}
                             {isDupRow && (
                               <div className="flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded">
                                 <AlertTriangle className="w-3 h-3 text-red-600 shrink-0" />
@@ -2691,7 +2860,7 @@ export default function NewPaymentRequestClient({
 
             {/* Quick Add Buttons */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleAddItem(false)}
@@ -2708,6 +2877,70 @@ export default function NewPaymentRequestClient({
                   <ListPlus className="w-3.5 h-3.5 text-red-600" />
                   <span>+ เพิ่มรายการในบิลเดิม (คัดลอกร้านค้าและวันที่)</span>
                 </button>
+                {attachments.some(
+                  (a) => (a.extractedLineItems && a.extractedLineItems.length > 0) || (a.extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(a.extractedDescription))
+                ) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const allExtracted: RequisitionItem[] = [];
+                      attachments.forEach((att) => {
+                        const effectiveDate = (att.extractedDate ? formatDateToISO(att.extractedDate) : null) || att.extractedDate || documentDate || new Date().toISOString().split('T')[0];
+                        if (att.extractedLineItems && att.extractedLineItems.length > 0) {
+                          att.extractedLineItems.forEach((li, lIdx) => {
+                            allExtracted.push({
+                              id: `item_${Date.now()}_${lIdx}_${Math.random().toString(36).slice(2, 5)}`,
+                              billDate: effectiveDate,
+                              supplierName: att.extractedSupplier || supplierName || '',
+                              supplierTaxId: att.extractedTaxId || supplierTaxId || '',
+                              invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
+                              description: li.description,
+                              amount: li.amount || 0,
+                              remarks: '',
+                              paidByCreditCard: false,
+                            });
+                          });
+                        } else if (att.extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(att.extractedDescription)) {
+                          allExtracted.push({
+                            id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+                            billDate: effectiveDate,
+                            supplierName: att.extractedSupplier || supplierName || '',
+                            supplierTaxId: att.extractedTaxId || supplierTaxId || '',
+                            invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
+                            description: att.extractedDescription,
+                            amount: att.extractedAmount || 0,
+                            remarks: '',
+                            paidByCreditCard: false,
+                          });
+                        }
+                      });
+
+                      if (allExtracted.length > 0) {
+                        if (requisitionItems.length === 1 && !requisitionItems[0].description) {
+                          setRequisitionItems(allExtracted);
+                        } else {
+                          setRequisitionItems((prev) => [...prev, ...allExtracted]);
+                        }
+                        Swal.mixin({ toast: true, position: 'top-end', timer: 2500, showConfirmButton: false }).fire({
+                          icon: 'success',
+                          title: `นำเข้ารายการสินค้า ${allExtracted.length} รายการจากเอกสารแนบเรียบร้อย`,
+                        });
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 shadow-2xs transition"
+                    title="ดึงรายการสินค้าหรือบริการทั้งหมดที่ตรวจพบจากบิล/เอกสารแนบลงในตารางอัตโนมัติ"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>
+                      ดึงรายการสินค้าจากบิลแนบ (
+                      {attachments.reduce(
+                        (sum, a) => sum + (a.extractedLineItems?.length || (a.extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(a.extractedDescription) ? 1 : 0)),
+                        0
+                      )}{' '}
+                      รายการ)
+                    </span>
+                  </button>
+                )}
               </div>
 
               <span className="text-[11px] text-gray-500">
@@ -2840,6 +3073,39 @@ export default function NewPaymentRequestClient({
                     }
                     className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 leading-relaxed"
                   />
+                  {/* Suggestions from uploaded documents if purpose is empty */}
+                  {!purpose &&
+                    attachments.some(
+                      (a) => (a.extractedLineItems && a.extractedLineItems.length > 0) || a.extractedDescription
+                    ) && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                        <span className="text-[10px] text-gray-500 flex items-center gap-1">
+                          <Sparkles className="w-2.5 h-2.5 text-indigo-500" /> จากเอกสารแนบ:
+                        </span>
+                        {attachments
+                          .flatMap((a) => {
+                            if (a.extractedLineItems && a.extractedLineItems.length > 0) {
+                              return a.extractedLineItems;
+                            }
+                            if (a.extractedDescription) {
+                              return [{ description: a.extractedDescription }];
+                            }
+                            return [];
+                          })
+                          .slice(0, 3)
+                          .map((sug, sIdx) => (
+                            <button
+                              key={sIdx}
+                              type="button"
+                              onClick={() => setPurpose(sug.description)}
+                              className="text-[10px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-lg transition font-medium text-left truncate max-w-[280px]"
+                              title="คลิกเพื่อใช้วัตถุประสงค์นี้"
+                            >
+                              {sug.description}
+                            </button>
+                          ))}
+                      </div>
+                    )}
                 </div>
 
                 {/* Cost Center & PO/PR (Symmetrical 2 cols) */}
@@ -3097,7 +3363,13 @@ export default function NewPaymentRequestClient({
               <input
                 type="checkbox"
                 checked={ocrAutoScanEnabled}
-                onChange={(e) => setOcrAutoScanEnabled(e.target.checked)}
+                onChange={(e) => {
+                  const val = e.target.checked;
+                  setOcrAutoScanEnabled(val);
+                  try {
+                    localStorage.setItem('pr_ocr_autoscan_enabled', String(val));
+                  } catch {}
+                }}
                 className="rounded text-red-600 focus:ring-red-500 w-3.5 h-3.5"
               />
               <span className="flex items-center gap-1 text-[11px] text-gray-700 font-medium">
@@ -3144,9 +3416,25 @@ export default function NewPaymentRequestClient({
                   className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs hover:border-gray-300 transition"
                 >
                   <div className="flex items-center gap-2.5 truncate mr-2">
-                    <div className="p-2 bg-white rounded-lg border border-gray-200 text-red-600 shrink-0">
-                      <FileText className="w-4 h-4" />
-                    </div>
+                    {att.url && (att.url.match(/\.(jpg|jpeg|png|webp)/i) || att.fileType?.startsWith('image/')) ? (
+                      <a
+                        href={att.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 shrink-0 bg-gray-100 block group relative hover:opacity-90 transition"
+                        title="คลิกเพื่อดูรูปภาพขนาดใหญ่"
+                      >
+                        <img
+                          src={att.url}
+                          alt={att.fileName}
+                          className="w-full h-full object-cover"
+                        />
+                      </a>
+                    ) : (
+                      <div className="p-2.5 bg-white rounded-lg border border-gray-200 text-red-600 shrink-0">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                    )}
                     <div className="truncate">
                       <a
                         href={att.url}
@@ -3156,7 +3444,7 @@ export default function NewPaymentRequestClient({
                       >
                         {att.fileName}
                       </a>
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                         <span className="text-[10px] text-gray-400 font-mono">ไฟล์ #{idx + 1}</span>
                         {(att.fileHash || att.visualHash) && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
@@ -3177,6 +3465,133 @@ export default function NewPaymentRequestClient({
                           <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                             <DollarSign className="w-2.5 h-2.5 text-amber-600" /> {Number(att.extractedAmount).toLocaleString()} ฿
                           </span>
+                        )}
+                        {att.extractedSupplier && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200" title={`ร้านค้า/ผู้ขาย: ${att.extractedSupplier}`}>
+                            <Building2 className="w-2.5 h-2.5 text-emerald-600" /> {att.extractedSupplier}
+                          </span>
+                        )}
+                        {att.extractedDescription && (
+                          <span
+                            className="inline-flex items-center gap-1 text-[9px] font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200"
+                            title={`รายการสินค้า/บริการ: ${att.extractedDescription}`}
+                          >
+                            <FileText className="w-2.5 h-2.5 text-indigo-600" />{' '}
+                            {att.extractedDescription.length > 35
+                              ? att.extractedDescription.slice(0, 35) + '...'
+                              : att.extractedDescription}
+                          </span>
+                        )}
+                        {att.rawTextSnippet && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              Swal.fire({
+                                title: 'ข้อความที่ OCR สแกนได้จากเอกสาร',
+                                html: `
+                                  <div class="text-left text-xs space-y-2">
+                                    <div class="bg-gray-100 p-2.5 rounded-lg border font-mono text-[11px] max-h-60 overflow-y-auto whitespace-pre-wrap text-gray-800">
+                                      ${att.rawTextSnippet}
+                                    </div>
+                                    <p class="text-gray-500 text-[11px]">* ระบบใช้ข้อความนี้ในการตรวจจับความซ้ำซ้อนและการกรอกข้อมูลอัตโนมัติ</p>
+                                  </div>
+                                `,
+                                confirmButtonText: 'ปิดหน้าต่าง',
+                                confirmButtonColor: '#4b5563',
+                              });
+                            }}
+                            className="inline-flex items-center gap-1 text-[9px] font-semibold text-gray-600 bg-white hover:bg-gray-100 px-1.5 py-0.5 rounded border border-gray-300 transition cursor-pointer shadow-2xs"
+                            title="คลิกเพื่อดูข้อความที่ OCR อ่านได้ทั้งหมด"
+                          >
+                            <Eye className="w-2.5 h-2.5 text-gray-500" /> ดูข้อความ OCR
+                          </button>
+                        )}
+                        {(att.extractedInvoiceNo ||
+                          (att.extractedAmount && att.extractedAmount > 0) ||
+                          att.extractedSupplier ||
+                          att.extractedDescription) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (att.extractedInvoiceNo) setInvoiceNumber(att.extractedInvoiceNo);
+                              if (att.extractedSupplier) setSupplierName(att.extractedSupplier);
+                              if (att.extractedAmount) setSubtotalAmount(String(att.extractedAmount));
+                              if (att.extractedTaxId) setSupplierTaxId(att.extractedTaxId);
+                              if (att.extractedDate) setDocumentDate(att.extractedDate);
+                              if (att.extractedDescription) setPurpose(att.extractedDescription);
+
+                              // If in MULTI_ITEMS mode or table exists, populate requisition items
+                              if (att.extractedLineItems && att.extractedLineItems.length > 0) {
+                                const newRows: RequisitionItem[] = att.extractedLineItems.map((li, lIdx) => ({
+                                  id: `item_${Date.now()}_${lIdx}`,
+                                  billDate: att.extractedDate || documentDate || new Date().toISOString().split('T')[0],
+                                  supplierName: att.extractedSupplier || supplierName || '',
+                                  supplierTaxId: att.extractedTaxId || supplierTaxId || '',
+                                  invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
+                                  description: li.description,
+                                  amount:
+                                    li.amount ||
+                                    (att.extractedLineItems!.length === 1 && att.extractedAmount
+                                      ? att.extractedAmount
+                                      : 0),
+                                  remarks: '',
+                                  paidByCreditCard: false,
+                                }));
+                                if (requisitionItems.length === 1 && !requisitionItems[0].description) {
+                                  setRequisitionItems(newRows);
+                                } else {
+                                  setRequisitionItems((prev) => [...prev, ...newRows]);
+                                }
+                              } else if (att.extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(att.extractedDescription)) {
+                                setRequisitionItems((prev) => {
+                                  const first = prev[0];
+                                  if (prev.length === 1 && (!first.description || !first.amount)) {
+                                    return [
+                                      {
+                                        ...first,
+                                        billDate:
+                                          att.extractedDate ||
+                                          first.billDate ||
+                                          documentDate ||
+                                          new Date().toISOString().split('T')[0],
+                                        supplierName: att.extractedSupplier || first.supplierName || supplierName || '',
+                                        supplierTaxId: att.extractedTaxId || first.supplierTaxId || supplierTaxId || '',
+                                        invoiceNumber: att.extractedInvoiceNo || first.invoiceNumber || invoiceNumber || '',
+                                        description: att.extractedDescription!,
+                                        amount: att.extractedAmount || first.amount || 0,
+                                      },
+                                    ];
+                                  }
+                                  return [
+                                    ...prev,
+                                    {
+                                      id: `item_${Date.now()}`,
+                                      billDate:
+                                        att.extractedDate ||
+                                        documentDate ||
+                                        new Date().toISOString().split('T')[0],
+                                      supplierName: att.extractedSupplier || supplierName || '',
+                                      supplierTaxId: att.extractedTaxId || supplierTaxId || '',
+                                      invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
+                                      description: att.extractedDescription!,
+                                      amount: att.extractedAmount || 0,
+                                      remarks: '',
+                                      paidByCreditCard: false,
+                                    },
+                                  ];
+                                });
+                              }
+
+                              Swal.mixin({ toast: true, position: 'top-end', timer: 2000, showConfirmButton: false }).fire({
+                                icon: 'success',
+                                title: 'นำข้อมูลและรายการสินค้าจาก OCR ลงฟอร์มเรียบร้อย',
+                              });
+                            }}
+                            className="inline-flex items-center gap-1 text-[9px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 px-1.5 py-0.5 rounded border border-blue-200 transition cursor-pointer"
+                            title="นำข้อมูลและรายการสินค้าจาก OCR ลงในฟอร์มคำขอ"
+                          >
+                            <ArrowRight className="w-2.5 h-2.5 text-blue-600" /> นำข้อมูลลงฟอร์ม
+                          </button>
                         )}
                       </div>
                     </div>

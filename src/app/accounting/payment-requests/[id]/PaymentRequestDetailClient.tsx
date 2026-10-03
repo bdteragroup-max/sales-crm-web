@@ -23,6 +23,7 @@ import {
   updatePaymentRequestRequisition,
   deletePaymentRequestAttachment,
 } from '@/app/actions/paymentRequests';
+import { ExtractedLineItem } from '@/lib/attachmentUtils';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
 import { THAI_BANKS, PROMPTPAY_TYPES } from '../new/NewPaymentRequestClient';
 import {
@@ -62,9 +63,10 @@ import {
   Undo2,
   Scan,
   QrCode,
+  Eye,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { detectSlipQrAndBarcode } from '@/lib/slipDetector';
+import { detectSlipQrAndBarcode, downscaleImageForScan, computeVisualHashes } from '@/lib/slipDetector';
 import {
   isAccountingManager,
   isAccountingStaff,
@@ -796,6 +798,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       fileType?: string;
       fileHash?: string;
       visualHash?: string;
+      coreVisualHash?: string;
       fileSize?: number;
       qrPayload?: string;
       barcode?: string;
@@ -804,6 +807,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       extractedAmount?: number;
       extractedDate?: string;
       extractedSupplier?: string;
+      extractedPhone?: string;
+      extractedDescription?: string;
+      extractedLineItems?: ExtractedLineItem[];
+      rawTextSnippet?: string;
+      distinctiveTokens?: string[];
     }[] = [];
 
     for (let i = 0; i < files.length; i++) {
@@ -819,54 +827,19 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         console.warn('Failed to compute fileHash:', err);
       }
 
-      // 2. Visual hash (dHash)
+      // 2. Visual hashes (Full dHash + Core Center 70% dHash invariant to camera angle & background clutter)
       let visualHash: string | undefined = undefined;
+      let coreVisualHash: string | undefined = undefined;
       if (file.type.startsWith('image/')) {
-        visualHash = await new Promise<string | undefined>((resolve) => {
-          try {
-            const img = new Image();
-            const url = URL.createObjectURL(file);
-            img.onload = () => {
-              URL.revokeObjectURL(url);
-              try {
-                const canvas = document.createElement('canvas');
-                canvas.width = 9;
-                canvas.height = 8;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return resolve(undefined);
-                ctx.drawImage(img, 0, 0, 9, 8);
-                const data = ctx.getImageData(0, 0, 9, 8).data;
-                const gray: number[][] = [];
-                for (let y = 0; y < 8; y++) {
-                  const row: number[] = [];
-                  for (let x = 0; x < 9; x++) {
-                    const idx = (y * 9 + x) * 4;
-                    row.push(0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2]);
-                  }
-                  gray.push(row);
-                }
-                let hex = '';
-                for (let y = 0; y < 8; y++) {
-                  let byte = 0;
-                  for (let x = 0; x < 8; x++) {
-                    byte = (byte << 1) | (gray[y][x] > gray[y][x + 1] ? 1 : 0);
-                  }
-                  hex += byte.toString(16).padStart(2, '0');
-                }
-                resolve(hex);
-              } catch {
-                resolve(undefined);
-              }
-            };
-            img.onerror = () => {
-              URL.revokeObjectURL(url);
-              resolve(undefined);
-            };
-            img.src = url;
-          } catch {
-            resolve(undefined);
+        try {
+          const hashes = await computeVisualHashes(file);
+          if (hashes) {
+            visualHash = hashes.visualHash;
+            coreVisualHash = hashes.coreVisualHash;
           }
-        });
+        } catch (err) {
+          console.warn('Failed to compute visual hashes:', err);
+        }
       }
 
       // 3. QR / Barcode detection (<50ms)
@@ -884,20 +857,28 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         }
       }
 
-      // 4. OCR Auto-Scan for invoice/receipt documents
+      // 4. OCR Auto-Scan for invoice/receipt documents (skip if QR slip was already detected!)
       let extractedTaxId: string | undefined = undefined;
       let extractedInvoiceNo: string | undefined = undefined;
       let extractedAmount: number | undefined = undefined;
       let extractedDate: string | undefined = undefined;
       let extractedSupplier: string | undefined = undefined;
+      let extractedPhone: string | undefined = undefined;
+      let extractedDescription: string | undefined = undefined;
+      let extractedLineItems: ExtractedLineItem[] | undefined = undefined;
+      let rawTextSnippet: string | undefined = undefined;
+      let distinctiveTokens: string[] | undefined = undefined;
 
-      if (file.type.startsWith('image/')) {
+      if (file.type.startsWith('image/') && !qrPayload) {
         try {
+          const downscaledBlob = await downscaleImageForScan(file, 3200);
           const scanForm = new FormData();
-          scanForm.append('file', file);
+          scanForm.append('file', downscaledBlob, file.name);
+          scanForm.append('skipQr', 'true');
           const scanRes = await fetch('/api/scan-document', {
             method: 'POST',
             body: scanForm,
+            signal: AbortSignal.timeout(30000),
           });
           if (scanRes.ok) {
             const scanData = await scanRes.json();
@@ -909,26 +890,42 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               if (scanData.extractedAmount) extractedAmount = scanData.extractedAmount;
               if (scanData.extractedDate) extractedDate = scanData.extractedDate;
               if (scanData.extractedSupplier) extractedSupplier = scanData.extractedSupplier;
+              if (scanData.extractedPhone) extractedPhone = scanData.extractedPhone;
+              if (scanData.extractedDescription) extractedDescription = scanData.extractedDescription;
+              if (Array.isArray(scanData.extractedLineItems) && scanData.extractedLineItems.length > 0) {
+                extractedLineItems = scanData.extractedLineItems;
+              }
+              if (scanData.rawTextSnippet) rawTextSnippet = scanData.rawTextSnippet;
+              if (scanData.distinctiveTokens) distinctiveTokens = scanData.distinctiveTokens;
             }
           }
         } catch (ocrErr) {
-          console.warn('OCR Auto-Scan request failed:', ocrErr);
+          console.warn('OCR Auto-Scan request timed out or skipped:', ocrErr);
         }
       }
 
-      // 5. Check duplicates against DB (excluding current request, invariant to separate cameras)
+      // 5. Check duplicates against DB (invariant to separate cameras & angles)
       const dupCheck = await checkAttachmentDuplicates({
         items: [
           {
             fileName: file.name,
             fileHash,
             visualHash,
+            coreVisualHash,
             fileSize: file.size,
             qrPayload,
             barcode,
             extractedTaxId,
             extractedInvoiceNo,
             extractedAmount,
+            extractedSupplier,
+            extractedPhone,
+            extractedDescription,
+            extractedLineItems,
+            rawTextSnippet,
+            distinctiveTokens,
+            currentAmount: Number(request.net_amount || 0),
+            currentSupplier: request.supplier_name || undefined,
           },
         ],
         fileHashes: fileHash ? [fileHash] : [],
@@ -942,8 +939,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           explanationText = `รหัส QR Code บนสลิปหรือบิลนี้ (PromptPay Slip Payload) ตรงกับเอกสารที่เคยแนบในระบบกลาง 100% แม้จะถ่ายจากต่างกล้อง (Separate Cameras)`;
         } else if (match.matchType === 'ATTACHMENT_OCR') {
           explanationText = `ข้อมูล OCR (เลขที่บิล "${match.invoice_number || extractedInvoiceNo}") ตรงกับเอกสารในระบบกลาง`;
+        } else if (match.matchType === 'ATTACHMENT_VISUAL_CONTEXT') {
+          explanationText = `ตรวจพบเอกสารเดียวกันจากการจับคู่ภาพและบริบท (ความคล้ายคลึงของโครงร่างเอกสาร + ยอดเงิน/ผู้ขาย/เบอร์โทร ตรงกัน)`;
         } else {
-          explanationText = `เนื้อหาหรือลายนิ้วมือภาพตรงกับเอกสารในระบบกลาง`;
+          explanationText = `เนื้อหาหรือโครงสร้างภาพตรงกับเอกสารที่เคยแนบในระบบกลาง (ตรวจพบจากโครงสร้างภาพแม้ถ่ายต่างมุมหรือต่างกล้อง)`;
         }
 
         await Swal.fire({
@@ -984,6 +983,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             fileType: file.type,
             fileHash: fileHash || undefined,
             visualHash: visualHash || data.visualHash || undefined,
+            coreVisualHash: coreVisualHash || undefined,
             qrPayload: qrPayload || data.qrPayload || undefined,
             barcode: barcode || undefined,
             fileSize: file.size,
@@ -992,6 +992,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             extractedAmount,
             extractedDate,
             extractedSupplier,
+            extractedPhone,
+            extractedDescription,
+            extractedLineItems,
+            rawTextSnippet,
+            distinctiveTokens,
           });
         }
       } catch (err) {
@@ -1118,12 +1123,19 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               fileName: att.fileName,
               fileHash: att.fileHash,
               visualHash: att.visualHash,
+              coreVisualHash: att.coreVisualHash,
               fileSize: att.fileSize,
               qrPayload: att.qrPayload,
               barcode: att.barcode,
               extractedTaxId: att.extractedTaxId,
               extractedInvoiceNo: att.extractedInvoiceNo,
               extractedAmount: att.extractedAmount,
+              extractedSupplier: att.extractedSupplier,
+              extractedPhone: att.extractedPhone,
+              rawTextSnippet: att.rawTextSnippet,
+              distinctiveTokens: att.distinctiveTokens,
+              currentAmount: Number(request.net_amount || 0),
+              currentSupplier: request.supplier_name || undefined,
             },
           ],
           fileHashes: att.fileHash ? [att.fileHash] : [],
@@ -1781,9 +1793,25 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs hover:border-slate-300 transition"
                     >
                       <div className="flex items-center gap-2.5 truncate mr-2">
-                        <div className="p-2 bg-white rounded-lg border border-slate-200 text-indigo-600 shrink-0">
-                          <FileText className="w-4 h-4" />
-                        </div>
+                        {att.url && (att.url.match(/\.(jpg|jpeg|png|webp)/i) || att.fileType?.startsWith('image/')) ? (
+                          <a
+                            href={att.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 shrink-0 bg-slate-100 block group relative hover:opacity-90 transition"
+                            title="คลิกเพื่อดูรูปภาพขนาดใหญ่"
+                          >
+                            <img
+                              src={att.url}
+                              alt={att.fileName}
+                              className="w-full h-full object-cover"
+                            />
+                          </a>
+                        ) : (
+                          <div className="p-2 bg-white rounded-lg border border-slate-200 text-indigo-600 shrink-0">
+                            <FileText className="w-4 h-4" />
+                          </div>
+                        )}
                         <div className="truncate">
                           <a
                             href={att.url}
@@ -1820,6 +1848,46 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                               <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                                 <DollarSign className="w-2.5 h-2.5 text-amber-600" /> {Number(att.extractedAmount).toLocaleString()} ฿
                               </span>
+                            )}
+                            {att.extractedSupplier && (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200" title={`ร้านค้า/ผู้ขาย: ${att.extractedSupplier}`}>
+                                <Building2 className="w-2.5 h-2.5 text-emerald-600" /> {att.extractedSupplier}
+                              </span>
+                            )}
+                            {att.extractedDescription && (
+                              <span
+                                className="inline-flex items-center gap-1 text-[9px] font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200"
+                                title={`รายการสินค้า/บริการ: ${att.extractedDescription}`}
+                              >
+                                <FileText className="w-2.5 h-2.5 text-indigo-600" />{' '}
+                                {att.extractedDescription.length > 35
+                                  ? att.extractedDescription.slice(0, 35) + '...'
+                                  : att.extractedDescription}
+                              </span>
+                            )}
+                            {att.rawTextSnippet && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  Swal.fire({
+                                    title: 'ข้อความที่ OCR สแกนได้จากเอกสาร',
+                                    html: `
+                                      <div class="text-left text-xs space-y-2">
+                                        <div class="bg-gray-100 p-2.5 rounded-lg border font-mono text-[11px] max-h-60 overflow-y-auto whitespace-pre-wrap text-gray-800">
+                                          ${att.rawTextSnippet}
+                                        </div>
+                                        <p class="text-gray-500 text-[11px]">* ระบบใช้ข้อความนี้ในการตรวจจับความซ้ำซ้อน</p>
+                                      </div>
+                                    `,
+                                    confirmButtonText: 'ปิดหน้าต่าง',
+                                    confirmButtonColor: '#4b5563',
+                                  });
+                                }}
+                                className="inline-flex items-center gap-1 text-[9px] font-semibold text-slate-600 bg-white hover:bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300 transition cursor-pointer shadow-2xs"
+                                title="คลิกเพื่อดูข้อความที่ OCR อ่านได้ทั้งหมด"
+                              >
+                                <Eye className="w-2.5 h-2.5 text-slate-500" /> ดูข้อความ OCR
+                              </button>
                             )}
                           </div>
                         </div>
