@@ -19,6 +19,7 @@ import {
   normalizeAttachmentName,
   isDistinctiveAttachmentName,
   visualHammingDistance,
+  normalizeInvoiceNo,
 } from '@/lib/attachmentUtils';
 
 let poolInstance: Pool | null = null;
@@ -280,8 +281,57 @@ export async function checkAttachmentDuplicates(params: {
           let matchType = '';
           let reason = '';
 
+          // 0. QR Code / PromptPay Transfer Slip Payload Match (100% invariant to camera angle, zoom, phone brand)
+          if (item.qrPayload && att.qrPayload) {
+            const qr1 = item.qrPayload.trim();
+            const qr2 = att.qrPayload.trim();
+            if (qr1 === qr2 || (qr1.length >= 15 && qr2.length >= 15 && (qr1.includes(qr2) || qr2.includes(qr1)))) {
+              isMatch = true;
+              matchType = 'ATTACHMENT_QR';
+              reason = `ตรวจพบรหัส QR Code/สลิปโอนเงินตรงกัน 100% (ตรงกับ "${att.fileName || 'เอกสารเดิม'}" แม้ถ่ายจากคนละกล้อง/ต่างมุม)`;
+            }
+          }
+
+          // 0.1 Barcode Match
+          if (!isMatch && item.barcode && att.barcode && item.barcode.trim() === att.barcode.trim()) {
+            isMatch = true;
+            matchType = 'ATTACHMENT_BARCODE';
+            reason = `ตรวจพบบาร์โค้ดบนเอกสารตรงกัน (${item.barcode})`;
+          }
+
+          // 0.2 OCR Tax ID + Invoice Number Match (Invariant to separate shots/cameras)
+          if (!isMatch && item.extractedInvoiceNo && att.extractedInvoiceNo) {
+            const normInvIn = normalizeInvoiceNo(item.extractedInvoiceNo);
+            const normInvAtt = normalizeInvoiceNo(att.extractedInvoiceNo);
+            if (normInvIn.length >= 4 && normInvIn === normInvAtt) {
+              const taxMatch = item.extractedTaxId && att.extractedTaxId && item.extractedTaxId === att.extractedTaxId;
+              const amtMatch = item.extractedAmount && att.extractedAmount && Math.abs(item.extractedAmount - att.extractedAmount) < 0.01;
+              if (taxMatch || amtMatch) {
+                isMatch = true;
+                matchType = 'ATTACHMENT_OCR';
+                reason = `ตรวจพบข้อมูล OCR เลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" ${taxMatch ? 'และเลขผู้เสียภาษีตรงกัน' : 'และยอดเงินตรงกัน'} (ถ่ายจากต่างกล้อง)`;
+              }
+            }
+          }
+
+          // 0.3 OCR Match against previous payment request record (invoice_number & supplier_tax_id / net_amount)
+          if (!isMatch && item.extractedInvoiceNo && row.invoice_number) {
+            const normInvIn = normalizeInvoiceNo(item.extractedInvoiceNo);
+            const normInvRow = normalizeInvoiceNo(row.invoice_number);
+            if (normInvIn.length >= 4 && normInvIn === normInvRow) {
+              const cleanRowTax = (row.supplier_tax_id || '').replace(/\D/g, '');
+              const taxMatch = item.extractedTaxId && cleanRowTax && item.extractedTaxId === cleanRowTax;
+              const amtMatch = item.extractedAmount && row.net_amount && Math.abs(item.extractedAmount - Number(row.net_amount)) < 0.01;
+              if (taxMatch || amtMatch) {
+                isMatch = true;
+                matchType = 'ATTACHMENT_OCR_RECORD';
+                reason = `ตรวจพบเลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" จากภาพตรงกับคำขอเดิม (${row.pay_number})`;
+              }
+            }
+          }
+
           // 1. Exact SHA-256 binary hash
-          if (item.fileHash && att.fileHash && item.fileHash.toLowerCase() === att.fileHash.toLowerCase()) {
+          if (!isMatch && item.fileHash && att.fileHash && item.fileHash.toLowerCase() === att.fileHash.toLowerCase()) {
             isMatch = true;
             matchType = 'ATTACHMENT_HASH';
             reason = `ไฟล์ดิจิทัลตรงกัน 100% (SHA-256 ตรงกับ "${att.fileName || 'เอกสารเดิม'}")`;
@@ -1650,7 +1700,7 @@ export async function cancelPaymentRequest(
 // Add attachments to existing request
 export async function addPaymentRequestAttachments(
   id: string,
-  newAttachments: { url: string; fileName: string; fileType?: string; fileHash?: string; visualHash?: string; fileSize?: number }[],
+  newAttachments: (AttachmentCheckItem & { url: string; fileType?: string })[],
   userName: string
 ) {
   const pool = getPool();

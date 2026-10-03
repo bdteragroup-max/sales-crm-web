@@ -65,11 +65,15 @@ export async function POST(request: Request) {
 
     console.log(`File uploaded to Supabase Storage (${targetBucket}): ${publicUrl}`);
 
-    // Compute 64-bit visual difference hash (dHash) for images (invariant to compression, device differences, metadata)
+    // Compute 64-bit visual difference hash (dHash) and extract QR/Slip payload for images
     let visualHash: string | null = null;
+    let qrPayload: string | null = null;
     if (file.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(file.name)) {
       try {
         const sharp = (await import('sharp')).default;
+        const jsQR = (await import('jsqr')).default;
+
+        // 1. Visual Hash (dHash)
         const { data: rawData } = await sharp(buffer)
           .resize(9, 8, { fit: 'fill' })
           .greyscale()
@@ -86,12 +90,38 @@ export async function POST(request: Request) {
           hashHex += byte.toString(16).padStart(2, '0');
         }
         visualHash = hashHex;
+
+        // 2. Extract QR Code / Slip Payload
+        try {
+          const meta = await sharp(buffer).metadata();
+          const origW = meta.width || 800;
+          const origH = meta.height || 600;
+          const maxDim = Math.max(origW, origH);
+          const scales = maxDim > 1200 ? [1200 / maxDim, 800 / maxDim, 1.0] : [1.0, 0.7];
+
+          for (const s of scales) {
+            let pipeline = sharp(buffer).ensureAlpha();
+            if (s < 1.0) {
+              pipeline = pipeline.resize(Math.round(origW * s), Math.round(origH * s));
+            }
+            const { data: qrData, info } = await pipeline.raw().toBuffer({ resolveWithObject: true });
+            const code = jsQR(new Uint8ClampedArray(qrData), info.width, info.height, {
+              inversionAttempts: 'attemptBoth',
+            });
+            if (code && code.data) {
+              qrPayload = code.data;
+              break;
+            }
+          }
+        } catch (qrErr) {
+          console.debug('QR extract in upload route skipped/failed:', qrErr);
+        }
       } catch (e) {
-        console.warn('Could not compute visualHash in upload route:', e);
+        console.warn('Could not compute visualHash or qrPayload in upload route:', e);
       }
     }
 
-    return NextResponse.json({ success: true, url: publicUrl, visualHash });
+    return NextResponse.json({ success: true, url: publicUrl, visualHash, qrPayload });
   } catch (error: any) {
     console.error('Error uploading file:', error);
     const isPayloadTooLarge = error?.message?.includes('payload') || error?.message?.includes('too large') || error?.status === 413;

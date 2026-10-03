@@ -60,8 +60,11 @@ import {
   RotateCcw,
   MessageSquare,
   Undo2,
+  Scan,
+  QrCode,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { detectSlipQrAndBarcode } from '@/lib/slipDetector';
 import {
   isAccountingManager,
   isAccountingStaff,
@@ -794,12 +797,19 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       fileHash?: string;
       visualHash?: string;
       fileSize?: number;
+      qrPayload?: string;
+      barcode?: string;
+      extractedTaxId?: string;
+      extractedInvoiceNo?: string;
+      extractedAmount?: number;
+      extractedDate?: string;
+      extractedSupplier?: string;
     }[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      // Multi-signal pre-scan
+      // 1. Calculate fileHash (SHA-256)
       let fileHash = '';
       try {
         const arrayBuffer = await file.arrayBuffer();
@@ -809,7 +819,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         console.warn('Failed to compute fileHash:', err);
       }
 
-      // Visual hash
+      // 2. Visual hash (dHash)
       let visualHash: string | undefined = undefined;
       if (file.type.startsWith('image/')) {
         visualHash = await new Promise<string | undefined>((resolve) => {
@@ -859,7 +869,54 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         });
       }
 
-      // Check duplicates against DB (excluding current request)
+      // 3. QR / Barcode detection (<50ms)
+      let qrPayload: string | undefined = undefined;
+      let barcode: string | undefined = undefined;
+      if (file.type.startsWith('image/')) {
+        try {
+          const slipRes = await detectSlipQrAndBarcode(file);
+          if (slipRes.detected) {
+            qrPayload = slipRes.qrPayload;
+            barcode = slipRes.barcode;
+          }
+        } catch (e) {
+          console.debug('Slip detection skipped:', e);
+        }
+      }
+
+      // 4. OCR Auto-Scan for invoice/receipt documents
+      let extractedTaxId: string | undefined = undefined;
+      let extractedInvoiceNo: string | undefined = undefined;
+      let extractedAmount: number | undefined = undefined;
+      let extractedDate: string | undefined = undefined;
+      let extractedSupplier: string | undefined = undefined;
+
+      if (file.type.startsWith('image/')) {
+        try {
+          const scanForm = new FormData();
+          scanForm.append('file', file);
+          const scanRes = await fetch('/api/scan-document', {
+            method: 'POST',
+            body: scanForm,
+          });
+          if (scanRes.ok) {
+            const scanData = await scanRes.json();
+            if (scanData.success) {
+              if (scanData.qrPayload && !qrPayload) qrPayload = scanData.qrPayload;
+              if (scanData.barcode && !barcode) barcode = scanData.barcode;
+              if (scanData.extractedTaxId) extractedTaxId = scanData.extractedTaxId;
+              if (scanData.extractedInvoiceNo) extractedInvoiceNo = scanData.extractedInvoiceNo;
+              if (scanData.extractedAmount) extractedAmount = scanData.extractedAmount;
+              if (scanData.extractedDate) extractedDate = scanData.extractedDate;
+              if (scanData.extractedSupplier) extractedSupplier = scanData.extractedSupplier;
+            }
+          }
+        } catch (ocrErr) {
+          console.warn('OCR Auto-Scan request failed:', ocrErr);
+        }
+      }
+
+      // 5. Check duplicates against DB (excluding current request, invariant to separate cameras)
       const dupCheck = await checkAttachmentDuplicates({
         items: [
           {
@@ -867,6 +924,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             fileHash,
             visualHash,
             fileSize: file.size,
+            qrPayload,
+            barcode,
+            extractedTaxId,
+            extractedInvoiceNo,
+            extractedAmount,
           },
         ],
         fileHashes: fileHash ? [fileHash] : [],
@@ -875,9 +937,30 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
       if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
         const match = dupCheck.matches[0];
+        let explanationText = '';
+        if (match.matchType === 'ATTACHMENT_QR') {
+          explanationText = `รหัส QR Code บนสลิปหรือบิลนี้ (PromptPay Slip Payload) ตรงกับเอกสารที่เคยแนบในระบบกลาง 100% แม้จะถ่ายจากต่างกล้อง (Separate Cameras)`;
+        } else if (match.matchType === 'ATTACHMENT_OCR') {
+          explanationText = `ข้อมูล OCR (เลขที่บิล "${match.invoice_number || extractedInvoiceNo}") ตรงกับเอกสารในระบบกลาง`;
+        } else {
+          explanationText = `เนื้อหาหรือลายนิ้วมือภาพตรงกับเอกสารในระบบกลาง`;
+        }
+
         await Swal.fire({
           title: 'ตรวจพบเอกสารซ้ำซ้อนในระบบ!',
-          html: `ไฟล์ "${file.name}" ตรงกับเอกสารในใบขอจ่าย <b>${match.pay_number}</b> (${match.supplier_name}) ระบบไม่อนุญาตให้แนบซ้ำ`,
+          html: `
+            <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
+              <p class="font-bold text-red-900 text-sm">ไฟล์ "${file.name}" เคยถูกใช้งานแล้ว</p>
+              <p class="text-gray-700">${explanationText}:</p>
+              <div class="bg-white p-3 rounded-lg border border-red-100 font-mono text-[11px] space-y-1">
+                <p><span class="text-gray-500 font-sans">เลขที่คำขอเดิม:</span> <b class="text-red-700 font-bold">${match.pay_number}</b></p>
+                <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${match.supplier_name}</b></p>
+                <p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b>${Number(match.net_amount).toLocaleString()} ฿</b></p>
+                <p><span class="text-gray-500 font-sans">สถานะคำขอเดิม:</span> <b>${match.status}</b></p>
+              </div>
+              <p class="text-red-700 font-medium text-[11px]">* ระบบไม่อนุญาตให้แนบเอกสารซ้ำ</p>
+            </div>
+          `,
           icon: 'error',
           confirmButtonColor: '#dc2626',
         });
@@ -901,7 +984,14 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             fileType: file.type,
             fileHash: fileHash || undefined,
             visualHash: visualHash || data.visualHash || undefined,
+            qrPayload: qrPayload || data.qrPayload || undefined,
+            barcode: barcode || undefined,
             fileSize: file.size,
+            extractedTaxId,
+            extractedInvoiceNo,
+            extractedAmount,
+            extractedDate,
+            extractedSupplier,
           });
         }
       } catch (err) {
@@ -1029,6 +1119,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               fileHash: att.fileHash,
               visualHash: att.visualHash,
               fileSize: att.fileSize,
+              qrPayload: att.qrPayload,
+              barcode: att.barcode,
+              extractedTaxId: att.extractedTaxId,
+              extractedInvoiceNo: att.extractedInvoiceNo,
+              extractedAmount: att.extractedAmount,
             },
           ],
           fileHashes: att.fileHash ? [att.fileHash] : [],
@@ -1077,7 +1172,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             html: `
               <div class="text-left text-xs bg-emerald-50 p-4 rounded-xl border border-emerald-200 space-y-2">
                 <p class="font-bold text-emerald-900 text-sm flex items-center gap-1.5">
-                  ✓ เอกสารแนบและหลักฐานถูกต้องสมบูรณ์
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> เอกสารแนบและหลักฐานถูกต้องสมบูรณ์
                 </p>
                 <p class="text-gray-700">
                   ระบบได้สแกนลายนิ้วมือดิจิทัล (Digital SHA-256) และลายนิ้วมือภาพ (Visual Fingerprint) ของเอกสารแนบทั้ง <b>${attachmentsList.length} ไฟล์</b> เรียบร้อยแล้ว:
@@ -1698,7 +1793,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                           >
                             {att.fileName}
                           </a>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
                             <span className="text-[10px] text-slate-400 font-mono">
                               {att.fileSize ? `${(att.fileSize / 1024).toFixed(1)} KB` : 'เอกสารแนบ'}
                             </span>
@@ -1711,6 +1806,21 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                                 <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> ตรวจสอบแล้ว ไม่ซ้ำ
                               </span>
                             ) : null}
+                            {att.qrPayload && (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200" title={att.qrPayload}>
+                                <QrCode className="w-2.5 h-2.5 text-purple-600" /> QR Slip
+                              </span>
+                            )}
+                            {att.extractedInvoiceNo && (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200" title={`บิลเลขที่: ${att.extractedInvoiceNo}`}>
+                                <Scan className="w-2.5 h-2.5 text-blue-600" /> {att.extractedInvoiceNo}
+                              </span>
+                            )}
+                            {att.extractedAmount && att.extractedAmount > 0 && (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                <DollarSign className="w-2.5 h-2.5 text-amber-600" /> {Number(att.extractedAmount).toLocaleString()} ฿
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2035,9 +2145,12 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     <ShieldCheck className="w-3 h-3 text-emerald-600" /> สิทธิ์: ฝ่ายการเงิน/บัญชี
                   </span>
                 </div>
-                <div className="bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-200 text-[11px] text-emerald-900">
-                  ✓ รายการนี้อยู่ใน <b>Approved Payment List</b> เรียบร้อยแล้ว ยอดโอนสุทธิ:{' '}
-                  <b className="font-mono text-emerald-800">{Number(request.net_amount).toLocaleString()} บาท</b>
+                <div className="bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-200 text-[11px] text-emerald-900 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    รายการนี้อยู่ใน <b>Approved Payment List</b> เรียบร้อยแล้ว ยอดโอนสุทธิ:{' '}
+                    <b className="font-mono text-emerald-800">{Number(request.net_amount).toLocaleString()} บาท</b>
+                  </span>
                 </div>
 
                 <div>
@@ -2209,15 +2322,18 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               สรุปข้อมูลการตรวจสอบและการชำระ
             </h3>
             <div className="space-y-2 text-[11px]">
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-500">ผู้ขอเบิก:</span>
                 <span className="font-semibold text-slate-800">{request.requester_name}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-500">หัวหน้างานอนุมัติ:</span>
                 <span className="text-slate-800 font-medium">
                   {request.supervisor_checked_by ? (
-                    <span className="text-emerald-700 font-semibold">✓ {request.supervisor_checked_by}</span>
+                    <span className="text-emerald-700 font-semibold inline-flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      {request.supervisor_checked_by}
+                    </span>
                   ) : request.status === 'PENDING_SUPERVISOR' ? (
                     <span className="text-amber-600 font-semibold">
                       รอหัวหน้างานอนุมัติ {request.assigned_supervisor_name ? `(${request.assigned_supervisor_name})` : ''}
@@ -2227,45 +2343,52 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   )}
                 </span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-500">AP ผู้ตรวจสอบ:</span>
                 <span className="text-slate-800">{request.ap_checked_by || 'ยังไม่ตรวจสอบ'}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-500">หัวหน้าบัญชีสอบทาน:</span>
                 <span className="text-slate-800 font-medium">
                   {request.accounting_manager_checked_by ? (
-                    <span className="text-emerald-700 font-semibold">✓ {request.accounting_manager_checked_by}</span>
+                    <span className="text-emerald-700 font-semibold inline-flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      {request.accounting_manager_checked_by}
+                    </span>
                   ) : ['ACCOUNTING_CHECKED', 'APPROVED', 'READY_TO_PAY', 'PAID', 'POSTED_TO_GL', 'CLOSED'].includes(request.status) ? (
-                    <span className="text-emerald-700 font-semibold">✓ สอบทานแล้ว</span>
+                    <span className="text-emerald-700 font-semibold inline-flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      สอบทานแล้ว
+                    </span>
                   ) : (
                     <span className="text-slate-400">ยังไม่สอบทาน</span>
                   )}
                 </span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-500">ผู้อนุมัติ:</span>
                 <span className="font-semibold text-emerald-700">{request.approved_by || 'ยังไม่อนุมัติ'}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-500">การเงินผู้จ่าย:</span>
                 <span className="font-semibold text-slate-800">{request.paid_by || 'ยังไม่จ่าย'}</span>
               </div>
               {request.bank_reference_no && (
-                <div className="flex justify-between font-mono">
+                <div className="flex justify-between items-center font-mono">
                   <span className="text-slate-500 font-sans">เลขที่โอน:</span>
                   <span className="text-indigo-700 font-bold">{request.bank_reference_no}</span>
                 </div>
               )}
               {request.gl_voucher_no && (
-                <div className="flex justify-between font-mono">
+                <div className="flex justify-between items-center font-mono">
                   <span className="text-slate-500 font-sans">เลขที่ GL:</span>
                   <span className="text-cyan-800 font-bold">{request.gl_voucher_no}</span>
                 </div>
               )}
               {request.original_received_at && (
-                <div className="p-2 bg-violet-50 rounded-lg text-violet-900 font-semibold text-[10px]">
-                  ✓ ได้รับเอกสารตัวจริงแล้ว ({request.original_stamp_text})
+                <div className="p-2 bg-violet-50 rounded-lg text-violet-900 font-semibold text-[10px] flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-violet-600 shrink-0" />
+                  <span>ได้รับเอกสารตัวจริงแล้ว ({request.original_stamp_text})</span>
                 </div>
               )}
             </div>
@@ -2299,9 +2422,14 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       {log.notes}
                     </p>
                     {log.to_status && (
-                      <span className={`inline-block mt-1 text-[9px] px-1.5 py-0.2 rounded font-mono ${log.to_status === 'RETURN_DOCUMENT' ? 'bg-orange-100 text-orange-800 font-bold' : 'bg-slate-100 text-slate-600'}`}>
-                        {log.from_status ? `${log.from_status} → ` : ''}
-                        {log.to_status}
+                      <span className={`inline-flex items-center gap-1 mt-1 text-[9px] px-1.5 py-0.5 rounded font-mono ${log.to_status === 'RETURN_DOCUMENT' ? 'bg-orange-100 text-orange-800 font-bold' : 'bg-slate-100 text-slate-600'}`}>
+                        {log.from_status && (
+                          <>
+                            <span>{log.from_status}</span>
+                            <ArrowRight className="w-2.5 h-2.5 text-slate-400 inline" />
+                          </>
+                        )}
+                        <span>{log.to_status}</span>
                       </span>
                     )}
                   </div>

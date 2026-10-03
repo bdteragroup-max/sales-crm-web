@@ -15,7 +15,9 @@ import {
   normalizeAttachmentName,
   isDistinctiveAttachmentName,
   visualHammingDistance,
+  normalizeInvoiceNo,
 } from '@/lib/attachmentUtils';
+import { detectSlipQrAndBarcode } from '@/lib/slipDetector';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
 import { thaiBahtText } from '@/app/lib/thaiBahtText';
 import {
@@ -52,6 +54,8 @@ import {
   SlidersHorizontal,
   Plus,
   ListPlus,
+  Scan,
+  QrCode,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -443,12 +447,27 @@ export default function NewPaymentRequestClient({
   const [requestedPaymentDate, setRequestedPaymentDate] = useState('');
   const [submissionChannel, setSubmissionChannel] = useState<'WEB' | 'LINE' | 'EMAIL' | 'PHYSICAL'>('WEB');
 
-  // Attachments
+  // Attachments with QR & OCR metadata
   const [attachments, setAttachments] = useState<
-    { url: string; fileName: string; fileType?: string; fileHash?: string; visualHash?: string; fileSize?: number }[]
+    {
+      url: string;
+      fileName: string;
+      fileType?: string;
+      fileHash?: string;
+      visualHash?: string;
+      fileSize?: number;
+      qrPayload?: string;
+      barcode?: string;
+      extractedTaxId?: string;
+      extractedInvoiceNo?: string;
+      extractedAmount?: number;
+      extractedDate?: string;
+      extractedSupplier?: string;
+    }[]
   >([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadScanStatus, setUploadScanStatus] = useState<string | null>(null);
+  const [ocrAutoScanEnabled, setOcrAutoScanEnabled] = useState(true);
 
   // Duplicate Check Feedback State
   const [dupResult, setDupResult] = useState<{
@@ -658,7 +677,7 @@ export default function NewPaymentRequestClient({
     });
   };
 
-  // File Upload Handler with Instant Multi-Signal Pre-Scan
+  // File Upload Handler with Instant Multi-Signal QR & OCR Pre-Scan (Separate Cameras / Separate Shots Support)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -671,6 +690,13 @@ export default function NewPaymentRequestClient({
       fileHash?: string;
       visualHash?: string;
       fileSize?: number;
+      qrPayload?: string;
+      barcode?: string;
+      extractedTaxId?: string;
+      extractedInvoiceNo?: string;
+      extractedAmount?: number;
+      extractedDate?: string;
+      extractedSupplier?: string;
     }[] = [];
 
     try {
@@ -678,15 +704,65 @@ export default function NewPaymentRequestClient({
         const file = files[i];
 
         // 1. Calculate Multi-Signal Fingerprints (SHA-256 + Visual dHash)
-        setUploadScanStatus(`กำลังสแกนตรวจสอบเอกสาร ${file.name}...`);
+        setUploadScanStatus(`กำลังตรวจจับ QR/สลิป และคำนวณลายนิ้วมือ (${file.name})...`);
         const fileHash = await computeFileHash(file);
         const visualHash = await computeVisualHash(file);
+
+        // 2. Client-Side Instant QR/Barcode Slip Detection (<50ms)
+        let qrPayload: string | undefined = undefined;
+        let barcode: string | undefined = undefined;
+        if (file.type.startsWith('image/')) {
+          try {
+            const slipRes = await detectSlipQrAndBarcode(file);
+            if (slipRes.detected) {
+              qrPayload = slipRes.qrPayload;
+              barcode = slipRes.barcode;
+            }
+          } catch (e) {
+            console.debug('Client slip detection skipped:', e);
+          }
+        }
+
+        // 3. OCR Auto-Scan (extract Tax ID, Invoice No, Net Amount, Date, Supplier)
+        let extractedTaxId: string | undefined = undefined;
+        let extractedInvoiceNo: string | undefined = undefined;
+        let extractedAmount: number | undefined = undefined;
+        let extractedDate: string | undefined = undefined;
+        let extractedSupplier: string | undefined = undefined;
+
+        if (ocrAutoScanEnabled && file.type.startsWith('image/')) {
+          setUploadScanStatus(`กำลังสแกนอ่านข้อมูลเอกสารด้วย OCR Auto-Scan (${file.name})...`);
+          try {
+            const scanForm = new FormData();
+            scanForm.append('file', file);
+            const scanRes = await fetch('/api/scan-document', {
+              method: 'POST',
+              body: scanForm,
+            });
+            if (scanRes.ok) {
+              const scanData = await scanRes.json();
+              if (scanData.success) {
+                if (scanData.qrPayload && !qrPayload) qrPayload = scanData.qrPayload;
+                if (scanData.barcode && !barcode) barcode = scanData.barcode;
+                if (scanData.extractedTaxId) extractedTaxId = scanData.extractedTaxId;
+                if (scanData.extractedInvoiceNo) extractedInvoiceNo = scanData.extractedInvoiceNo;
+                if (scanData.extractedAmount) extractedAmount = scanData.extractedAmount;
+                if (scanData.extractedDate) extractedDate = scanData.extractedDate;
+                if (scanData.extractedSupplier) extractedSupplier = scanData.extractedSupplier;
+              }
+            }
+          } catch (ocrErr) {
+            console.warn('OCR Auto-Scan request failed:', ocrErr);
+          }
+        }
 
         // Check if file is already in current form's attachments list
         const normName = normalizeAttachmentName(file.name);
         const isDistinct = isDistinctiveAttachmentName(normName);
         const isAlreadyAttached = [...attachments, ...newItems].some((a) => {
           if (a.fileHash && a.fileHash === fileHash) return true;
+          if (qrPayload && a.qrPayload && (a.qrPayload === qrPayload || (qrPayload.length >= 15 && a.qrPayload.includes(qrPayload)))) return true;
+          if (extractedInvoiceNo && a.extractedInvoiceNo && normalizeInvoiceNo(a.extractedInvoiceNo) === normalizeInvoiceNo(extractedInvoiceNo)) return true;
           if (visualHash && a.visualHash && visualHammingDistance(visualHash, a.visualHash) <= 4) return true;
           if (isDistinct && normalizeAttachmentName(a.fileName) === normName) return true;
           return false;
@@ -702,7 +778,8 @@ export default function NewPaymentRequestClient({
           continue;
         }
 
-        // 2. Pre-scan: Check if this file exists in any active payment request across ANY device
+        // 4. Pre-scan: Check if this file exists in any active payment request across ANY device / separate cameras
+        setUploadScanStatus(`กำลังตรวจสอบประวัติการใช้เอกสารในระบบกลาง...`);
         const dupCheck = await checkAttachmentDuplicates({
           items: [
             {
@@ -710,6 +787,11 @@ export default function NewPaymentRequestClient({
               fileHash,
               visualHash: visualHash || undefined,
               fileSize: file.size,
+              qrPayload,
+              barcode,
+              extractedTaxId,
+              extractedInvoiceNo,
+              extractedAmount,
             },
           ],
           fileHashes: [fileHash],
@@ -718,7 +800,15 @@ export default function NewPaymentRequestClient({
         if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
           const match = dupCheck.matches[0];
           let explanationText = '';
-          if (match.matchType === 'ATTACHMENT_VISUAL') {
+          if (match.matchType === 'ATTACHMENT_QR') {
+            explanationText = `ระบบตรวจพบว่ารหัส QR Code บนสลิปโอนเงิน/บิลนี้ (PromptPay Slip Payload) ตรงกับเอกสารที่เคยแนบในระบบกลาง 100% แม้จะถ่ายจากต่างกล้อง ต่างโทรศัพท์ หรือคนละมุม (Separate Cameras)`;
+          } else if (match.matchType === 'ATTACHMENT_BARCODE') {
+            explanationText = `ระบบตรวจพบบาร์โค้ด (${match.barcode || barcode}) ตรงกับเอกสารเดิมในระบบกลาง`;
+          } else if (match.matchType === 'ATTACHMENT_OCR') {
+            explanationText = `ระบบตรวจพบข้อมูล OCR (เลขที่ใบกำกับภาษี "${match.invoice_number || extractedInvoiceNo}" และเลขผู้เสียภาษี) ตรงกับเอกสารเดิมในระบบ แม้จะถ่ายจากคนละกล้อง`;
+          } else if (match.matchType === 'ATTACHMENT_OCR_RECORD') {
+            explanationText = `ระบบตรวจพบเลขที่ใบกำกับภาษี "${extractedInvoiceNo}" จากภาพถ่าย ตรงกับคำขอเดิม (${match.pay_number}) ในระบบ`;
+          } else if (match.matchType === 'ATTACHMENT_VISUAL') {
             explanationText = `ระบบตรวจพบว่าภาพเอกสารนี้ (Visual Fingerprint / ลายนิ้วมือภาพ) ตรงกับเอกสารที่เคยแนบในระบบกลาง แม้จะส่งจากคนละอุปกรณ์ (มือถือ/คอมฯ) หรือไฟล์ถูกบีบอัดใหม่`;
           } else if (match.matchType === 'ATTACHMENT_NAME_SIMILAR') {
             explanationText = `ระบบตรวจพบว่าชื่อเอกสารและขนาดไฟล์นี้ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
@@ -742,7 +832,7 @@ export default function NewPaymentRequestClient({
                   <p><span class="text-gray-500 font-sans">สถานะคำขอเดิม:</span> <span class="px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded font-semibold">${match.status}</span></p>
                 </div>
                 <p class="text-red-700 font-medium text-[11px]">
-                  * ระบบไม่อนุญาตให้อัปโหลดไฟล์ซ้ำ กรุณาเปิดดูที่ใบขอจ่ายเดิมหรือตรวจสอบเอกสารใหม่อีกครั้ง
+                  * ระบบไม่อนุญาตให้อัปโหลดเอกสารซ้ำ กรุณาเปิดดูที่ใบขอจ่ายเดิมหรือตรวจสอบเอกสารใหม่อีกครั้ง
                 </p>
               </div>
             `,
@@ -760,7 +850,7 @@ export default function NewPaymentRequestClient({
           continue;
         }
 
-        // 3. Upload file to Supabase if verification passed
+        // 5. Upload file to Supabase if verification passed
         setUploadScanStatus(`กำลังอัปโหลดไฟล์ ${file.name}...`);
         const formData = new FormData();
         formData.append('file', file);
@@ -778,8 +868,58 @@ export default function NewPaymentRequestClient({
             fileType: file.type,
             fileHash,
             visualHash: visualHash || data.visualHash || undefined,
+            qrPayload: qrPayload || data.qrPayload || undefined,
+            barcode: barcode || undefined,
             fileSize: file.size,
+            extractedTaxId,
+            extractedInvoiceNo,
+            extractedAmount,
+            extractedDate,
+            extractedSupplier,
           });
+
+          // Smart Auto-Fill prompt if invoice number / amount / tax ID detected and form is empty
+          if (extractedInvoiceNo || (extractedAmount && extractedAmount > 0)) {
+            const hasExistingInvoice = !!invoiceNumber;
+            const hasExistingAmount = Number(subtotalAmount || 0) > 0;
+            if (!hasExistingInvoice || !hasExistingAmount) {
+              const confirmFill = await Swal.fire({
+                title: 'พบข้อมูลในเอกสาร (OCR Auto-Scan)',
+                html: `
+                  <div class="text-left text-xs bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-2">
+                    <p class="text-blue-900 font-bold text-sm">ระบบอ่านข้อมูลจากบิล/ใบเสร็จได้สำเร็จ:</p>
+                    <div class="bg-white p-3 rounded-lg border border-blue-100 font-mono text-[11px] space-y-1">
+                      ${extractedInvoiceNo ? `<p><span class="text-gray-500 font-sans">เลขที่บิล:</span> <b class="text-blue-700">${extractedInvoiceNo}</b></p>` : ''}
+                      ${extractedTaxId ? `<p><span class="text-gray-500 font-sans">เลขผู้เสียภาษี:</span> <b>${extractedTaxId}</b></p>` : ''}
+                      ${extractedAmount ? `<p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b class="text-emerald-700">${Number(extractedAmount).toLocaleString()} ฿</b></p>` : ''}
+                      ${extractedSupplier ? `<p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${extractedSupplier}</b></p>` : ''}
+                    </div>
+                    <p class="text-blue-800 text-[11px]">ต้องการให้นำข้อมูลเหล่านี้กรอกลงในฟอร์มคำขอเบิกจ่ายอัตโนมัติหรือไม่?</p>
+                  </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'กรอกข้อมูลลงฟอร์มอัตโนมัติ',
+                confirmButtonColor: '#2563eb',
+                cancelButtonText: 'ไม่กรอก (กรอกเอง)',
+              });
+
+              if (confirmFill.isConfirmed) {
+                if (extractedInvoiceNo && !invoiceNumber) {
+                  setInvoiceNumber(extractedInvoiceNo);
+                }
+                if (extractedTaxId && !supplierTaxId) {
+                  setSupplierTaxId(extractedTaxId);
+                }
+                if (extractedSupplier && !supplierName) {
+                  setSupplierName(extractedSupplier);
+                }
+                if (extractedAmount && (!subtotalAmount || Number(subtotalAmount) === 0)) {
+                  setSubtotalAmount(String(extractedAmount));
+                }
+              }
+            }
+          }
         } else {
           Swal.fire({
             title: 'อัปโหลดไม่สำเร็จ',
@@ -1728,8 +1868,8 @@ export default function NewPaymentRequestClient({
                           <span>วันที่ต้องการให้จ่ายเงินด่วน (Desired Payment Date)</span>
                           <span className="text-red-600">*</span>
                         </label>
-                        <span className="text-[10px] font-bold text-red-700 bg-red-100/90 px-2 py-0.5 rounded-full border border-red-200">
-                          ⚡ ด่วนพิเศษ
+                        <span className="text-[10px] font-bold text-red-700 bg-red-100/90 px-2 py-0.5 rounded-full border border-red-200 inline-flex items-center gap-1">
+                          <Zap className="w-2.5 h-2.5 text-red-600" /> ด่วนพิเศษ
                         </span>
                       </div>
 
@@ -2793,8 +2933,16 @@ export default function NewPaymentRequestClient({
                         ภาษีมูลค่าเพิ่ม (VAT)
                       </label>
                       {entryMode === 'MULTI_ITEMS' && (
-                        <span className="text-[10px] text-gray-500 font-medium">
-                          {vatType === 'NONE' ? '✓ รวม VAT ตามบิลแล้ว' : '⚠️ บวก VAT เพิ่มจากยอด'}
+                        <span className="text-[10px] text-gray-500 font-medium inline-flex items-center gap-1">
+                          {vatType === 'NONE' ? (
+                            <>
+                              <Check className="w-2.5 h-2.5 text-emerald-600" /> รวม VAT ตามบิลแล้ว
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="w-2.5 h-2.5 text-amber-600" /> บวก VAT เพิ่มจากยอด
+                            </>
+                          )}
                         </span>
                       )}
                     </div>
@@ -2938,6 +3086,26 @@ export default function NewPaymentRequestClient({
             </span>
           </div>
 
+          {/* Upload Area Controls */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2 px-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+                <QrCode className="w-3.5 h-3.5 text-purple-600" /> ตรวจจับ QR/สลิป โอนเงินอัตโนมัติ (ข้ามกล้อง/ข้ามมุม 100%)
+              </span>
+            </div>
+            <label className="inline-flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs hover:bg-gray-50 transition">
+              <input
+                type="checkbox"
+                checked={ocrAutoScanEnabled}
+                onChange={(e) => setOcrAutoScanEnabled(e.target.checked)}
+                className="rounded text-red-600 focus:ring-red-500 w-3.5 h-3.5"
+              />
+              <span className="flex items-center gap-1 text-[11px] text-gray-700 font-medium">
+                <Scan className="w-3 h-3 text-blue-600" /> เปิดระบบ OCR Auto-Scan (อ่านบิลและตรวจจับข้ามกล้อง)
+              </span>
+            </label>
+          </div>
+
           {/* Upload Area */}
           <div className="border-2 border-dashed border-gray-300 hover:border-red-400 bg-gray-50/60 hover:bg-red-50/20 rounded-2xl p-6 text-center transition">
             <input
@@ -2956,7 +3124,7 @@ export default function NewPaymentRequestClient({
               {isUploading ? (uploadScanStatus || 'กำลังตรวจสอบและอัปโหลดไฟล์...') : '+ คลิกเพื่อเลือกไฟล์เอกสารแนบ'}
             </label>
             <p className="text-[11px] text-gray-400 mt-2">
-              สามารถเลือกหลายไฟล์พร้อมกันได้ (ระบบจะสแกนความซ้ำซ้อนอัตโนมัติก่อนจัดเก็บ)
+              สามารถเลือกหลายไฟล์พร้อมกันได้ (ระบบจะตรวจจับ QR สลิป, อ่านข้อมูล OCR และตรวจจับความซ้ำซ้อนจากคนละกล้องอัตโนมัติ)
             </p>
 
             {isUploading && (
@@ -2988,11 +3156,26 @@ export default function NewPaymentRequestClient({
                       >
                         {att.fileName}
                       </a>
-                      <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
                         <span className="text-[10px] text-gray-400 font-mono">ไฟล์ #{idx + 1}</span>
                         {(att.fileHash || att.visualHash) && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                            <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> สแกนแล้ว ไม่ซ้ำ
+                            <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> ตรวจสอบแล้ว ไม่ซ้ำ
+                          </span>
+                        )}
+                        {att.qrPayload && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200" title={att.qrPayload}>
+                            <QrCode className="w-2.5 h-2.5 text-purple-600" /> QR Slip
+                          </span>
+                        )}
+                        {att.extractedInvoiceNo && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200" title={`บิลเลขที่: ${att.extractedInvoiceNo}`}>
+                            <Scan className="w-2.5 h-2.5 text-blue-600" /> {att.extractedInvoiceNo}
+                          </span>
+                        )}
+                        {att.extractedAmount && att.extractedAmount > 0 && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                            <DollarSign className="w-2.5 h-2.5 text-amber-600" /> {Number(att.extractedAmount).toLocaleString()} ฿
                           </span>
                         )}
                       </div>
