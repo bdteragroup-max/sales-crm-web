@@ -1,9 +1,35 @@
 "use client";
 
 import React, { useState } from 'react';
-import { updateBDTaskStatus, updateBDTaskChecklist, updateBDTaskDueDate, blockBDTask, unblockBDTask, claimBDTask, releaseBDTask, updateBDTaskName, deleteBDTask } from '@/app/actions/bd';
+import { 
+  updateBDTaskStatus, 
+  updateBDTaskChecklist, 
+  updateBDTaskDueDate, 
+  blockBDTask, 
+  unblockBDTask, 
+  claimBDTask, 
+  releaseBDTask, 
+  updateBDTaskName, 
+  deleteBDTask 
+} from '@/app/actions/bd';
+import { 
+  CheckCircle2, 
+  Clock, 
+  AlertTriangle, 
+  Check, 
+  X, 
+  Trash2, 
+  Edit3, 
+  Calendar, 
+  User, 
+  Plus, 
+  AlertCircle,
+  CornerDownRight,
+  ListTodo,
+  CheckSquare
+} from 'lucide-react';
 
-export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskUpdated: () => void }) {
+export default function BDTaskItem({ task, onTaskUpdated }: { task: any; onTaskUpdated: () => void }) {
   const [checklist, setChecklist] = useState<any[]>(
     typeof task.checklistState === 'string' ? JSON.parse(task.checklistState) : (task.checklistState || [])
   );
@@ -166,24 +192,48 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
     }
   };
 
+  const isCompleted = task.status === 'COMPLETED';
+  const isSkipped = task.status === 'SKIPPED';
+  const isBlocked = !!task.blockedReason;
+
+  const totalChecklist = checklist.length;
+  const checkedCount = checklist.filter(item => item.checked).length;
+  const checklistPercent = totalChecklist > 0 ? Math.round((checkedCount / totalChecklist) * 100) : 0;
+
   return (
-    <div className={`p-4 rounded-lg border ${task.status === 'COMPLETED' ? 'bg-green-50/50 border-green-200' : task.status === 'SKIPPED' ? 'bg-gray-100 border-gray-200 opacity-75' : task.blockedReason ? 'bg-red-50 border-red-300' : 'bg-white border-gray-200'}`}>
+    <div className={`p-4 rounded-xl border transition-all duration-200 ${
+      isCompleted 
+        ? 'bg-gray-50/70 border-gray-200 text-gray-800' 
+        : isSkipped 
+          ? 'bg-gray-100/60 border-gray-200 opacity-70' 
+          : isBlocked 
+            ? 'bg-red-50/50 border-red-300' 
+            : 'bg-white border-gray-200 hover:border-red-200 hover:shadow-xs'
+    }`}>
       
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-        {/* Left Side: Index & Name */}
-        <div className="flex gap-3 flex-1">
-          <div className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${task.status === 'COMPLETED' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
-            {task.orderIndex}
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+        {/* Left Side: Index & Name & Checklist */}
+        <div className="flex gap-3 flex-1 min-w-0">
+          <div className={`w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-bold border transition-colors ${
+            isCompleted 
+              ? 'bg-red-600 border-red-600 text-white' 
+              : isBlocked 
+                ? 'bg-red-100 border-red-300 text-red-700' 
+                : 'bg-gray-100 border-gray-200 text-gray-700'
+          }`}>
+            {isCompleted ? <Check className="w-4 h-4 stroke-[2.5]" /> : task.orderIndex}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 group">
+
+          <div className="flex-1 min-w-0">
+            {/* Title row */}
+            <div className="flex items-center gap-2 group flex-wrap">
               {isEditingName ? (
-                <div className="flex items-center gap-2 w-full max-w-sm">
+                <div className="flex items-center gap-2 w-full max-w-md">
                   <input
                     type="text"
                     value={editNameValue}
                     onChange={e => setEditNameValue(e.target.value)}
-                    className="flex-1 border border-gray-300 rounded p-1 text-sm outline-none focus:border-red-500"
+                    className="flex-1 border border-gray-300 rounded-lg px-2.5 py-1 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                     autoFocus
                     onKeyDown={e => {
                       if (e.key === 'Enter') handleSaveName();
@@ -193,55 +243,98 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
                       }
                     }}
                   />
-                  <button onClick={handleSaveName} className="text-green-600 hover:text-green-700 font-medium text-sm">Save</button>
-                  <button onClick={() => { setIsEditingName(false); setEditNameValue(task.name); }} className="text-gray-500 hover:text-gray-700 font-medium text-sm">Cancel</button>
+                  <button 
+                    onClick={handleSaveName} 
+                    className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium transition-colors"
+                  >
+                    บันทึก
+                  </button>
+                  <button 
+                    onClick={() => { setIsEditingName(false); setEditNameValue(task.name); }} 
+                    className="px-2 py-1 text-gray-600 hover:text-gray-800 text-xs font-medium"
+                  >
+                    ยกเลิก
+                  </button>
                 </div>
               ) : (
                 <>
-                  <h4 className={`font-medium text-lg ${task.status === 'COMPLETED' || task.status === 'SKIPPED' ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                  <h4 className={`font-semibold text-base break-words ${
+                    isCompleted || isSkipped ? 'text-gray-500 line-through' : 'text-gray-900'
+                  }`}>
                     {task.name}
                   </h4>
+
+                  {/* Actions for editing task name & deleting */}
                   <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-                    <button onClick={() => setIsEditingName(true)} className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded" title="Edit Task Name">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    <button 
+                      onClick={() => setIsEditingName(true)} 
+                      className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors" 
+                      title="แก้ไขชื่องาน"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={handleDeleteTask} className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete Task">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <button 
+                      onClick={handleDeleteTask} 
+                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" 
+                      title="ลบงานนี้"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </>
               )}
             </div>
-            
-            {/* Blocked Badge */}
+
+            {/* Blocked Alert Banner */}
             {task.blockedReason && (
-              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-800 rounded-md text-sm border border-red-200">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <span>ติดปัญหา: {task.blockedReason} (รอ: {task.waitingOn})</span>
+              <div className="mt-2.5 inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-800 rounded-lg text-xs font-medium border border-red-200">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span><strong>ติดปัญหา:</strong> {task.blockedReason} {task.waitingOn ? `(รอ: ${task.waitingOn})` : ''}</span>
               </div>
             )}
 
-            {/* Checklist */}
-            <div className="mt-4">
+            {/* Checklist Section */}
+            <div className="mt-3">
+              {totalChecklist > 0 && (
+                <div className="mb-2">
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                    <span className="flex items-center gap-1 font-medium text-gray-600">
+                      <ListTodo className="w-3.5 h-3.5 text-gray-400" /> เช็คลิสต์ย่อย
+                    </span>
+                    <span className="font-semibold text-gray-700">
+                      {checkedCount}/{totalChecklist} ({checklistPercent}%)
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+                    <div 
+                      className="h-full bg-red-600 rounded-full transition-all duration-300"
+                      style={{ width: `${checklistPercent}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
               {checklist && checklist.length > 0 && (
-                <div className="space-y-2 mb-2">
-                  {checklist.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-start group/chk">
-                      <label className={`flex items-start gap-2 text-sm ${item.checked ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+                <div className="space-y-1.5 mb-2 pl-1">
+                  {checklist.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center group/chk py-0.5">
+                      <label className={`flex items-center gap-2 text-sm cursor-pointer select-none transition-colors ${
+                        item.checked ? 'text-gray-400 line-through' : 'text-gray-700 hover:text-gray-900'
+                      }`}>
                         <input 
                           type="checkbox" 
-                          className="mt-1 rounded text-red-600 focus:ring-red-500"
+                          className="w-4 h-4 rounded text-red-600 border-gray-300 focus:ring-red-500 accent-red-600 cursor-pointer"
                           checked={item.checked}
                           onChange={(e) => handleChecklistToggle(item.id, e.target.checked)}
                         />
-                        <span>{item.label}</span>
+                        <span className="text-xs sm:text-sm">{item.label}</span>
                       </label>
                       <button 
                         onClick={() => handleDeleteChecklistItem(item.id)}
-                        className="opacity-0 group-hover/chk:opacity-100 text-gray-400 hover:text-red-500 transition-opacity ml-2"
-                        title="Delete item"
+                        className="opacity-0 group-hover/chk:opacity-100 text-gray-400 hover:text-red-600 transition-opacity p-0.5"
+                        title="ลบรายการนี้"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ))}
@@ -254,50 +347,74 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
                     type="text"
                     value={newChecklistItem}
                     onChange={(e) => setNewChecklistItem(e.target.value)}
-                    placeholder="เพิ่มรายการ..."
-                    className="flex-1 text-sm border-gray-300 rounded p-1 focus:ring-red-500 focus:border-red-500 border outline-none"
+                    placeholder="พิมพ์รายการเช็คลิสต์..."
+                    className="flex-1 text-xs sm:text-sm border border-gray-300 rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleAddChecklistItem();
                       if (e.key === 'Escape') setIsAddingChecklist(false);
                     }}
                   />
-                  <button onClick={handleAddChecklistItem} className="text-sm font-medium text-green-600 hover:text-green-700">Save</button>
-                  <button onClick={() => setIsAddingChecklist(false)} className="text-sm font-medium text-gray-500 hover:text-gray-700">Cancel</button>
+                  <button 
+                    onClick={handleAddChecklistItem} 
+                    className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium transition-colors"
+                  >
+                    เพิ่ม
+                  </button>
+                  <button 
+                    onClick={() => setIsAddingChecklist(false)} 
+                    className="px-2 py-1 text-gray-500 hover:text-gray-700 text-xs font-medium"
+                  >
+                    ยกเลิก
+                  </button>
                 </div>
               ) : (
                 <button 
                   onClick={() => setIsAddingChecklist(true)}
-                  className="text-xs text-gray-500 hover:text-red-600 font-medium flex items-center gap-1 mt-1 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-red-600 font-medium transition-colors mt-0.5"
                 >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                  <Plus className="w-3 h-3" />
                   เพิ่มเช็คลิสต์ (Add Item)
                 </button>
+              )}
+            </div>
+
+            {/* Assignee Footer badge */}
+            <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+              <User className="w-3.5 h-3.5 text-gray-400" />
+              <span>ผู้รับผิดชอบ: </span>
+              {task.assignee ? (
+                <span className="font-medium text-gray-800 bg-gray-100 px-2 py-0.5 rounded text-xs">
+                  {task.assignee.fullName}
+                </span>
+              ) : (
+                <span className="italic text-gray-400">ยังไม่มีผู้รับผิดชอบ</span>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right Side: Controls */}
-        <div className="flex flex-col gap-3 min-w-[200px]">
+        {/* Right Side: Symmetrical Task Control Panel */}
+        <div className="flex flex-col gap-2.5 lg:w-48 shrink-0 border-t lg:border-t-0 lg:border-l border-gray-100 pt-3 lg:pt-0 lg:pl-4 justify-between">
           {task.assigneeId === null ? (
-            <div className="flex flex-col gap-2 justify-center h-full">
-              <span className="text-xs text-gray-500 italic text-center">งานยังไม่มีผู้รับผิดชอบ</span>
+            <div className="flex flex-col gap-2 justify-center h-full py-1">
+              <span className="text-xs text-gray-500 italic text-center">ยังไม่มีผู้รับผิดชอบ</span>
               <button 
                 onClick={handleClaim}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-md text-sm transition-colors"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded-lg text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5"
               >
+                <User className="w-3.5 h-3.5" />
                 รับงาน (Claim)
               </button>
             </div>
           ) : (
             <>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                <label className="block text-[11px] font-medium text-gray-500 uppercase tracking-wider mb-1">สถานะ</label>
                 <select 
                   value={task.status} 
                   onChange={handleStatusChange}
-                  className="w-full text-sm border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500 p-1.5 border"
+                  className="w-full text-xs font-medium border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 p-1.5 bg-white text-gray-800 outline-none"
                 >
                   <option value="PENDING">PENDING</option>
                   <option value="IN_PROGRESS">IN PROGRESS</option>
@@ -307,37 +424,39 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Due Date</label>
-                <input 
-                  type="date"
-                  value={dueDate}
-                  onChange={handleDueDateChange}
-                  className="w-full text-sm border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500 p-1.5 border"
-                />
+                <label className="block text-[11px] font-medium text-gray-500 uppercase tracking-wider mb-1">กำหนดส่ง</label>
+                <div className="relative">
+                  <input 
+                    type="date"
+                    value={dueDate}
+                    onChange={handleDueDateChange}
+                    className="w-full text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 p-1.5 bg-white text-gray-800 outline-none"
+                  />
+                </div>
               </div>
 
-              <div>
+              <div className="pt-1 flex flex-col gap-1.5">
                 {task.blockedReason ? (
                   <button 
                     onClick={handleUnblock}
-                    className="w-full text-sm px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors font-medium"
+                    className="w-full text-xs px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors font-medium border border-gray-200 flex items-center justify-center gap-1"
                   >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-gray-600" />
                     ปลดบล็อค (Unblock)
                   </button>
                 ) : (
                   <button 
                     onClick={() => setShowBlockModal(true)}
-                    className="w-full text-sm px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded transition-colors font-medium"
+                    className="w-full text-xs px-2.5 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium flex items-center justify-center gap-1"
                   >
-                    ระบุว่าติดปัญหา (Mark Blocked)
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    ระบุปัญหา (Block)
                   </button>
                 )}
-              </div>
-              
-              <div className="pt-2 border-t border-gray-100">
+
                 <button 
                   onClick={handleRelease}
-                  className="w-full text-xs px-3 py-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                  className="w-full text-[11px] px-2 py-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors text-center"
                 >
                   ปล่อยงาน (Release)
                 </button>
@@ -349,31 +468,39 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
 
       {/* Block Modal */}
       {showBlockModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">ระบุว่างานติดปัญหา (Blocked)</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center font-bold">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">ระบุว่างานติดปัญหา (Blocked)</h2>
+                <p className="text-xs text-gray-500">แจ้งเตือนเพื่อนร่วมงานเกี่ยวกับอุปสรรค</p>
+              </div>
+            </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">สาเหตุที่ติดปัญหา</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">สาเหตุที่ติดปัญหา</label>
                 <input 
                   type="text"
                   value={blockReason}
                   onChange={e => setBlockReason(e.target.value)}
-                  placeholder="เช่น รอการอนุมัติจากลูกค้า"
-                  className="w-full border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500 p-2 border"
+                  placeholder="เช่น รอเอกสารอนุมัติ, ระบบภายนอกขัดข้อง"
+                  className="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 p-2.5 text-sm outline-none"
                   autoFocus
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">รอผู้ใด/หน่วยงานใด</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">รอผู้ใด / หน่วยงานใด</label>
                 <input 
                   type="text"
                   value={waitingOn}
                   onChange={e => setWaitingOn(e.target.value)}
-                  placeholder="เช่น แผนกบัญชี, ลูกค้า"
-                  className="w-full border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500 p-2 border"
+                  placeholder="เช่น ลูกค้า, ฝ่ายบัญชี, ผู้บริหาร"
+                  className="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 p-2.5 text-sm outline-none"
                   onKeyDown={e => {
                     if (e.key === 'Enter') handleBlockSubmit();
                   }}
@@ -381,19 +508,19 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
               </div>
             </div>
 
-            <div className="mt-8 flex justify-end gap-3">
+            <div className="mt-6 flex justify-end gap-2.5">
               <button 
                 onClick={() => setShowBlockModal(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors font-medium text-sm"
               >
                 ยกเลิก
               </button>
               <button 
                 onClick={handleBlockSubmit}
-                disabled={!blockReason}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+                disabled={!blockReason.trim()}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium text-sm shadow-xs disabled:opacity-50"
               >
-                บันทึก
+                บันทึกสถานะติดปัญหา
               </button>
             </div>
           </div>
@@ -402,23 +529,23 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-            <div className="flex items-center gap-3 mb-4 text-red-600">
-              <div className="p-2 bg-red-100 rounded-full">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                <Trash2 className="w-5 h-5" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">ลบงานนี้?</h2>
+              <h2 className="text-lg font-bold text-gray-900">ลบงานนี้?</h2>
             </div>
             
             <p className="text-gray-600 text-sm mb-6">
-              คุณแน่ใจหรือไม่ว่าต้องการลบงาน <strong>"{task.name}"</strong>? การกระทำนี้ไม่สามารถย้อนกลับได้
+              ต้องการลบงาน <strong className="text-gray-900">"{task.name}"</strong> หรือไม่? รายการและเช็คลิสต์จะถูกลบถาวร
             </p>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-2.5">
               <button 
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors font-medium text-sm"
                 disabled={deletingTask}
               >
                 ยกเลิก
@@ -426,9 +553,9 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
               <button 
                 onClick={confirmDeleteTask}
                 disabled={deletingTask}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium text-sm shadow-xs disabled:opacity-50"
               >
-                {deletingTask ? 'กำลังลบ...' : 'ลบงาน'}
+                {deletingTask ? 'กำลังลบ...' : 'ยืนยันลบงาน'}
               </button>
             </div>
           </div>
@@ -437,23 +564,23 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
 
       {/* Release Confirmation Modal */}
       {showReleaseConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-            <div className="flex items-center gap-3 mb-4 text-orange-600">
-              <div className="p-2 bg-orange-100 rounded-full">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center">
+                <AlertCircle className="w-5 h-5" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">ปล่อยงานนี้?</h2>
+              <h2 className="text-lg font-bold text-gray-900">ปล่อยงานนี้?</h2>
             </div>
             
             <p className="text-gray-600 text-sm mb-6">
-              คุณแน่ใจหรือไม่ว่าต้องการปล่อยงาน <strong>"{task.name}"</strong> กลับไปให้คนอื่นรับผิดชอบแทน?
+              ต้องการสละสิทธิ์รับผิดชอบงาน <strong className="text-gray-900">"{task.name}"</strong> กลับสู่รายการงานส่วนกลางหรือไม่?
             </p>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-2.5">
               <button 
                 onClick={() => setShowReleaseConfirm(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors font-medium text-sm"
                 disabled={releasingTask}
               >
                 ยกเลิก
@@ -461,9 +588,9 @@ export default function BDTaskItem({ task, onTaskUpdated }: { task: any, onTaskU
               <button 
                 onClick={confirmRelease}
                 disabled={releasingTask}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-black transition-colors font-medium text-sm shadow-xs disabled:opacity-50"
               >
-                {releasingTask ? 'กำลังปล่อยงาน...' : 'ยืนยันปล่อยงาน'}
+                {releasingTask ? 'กำลังบันทึก...' : 'ยืนยันปล่อยงาน'}
               </button>
             </div>
           </div>

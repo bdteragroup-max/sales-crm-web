@@ -28,6 +28,8 @@ type Props = {
   customerName?: string
   sellerName?:   string
   paymentTasks?: any[]
+  paymentMethod?: string | null
+  creditTerms?:   string | null
   installationOrders?: any[]
   repairOrder?: any
   project?: any
@@ -52,7 +54,7 @@ const getStepIcon = (key: string, isDone: boolean, isActive: boolean, isFuture: 
 
 export default function JobTimeline({
   jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, userRole, isManager,
-  jobNumber, customerName, sellerName, paymentTasks, installationOrders, repairOrder, project, repairDeliveries
+  jobNumber, customerName, sellerName, paymentTasks, paymentMethod, creditTerms, installationOrders, repairOrder, project, repairDeliveries
 }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showVariantModal, setShowVariantModal] = useState(false)
@@ -263,17 +265,29 @@ export default function JobTimeline({
 
     if (!hasIncompletePayment) return null;
 
-    // Check payment method
-    const paymentMethod = paymentTasks?.[0]?.job?.paymentMethod || paymentTasks?.[0]?.paymentMethod || '';
-    const isInstallment = paymentMethod.includes('ผ่อนชำระ');
-    const isCredit = paymentMethod.includes('เครดิต');
-    const isCOD = paymentMethod.includes('เก็บเงินหน้างาน') || paymentMethod.includes('หน้างาน');
+    // Check payment method & terms
+    const resolvedMethod = String(
+      paymentMethod ||
+      paymentTasks?.[0]?.job?.paymentMethod ||
+      paymentTasks?.[0]?.paymentMethod ||
+      ''
+    ).toLowerCase();
+
+    const resolvedCreditTerms = String(creditTerms || '').toLowerCase();
+
+    const hasCreditTask = paymentTasks?.some((pt: any) => 
+      pt.creditType || 
+      (pt.installmentTotal && pt.installmentTotal > 1)
+    );
+
+    const isInstallment = resolvedMethod.includes('ผ่อนชำระ') || resolvedMethod.includes('แบ่งชำระ') || resolvedMethod.includes('installment');
+    const isCredit = resolvedMethod.includes('เครดิต') || resolvedMethod.includes('credit') || resolvedCreditTerms !== '' || Boolean(hasCreditTask);
+    const isCOD = resolvedMethod.includes('เก็บเงินหน้างาน') || resolvedMethod.includes('หน้างาน') || resolvedMethod.includes('cod');
     
     if (isInstallment || isCredit || isCOD) {
-      // For credit/COD/installments, don't block operational steps, only complete
-      if (['complete'].includes(activeStep.key)) {
-        return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงินค่างวด/เครดิตให้ครบถ้วน`;
-      }
+      // สำหรับลูกค้าเครดิต / ผ่อนชำระ / เก็บเงินหน้างาน ลูกค้าได้รับสินค้าหรือบริการก่อนชำระเงิน
+      // ไม่ระงับขั้นตอนการดำเนินงานหรือการจัดส่ง (ฝ่ายบัญชีรับทราบ/เปิดบิลแล้วในขั้นตอนบัญชี และติดตามการชำระเงินตามรอบเครดิต)
+      return null;
     } else {
       // For normal pre-paid jobs, block delivery/store_send until payment is verified, but let Accounting process their step
       if (['store_send', 'delivery', 'complete'].includes(activeStep.key)) {

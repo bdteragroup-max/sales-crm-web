@@ -72,6 +72,7 @@ type Job = {
   trackingPhotoUrl?: string | null;
   stepLogs: StepLog[];
   paymentMethod?: string | null;
+  creditTerms?: string | null;
   paymentDate?: Date | string | null;
   paymentTasks?: any[];
   installationOrders?: any[];
@@ -363,6 +364,15 @@ function ExpandedRow({
   const save = (field: keyof UpdateJobPayload) => (value: string) =>
     onUpdate(job.id, { [field]: value });
 
+  const hasInstallments =
+    job.project?.installment1 ||
+    job.project?.installment2 ||
+    job.project?.installment3 ||
+    job.project?.installment4;
+  const derivedPaymentMethod =
+    job.paymentMethod ||
+    (hasInstallments ? "แบ่งชำระ" : null);
+
   const content = (
     <div className="bg-gray-50/50 p-4 md:p-5 w-full shadow-inner">
       <div className="mb-5 pb-5 border-b border-gray-100">
@@ -382,6 +392,8 @@ function ExpandedRow({
             customerName={job.customerName}
             sellerName={job.sellerName || undefined}
             paymentTasks={job.paymentTasks}
+            paymentMethod={derivedPaymentMethod}
+            creditTerms={job.creditTerms}
             installationOrders={job.installationOrders}
             repairOrder={job.repairOrder}
             project={job.project}
