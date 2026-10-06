@@ -424,6 +424,31 @@ export default function POListClient({
     });
   };
 
+  const handleActionError = (err: any, defaultMsg = 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์') => {
+    console.error(err);
+    if (err?.message?.includes('Server Action') || err?.message?.includes('failed-to-find-server-action')) {
+      Swal.fire({
+        icon: 'info',
+        title: 'มีการอัปเดตระบบเวอร์ชันใหม่',
+        html: '<div class="text-sm">ระบบมีการอัปเดตเวอร์ชัน กรุณากด <b>รีเฟรชหน้าเว็บ</b> เพื่อโหลดข้อมูลล่าสุดและทำรายการใหม่อีกครั้ง</div>',
+        confirmButtonText: 'รีเฟรชหน้าเว็บตอนนี้',
+        confirmButtonColor: '#10b981',
+        showCancelButton: true,
+        cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.reload();
+        }
+      });
+      return;
+    }
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: err?.message || defaultMsg
+    });
+  };
+
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPO) return;
@@ -466,12 +491,7 @@ export default function POListClient({
         });
       }
     } catch (err: any) {
-      console.error(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: err.message || 'ไม่สามารถบันทึกได้',
-      });
+      handleActionError(err, 'ไม่สามารถบันทึกได้');
     } finally {
       setIsSavingEdit(false);
     }
@@ -515,12 +535,7 @@ export default function POListClient({
         });
       }
     } catch (e: any) {
-      console.error(e);
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: e.message || 'ไม่สามารถยกเลิก PO ได้',
-      });
+      handleActionError(e, 'ไม่สามารถยกเลิก PO ได้');
     } finally {
       setLoadingMap(prev => ({ ...prev, [poNumber]: false }));
     }
@@ -561,12 +576,7 @@ export default function POListClient({
         });
       }
     } catch (e: any) {
-      console.error(e);
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: e.message || 'ไม่สามารถคืนสถานะ PO ได้',
-      });
+      handleActionError(e, 'ไม่สามารถคืนสถานะ PO ได้');
     } finally {
       setLoadingMap(prev => ({ ...prev, [poNumber]: false }));
     }
@@ -645,12 +655,7 @@ export default function POListClient({
         });
       }
     } catch (err: any) {
-      console.error(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
-      });
+      handleActionError(err, 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     } finally {
       setIsSubmittingReceive(false);
     }
@@ -702,12 +707,7 @@ export default function POListClient({
         });
       }
     } catch (err: any) {
-      console.error(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: err.message || 'เกิดข้อผิดพลาด'
-      });
+      handleActionError(err, 'เกิดข้อผิดพลาดในการยกเลิกรับสินค้า');
     } finally {
       setLoadingMap(prev => ({ ...prev, [poNumber]: false }));
     }
@@ -799,12 +799,7 @@ export default function POListClient({
         });
       }
     } catch (err: any) {
-      console.error(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: err.message || 'เกิดข้อผิดพลาด'
-      });
+      handleActionError(err, 'เกิดข้อผิดพลาดในการบันทึกรับสินค้า');
     } finally {
       setIsSubmittingBatchReceive(false);
     }
