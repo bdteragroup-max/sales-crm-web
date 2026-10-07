@@ -415,7 +415,7 @@ export default function FinancialDrilldownModal({ isOpen, onClose, item }: Finan
                         ข้อมูลการเรียกเก็บ & บัญชีบริษัท
                       </span>
                       <p className="text-slate-600 leading-relaxed">
-                        การชำระเงินของลูกค้ารายนี้ผูกกับ {item.companyCode === 'TP' ? 'บริษัท เทอรา พาวเวอร์ จำกัด' : item.companyCode === 'TE' ? 'บริษัท เทอรา อิเล็คทริค จำกัด' : 'บริษัท เทอรา กรุ๊ป จำกัด'} — ช่องทาง: {realJob?.paymentMethod || item.paymentMethod || 'โอนผ่านบัญชีธนาคาร'}
+                        การชำระเงินของลูกค้ารายนี้ผูกกับ {item.companyCode === 'TP' ? 'บริษัท เทอรา พาวเวอร์ จำกัด' : item.companyCode === 'TE' ? 'บริษัท เทอรา อิเล็คทริค จำกัด' : 'บริษัท เทอรา กรุ้ป จำกัด'} — ช่องทาง: {realJob?.paymentMethod || item.paymentMethod || 'โอนผ่านบัญชีธนาคาร'}
                       </p>
                     </div>
                   </div>

@@ -38,6 +38,7 @@ import {
 import * as XLSX from "xlsx";
 import { deleteProject, generateJobForProject } from "@/app/actions/projects";
 import { calculateProjectProgress } from "@/app/lib/project-utils";
+import { formatThaiDate, normalizeDateToCE } from "@/utils/thai-date";
 
 interface ProjectsClientPageProps {
   currentUser: any;
@@ -346,12 +347,8 @@ export default function ProjectsClientPage({
         "มูลค่าโครงการ (บาท)": Number(p.projectValue) || 0,
         "งบประมาณ (บาท)": Number(p.budget) || 0,
         "ผู้จัดการโครงการ": p.manager?.fullName || "ไม่ระบุ",
-        "วันเริ่มต้น": p.startDate
-          ? new Date(p.startDate).toLocaleDateString("th-TH")
-          : "-",
-        "วันสิ้นสุด": p.endDate
-          ? new Date(p.endDate).toLocaleDateString("th-TH")
-          : "-",
+        "วันเริ่มต้น": formatThaiDate(p.startDate),
+        "วันสิ้นสุด": formatThaiDate(p.endDate),
         "ความคืบหน้า (%)": overallProgress,
         "สถานะ": p.status || "",
         "รหัส Job": p.job?.jobNumber || "ยังไม่มี Job",
@@ -427,7 +424,10 @@ export default function ProjectsClientPage({
     if (!endDateStr) {
       return <span className="text-xs text-gray-400 font-medium">ไม่ระบุ</span>;
     }
-    const endDate = new Date(endDateStr);
+    const endDate = normalizeDateToCE(endDateStr);
+    if (!endDate) {
+      return <span className="text-xs text-gray-400 font-medium">ไม่ระบุ</span>;
+    }
     const diffTime = endDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -449,7 +449,7 @@ export default function ProjectsClientPage({
     }
     return (
       <span className="text-xs text-gray-700 font-medium">
-        {endDate.toLocaleDateString("th-TH")}
+        {formatThaiDate(endDate)}
       </span>
     );
   };

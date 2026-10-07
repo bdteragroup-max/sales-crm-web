@@ -302,7 +302,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   const [editDocDate, setEditDocDate] = useState(formatDisplayDate(request.document_date));
   const [editReqPaymentDate, setEditReqPaymentDate] = useState(formatDisplayDate(request.requested_payment_date));
   const [editUrgency, setEditUrgency] = useState<'NORMAL' | 'EMERGENCY'>(request.urgency || 'NORMAL');
-  const [editSubtotal, setEditSubtotal] = useState<number>(Number(request.subtotal_amount) || 0);
+  const isIncludedInitial = request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE';
+  const initialSubtotal = isIncludedInitial
+    ? Math.round((Number(request.subtotal_amount || 0) + Number(request.vat_amount || 0)) * 100) / 100
+    : Number(request.subtotal_amount) || 0;
+  const [editSubtotal, setEditSubtotal] = useState<number>(initialSubtotal);
   const [editVatType, setEditVatType] = useState<string>(request.vat_type || 'NO_VAT');
   const [editWhtPercent, setEditWhtPercent] = useState<number>(Number(request.wht_percent) || 0);
   const [editCostCenter, setEditCostCenter] = useState(request.cost_center || '');
@@ -441,9 +445,15 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   };
 
   // Requisition Save Handler
-  const calcEditVat = editVatType === 'EXCLUDE' ? editSubtotal * 0.07 : 0;
-  const calcEditWht = (editSubtotal * editWhtPercent) / 100;
-  const calcEditNet = Math.max(0, editSubtotal + calcEditVat - calcEditWht);
+  const isIncludedVat = editVatType === 'INCLUDED_7%' || editVatType === 'INCLUDE';
+  const calcEditVat = (editVatType === 'EXCLUDE' || editVatType === '7%')
+    ? Math.round(editSubtotal * 0.07 * 100) / 100
+    : isIncludedVat
+    ? Math.round(((editSubtotal * 7) / 107) * 100) / 100
+    : 0;
+  const editPreVatBase = isIncludedVat ? Math.max(0, editSubtotal - calcEditVat) : editSubtotal;
+  const calcEditWht = Math.round(((editPreVatBase * editWhtPercent) / 100) * 100) / 100;
+  const calcEditNet = Math.max(0, Math.round(((isIncludedVat ? editSubtotal : editSubtotal + calcEditVat) - calcEditWht) * 100) / 100);
 
   const handleSaveRequisition = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -465,7 +475,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         has_no_doc_number: editHasNoDocNo,
         document_date: editDocDate,
         requested_payment_date: editReqPaymentDate || undefined,
-        subtotal_amount: editSubtotal,
+        subtotal_amount: isIncludedVat ? editPreVatBase : editSubtotal,
         vat_type: editVatType,
         vat_amount: calcEditVat,
         wht_type: editWhtPercent > 0 ? `WHT_${editWhtPercent}%` : 'NO_WHT',
@@ -485,7 +495,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         request.has_no_doc_number = editHasNoDocNo;
         request.document_date = editDocDate;
         request.requested_payment_date = editReqPaymentDate || null;
-        request.subtotal_amount = editSubtotal;
+        request.subtotal_amount = isIncludedVat ? editPreVatBase : editSubtotal;
         request.vat_type = editVatType;
         request.vat_amount = calcEditVat;
         request.wht_percent = editWhtPercent;
@@ -1681,7 +1691,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   </tr>
                   <tr>
                     <td className="py-2.5 px-4 text-slate-600">
-                      ภาษีมูลค่าเพิ่ม (VAT {request.vat_type})
+                      ภาษีมูลค่าเพิ่ม (VAT {request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE' ? '7% (รวมในยอด)' : request.vat_type === '7%' || request.vat_type === 'EXCLUDE' ? '7% (แยกนอก)' : request.vat_type === 'NONE' || request.vat_type === 'NO_VAT' ? 'ไม่มี (0%)' : request.vat_type || '0%'})
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-slate-800">
                       +{Number(request.vat_amount).toLocaleString(undefined, {
@@ -2777,7 +2787,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                      ยอดรวมก่อนภาษี (Subtotal) <span className="text-red-500">*</span>
+                      {isIncludedVat ? 'ยอดเงินรวมตามบิล (Total Amount Incl. VAT)' : 'ยอดรวมก่อนภาษี (Subtotal)'} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -2788,6 +2798,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       onChange={(e) => setEditSubtotal(parseFloat(e.target.value) || 0)}
                       className="w-full rounded-xl border border-slate-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono font-bold"
                     />
+                    {isIncludedVat && editSubtotal > 0 && (
+                      <div className="mt-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                        ภาษีมูลค่าเพิ่ม 7% ในตัว: <b>+{calcEditVat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿</b> (ก่อน VAT: {editPreVatBase.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿)
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-700 mb-1">
@@ -2796,11 +2811,14 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     <select
                       value={editVatType}
                       onChange={(e) => setEditVatType(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
+                      className="w-full rounded-xl border border-slate-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white font-medium"
                     >
-                      <option value="NO_VAT">ไม่มี VAT (0%)</option>
-                      <option value="INCLUDE">รวม VAT ในยอดแล้ว (Include 7%)</option>
-                      <option value="EXCLUDE">แยก VAT ต่างหาก (+7%)</option>
+                      <option value="NO_VAT">ไม่มี VAT / ราคารวม VAT ตามบิลแล้ว (0%)</option>
+                      <option value="INCLUDED_7%">ราคารวม VAT แล้ว 7%</option>
+                      <option value="EXCLUDE">บวก VAT 7% เพิ่มจากยอด (Pre-VAT)</option>
+                      {editVatType === 'INCLUDE' && <option value="INCLUDE">รวม VAT ในยอดแล้ว (7%)</option>}
+                      {editVatType === '7%' && <option value="7%">บวก VAT 7% (7%)</option>}
+                      {editVatType === 'NONE' && <option value="NONE">ไม่มี VAT (0%)</option>}
                     </select>
                   </div>
                   <div>

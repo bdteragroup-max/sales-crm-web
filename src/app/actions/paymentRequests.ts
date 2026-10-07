@@ -78,6 +78,7 @@ export type PaymentRequestRecord = {
   requester_signature_url?: string | null;
   supervisor_signature_url?: string | null;
   approver_signature_url?: string | null;
+  ap_signature_url?: string | null;
   ap_checked_by?: string | null;
   ap_checked_at?: string | null;
   ap_notes?: string | null;
@@ -183,6 +184,7 @@ function sanitizePaymentRequest(row: any): PaymentRequestRecord {
     requester_signature_url: row.requester_signature_url || null,
     supervisor_signature_url: row.supervisor_signature_url || null,
     approver_signature_url: row.approver_signature_url || null,
+    ap_signature_url: row.ap_signature_url || null,
     subtotal_amount: Number(row.subtotal_amount || 0),
     vat_amount: Number(row.vat_amount || 0),
     wht_percent: Number(row.wht_percent || 0),
@@ -2148,13 +2150,22 @@ export async function deletePaymentRequest(id: string) {
   }
 }
 
-// Update payment request digital signatures (Prepared by, Verified by, Approved by)
+// Update payment request digital signatures (Prepared by, Supervisor, Verified by, Approved by) and signer names
 export async function updatePaymentRequestSignatures(
   id: string,
   signatures: {
     preparedBy?: string | null;
+    supervisorApprovedBy?: string | null;
     verifiedBy?: string | null;
     approvedBy?: string | null;
+    supervisorCheckedBy?: string | null;
+    supervisorCheckedAt?: string | null;
+    accountingManagerCheckedBy?: string | null;
+    accountingManagerCheckedAt?: string | null;
+    apCheckedBy?: string | null;
+    apCheckedAt?: string | null;
+    approvedByName?: string | null;
+    approvedAt?: string | null;
   }
 ) {
   const pool = getPool();
@@ -2167,13 +2178,49 @@ export async function updatePaymentRequestSignatures(
       fields.push(`requester_signature_url = $${idx++}`);
       values.push(signatures.preparedBy);
     }
-    if (signatures.verifiedBy !== undefined) {
+    if (signatures.supervisorApprovedBy !== undefined) {
       fields.push(`supervisor_signature_url = $${idx++}`);
+      values.push(signatures.supervisorApprovedBy);
+    }
+    if (signatures.verifiedBy !== undefined) {
+      fields.push(`ap_signature_url = $${idx++}`);
       values.push(signatures.verifiedBy);
     }
     if (signatures.approvedBy !== undefined) {
       fields.push(`approver_signature_url = $${idx++}`);
       values.push(signatures.approvedBy);
+    }
+    if (signatures.supervisorCheckedBy !== undefined) {
+      fields.push(`supervisor_checked_by = $${idx++}`);
+      values.push(signatures.supervisorCheckedBy);
+    }
+    if (signatures.supervisorCheckedAt !== undefined) {
+      fields.push(`supervisor_checked_at = $${idx++}`);
+      values.push(signatures.supervisorCheckedAt);
+    }
+    if (signatures.accountingManagerCheckedBy !== undefined) {
+      fields.push(`accounting_manager_checked_by = $${idx++}`);
+      values.push(signatures.accountingManagerCheckedBy);
+    }
+    if (signatures.accountingManagerCheckedAt !== undefined) {
+      fields.push(`accounting_manager_checked_at = $${idx++}`);
+      values.push(signatures.accountingManagerCheckedAt);
+    }
+    if (signatures.apCheckedBy !== undefined) {
+      fields.push(`ap_checked_by = $${idx++}`);
+      values.push(signatures.apCheckedBy);
+    }
+    if (signatures.apCheckedAt !== undefined) {
+      fields.push(`ap_checked_at = $${idx++}`);
+      values.push(signatures.apCheckedAt);
+    }
+    if (signatures.approvedByName !== undefined) {
+      fields.push(`approved_by = $${idx++}`);
+      values.push(signatures.approvedByName);
+    }
+    if (signatures.approvedAt !== undefined) {
+      fields.push(`approved_at = $${idx++}`);
+      values.push(signatures.approvedAt);
     }
 
     if (fields.length === 0) return { success: true };

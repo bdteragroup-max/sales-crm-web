@@ -33,13 +33,16 @@ const ALL_STATUSES = [
   'ความสนใจ',
   'นัดหมาย',
   'เสนอราคา',
+  'อยู่ระหว่างพิจารณา / รอการตัดสินใจ',
   'รอจัดทำ PO',
+  'รอปิดการขาย (รอชำระเงิน/PO)',
   'PO แล้วรอสินค้า',
   'PO แล้วรอมัดจำ',
   'PO แล้วรอเงินโอน',
   'เปิดบิลแล้ว',
   'ปฏิเสธ-ได้ที่อื่นแล้ว',
   'ปฏิเสธ-ยกเลิกสินค้า',
+  'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ',
   'ปฏิเสธ-อื่นๆ',
   'รอใบประเมินราคา',
   'ยกเลิก-Revise'
@@ -63,13 +66,16 @@ interface SalesClientPageProps {
 const STATUS_MAP: Record<string, { label: string; badgeCls: string; dotCls: string }> = {
   'เปิดบิลแล้ว': { label: 'เปิดบิลแล้ว', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dotCls: 'bg-emerald-500' },
   'รอจัดทำ PO': { label: 'รอจัดทำ PO', badgeCls: 'bg-amber-50 text-amber-700 border-amber-200', dotCls: 'bg-amber-500' },
+  'รอปิดการขาย (รอชำระเงิน/PO)': { label: 'รอปิดการขาย (PO)', badgeCls: 'bg-amber-50 text-amber-700 border-amber-200', dotCls: 'bg-amber-500' },
   'PO แล้วรอสินค้า': { label: 'PO รอสินค้า', badgeCls: 'bg-amber-50 text-amber-700 border-amber-200', dotCls: 'bg-amber-500' },
   'PO แล้วรอมัดจำ': { label: 'PO รอมัดจำ', badgeCls: 'bg-amber-50 text-amber-700 border-amber-200', dotCls: 'bg-amber-500' },
   'PO แล้วรอเงินโอน': { label: 'PO รอเงินโอน', badgeCls: 'bg-amber-50 text-amber-700 border-amber-200', dotCls: 'bg-amber-500' },
   'เสนอราคา': { label: 'เสนอราคา', badgeCls: 'bg-red-50 text-red-700 border-red-200', dotCls: 'bg-red-600' },
+  'อยู่ระหว่างพิจารณา / รอการตัดสินใจ': { label: 'รอพิจารณา/ตัดสินใจ', badgeCls: 'bg-indigo-50 text-indigo-700 border-indigo-200', dotCls: 'bg-indigo-500' },
   'หมดอายุ': { label: 'หมดอายุ', badgeCls: 'bg-stone-100 text-stone-700 border-stone-300', dotCls: 'bg-stone-500' },
   'รอใบประเมินราคา': { label: 'รอประเมิน', badgeCls: 'bg-slate-100 text-slate-700 border-slate-300', dotCls: 'bg-slate-500' },
   'ยกเลิก-Revise': { label: 'Revise', badgeCls: 'bg-slate-100 text-slate-500 border-slate-200', dotCls: 'bg-slate-400' },
+  'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ': { label: 'สินค้าไม่ตรงความต้องการ', badgeCls: 'bg-slate-100 text-slate-600 border-slate-200', dotCls: 'bg-slate-400' },
 };
 
 function statusBadge(status: string) {
@@ -148,7 +154,7 @@ export default function SalesClientPage({
     if (newStatus === record.status) return;
     if (newStatus === 'หมดอายุ') return; // System-controlled status only
 
-    if (newStatus === 'รอจัดทำ PO' || newStatus === 'PO แล้วรอสินค้า' || newStatus === 'PO แล้วรอมัดจำ' || newStatus === 'PO แล้วรอเงินโอน') {
+    if (newStatus === 'รอจัดทำ PO' || newStatus === 'PO แล้วรอสินค้า' || newStatus === 'PO แล้วรอมัดจำ' || newStatus === 'PO แล้วรอเงินโอน' || newStatus === 'รอปิดการขาย (รอชำระเงิน/PO)') {
       setPendingTransition({ id: record.id, quotation: record, nextDbStatus: newStatus, type: 'po' });
       return;
     }
@@ -228,7 +234,7 @@ export default function SalesClientPage({
   });
 
   const wonCount = initialQuotations.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
-  const openCount = initialQuotations.filter(q => q.status === 'เสนอราคา').length;
+  const openCount = initialQuotations.filter(q => q.status === 'เสนอราคา' || q.status === 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ' || q.status === 'รอปิดการขาย (รอชำระเงิน/PO)').length;
   const lostCount = initialQuotations.filter(q => q.status?.startsWith('ปฏิเสธ')).length;
   const wonValue = initialQuotations
     .filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO'))
@@ -551,12 +557,15 @@ export default function SalesClientPage({
                       <option value="">สถานะทั้งหมด</option>
                       <option value="เปิดบิลแล้ว">เปิดบิลแล้ว</option>
                       <option value="รอจัดทำ PO">รอจัดทำ PO</option>
+                      <option value="รอปิดการขาย (รอชำระเงิน/PO)">รอปิดการขาย (รอชำระเงิน/PO)</option>
                       <option value="PO แล้วรอสินค้า">PO แล้วรอสินค้า</option>
                       <option value="PO แล้วรอมัดจำ">PO แล้วรอมัดจำ</option>
                       <option value="PO แล้วรอเงินโอน">PO แล้วรอเงินโอน</option>
                       <option value="เสนอราคา">เสนอราคา</option>
+                      <option value="อยู่ระหว่างพิจารณา / รอการตัดสินใจ">อยู่ระหว่างพิจารณา / รอการตัดสินใจ</option>
                       <option value="ปฏิเสธ-ได้ที่อื่นแล้ว">ปฏิเสธ-ได้ที่อื่นแล้ว</option>
                       <option value="ปฏิเสธ-ยกเลิกสินค้า">ปฏิเสธ-ยกเลิกสินค้า</option>
+                      <option value="ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ">ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ</option>
                       <option value="ปฏิเสธ-อื่นๆ">ปฏิเสธ-อื่นๆ</option>
                       <option value="รอใบประเมินราคา">รอใบประเมินราคา</option>
                       <option value="ยกเลิก-Revise">ยกเลิก-Revise</option>
@@ -723,6 +732,10 @@ export default function SalesClientPage({
                                   ? 'bg-stone-100 text-stone-700 border-stone-300'
                                   : record.status === 'เสนอราคา'
                                   ? 'bg-red-50 text-red-700 border-red-200'
+                                  : record.status === 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ'
+                                  ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                  : record.status === 'รอปิดการขาย (รอชำระเงิน/PO)'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
                                   : record.status === 'เปิดบิลแล้ว'
                                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                   : 'bg-white text-slate-800 border-slate-200'

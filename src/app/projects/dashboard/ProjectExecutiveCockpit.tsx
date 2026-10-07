@@ -40,6 +40,7 @@ import {
 } from "recharts";
 import ExecutiveLiveSync from "@/app/executive/components/ExecutiveLiveSync";
 import { calculateProjectProgress } from "@/app/lib/project-utils";
+import { formatThaiDate, normalizeDateToCE } from "@/utils/thai-date";
 
 interface ProjectExecutiveCockpitProps {
   projects: any[];
@@ -65,18 +66,12 @@ function formatSmart(val: number | string | null | undefined): string {
 
 function formatDateThai(dateStr: string | Date | null | undefined): string {
   if (!dateStr) return "-";
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "-";
-    return d.toLocaleDateString("th-TH", {
-      day: "numeric",
-      month: "short",
-      year: "2-digit",
-      timeZone: "Asia/Bangkok",
-    });
-  } catch {
-    return "-";
-  }
+  return formatThaiDate(dateStr, {
+    day: "numeric",
+    month: "short",
+    year: "2-digit",
+    timeZone: "Asia/Bangkok",
+  });
 }
 
 // Company code resolver from linked job or project number
@@ -109,7 +104,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 // ── RAG Status Evaluator ──
 function evaluateProjectRAG(p: any, today: Date) {
-  const end = p.endDate ? new Date(p.endDate) : null;
+  const end = p.endDate ? normalizeDateToCE(p.endDate) : null;
   const diffDays = end ? Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : 999;
   const isOverdue = diffDays < 0;
   const hasPenalty = Number(p.penaltyPerDay) > 0;
@@ -119,9 +114,11 @@ function evaluateProjectRAG(p: any, today: Date) {
   // Planned progress calculation based on timeline elapsed
   let plannedProgress = 0;
   const startDateStr = p.startDate || p.createdAt;
-  if (startDateStr && p.endDate) {
-    const s = new Date(startDateStr).getTime();
-    const e = new Date(p.endDate).getTime();
+  const sDate = normalizeDateToCE(startDateStr);
+  const eDate = p.endDate ? normalizeDateToCE(p.endDate) : null;
+  if (sDate && eDate) {
+    const s = sDate.getTime();
+    const e = eDate.getTime();
     const n = today.getTime();
     if (n >= e) plannedProgress = 100;
     else if (n > s && e > s) plannedProgress = Math.round(((n - s) / (e - s)) * 100);

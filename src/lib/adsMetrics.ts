@@ -35,6 +35,7 @@ export const CLOSED_SALE_STATUSES: readonly string[] = [
   'PO แล้วรอเงินโอน',
   'PO แล้วรอสินค้า',
   'รอจัดทำ PO',
+  'รอปิดการขาย (รอชำระเงิน/PO)',
 ]
 
 // pending confirmation from Marketing (2026-08-27)
@@ -45,11 +46,13 @@ export const NOT_CLOSED_STATUSES: readonly string[] = [
   'ชะลอโครงการ',
   'ปฏิเสธ-ได้ที่อื่นแล้ว',
   'ปฏิเสธ-ยกเลิกสินค้า',
+  'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ',
   'ปฏิเสธ-อื่นๆ',
   'ยกเลิก-Revise',
   'รอใบประเมินราคา',
   'สินค้าฝากขาย', // pending confirmation
   'เสนอราคา',
+  'อยู่ระหว่างพิจารณา / รอการตัดสินใจ',
 ]
 
 // Test data row to be ignored in the exhaustive check

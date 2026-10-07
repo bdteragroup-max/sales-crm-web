@@ -37,6 +37,7 @@ import DynamicInstallmentsBuilder, {
   DepositConfig,
 } from "../../components/DynamicInstallmentsBuilder";
 import SearchableTeamSelect from "../../components/SearchableTeamSelect";
+import { formatDateForInput, parseDateInput } from "@/utils/thai-date";
 
 interface EditProjectClientProps {
   users: any[];
@@ -77,9 +78,7 @@ export default function EditProjectClient({
               : pv > 0 && dep.amount
               ? ((Number(dep.amount) / pv) * 100).toFixed(2)
               : "",
-          dueDate: dep.dueDate
-            ? new Date(dep.dueDate).toISOString().split("T")[0]
-            : "",
+          dueDate: formatDateForInput(dep.dueDate),
           title: dep.title || "เงินมัดจำเมื่อเซ็นสัญญา",
         };
       } else if (rawData.hasDeposit === false) {
@@ -104,9 +103,7 @@ export default function EditProjectClient({
         hasDeposit: true,
         amount: String(depAmt),
         percent: pv > 0 ? ((depAmt / pv) * 100).toFixed(2) : "",
-        dueDate: project.paymentDate
-          ? new Date(project.paymentDate).toISOString().split("T")[0]
-          : "",
+        dueDate: formatDateForInput(project.paymentDate),
         title: "เงินมัดจำเมื่อเซ็นสัญญา",
       };
     }
@@ -154,9 +151,7 @@ export default function EditProjectClient({
             : pv > 0 && inst.amount
             ? ((Number(inst.amount) / pv) * 100).toFixed(2)
             : "",
-        dueDate: inst.dueDate
-          ? new Date(inst.dueDate).toISOString().split("T")[0]
-          : "",
+        dueDate: formatDateForInput(inst.dueDate),
       }));
     }
 
@@ -236,26 +231,16 @@ export default function EditProjectClient({
     jobId: project.jobId || "",
 
     // Timeline
-    startDate: project.startDate
-      ? new Date(project.startDate).toISOString().split("T")[0]
-      : "",
-    endDate: project.endDate
-      ? new Date(project.endDate).toISOString().split("T")[0]
-      : "",
+    startDate: formatDateForInput(project.startDate),
+    endDate: formatDateForInput(project.endDate),
     projectDuration: project.projectDuration?.toString() || "",
     projectDurationUnit: project.projectDurationUnit || "วัน",
-    deliveryDate: project.deliveryDate
-      ? new Date(project.deliveryDate).toISOString().split("T")[0]
-      : project.job?.deliveryDate
-      ? new Date(project.job.deliveryDate).toISOString().split("T")[0]
-      : "",
+    deliveryDate: formatDateForInput(project.deliveryDate || project.job?.deliveryDate),
 
     // Contract & Financial
     contractNumber: project.contractNumber || "",
     contractSignatory: project.contractSignatory || "",
-    contractSigningDate: project.contractSigningDate
-      ? new Date(project.contractSigningDate).toISOString().split("T")[0]
-      : "",
+    contractSigningDate: formatDateForInput(project.contractSigningDate),
     contractReturnStatus: project.contractReturnStatus || "",
     amountBeforeVat: (() => {
       const pv = Number(project.projectValue) || Number(project.amountIncludingVat) || 0;
@@ -270,9 +255,7 @@ export default function EditProjectClient({
       ) : ""
     ),
     securityDeposit: project.securityDeposit?.toString() || "",
-    depositCollectionSchedule: project.depositCollectionSchedule
-      ? new Date(project.depositCollectionSchedule).toISOString().split("T")[0]
-      : "",
+    depositCollectionSchedule: formatDateForInput(project.depositCollectionSchedule),
     depositRefundRequestNo: project.depositRefundRequestNo || "",
     penaltyPerDay: project.penaltyPerDay?.toString() || "",
     amountIncludingVat: project.amountIncludingVat?.toString() || project.projectValue?.toString() || "",
@@ -285,9 +268,7 @@ export default function EditProjectClient({
     installment4: project.installment4?.toString() || "",
     firstPayment: project.firstPayment?.toString() || "",
     secondPayment: project.secondPayment?.toString() || "",
-    paymentDate: project.paymentDate
-      ? new Date(project.paymentDate).toISOString().split("T")[0]
-      : "",
+    paymentDate: formatDateForInput(project.paymentDate),
 
     // Documents
     documentNumber: project.documentNumber || "",
@@ -353,12 +334,8 @@ export default function EditProjectClient({
       title: t.title || "",
       category: t.category || "",
       assigneeId: t.assigneeId || "",
-      planStart: t.planStart
-        ? new Date(t.planStart).toISOString().split("T")[0]
-        : "",
-      planEnd: t.planEnd
-        ? new Date(t.planEnd).toISOString().split("T")[0]
-        : "",
+      planStart: formatDateForInput(t.planStart),
+      planEnd: formatDateForInput(t.planEnd),
       weight: t.weight || 1,
     }));
   });
@@ -370,15 +347,17 @@ export default function EditProjectClient({
       formData.endDate &&
       formData.projectDurationUnit === "วัน"
     ) {
-      const start = new Date(formData.startDate);
-      const end = new Date(formData.endDate);
-      const diffTime = end.getTime() - start.getTime();
-      if (diffTime >= 0) {
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        setFormData((prev) => ({
-          ...prev,
-          projectDuration: diffDays.toString(),
-        }));
+      const start = parseDateInput(formData.startDate);
+      const end = parseDateInput(formData.endDate);
+      if (start && end) {
+        const diffTime = end.getTime() - start.getTime();
+        if (diffTime >= 0) {
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          setFormData((prev) => ({
+            ...prev,
+            projectDuration: diffDays.toString(),
+          }));
+        }
       }
     }
   }, [formData.startDate, formData.endDate, formData.projectDurationUnit]);
@@ -415,7 +394,9 @@ export default function EditProjectClient({
       return alert("กรุณากรอกชื่อโครงการ (Project Name is required)");
     }
     if (formData.startDate && formData.endDate) {
-      if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      const s = parseDateInput(formData.startDate);
+      const e = parseDateInput(formData.endDate);
+      if (s && e && e < s) {
         return alert(
           "วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม (End Date cannot be before Start Date)"
         );
@@ -437,22 +418,18 @@ export default function EditProjectClient({
         jobId: formData.jobId || undefined,
 
         // Timeline
-        startDate: formData.startDate ? new Date(formData.startDate) : undefined,
-        endDate: formData.endDate ? new Date(formData.endDate) : undefined,
+        startDate: parseDateInput(formData.startDate),
+        endDate: parseDateInput(formData.endDate),
         projectDuration: formData.projectDuration
           ? parseInt(formData.projectDuration)
           : undefined,
         projectDurationUnit: formData.projectDurationUnit,
-        deliveryDate: formData.deliveryDate
-          ? new Date(formData.deliveryDate)
-          : undefined,
+        deliveryDate: parseDateInput(formData.deliveryDate),
 
         // Contract
         contractNumber: formData.contractNumber || undefined,
         contractSignatory: formData.contractSignatory || undefined,
-        contractSigningDate: formData.contractSigningDate
-          ? new Date(formData.contractSigningDate)
-          : undefined,
+        contractSigningDate: parseDateInput(formData.contractSigningDate),
         contractReturnStatus: formData.contractReturnStatus || undefined,
 
         // Financials
@@ -462,9 +439,7 @@ export default function EditProjectClient({
         securityDeposit: formData.securityDeposit
           ? parseFloat(formData.securityDeposit)
           : undefined,
-        depositCollectionSchedule: formData.depositCollectionSchedule
-          ? new Date(formData.depositCollectionSchedule)
-          : undefined,
+        depositCollectionSchedule: parseDateInput(formData.depositCollectionSchedule),
         depositRefundRequestNo: formData.depositRefundRequestNo || undefined,
         penaltyPerDay: formData.penaltyPerDay
           ? parseFloat(formData.penaltyPerDay)
@@ -485,7 +460,7 @@ export default function EditProjectClient({
                     ? parseFloat(deposit.percent)
                     : undefined,
                   dueDate: deposit.dueDate
-                    ? new Date(deposit.dueDate).toISOString()
+                    ? parseDateInput(deposit.dueDate)?.toISOString()
                     : undefined,
                   title: deposit.title || "เงินมัดจำเมื่อเซ็นสัญญา",
                 }
@@ -497,7 +472,7 @@ export default function EditProjectClient({
               amount: inst.amount ? parseFloat(inst.amount) : 0,
               percent: inst.percent ? parseFloat(inst.percent) : undefined,
               dueDate: inst.dueDate
-                ? new Date(inst.dueDate).toISOString()
+                ? parseDateInput(inst.dueDate)?.toISOString()
                 : undefined,
             }))
             .filter((inst) => inst.amount > 0),
@@ -549,10 +524,8 @@ export default function EditProjectClient({
           : undefined,
         paymentDate:
           deposit.hasDeposit && deposit.dueDate
-            ? new Date(deposit.dueDate)
-            : formData.paymentDate
-            ? new Date(formData.paymentDate)
-            : undefined,
+            ? parseDateInput(deposit.dueDate)
+            : parseDateInput(formData.paymentDate),
 
         // Docs
         documentNumber: formData.documentNumber || undefined,
@@ -586,11 +559,17 @@ export default function EditProjectClient({
         customerSignUrl: formData.customerSignUrl || undefined,
       };
 
+      const cleanedTasks = tasks.map((t) => ({
+        ...t,
+        planStart: t.planStart ? parseDateInput(t.planStart) : null,
+        planEnd: t.planEnd ? parseDateInput(t.planEnd) : null,
+      }));
+
       await updateProject(project.id, {
         ...projectData,
         engineers,
         admins,
-        tasks,
+        tasks: cleanedTasks,
       });
       router.push(`/projects/${project.id}`);
     } catch (err) {

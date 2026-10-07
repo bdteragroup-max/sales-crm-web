@@ -231,8 +231,8 @@ export default function PipelineClientPage({
     if (!status || status === 'Pending') return 'ความสนใจ'
     if (status.includes('ไม่สำเร็จ') || status.includes('ปฏิเสธ')) return 'ปฏิเสธ/ยกเลิก'
     if (['รอติดตั้ง', 'ปิดการขาย', 'รอส่งมอบ', 'เปิดบิลแล้ว'].includes(status)) return 'เปิดบิลแล้ว'
-    if (status.includes('รอจัดทำ PO') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน')) return 'รอ PO'
-    if (['เสนอราคา', 'ต่อรองราคา', 'ยกเลิก-Revise'].includes(status)) return 'เสนอราคา'
+    if (status.includes('รอจัดทำ PO') || status.includes('รอปิดการขาย') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน')) return 'รอ PO'
+    if (['เสนอราคา', 'ต่อรองราคา', 'ยกเลิก-Revise', 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ'].includes(status) || status.includes('พิจารณา') || status.includes('ตัดสินใจ')) return 'เสนอราคา'
     if (status === 'นัดหมาย' || status === 'รอใบประเมินราคา') return 'นัดหมาย'
     return 'ความสนใจ'
   }

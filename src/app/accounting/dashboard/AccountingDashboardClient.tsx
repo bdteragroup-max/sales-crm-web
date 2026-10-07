@@ -149,7 +149,7 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
               className="text-xs font-semibold pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-xl shadow-xs text-slate-800 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer appearance-none"
             >
               <option value="ALL">รวม 3 บริษัท (TG, TE, TP)</option>
-              <option value="TG">TG: บริษัท เทอรา กรุ๊ป จำกัด</option>
+              <option value="TG">TG: บริษัท เทอรา กรุ้ป จำกัด</option>
               <option value="TE">TE: บริษัท เทอรา อิเล็คทริค จำกัด</option>
               <option value="TP">TP: บริษัท เทอรา พาวเวอร์ จำกัด</option>
             </select>

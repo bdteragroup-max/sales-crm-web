@@ -14,7 +14,7 @@ const companyInfoMap: Record<
   }
 > = {
   TG: {
-    th: 'บริษัท เทอรา กรุ๊ป จำกัด',
+    th: 'บริษัท เทอรา กรุ้ป จำกัด',
     en: 'Tera Group Co., Ltd.',
     taxId: '0105552112716',
     address: '39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กทม. 10250',
@@ -64,6 +64,7 @@ function formatThaiDate(dateStr?: string | Date | null): string {
 
 export type VoucherSignatures = {
   preparedBy?: string | null;
+  supervisorApprovedBy?: string | null;
   verifiedBy?: string | null;
   approvedBy?: string | null;
 };
@@ -290,10 +291,17 @@ export async function exportPaymentVoucherToExcel(
   // 3. Metadata Section (Rows 8 to 13)
   const metaRowsData = [
     {
-      label1: 'วันที่ทำรายการ (Request Date):',
-      val1: formatThaiDate(request.document_date),
-      label2: 'วันที่ต้องการให้จ่าย (Due Date):',
-      val2: formatThaiDate(request.requested_payment_date),
+      label1: 'วันที่คำขอ (Request Date):',
+      val1: formatThaiDate(request.created_at || request.document_date),
+      label2: 'วันที่ที่ทำเบิก (Requisition Date):',
+      val2: formatThaiDate(request.document_date),
+    },
+    {
+      label1: 'วันที่ต้องการให้จ่าย (Due Date):',
+      val1: formatThaiDate(request.requested_payment_date),
+      label2: '',
+      val2: '',
+      fullWidth: true,
     },
     {
       label1: 'ผู้ขอเบิก (Requester):',
@@ -489,6 +497,43 @@ export async function exportPaymentVoucherToExcel(
 
     styleRange(sheet, currentRow, 1, currentRow, 6, { border: thinBorder });
 
+    // VAT Row (if applicable in Mode A)
+    if (vat > 0) {
+      currentRow++;
+      sheet.getRow(currentRow).height = 22;
+      sheet.mergeCells(`A${currentRow}:D${currentRow}`);
+      const cVatLabelA = sheet.getCell(`A${currentRow}`);
+      const vatLabelModeA = request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE' ? '7% รวมในยอด' : (request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type);
+      cVatLabelA.value = `ภาษีมูลค่าเพิ่ม (VAT ${vatLabelModeA}):`;
+      cVatLabelA.font = { name: 'TH Sarabun New', size: 11, bold: true };
+      cVatLabelA.alignment = { horizontal: 'right', vertical: 'middle' };
+
+      const cVatAmtA = sheet.getCell(`E${currentRow}`);
+      cVatAmtA.value = vat;
+      cVatAmtA.numFmt = '#,##0.00';
+      cVatAmtA.font = { name: 'TH Sarabun New', size: 11, bold: true };
+      cVatAmtA.alignment = { horizontal: 'right', vertical: 'middle' };
+      styleRange(sheet, currentRow, 1, currentRow, 6, { border: thinBorder });
+    }
+
+    // WHT Row (if applicable in Mode A)
+    if (wht > 0) {
+      currentRow++;
+      sheet.getRow(currentRow).height = 22;
+      sheet.mergeCells(`A${currentRow}:D${currentRow}`);
+      const cWhtLabelA = sheet.getCell(`A${currentRow}`);
+      cWhtLabelA.value = `หัก ภาษี ณ ที่จ่าย (Withholding Tax ${Number(request.wht_percent || 0).toFixed(2)}%):`;
+      cWhtLabelA.font = { name: 'TH Sarabun New', size: 11, bold: true };
+      cWhtLabelA.alignment = { horizontal: 'right', vertical: 'middle' };
+
+      const cWhtAmtA = sheet.getCell(`E${currentRow}`);
+      cWhtAmtA.value = -wht;
+      cWhtAmtA.numFmt = '#,##0.00';
+      cWhtAmtA.font = { name: 'TH Sarabun New', size: 11, bold: true, color: { argb: 'FFDC2626' } };
+      cWhtAmtA.alignment = { horizontal: 'right', vertical: 'middle' };
+      styleRange(sheet, currentRow, 1, currentRow, 6, { border: thinBorder });
+    }
+
     // Net Payable Row
     currentRow++;
     sheet.getRow(currentRow).height = 25;
@@ -581,7 +626,8 @@ export async function exportPaymentVoucherToExcel(
     sheet.getRow(currentRow).height = 22;
     sheet.mergeCells(`A${currentRow}:D${currentRow}`);
     const cVatLabel = sheet.getCell(`A${currentRow}`);
-    cVatLabel.value = `ภาษีมูลค่าเพิ่ม (VAT ${request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type}):`;
+    const vatLabelStr = request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE' ? '7% รวมในยอด' : (request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type);
+    cVatLabel.value = `ภาษีมูลค่าเพิ่ม (VAT ${vatLabelStr}):`;
     cVatLabel.font = { name: 'TH Sarabun New', size: 11, bold: true };
     cVatLabel.alignment = { horizontal: 'right', vertical: 'middle' };
 
@@ -648,7 +694,7 @@ export async function exportPaymentVoucherToExcel(
   currentRow++;
   sheet.getRow(currentRow).height = 10;
 
-  // 6. Approval Signatures Block (3 Columns: A-B, C-D, E-F)
+  // 6. Approval Signatures Block (4 Columns: A-B, C, D, E-F)
   // Header row
   currentRow++;
   sheet.getRow(currentRow).height = 22;
@@ -656,20 +702,24 @@ export async function exportPaymentVoucherToExcel(
   sheet.mergeCells(`A${currentRow}:B${currentRow}`);
   const cSignH1 = sheet.getCell(`A${currentRow}`);
   cSignH1.value = 'จัดทำโดย (Prepared by)';
-  cSignH1.font = { name: 'TH Sarabun New', size: 11, bold: true };
+  cSignH1.font = { name: 'TH Sarabun New', size: 10.5, bold: true };
   cSignH1.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  sheet.mergeCells(`C${currentRow}:D${currentRow}`);
   const cSignH2 = sheet.getCell(`C${currentRow}`);
-  cSignH2.value = 'ตรวจสอบโดย (Verified by)';
-  cSignH2.font = { name: 'TH Sarabun New', size: 11, bold: true };
+  cSignH2.value = 'หัวหน้าอนุมัติ (Supervisor)';
+  cSignH2.font = { name: 'TH Sarabun New', size: 10.5, bold: true };
   cSignH2.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  sheet.mergeCells(`E${currentRow}:F${currentRow}`);
-  const cSignH3 = sheet.getCell(`E${currentRow}`);
-  cSignH3.value = 'อนุมัติโดย (Approved by)';
-  cSignH3.font = { name: 'TH Sarabun New', size: 11, bold: true };
+  const cSignH3 = sheet.getCell(`D${currentRow}`);
+  cSignH3.value = 'ตรวจสอบโดย (Verified by)';
+  cSignH3.font = { name: 'TH Sarabun New', size: 10.5, bold: true };
   cSignH3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  sheet.mergeCells(`E${currentRow}:F${currentRow}`);
+  const cSignH4 = sheet.getCell(`E${currentRow}`);
+  cSignH4.value = 'อนุมัติโดย (Approved by)';
+  cSignH4.font = { name: 'TH Sarabun New', size: 10.5, bold: true };
+  cSignH4.alignment = { horizontal: 'center', vertical: 'middle' };
 
   styleRange(sheet, currentRow, 1, currentRow, 6, {
     fill: grayHeaderFill,
@@ -683,20 +733,27 @@ export async function exportPaymentVoucherToExcel(
   sheet.mergeCells(`A${currentRow}:B${currentRow}`);
   const cSignN1 = sheet.getCell(`A${currentRow}`);
   cSignN1.value = request.requester_name || '-';
-  cSignN1.font = { name: 'TH Sarabun New', size: 10.5, bold: true };
+  cSignN1.font = { name: 'TH Sarabun New', size: 10, bold: true };
   cSignN1.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  sheet.mergeCells(`C${currentRow}:D${currentRow}`);
   const cSignN2 = sheet.getCell(`C${currentRow}`);
-  cSignN2.value = request.accounting_manager_checked_by || request.ap_checked_by || '....................................................';
-  cSignN2.font = { name: 'TH Sarabun New', size: 10.5 };
+  const supervisorVal = request.supervisor_checked_by || request.assigned_supervisor_name;
+  cSignN2.value = supervisorVal || '................................';
+  cSignN2.font = { name: 'TH Sarabun New', size: 10, bold: !!supervisorVal };
   cSignN2.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  sheet.mergeCells(`E${currentRow}:F${currentRow}`);
-  const cSignN3 = sheet.getCell(`E${currentRow}`);
-  cSignN3.value = request.approved_by || '....................................................';
-  cSignN3.font = { name: 'TH Sarabun New', size: 10.5 };
+  const cSignN3 = sheet.getCell(`D${currentRow}`);
+  const verifierVal = request.accounting_manager_checked_by || request.ap_checked_by;
+  cSignN3.value = verifierVal || '................................';
+  cSignN3.font = { name: 'TH Sarabun New', size: 10, bold: !!verifierVal };
   cSignN3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  sheet.mergeCells(`E${currentRow}:F${currentRow}`);
+  const cSignN4 = sheet.getCell(`E${currentRow}`);
+  const approverVal = request.approved_by;
+  cSignN4.value = approverVal || '................................';
+  cSignN4.font = { name: 'TH Sarabun New', size: 10, bold: !!approverVal };
+  cSignN4.alignment = { horizontal: 'center', vertical: 'middle' };
 
   styleRange(sheet, currentRow, 1, currentRow, 6, { border: thinBorder });
 
@@ -708,20 +765,24 @@ export async function exportPaymentVoucherToExcel(
   sheet.mergeCells(`A${currentRow}:B${currentRow}`);
   const cSignA1 = sheet.getCell(`A${currentRow}`);
   cSignA1.value = '(ลงลายมือชื่อ)';
-  cSignA1.font = { name: 'TH Sarabun New', size: 10, italic: true, color: { argb: 'FF9CA3AF' } };
+  cSignA1.font = { name: 'TH Sarabun New', size: 9.5, italic: true, color: { argb: 'FF9CA3AF' } };
   cSignA1.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  sheet.mergeCells(`C${currentRow}:D${currentRow}`);
   const cSignA2 = sheet.getCell(`C${currentRow}`);
   cSignA2.value = '(ลงลายมือชื่อ)';
-  cSignA2.font = { name: 'TH Sarabun New', size: 10, italic: true, color: { argb: 'FF9CA3AF' } };
+  cSignA2.font = { name: 'TH Sarabun New', size: 9.5, italic: true, color: { argb: 'FF9CA3AF' } };
   cSignA2.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  sheet.mergeCells(`E${currentRow}:F${currentRow}`);
-  const cSignA3 = sheet.getCell(`E${currentRow}`);
+  const cSignA3 = sheet.getCell(`D${currentRow}`);
   cSignA3.value = '(ลงลายมือชื่อ)';
-  cSignA3.font = { name: 'TH Sarabun New', size: 10, italic: true, color: { argb: 'FF9CA3AF' } };
+  cSignA3.font = { name: 'TH Sarabun New', size: 9.5, italic: true, color: { argb: 'FF9CA3AF' } };
   cSignA3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  sheet.mergeCells(`E${currentRow}:F${currentRow}`);
+  const cSignA4 = sheet.getCell(`E${currentRow}`);
+  cSignA4.value = '(ลงลายมือชื่อ)';
+  cSignA4.font = { name: 'TH Sarabun New', size: 9.5, italic: true, color: { argb: 'FF9CA3AF' } };
+  cSignA4.alignment = { horizontal: 'center', vertical: 'middle' };
 
   styleRange(sheet, currentRow, 1, currentRow, 6, { border: thinBorder });
 
@@ -732,21 +793,26 @@ export async function exportPaymentVoucherToExcel(
   sheet.mergeCells(`A${currentRow}:B${currentRow}`);
   const cSignD1 = sheet.getCell(`A${currentRow}`);
   cSignD1.value = `วันที่ ${formatThaiDate(request.document_date)}`;
-  cSignD1.font = { name: 'TH Sarabun New', size: 9.5 };
+  cSignD1.font = { name: 'TH Sarabun New', size: 9 };
   cSignD1.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  sheet.mergeCells(`C${currentRow}:D${currentRow}`);
   const cSignD2 = sheet.getCell(`C${currentRow}`);
-  const verifiedDate = request.supervisor_checked_at || request.ap_checked_at;
-  cSignD2.value = `วันที่ ${verifiedDate ? formatThaiDate(verifiedDate) : '....................................'}`;
-  cSignD2.font = { name: 'TH Sarabun New', size: 9.5 };
+  const supervisorDate = request.supervisor_checked_at;
+  cSignD2.value = `วันที่ ${supervisorDate ? formatThaiDate(supervisorDate) : (supervisorVal ? formatThaiDate(request.document_date) : '................................')}`;
+  cSignD2.font = { name: 'TH Sarabun New', size: 9 };
   cSignD2.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  sheet.mergeCells(`E${currentRow}:F${currentRow}`);
-  const cSignD3 = sheet.getCell(`E${currentRow}`);
-  cSignD3.value = `วันที่ ${request.approved_at ? formatThaiDate(request.approved_at) : '....................................'}`;
-  cSignD3.font = { name: 'TH Sarabun New', size: 9.5 };
+  const cSignD3 = sheet.getCell(`D${currentRow}`);
+  const verifiedDate = request.accounting_manager_checked_at || request.ap_checked_at;
+  cSignD3.value = `วันที่ ${verifiedDate ? formatThaiDate(verifiedDate) : (verifierVal ? formatThaiDate(request.document_date) : '................................')}`;
+  cSignD3.font = { name: 'TH Sarabun New', size: 9 };
   cSignD3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  sheet.mergeCells(`E${currentRow}:F${currentRow}`);
+  const cSignD4 = sheet.getCell(`E${currentRow}`);
+  cSignD4.value = `วันที่ ${request.approved_at ? formatThaiDate(request.approved_at) : (approverVal ? formatThaiDate(request.document_date) : '................................')}`;
+  cSignD4.font = { name: 'TH Sarabun New', size: 9 };
+  cSignD4.alignment = { horizontal: 'center', vertical: 'middle' };
 
   styleRange(sheet, currentRow, 1, currentRow, 6, { border: thinBorder });
 
@@ -778,9 +844,10 @@ export async function exportPaymentVoucherToExcel(
 
   // Attempt to embed digital signatures if available
   const sigList = [
-    { url: signatures?.preparedBy || request.requester_signature_url, colStart: 0 },
-    { url: signatures?.verifiedBy || request.supervisor_signature_url, colStart: 2 },
-    { url: signatures?.approvedBy || request.approver_signature_url, colStart: 4 },
+    { url: signatures?.preparedBy || request.requester_signature_url, colStart: 0.1 },
+    { url: signatures?.supervisorApprovedBy || request.supervisor_signature_url, colStart: 2.05 },
+    { url: signatures?.verifiedBy || request.ap_signature_url, colStart: 3.1 },
+    { url: signatures?.approvedBy || request.approver_signature_url, colStart: 4.2 },
   ];
 
   for (const s of sigList) {

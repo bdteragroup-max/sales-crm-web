@@ -24,13 +24,24 @@ export default async function CreatePRPage(props: {
 
   const orderId = typeof searchParams.orderId === 'string' ? searchParams.orderId : '';
   const note = typeof searchParams.note === 'string' ? searchParams.note : '';
-  const project = typeof searchParams.project === 'string' ? searchParams.project : '';
+  const project = typeof searchParams.project === 'string' ? searchParams.project : (typeof searchParams.projectName === 'string' ? searchParams.projectName : '');
+  const prNumber = typeof searchParams.prNumber === 'string' ? searchParams.prNumber : '';
+  const itemList = typeof searchParams.itemList === 'string' ? searchParams.itemList : (typeof searchParams.item === 'string' ? searchParams.item : '');
+  const requestedBy = typeof searchParams.requestedBy === 'string' ? searchParams.requestedBy : (typeof searchParams.requester === 'string' ? searchParams.requester : '');
 
   // Concurrently fetch recent distinct projects, pending orders requiring PRs, linked order, and latest PR
   const [recentPrs, pendingOrders, linkedOrder, latestPr] = await Promise.all([
     prisma.purchaseRequest.findMany({
       where: { projectName: { not: null } },
-      select: { projectName: true },
+      select: {
+        id: true,
+        prNumber: true,
+        projectName: true,
+        itemList: true,
+        requestedBy: true,
+        recordedAt: true,
+        note: true
+      },
       orderBy: { id: 'desc' },
       take: 250
     }),
@@ -85,18 +96,36 @@ export default async function CreatePRPage(props: {
     .sort((a, b) => b[1] - a[1])
     .map(entry => entry[0]);
 
+  // Format real system PRs entered by users across the system
+  const systemPrs = recentPrs
+    .filter(p => p.prNumber && p.projectName)
+    .map(p => ({
+      id: p.id,
+      prNumber: p.prNumber,
+      projectName: p.projectName || '',
+      itemList: p.itemList || '',
+      requestedBy: p.requestedBy || 'ไม่ระบุ',
+      recordedAt: p.recordedAt ? p.recordedAt.toISOString().split('T')[0] : null,
+      note: p.note || ''
+    }));
+
+
   return (
-    <div className="p-4 md:p-6 lg:p-8 bg-gray-50/50 min-h-screen">
-      <div className="max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 lg:p-8 bg-slate-50/70 min-h-screen">
+      <div className="max-w-6xl mx-auto">
         <CreatePRForm 
           defaultOrderId={orderId}
           defaultNote={note}
           defaultProject={project}
+          defaultPrNumber={prNumber}
+          defaultItemList={itemList}
+          defaultRequestedBy={requestedBy}
           currentUser={{
             name: user.fullName || '',
             email: user.email || ''
           }}
           projectSuggestions={projectSuggestions}
+          systemPrs={systemPrs}
           pendingOrders={pendingOrders.map(o => ({
             id: o.id,
             orderNumber: o.orderNumber,

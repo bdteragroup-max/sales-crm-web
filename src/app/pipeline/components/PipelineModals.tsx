@@ -307,6 +307,7 @@ export function POTransitionModal({ quotation, isClosedStatus = false, onConfirm
 
   const PO_SUB_STATUSES = [
     'รอจัดทำ PO',
+    'รอปิดการขาย (รอชำระเงิน/PO)',
     'PO แล้วรอสินค้า',
     'PO แล้วรอมัดจำ',
     'PO แล้วรอเงินโอน'

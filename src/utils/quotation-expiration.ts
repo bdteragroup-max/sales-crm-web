@@ -63,6 +63,7 @@ export function isFinalizedStatus(status?: string | null): boolean {
     s === 'เปิดบิลแล้ว' ||
     s.startsWith('PO') ||
     s === 'รอจัดทำ PO' ||
+    s === 'รอปิดการขาย (รอชำระเงิน/PO)' ||
     s.startsWith('ปฏิเสธ') ||
     s.startsWith('ยกเลิก')
   );

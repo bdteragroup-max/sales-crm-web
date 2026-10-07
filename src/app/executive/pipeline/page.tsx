@@ -124,8 +124,8 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
   const prevClosedSales = prevClosedQuotes.reduce((sum, q) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
   const closedGrowthPercent = prevClosedSales > 0 ? ((closedSales - prevClosedSales) / prevClosedSales) * 100 : null;
 
-  // 3. Fetch All Active & Won Quotes (Active pipeline: รอจัดทำ PO, รอใบประเมินราคา, เสนอราคา, ความสนใจ)
-  const ACTIVE_PIPELINE_STATUSES = ['รอจัดทำ PO', 'รอใบประเมินราคา', 'เสนอราคา', 'ความสนใจ'];
+  // 3. Fetch All Active & Won Quotes (Active pipeline: รอจัดทำ PO, รอปิดการขาย, รอใบประเมินราคา, เสนอราคา, อยู่ระหว่างพิจารณา, ความสนใจ)
+  const ACTIVE_PIPELINE_STATUSES = ['รอจัดทำ PO', 'รอปิดการขาย (รอชำระเงิน/PO)', 'รอใบประเมินราคา', 'เสนอราคา', 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ', 'ความสนใจ'];
   const allActiveQuotes = await prisma.quotation.findMany({
     where: {
       OR: [
@@ -413,7 +413,7 @@ export default async function PipelineDashboard(props: {searchParams: Promise<{[
   
   const lostQuotes = await prisma.quotation.findMany({
     where: { 
-      status: { in: ['ปฏิเสธ-อื่นๆ', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ยกเลิก-Revise', 'ชะลอโครงการ', 'ช่วงนี้ยังไม่ได้ใช้'] },
+      status: { in: ['ปฏิเสธ-อื่นๆ', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ', 'ยกเลิก-Revise', 'ชะลอโครงการ', 'ช่วงนี้ยังไม่ได้ใช้'] },
       createdAt: { gte: startDate, lte: endDate }
     },
     select: { totalAmountBeforeVat: true }

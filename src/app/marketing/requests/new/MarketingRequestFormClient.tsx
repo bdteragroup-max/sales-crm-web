@@ -1999,7 +1999,7 @@ export default function MarketingRequestFormClient({
                       required
                       value={recipientCompanyBranch}
                       onChange={e => setRecipientCompanyBranch(e.target.value)}
-                      placeholder="เช่น สาขาเชียงใหม่ หรือ บริษัท เทรา กรุ๊ป"
+                      placeholder="เช่น สาขาเชียงใหม่ หรือ บริษัท เทรา กรุ้ป"
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-red-500 outline-none"
                     />
                   </div>

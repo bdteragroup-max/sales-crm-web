@@ -1528,6 +1528,7 @@ model PurchaseRequest {
   itemList       String?
   requestedBy    String?
   note           String?
+  attachments    Json?           @default("[]")
   reportedBy     String?
   createdAt      DateTime        @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime        @updatedAt @db.Timestamptz(6)

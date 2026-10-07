@@ -60,7 +60,7 @@ interface CompanyResult {
 }
 
 const INTERNAL_COMPANIES = [
-  { code: "TG", label: "TG", name: "Tera Group", fullName: "บจก. เทร่า กรุ๊ป" },
+  { code: "TG", label: "TG", name: "Tera Group", fullName: "บจก. เทร่า กรุ้ป" },
   { code: "TE", label: "TE", name: "Tera Electric", fullName: "บจก. เทร่า อิเล็คทริค" },
   { code: "TP", label: "TP", name: "Tera Power", fullName: "บจก. เทร่า พาวเวอร์" },
 ];
@@ -527,7 +527,7 @@ export default function NewDeliveryForm({
                 <p className="text-sm font-bold text-gray-900 mt-0.5">
                   {initialData.jobName ||
                     initialData.customer ||
-                    "ใบงานบริการเทร่ากรุ๊ป"}
+                    "ใบงานบริการเทร่ากรุ้ป"}
                 </p>
               </div>
             </div>

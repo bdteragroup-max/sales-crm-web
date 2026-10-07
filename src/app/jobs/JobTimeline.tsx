@@ -6,6 +6,7 @@ import { confirmJobStep, rejectJobStep, getPOsByJobName } from "@/app/actions/jo
 import { XCircle, Edit2 } from "lucide-react"
 import { Check, CheckCircle2, Loader2, Briefcase, Package, ShoppingCart, Factory, Wrench, FolderOpen, FileText, Truck, ListPlus, ShieldCheck } from "lucide-react"
 import Link from "next/link"
+import { formatThaiDate } from "@/utils/thai-date"
 type StepLog = {
   step:        string
   completedBy: string
@@ -482,7 +483,7 @@ export default function JobTimeline({
                           <td className="px-3 py-2 text-gray-700">{po.vendorName || "-"}</td>
                           <td className="px-3 py-2 text-gray-700 max-w-[200px] truncate" title={po.itemList || ""}>{po.itemList || "-"}</td>
                           <td className="px-3 py-2 text-gray-600 whitespace-nowrap">
-                            {po.deliveryDate ? new Date(po.deliveryDate).toLocaleDateString('th-TH') : "-"}
+                            {formatThaiDate(po.deliveryDate)}
                           </td>
                         </tr>
                       ))}
@@ -732,7 +733,7 @@ export default function JobTimeline({
                   <p className="text-[10px] text-gray-500 mt-1.5 font-medium">ช่างรับผิดชอบ: <span className="font-bold text-gray-700">{order.technician || 'ยังไม่ระบุ'}</span></p>
                   {order.plannedStartDate && (
                     <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
-                      แผนงาน: <span className="font-bold text-gray-700">{new Date(order.plannedStartDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                      แผนงาน: <span className="font-bold text-gray-700">{formatThaiDate(order.plannedStartDate, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                     </p>
                   )}
                   {order.workPlan && (
@@ -759,7 +760,7 @@ export default function JobTimeline({
                   </div>
                   <p className="text-[10px] text-gray-500 mt-1.5 font-medium">ผู้รับเรื่อง: <span className="font-bold text-gray-700">{repairOrder.forwardedBy || 'ยังไม่ระบุ'}</span></p>
                   {repairOrder.receivedDate && (
-                     <p className="text-[10px] text-gray-500 mt-0.5 font-medium">รับเรื่อง: <span className="font-bold text-gray-700">{new Date(repairOrder.receivedDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}</span></p>
+                     <p className="text-[10px] text-gray-500 mt-0.5 font-medium">รับเรื่อง: <span className="font-bold text-gray-700">{formatThaiDate(repairOrder.receivedDate, { day: 'numeric', month: 'short', year: 'numeric' })}</span></p>
                   )}
                 </div>
               </div>

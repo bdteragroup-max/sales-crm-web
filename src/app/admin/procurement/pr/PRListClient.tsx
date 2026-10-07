@@ -18,13 +18,16 @@ import {
   ArrowUpDown,
   Layers,
   ShoppingBag,
-  Trash2
+  Trash2,
+  Printer,
+  Paperclip
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { updatePurchaseRequest, deletePurchaseRequest } from '@/app/actions/procurement';
 import SearchableProjectSelect, { ProjectOption } from '../components/SearchableProjectSelect';
+import PrintablePurchaseRequisitionModal from './components/PrintablePurchaseRequisitionModal';
 
 export function normalizeProjectName(name: string | null | undefined): string {
   if (!name) return '';
@@ -127,6 +130,7 @@ export default function PRListClient({
     note: ''
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [printingPr, setPrintingPr] = useState<any | null>(null);
 
   const thaiMonths = [
     { value: '1', label: 'มกราคม' },
@@ -1017,6 +1021,15 @@ export default function PRListClient({
                             <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold border ${company.badgeClass}`}>
                               {company.key}
                             </span>
+                            {pr.attachments && Array.isArray(pr.attachments) && pr.attachments.length > 0 && (
+                              <span 
+                                title={`มีเอกสารแนบจากผู้ขาย ${pr.attachments.length} ไฟล์`}
+                                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 font-bold"
+                              >
+                                <Paperclip size={10} className="text-red-500" />
+                                {pr.attachments.length}
+                              </span>
+                            )}
                           </div>
                         </td>
 
@@ -1073,6 +1086,15 @@ export default function PRListClient({
                         {/* Action Buttons */}
                         <td className="px-4 py-3.5 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setPrintingPr(pr)}
+                              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 text-gray-700 hover:text-white bg-gray-50 hover:bg-gray-800 border border-gray-200 hover:border-gray-800 rounded-lg transition-all font-medium shadow-2xs"
+                              title="พิมพ์ / ดาวน์โหลด PDF ใบขอซื้อ (Express Format)"
+                            >
+                              <Printer size={13} />
+                              พิมพ์
+                            </button>
                             <button
                               type="button"
                               onClick={() => openEditModal(pr)}
@@ -1195,6 +1217,51 @@ export default function PRListClient({
                                   </div>
                                 </div>
                               </div>
+
+                              {/* Attached Supplier Documents (Full width 12 cols) */}
+                              {pr.attachments && Array.isArray(pr.attachments) && pr.attachments.length > 0 && (
+                                <div className="md:col-span-12 pt-3 border-t border-gray-100 space-y-2">
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="font-bold text-red-700 flex items-center gap-1.5">
+                                      <Paperclip size={14} className="text-red-600" />
+                                      เอกสารแนบจากผู้ขาย / ซัพพลายเออร์ ({pr.attachments.length} ไฟล์):
+                                    </span>
+                                    <span className="text-[11px] text-gray-400">คลิกเพื่อเปิดดูไฟล์ต้นฉบับในแท็บใหม่</span>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                    {pr.attachments.map((file: any, fIdx: number) => {
+                                      const ext = (file.name || '').split('.').pop()?.toLowerCase() || '';
+                                      const isPdf = ext === 'pdf';
+                                      const isExcel = ['xls', 'xlsx', 'csv'].includes(ext);
+                                      const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+                                      return (
+                                        <a
+                                          key={file.id || fIdx}
+                                          href={file.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 bg-gray-50/80 hover:bg-red-50/40 hover:border-red-300 transition-all group shadow-2xs"
+                                        >
+                                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                                            <div className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                                              <FileText size={15} className={isPdf ? 'text-red-500' : isExcel ? 'text-emerald-600' : isImage ? 'text-purple-600' : 'text-blue-500'} />
+                                            </div>
+                                            <div className="min-w-0">
+                                              <p className="font-semibold text-gray-900 group-hover:text-red-600 text-xs truncate">
+                                                {file.name || 'เอกสารแนบ'}
+                                              </p>
+                                              <p className="text-[10px] text-gray-400">
+                                                {file.size ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : ext.toUpperCase()}
+                                              </p>
+                                            </div>
+                                          </div>
+                                          <ExternalLink size={13} className="text-gray-400 group-hover:text-red-600 shrink-0" />
+                                        </a>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -1483,6 +1550,23 @@ export default function PRListClient({
             </form>
           </div>
         </div>
+      )}
+
+      {/* Printable Express PR Modal */}
+      {printingPr && (
+        <PrintablePurchaseRequisitionModal
+          isOpen={!!printingPr}
+          onClose={() => setPrintingPr(null)}
+          prData={{
+            prNumber: printingPr.prNumber || '',
+            projectName: printingPr.projectName || '',
+            itemList: printingPr.itemList || '',
+            requestedBy: printingPr.requestedBy || '',
+            recordedAt: printingPr.recordedAt,
+            note: printingPr.note,
+            attachments: printingPr.attachments,
+          }}
+        />
       )}
     </div>
   );

@@ -21,7 +21,7 @@ export async function GET(req: Request) {
   // Retrieve active quotations
   const activeQuotations = await prisma.quotation.findMany({
     where: {
-      status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'Win'] },
+      status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'Win'] },
       quotationDate: { not: null },
     },
     include: {

@@ -347,7 +347,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
       _count: { id: true },
       where: {
         salespersonId: { in: filterIds },
-        status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'] },
+        status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'] },
         OR: [
           { quotationDate: { lt: thirtyDaysAgoFilter } },
           { quotationDate: null, createdAt: { lt: thirtyDaysAgoFilter } }],
@@ -606,7 +606,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
                     },
                     {
-                      status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
+                      status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
                       OR: [
                         { quotationDate: { gte: filterStart, lte: filterEnd } },
                         { quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
@@ -666,7 +666,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
                         where: {
                           salespersonId: { in: filterIds },
                           company: provinceCondition ? { province: provinceCondition } : undefined,
-                          status: { in: ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'] }
+                          status: { in: ['เสนอราคา', 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'รอปิดการขาย (รอชำระเงิน/PO)', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'] }
                         },
                         include: {
                           company: true,
@@ -701,7 +701,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const wonCount = wonGroup?._count.id ?? 0;
 
   const pipelineGroups = (quotationSummary as any[]).filter((g) =>
-    !['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'].includes(g.status || '')
+    !['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'].includes(g.status || '')
   );
   const pipelineVal = pipelineGroups.reduce((acc, g) => acc + (g._sum.totalAmountBeforeVat ?? 0), 0);
   const pipelineCount = pipelineGroups.reduce((acc, g) => acc + (g._count.id ?? 0), 0);
@@ -1163,7 +1163,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   // 2. Quotation (ใบเสนอราคา) - All active/won non-lost, non-expired quotes
   const activeQuotes = historyQuotations.filter((q) =>
-    !['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'].includes(q.status || '') &&
+    !['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise', 'หมดอายุ'].includes(q.status || '') &&
     !(q.status === 'เสนอราคา' && calculateQuotationExpiration(q, now).isExpired)
   );
   const quotationCount = activeQuotes.length;
@@ -1172,7 +1172,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   // 3. Negotiation (เจรจาต่อรอง) - Pending active pipeline (excluding expired)
   const negotiationQuotes = historyQuotations.filter((q) =>
-    ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'].includes(q.status || '') &&
+    ['เสนอราคา', 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'รอปิดการขาย (รอชำระเงิน/PO)', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'].includes(q.status || '') &&
     !(q.status === 'เสนอราคา' && calculateQuotationExpiration(q, now).isExpired)
   );
   const negotiationCount = negotiationQuotes.length;
@@ -1719,7 +1719,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
               const groupPendingQuotes = (activeUnexpiredQuotations as any[]).filter((q: any) => (q.productType || 'Other') === groupName);
               const pendingPoQuotes = groupPendingQuotes.filter((q: any) => {
                 const status = q.status || '';
-                return status.includes('รอจัดทำ PO') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
+                return status.includes('รอจัดทำ PO') || status.includes('รอปิดการขาย') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
               });
 
               // Filter by the selected date range (using updatedAt to match Pipeline behavior)
@@ -1782,7 +1782,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
               const branchPendingQuotes = (activeUnexpiredQuotations as any[]).filter((q: any) => {
                 const isBranchMatch = branchUserIds.includes(q.salespersonId);
                 const status = q.status || '';
-                const isPendingPo = status.includes('รอจัดทำ PO') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
+                const isPendingPo = status.includes('รอจัดทำ PO') || status.includes('รอปิดการขาย') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
                 const updatedTime = new Date(q.updatedAt).getTime();
                 const isCurrentMonth = updatedTime >= filterStart.getTime() && updatedTime <= filterEnd.getTime();
                 return isBranchMatch && isPendingPo && isCurrentMonth;

@@ -260,7 +260,7 @@ export default async function TeamKPIDashboard(props: { searchParams: Promise<{ 
   // Pipeline (All active pending for these users)
   const activePipelineQuotesRaw = await prisma.quotation.findMany({
     where: {
-      status: { in: ['เสนอราคา', 'ความสนใจ', 'รอใบประเมินราคา', 'รอจัดทำ PO'] },
+      status: { in: ['เสนอราคา', 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ', 'ความสนใจ', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'รอปิดการขาย (รอชำระเงิน/PO)'] },
       ...(branchCode ? { salespersonId: { in: validUserIds } } : {})
     },
     select: {

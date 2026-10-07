@@ -33,6 +33,7 @@ import {
 import DashboardCharts from "./DashboardCharts";
 import * as XLSX from "xlsx";
 import { useReactToPrint } from "react-to-print";
+import { formatThaiDate } from "@/utils/thai-date";
 import { calculateProjectProgress } from "@/app/lib/project-utils";
 import ProjectExecutiveCockpit from "./ProjectExecutiveCockpit";
 
@@ -325,12 +326,8 @@ export default function ProjectDashboardClient({
       "หมวดหมู่": p.projectCategory || "ไม่ระบุ",
       "ผู้จัดการโครงการ (PM)": p.manager?.fullName || "ไม่ระบุ",
       "จังหวัด": p.province || "ไม่ระบุ",
-      "วันเริ่มต้น": p.startDate
-        ? new Date(p.startDate).toLocaleDateString("th-TH")
-        : "-",
-      "วันสิ้นสุด": p.endDate
-        ? new Date(p.endDate).toLocaleDateString("th-TH")
-        : "-",
+      "วันเริ่มต้น": formatThaiDate(p.startDate),
+      "วันสิ้นสุด": formatThaiDate(p.endDate),
       "มูลค่าโครงการ (บาท)": Number(p.projectValue) || 0,
       "งบประมาณ (บาท)": Number(p.budget) || 0,
       "เงินประกันผลงาน (บาท)": Number(p.securityDeposit) || 0,
@@ -881,7 +878,7 @@ export default function ProjectDashboardClient({
                 const logs = p.dailyLogs || [];
                 const lastDate =
                   logs.length > 0
-                    ? new Date(logs[0].date).toLocaleDateString("th-TH")
+                    ? formatThaiDate(logs[0].date)
                     : "ยังไม่เคยส่ง";
                 return (
                   <Link
@@ -1045,7 +1042,7 @@ export default function ProjectDashboardClient({
                       </p>
                     </div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase shrink-0">
-                      {new Date(report.date).toLocaleDateString("th-TH", {
+                      {formatThaiDate(report.date, {
                         day: "2-digit",
                         month: "short",
                       })}
@@ -1096,7 +1093,7 @@ export default function ProjectDashboardClient({
                       </div>
                     </div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase shrink-0">
-                      {new Date(p.updatedAt).toLocaleDateString("th-TH", {
+                      {formatThaiDate(p.updatedAt, {
                         day: "2-digit",
                         month: "short",
                         hour: "2-digit",

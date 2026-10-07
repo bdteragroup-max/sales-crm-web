@@ -59,6 +59,7 @@ import {
   Scan,
   QrCode,
   Eye,
+  Calculator,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -424,6 +425,7 @@ export default function NewPaymentRequestClient({
   const [customBankName, setCustomBankName] = useState('');
   const [bankAccountNo, setBankAccountNo] = useState('');
   const [bankAccountName, setBankAccountName] = useState('');
+  const [hasCustomAccountName, setHasCustomAccountName] = useState(false);
 
   // PromptPay specifics
   const [promptPayType, setPromptPayType] = useState<'PHONE' | 'CITIZEN_ID' | 'TAX_ID' | 'E_WALLET'>('PHONE');
@@ -438,7 +440,7 @@ export default function NewPaymentRequestClient({
   const [hasNoDocNumber, setHasNoDocNumber] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [subtotalAmount, setSubtotalAmount] = useState<string>('');
-  const [vatType, setVatType] = useState<'NONE' | '7%' | 'CUSTOM'>('NONE');
+  const [vatType, setVatType] = useState<'NONE' | 'INCLUDED_7%' | '7%' | 'CUSTOM'>('NONE');
   const [customVatAmount, setCustomVatAmount] = useState<string>('');
   const [whtType, setWhtType] = useState<'NONE' | '1%' | '2%' | '3%' | '5%' | 'CUSTOM'>('NONE');
   const [customWhtPercent, setCustomWhtPercent] = useState<string>('');
@@ -521,32 +523,37 @@ export default function NewPaymentRequestClient({
   let calculatedVat = 0;
   if (vatType === '7%') {
     calculatedVat = Math.round(effectiveSubtotal * 0.07 * 100) / 100;
+  } else if (vatType === 'INCLUDED_7%') {
+    calculatedVat = Math.round(((effectiveSubtotal * 7) / 107) * 100) / 100;
   } else if (vatType === 'CUSTOM') {
     calculatedVat = parseFloat(customVatAmount) || 0;
   }
+
+  // Pre-VAT base amount: If VAT is included in bill, pre-VAT is (effectiveSubtotal - calculatedVat), otherwise it's effectiveSubtotal
+  const preVatBase = vatType === 'INCLUDED_7%' ? Math.max(0, effectiveSubtotal - calculatedVat) : effectiveSubtotal;
 
   let calculatedWht = 0;
   let whtPercentValue = 0;
   if (whtType === '1%') {
     whtPercentValue = 1;
-    calculatedWht = Math.round(effectiveSubtotal * 0.01 * 100) / 100;
+    calculatedWht = Math.round(preVatBase * 0.01 * 100) / 100;
   } else if (whtType === '2%') {
     whtPercentValue = 2;
-    calculatedWht = Math.round(effectiveSubtotal * 0.02 * 100) / 100;
+    calculatedWht = Math.round(preVatBase * 0.02 * 100) / 100;
   } else if (whtType === '3%') {
     whtPercentValue = 3;
-    calculatedWht = Math.round(effectiveSubtotal * 0.03 * 100) / 100;
+    calculatedWht = Math.round(preVatBase * 0.03 * 100) / 100;
   } else if (whtType === '5%') {
     whtPercentValue = 5;
-    calculatedWht = Math.round(effectiveSubtotal * 0.05 * 100) / 100;
+    calculatedWht = Math.round(preVatBase * 0.05 * 100) / 100;
   } else if (whtType === 'CUSTOM') {
     whtPercentValue = parseFloat(customWhtPercent) || 0;
-    calculatedWht = parseFloat(customWhtAmount) || Math.round((effectiveSubtotal * whtPercentValue) / 100 * 100) / 100;
+    calculatedWht = parseFloat(customWhtAmount) || Math.round(((preVatBase * whtPercentValue) / 100) * 100) / 100;
   }
 
   const netPayable = entryMode === 'MULTI_ITEMS'
-    ? Math.max(0, Math.round((effectiveSubtotal + calculatedVat - calculatedWht - effectiveCcDeduction) * 100) / 100)
-    : Math.round((effectiveSubtotal + calculatedVat - calculatedWht) * 100) / 100;
+    ? Math.max(0, Math.round(((vatType === 'INCLUDED_7%' ? effectiveSubtotal : effectiveSubtotal + calculatedVat) - calculatedWht - effectiveCcDeduction) * 100) / 100)
+    : Math.max(0, Math.round(((vatType === 'INCLUDED_7%' ? effectiveSubtotal : effectiveSubtotal + calculatedVat) - calculatedWht) * 100) / 100);
   const bahtText = thaiBahtText(netPayable);
 
   // Approval matrix tier
@@ -1224,7 +1231,7 @@ export default function NewPaymentRequestClient({
         document_date: documentDate,
         has_no_doc_number: entryMode === 'MULTI_ITEMS' ? true : hasNoDocNumber,
         invoice_number: entryMode === 'MULTI_ITEMS' ? undefined : (hasNoDocNumber ? undefined : invoiceNumber.trim()),
-        subtotal_amount: effectiveSubtotal,
+        subtotal_amount: vatType === 'INCLUDED_7%' ? preVatBase : effectiveSubtotal,
         vat_type: vatType,
         vat_amount: calculatedVat,
         wht_type: whtType,
@@ -2111,429 +2118,468 @@ export default function NewPaymentRequestClient({
                   </div>
                 </div>
 
-                {/* Payee Group */}
-                <div className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-1">
-                    <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider block">
-                      ข้อมูลผู้รับเงิน / เจ้าหนี้ (Payee / Supplier)
-                    </span>
+                {/* Unified Payee & Payment Transfer Section */}
+                <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-4 shadow-2xs">
+                  {/* Unified Header */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <CreditCard className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-gray-900 block leading-tight">
+                          ข้อมูลผู้รับเงิน & ช่องทางการโอนเงิน (Payee & Payment Details)
+                        </span>
+                        <span className="text-[10px] text-gray-500">
+                          ระบุข้อมูลผู้รับเงิน/เจ้าหนี้ และช่องทางโอนเงินสำหรับฝ่ายการเงินและบัญชี (AR / AP Team)
+                        </span>
+                      </div>
+                    </div>
                     {requesterName.trim() && (
                       <button
                         type="button"
                         onClick={() => {
-                          setSupplierName(requesterName.trim());
-                          setBankAccountName(requesterName.trim());
-                          setPromptPayAccountName(requesterName.trim());
+                          const name = requesterName.trim();
+                          setSupplierName(name);
+                          setBankAccountName(name);
+                          setPromptPayAccountName(name);
+                          setHasCustomAccountName(false);
                           if (requesterPhone.trim()) {
                             setPayeePhone(requesterPhone.trim());
                             setPromptPayNumber(requesterPhone.trim());
                           }
                         }}
-                        className="text-[10px] text-red-600 hover:text-red-700 font-bold hover:underline inline-flex items-center gap-1"
+                        className="text-[11px] text-red-600 hover:text-red-700 font-bold hover:underline inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded-lg border border-red-200 shadow-2xs transition-colors"
                       >
                         + ใช้ชื่อผู้ขอเบิกเป็นผู้รับเงิน (สำรองจ่าย / Reimbursement)
                       </button>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <div className="sm:col-span-2">
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
-                        {entryMode === 'MULTI_ITEMS'
-                          ? 'ชื่อผู้รับเงิน / บัญชีที่โอนเงินเข้า (สำหรับสำรองจ่ายระบุชื่อผู้ขอเบิก หรือระบบจะสรุปรวมชื่อร้านค้าให้อัตโนมัติ)'
-                          : 'ชื่อผู้รับเงิน / บริษัทคู่ค้า'}
-                        {entryMode === 'SINGLE' && <span className="text-red-600"> *</span>}
-                      </label>
+                  {/* 1. Payee / Supplier Profile Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <div className="flex items-center justify-between min-h-[22px] mb-1">
+                        <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1 truncate">
+                          <span>ชื่อผู้รับเงิน / บริษัทคู่ค้า</span>
+                          {entryMode === 'SINGLE' && <span className="text-red-600 font-bold">*</span>}
+                        </label>
+                      </div>
                       <input
                         type="text"
                         required={entryMode === 'SINGLE'}
                         value={supplierName}
-                        onChange={(e) => setSupplierName(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSupplierName(val);
+                          if (!hasCustomAccountName) {
+                            setBankAccountName(val);
+                            setPromptPayAccountName(val);
+                          }
+                        }}
                         placeholder={
                           entryMode === 'MULTI_ITEMS'
-                            ? `เช่น ${requesterName || 'ชื่อผู้ขอเบิก'} (สำรองจ่าย) หรือปล่อยว่างเพื่อให้ระบบสรุปจากตารางร้านค้า`
+                            ? `เช่น ${requesterName || 'ชื่อผู้ขอเบิก'} (สำรองจ่าย)`
                             : 'เช่น บจก. สยามคอมเพรสเซอร์ หรือ นายสมชาย'
                         }
-                        className="w-full text-xs rounded-lg border border-gray-300 py-2 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-medium"
+                        className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-medium shadow-2xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
-                        เลขประจำตัวผู้เสียภาษี (Tax ID)
-                      </label>
+                      <div className="flex items-center justify-between min-h-[22px] mb-1">
+                        <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1 truncate">
+                          <span>เลขประจำตัวผู้เสียภาษี</span>
+                          <span className="text-gray-400 font-normal text-[10px]">(Tax ID)</span>
+                        </label>
+                      </div>
                       <input
                         type="text"
                         value={supplierTaxId}
                         onChange={(e) => setSupplierTaxId(e.target.value)}
                         placeholder="13 หลัก (ถ้ามี)"
-                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-mono"
+                        className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-mono shadow-2xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">เบอร์โทรศัพท์ผู้รับเงิน</label>
+                      <div className="flex items-center justify-between min-h-[22px] mb-1">
+                        <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1 truncate">
+                          <span>เบอร์โทรศัพท์ผู้รับเงิน</span>
+                        </label>
+                      </div>
                       <input
                         type="text"
                         value={payeePhone}
                         onChange={(e) => setPayeePhone(e.target.value)}
                         placeholder="08X-XXX-XXXX"
-                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                        className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white shadow-2xs"
                       />
                     </div>
                   </div>
-                </div>
 
-                {/* Dedicated Payment Method & Bank / PromptPay Section for AR Team */}
-                <div className="p-4 bg-slate-50/90 rounded-xl border border-slate-200/90 space-y-3.5 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                        <CreditCard className="w-3.5 h-3.5" />
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold text-gray-900 block leading-tight">
-                          ข้อมูลการรับเงิน (ช่องทางโอนเงิน / พร้อมเพย์)
-                        </span>
-                        <span className="text-[10px] text-gray-500">
-                          ข้อมูลสำหรับฝ่ายการเงินและบัญชี (AR / AP Team) ใช้ในการโอนเงิน
-                        </span>
-                      </div>
+                  {/* 2. Payment Channel (Integrated in the same card) */}
+                  <div className="pt-2 border-t border-slate-200/80 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider block">
+                        ช่องทางโอนเงิน / ชำระเงิน (Payment Channel)
+                      </span>
+                      <span className="text-[10px] text-gray-400">เลือกรูปแบบที่ต้องการให้ฝ่ายการเงินโอนจ่าย</span>
                     </div>
-                  </div>
 
-                  {/* Payment Method Switcher */}
-                  <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-200/70 rounded-xl">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPaymentMethod('BANK_TRANSFER');
-                        const found = THAI_BANKS.find(b => b.code === selectedBankCode);
-                        if (found) setBankName(found.name);
-                      }}
-                      className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                        paymentMethod === 'BANK_TRANSFER'
-                          ? 'bg-white text-gray-900 shadow-xs border border-gray-200/60'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      <Building2 className="w-3.5 h-3.5 text-blue-600" />
-                      <span>บัญชีธนาคาร</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('PROMPTPAY')}
-                      className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                        paymentMethod === 'PROMPTPAY'
-                          ? 'bg-white text-blue-700 shadow-xs border border-gray-200/60'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      <Zap className="w-3.5 h-3.5 text-amber-500" />
-                      <span>พร้อมเพย์</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('CASH_CHEQUE')}
-                      className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                        paymentMethod === 'CASH_CHEQUE'
-                          ? 'bg-white text-gray-900 shadow-xs border border-gray-200/60'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>เงินสด / เช็ค</span>
-                    </button>
-                  </div>
+                    {/* Payment Method Switcher */}
+                    <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-200/70 rounded-xl">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPaymentMethod('BANK_TRANSFER');
+                          const found = THAI_BANKS.find(b => b.code === selectedBankCode);
+                          if (found) setBankName(found.name);
+                        }}
+                        className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                          paymentMethod === 'BANK_TRANSFER'
+                            ? 'bg-white text-gray-900 shadow-xs border border-gray-200/60'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                        <span>บัญชีธนาคาร</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('PROMPTPAY')}
+                        className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                          paymentMethod === 'PROMPTPAY'
+                            ? 'bg-white text-blue-700 shadow-xs border border-gray-200/60'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <Zap className="w-3.5 h-3.5 text-amber-500" />
+                        <span>พร้อมเพย์</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('CASH_CHEQUE')}
+                        className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                          paymentMethod === 'CASH_CHEQUE'
+                            ? 'bg-white text-gray-900 shadow-xs border border-gray-200/60'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>เงินสด / เช็ค</span>
+                      </button>
+                    </div>
 
-                  {/* BANK TRANSFER TAB */}
-                  {paymentMethod === 'BANK_TRANSFER' && (
-                    <div className="space-y-3 pt-1 animate-in fade-in duration-150">
-                      {/* Top Banks Quick Selector Chips */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <label className="block text-[11px] font-semibold text-gray-700">
-                            เลือกธนาคารผู้รับเงิน <span className="text-red-600">*</span>
-                          </label>
-                          <span className="text-[10px] text-gray-400">เลือกจากยอดนิยม หรือค้นหาจากรายการ</span>
-                        </div>
-                        <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 mb-2">
-                          {TOP_BANKS.map((b) => {
-                            const isSelected = selectedBankCode === b.code;
-                            return (
-                              <button
-                                key={b.code}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedBankCode(b.code);
-                                  setBankName(b.name);
-                                }}
-                                className={`py-1.5 px-1 rounded-lg text-[11px] font-bold border transition text-center flex flex-col items-center justify-center gap-0.5 ${
-                                  isSelected
-                                    ? `${b.badgeBg} ${b.badgeText} ring-2 ${b.ringColor} border-transparent shadow-xs`
-                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                                }`}
-                              >
-                                <span className={`w-2.5 h-2.5 rounded-full ${b.dotColor}`} />
-                                <span className="truncate w-full text-[10px]">{b.shortName}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                    {/* BANK TRANSFER TAB */}
+                    {paymentMethod === 'BANK_TRANSFER' && (
+                      <div className="space-y-3 pt-1 animate-in fade-in duration-150">
+                        {/* Top Banks Quick Selector Chips */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-[11px] font-semibold text-gray-700">
+                              เลือกธนาคารผู้รับเงิน <span className="text-red-600">*</span>
+                            </label>
+                            <span className="text-[10px] text-gray-400">เลือกจากยอดนิยม หรือค้นหาจากรายการ</span>
+                          </div>
+                          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 mb-2">
+                            {TOP_BANKS.map((b) => {
+                              const isSelected = selectedBankCode === b.code;
+                              return (
+                                <button
+                                  key={b.code}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedBankCode(b.code);
+                                    setBankName(b.name);
+                                  }}
+                                  className={`py-1.5 px-1 rounded-lg text-[11px] font-bold border transition text-center flex flex-col items-center justify-center gap-0.5 ${
+                                    isSelected
+                                      ? `${b.badgeBg} ${b.badgeText} ring-2 ${b.ringColor} border-transparent shadow-xs`
+                                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                  }`}
+                                >
+                                  <span className={`w-2.5 h-2.5 rounded-full ${b.dotColor}`} />
+                                  <span className="truncate w-full text-[10px]">{b.shortName}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
 
-                        {/* Full Bank Selection Dropdown */}
-                        <select
-                          value={selectedBankCode}
-                          onChange={(e) => {
-                            const code = e.target.value;
-                            setSelectedBankCode(code);
-                            const found = THAI_BANKS.find((b) => b.code === code);
-                            if (found && code !== 'OTHER') {
-                              setBankName(found.name);
-                            } else if (code === 'OTHER') {
-                              setBankName(customBankName);
-                            }
-                          }}
-                          className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 font-medium"
-                        >
-                          {THAI_BANKS.map((b) => (
-                            <option key={b.code} value={b.code}>
-                              {b.name}
-                            </option>
-                          ))}
-                        </select>
-
-                        {selectedBankCode === 'OTHER' && (
-                          <input
-                            type="text"
-                            required
-                            placeholder="ระบุชื่อธนาคาร เช่น ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร"
-                            value={customBankName}
+                          {/* Full Bank Selection Dropdown */}
+                          <select
+                            value={selectedBankCode}
                             onChange={(e) => {
-                              setCustomBankName(e.target.value);
-                              setBankName(e.target.value);
+                              const code = e.target.value;
+                              setSelectedBankCode(code);
+                              const found = THAI_BANKS.find((b) => b.code === code);
+                              if (found && code !== 'OTHER') {
+                                setBankName(found.name);
+                              } else if (code === 'OTHER') {
+                                setBankName(customBankName);
+                              }
                             }}
-                            className="mt-2 w-full text-xs rounded-xl border border-red-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
-                          />
-                        )}
-                      </div>
+                            className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 font-medium"
+                          >
+                            {THAI_BANKS.map((b) => (
+                              <option key={b.code} value={b.code}>
+                                {b.name}
+                              </option>
+                            ))}
+                          </select>
 
-                      {/* Bank Account Number & Account Name */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <div className="flex items-center justify-between min-h-[22px] mb-1">
-                            <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
-                              <span>เลขที่บัญชีธนาคาร</span>
-                              <span className="text-red-600 font-bold">*</span>
-                            </label>
-                            <span className="text-[10px] text-transparent select-none">&nbsp;</span>
-                          </div>
-                          <input
-                            type="text"
-                            value={bankAccountNo}
-                            onChange={(e) => setBankAccountNo(e.target.value)}
-                            placeholder="เช่น 045-2-99881-2 (10-12 หลัก)"
-                            className="w-full h-10 text-xs font-mono font-bold rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 placeholder:text-gray-400 placeholder:font-normal shadow-2xs"
-                          />
-                          <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
-                            ระบุเลขที่บัญชีธนาคาร 10-12 หลัก
-                          </span>
+                          {selectedBankCode === 'OTHER' && (
+                            <input
+                              type="text"
+                              required
+                              placeholder="ระบุชื่อธนาคาร เช่น ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร"
+                              value={customBankName}
+                              onChange={(e) => {
+                                setCustomBankName(e.target.value);
+                                setBankName(e.target.value);
+                              }}
+                              className="mt-2 w-full text-xs rounded-xl border border-red-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                            />
+                          )}
                         </div>
 
-                        <div>
-                          <div className="flex items-center justify-between min-h-[22px] mb-1">
-                            <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
-                              <span>ชื่อบัญชีผู้รับเงิน</span>
-                              <span className="text-gray-400 font-normal text-[10px]">(Account Name)</span>
-                            </label>
-                            {supplierName.trim() ? (
-                              <button
-                                type="button"
-                                onClick={() => setBankAccountName(supplierName.trim())}
-                                className="text-[10px] text-red-600 hover:text-red-700 font-semibold hover:underline flex items-center gap-0.5"
-                              >
-                                <span>+ ใช้ชื่อผู้รับเงิน</span>
-                              </button>
-                            ) : (
+                        {/* Bank Account Number & Account Name */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <div className="flex items-center justify-between min-h-[22px] mb-1">
+                              <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                                <span>เลขที่บัญชีธนาคาร</span>
+                                <span className="text-red-600 font-bold">*</span>
+                              </label>
                               <span className="text-[10px] text-transparent select-none">&nbsp;</span>
-                            )}
+                            </div>
+                            <input
+                              type="text"
+                              value={bankAccountNo}
+                              onChange={(e) => setBankAccountNo(e.target.value)}
+                              placeholder="เช่น 045-2-99881-2 (10-12 หลัก)"
+                              className="w-full h-10 text-xs font-mono font-bold rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 placeholder:text-gray-400 placeholder:font-normal shadow-2xs"
+                            />
+                            <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
+                              ระบุเลขที่บัญชีธนาคาร 10-12 หลัก
+                            </span>
                           </div>
-                          <input
-                            type="text"
-                            value={bankAccountName}
-                            onChange={(e) => setBankAccountName(e.target.value)}
-                            placeholder={supplierName ? `เช่น ${supplierName}` : 'ชื่อบัญชีที่ระบุในสมุดบัญชี'}
-                            className="w-full h-10 text-xs font-medium rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 placeholder:text-gray-400 shadow-2xs"
-                          />
-                          <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
-                            ระบุชื่อบัญชีตรงตามสมุดบัญชีธนาคาร
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
-                  {/* PROMPTPAY TAB */}
-                  {paymentMethod === 'PROMPTPAY' && (
-                    <div className="space-y-3 pt-1 animate-in fade-in duration-150">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-gray-700 mb-1.5">
-                          ประเภทพร้อมเพย์ (PromptPay Type) <span className="text-red-600">*</span>
-                        </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                          {PROMPTPAY_TYPES.map((pt) => {
-                            const isSelected = promptPayType === pt.id;
-                            return (
-                              <button
-                                key={pt.id}
-                                type="button"
-                                onClick={() => setPromptPayType(pt.id as any)}
-                                className={`py-2 px-2 rounded-xl text-center flex flex-col items-center justify-center min-h-[54px] border transition shadow-xs ${
-                                  isSelected
-                                    ? 'bg-blue-50 text-blue-900 border-blue-400 ring-2 ring-blue-100'
-                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                                }`}
-                              >
-                                <span className="text-[11px] font-bold leading-tight text-center">{pt.title}</span>
-                                <span className={`text-[10px] leading-tight mt-0.5 ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-400'}`}>
-                                  {pt.subtitle}
+                          <div>
+                            <div className="flex items-center justify-between min-h-[22px] mb-1">
+                              <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                                <span>ชื่อบัญชีผู้รับเงิน</span>
+                                <span className="text-gray-400 font-normal text-[10px]">(Account Name)</span>
+                              </label>
+                              {hasCustomAccountName ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setHasCustomAccountName(false);
+                                    setBankAccountName(supplierName.trim());
+                                  }}
+                                  className="text-[10px] text-red-600 hover:text-red-700 font-semibold hover:underline flex items-center gap-0.5"
+                                >
+                                  <span>🔄 รีเซ็ตตามชื่อผู้รับเงิน</span>
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-emerald-600 font-medium flex items-center gap-0.5">
+                                  <Check size={11} /> ดึงจากชื่อผู้รับเงินอัตโนมัติ
                                 </span>
-                              </button>
-                            );
-                          })}
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              value={bankAccountName || (hasCustomAccountName ? '' : supplierName)}
+                              onChange={(e) => {
+                                setHasCustomAccountName(true);
+                                setBankAccountName(e.target.value);
+                              }}
+                              placeholder={supplierName ? `ตรงกับ "${supplierName}" อัตโนมัติ` : 'ชื่อบัญชีที่ระบุในสมุดบัญชี'}
+                              className="w-full h-10 text-xs font-medium rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 placeholder:text-gray-400 shadow-2xs"
+                            />
+                            <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
+                              {hasCustomAccountName
+                                ? 'ระบุชื่อบัญชีเฉพาะ (กรณีต่างจากชื่อผู้รับเงิน)'
+                                : 'ระบบดึงชื่อผู้รับเงินด้านบนมาใช้ให้อัตโนมัติ (ไม่ต้องพิมพ์ซ้ำ)'}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                    )}
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* PROMPTPAY TAB */}
+                    {paymentMethod === 'PROMPTPAY' && (
+                      <div className="space-y-3 pt-1 animate-in fade-in duration-150">
                         <div>
-                          <div className="flex items-center justify-between min-h-[22px] mb-1">
-                            <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
-                              <span>หมายเลขพร้อมเพย์</span>
-                              <span className="text-red-600 font-bold">*</span>
-                            </label>
-                            {promptPayType === 'PHONE' && payeePhone.trim() ? (
-                              <button
-                                type="button"
-                                onClick={() => setPromptPayNumber(payeePhone.trim())}
-                                className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline flex items-center gap-0.5"
-                              >
-                                <span>+ ใช้เบอร์โทร</span>
-                              </button>
-                            ) : promptPayType === 'TAX_ID' && supplierTaxId.trim() ? (
-                              <button
-                                type="button"
-                                onClick={() => setPromptPayNumber(supplierTaxId.trim())}
-                                className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline flex items-center gap-0.5"
-                              >
-                                <span>+ ใช้เลขผู้เสียภาษี</span>
-                              </button>
-                            ) : (
-                              <span className="text-[10px] text-transparent select-none">&nbsp;</span>
-                            )}
+                          <label className="block text-[11px] font-semibold text-gray-700 mb-1.5">
+                            ประเภทพร้อมเพย์ (PromptPay Type) <span className="text-red-600">*</span>
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {PROMPTPAY_TYPES.map((pt) => {
+                              const isSelected = promptPayType === pt.id;
+                              return (
+                                <button
+                                  key={pt.id}
+                                  type="button"
+                                  onClick={() => setPromptPayType(pt.id as any)}
+                                  className={`py-2 px-2 rounded-xl text-center flex flex-col items-center justify-center min-h-[54px] border transition shadow-xs ${
+                                    isSelected
+                                      ? 'bg-blue-50 text-blue-900 border-blue-400 ring-2 ring-blue-100'
+                                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                                  }`}
+                                >
+                                  <span className="text-[11px] font-bold leading-tight text-center">{pt.title}</span>
+                                  <span className={`text-[10px] leading-tight mt-0.5 ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-400'}`}>
+                                    {pt.subtitle}
+                                  </span>
+                                </button>
+                              );
+                            })}
                           </div>
-                          <input
-                            type="text"
-                            value={promptPayNumber}
-                            onChange={(e) => setPromptPayNumber(e.target.value)}
-                            placeholder={
-                              promptPayType === 'PHONE'
-                                ? '08X-XXX-XXXX'
-                                : promptPayType === 'CITIZEN_ID'
-                                ? 'X-XXXX-XXXXX-XX-X'
-                                : promptPayType === 'TAX_ID'
-                                ? '0-XXXXXXXXXX-XX'
-                                : 'ระบุรหัส e-Wallet 15 หลัก'
-                            }
-                            className="w-full h-10 text-xs font-mono font-bold rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder:text-gray-400 placeholder:font-normal shadow-2xs"
-                          />
-                          <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
-                            {PROMPTPAY_TYPES.find((t) => t.id === promptPayType)?.hint}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <div className="flex items-center justify-between min-h-[22px] mb-1">
+                              <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                                <span>หมายเลขพร้อมเพย์</span>
+                                <span className="text-red-600 font-bold">*</span>
+                              </label>
+                              {promptPayType === 'PHONE' && payeePhone.trim() ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setPromptPayNumber(payeePhone.trim())}
+                                  className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline flex items-center gap-0.5"
+                                >
+                                  <span>+ ใช้เบอร์โทร</span>
+                                </button>
+                              ) : promptPayType === 'TAX_ID' && supplierTaxId.trim() ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setPromptPayNumber(supplierTaxId.trim())}
+                                  className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline flex items-center gap-0.5"
+                                >
+                                  <span>+ ใช้เลขผู้เสียภาษี</span>
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-transparent select-none">&nbsp;</span>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              value={promptPayNumber}
+                              onChange={(e) => setPromptPayNumber(e.target.value)}
+                              placeholder={
+                                promptPayType === 'PHONE'
+                                  ? '08X-XXX-XXXX'
+                                  : promptPayType === 'CITIZEN_ID'
+                                  ? 'X-XXXX-XXXXX-XX-X'
+                                  : promptPayType === 'TAX_ID'
+                                  ? '0-XXXXXXXXXX-XX'
+                                  : 'ระบุรหัส e-Wallet 15 หลัก'
+                              }
+                              className="w-full h-10 text-xs font-mono font-bold rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder:text-gray-400 placeholder:font-normal shadow-2xs"
+                            />
+                            <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
+                              {PROMPTPAY_TYPES.find((t) => t.id === promptPayType)?.hint}
+                            </span>
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between min-h-[22px] mb-1">
+                              <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                                <span>ชื่อบัญชีพร้อมเพย์</span>
+                                <span className="text-gray-400 font-normal text-[10px]">(Account Name)</span>
+                              </label>
+                              {hasCustomAccountName ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setHasCustomAccountName(false);
+                                    setPromptPayAccountName(supplierName.trim());
+                                  }}
+                                  className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline flex items-center gap-0.5"
+                                >
+                                  <span>🔄 รีเซ็ตตามชื่อผู้รับเงิน</span>
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-emerald-600 font-medium flex items-center gap-0.5">
+                                  <Check size={11} /> ดึงจากชื่อผู้รับเงินอัตโนมัติ
+                                </span>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              value={promptPayAccountName || (hasCustomAccountName ? '' : supplierName)}
+                              onChange={(e) => {
+                                setHasCustomAccountName(true);
+                                setPromptPayAccountName(e.target.value);
+                              }}
+                              placeholder={supplierName ? `ตรงกับ "${supplierName}" อัตโนมัติ` : 'ระบุชื่อเจ้าของบัญชีพร้อมเพย์'}
+                              className="w-full h-10 text-xs font-medium rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder:text-gray-400 shadow-2xs"
+                            />
+                            <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
+                              {hasCustomAccountName
+                                ? 'ระบุชื่อบัญชีเฉพาะ'
+                                : 'ระบบดึงชื่อผู้รับเงินด้านบนมาใช้ให้อัตโนมัติ (ไม่ต้องพิมพ์ซ้ำ)'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* CASH / CHEQUE TAB */}
+                    {paymentMethod === 'CASH_CHEQUE' && (
+                      <div className="space-y-2 pt-1 animate-in fade-in duration-150">
+                        <div className="flex items-center justify-between min-h-[22px] mb-1">
+                          <label className="text-[11px] font-semibold text-gray-700">
+                            รายละเอียดการจ่ายเงินสด / สั่งจ่ายเช็ค <span className="text-red-600">*</span>
+                          </label>
+                          <span className="text-[10px] text-gray-400">เงินสด / เช็คขีดคร่อม</span>
+                        </div>
+                        <input
+                          type="text"
+                          value={cashChequeNote}
+                          onChange={(e) => setCashChequeNote(e.target.value)}
+                          placeholder="เช่น เบิกเงินสดจากฝ่ายการเงินสำนักงานใหญ่ หรือ สั่งจ่ายเช็คขีดคร่อม A/C Payee Only"
+                          className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-gray-900 shadow-2xs"
+                        />
+                        <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
+                          ระบุเงื่อนไขการรับเงินสดหน้างาน หรือชื่อผู้ถือเช็คสั่งจ่าย
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Live AR / AP Preview Summary Card */}
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-[11px] flex items-center justify-between text-gray-700 shadow-2xs">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <div className="truncate">
+                          <span className="font-semibold text-gray-900">สรุปข้อมูลโอนเงินสำหรับฝ่ายบัญชี (AR/AP): </span>
+                          <span className="text-gray-600">
+                            {paymentMethod === 'BANK_TRANSFER' ? (
+                              bankAccountNo.trim() ? (
+                                <>
+                                  <b className="text-gray-900">{selectedBankCode === 'OTHER' ? (customBankName || 'ธนาคารอื่นๆ') : THAI_BANKS.find(b => b.code === selectedBankCode)?.shortName}</b> • เลขที่ <b className="font-mono text-red-600">{bankAccountNo}</b> {bankAccountName || supplierName ? `(${bankAccountName || supplierName})` : ''}
+                                </>
+                              ) : <span className="text-amber-600 font-medium">ยังไม่ได้ระบุเลขที่บัญชี</span>
+                            ) : paymentMethod === 'PROMPTPAY' ? (
+                              promptPayNumber.trim() ? (
+                                <>
+                                  <b className="text-blue-700">พร้อมเพย์ ({PROMPTPAY_TYPES.find(t => t.id === promptPayType)?.shortLabel || 'พร้อมเพย์'})</b> • หมายเลข <b className="font-mono text-blue-700">{promptPayNumber}</b> {promptPayAccountName || supplierName ? `(${promptPayAccountName || supplierName})` : ''}
+                                </>
+                              ) : <span className="text-amber-600 font-medium">ยังไม่ได้ระบุหมายเลขพร้อมเพย์</span>
+                            ) : (
+                              cashChequeNote ? `เงินสด/เช็ค: ${cashChequeNote}` : 'เงินสด / เช็ค'
+                            )}
                           </span>
                         </div>
-
-                        <div>
-                          <div className="flex items-center justify-between min-h-[22px] mb-1">
-                            <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
-                              <span>ชื่อบัญชีพร้อมเพย์</span>
-                              <span className="text-gray-400 font-normal text-[10px]">(Account Name)</span>
-                            </label>
-                            {supplierName.trim() ? (
-                              <button
-                                type="button"
-                                onClick={() => setPromptPayAccountName(supplierName.trim())}
-                                className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline flex items-center gap-0.5"
-                              >
-                                <span>+ ใช้ชื่อผู้รับเงิน</span>
-                              </button>
-                            ) : (
-                              <span className="text-[10px] text-transparent select-none">&nbsp;</span>
-                            )}
-                          </div>
-                          <input
-                            type="text"
-                            value={promptPayAccountName}
-                            onChange={(e) => setPromptPayAccountName(e.target.value)}
-                            placeholder={supplierName ? `เช่น ${supplierName}` : 'ระบุชื่อเจ้าของบัญชีพร้อมเพย์'}
-                            className="w-full h-10 text-xs font-medium rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder:text-gray-400 shadow-2xs"
-                          />
-                          <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
-                            ชื่อ-นามสกุล หรือชื่อนิติบุคคลที่ลงทะเบียนไว้กับพร้อมเพย์
-                          </span>
-                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {/* CASH / CHEQUE TAB */}
-                  {paymentMethod === 'CASH_CHEQUE' && (
-                    <div className="space-y-2 pt-1 animate-in fade-in duration-150">
-                      <div className="flex items-center justify-between min-h-[22px] mb-1">
-                        <label className="text-[11px] font-semibold text-gray-700">
-                          รายละเอียดการจ่ายเงินสด / สั่งจ่ายเช็ค <span className="text-red-600">*</span>
-                        </label>
-                        <span className="text-[10px] text-gray-400">เงินสด / เช็คขีดคร่อม</span>
-                      </div>
-                      <input
-                        type="text"
-                        value={cashChequeNote}
-                        onChange={(e) => setCashChequeNote(e.target.value)}
-                        placeholder="เช่น เบิกเงินสดจากฝ่ายการเงินสำนักงานใหญ่ หรือ สั่งจ่ายเช็คขีดคร่อม A/C Payee Only"
-                        className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-gray-900 shadow-2xs"
-                      />
-                      <span className="text-[10px] text-gray-400 mt-1 block min-h-[16px] truncate">
-                        ระบุเงื่อนไขการรับเงินสดหน้างาน หรือชื่อผู้ถือเช็คสั่งจ่าย
+                      <span className="text-[10px] text-gray-400 font-mono font-bold uppercase tracking-wider shrink-0 ml-2">
+                        {paymentMethod === 'BANK_TRANSFER' ? 'BANK' : paymentMethod === 'PROMPTPAY' ? 'PROMPTPAY' : 'CASH'}
                       </span>
                     </div>
-                  )}
-
-                  {/* Live AR / AP Preview Summary Card */}
-                  <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-200 text-[11px] flex items-center justify-between text-gray-700 shadow-2xs">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <div className="truncate">
-                        <span className="font-semibold text-gray-900">สรุปข้อมูลโอนเงินสำหรับฝ่ายบัญชี (AR/AP): </span>
-                        <span className="text-gray-600">
-                          {paymentMethod === 'BANK_TRANSFER' ? (
-                            bankAccountNo.trim() ? (
-                              <>
-                                <b className="text-gray-900">{selectedBankCode === 'OTHER' ? (customBankName || 'ธนาคารอื่นๆ') : THAI_BANKS.find(b => b.code === selectedBankCode)?.shortName}</b> • เลขที่ <b className="font-mono text-red-600">{bankAccountNo}</b> {bankAccountName || supplierName ? `(${bankAccountName || supplierName})` : ''}
-                              </>
-                            ) : <span className="text-amber-600 font-medium">ยังไม่ได้ระบุเลขที่บัญชี</span>
-                          ) : paymentMethod === 'PROMPTPAY' ? (
-                            promptPayNumber.trim() ? (
-                              <>
-                                <b className="text-blue-700">พร้อมเพย์ ({PROMPTPAY_TYPES.find(t => t.id === promptPayType)?.shortLabel || 'พร้อมเพย์'})</b> • หมายเลข <b className="font-mono text-blue-700">{promptPayNumber}</b> {promptPayAccountName || supplierName ? `(${promptPayAccountName || supplierName})` : ''}
-                              </>
-                            ) : <span className="text-amber-600 font-medium">ยังไม่ได้ระบุหมายเลขพร้อมเพย์</span>
-                          ) : (
-                            cashChequeNote ? `เงินสด/เช็ค: ${cashChequeNote}` : 'เงินสด / เช็ค'
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] text-gray-400 font-mono font-bold uppercase tracking-wider shrink-0 ml-2">
-                      {paymentMethod === 'BANK_TRANSFER' ? 'BANK' : paymentMethod === 'PROMPTPAY' ? 'PROMPTPAY' : 'CASH'}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -2792,13 +2838,16 @@ export default function NewPaymentRequestClient({
                   {calculatedVat > 0 && (
                     <tr className="border-b border-gray-200 text-blue-700 bg-blue-50/40">
                       <td colSpan={5} className="py-2 px-3 text-right font-medium border-r border-gray-200">
-                        บวกภาษีมูลค่าเพิ่ม (VAT {vatType === '7%' ? '7%' : ''}):
+                        {vatType === 'INCLUDED_7%' ? 'ภาษีมูลค่าเพิ่ม (VAT 7% รวมในยอด):' : `บวกภาษีมูลค่าเพิ่ม (VAT ${vatType === '7%' ? '7%' : ''}):`}
                       </td>
                       <td className="py-2 px-3 text-right font-mono font-bold text-blue-700 border-r border-gray-200">
-                        +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                        {vatType === 'INCLUDED_7%' ? '' : '+'}
+                        {calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                       </td>
                       <td colSpan={3} className="px-3 text-blue-600 text-[10px]">
-                        บวก VAT เพิ่มจาก Card 4 (หากยอดตามบิลรวม VAT แล้ว ให้เลือก &quot;ไม่มี VAT&quot; ใน Card 4)
+                        {vatType === 'INCLUDED_7%'
+                          ? `ถอด VAT 7% ในตัวจากยอดบิล (มูลค่าก่อน VAT: ${preVatBase.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿)`
+                          : `บวก VAT 7% เพิ่มจากยอดบิล`}
                       </td>
                     </tr>
                   )}
@@ -2813,7 +2862,7 @@ export default function NewPaymentRequestClient({
                         -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                       </td>
                       <td colSpan={3} className="px-3 text-amber-700 text-[10px]">
-                        หักภาษี ณ ที่จ่ายตามที่ระบุใน Card 4
+                        หักภาษี ณ ที่จ่ายตามที่ระบุในส่วนภาษีด้านล่าง
                       </td>
                     </tr>
                   )}
@@ -2947,11 +2996,261 @@ export default function NewPaymentRequestClient({
                 * หากซื้อสินค้าจากร้านเดียวกันหลายรายการ สามารถกดปุ่ม &quot;เพิ่มรายการในบิลเดิม&quot; ได้ทันที
               </span>
             </div>
+
+            {/* Integrated Financial Breakdown for Requisition Items */}
+            <div className="pt-4 border-t border-gray-200 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-gray-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <Calculator className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-gray-900 block leading-tight">
+                      ข้อมูลจำนวนเงินและภาษี (Financial Breakdown & Tax Calculation)
+                    </span>
+                    <span className="text-[10px] text-gray-500">
+                      กำหนดภาษีมูลค่าเพิ่ม (VAT), ภาษีหัก ณ ที่จ่าย (WHT) และสรุปยอดเบิกจ่ายสุทธิของรายการในตาราง
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-lg">
+                    ยอดรวมบิล {itemsTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                  </span>
+                </div>
+              </div>
+
+              {/* 3 Symmetrical Control Columns: VAT, WHT, and Credit Card Deduction */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* 1. VAT Selector */}
+                <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between min-h-[22px] mb-1">
+                      <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                        <span>ภาษีมูลค่าเพิ่ม (VAT)</span>
+                      </label>
+                      <span className="text-[10px] text-gray-500 font-medium inline-flex items-center gap-0.5">
+                        {vatType === 'NONE' ? (
+                          <span className="text-gray-400">ไม่มี VAT</span>
+                        ) : vatType === 'INCLUDED_7%' ? (
+                          <span className="text-emerald-600 font-semibold flex items-center gap-0.5">
+                            <Check size={11} /> รวม VAT 7%
+                          </span>
+                        ) : vatType === '7%' ? (
+                          <span className="text-blue-600 font-semibold flex items-center gap-0.5">
+                            + บวก VAT 7%
+                          </span>
+                        ) : (
+                          <span className="text-purple-600 font-semibold">ระบุเอง</span>
+                        )}
+                      </span>
+                    </div>
+
+                    <select
+                      value={vatType}
+                      onChange={(e: any) => setVatType(e.target.value)}
+                      className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 font-medium"
+                    >
+                      <option value="NONE">ไม่มี VAT / ยกเว้นภาษี (0%)</option>
+                      <option value="INCLUDED_7%">ราคารวม VAT แล้ว 7% (ถอดในตัว)</option>
+                      <option value="7%">บวก VAT 7% เพิ่มจากยอด (Pre-VAT)</option>
+                      <option value="CUSTOM">ระบุจำนวนเงิน VAT เอง</option>
+                    </select>
+
+                    {vatType === 'CUSTOM' && (
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="ระบุจำนวนเงิน VAT (฿)"
+                        value={customVatAmount}
+                        onChange={(e) => setCustomVatAmount(e.target.value)}
+                        className="mt-2 w-full h-9 text-xs rounded-xl border border-gray-300 py-1.5 px-3 font-mono bg-white"
+                      />
+                    )}
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-gray-200/60 min-h-[32px] flex items-center justify-between text-[11px] font-mono">
+                    {vatType === 'INCLUDED_7%' ? (
+                      <div className="w-full text-[10px] space-y-0.5 text-emerald-700 bg-emerald-50/70 p-1.5 rounded-lg border border-emerald-100">
+                        <div className="flex justify-between">
+                          <span>VAT 7% ในตัว:</span>
+                          <span className="font-bold">+{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                        </div>
+                        <div className="flex justify-between text-gray-500">
+                          <span>มูลค่าก่อน VAT:</span>
+                          <span>{preVatBase.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                        </div>
+                      </div>
+                    ) : vatType === '7%' ? (
+                      <div className="w-full flex justify-between text-blue-700 bg-blue-50/70 p-1.5 rounded-lg border border-blue-100">
+                        <span>บวกเพิ่ม VAT 7%:</span>
+                        <span className="font-bold">+{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                      </div>
+                    ) : vatType === 'CUSTOM' ? (
+                      <div className="w-full flex justify-between text-purple-700 bg-purple-50/70 p-1.5 rounded-lg border border-purple-100">
+                        <span>ภาษี VAT ระบุเอง:</span>
+                        <span className="font-bold">+{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-[10px]">0.00 ฿ (ยอดเบิกเท่ากับยอดตามบิล)</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. WHT Selector */}
+                <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between min-h-[22px] mb-1">
+                      <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                        <span>หัก ณ ที่จ่าย (WHT)</span>
+                      </label>
+                      {calculatedWht > 0 && (
+                        <span className="text-[10px] text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                        </span>
+                      )}
+                    </div>
+
+                    <select
+                      value={whtType}
+                      onChange={(e: any) => setWhtType(e.target.value)}
+                      className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 font-medium"
+                    >
+                      <option value="NONE">ไม่หัก (0%)</option>
+                      <option value="1%">1% (ค่าขนส่ง/ระวาง)</option>
+                      <option value="2%">2% (ค่าโฆษณา)</option>
+                      <option value="3%">3% (บริการ/จ้างทำของ/รับเหมา)</option>
+                      <option value="5%">5% (ค่าเช่า)</option>
+                      <option value="CUSTOM">กำหนดเอง (% หรือ ฿)</option>
+                    </select>
+
+                    {whtType === 'CUSTOM' && (
+                      <div className="grid grid-cols-2 gap-1.5 mt-2">
+                        <input
+                          type="number"
+                          step="0.1"
+                          placeholder="%"
+                          value={customWhtPercent}
+                          onChange={(e) => setCustomWhtPercent(e.target.value)}
+                          className="w-full h-9 text-xs rounded-xl border border-gray-300 py-1.5 px-2 font-mono bg-white"
+                        />
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="บาท"
+                          value={customWhtAmount}
+                          onChange={(e) => setCustomWhtAmount(e.target.value)}
+                          className="w-full h-9 text-xs rounded-xl border border-gray-300 py-1.5 px-2 font-mono bg-white"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-gray-200/60 min-h-[32px] flex items-center justify-between text-[11px] font-mono">
+                    {calculatedWht > 0 ? (
+                      <div className="w-full flex justify-between text-amber-800 bg-amber-50/70 p-1.5 rounded-lg border border-amber-100">
+                        <span>หักภาษี ณ ที่จ่าย:</span>
+                        <span className="font-bold">-{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-[10px]">ไม่มีการหัก ณ ที่จ่าย (0%)</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* 3. Credit Card Deduction */}
+                <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between min-h-[22px] mb-1">
+                      <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                        <span>หักยอดจ่ายบัตรเครดิต</span>
+                      </label>
+                      {effectiveCcDeduction > 0 && (
+                        <span className="text-[10px] text-red-700 font-bold bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
+                          -{effectiveCcDeduction.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={creditCardDeduction}
+                        onChange={(e) => setCreditCardDeduction(e.target.value)}
+                        placeholder="0.00"
+                        className="w-full h-10 text-xs font-mono font-bold text-gray-900 rounded-xl border border-gray-300 py-2 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                      />
+                      <span className="absolute right-3 top-2.5 text-xs text-gray-400 font-bold">฿</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-gray-200/60 min-h-[32px] flex items-center justify-between text-[10px]">
+                    <span className="text-gray-500 truncate">
+                      {effectiveCcDeduction > 0
+                        ? 'หักยอดรูดบัตร (ไม่เบิกเงินสด)'
+                        : 'ติ๊ก "บัตรเครดิต" ในตารางเพื่อหักอัตโนมัติ'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Symmetrical Modern Red Net Payable Box */}
+              <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold tracking-wider uppercase text-red-100">
+                    ยอดชำระสุทธิ (NET PAYMENT AMOUNT)
+                  </span>
+                  <span className="text-[11px] font-mono font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">
+                    THB (฿)
+                  </span>
+                </div>
+
+                <div className="text-3xl font-mono font-extrabold tracking-tight">
+                  {netPayable.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                  <span className="text-base font-normal ml-1.5 text-red-100">บาท</span>
+                </div>
+
+                {/* Thai Baht text preview */}
+                <div className="bg-black/15 backdrop-blur-xs p-2 rounded-xl text-xs text-white/95 font-medium flex items-center gap-1.5 truncate">
+                  <span className="opacity-75 shrink-0">ตัวอักษร:</span>
+                  <span className="truncate font-semibold">({bahtText})</span>
+                </div>
+
+                {/* Subtotal calculation note & Approval Tier */}
+                <div className="pt-2 border-t border-white/20 flex flex-wrap items-center justify-between gap-2 text-[11px] text-red-100/90 font-mono">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span>
+                      {vatType === 'INCLUDED_7%' ? 'ยอดรวม (รวม VAT): ' : 'ยอดรวมบิล: '}
+                      {effectiveSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                    </span>
+                    {vatType === 'INCLUDED_7%' ? (
+                      <span>VAT (ในตัว 7%): {calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                    ) : calculatedVat > 0 ? (
+                      <span>VAT: +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                    ) : null}
+                    {calculatedWht > 0 && (
+                      <span>WHT: -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                    )}
+                    {effectiveCcDeduction > 0 && (
+                      <span>หักบัตร: -{effectiveCcDeduction.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                    )}
+                  </div>
+                  <div className="inline-flex items-center gap-1 text-[11px] bg-white/15 px-2 py-0.5 rounded-lg text-white font-sans">
+                    <ShieldCheck className="w-3.5 h-3.5 text-white" />
+                    <span>ระดับการอนุมัติ: {approvalTier}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Row 2: Two Symmetrical Cards (Card 3: Document & Purpose | Card 4: Financial Calculation & Net Payable) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={`grid grid-cols-1 ${entryMode === 'SINGLE' ? 'lg:grid-cols-2' : ''} gap-6`}>
           {/* Card 3: รายละเอียดเอกสาร & วัตถุประสงค์ */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
             <div>
@@ -3139,42 +3438,28 @@ export default function NewPaymentRequestClient({
             </div>
           </div>
 
-          {/* Card 4: การคำนวณยอดเงิน & ภาษี + Red Net Amount Box */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
-                <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                  4
-                </span>
-                <h2 className="text-sm font-bold text-gray-900">
-                  จำนวนเงินและภาษี (Financial Breakdown)
-                </h2>
-              </div>
+          {/* Card 4: การคำนวณยอดเงิน & ภาษี (แสดงเฉพาะโหมด SINGLE เท่านั้น ในโหมด MULTI_ITEMS ลบออกเลยตามที่ผู้ใช้สั่ง) */}
+          {entryMode === 'SINGLE' && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
+                  <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                    4
+                  </span>
+                  <h2 className="text-sm font-bold text-gray-900">
+                    จำนวนเงินและภาษี (Financial Breakdown)
+                  </h2>
+                </div>
 
-              <div className="space-y-4">
-                {/* Subtotal Input / Items Total Display */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-800 mb-1">
-                    {entryMode === 'MULTI_ITEMS'
-                      ? 'จำนวนเงินรวมก่อนหักบัตร/ภาษี (Items Subtotal)'
-                      : 'จำนวนเงินก่อนภาษี (Pre-VAT Subtotal)'}{' '}
-                    <span className="text-red-600">*</span>
-                  </label>
-                  {entryMode === 'MULTI_ITEMS' ? (
-                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
-                      <div>
-                        <span className="text-[11px] text-gray-500 block">
-                          คำนวณอัตโนมัติจาก {requisitionItems.length} แถวในตาราง:
-                        </span>
-                        <span className="text-lg font-bold font-mono text-gray-900">
-                          {itemsTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
-                        </span>
-                      </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-red-100 text-red-700 font-bold font-mono">
-                        TOTAL ITEMS
-                      </span>
-                    </div>
-                  ) : (
+                <div className="space-y-4">
+                  {/* Subtotal Input */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-800 mb-1">
+                      {vatType === 'INCLUDED_7%'
+                        ? 'จำนวนเงินรวมตามบิล (Total Amount Incl. VAT)'
+                        : 'จำนวนเงินก่อนภาษี (Pre-VAT Subtotal)'}{' '}
+                      <span className="text-red-600">*</span>
+                    </label>
                     <div className="relative">
                       <input
                         type="number"
@@ -3187,147 +3472,150 @@ export default function NewPaymentRequestClient({
                       />
                       <span className="absolute right-3.5 top-3 text-xs text-gray-400 font-bold">฿</span>
                     </div>
-                  )}
-                </div>
-
-                {/* Symmetrical VAT & WHT Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* VAT Selector */}
-                  <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-semibold text-gray-700">
-                        ภาษีมูลค่าเพิ่ม (VAT)
-                      </label>
-                      {entryMode === 'MULTI_ITEMS' && (
-                        <span className="text-[10px] text-gray-500 font-medium inline-flex items-center gap-1">
-                          {vatType === 'NONE' ? (
-                            <>
-                              <Check className="w-2.5 h-2.5 text-emerald-600" /> รวม VAT ตามบิลแล้ว
-                            </>
-                          ) : (
-                            <>
-                              <AlertTriangle className="w-2.5 h-2.5 text-amber-600" /> บวก VAT เพิ่มจากยอด
-                            </>
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    <select
-                      value={vatType}
-                      onChange={(e: any) => setVatType(e.target.value)}
-                      className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
-                    >
-                      <option value="NONE">ไม่มี VAT / ราคารวม VAT ตามบิลแล้ว (0%)</option>
-                      <option value="7%">บวก VAT 7% เพิ่มจากยอด (Pre-VAT)</option>
-                      <option value="CUSTOM">ระบุจำนวนเงิน VAT เอง</option>
-                    </select>
-                    {vatType === 'CUSTOM' ? (
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="จำนวนเงิน VAT"
-                        value={customVatAmount}
-                        onChange={(e) => setCustomVatAmount(e.target.value)}
-                        className="mt-1.5 w-full text-xs rounded-lg border border-gray-300 py-1 px-2 font-mono bg-white"
-                      />
-                    ) : (
-                      <span className="block text-[11px] text-gray-600 font-mono mt-1">
-                        {calculatedVat > 0 ? `+${calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿` : '0.00 ฿ (ยอดเบิกเท่ากับยอดตามบิล)'}
-                      </span>
-                    )}
                   </div>
 
-                  {/* WHT Selector */}
-                  <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200">
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      หัก ณ ที่จ่าย (WHT)
-                    </label>
-                    <select
-                      value={whtType}
-                      onChange={(e: any) => setWhtType(e.target.value)}
-                      className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
-                    >
-                      <option value="NONE">ไม่หัก (0%)</option>
-                      <option value="1%">1% (ค่าขนส่ง/ระวาง)</option>
-                      <option value="2%">2% (ค่าโฆษณา)</option>
-                      <option value="3%">3% (บริการ/จ้างทำของ/รับเหมา)</option>
-                      <option value="5%">5% (ค่าเช่า)</option>
-                      <option value="CUSTOM">กำหนดเอง</option>
-                    </select>
-                    {whtType === 'CUSTOM' ? (
-                      <div className="grid grid-cols-2 gap-1 mt-1.5">
-                        <input
-                          type="number"
-                          step="0.1"
-                          placeholder="%"
-                          value={customWhtPercent}
-                          onChange={(e) => setCustomWhtPercent(e.target.value)}
-                          className="w-full text-xs rounded border border-gray-300 py-1 px-1.5 font-mono bg-white"
-                        />
+                  {/* Symmetrical VAT & WHT Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* VAT Selector */}
+                    <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200">
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-gray-700">
+                          ภาษีมูลค่าเพิ่ม (VAT)
+                        </label>
+                      </div>
+                      <select
+                        value={vatType}
+                        onChange={(e: any) => setVatType(e.target.value)}
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                      >
+                        <option value="NONE">ไม่มี VAT / ยกเว้นภาษี (0%)</option>
+                        <option value="INCLUDED_7%">ราคารวม VAT แล้ว 7%</option>
+                        <option value="7%">บวก VAT 7% เพิ่มจากยอด (Pre-VAT)</option>
+                        <option value="CUSTOM">ระบุจำนวนเงิน VAT เอง</option>
+                      </select>
+                      {vatType === 'CUSTOM' ? (
                         <input
                           type="number"
                           step="0.01"
-                          placeholder="บาท"
-                          value={customWhtAmount}
-                          onChange={(e) => setCustomWhtAmount(e.target.value)}
-                          className="w-full text-xs rounded border border-gray-300 py-1 px-1.5 font-mono bg-white"
+                          placeholder="จำนวนเงิน VAT"
+                          value={customVatAmount}
+                          onChange={(e) => setCustomVatAmount(e.target.value)}
+                          className="mt-1.5 w-full text-xs rounded-lg border border-gray-300 py-1 px-2 font-mono bg-white"
                         />
-                      </div>
-                    ) : (
-                      <span className="block text-[11px] text-red-600 font-mono font-medium mt-1">
-                        -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                      ) : vatType === 'INCLUDED_7%' ? (
+                        <div className="mt-1.5 p-2 bg-emerald-50/70 border border-emerald-200 rounded-lg text-[11px] text-emerald-800 space-y-0.5">
+                          <div className="flex justify-between font-mono">
+                            <span>ภาษีมูลค่าเพิ่ม 7% ในตัว:</span>
+                            <span className="font-bold">+{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                          </div>
+                          <div className="flex justify-between font-mono text-[10px] text-emerald-700">
+                            <span>มูลค่าสินค้าก่อน VAT:</span>
+                            <span>{preVatBase.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="block text-[11px] text-gray-600 font-mono mt-1">
+                          {calculatedVat > 0 ? `+${calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿` : '0.00 ฿ (ยอดเบิกเท่ากับยอดตามบิล)'}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* WHT Selector */}
+                    <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200">
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        หัก ณ ที่จ่าย (WHT)
+                      </label>
+                      <select
+                        value={whtType}
+                        onChange={(e: any) => setWhtType(e.target.value)}
+                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                      >
+                        <option value="NONE">ไม่หัก (0%)</option>
+                        <option value="1%">1% (ค่าขนส่ง/ระวาง)</option>
+                        <option value="2%">2% (ค่าโฆษณา)</option>
+                        <option value="3%">3% (บริการ/จ้างทำของ/รับเหมา)</option>
+                        <option value="5%">5% (ค่าเช่า)</option>
+                        <option value="CUSTOM">กำหนดเอง</option>
+                      </select>
+                      {whtType === 'CUSTOM' ? (
+                        <div className="grid grid-cols-2 gap-1 mt-1.5">
+                          <input
+                            type="number"
+                            step="0.1"
+                            placeholder="%"
+                            value={customWhtPercent}
+                            onChange={(e) => setCustomWhtPercent(e.target.value)}
+                            className="w-full text-xs rounded border border-gray-300 py-1 px-1.5 font-mono bg-white"
+                          />
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="บาท"
+                            value={customWhtAmount}
+                            onChange={(e) => setCustomWhtAmount(e.target.value)}
+                            className="w-full text-xs rounded border border-gray-300 py-1 px-1.5 font-mono bg-white"
+                          />
+                        </div>
+                      ) : (
+                        <span className="block text-[11px] text-red-600 font-mono font-medium mt-1">
+                          -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Symmetrical Modern Red Net Payable Box */}
+                  <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl p-5 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold tracking-wider uppercase text-red-100">
+                        ยอดชำระสุทธิ (NET PAYMENT AMOUNT)
                       </span>
-                    )}
-                  </div>
-                </div>
+                      <span className="text-[11px] font-mono font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">
+                        THB (฿)
+                      </span>
+                    </div>
 
-                {/* Symmetrical Modern Red Net Payable Box */}
-                <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl p-5 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold tracking-wider uppercase text-red-100">
-                      ยอดชำระสุทธิ (NET PAYMENT AMOUNT)
-                    </span>
-                    <span className="text-[11px] font-mono font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">
-                      THB (฿)
-                    </span>
+                    <div className="text-3xl font-mono font-extrabold tracking-tight">
+                      {netPayable.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                      <span className="text-base font-normal ml-1.5 text-red-100">บาท</span>
+                    </div>
+
+                    {/* Thai Baht text preview */}
+                    <div className="bg-black/15 backdrop-blur-xs p-2 rounded-xl text-xs text-white/95 font-medium flex items-center gap-1.5 truncate">
+                      <span className="opacity-75 shrink-0">ตัวอักษร:</span>
+                      <span className="truncate font-semibold">({bahtText})</span>
+                    </div>
+
+                    {/* Subtotal calculation note */}
+                    <div className="pt-2 border-t border-white/20 flex flex-wrap justify-between text-[11px] text-red-100/90 font-mono">
+                      <span>
+                        {vatType === 'INCLUDED_7%' ? 'ยอดรวม (รวม VAT): ' : 'ยอดรวม: '}
+                        {effectiveSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
+                      {vatType === 'INCLUDED_7%' ? (
+                        <span>VAT (ในตัว 7%): {calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                      ) : (
+                        <span>VAT: +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                      )}
+                      <span>WHT: -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                    </div>
                   </div>
 
-                  <div className="text-3xl font-mono font-extrabold tracking-tight">
-                    {netPayable.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                    <span className="text-base font-normal ml-1.5 text-red-100">บาท</span>
-                  </div>
-
-                  {/* Thai Baht text preview */}
-                  <div className="bg-black/15 backdrop-blur-xs p-2 rounded-xl text-xs text-white/95 font-medium flex items-center gap-1.5 truncate">
-                    <span className="opacity-75 shrink-0">ตัวอักษร:</span>
-                    <span className="truncate font-semibold">({bahtText})</span>
-                  </div>
-
-                  {/* Subtotal calculation note */}
-                  <div className="pt-2 border-t border-white/20 flex flex-wrap justify-between text-[11px] text-red-100/90 font-mono">
-                    <span>ยอดรวม: {effectiveSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                    {entryMode === 'MULTI_ITEMS' && effectiveCcDeduction > 0 && (
-                      <span>หักบัตร: -{effectiveCcDeduction.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                    )}
-                    <span>VAT: +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                    <span>WHT: -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                  </div>
-                </div>
-
-                {/* Approval Tier Notice */}
-                <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-[11px] text-gray-600 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-red-600 shrink-0" />
-                  <div>
-                    <span className="font-bold text-gray-800">ระดับการอนุมัติ: </span>
-                    <span>{approvalTier}</span>
+                  {/* Approval Tier Notice */}
+                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-[11px] text-gray-600 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-red-600 shrink-0" />
+                    <div>
+                      <span className="font-bold text-gray-800">ระดับการอนุมัติ: </span>
+                      <span>{approvalTier}</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Row 3: Card 5 (Full Width Symmetrical Evidence Card) */}

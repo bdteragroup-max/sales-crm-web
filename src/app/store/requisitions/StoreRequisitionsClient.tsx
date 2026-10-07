@@ -130,7 +130,7 @@ export default function StoreRequisitionsClient({
     const upper = comp.toUpperCase();
     if (upper.includes('TE') || upper.includes('ELECTRIC') || upper.includes('อิเลคทริค')) return 'TE';
     if (upper.includes('TP') || upper.includes('POWER') || upper.includes('เพาเวอร์') || upper.includes('พาวเวอร์')) return 'TP';
-    if (upper.includes('TG') || upper.includes('GROUP') || upper.includes('กรุ๊ป')) return 'TG';
+    if (upper.includes('TG') || upper.includes('GROUP') || upper.includes('กรุ้ป') || upper.includes('กรุ๊ป')) return 'TG';
     return 'OTHER';
   };
 

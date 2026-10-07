@@ -14,6 +14,7 @@ export async function createPurchaseRequest(data: {
   orderId?: string;
   requestedBy?: string;
   recordedAt?: string | null;
+  attachments?: any;
 }) {
   const user = await getUser();
   if (!user) return { success: false, error: "Unauthorized" };
@@ -37,7 +38,8 @@ export async function createPurchaseRequest(data: {
           note: data.note ? (existing.note ? `${existing.note}\n${data.note}` : data.note) : existing.note,
           requestedBy: requester || existing.requestedBy || 'Unknown',
           orderId: data.orderId || existing.orderId,
-          recordedAt: data.recordedAt ? docDate : (existing.recordedAt || docDate)
+          recordedAt: data.recordedAt ? docDate : (existing.recordedAt || docDate),
+          attachments: data.attachments !== undefined ? data.attachments : (existing as any).attachments
         }
       });
 
@@ -61,7 +63,8 @@ export async function createPurchaseRequest(data: {
         note: data.note,
         requestedBy: requester,
         orderId: data.orderId || null,
-        recordedAt: docDate
+        recordedAt: docDate,
+        attachments: data.attachments || []
       }
     });
 
@@ -306,6 +309,7 @@ export async function updatePurchaseRequest(
     requestedBy?: string;
     recordedAt?: string | null;
     note?: string;
+    attachments?: any;
   }
 ) {
   const user = await getUser();
@@ -382,6 +386,7 @@ export async function updatePurchaseRequest(
         requestedBy: data.requestedBy !== undefined ? data.requestedBy : existing.requestedBy,
         recordedAt: parsedRecordedAt,
         note: finalNote,
+        attachments: data.attachments !== undefined ? data.attachments : (existing as any).attachments,
       },
       include: {
         purchaseOrders: {

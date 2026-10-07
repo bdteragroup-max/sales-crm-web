@@ -959,16 +959,24 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                             winLossReason: '',
                             rejectReason: ''
                           }));
+                        } else if (newStatus === 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ') {
+                          setWinLossReason('สเปกสินค้าไม่ตรงตามความต้องการ');
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            winLossReason: 'สเปกสินค้าไม่ตรงตามความต้องการ'
+                          }));
                         }
                       }}
                       className="w-full border border-slate-200 rounded-xl p-2.5 text-sm text-slate-900 bg-white font-medium outline-none transition-all hover:border-slate-300 focus:border-red-600 focus:ring-2 focus:ring-red-500/15"
                     >
                       <option value="">- เลือกสถานะ -</option>
                       <option value="เสนอราคา">เสนอราคา</option>
+                      <option value="อยู่ระหว่างพิจารณา / รอการตัดสินใจ">อยู่ระหว่างพิจารณา / รอการตัดสินใจ</option>
                       {status === 'หมดอายุ' && (
                         <option value="หมดอายุ" disabled>หมดอายุ (ระบบกำหนดอัตโนมัติ)</option>
                       )}
                       <option value="รอจัดทำ PO">รอจัดทำ PO</option>
+                      <option value="รอปิดการขาย (รอชำระเงิน/PO)">รอปิดการขาย (รอชำระเงิน/PO)</option>
                       <option value="PO แล้วรอสินค้า">PO แล้วรอสินค้า</option>
                       <option value="PO แล้วรอมัดจำ">PO แล้วรอมัดจำ</option>
                       <option value="PO แล้วรอเงินโอน">PO แล้วรอเงินโอน</option>
@@ -976,6 +984,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                       <option value="รอใบประเมินราคา">รอใบประเมินราคา</option>
                       <option value="ปฏิเสธ-ได้ที่อื่นแล้ว">ปฏิเสธ-ได้ที่อื่นแล้ว</option>
                       <option value="ปฏิเสธ-ยกเลิกสินค้า">ปฏิเสธ-ยกเลิกสินค้า</option>
+                      <option value="ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ">ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ</option>
                       <option value="ปฏิเสธ-อื่นๆ">ปฏิเสธ-อื่นๆ</option>
                       <option value="ยกเลิก-Revise">ยกเลิก-Revise</option>
                     </select>

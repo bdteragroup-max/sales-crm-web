@@ -41,6 +41,7 @@ import PushNotificationButton from "./PushNotificationButton";
 import JobTimeline from "./JobTimeline";
 import JobsExecutiveCockpit from "./JobsExecutiveCockpit";
 import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
+import { formatDateForInput, formatThaiDate } from "@/utils/thai-date";
 
 type StepLog = {
   step: string
@@ -484,15 +485,15 @@ function ExpandedRow({
             <p className="text-xs text-gray-400 mb-0.5">หมายเลข PO</p>
             <p className="text-sm text-gray-800">{job.poNumber || <span className="text-gray-400 italic">—</span>}</p>
           </div>
-          <EditableField label="วันที่ปิดการขาย" value={new Date(job.dateClosed).toISOString().slice(0, 10)} type="date" onSave={save("dateClosed")} />
-          <EditableField label="วันที่ต้องการจัดส่ง" value={job.deliveryDate ? new Date(job.deliveryDate).toISOString().slice(0, 10) : (job.project?.endDate ? new Date(job.project.endDate).toISOString().slice(0, 10) : (job.project?.deliveryDate ? new Date(job.project.deliveryDate).toISOString().slice(0, 10) : ""))} type="date" onSave={save("deliveryDate")} />
+          <EditableField label="วันที่ปิดการขาย" value={formatDateForInput(job.dateClosed)} type="date" onSave={save("dateClosed")} />
+          <EditableField label="วันที่ต้องการจัดส่ง" value={formatDateForInput(job.deliveryDate || job.project?.endDate || job.project?.deliveryDate)} type="date" onSave={save("deliveryDate")} />
 
           {/* Row 3 */}
           <div className="sm:col-span-2">
             <EditableField label="รายการสินค้า" value={job.item ?? ""} onSave={save("item")} />
           </div>
           <EditableField label="รูปแบบการชำระเงิน" value={job.paymentMethod || (job.project?.installment1 || job.project?.installment2 || job.project?.installment3 || job.project?.installment4 ? "แบ่งชำระ" : "")} onSave={save("paymentMethod")} />
-          <EditableField label="วันที่ชำระเงิน" value={job.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : (job.project?.contractSigningDate ? new Date(job.project.contractSigningDate).toISOString().slice(0, 10) : (job.project?.paymentDate ? new Date(job.project.paymentDate).toISOString().slice(0, 10) : ""))} type="date" onSave={save("paymentDate")} />
+          <EditableField label="วันที่ชำระเงิน" value={formatDateForInput(job.paymentDate || job.project?.contractSigningDate || job.project?.paymentDate)} type="date" onSave={save("paymentDate")} />
         </div>
       </div>
 
@@ -919,7 +920,7 @@ export default function JobsClientPage({
                 autoFocus
                 required
                 type="text"
-                placeholder="เช่น บจก. เทรา กรุ๊ป"
+                placeholder="เช่น บจก. เทรา กรุ้ป"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
@@ -1040,7 +1041,7 @@ export default function JobsClientPage({
                 autoFocus
                 required
                 type="text"
-                placeholder="เช่น บจก. เทรา กรุ๊ป หรือ โครงการระบบสายพานลำเลียง"
+                placeholder="เช่น บจก. เทรา กรุ้ป หรือ โครงการระบบสายพานลำเลียง"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"

@@ -8,6 +8,7 @@ import { createProject, addProjectMember, createTask } from '@/app/actions/proje
 import SolarChecklist from '../components/SolarChecklist';
 import DynamicInstallmentsBuilder, { InstallmentItem, DepositConfig } from '../components/DynamicInstallmentsBuilder';
 import SearchableTeamSelect from '../components/SearchableTeamSelect';
+import { parseDateInput } from '@/utils/thai-date';
 
 export default function NewProjectClient({ users, jobs, currentUserId, initialJobId, currentUserRole }: { users: any[], jobs: any[], currentUserId: string, initialJobId?: string, currentUserRole?: string }) {
   const router = useRouter();
@@ -118,14 +119,14 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
   // Auto-calculate project duration in days if both dates are set
   useEffect(() => {
     if (formData.startDate && formData.endDate && formData.projectDurationUnit === 'วัน') {
-      const start = new Date(formData.startDate);
-      const end = new Date(formData.endDate);
-      const diffTime = end.getTime() - start.getTime();
-      if (diffTime >= 0) {
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        // Only set if not already matched to avoid loop or overriding manual input entirely if user edits duration AFTER date
-        // A better UX: we update if it's currently empty, or if we recalculate it directly.
-        setFormData(prev => ({ ...prev, projectDuration: diffDays.toString() }));
+      const start = parseDateInput(formData.startDate);
+      const end = parseDateInput(formData.endDate);
+      if (start && end) {
+        const diffTime = end.getTime() - start.getTime();
+        if (diffTime >= 0) {
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          setFormData(prev => ({ ...prev, projectDuration: diffDays.toString() }));
+        }
       }
     }
   }, [formData.startDate, formData.endDate]);
@@ -150,7 +151,9 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
     e.preventDefault();
     if (!formData.name) return alert("กรุณากรอกชื่อโครงการ (Project Name is required)");
     if (formData.startDate && formData.endDate) {
-      if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      const s = parseDateInput(formData.startDate);
+      const e = parseDateInput(formData.endDate);
+      if (s && e && e < s) {
         return alert("วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม (End Date cannot be before Start Date)");
       }
     }
@@ -171,22 +174,22 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
         companyCode: formData.companyCode || undefined,
 
         // Timeline
-        startDate: formData.startDate ? new Date(formData.startDate) : undefined,
-        endDate: formData.endDate ? new Date(formData.endDate) : undefined,
+        startDate: parseDateInput(formData.startDate),
+        endDate: parseDateInput(formData.endDate),
         projectDuration: formData.projectDuration ? parseInt(formData.projectDuration) : undefined,
         projectDurationUnit: formData.projectDurationUnit,
-        deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
+        deliveryDate: parseDateInput(formData.deliveryDate),
 
         // Contract
         contractNumber: formData.contractNumber || undefined,
         contractSignatory: formData.contractSignatory || undefined,
-        contractSigningDate: formData.contractSigningDate ? new Date(formData.contractSigningDate) : undefined,
+        contractSigningDate: parseDateInput(formData.contractSigningDate),
         contractReturnStatus: formData.contractReturnStatus || undefined,
 
         // Financials
         projectValue: formData.projectValue ? parseFloat(formData.projectValue) : undefined,
         securityDeposit: formData.securityDeposit ? parseFloat(formData.securityDeposit) : undefined,
-        depositCollectionSchedule: formData.depositCollectionSchedule ? new Date(formData.depositCollectionSchedule) : undefined,
+        depositCollectionSchedule: parseDateInput(formData.depositCollectionSchedule),
         depositRefundRequestNo: formData.depositRefundRequestNo || undefined,
         penaltyPerDay: formData.penaltyPerDay ? parseFloat(formData.penaltyPerDay) : undefined,
         amountIncludingVat: formData.amountIncludingVat ? parseFloat(formData.amountIncludingVat) : undefined,
@@ -198,7 +201,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
           deposit: deposit.hasDeposit && Number(deposit.amount) > 0 ? {
             amount: parseFloat(deposit.amount),
             percent: deposit.percent ? parseFloat(deposit.percent) : undefined,
-            dueDate: deposit.dueDate ? new Date(deposit.dueDate).toISOString() : undefined,
+            dueDate: deposit.dueDate ? parseDateInput(deposit.dueDate)?.toISOString() : undefined,
             title: deposit.title || 'เงินมัดจำเมื่อเซ็นสัญญา',
           } : null,
           installments: installments
@@ -207,7 +210,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
               title: inst.title || `งวดที่ ${idx + 1}`,
               amount: inst.amount ? parseFloat(inst.amount) : 0,
               percent: inst.percent ? parseFloat(inst.percent) : undefined,
-              dueDate: inst.dueDate ? new Date(inst.dueDate).toISOString() : undefined,
+              dueDate: inst.dueDate ? parseDateInput(inst.dueDate)?.toISOString() : undefined,
             }))
             .filter(inst => inst.amount > 0),
         },
@@ -225,7 +228,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
         installment12: installments[11]?.amount ? parseFloat(installments[11].amount) : undefined,
         firstPayment: deposit.hasDeposit && Number(deposit.amount) > 0 ? parseFloat(deposit.amount) : (formData.firstPayment ? parseFloat(formData.firstPayment) : undefined),
         secondPayment: formData.secondPayment ? parseFloat(formData.secondPayment) : undefined,
-        paymentDate: deposit.hasDeposit && deposit.dueDate ? new Date(deposit.dueDate) : (formData.paymentDate ? new Date(formData.paymentDate) : undefined),
+        paymentDate: deposit.hasDeposit && deposit.dueDate ? parseDateInput(deposit.dueDate) : (formData.paymentDate ? parseDateInput(formData.paymentDate) : undefined),
 
         // Docs
         documentNumber: formData.documentNumber || undefined,
@@ -275,8 +278,8 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
             title: t.title,
             category: t.category,
             assigneeId: t.assigneeId || undefined,
-            planStart: t.planStart ? new Date(t.planStart) : undefined,
-            planEnd: t.planEnd ? new Date(t.planEnd) : undefined,
+            planStart: t.planStart ? parseDateInput(t.planStart) : undefined,
+            planEnd: t.planEnd ? parseDateInput(t.planEnd) : undefined,
             weight: t.weight ? parseFloat(t.weight) : 1,
           });
         });

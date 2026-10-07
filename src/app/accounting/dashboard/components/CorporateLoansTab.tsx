@@ -427,7 +427,7 @@ export default function CorporateLoansTab({ data, onOpenDrilldown }: CorporateLo
 
           <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
             <span>เกณฑ์ประเมินความเสี่ยง</span>
-            <span className="font-semibold text-slate-700">มาตรฐานฝ่ายการเงิน เทอรา กรุ๊ป</span>
+            <span className="font-semibold text-slate-700">มาตรฐานฝ่ายการเงิน เทอรา กรุ้ป</span>
           </div>
         </div>
 

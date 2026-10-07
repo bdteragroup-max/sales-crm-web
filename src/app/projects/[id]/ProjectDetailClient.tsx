@@ -58,6 +58,7 @@ import {
 } from "@/app/actions/projects";
 import { deletePurchaseRequest } from "@/app/actions/procurement";
 import Swal from "sweetalert2";
+import { formatThaiDate } from "@/utils/thai-date";
 import GanttChart from "./GanttChart";
 import DailyLogTab from "./DailyLogTab";
 import WeeklyReportTab from "./WeeklyReportTab";
@@ -284,7 +285,7 @@ export default function ProjectDetailClient({
     const diffTime = end.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return {
-      date: end.toLocaleDateString("th-TH"),
+      date: formatThaiDate(end),
       diffDays,
       isOverdue: diffDays < 0 && project.status !== "Completed",
       isNear: diffDays >= 0 && diffDays <= 14 && project.status !== "Completed",
@@ -666,7 +667,7 @@ export default function ProjectDetailClient({
                 <span className="text-[10px] font-bold text-gray-400 block uppercase">กำหนดส่งมอบ</span>
                 <span className="font-mono font-bold text-red-600 truncate block">
                   {effectiveDeliveryDate
-                    ? new Date(effectiveDeliveryDate).toLocaleDateString("th-TH", {
+                    ? formatThaiDate(effectiveDeliveryDate, {
                         day: "numeric",
                         month: "short",
                         year: "2-digit",
@@ -744,7 +745,7 @@ export default function ProjectDetailClient({
           </div>
           <p className="text-lg font-black text-gray-900 tracking-tight font-mono">
             {effectiveDeliveryDate
-              ? new Date(effectiveDeliveryDate).toLocaleDateString("th-TH", {
+              ? formatThaiDate(effectiveDeliveryDate, {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
@@ -753,7 +754,7 @@ export default function ProjectDetailClient({
           </p>
           <p className="text-[11px] text-gray-500 font-medium flex items-center justify-between">
             <span>
-              เริ่ม: {effectiveStartDate ? new Date(effectiveStartDate).toLocaleDateString("th-TH") : "-"}
+              เริ่ม: {effectiveStartDate ? formatThaiDate(effectiveStartDate) : "-"}
             </span>
             <span className="font-bold text-gray-700 font-mono">
               {project.projectDuration ? `${project.projectDuration} ${project.projectDurationUnit || "วัน"}` : "-"}
@@ -1049,9 +1050,9 @@ export default function ProjectDetailClient({
                   </span>
                   <p className="font-bold text-gray-900 text-sm font-mono truncate">
                     {project.contractSigningDate
-                      ? new Date(project.contractSigningDate).toLocaleDateString("th-TH")
+                      ? formatThaiDate(project.contractSigningDate)
                       : project.job?.salesOrderDate
-                      ? new Date(project.job.salesOrderDate).toLocaleDateString("th-TH")
+                      ? formatThaiDate(project.job.salesOrderDate)
                       : "-"}
                   </p>
                 </div>
@@ -1109,7 +1110,7 @@ export default function ProjectDetailClient({
                     </span>
                     {project.depositCollectionSchedule && (
                       <span className="text-[10px] font-bold text-gray-600 bg-white px-2 py-0.5 rounded border border-gray-200 font-mono">
-                        กำหนดคืน: {new Date(project.depositCollectionSchedule).toLocaleDateString("th-TH")}
+                        กำหนดคืน: {formatThaiDate(project.depositCollectionSchedule)}
                       </span>
                     )}
                   </div>
@@ -1228,7 +1229,7 @@ export default function ProjectDetailClient({
                             <p className="text-[11px] text-gray-500 mt-0.5">
                               {depositInfo.percent ? `${depositInfo.percent}% ของมูลค่า • ` : ""}
                               {depositInfo.dueDate
-                                ? `กำหนดชำระ: ${new Date(depositInfo.dueDate).toLocaleDateString("th-TH")}`
+                                ? `กำหนดชำระ: ${formatThaiDate(depositInfo.dueDate)}`
                                 : "ชำระเมื่อเซ็นสัญญา"}
                             </p>
                           </div>
@@ -1282,7 +1283,7 @@ export default function ProjectDetailClient({
                                 <div className="flex items-center justify-between text-[10px] text-gray-400 mt-1 font-mono">
                                   {inst.percent && <span>{inst.percent}%</span>}
                                   {inst.dueDate && (
-                                    <span>{new Date(inst.dueDate).toLocaleDateString("th-TH")}</span>
+                                    <span>{formatThaiDate(inst.dueDate)}</span>
                                   )}
                                 </div>
                               </div>
@@ -1342,7 +1343,7 @@ export default function ProjectDetailClient({
                   </span>
                   <p className="font-bold text-gray-900 text-sm font-mono truncate">
                     {effectiveDeliveryDate
-                      ? new Date(effectiveDeliveryDate).toLocaleDateString("th-TH")
+                      ? formatThaiDate(effectiveDeliveryDate)
                       : "-"}
                   </p>
                 </div>
@@ -1490,7 +1491,7 @@ export default function ProjectDetailClient({
                     </span>
                     <p className="font-bold text-gray-900 text-xs font-mono truncate">
                       {project.job.deliveryDate
-                        ? new Date(project.job.deliveryDate).toLocaleDateString("th-TH")
+                        ? formatThaiDate(project.job.deliveryDate)
                         : "-"}
                     </p>
                   </div>
@@ -1510,7 +1511,7 @@ export default function ProjectDetailClient({
                     </span>
                     <p className="font-bold text-gray-900 text-xs font-mono truncate">
                       {project.job.paymentDate
-                        ? new Date(project.job.paymentDate).toLocaleDateString("th-TH")
+                        ? formatThaiDate(project.job.paymentDate)
                         : "-"}
                     </p>
                   </div>
@@ -1661,11 +1662,11 @@ export default function ProjectDetailClient({
                               <div className="flex flex-col gap-0.5 font-mono">
                                 <span>
                                   {task.planStart
-                                    ? new Date(task.planStart).toLocaleDateString("th-TH")
+                                    ? formatThaiDate(task.planStart)
                                     : "?"}{" "}
                                   -{" "}
                                   {task.planEnd
-                                    ? new Date(task.planEnd).toLocaleDateString("th-TH")
+                                    ? formatThaiDate(task.planEnd)
                                     : "?"}
                                 </span>
                                 {isTaskOverdue && (
@@ -2214,7 +2215,7 @@ export default function ProjectDetailClient({
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-gray-400 pt-2 border-t border-gray-200/60 font-mono">
                         <span>
-                          วันที่: {po.recordedAt ? new Date(po.recordedAt).toLocaleDateString("th-TH") : (po.createdAt ? new Date(po.createdAt).toLocaleDateString("th-TH") : "-")}
+                          วันที่: {formatThaiDate(po.recordedAt || po.createdAt)}
                         </span>
                         {po.purchaseRequest?.prNumber && (
                           <span className="font-bold text-gray-600">
@@ -2351,7 +2352,7 @@ export default function ProjectDetailClient({
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-gray-400 pt-2 border-t border-gray-200/60 font-mono">
                         <span>
-                          วันที่สร้าง: {pr.createdAt ? new Date(pr.createdAt).toLocaleDateString("th-TH") : "-"}
+                          วันที่สร้าง: {formatThaiDate(pr.createdAt)}
                         </span>
                         {pr.purchaseOrders?.length > 0 && (
                           <span className="font-bold text-gray-700">

@@ -3,6 +3,54 @@
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
 import { generateJobNumber } from "@/app/lib/job-utils";
+import { normalizeDateToCE } from "@/utils/thai-date";
+
+function sanitizeProjectDateFields(data: any) {
+  if (!data || typeof data !== "object") return data;
+  const cleaned = { ...data };
+  const dateFields = [
+    "startDate",
+    "endDate",
+    "deliveryDate",
+    "contractSigningDate",
+    "depositCollectionSchedule",
+    "paymentDate",
+    "warrantyStartDate",
+    "warrantyEndDate",
+    "siteCheckInTime",
+    "siteCheckOutTime",
+  ];
+
+  for (const field of dateFields) {
+    if (cleaned[field] !== undefined) {
+      cleaned[field] = cleaned[field] ? normalizeDateToCE(cleaned[field]) : null;
+    }
+  }
+
+  if (cleaned.installmentsData && typeof cleaned.installmentsData === "object" && !Array.isArray(cleaned.installmentsData)) {
+    const instData = { ...cleaned.installmentsData };
+    if (instData.deposit && instData.deposit.dueDate) {
+      const d = normalizeDateToCE(instData.deposit.dueDate);
+      instData.deposit = {
+        ...instData.deposit,
+        dueDate: d ? d.toISOString() : null,
+      };
+    }
+    if (Array.isArray(instData.installments)) {
+      instData.installments = instData.installments.map((inst: any) => {
+        if (!inst || !inst.dueDate) return inst;
+        const d = normalizeDateToCE(inst.dueDate);
+        return {
+          ...inst,
+          dueDate: d ? d.toISOString() : null,
+        };
+      });
+    }
+    cleaned.installmentsData = instData;
+  }
+
+  return cleaned;
+}
 
 export async function createProject(data: any) {
   try {
@@ -36,7 +84,8 @@ export async function createProject(data: any) {
       }
     }
 
-    const { companyCode, ...projectDataRaw } = data;
+    const sanitizedData = sanitizeProjectDateFields(data);
+    const { companyCode, ...projectDataRaw } = sanitizedData;
     let finalJobId = projectDataRaw.jobId;
 
     if (!finalJobId && companyCode) {
@@ -235,7 +284,8 @@ export async function createProject(data: any) {
 
 export async function updateProject(id: string, data: any) {
   try {
-    const { companyCode, engineers, admins, tasks, ...projectDataRaw } = data;
+    const sanitizedData = sanitizeProjectDateFields(data);
+    const { companyCode, engineers, admins, tasks, ...projectDataRaw } = sanitizedData;
 
     // Process dynamic installments if present in update data
     if (projectDataRaw.installmentsData !== undefined) {
@@ -328,8 +378,8 @@ export async function updateProject(id: string, data: any) {
               title: t.title,
               category: t.category || null,
               assigneeId: t.assigneeId || null,
-              planStart: t.planStart ? new Date(t.planStart) : null,
-              planEnd: t.planEnd ? new Date(t.planEnd) : null,
+              planStart: t.planStart ? normalizeDateToCE(t.planStart) : null,
+              planEnd: t.planEnd ? normalizeDateToCE(t.planEnd) : null,
               weight: t.weight ? parseFloat(t.weight) : 1,
             },
           });
@@ -340,8 +390,8 @@ export async function updateProject(id: string, data: any) {
               title: t.title,
               category: t.category || null,
               assigneeId: t.assigneeId || null,
-              planStart: t.planStart ? new Date(t.planStart) : null,
-              planEnd: t.planEnd ? new Date(t.planEnd) : null,
+              planStart: t.planStart ? normalizeDateToCE(t.planStart) : null,
+              planEnd: t.planEnd ? normalizeDateToCE(t.planEnd) : null,
               weight: t.weight ? parseFloat(t.weight) : 1,
             },
           });
@@ -394,7 +444,7 @@ function parseProjectInstallments(project: any) {
       depositItem = {
         amount: Number(rawData.deposit.amount),
         percent: rawData.deposit.percent ? Number(rawData.deposit.percent) : undefined,
-        dueDate: rawData.deposit.dueDate ? new Date(rawData.deposit.dueDate) : null,
+        dueDate: rawData.deposit.dueDate ? normalizeDateToCE(rawData.deposit.dueDate) : null,
         title: rawData.deposit.title || "เงินมัดจำเมื่อเซ็นสัญญา",
       };
     }
@@ -408,7 +458,7 @@ function parseProjectInstallments(project: any) {
               title: it.title || `งวดที่ ${idx + 1}`,
               amount: num,
               percent: it.percent ? Number(it.percent) : undefined,
-              dueDate: it.dueDate ? new Date(it.dueDate) : null,
+              dueDate: it.dueDate ? normalizeDateToCE(it.dueDate) : null,
             });
           }
         }
@@ -424,7 +474,7 @@ function parseProjectInstallments(project: any) {
             title: it.title || `งวดที่ ${idx + 1}`,
             amount: num,
             percent: it.percent ? Number(it.percent) : undefined,
-            dueDate: it.dueDate ? new Date(it.dueDate) : null,
+            dueDate: it.dueDate ? normalizeDateToCE(it.dueDate) : null,
           });
         }
       }
@@ -435,7 +485,7 @@ function parseProjectInstallments(project: any) {
   if (!depositItem && project.firstPayment && Number(project.firstPayment) > 0) {
     depositItem = {
       amount: Number(project.firstPayment),
-      dueDate: project.paymentDate ? new Date(project.paymentDate) : null,
+      dueDate: project.paymentDate ? normalizeDateToCE(project.paymentDate) : null,
       title: "เงินมัดจำเมื่อเซ็นสัญญา",
     };
   }
@@ -481,11 +531,11 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
 
     if (!depositItem && installmentList.length === 0) return;
 
-    const startDate = project.startDate ? new Date(project.startDate) : new Date(project.job.createdAt);
+    const startDate = project.startDate ? (normalizeDateToCE(project.startDate) || new Date(project.startDate)) : new Date(project.job.createdAt);
     const endDate = project.endDate
-      ? new Date(project.endDate)
+      ? (normalizeDateToCE(project.endDate) || new Date(project.endDate))
       : (project.job.deliveryDate
-        ? new Date(project.job.deliveryDate)
+        ? (normalizeDateToCE(project.job.deliveryDate) || new Date(project.job.deliveryDate))
         : new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000));
     const totalDurationMs = endDate.getTime() - startDate.getTime();
 
@@ -503,7 +553,7 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
             installmentTotal: installmentList.length,
             installmentAmount: depositItem.amount,
             creditType: "DEPOSIT",
-            dueDate: existingDepositTask.dueDate || depositItem.dueDate || (project.contractSigningDate ? new Date(project.contractSigningDate) : startDate),
+            dueDate: existingDepositTask.dueDate || depositItem.dueDate || (project.contractSigningDate ? normalizeDateToCE(project.contractSigningDate) : startDate),
             note: existingDepositTask.note || depositItem.title || "เงินมัดจำเมื่อเซ็นสัญญา",
           },
         });
@@ -512,7 +562,7 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
           data: {
             jobId,
             status: "รอดำเนินการ",
-            dueDate: depositItem.dueDate || (project.contractSigningDate ? new Date(project.contractSigningDate) : startDate),
+            dueDate: depositItem.dueDate || (project.contractSigningDate ? normalizeDateToCE(project.contractSigningDate) : startDate),
             installmentNo: 0,
             installmentTotal: installmentList.length,
             installmentAmount: depositItem.amount,
@@ -654,9 +704,15 @@ export async function removeProjectMember(projectId: string, userId: string) {
 
 export async function createTask(projectId: string, data: any) {
   try {
+    const taskData = { ...data };
+    if (taskData.planStart !== undefined) taskData.planStart = taskData.planStart ? normalizeDateToCE(taskData.planStart) : null;
+    if (taskData.planEnd !== undefined) taskData.planEnd = taskData.planEnd ? normalizeDateToCE(taskData.planEnd) : null;
+    if (taskData.actualStart !== undefined) taskData.actualStart = taskData.actualStart ? normalizeDateToCE(taskData.actualStart) : null;
+    if (taskData.actualEnd !== undefined) taskData.actualEnd = taskData.actualEnd ? normalizeDateToCE(taskData.actualEnd) : null;
+
     const task = await prisma.projectTask.create({
       data: {
-        ...data,
+        ...taskData,
         projectId,
       },
     });
@@ -672,9 +728,15 @@ export async function createTask(projectId: string, data: any) {
 
 export async function updateTask(taskId: string, data: any) {
   try {
+    const taskData = { ...data };
+    if (taskData.planStart !== undefined) taskData.planStart = taskData.planStart ? normalizeDateToCE(taskData.planStart) : null;
+    if (taskData.planEnd !== undefined) taskData.planEnd = taskData.planEnd ? normalizeDateToCE(taskData.planEnd) : null;
+    if (taskData.actualStart !== undefined) taskData.actualStart = taskData.actualStart ? normalizeDateToCE(taskData.actualStart) : null;
+    if (taskData.actualEnd !== undefined) taskData.actualEnd = taskData.actualEnd ? normalizeDateToCE(taskData.actualEnd) : null;
+
     const task = await prisma.projectTask.update({
       where: { id: taskId },
-      data,
+      data: taskData,
     });
     revalidatePath(`/projects/${task.projectId}`);
     revalidatePath("/projects");
