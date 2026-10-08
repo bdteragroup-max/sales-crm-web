@@ -438,7 +438,20 @@ export async function exportPaymentVoucherToExcel(
       cellC.border = thinBorder;
 
       const cellD = sheet.getCell(`D${currentRow}`);
-      cellD.value = it.description || '-';
+      let descText = it.description || '-';
+      const taxNotes: string[] = [];
+      if (it.vatType === 'INCLUDED_7%') {
+        taxNotes.push(`รวม VAT 7% (฿${Number(it.vatAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`);
+      } else if (it.vatType === 'EXCLUDE' || it.vatType === '7%') {
+        taxNotes.push(`+VAT 7% (฿${Number(it.vatAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`);
+      }
+      if (it.whtType && it.whtType !== 'NONE') {
+        taxNotes.push(`หัก WHT ${it.whtPercent || (it.whtType === '1%' ? 1 : it.whtType === '2%' ? 2 : it.whtType === '3%' ? 3 : 5)}% (-฿${Number(it.whtAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`);
+      }
+      if (taxNotes.length > 0) {
+        descText += `\n[${taxNotes.join(' | ')}]`;
+      }
+      cellD.value = descText;
       cellD.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
       cellD.font = { name: 'TH Sarabun New', size: 10.5 };
       cellD.border = thinBorder;
@@ -509,7 +522,7 @@ export async function exportPaymentVoucherToExcel(
       sheet.getRow(currentRow).height = 22;
       sheet.mergeCells(`A${currentRow}:D${currentRow}`);
       const cVatLabelA = sheet.getCell(`A${currentRow}`);
-      const vatLabelModeA = request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE' ? '7% รวมในยอด' : (request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type);
+      const vatLabelModeA = request.vat_type === 'ITEMIZED' ? 'รวมตามรายการ' : (request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE' ? '7% รวมในยอด' : (request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type));
       cVatLabelA.value = `ภาษีมูลค่าเพิ่ม (VAT ${vatLabelModeA}):`;
       cVatLabelA.font = { name: 'TH Sarabun New', size: 11, bold: true };
       cVatLabelA.alignment = { horizontal: 'right', vertical: 'middle' };
@@ -528,7 +541,8 @@ export async function exportPaymentVoucherToExcel(
       sheet.getRow(currentRow).height = 22;
       sheet.mergeCells(`A${currentRow}:D${currentRow}`);
       const cWhtLabelA = sheet.getCell(`A${currentRow}`);
-      cWhtLabelA.value = `หัก ภาษี ณ ที่จ่าย (Withholding Tax ${Number(request.wht_percent || 0).toFixed(2)}%):`;
+      const whtLabelModeA = request.wht_type === 'ITEMIZED' ? 'ตามรายการ' : `${Number(request.wht_percent || 0).toFixed(2)}%`;
+      cWhtLabelA.value = `หัก ภาษี ณ ที่จ่าย (Withholding Tax ${whtLabelModeA}):`;
       cWhtLabelA.font = { name: 'TH Sarabun New', size: 11, bold: true };
       cWhtLabelA.alignment = { horizontal: 'right', vertical: 'middle' };
 

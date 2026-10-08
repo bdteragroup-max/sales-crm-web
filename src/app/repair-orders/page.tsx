@@ -44,6 +44,7 @@ export default async function RepairOrdersPage() {
         companies={companies}
         users={users}
         userRole={userRole}
+        currentUserName={session.fullName || ""}
       />
     </main>
   );

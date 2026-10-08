@@ -19,10 +19,12 @@ import {
   addPaymentRequestAttachments,
   checkAttachmentDuplicates,
   updatePaymentBankDetails,
+  updateRequestedPaymentDate,
   resubmitPaymentRequest,
   updatePaymentRequestRequisition,
   deletePaymentRequestAttachment,
 } from '@/app/actions/paymentRequests';
+import { calculateItemTaxes } from '../utils/itemTaxes';
 import { ExtractedLineItem } from '@/lib/attachmentUtils';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
 import { THAI_BANKS, PROMPTPAY_TYPES } from '../new/NewPaymentRequestClient';
@@ -128,6 +130,24 @@ function formatDisplayDate(val: any): string {
   }
   const s = String(val);
   return s.includes('T') ? s.split('T')[0] : s;
+}
+
+function formatThaiDateDisplay(dateStr?: string | Date | null): string {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return String(dateStr);
+    const day = d.getDate();
+    const months = [
+      'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+      'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
+    ];
+    const month = months[d.getMonth()];
+    const year = d.getFullYear() + 543;
+    return `${day} ${month} ${year}`;
+  } catch {
+    return String(dateStr);
+  }
 }
 
 const WORKFLOW_STEPS = [
@@ -364,6 +384,45 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       }
     } finally {
       setIsSavingBank(false);
+    }
+  };
+
+  // Edit Due Date State (Specifically for Accounting Role / Admin)
+  const [isEditingDueDate, setIsEditingDueDate] = useState(false);
+  const [newDueDate, setNewDueDate] = useState(formatDisplayDate(request.requested_payment_date));
+  const [dueDateReason, setDueDateReason] = useState('');
+  const [isSavingDueDate, setIsSavingDueDate] = useState(false);
+
+  const handleSaveDueDate = async () => {
+    setIsSavingDueDate(true);
+    try {
+      const res = await updateRequestedPaymentDate(request.id, {
+        requested_payment_date: newDueDate || null,
+        updated_by: userName,
+        reason: dueDateReason.trim() || undefined,
+      });
+      if (res.success) {
+        request.requested_payment_date = newDueDate || null;
+        setEditReqPaymentDate(newDueDate || '');
+        setIsEditingDueDate(false);
+        setDueDateReason('');
+        Swal.fire({
+          title: 'อัปเดตวันที่ต้องการให้จ่ายสำเร็จ',
+          text: newDueDate
+            ? `วันที่ต้องการให้จ่ายใหม่: ${formatDisplayDate(newDueDate)} (${formatThaiDateDisplay(newDueDate)})`
+            : 'ล้างวันที่ต้องการให้จ่ายเรียบร้อย',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        router.refresh();
+      } else {
+        Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error, icon: 'error' });
+      }
+    } catch (err: any) {
+      Swal.fire({ title: 'เกิดข้อผิดพลาด', text: err.message || 'ไม่สามารถบันทึกได้', icon: 'error' });
+    } finally {
+      setIsSavingDueDate(false);
     }
   };
 
@@ -1547,11 +1606,40 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   )}
                 </span>
               </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">วันที่ต้องการให้จ่าย (Requested Due Date):</span>
-                <span className="font-medium text-slate-800">
-                  {formatDisplayDate(request.requested_payment_date) || '-'}
-                </span>
+              <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-200">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-slate-600 font-semibold text-[11px] flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-orange-600" />
+                    วันที่ต้องการให้จ่าย (Requested Due Date):
+                  </span>
+                  {(isStaff || isManager) && !['CANCELLED'].includes(request.status) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewDueDate(formatDisplayDate(request.requested_payment_date));
+                        setDueDateReason('');
+                        setIsEditingDueDate(true);
+                      }}
+                      className="text-[10px] text-orange-600 hover:text-orange-800 font-bold hover:underline inline-flex items-center gap-1 bg-white hover:bg-orange-50 px-2 py-0.5 rounded-lg border border-orange-200 shadow-2xs transition cursor-pointer"
+                      title="สิทธิ์เฉพาะฝ่ายบัญชี: แก้ไขวันที่ต้องการให้จ่าย"
+                    >
+                      <Edit2 className="w-3 h-3 text-orange-600" />
+                      <span>แก้ไขวันที่จ่าย</span>
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-slate-900 text-xs">
+                    {formatDisplayDate(request.requested_payment_date) || (
+                      <span className="text-slate-400 font-sans font-normal italic">ไม่ได้ระบุวันที่</span>
+                    )}
+                  </span>
+                  {request.requested_payment_date && (
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      ({formatThaiDateDisplay(request.requested_payment_date)})
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -1598,76 +1686,120 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       <th className="py-2.5 px-3 w-48 text-left border-r border-slate-200">ผู้จำหน่าย (Supplier)</th>
                       <th className="py-2.5 px-3 text-left border-r border-slate-200">รายการ (Description)</th>
                       <th className="py-2.5 px-3 w-32 text-right border-r border-slate-200">จำนวนเงิน (฿)</th>
+                      <th className="py-2.5 px-2.5 w-28 text-center border-r border-slate-200">ภาษี (VAT)</th>
+                      <th className="py-2.5 px-2.5 w-28 text-center border-r border-slate-200">หัก ณ ที่จ่าย (WHT)</th>
+                      <th className="py-2.5 px-3 w-32 text-right border-r border-slate-200">ยอดสุทธิ (฿)</th>
                       <th className="py-2.5 px-3 w-28">หมายเหตุ</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {request.items.map((item: any, idx: number) => (
-                      <tr key={idx} className="hover:bg-slate-50/50 transition">
-                        <td className="py-2.5 px-2 text-center font-mono text-slate-500 border-r border-slate-100 align-top">
-                          {idx + 1}
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-mono text-slate-700 text-[11px] border-r border-slate-100 align-top">
-                          {item.billDate || '-'}
-                        </td>
-                        <td className="py-2.5 px-3 border-r border-slate-100 align-top">
-                          <span className="font-semibold text-slate-900 block leading-tight">{item.supplierName || '-'}</span>
-                          {item.invoiceNumber && (
-                            <span className="text-[10px] text-slate-500 font-mono block mt-0.5">บิล: {item.invoiceNumber}</span>
-                          )}
-                        </td>
-                        <td className="py-2.5 px-3 border-r border-slate-100 align-top">
-                          <span className="font-medium text-slate-800 leading-relaxed block">{item.description}</span>
-                          <div className="flex flex-wrap items-center gap-1 mt-1">
-                            {item.paidByCreditCard && (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                จ่ายด้วยบัตรเครดิต
-                              </span>
+                    {request.items.map((item: any, idx: number) => {
+                      const rowTaxes = calculateItemTaxes(item);
+                      const isVatIncluded = item.vatType === 'INCLUDED_7%' || item.vatType === 'INCLUDE';
+                      const isVatExcluded = item.vatType === '7%' || item.vatType === 'EXCLUDE';
+                      return (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition">
+                          <td className="py-2.5 px-2 text-center font-mono text-slate-500 border-r border-slate-100 align-top">
+                            {idx + 1}
+                          </td>
+                          <td className="py-2.5 px-3 text-center font-mono text-slate-700 text-[11px] border-r border-slate-100 align-top">
+                            {item.billDate || '-'}
+                          </td>
+                          <td className="py-2.5 px-3 border-r border-slate-100 align-top">
+                            <span className="font-semibold text-slate-900 block leading-tight">{item.supplierName || '-'}</span>
+                            {item.invoiceNumber && (
+                              <span className="text-[10px] text-slate-500 font-mono block mt-0.5">บิล: {item.invoiceNumber}</span>
                             )}
-                            {item.isIrregularBill && (
-                              item.substituteCertificateUrl ? (
-                                <a
-                                  href={item.substituteCertificateUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition"
-                                  title="คลิกเพื่อเปิดดูใบรับรองแทนใบเสร็จรับเงิน (PDF)"
-                                >
-                                  <FileText className="w-3 h-3 text-amber-700" />
-                                  <span>ใบรับรองแทนใบเสร็จ (PDF)</span>
-                                  <ExternalLink className="w-2.5 h-2.5" />
-                                </a>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                                  <FileText className="w-3 h-3 text-amber-700" />
-                                  <span>บิลไม่สมบูรณ์ (ใบรับรองแทนฯ)</span>
+                          </td>
+                          <td className="py-2.5 px-3 border-r border-slate-100 align-top">
+                            <span className="font-medium text-slate-800 leading-relaxed block">{item.description}</span>
+                            <div className="flex flex-wrap items-center gap-1 mt-1">
+                              {item.paidByCreditCard && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                  จ่ายด้วยบัตรเครดิต
                                 </span>
-                              )
+                              )}
+                              {item.isIrregularBill && (
+                                item.substituteCertificateUrl ? (
+                                  <a
+                                    href={item.substituteCertificateUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition"
+                                    title="คลิกเพื่อเปิดดูใบรับรองแทนใบเสร็จรับเงิน (PDF)"
+                                  >
+                                    <FileText className="w-3 h-3 text-amber-700" />
+                                    <span>ใบรับรองแทนใบเสร็จ (PDF)</span>
+                                    <ExternalLink className="w-2.5 h-2.5" />
+                                  </a>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                    <FileText className="w-3 h-3 text-amber-700" />
+                                    <span>บิลไม่สมบูรณ์ (ใบรับรองแทนฯ)</span>
+                                  </span>
+                                )
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 border-r border-slate-100 align-top">
+                            {Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-center border-r border-slate-100 align-top">
+                            {isVatIncluded ? (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title={`ก่อน VAT: ${rowTaxes.preVatAmount.toLocaleString()} ฿`}>
+                                รวม 7% (+{rowTaxes.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}฿)
+                              </span>
+                            ) : isVatExcluded ? (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                บวก 7% (+{rowTaxes.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}฿)
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-slate-400">ไม่มี VAT</span>
                             )}
-                          </div>
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 border-r border-slate-100 align-top">
-                          {Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-2.5 px-3 text-slate-500 text-[11px] align-top">
-                          {item.remarks || '-'}
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-center border-r border-slate-100 align-top">
+                            {rowTaxes.whtAmount > 0 ? (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                                หัก {rowTaxes.whtPercent}% (-{rowTaxes.whtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}฿)
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-slate-400">ไม่หัก</span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 border-r border-slate-100 align-top">
+                            {Number(item.netAmount || rowTaxes.netAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-500 text-[11px] align-top">
+                            {item.remarks || '-'}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                   <tfoot className="bg-slate-50/90 font-semibold border-t border-slate-200">
                     <tr>
-                      <td colSpan={4} className="py-2.5 px-3 text-right text-slate-700 border-r border-slate-200">
-                        จำนวนเงินรวม (Total Amount):
+                      <td colSpan={4} className="py-2.5 px-3 text-right text-slate-700 border-r border-slate-200 font-bold">
+                        จำนวนเงินรวม (Total Subtotal):
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono text-slate-900 font-bold border-r border-slate-200">
                         {request.items.reduce((sum: number, it: any) => sum + (Number(it.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
-                      <td></td>
+                      <td className="py-2.5 px-2.5 text-center font-mono font-bold text-blue-700 border-r border-slate-200 text-xs">
+                        {Number(request.vat_amount || 0) > 0 ? `+${Number(request.vat_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
+                      </td>
+                      <td className="py-2.5 px-2.5 text-center font-mono font-bold text-amber-800 border-r border-slate-200 text-xs">
+                        {Number(request.wht_amount || 0) > 0 ? `-${Number(request.wht_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono text-slate-900 font-extrabold border-r border-slate-200">
+                        {request.items.reduce((sum: number, it: any) => sum + (Number(it.netAmount || calculateItemTaxes(it).netAmount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                      <td className="text-[10px] text-center text-slate-400">
+                        {request.items.length} รายการ
+                      </td>
                     </tr>
                     {Number(request.credit_card_deduction || 0) > 0 && (
                       <tr className="text-red-700 bg-red-50/30">
-                        <td colSpan={4} className="py-2 px-3 text-right font-medium border-r border-slate-200">
+                        <td colSpan={7} className="py-2 px-3 text-right font-medium border-r border-slate-200">
                           หักยอดที่จ่ายด้วยบัตรเครดิต:
                         </td>
                         <td className="py-2 px-3 text-right font-mono font-bold border-r border-slate-200">
@@ -1677,8 +1809,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       </tr>
                     )}
                     <tr className="bg-slate-100 font-bold">
-                      <td colSpan={4} className="py-2.5 px-3 text-right text-slate-900 border-r border-slate-200">
-                        จำนวนเงินที่เบิก (ยอดรวมสุทธิ):
+                      <td colSpan={7} className="py-2.5 px-3 text-right text-slate-900 border-r border-slate-200">
+                        จำนวนเงินที่เบิก (ยอดเบิกจ่ายสุทธิ Net Payable):
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono text-red-700 font-extrabold text-sm border-r border-slate-200">
                         {Number(request.net_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -2095,6 +2227,33 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 <p className="text-[11px] text-gray-500">
                   ตรวจสอบความถูกต้อง: PO/PR, ใบเสร็จ, ความถูกต้องของ VAT/WHT และประวัติการจ่ายซ้ำ
                 </p>
+
+                <div className="bg-orange-50/70 p-2.5 rounded-xl border border-orange-200 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 text-orange-950">
+                    <Calendar className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+                    <span>วันที่ต้องการให้จ่าย:</span>
+                    <b className="font-mono text-slate-900">
+                      {formatDisplayDate(request.requested_payment_date) || 'ยังไม่กำหนด'}
+                    </b>
+                    {request.requested_payment_date && (
+                      <span className="text-[10px] text-orange-700">
+                        ({formatThaiDateDisplay(request.requested_payment_date)})
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewDueDate(formatDisplayDate(request.requested_payment_date));
+                      setDueDateReason('');
+                      setIsEditingDueDate(true);
+                    }}
+                    className="text-[10px] text-orange-700 hover:text-orange-900 font-bold hover:underline inline-flex items-center gap-1 bg-white hover:bg-orange-100/70 px-2 py-0.5 rounded-md border border-orange-300 shadow-2xs transition cursor-pointer"
+                  >
+                    <Edit2 className="w-3 h-3 text-orange-600" />
+                    <span>แก้ไขวันที่</span>
+                  </button>
+                </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-gray-700 mb-1">
@@ -2678,6 +2837,180 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition flex items-center gap-1.5 shadow-sm"
               >
                 {isSavingBank ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Due Date Modal (Specifically for Accounting Role / Admin) */}
+      {isEditingDueDate && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                  <Calendar className="w-5 h-5" />
+                </span>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm">
+                    แก้ไขวันที่ต้องการให้จ่าย (Due Date)
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    เลขที่: <b className="font-mono text-slate-700">{request.pay_number}</b> (สิทธิ์ฝ่ายบัญชี)
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditingDueDate(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3.5">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    ระบุวันที่ต้องการให้จ่าย (Due Date)
+                  </label>
+                  {request.requested_payment_date && (
+                    <span className="text-[11px] text-slate-400">
+                      เดิม: {formatDisplayDate(request.requested_payment_date)}
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="date"
+                  value={newDueDate}
+                  onChange={(e) => setNewDueDate(e.target.value)}
+                  className="w-full text-sm font-mono border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+                {newDueDate ? (
+                  <div className="text-[11px] text-orange-700 mt-1 font-semibold flex items-center gap-1">
+                    <Check className="w-3 h-3 text-emerald-600" />
+                    <span>ตรงกับ: {formatThaiDateDisplay(newDueDate)}</span>
+                  </div>
+                ) : (
+                  <div className="text-[11px] text-slate-400 mt-1 italic">
+                    (หากเว้นว่างไว้ จะเป็นการล้างวันที่ต้องการให้จ่าย)
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Preset Buttons for Convenience */}
+              <div>
+                <span className="block text-[11px] text-slate-500 mb-1.5 font-medium">
+                  ปุ่มลัดเลือกวันที่ (Quick Select):
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const today = new Date();
+                      const y = today.getFullYear();
+                      const m = String(today.getMonth() + 1).padStart(2, '0');
+                      const d = String(today.getDate()).padStart(2, '0');
+                      setNewDueDate(`${y}-${m}-${d}`);
+                    }}
+                    className="px-2 py-1 text-[11px] bg-slate-100 hover:bg-orange-50 hover:text-orange-700 text-slate-700 rounded-lg border border-slate-200 transition font-medium text-center cursor-pointer"
+                  >
+                    วันนี้
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const date = new Date();
+                      date.setDate(date.getDate() + 7);
+                      const y = date.getFullYear();
+                      const m = String(date.getMonth() + 1).padStart(2, '0');
+                      const d = String(date.getDate()).padStart(2, '0');
+                      setNewDueDate(`${y}-${m}-${d}`);
+                    }}
+                    className="px-2 py-1 text-[11px] bg-slate-100 hover:bg-orange-50 hover:text-orange-700 text-slate-700 rounded-lg border border-slate-200 transition font-medium text-center cursor-pointer"
+                  >
+                    +7 วัน
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const date = new Date();
+                      date.setDate(date.getDate() + 15);
+                      const y = date.getFullYear();
+                      const m = String(date.getMonth() + 1).padStart(2, '0');
+                      const d = String(date.getDate()).padStart(2, '0');
+                      setNewDueDate(`${y}-${m}-${d}`);
+                    }}
+                    className="px-2 py-1 text-[11px] bg-slate-100 hover:bg-orange-50 hover:text-orange-700 text-slate-700 rounded-lg border border-slate-200 transition font-medium text-center cursor-pointer"
+                  >
+                    +15 วัน
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const date = new Date();
+                      const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                      const y = end.getFullYear();
+                      const m = String(end.getMonth() + 1).padStart(2, '0');
+                      const d = String(end.getDate()).padStart(2, '0');
+                      setNewDueDate(`${y}-${m}-${d}`);
+                    }}
+                    className="px-2 py-1 text-[11px] bg-slate-100 hover:bg-orange-50 hover:text-orange-700 text-slate-700 rounded-lg border border-slate-200 transition font-medium text-center cursor-pointer"
+                  >
+                    สิ้นเดือนนี้
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  เหตุผล / หมายเหตุการแก้ไข (Optional)
+                </label>
+                <textarea
+                  rows={2}
+                  value={dueDateReason}
+                  onChange={(e) => setDueDateReason(e.target.value)}
+                  placeholder="เช่น ปรับรอบการจ่ายตามรอบการเงินบริษัท / เลื่อนตามรอบใบเสร็จซัพพลายเออร์"
+                  className="w-full text-xs border border-slate-300 rounded-xl p-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+
+              <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-[11px] text-amber-800 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <span>
+                  การแก้ไขวันที่ต้องการให้จ่ายจะถูกบันทึกลงในประวัติการดำเนินการ (Audit Log) พร้อมชื่อผู้แก้ไขและวันเวลา
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsEditingDueDate(false)}
+                disabled={isSavingDueDate}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveDueDate}
+                disabled={isSavingDueDate}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow-sm transition disabled:opacity-50 cursor-pointer"
+              >
+                {isSavingDueDate ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>กำลังบันทึก...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>บันทึกวันที่จ่าย</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

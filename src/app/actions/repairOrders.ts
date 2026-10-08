@@ -291,6 +291,124 @@ export async function updateRepairOrderTechnician(jobId: string, technicianName:
   }
 }
 
+export interface InverterQcData {
+  receiveDate?: string;
+  inverterBrand?: string;
+  inverterModel?: string;
+  serialNumber?: string;
+  workType?: string;
+  customerName?: string;
+
+  // 1. POWER INPUT VOLTAGE หลังซ่อมเสร็จ
+  inputVoltage?: {
+    dcSinglePhase?: { checked: boolean; value: string };
+    acSinglePhase?: { checked: boolean; value: string };
+    acThreePhase?: { checked: boolean; rs: string; rt: string; st: string };
+  };
+
+  // 2. POWER OUTPUT VOLTAGE หลังซ่อมเสร็จ
+  outputVoltage?: {
+    singlePhaseLN?: { checked: boolean; value: string };
+    threePhase220?: { checked: boolean; uv: string; uw: string; vw: string };
+    threePhase380?: { checked: boolean; uv: string; uw: string; vw: string };
+  };
+
+  // 3. CONTROL CIRCUIT และเทสระยะเวลาในการจ่ายไฟ
+  controlCircuit?: {
+    control24Vdc?: {
+      checked: boolean;
+      x1: string;
+      x2: string;
+      x3: string;
+      x4: string;
+      x5: string;
+    };
+    testAcDuration?: { checked: boolean; minutes: string };
+    testDcDuration?: { checked: boolean; minutes: string };
+    testAcDcDuration?: { checked: boolean; minutes: string };
+  };
+
+  // 4. การ Set ค่า Parameter
+  parameterSetting?: {
+    keepCustomerOriginal: boolean;
+    setNewForCustomer: boolean;
+  };
+
+  // 5. ตรวจเชคอะไหล่และความเรียบร้อยภายในก่อนส่งคืนลูกค้า
+  visualChecks?: {
+    screwsAndPartsComplete: boolean;
+    fanExhaustDirectionCorrect: boolean;
+    controlWiringNormal: boolean;
+    diodeConversionCorrect: boolean;
+  };
+
+  // 6. บันทึกค่า Parameter ที่ตั้งไว้ / รายละเอียดเพิ่มเติมหรือปัญหาที่พบ
+  parameterRows?: string[];
+
+  // 7. หมายเหตุ:
+  notes?: string;
+
+  // 8. Signatures:
+  inspectorName?: string;
+  inspectorSignatureUrl?: string;
+  inspectorDate?: string;
+  reviewerName?: string;
+  reviewerSignatureUrl?: string;
+  reviewerDate?: string;
+
+  formRev?: string;
+  updatedAt?: string;
+}
+
+export async function saveInverterQc(
+  repairOrderId: string,
+  qcData: InverterQcData,
+  advanceStepToQc: boolean = false
+) {
+  try {
+    const user = await getUser();
+    const repairOrder = await prisma.repairOrder.findUnique({
+      where: { id: repairOrderId },
+      include: { job: true },
+    });
+    if (!repairOrder) throw new Error("Repair order not found");
+
+    const updated = await prisma.repairOrder.update({
+      where: { id: repairOrderId },
+      data: {
+        inverterQc: qcData as any,
+      },
+    });
+
+    if (advanceStepToQc && repairOrder.jobId) {
+      await prisma.job.update({
+        where: { id: repairOrder.jobId },
+        data: { currentStep: "service_qc" },
+      });
+      await prisma.jobStepLog.create({
+        data: {
+          jobId: repairOrder.jobId,
+          step: "service_qc",
+          completedBy: user?.fullName || "Technician",
+          completedByUserId: user?.id,
+          department: "Service",
+          note: "บันทึกผลการตรวจสอบ QC ของ INVERTER (QC-EN-01/Rev.00)",
+        },
+      });
+    }
+
+    revalidatePath("/repair-orders");
+    revalidatePath("/service/dashboard");
+    return { success: true, data: updated };
+  } catch (error: unknown) {
+    console.error("Error saving Inverter QC:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการบันทึกข้อมูล QC",
+    };
+  }
+}
+
 export async function getPendingRepairOrderCount() {
   try {
     return await prisma.repairOrder.count({
@@ -307,3 +425,5 @@ export async function getPendingRepairOrderCount() {
     return 0;
   }
 }
+
+

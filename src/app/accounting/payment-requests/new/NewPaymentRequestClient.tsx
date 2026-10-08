@@ -11,6 +11,7 @@ import {
   PaymentRequestRecord,
   RequisitionItem,
 } from '@/app/actions/paymentRequests';
+import { calculateItemTaxes } from '../utils/itemTaxes';
 import {
   normalizeAttachmentName,
   isDistinctiveAttachmentName,
@@ -310,6 +311,12 @@ export default function NewPaymentRequestClient({
       invoiceNumber: '',
       description: '',
       amount: 0,
+      vatType: 'NO_VAT',
+      vatAmount: 0,
+      whtType: 'NONE',
+      whtPercent: 0,
+      whtAmount: 0,
+      netAmount: 0,
       remarks: '',
       paidByCreditCard: false,
     },
@@ -319,6 +326,8 @@ export default function NewPaymentRequestClient({
   const handleAddItem = (copyFromLast = false) => {
     setRequisitionItems((prev) => {
       const last = prev[prev.length - 1];
+      const initialVatType = copyFromLast && last?.vatType ? last.vatType : 'NO_VAT';
+      const initialWhtType = copyFromLast && last?.whtType ? last.whtType : 'NONE';
       const newItem: RequisitionItem = {
         id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
         billDate: copyFromLast && last?.billDate ? last.billDate : (documentDate || new Date().toISOString().split('T')[0]),
@@ -327,6 +336,12 @@ export default function NewPaymentRequestClient({
         invoiceNumber: copyFromLast && last?.invoiceNumber ? last.invoiceNumber : '',
         description: '',
         amount: 0,
+        vatType: initialVatType,
+        vatAmount: 0,
+        whtType: initialWhtType,
+        whtPercent: 0,
+        whtAmount: 0,
+        netAmount: 0,
         remarks: '',
         paidByCreditCard: false,
       };
@@ -349,6 +364,12 @@ export default function NewPaymentRequestClient({
           invoiceNumber: '',
           description: '',
           amount: 0,
+          vatType: 'NO_VAT',
+          vatAmount: 0,
+          whtType: 'NONE',
+          whtPercent: 0,
+          whtAmount: 0,
+          netAmount: 0,
           remarks: '',
           paidByCreditCard: false,
           isIrregularBill: false,
@@ -385,9 +406,49 @@ export default function NewPaymentRequestClient({
   const handleUpdateItem = (index: number, field: keyof RequisitionItem, value: any) => {
     setRequisitionItems((prev) => {
       const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
+      const itemToUpdate = { ...next[index], [field]: value };
+      if (field === 'amount' || field === 'vatType' || field === 'whtType' || field === 'whtPercent') {
+        const taxes = calculateItemTaxes(itemToUpdate);
+        itemToUpdate.vatAmount = taxes.vatAmount;
+        itemToUpdate.whtPercent = taxes.whtPercent;
+        itemToUpdate.whtAmount = taxes.whtAmount;
+        itemToUpdate.netAmount = taxes.netAmount;
+      }
+      next[index] = itemToUpdate;
       return next;
     });
+  };
+
+  const handleApplyVatToAll = (newVatType: string) => {
+    setRequisitionItems((prev) =>
+      prev.map((it) => {
+        const itemToUpdate = { ...it, vatType: newVatType };
+        const taxes = calculateItemTaxes(itemToUpdate);
+        return {
+          ...itemToUpdate,
+          vatAmount: taxes.vatAmount,
+          whtPercent: taxes.whtPercent,
+          whtAmount: taxes.whtAmount,
+          netAmount: taxes.netAmount,
+        };
+      })
+    );
+  };
+
+  const handleApplyWhtToAll = (newWhtType: string) => {
+    setRequisitionItems((prev) =>
+      prev.map((it) => {
+        const itemToUpdate = { ...it, whtType: newWhtType };
+        const taxes = calculateItemTaxes(itemToUpdate);
+        return {
+          ...itemToUpdate,
+          vatAmount: taxes.vatAmount,
+          whtPercent: taxes.whtPercent,
+          whtAmount: taxes.whtAmount,
+          netAmount: taxes.netAmount,
+        };
+      })
+    );
   };
 
   const handleToggleCreditCard = (index: number) => {
@@ -1098,11 +1159,45 @@ export default function NewPaymentRequestClient({
       .reduce((acc, it) => acc + (Number(it.amount) || 0), 0);
   }, [creditCardDeduction, requisitionItems]);
 
+  // Multi-Items Tax & Net Summary (Itemized VAT & WHT per row)
+  const multiItemsSummary = useMemo(() => {
+    let totalGrossAmount = 0;
+    let totalVatAmount = 0;
+    let totalWhtAmount = 0;
+    let totalNetAmount = 0;
+    let totalPreVatAmount = 0;
+    let totalRawAmount = 0;
+
+    requisitionItems.forEach((it) => {
+      const taxes = calculateItemTaxes(it);
+      totalRawAmount += Number(it.amount) || 0;
+      totalGrossAmount += taxes.totalGross;
+      totalVatAmount += taxes.vatAmount;
+      totalWhtAmount += taxes.whtAmount;
+      totalNetAmount += taxes.netAmount;
+      totalPreVatAmount += taxes.preVatAmount;
+    });
+
+    const netPayable = Math.max(0, Math.round((totalNetAmount - effectiveCcDeduction) * 100) / 100);
+
+    return {
+      totalRawAmount: Math.round(totalRawAmount * 100) / 100,
+      totalGrossAmount: Math.round(totalGrossAmount * 100) / 100,
+      totalVatAmount: Math.round(totalVatAmount * 100) / 100,
+      totalWhtAmount: Math.round(totalWhtAmount * 100) / 100,
+      totalNetAmount: Math.round(totalNetAmount * 100) / 100,
+      totalPreVatAmount: Math.round(totalPreVatAmount * 100) / 100,
+      netPayable,
+    };
+  }, [requisitionItems, effectiveCcDeduction]);
+
   // Effective Subtotal: From table if in MULTI_ITEMS mode, otherwise from input field
-  const effectiveSubtotal = entryMode === 'MULTI_ITEMS' ? itemsTotal : (parseFloat(subtotalAmount) || 0);
+  const effectiveSubtotal = entryMode === 'MULTI_ITEMS' ? multiItemsSummary.totalPreVatAmount : (parseFloat(subtotalAmount) || 0);
 
   let calculatedVat = 0;
-  if (vatType === '7%') {
+  if (entryMode === 'MULTI_ITEMS') {
+    calculatedVat = multiItemsSummary.totalVatAmount;
+  } else if (vatType === '7%') {
     calculatedVat = Math.round(effectiveSubtotal * 0.07 * 100) / 100;
   } else if (vatType === 'INCLUDED_7%') {
     calculatedVat = Math.round(((effectiveSubtotal * 7) / 107) * 100) / 100;
@@ -1111,11 +1206,15 @@ export default function NewPaymentRequestClient({
   }
 
   // Pre-VAT base amount: If VAT is included in bill, pre-VAT is (effectiveSubtotal - calculatedVat), otherwise it's effectiveSubtotal
-  const preVatBase = vatType === 'INCLUDED_7%' ? Math.max(0, effectiveSubtotal - calculatedVat) : effectiveSubtotal;
+  const preVatBase = entryMode === 'MULTI_ITEMS'
+    ? multiItemsSummary.totalPreVatAmount
+    : (vatType === 'INCLUDED_7%' ? Math.max(0, effectiveSubtotal - calculatedVat) : effectiveSubtotal);
 
   let calculatedWht = 0;
   let whtPercentValue = 0;
-  if (whtType === '1%') {
+  if (entryMode === 'MULTI_ITEMS') {
+    calculatedWht = multiItemsSummary.totalWhtAmount;
+  } else if (whtType === '1%') {
     whtPercentValue = 1;
     calculatedWht = Math.round(preVatBase * 0.01 * 100) / 100;
   } else if (whtType === '2%') {
@@ -1133,7 +1232,7 @@ export default function NewPaymentRequestClient({
   }
 
   const netPayable = entryMode === 'MULTI_ITEMS'
-    ? Math.max(0, Math.round(((vatType === 'INCLUDED_7%' ? effectiveSubtotal : effectiveSubtotal + calculatedVat) - calculatedWht - effectiveCcDeduction) * 100) / 100)
+    ? multiItemsSummary.netPayable
     : Math.max(0, Math.round(((vatType === 'INCLUDED_7%' ? effectiveSubtotal : effectiveSubtotal + calculatedVat) - calculatedWht) * 100) / 100);
   const bahtText = thaiBahtText(netPayable);
 
@@ -1825,11 +1924,11 @@ export default function NewPaymentRequestClient({
         document_date: documentDate,
         has_no_doc_number: entryMode === 'MULTI_ITEMS' ? true : hasNoDocNumber,
         invoice_number: entryMode === 'MULTI_ITEMS' ? undefined : (hasNoDocNumber ? undefined : invoiceNumber.trim()),
-        subtotal_amount: vatType === 'INCLUDED_7%' ? preVatBase : effectiveSubtotal,
-        vat_type: vatType,
+        subtotal_amount: entryMode === 'MULTI_ITEMS' ? multiItemsSummary.totalPreVatAmount : (vatType === 'INCLUDED_7%' ? preVatBase : effectiveSubtotal),
+        vat_type: entryMode === 'MULTI_ITEMS' ? (multiItemsSummary.totalVatAmount > 0 ? 'ITEMIZED' : 'NONE') : vatType,
         vat_amount: calculatedVat,
-        wht_type: whtType,
-        wht_percent: whtPercentValue,
+        wht_type: entryMode === 'MULTI_ITEMS' ? (multiItemsSummary.totalWhtAmount > 0 ? 'ITEMIZED' : 'NONE') : whtType,
+        wht_percent: entryMode === 'MULTI_ITEMS' ? 0 : whtPercentValue,
         wht_amount: calculatedWht,
         net_amount: netPayable,
         purpose: purpose.trim(),
@@ -1838,7 +1937,20 @@ export default function NewPaymentRequestClient({
         requested_payment_date: requestedPaymentDate || undefined,
         submission_channel: submissionChannel,
         attachments,
-        items: entryMode === 'MULTI_ITEMS' ? validItems : undefined,
+        items: entryMode === 'MULTI_ITEMS'
+          ? validItems.map((it) => {
+              const taxes = calculateItemTaxes(it);
+              return {
+                ...it,
+                vatType: it.vatType || 'NO_VAT',
+                vatAmount: taxes.vatAmount,
+                whtType: it.whtType || 'NONE',
+                whtPercent: taxes.whtPercent,
+                whtAmount: taxes.whtAmount,
+                netAmount: taxes.netAmount,
+              };
+            })
+          : undefined,
         credit_card_deduction: entryMode === 'MULTI_ITEMS' ? effectiveCcDeduction : undefined,
         requester_signature_url: formRequesterSig || undefined,
         supervisor_signature_url: formSupervisorSig || undefined,
@@ -3235,6 +3347,75 @@ export default function NewPaymentRequestClient({
               </div>
             </div>
 
+            {/* Quick Tax Batch Actions Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-gray-50/90 rounded-xl border border-gray-200">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="font-bold text-gray-700 flex items-center gap-1">
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-red-600" />
+                  กำหนดภาษีพร้อมกันทุกแถว:
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-[11px] text-gray-500 font-medium">VAT:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyVatToAll('NO_VAT')}
+                    className="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 transition shadow-2xs cursor-pointer"
+                  >
+                    ไม่มี VAT
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyVatToAll('INCLUDED_7%')}
+                    className="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 transition shadow-2xs cursor-pointer"
+                  >
+                    รวม VAT 7%
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyVatToAll('7%')}
+                    className="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-800 transition shadow-2xs cursor-pointer"
+                  >
+                    บวก VAT 7%
+                  </button>
+                </div>
+                <span className="text-gray-300">|</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-[11px] text-gray-500 font-medium">WHT:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyWhtToAll('NONE')}
+                    className="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 transition shadow-2xs cursor-pointer"
+                  >
+                    ไม่หัก (0%)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyWhtToAll('1%')}
+                    className="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-900 transition shadow-2xs cursor-pointer"
+                  >
+                    1% ขนส่ง
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyWhtToAll('3%')}
+                    className="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-900 transition shadow-2xs cursor-pointer"
+                  >
+                    3% บริการ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyWhtToAll('5%')}
+                    className="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-900 transition shadow-2xs cursor-pointer"
+                  >
+                    5% ค่าเช่า
+                  </button>
+                </div>
+              </div>
+              <div className="text-[11px] text-gray-500 font-medium">
+                * แต่ละรายการในตารางสามารถปรับเปลี่ยนแยกต่างหากได้
+              </div>
+            </div>
+
             {/* Interactive Items Table */}
             <div className="border border-gray-200 rounded-xl overflow-x-auto text-xs shadow-2xs">
               <table className="w-full text-left border-collapse">
@@ -3242,20 +3423,24 @@ export default function NewPaymentRequestClient({
                   <tr className="bg-gray-100/80 text-gray-700 font-bold border-b border-gray-200 text-center">
                     <th className="py-2.5 px-2 w-10 border-r border-gray-200">#</th>
                     <th className="py-2.5 px-2.5 w-32 border-r border-gray-200">วันที่บิล *</th>
-                    <th className="py-2.5 px-3 w-48 text-left border-r border-gray-200">ผู้จำหน่าย / ร้านค้า *</th>
-                    <th className="py-2.5 px-2.5 w-32 text-left border-r border-gray-200">เลขที่บิล (ถ้ามี)</th>
-                    <th className="py-2.5 px-3 min-w-[200px] text-left border-r border-gray-200">รายการสินค้า / บริการ *</th>
+                    <th className="py-2.5 px-3 w-44 text-left border-r border-gray-200">ผู้จำหน่าย / ร้านค้า *</th>
+                    <th className="py-2.5 px-2.5 w-28 text-left border-r border-gray-200">เลขที่บิล (ถ้ามี)</th>
+                    <th className="py-2.5 px-3 min-w-[180px] text-left border-r border-gray-200">รายการสินค้า / บริการ *</th>
                     <th className="py-2.5 px-3 w-32 text-right border-r border-gray-200">จำนวนเงิน (฿) *</th>
-                    <th className="py-2.5 px-2 w-28 text-center border-r border-gray-200">จ่ายบัตรเครดิต</th>
-                    <th className="py-2.5 px-2 w-36 text-center border-r border-gray-200" title="ติ๊กเลือกเมื่อไม่มีใบเสร็จรับเงิน เพื่อสร้างใบรับรองแทนใบเสร็จรับเงิน (บก.111 / Certification of Payment) แนบอัตโนมัติ">
+                    <th className="py-2.5 px-2 w-32 text-center border-r border-gray-200">ภาษี VAT</th>
+                    <th className="py-2.5 px-2 w-32 text-center border-r border-gray-200">หัก ณ ที่จ่าย WHT</th>
+                    <th className="py-2.5 px-3 w-32 text-right border-r border-gray-200">ยอดสุทธิ (฿)</th>
+                    <th className="py-2.5 px-2 w-24 text-center border-r border-gray-200">จ่ายบัตรเครดิต</th>
+                    <th className="py-2.5 px-2 w-32 text-center border-r border-gray-200" title="ติ๊กเลือกเมื่อไม่มีใบเสร็จรับเงิน เพื่อสร้างใบรับรองแทนใบเสร็จรับเงิน (บก.111 / Certification of Payment) แนบอัตโนมัติ">
                       บิลไม่สมบูรณ์ / ใบรับรองแทน
                     </th>
-                    <th className="py-2.5 px-2.5 min-w-[120px] text-left border-r border-gray-200">หมายเหตุ</th>
-                    <th className="py-2.5 px-2 w-12 text-center">ลบ</th>
+                    <th className="py-2.5 px-2.5 min-w-[110px] text-left border-r border-gray-200">หมายเหตุ</th>
+                    <th className="py-2.5 px-2 w-10 text-center">ลบ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {requisitionItems.map((item, idx) => {
+                    const itemTaxes = calculateItemTaxes(item);
                     // Check if this row is flagged as a duplicate
                     const isDupRow = dupResult?.exactMatches?.some(
                       (m: any) => m.matchType === 'ITEM_DUPLICATE' && m.matchedItemIndex === idx + 1
@@ -3400,6 +3585,66 @@ export default function NewPaymentRequestClient({
                           />
                         </td>
 
+                        {/* VAT Selector */}
+                        <td className="py-1.5 px-2 border-r border-gray-100 align-top">
+                          <select
+                            value={item.vatType || 'NO_VAT'}
+                            onChange={(e) => handleUpdateItem(idx, 'vatType', e.target.value)}
+                            className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-1.5 focus:ring-1 focus:ring-red-500 bg-white text-gray-800 font-medium"
+                          >
+                            <option value="NO_VAT">ไม่มี VAT (0%)</option>
+                            <option value="INCLUDED_7%">รวม VAT 7%</option>
+                            <option value="7%">บวก VAT 7%</option>
+                          </select>
+                          {itemTaxes.vatAmount > 0 ? (
+                            <div className={`mt-1 text-[10px] font-mono font-semibold px-1 py-0.5 rounded text-center truncate ${
+                              item.vatType === 'INCLUDED_7%'
+                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                : 'bg-blue-50 text-blue-800 border border-blue-200'
+                            }`}>
+                              {item.vatType === 'INCLUDED_7%' ? 'ในยอด ' : '+'}
+                              {itemTaxes.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                            </div>
+                          ) : (
+                            <div className="mt-1 text-[10px] text-gray-400 text-center font-mono">0.00 ฿</div>
+                          )}
+                        </td>
+
+                        {/* WHT Selector */}
+                        <td className="py-1.5 px-2 border-r border-gray-100 align-top">
+                          <select
+                            value={item.whtType || 'NONE'}
+                            onChange={(e) => handleUpdateItem(idx, 'whtType', e.target.value)}
+                            className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-1.5 focus:ring-1 focus:ring-red-500 bg-white text-gray-800 font-medium"
+                          >
+                            <option value="NONE">ไม่หัก (0%)</option>
+                            <option value="1%">1% ขนส่ง</option>
+                            <option value="2%">2% โฆษณา</option>
+                            <option value="3%">3% บริการ</option>
+                            <option value="5%">5% ค่าเช่า</option>
+                          </select>
+                          {itemTaxes.whtAmount > 0 ? (
+                            <div className="mt-1 text-[10px] font-mono font-semibold px-1 py-0.5 rounded text-center bg-amber-50 text-amber-900 border border-amber-200 truncate">
+                              -{itemTaxes.whtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                            </div>
+                          ) : (
+                            <div className="mt-1 text-[10px] text-gray-400 text-center font-mono">0.00 ฿</div>
+                          )}
+                        </td>
+
+                        {/* Row Net Amount */}
+                        <td className="py-1.5 px-2 border-r border-gray-100 text-right align-top pt-2.5 font-mono font-bold text-gray-900">
+                          <div>
+                            {itemTaxes.netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            <span className="text-[10px] text-gray-500 ml-1">฿</span>
+                          </div>
+                          {item.paidByCreditCard && (
+                            <span className="text-[9px] text-amber-700 bg-amber-50 px-1 rounded block mt-0.5">
+                              จ่ายบัตรเครดิต
+                            </span>
+                          )}
+                        </td>
+
                         {/* Credit Card Checkbox */}
                         <td className="py-1.5 px-2 border-r border-gray-100 text-center align-top pt-2.5">
                           <label className="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-gray-700">
@@ -3522,71 +3767,45 @@ export default function NewPaymentRequestClient({
                 </tbody>
 
                 {/* Table Footer Totals */}
+                {/* Table Footer Totals */}
                 <tfoot className="bg-gray-50/90 border-t-2 border-gray-200 text-xs">
                   {/* Total Amount Row */}
-                  <tr className="border-b border-gray-200 font-semibold">
-                    <td colSpan={5} className="py-2.5 px-3 text-right text-gray-700 border-r border-gray-200">
-                      จำนวนเงินรวม (Total Amount):
+                  <tr className="border-b border-gray-200 font-semibold bg-gray-50/90">
+                    <td colSpan={5} className="py-2.5 px-3 text-right text-gray-700 border-r border-gray-200 font-bold">
+                      ยอดรวมทั้งสิ้น (Total Subtotal):
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono font-bold text-gray-900 border-r border-gray-200">
-                      {itemsTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                      {multiItemsSummary.totalRawAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                     </td>
-                    <td colSpan={4} className="px-3 text-gray-400 text-[11px]">
-                      รวมทั้งสิ้น {requisitionItems.length} รายการ
+                    <td className="py-2.5 px-2 text-center font-mono font-bold text-blue-700 border-r border-gray-200 text-xs">
+                      {multiItemsSummary.totalVatAmount > 0
+                        ? `+${multiItemsSummary.totalVatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿`
+                        : '-'}
+                    </td>
+                    <td className="py-2.5 px-2 text-center font-mono font-bold text-amber-800 border-r border-gray-200 text-xs">
+                      {multiItemsSummary.totalWhtAmount > 0
+                        ? `-${multiItemsSummary.totalWhtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿`
+                        : '-'}
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-mono font-extrabold text-gray-900 border-r border-gray-200">
+                      {multiItemsSummary.totalNetAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                    </td>
+                    <td colSpan={4} className="px-3 text-gray-500 text-[11px]">
+                      รวม {requisitionItems.length} รายการ (ก่อนหักบัตรเครดิต)
                     </td>
                   </tr>
 
-                  {/* Optional VAT Row if calculatedVat > 0 */}
-                  {calculatedVat > 0 && (
-                    <tr className="border-b border-gray-200 text-blue-700 bg-blue-50/40">
-                      <td colSpan={5} className="py-2 px-3 text-right font-medium border-r border-gray-200">
-                        {vatType === 'INCLUDED_7%' ? 'ภาษีมูลค่าเพิ่ม (VAT 7% รวมในยอด):' : `บวกภาษีมูลค่าเพิ่ม (VAT ${vatType === '7%' ? '7%' : ''}):`}
-                      </td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-blue-700 border-r border-gray-200">
-                        {vatType === 'INCLUDED_7%' ? '' : '+'}
-                        {calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
-                      </td>
-                      <td colSpan={4} className="px-3 text-blue-600 text-[10px]">
-                        {vatType === 'INCLUDED_7%'
-                          ? `ถอด VAT 7% ในตัวจากยอดบิล (มูลค่าก่อน VAT: ${preVatBase.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿)`
-                          : `บวก VAT 7% เพิ่มจากยอดบิล`}
-                      </td>
-                    </tr>
-                  )}
-
-                  {/* Optional WHT Row if calculatedWht > 0 */}
-                  {calculatedWht > 0 && (
-                    <tr className="border-b border-gray-200 text-amber-800 bg-amber-50/40">
-                      <td colSpan={5} className="py-2 px-3 text-right font-medium border-r border-gray-200">
-                        หักภาษี ณ ที่จ่าย (WHT {whtPercentValue ? `${whtPercentValue}%` : ''}):
-                      </td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-amber-800 border-r border-gray-200">
-                        -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
-                      </td>
-                      <td colSpan={4} className="px-3 text-amber-700 text-[10px]">
-                        หักภาษี ณ ที่จ่ายตามที่ระบุในส่วนภาษีด้านล่าง
-                      </td>
-                    </tr>
-                  )}
-
                   {/* Credit Card Deduction Row */}
                   <tr className="border-b border-gray-200 text-red-700 bg-red-50/40">
-                    <td colSpan={5} className="py-2 px-3 text-right font-medium border-r border-gray-200">
+                    <td colSpan={8} className="py-2 px-3 text-right font-medium border-r border-gray-200">
                       หักยอดที่จ่ายด้วยบัตรเครดิต:
                     </td>
-                    <td className="py-1.5 px-2 text-right border-r border-gray-200">
-                      <div className="flex items-center justify-end gap-1">
-                        <span className="font-bold">-</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={creditCardDeduction}
-                          onChange={(e) => setCreditCardDeduction(e.target.value)}
-                          placeholder="0.00"
-                          className="w-24 text-right font-mono font-bold text-red-700 rounded border border-red-300 py-1 px-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-red-500"
-                        />
-                        <span className="text-[11px] font-bold">฿</span>
-                      </div>
+                    <td className="py-1.5 px-2 text-right border-r border-gray-200 font-mono font-bold text-red-700">
+                      {effectiveCcDeduction > 0 ? (
+                        <span>-{effectiveCcDeduction.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿</span>
+                      ) : (
+                        <span className="text-gray-400 font-normal">0.00 ฿</span>
+                      )}
                     </td>
                     <td colSpan={4} className="px-3 text-red-700 text-[10px]">
                       หักยอดที่บริษัท/พนักงานรูดบัตรเครดิตออกจากการเบิกเงินสด
@@ -3595,11 +3814,11 @@ export default function NewPaymentRequestClient({
 
                   {/* Net Requisition Amount Row */}
                   <tr className="bg-gray-100/90 font-bold">
-                    <td colSpan={5} className="py-3 px-3 text-right text-gray-900 text-sm border-r border-gray-200">
-                      จำนวนเงินที่เบิก (ยอดเบิกจ่ายสุทธิ):
+                    <td colSpan={8} className="py-3 px-3 text-right text-gray-900 text-sm border-r border-gray-200">
+                      จำนวนเงินที่เบิก (ยอดเบิกจ่ายสุทธิ Net Payable):
                     </td>
                     <td className="py-3 px-3 text-right font-mono text-red-600 font-extrabold text-base border-r border-gray-200">
-                      {netPayable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                      {multiItemsSummary.netPayable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                     </td>
                     <td colSpan={4} className="px-3 text-gray-700 text-[11px] font-normal truncate">
                       ({bahtText})
@@ -3722,141 +3941,59 @@ export default function NewPaymentRequestClient({
                 </div>
               </div>
 
-              {/* 3 Symmetrical Control Columns: VAT, WHT, and Credit Card Deduction */}
+              {/* 3 Symmetrical Cards: VAT Summary, WHT Summary, and Credit Card Deduction */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* 1. VAT Selector */}
-                <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 flex flex-col justify-between">
+                {/* 1. VAT Breakdown Card */}
+                <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-200 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between min-h-[22px] mb-1">
-                      <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
-                        <span>ภาษีมูลค่าเพิ่ม (VAT)</span>
+                      <label className="text-[11px] font-bold text-blue-900 flex items-center gap-1">
+                        <span>ภาษีมูลค่าเพิ่มรวม (Total VAT)</span>
                       </label>
-                      <span className="text-[10px] text-gray-500 font-medium inline-flex items-center gap-0.5">
-                        {vatType === 'NONE' ? (
-                          <span className="text-gray-400">ไม่มี VAT</span>
-                        ) : vatType === 'INCLUDED_7%' ? (
-                          <span className="text-emerald-600 font-semibold flex items-center gap-0.5">
-                            <Check size={11} /> รวม VAT 7%
-                          </span>
-                        ) : vatType === '7%' ? (
-                          <span className="text-blue-600 font-semibold flex items-center gap-0.5">
-                            + บวก VAT 7%
-                          </span>
-                        ) : (
-                          <span className="text-purple-600 font-semibold">ระบุเอง</span>
-                        )}
+                      <span className="text-[10px] font-bold text-blue-700 bg-blue-100/70 px-1.5 py-0.5 rounded">
+                        {multiItemsSummary.totalVatAmount > 0 ? `+${multiItemsSummary.totalVatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿` : 'ไม่มี VAT'}
                       </span>
                     </div>
-
-                    <select
-                      value={vatType}
-                      onChange={(e: any) => setVatType(e.target.value)}
-                      className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 font-medium"
-                    >
-                      <option value="NONE">ไม่มี VAT / ยกเว้นภาษี (0%)</option>
-                      <option value="INCLUDED_7%">ราคารวม VAT แล้ว 7% (ถอดในตัว)</option>
-                      <option value="7%">บวก VAT 7% เพิ่มจากยอด (Pre-VAT)</option>
-                      <option value="CUSTOM">ระบุจำนวนเงิน VAT เอง</option>
-                    </select>
-
-                    {vatType === 'CUSTOM' && (
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="ระบุจำนวนเงิน VAT (฿)"
-                        value={customVatAmount}
-                        onChange={(e) => setCustomVatAmount(e.target.value)}
-                        className="mt-2 w-full h-9 text-xs rounded-xl border border-gray-300 py-1.5 px-3 font-mono bg-white"
-                      />
-                    )}
+                    <div className="mt-2 space-y-1 text-[11px] text-slate-600 font-mono">
+                      <div className="flex justify-between">
+                        <span>มูลค่าสินค้าก่อน VAT:</span>
+                        <span className="font-semibold text-slate-800">{multiItemsSummary.totalPreVatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                      </div>
+                      <div className="flex justify-between text-blue-800 font-bold">
+                        <span>รวม VAT 7% ในตาราง:</span>
+                        <span>+{multiItemsSummary.totalVatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="mt-2 pt-2 border-t border-gray-200/60 min-h-[32px] flex items-center justify-between text-[11px] font-mono">
-                    {vatType === 'INCLUDED_7%' ? (
-                      <div className="w-full text-[10px] space-y-0.5 text-emerald-700 bg-emerald-50/70 p-1.5 rounded-lg border border-emerald-100">
-                        <div className="flex justify-between">
-                          <span>VAT 7% ในตัว:</span>
-                          <span className="font-bold">+{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                        </div>
-                        <div className="flex justify-between text-gray-500">
-                          <span>มูลค่าก่อน VAT:</span>
-                          <span>{preVatBase.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                        </div>
-                      </div>
-                    ) : vatType === '7%' ? (
-                      <div className="w-full flex justify-between text-blue-700 bg-blue-50/70 p-1.5 rounded-lg border border-blue-100">
-                        <span>บวกเพิ่ม VAT 7%:</span>
-                        <span className="font-bold">+{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                      </div>
-                    ) : vatType === 'CUSTOM' ? (
-                      <div className="w-full flex justify-between text-purple-700 bg-purple-50/70 p-1.5 rounded-lg border border-purple-100">
-                        <span>ภาษี VAT ระบุเอง:</span>
-                        <span className="font-bold">+{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400 text-[10px]">0.00 ฿ (ยอดเบิกเท่ากับยอดตามบิล)</span>
-                    )}
+                  <div className="mt-2 pt-2 border-t border-blue-200/60 text-[10px] text-blue-700">
+                    * คำนวณอัตโนมัติตามอัตรา VAT ในแต่ละแถว
                   </div>
                 </div>
 
-                {/* 2. WHT Selector */}
-                <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 flex flex-col justify-between">
+                {/* 2. WHT Breakdown Card */}
+                <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between min-h-[22px] mb-1">
-                      <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
-                        <span>หัก ณ ที่จ่าย (WHT)</span>
+                      <label className="text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                        <span>ภาษีหัก ณ ที่จ่ายรวม (Total WHT)</span>
                       </label>
-                      {calculatedWht > 0 && (
-                        <span className="text-[10px] text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                          -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
-                        </span>
-                      )}
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded">
+                        {multiItemsSummary.totalWhtAmount > 0 ? `-${multiItemsSummary.totalWhtAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿` : 'ไม่หัก'}
+                      </span>
                     </div>
-
-                    <select
-                      value={whtType}
-                      onChange={(e: any) => setWhtType(e.target.value)}
-                      className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 font-medium"
-                    >
-                      <option value="NONE">ไม่หัก (0%)</option>
-                      <option value="1%">1% (ค่าขนส่ง/ระวาง)</option>
-                      <option value="2%">2% (ค่าโฆษณา)</option>
-                      <option value="3%">3% (บริการ/จ้างทำของ/รับเหมา)</option>
-                      <option value="5%">5% (ค่าเช่า)</option>
-                      <option value="CUSTOM">กำหนดเอง (% หรือ ฿)</option>
-                    </select>
-
-                    {whtType === 'CUSTOM' && (
-                      <div className="grid grid-cols-2 gap-1.5 mt-2">
-                        <input
-                          type="number"
-                          step="0.1"
-                          placeholder="%"
-                          value={customWhtPercent}
-                          onChange={(e) => setCustomWhtPercent(e.target.value)}
-                          className="w-full h-9 text-xs rounded-xl border border-gray-300 py-1.5 px-2 font-mono bg-white"
-                        />
-                        <input
-                          type="number"
-                          step="0.01"
-                          placeholder="บาท"
-                          value={customWhtAmount}
-                          onChange={(e) => setCustomWhtAmount(e.target.value)}
-                          className="w-full h-9 text-xs rounded-xl border border-gray-300 py-1.5 px-2 font-mono bg-white"
-                        />
+                    <div className="mt-2 space-y-1 text-[11px] text-slate-600 font-mono">
+                      <div className="flex justify-between">
+                        <span>ยอดก่อนหักภาษี (Gross):</span>
+                        <span className="font-semibold text-slate-800">{multiItemsSummary.totalGrossAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
                       </div>
-                    )}
+                      <div className="flex justify-between text-amber-800 font-bold">
+                        <span>รวมหัก ณ ที่จ่ายในตาราง:</span>
+                        <span>-{multiItemsSummary.totalWhtAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="mt-2 pt-2 border-t border-gray-200/60 min-h-[32px] flex items-center justify-between text-[11px] font-mono">
-                    {calculatedWht > 0 ? (
-                      <div className="w-full flex justify-between text-amber-800 bg-amber-50/70 p-1.5 rounded-lg border border-amber-100">
-                        <span>หักภาษี ณ ที่จ่าย:</span>
-                        <span className="font-bold">-{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400 text-[10px]">ไม่มีการหัก ณ ที่จ่าย (0%)</span>
-                    )}
+                  <div className="mt-2 pt-2 border-t border-amber-200/60 text-[10px] text-amber-700">
+                    * คำนวณอัตโนมัติตามอัตรา WHT ในแต่ละแถว
                   </div>
                 </div>
 
@@ -3874,16 +4011,16 @@ export default function NewPaymentRequestClient({
                       )}
                     </div>
 
-                    <div className="relative">
+                    <div className="relative mt-1">
                       <input
                         type="number"
                         step="0.01"
                         value={creditCardDeduction}
                         onChange={(e) => setCreditCardDeduction(e.target.value)}
                         placeholder="0.00"
-                        className="w-full h-10 text-xs font-mono font-bold text-gray-900 rounded-xl border border-gray-300 py-2 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                        className="w-full h-9 text-xs font-mono font-bold text-gray-900 rounded-xl border border-gray-300 py-1.5 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
                       />
-                      <span className="absolute right-3 top-2.5 text-xs text-gray-400 font-bold">฿</span>
+                      <span className="absolute right-3 top-2 text-xs text-gray-400 font-bold">฿</span>
                     </div>
                   </div>
 

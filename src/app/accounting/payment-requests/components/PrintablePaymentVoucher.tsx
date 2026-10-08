@@ -1407,6 +1407,30 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                         </td>
                         <td className="py-2 px-3 border-r border-black align-top leading-tight">
                           <p className="whitespace-pre-wrap">{it.description}</p>
+                          {((it.vatType && it.vatType !== 'NO_VAT') || (it.whtType && it.whtType !== 'NONE')) && (
+                            <div className="text-[10px] text-gray-700 font-mono mt-0.5 flex flex-wrap gap-1">
+                              {it.vatType === 'INCLUDED_7%' && (
+                                <span className="bg-gray-100 px-1 py-0.2 rounded border border-gray-300">
+                                  รวม VAT 7% ({Number(it.vatAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                                </span>
+                              )}
+                              {(it.vatType === 'EXCLUDE' || it.vatType === '7%') && (
+                                <span className="bg-gray-100 px-1 py-0.2 rounded border border-gray-300">
+                                  +VAT 7% ({Number(it.vatAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                                </span>
+                              )}
+                              {it.whtType && it.whtType !== 'NONE' && (
+                                <span className="bg-orange-50 text-orange-900 px-1 py-0.2 rounded border border-orange-200">
+                                  หัก WHT {it.whtPercent || (it.whtType === '1%' ? 1 : it.whtType === '2%' ? 2 : it.whtType === '3%' ? 3 : 5)}% (-{Number(it.whtAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                                </span>
+                              )}
+                              {Number(it.netAmount || 0) > 0 && Number(it.netAmount) !== Number(it.amount) && (
+                                <span className="text-gray-600 font-sans font-medium">
+                                  สุทธิ: {Number(it.netAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </td>
                         <td className="py-2 px-3 text-right font-mono border-r border-black align-top font-medium">
                           {Number(it.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1445,7 +1469,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                     {vat > 0 && (
                       <tr className="border-b border-black">
                         <td colSpan={4} className="py-2 px-3 text-right font-bold border-r border-black">
-                          ภาษีมูลค่าเพิ่ม (VAT {request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE' ? '7% รวมในยอด' : request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type}):
+                          ภาษีมูลค่าเพิ่ม (VAT {request.vat_type === 'ITEMIZED' ? 'รวมตามรายการ' : (request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE' ? '7% รวมในยอด' : request.vat_type === '7%' || !request.vat_type ? '7%' : request.vat_type)}):
                         </td>
                         <td className="py-2 px-3 text-right font-mono border-r border-black font-medium">
                           +{vat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1458,7 +1482,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                     {wht > 0 && (
                       <tr className="border-b border-black">
                         <td colSpan={4} className="py-2 px-3 text-right font-bold border-r border-black">
-                          หัก ภาษี ณ ที่จ่าย (Withholding Tax {Number(request.wht_percent || 0).toFixed(2)}%):
+                          หัก ภาษี ณ ที่จ่าย (Withholding Tax {request.wht_type === 'ITEMIZED' ? 'ตามรายการ' : `${Number(request.wht_percent || 0).toFixed(2)}%`}):
                         </td>
                         <td className="py-2 px-3 text-right font-mono border-r border-black text-red-700 font-medium">
                           -{wht.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

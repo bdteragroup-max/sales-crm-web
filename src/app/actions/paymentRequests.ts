@@ -8,6 +8,7 @@ import fs from 'fs';
 import dotenv from 'dotenv';
 import { getUser } from '@/app/lib/dal';
 import {
+  isSuperUser,
   isAccountingManager,
   isAccountingStaff,
   canManageAllPaymentRequests,
@@ -129,6 +130,12 @@ export type RequisitionItem = {
   invoiceNumber?: string;
   description: string;
   amount: number;
+  vatType?: string;
+  vatAmount?: number;
+  whtType?: string;
+  whtPercent?: number;
+  whtAmount?: number;
+  netAmount?: number;
   remarks?: string;
   paidByCreditCard?: boolean;
   isIrregularBill?: boolean;
@@ -142,6 +149,7 @@ export type RequisitionItem = {
   approverPosition?: string;
   approverSignatureUrl?: string;
 };
+
 
 export type PaymentRequestLog = {
   id: number;
@@ -1995,7 +2003,7 @@ export async function updatePaymentRequestRequisition(
     return { success: false, error: 'ไม่มีสิทธิ์แก้ไขคำขอนี้' };
   }
 
-  if (!['RETURN_DOCUMENT', 'DRAFT', 'PENDING_SUPERVISOR', 'SUBMITTED'].includes(current.status)) {
+  if (!isStaff && !['RETURN_DOCUMENT', 'DRAFT', 'PENDING_SUPERVISOR', 'SUBMITTED'].includes(current.status)) {
     return { success: false, error: `ไม่สามารถแก้ไขข้อมูลได้ในสถานะ "${current.status}"` };
   }
 
@@ -2349,3 +2357,72 @@ export async function updatePaymentBankDetails(
     return { success: false, error: err.message };
   }
 }
+
+// Update Requested Due Date (specifically for Accounting Role / Admin)
+export async function updateRequestedPaymentDate(
+  id: string,
+  data: {
+    requested_payment_date?: string | null;
+    updated_by: string;
+    reason?: string;
+  }
+) {
+  const currentUser = await getUser();
+  if (!currentUser) return { success: false, error: 'Unauthorized' };
+
+  const isAccounting =
+    isAccountingStaff(currentUser.role) ||
+    isAccountingManager(currentUser.role) ||
+    isSuperUser(currentUser.role);
+
+  if (!isAccounting) {
+    return {
+      success: false,
+      error: 'สิทธิ์เฉพาะฝ่ายบัญชีหรือผู้ดูแลระบบเท่านั้นที่สามารถแก้ไขวันที่ต้องการให้จ่ายได้',
+    };
+  }
+
+  const pool = getPool();
+  try {
+    const reqRes = await pool.query(
+      'SELECT id, pay_number, status, requested_payment_date FROM payment_requests WHERE id = $1',
+      [id]
+    );
+    if (reqRes.rows.length === 0) return { success: false, error: 'ไม่พบรายการคำขอเบิกจ่าย' };
+
+    const current = reqRes.rows[0];
+    if (current.status === 'CANCELLED') {
+      return { success: false, error: 'ไม่สามารถแก้ไขวันที่ต้องการให้จ่ายของคำขอที่ยกเลิกแล้วได้' };
+    }
+
+    const prevDateStr = toDateString(current.requested_payment_date) || 'ไม่ได้ระบุ';
+    const newDateVal = data.requested_payment_date ? toDateString(data.requested_payment_date) : null;
+    const newDateStr = newDateVal || 'ไม่ได้ระบุ';
+
+    await pool.query(
+      `UPDATE payment_requests
+       SET requested_payment_date = $1,
+           updated_at = NOW()
+       WHERE id = $2`,
+      [newDateVal, id]
+    );
+
+    // Audit log
+    const reasonText = data.reason?.trim() ? ` (เหตุผล: ${data.reason.trim()})` : '';
+    const note = `แก้ไขวันที่ต้องการให้จ่าย (Due Date): จาก ${prevDateStr} เป็น ${newDateStr}${reasonText}`;
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, notes)
+       VALUES ($1, 'UPDATE_DUE_DATE', $2, $3)`,
+      [id, data.updated_by || currentUser.fullName || 'ฝ่ายบัญชี', note]
+    );
+
+    revalidatePath(`/accounting/payment-requests/${id}`);
+    revalidatePath('/accounting/payment-requests');
+
+    return { success: true, requested_payment_date: newDateVal };
+  } catch (err: any) {
+    console.error('Failed to update requested payment date:', err);
+    return { success: false, error: err.message || 'เกิดข้อผิดพลาดในการบันทึกวันที่' };
+  }
+}
+

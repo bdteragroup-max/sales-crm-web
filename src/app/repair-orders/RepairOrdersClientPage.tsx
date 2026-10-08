@@ -38,10 +38,12 @@ import {
   MapPin,
   FileSpreadsheet,
   HelpCircle,
-  Tag
+  Tag,
+  ClipboardCheck
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
+import InverterQcModal from "./components/InverterQcModal";
 import {
   deleteRepairOrder,
   updateRepairOrderStatus,
@@ -53,6 +55,7 @@ interface RepairOrdersClientPageProps {
   companies?: any[];
   users?: any[];
   userRole?: string;
+  currentUserName?: string;
 }
 
 // ── Status Step Definitions & Aesthetic Styling ──
@@ -164,6 +167,7 @@ export default function RepairOrdersClientPage({
   companies = [],
   users = [],
   userRole,
+  currentUserName,
 }: RepairOrdersClientPageProps) {
   const router = useRouter();
 
@@ -193,6 +197,9 @@ export default function RepairOrdersClientPage({
 
   // Quick Detail Drawer State
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+
+  // Inverter QC Modal State
+  const [qcModalOrder, setQcModalOrder] = useState<any | null>(null);
 
   // ── Synchronize initial props if updated ──
   useEffect(() => {
@@ -541,6 +548,27 @@ export default function RepairOrdersClientPage({
       const res = await updateRepairOrderStatus(jobId, newStep);
       if (!res.success) throw new Error(res.error);
       router.refresh();
+
+      // If moving to QC or completed repair, prompt technician to fill Inverter QC check form
+      if (newStep === "service_qc") {
+        const targetOrder = repairOrders.find((ro) => ro.jobId === jobId);
+        if (targetOrder && !targetOrder.inverterQc) {
+          Swal.fire({
+            title: "ตรวจสอบ QC ของ INVERTER",
+            text: "สถานะเปลี่ยนเป็น 'ตรวจสอบ QC หลังซ่อม' แล้ว ต้องการเปิดบันทึกผลการตรวจสอบ QC ของ INVERTER (QC-EN-01) ตอนนี้เลยหรือไม่?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#ff2301",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "กรอกฟอร์ม QC ทันที",
+            cancelButtonText: "ไว้ภายหลัง",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              setQcModalOrder(targetOrder);
+            }
+          });
+        }
+      }
     } catch (error: any) {
       alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ: " + error.message);
       setRepairOrders(initialRepairOrders);
@@ -1240,24 +1268,37 @@ export default function RepairOrdersClientPage({
                         {/* 7. Status Column */}
                         <td className="py-3.5 px-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                           {record.jobId ? (
-                            <div className="relative inline-block">
-                              <select
-                                value={record.job?.currentStep || ""}
-                                onChange={(e) => handleStatusChange(record.jobId, e.target.value)}
-                                disabled={isUpdatingStatus === record.jobId}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border tracking-wide appearance-none cursor-pointer outline-none pr-6 transition-all ${
-                                  statusObj.badge
-                                } ${isUpdatingStatus === record.jobId ? "opacity-50" : ""}`}
-                              >
-                                {Object.entries(STATUS_CONFIG).map(([stepKey, val]) => (
-                                  <option key={stepKey} value={stepKey}>
-                                    {val.label}
-                                  </option>
-                                ))}
-                              </select>
-                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-current opacity-70">
-                                <ChevronDown size={12} />
+                            <div className="flex items-center gap-1.5">
+                              <div className="relative inline-block">
+                                <select
+                                  value={record.job?.currentStep || ""}
+                                  onChange={(e) => handleStatusChange(record.jobId, e.target.value)}
+                                  disabled={isUpdatingStatus === record.jobId}
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border tracking-wide appearance-none cursor-pointer outline-none pr-6 transition-all ${
+                                    statusObj.badge
+                                  } ${isUpdatingStatus === record.jobId ? "opacity-50" : ""}`}
+                                >
+                                  {Object.entries(STATUS_CONFIG).map(([stepKey, val]) => (
+                                    <option key={stepKey} value={stepKey}>
+                                      {val.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-current opacity-70">
+                                  <ChevronDown size={12} />
+                                </div>
                               </div>
+
+                              {record.inverterQc ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setQcModalOrder(record)}
+                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 transition-colors cursor-pointer"
+                                  title="ตรวจ QC INVERTER แล้ว (คลิกเพื่อดู / พิมพ์ PDF)"
+                                >
+                                  <Check size={10} className="stroke-[3]" /> QC
+                                </button>
+                              ) : null}
                             </div>
                           ) : (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200">
@@ -1272,10 +1313,28 @@ export default function RepairOrdersClientPage({
                             {/* Quick View Button */}
                             <button
                               onClick={() => setSelectedOrder(record)}
-                              className="p-1.5 text-gray-400 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                               title="ดูรายละเอียดฉบับย่อ"
                             >
                               <Eye size={15} />
+                            </button>
+
+                            {/* Inverter QC Button */}
+                            <button
+                              type="button"
+                              onClick={() => setQcModalOrder(record)}
+                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                record.inverterQc
+                                  ? "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 bg-emerald-50/70"
+                                  : "text-gray-400 hover:text-amber-600 hover:bg-amber-50"
+                              }`}
+                              title={
+                                record.inverterQc
+                                  ? "ใบตรวจ QC INVERTER (บันทึกแล้ว) - คลิกดู/พิมพ์ PDF (QC-EN-01)"
+                                  : "ตรวจสอบ QC ของ INVERTER หลังซ่อมเสร็จ (QC-EN-01)"
+                              }
+                            >
+                              <ClipboardCheck size={15} />
                             </button>
 
                             {/* Print PDF Button */}
@@ -1300,7 +1359,7 @@ export default function RepairOrdersClientPage({
                             {/* Delete Button */}
                             <button
                               onClick={() => handleDelete(record.id, record.job?.jobNumber)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                               title="ลบใบรับซ่อม"
                             >
                               <Trash2 size={15} />
@@ -1535,13 +1594,32 @@ export default function RepairOrdersClientPage({
                     className="pt-3 border-t border-gray-100 flex items-center justify-between gap-1"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button
-                      onClick={() => setSelectedOrder(record)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold transition-all"
-                    >
-                      <Eye size={13} />
-                      <span>ดูรายละเอียด</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setSelectedOrder(record)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold transition-all cursor-pointer"
+                      >
+                        <Eye size={13} />
+                        <span>ดูรายละเอียด</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setQcModalOrder(record)}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          record.inverterQc
+                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+                            : "bg-gray-50 text-gray-700 hover:bg-amber-50 hover:text-amber-700 border border-gray-200"
+                        }`}
+                        title="ตรวจสอบ QC ของ INVERTER (QC-EN-01)"
+                      >
+                        <ClipboardCheck
+                          size={13}
+                          className={record.inverterQc ? "text-emerald-600" : "text-gray-500"}
+                        />
+                        <span>{record.inverterQc ? "QC แล้ว" : "ตรวจ QC"}</span>
+                      </button>
+                    </div>
 
                     <div className="flex items-center gap-1">
                       <Link
@@ -1862,18 +1940,73 @@ export default function RepairOrdersClientPage({
                   </div>
                 </div>
               </div>
+
+              {/* Inverter QC Card */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <ClipboardCheck size={14} className="text-[#ff2301]" /> ตรวจสอบ QC ของ INVERTER (QC-EN-01)
+                  </h3>
+                  {selectedOrder.inverterQc ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      <Check size={11} className="stroke-[3]" /> ตรวจ QC แล้ว
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      รอตรวจ QC
+                    </span>
+                  )}
+                </div>
+                <div className="p-4 rounded-2xl border border-gray-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="text-xs">
+                    {selectedOrder.inverterQc ? (
+                      <div className="space-y-0.5">
+                        <p className="font-bold text-gray-800">
+                          ผู้ตรวจเช็ค: {selectedOrder.inverterQc.inspectorName || selectedOrder.technicianName || "—"}
+                        </p>
+                        <p className="text-[11px] text-gray-500">
+                          วันที่บันทึก: {formatThaiDate(selectedOrder.inverterQc.inspectorDate || selectedOrder.inverterQc.receiveDate)} • แบบฟอร์ม QC-EN-01/Rev.00
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="font-semibold text-gray-700">ยังไม่ได้บันทึกผลการตรวจสอบ QC</p>
+                        <p className="text-[11px] text-gray-400">กรอกค่าแรงดัน, ระยะเวลาเทส และการตั้งค่าเพื่อออกเอกสาร A4</p>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setQcModalOrder(selectedOrder)}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold shrink-0 transition-all shadow-sm cursor-pointer"
+                  >
+                    <ClipboardCheck size={14} />
+                    <span>{selectedOrder.inverterQc ? "ดู / พิมพ์ PDF / แก้ไข QC" : "กรอกข้อมูล QC ทันที"}</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Drawer Footer Actions */}
             <div className="p-4 sm:p-5 border-t border-gray-200 bg-gray-50/80 flex items-center justify-between gap-3">
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold transition-all"
+                className="px-4 py-2 rounded-xl bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold transition-all cursor-pointer"
               >
                 ปิด
               </button>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setQcModalOrder(selectedOrder)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+                  title="เปิดฟอร์ม QC INVERTER"
+                >
+                  <ClipboardCheck size={14} />
+                  <span>ตรวจ QC INVERTER</span>
+                </button>
+
                 <Link
                   href={`/repair-orders/${selectedOrder.jobId || selectedOrder.id}/print`}
                   target="_blank"
@@ -1905,6 +2038,24 @@ export default function RepairOrdersClientPage({
           </div>
         </div>
       )}
+
+      {/* ── Inverter QC Inspection & PDF Modal ── */}
+      <InverterQcModal
+        isOpen={!!qcModalOrder}
+        order={qcModalOrder}
+        currentUserName={currentUserName}
+        users={users}
+        onClose={() => setQcModalOrder(null)}
+        onSaved={(updatedOrder) => {
+          setRepairOrders((prev) =>
+            prev.map((ro) => (ro.id === updatedOrder.id ? { ...ro, ...updatedOrder } : ro))
+          );
+          if (selectedOrder?.id === updatedOrder.id) {
+            setSelectedOrder((prev: any) => (prev ? { ...prev, ...updatedOrder } : null));
+          }
+          setQcModalOrder((prev: any) => (prev ? { ...prev, ...updatedOrder } : null));
+        }}
+      />
     </div>
   );
 }

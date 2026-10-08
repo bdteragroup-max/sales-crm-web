@@ -594,6 +594,7 @@ model RepairOrder {
   customerCompany String?
   salesPerson     String?
   technicianName  String?
+  inverterQc      Json?
   job             Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 
