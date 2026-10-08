@@ -46,6 +46,7 @@ export default async function NewPaymentRequestPage() {
           initialBranch={initialBranch}
           initialDept={profile.defaultDept}
           initialPhone={profile.defaultPhone}
+          initialSupervisor={profile.supervisorName}
           initialMyRequests={JSON.parse(JSON.stringify(myRequests || []))}
         />
       </main>

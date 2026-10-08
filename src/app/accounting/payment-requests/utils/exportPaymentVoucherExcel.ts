@@ -187,10 +187,16 @@ export async function exportPaymentVoucherToExcel(
   cellA1.font = { name: 'TH Sarabun New', size: 16, bold: true, color: { argb: 'FFDC2626' } };
   cellA1.alignment = { horizontal: 'center', vertical: 'middle' };
 
-  // Attempt to load and embed company logo /4.png over A1:A4
+  // Attempt to load and embed company logo (TG: /4.png, TE: /6.png, TP: /7.png) over A1:A4
   if (typeof window !== 'undefined') {
     try {
-      const logoRes = await fetch('/4.png');
+      const companyLogoMap: Record<string, string> = {
+        TG: '/4.png',
+        TE: '/6.png',
+        TP: '/7.png',
+      };
+      const logoUrl = companyLogoMap[request.company] || '/4.png';
+      const logoRes = await fetch(logoUrl);
       if (logoRes.ok) {
         const blob = await logoRes.blob();
         const arrayBuffer = await blob.arrayBuffer();
@@ -257,7 +263,7 @@ export async function exportPaymentVoucherToExcel(
 
   sheet.mergeCells('E4:F4');
   const cellE4 = sheet.getCell('E4');
-  cellE4.value = request.urgency === 'EMERGENCY' ? '⚡ ด่วนที่สุด (EMERGENCY)' : '';
+  cellE4.value = request.urgency === 'EMERGENCY' ? '[ด่วนที่สุด] EMERGENCY' : '';
   cellE4.font = { name: 'TH Sarabun New', size: 11, bold: true, color: { argb: 'FFDC2626' } };
   cellE4.alignment = { horizontal: 'right', vertical: 'middle' };
 

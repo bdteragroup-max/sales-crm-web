@@ -1618,11 +1618,33 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                         </td>
                         <td className="py-2.5 px-3 border-r border-slate-100 align-top">
                           <span className="font-medium text-slate-800 leading-relaxed block">{item.description}</span>
-                          {item.paidByCreditCard && (
-                            <span className="mt-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                              จ่ายด้วยบัตรเครดิต
-                            </span>
-                          )}
+                          <div className="flex flex-wrap items-center gap-1 mt-1">
+                            {item.paidByCreditCard && (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                จ่ายด้วยบัตรเครดิต
+                              </span>
+                            )}
+                            {item.isIrregularBill && (
+                              item.substituteCertificateUrl ? (
+                                <a
+                                  href={item.substituteCertificateUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition"
+                                  title="คลิกเพื่อเปิดดูใบรับรองแทนใบเสร็จรับเงิน (PDF)"
+                                >
+                                  <FileText className="w-3 h-3 text-amber-700" />
+                                  <span>ใบรับรองแทนใบเสร็จ (PDF)</span>
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                </a>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                  <FileText className="w-3 h-3 text-amber-700" />
+                                  <span>บิลไม่สมบูรณ์ (ใบรับรองแทนฯ)</span>
+                                </span>
+                              )
+                            )}
+                          </div>
                         </td>
                         <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 border-r border-slate-100 align-top">
                           {Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

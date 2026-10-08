@@ -131,6 +131,16 @@ export type RequisitionItem = {
   amount: number;
   remarks?: string;
   paidByCreditCard?: boolean;
+  isIrregularBill?: boolean;
+  substituteCertificateUrl?: string;
+  substituteCertificateFileName?: string;
+  substituteGroupKey?: string;
+  quantity?: number;
+  unitPrice?: number;
+  requesterSignatureUrl?: string;
+  approverName?: string;
+  approverPosition?: string;
+  approverSignatureUrl?: string;
 };
 
 export type PaymentRequestLog = {
@@ -339,82 +349,106 @@ export async function checkAttachmentDuplicates(params: {
             reason = `ไฟล์ดิจิทัลตรงกัน 100% (SHA-256 ตรงกับ "${att.fileName || 'เอกสารเดิม'}")`;
           }
 
-          // 2. Visual Perceptual Hash match (Full-Frame & Center Core Crop)
+          // 2. Conflict Detection (Negative proof: If amounts, QR codes, or transaction numbers clearly differ, they CANNOT be duplicates)
           if (!isMatch) {
-            let bestDist = 999;
-            let hashType = 'ภาพรวม';
+            const qrConflict = !!(item.qrPayload && att.qrPayload && item.qrPayload.trim() !== att.qrPayload.trim());
+            const normItemInv = normalizeInvoiceNo(item.extractedInvoiceNo);
+            const normAttInv = normalizeInvoiceNo(att.extractedInvoiceNo || row.invoice_number);
+            const invConflict = !!(normItemInv.length >= 4 && normAttInv.length >= 4 && normItemInv !== normAttInv);
 
-            if (item.visualHash && att.visualHash) {
-              const d = visualHammingDistance(item.visualHash, att.visualHash);
-              if (d < bestDist) {
-                bestDist = d;
-                hashType = 'ภาพรวม';
-              }
-            }
-
-            if (item.coreVisualHash && att.coreVisualHash) {
-              const d = visualHammingDistance(item.coreVisualHash, att.coreVisualHash);
-              if (d < bestDist) {
-                bestDist = d;
-                hashType = 'แกนกลางเอกสาร';
-              }
-            } else if (item.visualHash && att.coreVisualHash) {
-              const d = visualHammingDistance(item.visualHash, att.coreVisualHash);
-              if (d < bestDist) {
-                bestDist = d;
-                hashType = 'โครงสร้างเอกสาร';
-              }
-            } else if (item.coreVisualHash && att.visualHash) {
-              const d = visualHammingDistance(item.coreVisualHash, att.visualHash);
-              if (d < bestDist) {
-                bestDist = d;
-                hashType = 'โครงสร้างเอกสาร';
-              }
-            }
-
-            // Shared OCR Token Overlap Check
-            let sharedTokenCount = 0;
-            if (Array.isArray(item.distinctiveTokens) && Array.isArray(att.distinctiveTokens) && item.distinctiveTokens.length > 0 && att.distinctiveTokens.length > 0) {
-              const attTokenSet = new Set(att.distinctiveTokens.map((t: string) => t.toLowerCase()));
-              sharedTokenCount = item.distinctiveTokens.filter((t: string) => attTokenSet.has(t.toLowerCase())).length;
-            }
-
-            // Context alignment: Amount, Supplier, Date
             const effectiveItemAmt = item.currentAmount || item.extractedAmount;
-            const amtMatch = effectiveItemAmt && row.net_amount && Math.abs(effectiveItemAmt - Number(row.net_amount)) < 1.00;
-            const effectiveItemSupp = item.currentSupplier || item.extractedSupplier;
-            const suppMatch = effectiveItemSupp && row.supplier_name && (
-              effectiveItemSupp.toLowerCase().includes(row.supplier_name.toLowerCase()) ||
-              row.supplier_name.toLowerCase().includes(effectiveItemSupp.toLowerCase())
+            const effectiveAttAmt = att.extractedAmount || (row.net_amount ? Number(row.net_amount) : undefined);
+            const amtConflict = !!(
+              effectiveItemAmt !== undefined &&
+              effectiveAttAmt !== undefined &&
+              Math.abs(effectiveItemAmt - effectiveAttAmt) >= 1.00
             );
-            const phoneMatch = item.extractedPhone && att.extractedPhone && item.extractedPhone === att.extractedPhone;
 
-            // Tier A: High visual similarity (<= 16 bits diff, >= 75% similarity)
-            // Invariant to separate cameras, different distances, and surrounding clutter!
-            if (bestDist <= 16) {
-              isMatch = true;
-              matchType = 'ATTACHMENT_VISUAL';
-              const similarity = ((64 - bestDist) / 64 * 100).toFixed(1);
-              reason = `ตรวจพบลายนิ้วมือโครงสร้างภาพเอกสาร (${hashType}) ตรงกัน ${similarity}% (ตรงกับ "${att.fileName || 'เอกสารเดิม'}" แม้จะถ่ายจากต่างกล้อง คนละมุม หรือมีสิ่งของวางข้างบิล)`;
-            }
-            // Tier B: Context-Assisted Visual match: Similarity >= 65% (bestDist <= 22) + Matching Amount or Supplier or Phone
-            else if (bestDist <= 22 && (amtMatch || suppMatch || phoneMatch || sharedTokenCount >= 2)) {
-              isMatch = true;
-              matchType = 'ATTACHMENT_VISUAL_CONTEXT';
-              const similarity = ((64 - bestDist) / 64 * 100).toFixed(1);
-              const extraDetails = [
-                amtMatch ? `ยอดเงินตรงกัน (${Number(row.net_amount).toLocaleString()} ฿)` : '',
-                suppMatch ? `ผู้ขายตรงกัน (${row.supplier_name})` : '',
-                phoneMatch ? `เบอร์โทรตรายางร้านตรงกัน` : '',
-                sharedTokenCount >= 2 ? `ข้อความบนบิลตรงกัน` : '',
-              ].filter(Boolean).join(', ');
-              reason = `ตรวจพบลักษณะเอกสารใกล้เคียงกัน ${similarity}% (${extraDetails}) ตรงกับคำขอเดิม (${row.pay_number})`;
-            }
-            // Tier C: Distinctive Phone/Stamp Match + Same Amount
-            else if (phoneMatch && amtMatch) {
-              isMatch = true;
-              matchType = 'ATTACHMENT_OCR';
-              reason = `ตรวจพบเบอร์โทรบนตรายางร้าน (${item.extractedPhone}) และยอดเงิน (${effectiveItemAmt} ฿) ตรงกับคำขอเดิม (${row.pay_number})`;
+            const effectiveItemSupp = (item.currentSupplier || item.extractedSupplier || '').trim().toLowerCase();
+            const effectiveAttSupp = (att.extractedSupplier || row.supplier_name || '').trim().toLowerCase();
+            const suppConflict = !!(
+              effectiveItemSupp.length >= 4 &&
+              effectiveAttSupp.length >= 4 &&
+              !effectiveItemSupp.includes(effectiveAttSupp) &&
+              !effectiveAttSupp.includes(effectiveItemSupp)
+            );
+
+            const hasMajorConflict = qrConflict || invConflict || amtConflict;
+
+            // Only proceed with visual similarity check if there is NO definitive conflicting data
+            if (!hasMajorConflict) {
+              let bestDist = 999;
+              let hashType = 'ภาพรวม';
+
+              if (item.visualHash && att.visualHash) {
+                const d = visualHammingDistance(item.visualHash, att.visualHash);
+                if (d < bestDist) {
+                  bestDist = d;
+                  hashType = 'ภาพรวม';
+                }
+              }
+
+              if (item.coreVisualHash && att.coreVisualHash) {
+                const d = visualHammingDistance(item.coreVisualHash, att.coreVisualHash);
+                if (d < bestDist) {
+                  bestDist = d;
+                  hashType = 'แกนกลางเอกสาร';
+                }
+              }
+
+              // Shared OCR Token Overlap Check
+              let sharedTokenCount = 0;
+              if (
+                Array.isArray(item.distinctiveTokens) &&
+                Array.isArray(att.distinctiveTokens) &&
+                item.distinctiveTokens.length > 0 &&
+                att.distinctiveTokens.length > 0
+              ) {
+                const attTokenSet = new Set(att.distinctiveTokens.map((t: string) => t.toLowerCase()));
+                sharedTokenCount = item.distinctiveTokens.filter((t: string) => attTokenSet.has(t.toLowerCase())).length;
+              }
+
+              // Context alignment: Amount, Supplier, Date
+              const amtMatch =
+                effectiveItemAmt !== undefined &&
+                effectiveAttAmt !== undefined &&
+                Math.abs(effectiveItemAmt - effectiveAttAmt) < 0.10;
+              const suppMatch =
+                effectiveItemSupp &&
+                effectiveAttSupp &&
+                (effectiveItemSupp.includes(effectiveAttSupp) || effectiveAttSupp.includes(effectiveItemSupp));
+              const phoneMatch = !!(item.extractedPhone && att.extractedPhone && item.extractedPhone === att.extractedPhone);
+
+              // Tier A: Virtually Identical Image (diff <= 2 bits out of 64, >= 96.8% identical pixels)
+              // Only triggers for the exact same photo (e.g. re-saved / re-compressed JPEG) with no conflict
+              if (bestDist <= 2 && !suppConflict) {
+                isMatch = true;
+                matchType = 'ATTACHMENT_VISUAL';
+                const similarity = (((64 - bestDist) / 64) * 100).toFixed(1);
+                reason = `ตรวจพบรูปภาพเอกสารตรงกัน ${similarity}% (ตรงกับ "${att.fileName || 'เอกสารเดิม'}")`;
+              }
+              // Tier B: Corroborated Visual Match (diff <= 8 bits, >= 87.5% similarity) + Confirmed Evidence (Same Amount or Phone or Store)
+              // Prevents false positives from common slip layouts (KBank, PromptPay, thermal receipts)
+              else if (bestDist <= 8 && (amtMatch || phoneMatch || (suppMatch && sharedTokenCount >= 2))) {
+                isMatch = true;
+                matchType = 'ATTACHMENT_VISUAL_CONTEXT';
+                const similarity = (((64 - bestDist) / 64) * 100).toFixed(1);
+                const extraDetails = [
+                  amtMatch ? `ยอดเงินตรงกัน (${Number(effectiveAttAmt).toLocaleString()} ฿)` : '',
+                  suppMatch ? `ผู้ขายตรงกัน (${row.supplier_name})` : '',
+                  phoneMatch ? `เบอร์โทรตรายางร้านตรงกัน` : '',
+                  sharedTokenCount >= 2 ? `ข้อความบนบิลตรงกัน` : '',
+                ]
+                  .filter(Boolean)
+                  .join(', ');
+                reason = `ตรวจพบลักษณะเอกสารใกล้เคียงกัน ${similarity}% (${extraDetails}) ตรงกับคำขอเดิม (${row.pay_number})`;
+              }
+              // Tier C: Distinctive Phone/Stamp Match + Same Exact Amount
+              else if (phoneMatch && amtMatch) {
+                isMatch = true;
+                matchType = 'ATTACHMENT_OCR';
+                reason = `ตรวจพบเบอร์โทรบนตรายางร้าน (${item.extractedPhone}) และยอดเงิน (${effectiveItemAmt} ฿) ตรงกับคำขอเดิม (${row.pay_number})`;
+              }
             }
           }
 
@@ -1029,6 +1063,8 @@ export async function createPaymentRequest(data: {
   attachments?: any[];
   items?: RequisitionItem[];
   credit_card_deduction?: number;
+  requester_signature_url?: string;
+  supervisor_signature_url?: string;
 }) {
   const pool = getPool();
   const client = await pool.connect();
@@ -1147,7 +1183,8 @@ export async function createPaymentRequest(data: {
         subtotal_amount, vat_type, vat_amount, wht_type, wht_percent, wht_amount, net_amount,
         purpose, cost_center, po_pr_number, requested_payment_date, submission_channel,
         is_possible_duplicate, duplicate_reason, duplicate_matches, attachments,
-        items, credit_card_deduction
+        items, credit_card_deduction,
+        requester_signature_url, supervisor_signature_url
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11,
@@ -1157,7 +1194,8 @@ export async function createPaymentRequest(data: {
         $24, $25, $26, $27, $28, $29, $30,
         $31, $32, $33, $34, $35,
         $36, $37, $38, $39,
-        $40, $41
+        $40, $41,
+        $42, $43
       )`,
       [
         id,
@@ -1201,6 +1239,8 @@ export async function createPaymentRequest(data: {
         JSON.stringify(data.attachments || []),
         JSON.stringify(data.items || []),
         Number(data.credit_card_deduction || 0),
+        data.requester_signature_url || null,
+        data.supervisor_signature_url || null,
       ]
     );
 
@@ -2093,6 +2133,8 @@ export async function getUserProfileDetails(userId: string, employeeId?: string 
   let defaultBranch = 'สำนักงานใหญ่';
   let defaultDept = '';
   let defaultPhone = '';
+  let supervisorName = '';
+  let supervisorEmpId = '';
 
   try {
     // 1. TERA_db employees
@@ -2106,6 +2148,15 @@ export async function getUserProfileDetails(userId: string, employeeId?: string 
         if (emp.departments?.name) defaultDept = emp.departments.name;
         if (emp.phone_number) defaultPhone = emp.phone_number;
         if (emp.branch_id) defaultBranch = emp.branch_id;
+        if (emp.supervisor_id) {
+          const sup = await teraDb.employees.findUnique({
+            where: { emp_id: emp.supervisor_id },
+          });
+          if (sup?.name) {
+            supervisorName = sup.name;
+            supervisorEmpId = sup.emp_id;
+          }
+        }
       }
     }
 
@@ -2127,7 +2178,7 @@ export async function getUserProfileDetails(userId: string, employeeId?: string 
     console.warn('Error querying user profile details for payment request:', err);
   }
 
-  return { defaultBranch, defaultDept, defaultPhone };
+  return { defaultBranch, defaultDept, defaultPhone, supervisorName, supervisorEmpId };
 }
 
 export async function deletePaymentRequest(id: string) {

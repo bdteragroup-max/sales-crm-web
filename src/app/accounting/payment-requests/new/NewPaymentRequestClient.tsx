@@ -21,6 +21,12 @@ import {
 } from '@/lib/attachmentUtils';
 import { detectSlipQrAndBarcode, downscaleImageForScan, computeVisualHashes } from '@/lib/slipDetector';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
+import SubstituteReceiptModal from '../components/SubstituteReceiptModal';
+import {
+  SubstituteReceiptData,
+  SubstituteReceiptLineItem,
+  uploadSubstituteReceiptPdf,
+} from '../components/SubstituteReceiptCertificate';
 import { thaiBahtText } from '@/app/lib/thaiBahtText';
 import {
   ChevronLeft,
@@ -50,6 +56,7 @@ import {
   ShieldCheck,
   Clock,
   RefreshCw,
+  RotateCcw,
   Printer,
   Copy,
   ArrowRight,
@@ -73,6 +80,7 @@ type Props = {
   initialBranch?: string;
   initialDept?: string;
   initialPhone?: string;
+  initialSupervisor?: string;
   initialMyRequests?: PaymentRequestRecord[];
 };
 
@@ -186,6 +194,7 @@ export default function NewPaymentRequestClient({
   initialBranch,
   initialDept,
   initialPhone,
+  initialSupervisor,
   initialMyRequests,
 }: Props) {
   const router = useRouter();
@@ -326,8 +335,12 @@ export default function NewPaymentRequestClient({
   };
 
   const handleRemoveItem = (index: number) => {
+    const targetItem = requisitionItems[index];
+    const groupKey = targetItem?.substituteGroupKey || (targetItem ? getSubstituteGroupKey(targetItem.supplierName, targetItem.billDate) : '');
+
     setRequisitionItems((prev) => {
-      if (prev.length <= 1) {
+      const next = prev.filter((_, i) => i !== index);
+      if (next.length === 0) {
         return [{
           id: `item_${Date.now()}`,
           billDate: documentDate || new Date().toISOString().split('T')[0],
@@ -338,10 +351,35 @@ export default function NewPaymentRequestClient({
           amount: 0,
           remarks: '',
           paidByCreditCard: false,
+          isIrregularBill: false,
         }];
       }
-      return prev.filter((_, i) => i !== index);
+      return next;
     });
+
+    if (targetItem?.isIrregularBill) {
+      const remainingItems = requisitionItems.filter((_, i) => i !== index);
+      if (groupKey) {
+        const remainingInGroup = remainingItems.filter(
+          (it) => it.isIrregularBill && getSubstituteGroupKey(it.supplierName, it.billDate) === groupKey
+        );
+        if (remainingInGroup.length > 0) {
+          syncGroupSubstituteCertificate(groupKey, remainingItems, true);
+        } else {
+          setAttachments((attPrev) =>
+            attPrev.filter(
+              (a: any) =>
+                a.substituteGroupKey !== groupKey &&
+                a.relatedItemId !== (targetItem?.id || `item_${index}`)
+            )
+          );
+        }
+      } else if (targetItem.id) {
+        setAttachments((attPrev) => attPrev.filter((a: any) => a.relatedItemId !== targetItem.id));
+      }
+    } else if (targetItem?.id) {
+      setAttachments((attPrev) => attPrev.filter((a: any) => a.relatedItemId !== targetItem.id));
+    }
   };
 
   const handleUpdateItem = (index: number, field: keyof RequisitionItem, value: any) => {
@@ -362,6 +400,531 @@ export default function NewPaymentRequestClient({
         .reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
       setCreditCardDeduction(totalCc > 0 ? String(totalCc) : '0');
       return next;
+    });
+  };
+
+  // Substitute Receipt Certificate state & helpers
+  const [substituteModalOpen, setSubstituteModalOpen] = useState(false);
+  const [activeSubstituteItemIdx, setActiveSubstituteItemIdx] = useState<number | null>(null);
+  const [substituteModalData, setSubstituteModalData] = useState<SubstituteReceiptData | null>(null);
+  const [isGeneratingCertMap, setIsGeneratingCertMap] = useState<Record<number, boolean>>({});
+  const [formRequesterSig, setFormRequesterSig] = useState<string | null>(null);
+  const [formSupervisorSig, setFormSupervisorSig] = useState<string | null>(null);
+
+  const COMPANY_SHORT_MAP: Record<string, string> = {
+    TG: 'บจก.เทอรา กรุ้ป',
+    TE: 'บจก.เทอรา อิเล็กทริค',
+    TP: 'บจก.เทอรา พาวเวอร์',
+  };
+
+  const COMPANY_LOGO_MAP: Record<string, string> = {
+    TG: '/4.png',
+    TE: '/6.png',
+    TP: '/7.png',
+  };
+
+  // Date & Supplier Normalizers for grouping
+  const normalizeDateForGroup = (dateStr?: string | null): string => {
+    if (!dateStr) return '';
+    const s = String(dateStr).trim();
+    const dmyMatch = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+    if (dmyMatch) {
+      let y = parseInt(dmyMatch[3], 10);
+      if (y > 2400) y -= 543;
+      const m = dmyMatch[2].padStart(2, '0');
+      const d = dmyMatch[1].padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    const ymdMatch = s.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
+    if (ymdMatch) {
+      let y = parseInt(ymdMatch[1], 10);
+      if (y > 2400) y -= 543;
+      const m = ymdMatch[2].padStart(2, '0');
+      const d = ymdMatch[3].padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return s.split('T')[0];
+  };
+
+  const normalizeSupplierForGroup = (supplierName?: string | null): string => {
+    if (!supplierName) return '';
+    return supplierName
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+  };
+
+  const getSubstituteGroupKey = (supplierName?: string | null, billDate?: string | null): string => {
+    const normSupplier = normalizeSupplierForGroup(supplierName);
+    const normDate = normalizeDateForGroup(billDate);
+    if (!normSupplier || !normDate) return '';
+    return `${normSupplier}:::${normDate}`;
+  };
+
+  /**
+   * Sync and generate a single merged PDF certificate for all items sharing a supplier and billDate
+   */
+  const syncGroupSubstituteCertificate = async (
+    targetGroupKey: string,
+    currentItems: RequisitionItem[],
+    silent = false
+  ) => {
+    if (!targetGroupKey) return;
+
+    const groupMatches = currentItems
+      .map((it, idx) => ({ it, idx }))
+      .filter(
+        ({ it }) =>
+          it.isIrregularBill &&
+          getSubstituteGroupKey(it.supplierName, it.billDate) === targetGroupKey
+      );
+
+    if (groupMatches.length === 0) {
+      setAttachments((prev) =>
+        prev.filter((a: any) => a.substituteGroupKey !== targetGroupKey)
+      );
+      return;
+    }
+
+    // Set generating status for each item in this group
+    setIsGeneratingCertMap((prev) => {
+      const next = { ...prev };
+      groupMatches.forEach(({ idx }) => {
+        next[idx] = true;
+      });
+      return next;
+    });
+
+    try {
+      const lineItems: SubstituteReceiptLineItem[] = groupMatches.map(({ it, idx }) => ({
+        id: it.id || `item_${idx}`,
+        billDate: it.billDate,
+        description: it.description || 'ค่าใช้จ่ายทั่วไป',
+        quantity: it.quantity,
+        unitPrice: it.unitPrice,
+        amount: Number(it.amount) || 0,
+      }));
+
+      const firstItem = groupMatches[0].it;
+      const totalAmount = lineItems.reduce((sum, li) => sum + (Number(li.amount) || 0), 0);
+      const allDescriptions = lineItems.map((li) => li.description).filter(Boolean).join(', ');
+
+      const certData: SubstituteReceiptData = {
+        groupKey: targetGroupKey,
+        itemIds: lineItems.map((li) => li.id || ''),
+        itemId: lineItems[0]?.id || `item_${groupMatches[0].idx}`,
+        billDate: firstItem.billDate || documentDate || new Date().toISOString().split('T')[0],
+        supplierName: firstItem.supplierName || 'ร้านค้า/ผู้รับเงิน',
+        description: allDescriptions || 'ค่าใช้จ่ายทั่วไป',
+        amount: totalAmount,
+        items: lineItems,
+        requesterName: requesterName || currentUser?.fullName || '',
+        requesterPosition: requesterDept || 'พนักงาน',
+        requesterSignatureUrl: firstItem.requesterSignatureUrl,
+        approverName: firstItem.approverName || supervisorName || '',
+        approverPosition: firstItem.approverPosition || 'หัวหน้างาน',
+        approverSignatureUrl: firstItem.approverSignatureUrl,
+        companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
+        companyCode: company,
+        logoUrl: COMPANY_LOGO_MAP[company] || '/4.png',
+        startDate: firstItem.billDate || documentDate,
+        endDate: firstItem.billDate || documentDate,
+        documentDate: documentDate || firstItem.billDate,
+      };
+
+      const uploadRes = await uploadSubstituteReceiptPdf(certData);
+
+      setRequisitionItems((prev) => {
+        const next = [...prev];
+        groupMatches.forEach(({ idx }) => {
+          if (next[idx]) {
+            next[idx] = {
+              ...next[idx],
+              isIrregularBill: true,
+              substituteCertificateUrl: uploadRes.url,
+              substituteCertificateFileName: uploadRes.fileName,
+              substituteGroupKey: targetGroupKey,
+              requesterSignatureUrl: certData.requesterSignatureUrl,
+              approverName: certData.approverName,
+              approverPosition: certData.approverPosition,
+              approverSignatureUrl: certData.approverSignatureUrl,
+            };
+          }
+        });
+        return next;
+      });
+
+      setAttachments((prev) => {
+        const filtered = prev.filter((a: any) => {
+          if (a.substituteGroupKey === targetGroupKey) return false;
+          if (groupMatches.some(({ it, idx }) => a.relatedItemId === (it.id || `item_${idx}`))) return false;
+          return true;
+        });
+        return [
+          ...filtered,
+          {
+            url: uploadRes.url,
+            fileName: uploadRes.fileName,
+            fileType: 'application/pdf',
+            fileSize: uploadRes.fileSize,
+            extractedSupplier: certData.supplierName,
+            extractedDescription: `ใบรับรองแทนใบเสร็จรับเงิน${groupMatches.length > 1 ? ` (รวม ${groupMatches.length} รายการ)` : ''}: ${allDescriptions}`,
+            extractedAmount: totalAmount,
+            extractedDate: certData.billDate,
+            isSubstituteCertificate: true,
+            substituteGroupKey: targetGroupKey,
+            relatedItemIds: lineItems.map((li) => li.id || ''),
+            relatedItemId: lineItems[0]?.id || `item_${groupMatches[0].idx}`,
+          },
+        ];
+      });
+
+      if (!silent) {
+        if (groupMatches.length > 1) {
+          Swal.fire({
+            title: `รวมใบรับรองแทนใบเสร็จ (${groupMatches.length} รายการ) สำเร็จ!`,
+            text: `เนื่องจากเป็นผู้จำหน่ายเดียวกัน ("${certData.supplierName}") และวันที่เดียวกัน ระบบรวมเอกสารเป็น PDF ฉบับเดียว (${uploadRes.fileName}) เรียบร้อยแล้ว`,
+            icon: 'success',
+            timer: 2600,
+            showConfirmButton: false,
+          });
+        } else {
+          Swal.fire({
+            title: 'สร้างใบรับรองแทนใบเสร็จรับเงินสำเร็จ!',
+            text: `ระบบสร้างเอกสาร PDF และแนบไฟล์ "${uploadRes.fileName}" เรียบร้อยแล้ว`,
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      }
+    } catch (err: any) {
+      console.error('Error syncing certificate:', err);
+      if (!silent) {
+        Swal.fire({
+          title: 'เกิดข้อผิดพลาดในการสร้างเอกสาร',
+          text: err.message || 'ไม่สามารถสร้างไฟล์ PDF ได้',
+          icon: 'error',
+          confirmButtonColor: '#dc2626',
+        });
+      }
+    } finally {
+      setIsGeneratingCertMap((prev) => {
+        const next = { ...prev };
+        groupMatches.forEach(({ idx }) => {
+          delete next[idx];
+        });
+        return next;
+      });
+    }
+  };
+
+  const handleOpenSubstituteModal = (index: number) => {
+    const item = requisitionItems[index];
+    if (!item) return;
+
+    const groupKey = getSubstituteGroupKey(item.supplierName, item.billDate);
+    // Find all items sharing this supplier and date that have isIrregularBill (or the current item)
+    const groupMatches = requisitionItems
+      .map((it, idx) => ({ it, idx }))
+      .filter(
+        ({ it, idx }) =>
+          it.isIrregularBill &&
+          (groupKey ? getSubstituteGroupKey(it.supplierName, it.billDate) === groupKey : idx === index)
+      );
+
+    if (!groupMatches.some(({ idx }) => idx === index)) {
+      groupMatches.push({ it: item, idx: index });
+    }
+
+    const lineItems: SubstituteReceiptLineItem[] = groupMatches.map(({ it, idx }) => ({
+      id: it.id || `item_${idx}`,
+      billDate: it.billDate,
+      description: it.description || '',
+      quantity: it.quantity,
+      unitPrice: it.unitPrice,
+      amount: Number(it.amount) || 0,
+    }));
+
+    const totalAmount = lineItems.reduce((sum, li) => sum + (Number(li.amount) || 0), 0);
+    const allDescriptions = lineItems.map((li) => li.description).filter(Boolean).join(', ');
+
+    setActiveSubstituteItemIdx(index);
+    setSubstituteModalData({
+      groupKey: groupKey || undefined,
+      itemIds: lineItems.map((li) => li.id || ''),
+      itemId: item.id || `item_${index}`,
+      billDate: item.billDate || documentDate || new Date().toISOString().split('T')[0],
+      supplierName: item.supplierName || '',
+      description: allDescriptions || item.description || '',
+      amount: totalAmount > 0 ? totalAmount : (Number(item.amount) || 0),
+      quantity: groupMatches.length === 1 ? item.quantity : undefined,
+      unitPrice: groupMatches.length === 1 ? item.unitPrice : undefined,
+      items: lineItems,
+      requesterName: requesterName || currentUser?.fullName || '',
+      requesterPosition: requesterDept || 'พนักงาน',
+      requesterSignatureUrl: item.requesterSignatureUrl || formRequesterSig || undefined,
+      approverName: item.approverName || supervisorName || '',
+      approverPosition: item.approverPosition || 'หัวหน้างาน',
+      approverSignatureUrl: item.approverSignatureUrl || formSupervisorSig || formRequesterSig || undefined,
+      companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
+      companyCode: company,
+      logoUrl: COMPANY_LOGO_MAP[company] || '/4.png',
+      startDate: item.billDate || documentDate,
+      endDate: item.billDate || documentDate,
+      documentDate: documentDate || item.billDate,
+    });
+    setSubstituteModalOpen(true);
+  };
+
+  const handleToggleIrregularBill = async (index: number) => {
+    const item = requisitionItems[index];
+    if (!item) return;
+
+    const currentStatus = Boolean(item.isIrregularBill);
+    const newStatus = !currentStatus;
+
+    if (newStatus) {
+      const updatedItems = requisitionItems.map((it, idx) =>
+        idx === index ? { ...it, isIrregularBill: true } : it
+      );
+      setRequisitionItems(updatedItems);
+
+      const groupKey = getSubstituteGroupKey(item.supplierName, item.billDate);
+      const hasDetails = (item.description && item.description.trim().length > 0) || Number(item.amount) > 0;
+
+      if (groupKey) {
+        const groupMatches = updatedItems.filter(
+          (it) => it.isIrregularBill && getSubstituteGroupKey(it.supplierName, it.billDate) === groupKey
+        );
+        if (groupMatches.length > 1) {
+          // Multiple items with same supplier & date! Combine them automatically!
+          await syncGroupSubstituteCertificate(groupKey, updatedItems);
+          return;
+        }
+      }
+
+      if (hasDetails) {
+        if (groupKey) {
+          await syncGroupSubstituteCertificate(groupKey, updatedItems);
+        } else {
+          setIsGeneratingCertMap((prev) => ({ ...prev, [index]: true }));
+          try {
+            const certData: SubstituteReceiptData = {
+              itemId: item.id || `item_${index}`,
+              billDate: item.billDate || documentDate || new Date().toISOString().split('T')[0],
+              supplierName: item.supplierName || 'ร้านค้า/ผู้รับเงิน',
+              description: item.description || 'ค่าใช้จ่ายทั่วไป',
+              amount: Number(item.amount) || 0,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              requesterName: requesterName || currentUser?.fullName || '',
+              requesterPosition: requesterDept || 'พนักงาน',
+              requesterSignatureUrl: item.requesterSignatureUrl,
+              approverName: item.approverName || supervisorName || '',
+              approverPosition: item.approverPosition || 'หัวหน้างาน',
+              approverSignatureUrl: item.approverSignatureUrl,
+              companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
+              companyCode: company,
+              logoUrl: COMPANY_LOGO_MAP[company] || '/4.png',
+              startDate: item.billDate || documentDate,
+              endDate: item.billDate || documentDate,
+              documentDate: documentDate || item.billDate,
+            };
+
+            const uploadRes = await uploadSubstituteReceiptPdf(certData);
+
+            setRequisitionItems((prev) => {
+              const next = [...prev];
+              if (next[index]) {
+                next[index] = {
+                  ...next[index],
+                  isIrregularBill: true,
+                  substituteCertificateUrl: uploadRes.url,
+                  substituteCertificateFileName: uploadRes.fileName,
+                  requesterSignatureUrl: certData.requesterSignatureUrl,
+                  approverName: certData.approverName,
+                  approverPosition: certData.approverPosition,
+                  approverSignatureUrl: certData.approverSignatureUrl,
+                };
+              }
+              return next;
+            });
+
+            setAttachments((prev) => {
+              const filtered = prev.filter((a: any) => a.relatedItemId !== (item.id || `item_${index}`));
+              return [
+                ...filtered,
+                {
+                  url: uploadRes.url,
+                  fileName: uploadRes.fileName,
+                  fileType: 'application/pdf',
+                  fileSize: uploadRes.fileSize,
+                  extractedSupplier: item.supplierName,
+                  extractedDescription: `ใบรับรองแทนใบเสร็จรับเงิน: ${item.description}`,
+                  extractedAmount: Number(item.amount) || 0,
+                  extractedDate: item.billDate,
+                  isSubstituteCertificate: true,
+                  relatedItemId: item.id || `item_${index}`,
+                },
+              ];
+            });
+
+            Swal.fire({
+              title: 'สร้างใบรับรองแทนใบเสร็จรับเงินสำเร็จ!',
+              text: `ระบบสร้างเอกสาร PDF และแนบไฟล์ "${uploadRes.fileName}" เรียบร้อยแล้ว`,
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false,
+            });
+          } catch (err: any) {
+            console.error(err);
+            Swal.fire({
+              title: 'เกิดข้อผิดพลาดในการสร้างเอกสาร',
+              text: err.message || 'ไม่สามารถสร้างไฟล์ PDF ได้',
+              icon: 'error',
+              confirmButtonColor: '#dc2626',
+            });
+          } finally {
+            setIsGeneratingCertMap((prev) => ({ ...prev, [index]: false }));
+          }
+        }
+      } else {
+        handleOpenSubstituteModal(index);
+      }
+    } else {
+      // Turn off irregular bill
+      const updatedItems = requisitionItems.map((it, idx) =>
+        idx === index
+          ? {
+              ...it,
+              isIrregularBill: false,
+              substituteCertificateUrl: undefined,
+              substituteCertificateFileName: undefined,
+              substituteGroupKey: undefined,
+            }
+          : it
+      );
+      setRequisitionItems(updatedItems);
+
+      const groupKey = item.substituteGroupKey || getSubstituteGroupKey(item.supplierName, item.billDate);
+      if (groupKey) {
+        const remainingInGroup = updatedItems.filter(
+          (it) => it.isIrregularBill && getSubstituteGroupKey(it.supplierName, it.billDate) === groupKey
+        );
+        if (remainingInGroup.length > 0) {
+          await syncGroupSubstituteCertificate(groupKey, updatedItems);
+          Swal.fire({
+            title: 'อัปเดตใบรับรองสำเร็จ',
+            text: `นำรายการออกแล้ว คงเหลือ ${remainingInGroup.length} รายการในใบรับรอง`,
+            icon: 'info',
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        } else {
+          setAttachments((prev) =>
+            prev.filter(
+              (a: any) =>
+                a.substituteGroupKey !== groupKey &&
+                a.relatedItemId !== (item.id || `item_${index}`)
+            )
+          );
+          Swal.fire({
+            title: 'ยกเลิกสถานะบิลไม่สมบูรณ์',
+            text: 'นำใบรับรองแทนใบเสร็จออกจากเอกสารแนบแล้ว',
+            icon: 'info',
+            timer: 1800,
+            showConfirmButton: false,
+          });
+        }
+      } else {
+        setAttachments((prev) =>
+          prev.filter((a: any) => a.relatedItemId !== (item.id || `item_${index}`))
+        );
+        Swal.fire({
+          title: 'ยกเลิกสถานะบิลไม่สมบูรณ์',
+          text: 'นำใบรับรองแทนใบเสร็จออกจากเอกสารแนบแล้ว',
+          icon: 'info',
+          timer: 1800,
+          showConfirmButton: false,
+        });
+      }
+    }
+  };
+
+  const handleModalSaveAndAttach = (
+    updatedData: SubstituteReceiptData,
+    result: { url: string; fileName: string; fileSize: number; dataUrl?: string }
+  ) => {
+    const groupKey = updatedData.groupKey;
+    const targetItemIds = updatedData.itemIds || (updatedData.itemId ? [updatedData.itemId] : []);
+
+    setRequisitionItems((prev) => {
+      return prev.map((it, idx) => {
+        const currentItemId = it.id || `item_${idx}`;
+        const isMatched =
+          (groupKey && it.isIrregularBill && getSubstituteGroupKey(it.supplierName, it.billDate) === groupKey) ||
+          targetItemIds.includes(currentItemId) ||
+          (activeSubstituteItemIdx !== null && idx === activeSubstituteItemIdx);
+
+        if (isMatched) {
+          const matchedLine = updatedData.items?.find((li) => li.id === currentItemId);
+          return {
+            ...it,
+            isIrregularBill: true,
+            supplierName: updatedData.supplierName || it.supplierName,
+            billDate: updatedData.billDate || it.billDate,
+            description: matchedLine?.description || (updatedData.items && updatedData.items.length > 1 ? it.description : (updatedData.description || it.description)),
+            amount: matchedLine?.amount !== undefined ? matchedLine.amount : (updatedData.items && updatedData.items.length > 1 ? it.amount : (updatedData.amount || it.amount)),
+            quantity: matchedLine?.quantity !== undefined ? matchedLine.quantity : it.quantity,
+            unitPrice: matchedLine?.unitPrice !== undefined ? matchedLine.unitPrice : it.unitPrice,
+            substituteCertificateUrl: result.url,
+            substituteCertificateFileName: result.fileName,
+            substituteGroupKey: groupKey || undefined,
+            requesterSignatureUrl: updatedData.requesterSignatureUrl,
+            approverName: updatedData.approverName,
+            approverPosition: updatedData.approverPosition,
+            approverSignatureUrl: updatedData.approverSignatureUrl,
+          };
+        }
+        return it;
+      });
+    });
+
+    if (updatedData.approverName) {
+      setSupervisorName(updatedData.approverName);
+    }
+    if (updatedData.requesterSignatureUrl) {
+      setFormRequesterSig(updatedData.requesterSignatureUrl);
+    }
+    if (updatedData.approverSignatureUrl) {
+      setFormSupervisorSig(updatedData.approverSignatureUrl);
+    }
+
+    setAttachments((prev) => {
+      const filtered = prev.filter((a: any) => {
+        if (groupKey && a.substituteGroupKey === groupKey) return false;
+        if (targetItemIds.includes(a.relatedItemId)) return false;
+        if (activeSubstituteItemIdx !== null && a.relatedItemId === (requisitionItems[activeSubstituteItemIdx]?.id || `item_${activeSubstituteItemIdx}`)) return false;
+        return true;
+      });
+      return [
+        ...filtered,
+        {
+          url: result.url,
+          fileName: result.fileName,
+          fileType: 'application/pdf',
+          fileSize: result.fileSize,
+          extractedSupplier: updatedData.supplierName,
+          extractedDescription: `ใบรับรองแทนใบเสร็จรับเงิน${(updatedData.items?.length || 0) > 1 ? ` (รวม ${updatedData.items?.length} รายการ)` : ''}: ${updatedData.description}`,
+          extractedAmount: updatedData.amount,
+          extractedDate: updatedData.billDate,
+          isSubstituteCertificate: true,
+          substituteGroupKey: groupKey || undefined,
+          relatedItemIds: targetItemIds,
+          relatedItemId: targetItemIds[0] || (activeSubstituteItemIdx !== null ? `item_${activeSubstituteItemIdx}` : ''),
+        },
+      ];
     });
   };
 
@@ -412,6 +975,22 @@ export default function NewPaymentRequestClient({
   const [requesterName, setRequesterName] = useState(currentUser?.fullName || '');
   const [requesterDept, setRequesterDept] = useState(initialDept || '');
   const [requesterPhone, setRequesterPhone] = useState(initialPhone || '');
+  const [supervisorName, setSupervisorName] = useState(initialSupervisor || '');
+
+  // Auto-load remembered digital signatures
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const uSig =
+        (requesterName ? localStorage.getItem(`crm_saved_signature_${requesterName}`) : null) ||
+        localStorage.getItem('crm_user_signature');
+      if (uSig && !formRequesterSig) setFormRequesterSig(uSig);
+
+      const sSig =
+        (supervisorName ? localStorage.getItem(`crm_saved_signature_${supervisorName}`) : null) ||
+        localStorage.getItem('crm_supervisor_signature');
+      if (sSig && !formSupervisorSig) setFormSupervisorSig(sSig);
+    }
+  }, [requesterName, supervisorName]);
 
   // Supplier / Payee
   const [supplierName, setSupplierName] = useState('');
@@ -474,6 +1053,8 @@ export default function NewPaymentRequestClient({
       extractedLineItems?: ExtractedLineItem[];
       rawTextSnippet?: string;
       distinctiveTokens?: string[];
+      isSubstituteCertificate?: boolean;
+      relatedItemId?: string;
     }[]
   >([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -769,10 +1350,8 @@ export default function NewPaymentRequestClient({
         let rawTextSnippet: string | undefined = undefined;
         let distinctiveTokens: string[] | undefined = undefined;
 
-        // HIGH-PERFORMANCE OPTIMIZATION:
-        // If a QR Code was already detected from the slip/receipt (<50ms), skip heavy OCR!
-        // PromptPay and e-slip QR payloads uniquely identify the document 100% without waiting for OCR.
-        if (ocrAutoScanEnabled && file.type.startsWith('image/') && !qrPayload) {
+        // Run OCR Auto-Scan to extract text, amounts, dates, supplier, and line items
+        if (ocrAutoScanEnabled && file.type.startsWith('image/')) {
           setUploadScanStatus(`กำลังสแกนอ่านข้อมูลเอกสารด้วย OCR Auto-Scan (${file.name})...`);
           try {
             // Preserve crisp resolution for Thai character and table clarity
@@ -817,9 +1396,15 @@ export default function NewPaymentRequestClient({
           if (a.fileHash && a.fileHash === fileHash) return true;
           if (qrPayload && a.qrPayload && (a.qrPayload === qrPayload || (qrPayload.length >= 15 && a.qrPayload.includes(qrPayload)))) return true;
           if (extractedInvoiceNo && a.extractedInvoiceNo && normalizeInvoiceNo(a.extractedInvoiceNo) === normalizeInvoiceNo(extractedInvoiceNo)) return true;
-          if (visualHash && a.visualHash && visualHammingDistance(visualHash, a.visualHash) <= 4) return true;
-          if (coreVisualHash && a.coreVisualHash && visualHammingDistance(coreVisualHash, a.coreVisualHash) <= 6) return true;
-          if (isDistinct && normalizeAttachmentName(a.fileName) === normName) return true;
+
+          // Conflict check: if amounts or QRs are clearly different, they are different files
+          const diffAmt = extractedAmount && a.extractedAmount && Math.abs(extractedAmount - a.extractedAmount) >= 1.0;
+          const diffQr = qrPayload && a.qrPayload && qrPayload.trim() !== a.qrPayload.trim();
+          if (diffAmt || diffQr) return false;
+
+          if (visualHash && a.visualHash && visualHammingDistance(visualHash, a.visualHash) <= 2) return true;
+          if (coreVisualHash && a.coreVisualHash && visualHammingDistance(coreVisualHash, a.coreVisualHash) <= 2) return true;
+          if (isDistinct && normalizeAttachmentName(a.fileName) === normName && (!extractedAmount || !a.extractedAmount || Math.abs(extractedAmount - a.extractedAmount) < 0.1)) return true;
           return false;
         });
 
@@ -946,99 +1531,108 @@ export default function NewPaymentRequestClient({
             distinctiveTokens,
           });
 
-          // Smart Auto-Fill prompt if invoice number / amount / tax ID / description detected and form needs filling
-          if (extractedInvoiceNo || (extractedAmount && extractedAmount > 0) || extractedDescription) {
-            const hasExistingInvoice = !!invoiceNumber;
-            const hasExistingAmount = Number(subtotalAmount || 0) > 0;
-            const hasExistingDesc = !!purpose || requisitionItems.some((it) => it.description.trim());
-            if (!hasExistingInvoice || !hasExistingAmount || !hasExistingDesc) {
-              const confirmFill = await Swal.fire({
-                title: 'พบข้อมูลในเอกสาร (OCR Auto-Scan)',
-                html: `
-                  <div class="text-left text-xs bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-2">
-                    <p class="text-blue-900 font-bold text-sm">ระบบอ่านข้อมูลจากบิล/ใบเสร็จได้สำเร็จ:</p>
-                    <div class="bg-white p-3 rounded-lg border border-blue-100 font-mono text-[11px] space-y-1">
-                      ${extractedInvoiceNo ? `<p><span class="text-gray-500 font-sans">เลขที่บิล:</span> <b class="text-blue-700">${extractedInvoiceNo}</b></p>` : ''}
-                      ${extractedTaxId ? `<p><span class="text-gray-500 font-sans">เลขผู้เสียภาษี:</span> <b>${extractedTaxId}</b></p>` : ''}
-                      ${extractedAmount ? `<p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b class="text-emerald-700">${Number(extractedAmount).toLocaleString()} ฿</b></p>` : ''}
-                      ${extractedSupplier ? `<p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${extractedSupplier}</b></p>` : ''}
-                      ${extractedDate ? `<p><span class="text-gray-500 font-sans">วันที่บิล:</span> <b>${extractedDate}</b></p>` : ''}
-                      ${extractedDescription ? `<p><span class="text-gray-500 font-sans">รายการสินค้า/บริการ:</span> <b class="text-indigo-700">${extractedDescription}</b></p>` : ''}
-                      ${extractedLineItems && extractedLineItems.length > 1 ? `
-                        <div class="pt-1.5 border-t border-dashed border-gray-200 text-left">
-                          <p class="text-gray-600 font-sans text-[10px] font-semibold mb-1">รายการสินค้าที่ตรวจพบ (${extractedLineItems.length} รายการ):</p>
-                          <ul class="list-disc list-inside text-[10px] text-gray-700 space-y-0.5">
-                            ${extractedLineItems.map((li) => `<li>${li.description} ${li.amount ? `(${Number(li.amount).toLocaleString()} ฿)` : ''}</li>`).join('')}
-                          </ul>
-                        </div>
-                      ` : ''}
-                    </div>
-                    <p class="text-blue-800 text-[11px]">ต้องการให้นำข้อมูลเหล่านี้กรอกลงในฟอร์มคำขอเบิกจ่ายอัตโนมัติหรือไม่?</p>
+          // Smart Auto-Fill prompt if invoice number / amount / tax ID / description / supplier detected
+          if (extractedInvoiceNo || (extractedAmount && extractedAmount > 0) || extractedDescription || extractedSupplier) {
+            const confirmFill = await Swal.fire({
+              title: 'พบข้อมูลในเอกสาร (OCR Auto-Scan)',
+              html: `
+                <div class="text-left text-xs bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-2">
+                  <p class="text-blue-900 font-bold text-sm">ระบบอ่านข้อมูลจากบิล/ใบเสร็จได้สำเร็จ:</p>
+                  <div class="bg-white p-3 rounded-lg border border-blue-100 font-mono text-[11px] space-y-1">
+                    ${extractedInvoiceNo ? `<p><span class="text-gray-500 font-sans">เลขที่บิล:</span> <b class="text-blue-700">${extractedInvoiceNo}</b></p>` : ''}
+                    ${extractedTaxId ? `<p><span class="text-gray-500 font-sans">เลขผู้เสียภาษี:</span> <b>${extractedTaxId}</b></p>` : ''}
+                    ${extractedAmount ? `<p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b class="text-emerald-700">${Number(extractedAmount).toLocaleString()} ฿</b></p>` : ''}
+                    ${extractedSupplier ? `<p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${extractedSupplier}</b></p>` : ''}
+                    ${extractedDate ? `<p><span class="text-gray-500 font-sans">วันที่บิล:</span> <b>${extractedDate}</b></p>` : ''}
+                    ${extractedDescription ? `<p><span class="text-gray-500 font-sans">รายการสินค้า/บริการ:</span> <b class="text-indigo-700">${extractedDescription}</b></p>` : ''}
+                    ${extractedLineItems && extractedLineItems.length > 1 ? `
+                      <div class="pt-1.5 border-t border-dashed border-gray-200 text-left">
+                        <p class="text-gray-600 font-sans text-[10px] font-semibold mb-1">รายการสินค้าที่ตรวจพบ (${extractedLineItems.length} รายการ):</p>
+                        <ul class="list-disc list-inside text-[10px] text-gray-700 space-y-0.5">
+                          ${extractedLineItems.map((li) => `<li>${li.description} ${li.amount ? `(${Number(li.amount).toLocaleString()} ฿)` : ''}</li>`).join('')}
+                        </ul>
+                      </div>
+                    ` : ''}
                   </div>
-                `,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'กรอกข้อมูลลงฟอร์มอัตโนมัติ',
-                confirmButtonColor: '#2563eb',
-                cancelButtonText: 'ไม่กรอก (กรอกเอง)',
-              });
+                  <p class="text-blue-800 text-[11px]">ต้องการให้นำข้อมูลเหล่านี้กรอกลงในฟอร์มคำขอเบิกจ่ายอัตโนมัติหรือไม่?</p>
+                </div>
+              `,
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'กรอกข้อมูลลงฟอร์มอัตโนมัติ',
+              confirmButtonColor: '#2563eb',
+              cancelButtonText: 'ไม่กรอก (กรอกเอง)',
+            });
 
-              if (confirmFill.isConfirmed) {
-                if (extractedInvoiceNo && !invoiceNumber) {
-                  setInvoiceNumber(extractedInvoiceNo);
-                }
-                if (extractedTaxId && !supplierTaxId) {
-                  setSupplierTaxId(extractedTaxId);
-                }
-                if (extractedSupplier && !supplierName) {
-                  setSupplierName(extractedSupplier);
-                }
-                if (extractedDate && !documentDate) {
-                  const isoDate = formatDateToISO(extractedDate) || extractedDate;
-                  setDocumentDate(isoDate);
-                }
-                if (extractedAmount && (!subtotalAmount || Number(subtotalAmount) === 0)) {
+            if (confirmFill.isConfirmed) {
+              if (extractedInvoiceNo && (!invoiceNumber || entryMode === 'SINGLE')) {
+                setInvoiceNumber(extractedInvoiceNo);
+              }
+              if (extractedTaxId && (!supplierTaxId || entryMode === 'SINGLE')) {
+                setSupplierTaxId(extractedTaxId);
+              }
+              if (extractedSupplier && (!supplierName || entryMode === 'SINGLE')) {
+                setSupplierName(extractedSupplier);
+              }
+              if (extractedDate && (!documentDate || entryMode === 'SINGLE')) {
+                const isoDate = formatDateToISO(extractedDate) || extractedDate;
+                setDocumentDate(isoDate);
+              }
+              if (extractedAmount && extractedAmount > 0) {
+                if (entryMode === 'SINGLE' || !subtotalAmount || Number(subtotalAmount) === 0) {
                   setSubtotalAmount(String(extractedAmount));
                 }
-                if (extractedDescription && !purpose) {
-                  setPurpose(extractedDescription);
-                }
+              }
+              if (extractedDescription && !purpose) {
+                setPurpose(extractedDescription);
+              }
 
-                // Auto-fill into Requisition Items Table
-                const effectiveDate = (extractedDate ? formatDateToISO(extractedDate) : null) || extractedDate || documentDate || new Date().toISOString().split('T')[0];
-                if (extractedLineItems && extractedLineItems.length > 0) {
-                  setRequisitionItems(
-                    extractedLineItems.map((li, lIdx) => ({
-                      id: `item_${Date.now()}_${lIdx}`,
-                      billDate: effectiveDate,
-                      supplierName: extractedSupplier || supplierName || '',
-                      supplierTaxId: extractedTaxId || supplierTaxId || '',
-                      invoiceNumber: extractedInvoiceNo || invoiceNumber || '',
-                      description: li.description,
-                      amount: li.amount || (extractedLineItems!.length === 1 && extractedAmount ? extractedAmount : 0),
-                      remarks: '',
-                      paidByCreditCard: false,
-                    }))
-                  );
-                } else if (extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(extractedDescription)) {
-                  setRequisitionItems((prev) => {
-                    const first = prev[0];
-                    if (prev.length === 1 && (!first.description || !first.amount)) {
-                      return [
-                        {
-                          ...first,
-                          billDate: effectiveDate,
-                          supplierName: extractedSupplier || first.supplierName || supplierName || '',
-                          supplierTaxId: extractedTaxId || first.supplierTaxId || supplierTaxId || '',
-                          invoiceNumber: extractedInvoiceNo || first.invoiceNumber || invoiceNumber || '',
-                          description: extractedDescription!,
-                          amount: extractedAmount || first.amount || 0,
-                        },
-                      ];
-                    }
-                    return prev;
-                  });
-                }
+              // Auto-fill into Requisition Items Table
+              const effectiveDate = (extractedDate ? formatDateToISO(extractedDate) : null) || extractedDate || documentDate || new Date().toISOString().split('T')[0];
+              if (extractedLineItems && extractedLineItems.length > 0) {
+                const newRows: RequisitionItem[] = extractedLineItems.map((li, lIdx) => ({
+                  id: `item_${Date.now()}_${lIdx}`,
+                  billDate: effectiveDate,
+                  supplierName: extractedSupplier || supplierName || '',
+                  supplierTaxId: extractedTaxId || supplierTaxId || '',
+                  invoiceNumber: extractedInvoiceNo || invoiceNumber || '',
+                  description: li.description,
+                  amount: li.amount || (extractedLineItems!.length === 1 && extractedAmount ? extractedAmount : 0),
+                  remarks: '',
+                  paidByCreditCard: false,
+                  isIrregularBill: false,
+                }));
+
+                setRequisitionItems((prev) => {
+                  const isFirstEmpty = prev.length === 1 && !prev[0].description && (!prev[0].amount || prev[0].amount === 0);
+                  if (isFirstEmpty) return newRows;
+                  return [...prev, ...newRows];
+                });
+              } else if (extractedDescription || (extractedAmount && extractedAmount > 0) || extractedSupplier) {
+                const cleanDesc = extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(extractedDescription)
+                  ? extractedDescription
+                  : (extractedDescription || '');
+
+                setRequisitionItems((prev) => {
+                  const first = prev[0];
+                  const isFirstEmpty = prev.length === 1 && !first.description && (!first.amount || first.amount === 0);
+                  const rowData: RequisitionItem = {
+                    id: isFirstEmpty ? (first.id || `item_${Date.now()}`) : `item_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+                    billDate: effectiveDate,
+                    supplierName: extractedSupplier || first?.supplierName || supplierName || '',
+                    supplierTaxId: extractedTaxId || first?.supplierTaxId || supplierTaxId || '',
+                    invoiceNumber: extractedInvoiceNo || first?.invoiceNumber || invoiceNumber || '',
+                    description: cleanDesc || first?.description || '',
+                    amount: extractedAmount || first?.amount || 0,
+                    remarks: '',
+                    paidByCreditCard: false,
+                    isIrregularBill: false,
+                  };
+                  if (isFirstEmpty) {
+                    return [rowData];
+                  }
+                  return [...prev, rowData];
+                });
               }
             }
           }
@@ -1246,6 +1840,8 @@ export default function NewPaymentRequestClient({
         attachments,
         items: entryMode === 'MULTI_ITEMS' ? validItems : undefined,
         credit_card_deduction: entryMode === 'MULTI_ITEMS' ? effectiveCcDeduction : undefined,
+        requester_signature_url: formRequesterSig || undefined,
+        supervisor_signature_url: formSupervisorSig || undefined,
       });
 
       if (res.success && res.id) {
@@ -1751,17 +2347,39 @@ export default function NewPaymentRequestClient({
                         <button
                           key={c}
                           type="button"
-                          onClick={() => setCompany(c)}
-                          className={`py-2 px-3 text-xs font-bold rounded-xl border transition text-center ${
+                          onClick={() => {
+                            setCompany(c);
+                            // Keep any existing substitute receipt items synced with the newly selected company
+                            setRequisitionItems((prev) =>
+                              prev.map((it) =>
+                                it.isIrregularBill
+                                  ? {
+                                      ...it,
+                                    }
+                                  : it
+                              )
+                            );
+                          }}
+                          className={`py-2 px-2 sm:px-3 text-xs font-bold rounded-xl border transition text-center flex flex-col items-center justify-center gap-1.5 cursor-pointer ${
                             isSelected
                               ? 'bg-red-600 text-white border-red-600 shadow-sm'
                               : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
                           }`}
                         >
-                          <span className="block text-sm">{c}</span>
-                          <span className={`block text-[10px] font-normal ${isSelected ? 'text-red-100' : 'text-gray-400'}`}>
-                            {c === 'TG' ? 'Tera Group' : c === 'TE' ? 'Tera Electric' : 'Tera Power'}
-                          </span>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center p-0.5 ${isSelected ? 'bg-white' : 'bg-gray-50 border border-gray-100'}`}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={c === 'TG' ? '/4.png' : c === 'TE' ? '/6.png' : '/7.png'}
+                              alt={c}
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          </div>
+                          <div>
+                            <span className="block text-sm">{c}</span>
+                            <span className={`block text-[10px] font-normal ${isSelected ? 'text-red-100' : 'text-gray-400'}`}>
+                              {c === 'TG' ? 'Tera Group' : c === 'TE' ? 'Tera Electric' : 'Tera Power'}
+                            </span>
+                          </div>
                         </button>
                       );
                     })}
@@ -2378,9 +2996,10 @@ export default function NewPaymentRequestClient({
                                     setHasCustomAccountName(false);
                                     setBankAccountName(supplierName.trim());
                                   }}
-                                  className="text-[10px] text-red-600 hover:text-red-700 font-semibold hover:underline flex items-center gap-0.5"
+                                  className="text-[10px] text-red-600 hover:text-red-700 font-semibold hover:underline flex items-center gap-1"
                                 >
-                                  <span>🔄 รีเซ็ตตามชื่อผู้รับเงิน</span>
+                                  <RotateCcw size={11} />
+                                  <span>รีเซ็ตตามชื่อผู้รับเงิน</span>
                                 </button>
                               ) : (
                                 <span className="text-[10px] text-emerald-600 font-medium flex items-center gap-0.5">
@@ -2499,9 +3118,10 @@ export default function NewPaymentRequestClient({
                                     setHasCustomAccountName(false);
                                     setPromptPayAccountName(supplierName.trim());
                                   }}
-                                  className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline flex items-center gap-0.5"
+                                  className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold hover:underline flex items-center gap-1"
                                 >
-                                  <span>🔄 รีเซ็ตตามชื่อผู้รับเงิน</span>
+                                  <RotateCcw size={11} />
+                                  <span>รีเซ็ตตามชื่อผู้รับเงิน</span>
                                 </button>
                               ) : (
                                 <span className="text-[10px] text-emerald-600 font-medium flex items-center gap-0.5">
@@ -2627,6 +3247,9 @@ export default function NewPaymentRequestClient({
                     <th className="py-2.5 px-3 min-w-[200px] text-left border-r border-gray-200">รายการสินค้า / บริการ *</th>
                     <th className="py-2.5 px-3 w-32 text-right border-r border-gray-200">จำนวนเงิน (฿) *</th>
                     <th className="py-2.5 px-2 w-28 text-center border-r border-gray-200">จ่ายบัตรเครดิต</th>
+                    <th className="py-2.5 px-2 w-36 text-center border-r border-gray-200" title="ติ๊กเลือกเมื่อไม่มีใบเสร็จรับเงิน เพื่อสร้างใบรับรองแทนใบเสร็จรับเงิน (บก.111 / Certification of Payment) แนบอัตโนมัติ">
+                      บิลไม่สมบูรณ์ / ใบรับรองแทน
+                    </th>
                     <th className="py-2.5 px-2.5 min-w-[120px] text-left border-r border-gray-200">หมายเหตุ</th>
                     <th className="py-2.5 px-2 w-12 text-center">ลบ</th>
                   </tr>
@@ -2792,6 +3415,85 @@ export default function NewPaymentRequestClient({
                           </label>
                         </td>
 
+                        {/* Irregular Bill / Substitute Receipt Checkbox & PDF Generator */}
+                        <td className="py-1.5 px-2 border-r border-gray-100 align-top text-center pt-2">
+                          <div className="flex flex-col items-center gap-1">
+                            <label className="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-gray-700">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(item.isIrregularBill)}
+                                onChange={() => handleToggleIrregularBill(idx)}
+                                disabled={Boolean(isGeneratingCertMap[idx])}
+                                className="rounded text-red-600 focus:ring-red-500 w-3.5 h-3.5 cursor-pointer"
+                              />
+                              <span className={item.isIrregularBill ? 'font-bold text-amber-900' : 'text-gray-400'}>
+                                {item.isIrregularBill ? 'ไม่มีใบเสร็จ' : 'บิลปกติ'}
+                              </span>
+                            </label>
+
+                            {isGeneratingCertMap[idx] && (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-red-600 font-medium animate-pulse mt-0.5">
+                                <RefreshCw className="w-3 h-3 animate-spin" /> สร้าง PDF...
+                              </span>
+                            )}
+
+                            {item.isIrregularBill && !isGeneratingCertMap[idx] && (() => {
+                              const itemGroupKey = getSubstituteGroupKey(item.supplierName, item.billDate);
+                              const groupMatches = itemGroupKey
+                                ? requisitionItems.filter(
+                                    (it) => it.isIrregularBill && getSubstituteGroupKey(it.supplierName, it.billDate) === itemGroupKey
+                                  )
+                                : [];
+                              const groupCount = groupMatches.length;
+                              const isMerged =
+                                groupCount > 1 &&
+                                groupMatches.every(
+                                  (it) => it.substituteCertificateUrl && it.substituteCertificateUrl === groupMatches[0].substituteCertificateUrl
+                                );
+
+                              return (
+                                <div className="flex flex-col items-center gap-1 mt-0.5">
+                                  {groupCount > 1 && !isMerged && (
+                                    <button
+                                      type="button"
+                                      onClick={() => syncGroupSubstituteCertificate(itemGroupKey, requisitionItems)}
+                                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500 hover:bg-amber-600 text-white transition shadow-2xs cursor-pointer animate-pulse"
+                                      title="คลิกเพื่อรวมรายการของร้านและวันนี้เข้าเป็น PDF ใบรับรองฉบับเดียว"
+                                    >
+                                      <Sparkles className="w-3 h-3" />
+                                      รวม PDF ({groupCount} รายการ)
+                                    </button>
+                                  )}
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenSubstituteModal(idx)}
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition shadow-2xs cursor-pointer"
+                                    title={
+                                      groupCount > 1
+                                        ? `ดูตัวอย่าง แก้ไข หรือพิมพ์ใบรับรอง (รวม ${groupCount} รายการ ร้านค้าและวันที่เดียวกัน)`
+                                        : 'ดูตัวอย่าง แก้ไข หรือพิมพ์ใบรับรองแทนใบเสร็จรับเงิน'
+                                    }
+                                  >
+                                    <FileText className="w-3 h-3 text-amber-700" />
+                                    {item.substituteCertificateUrl
+                                      ? groupCount > 1
+                                        ? `ดู/แก้ไข PDF (รวม ${groupCount} รายการ)`
+                                        : 'ดู/แก้ไข PDF'
+                                      : 'สร้างเอกสาร'}
+                                  </button>
+
+                                  {groupCount > 1 && (
+                                    <span className="inline-block text-[9px] font-medium text-amber-800 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">
+                                      รวมร้านและวันที่เดียวกัน
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </td>
+
                         {/* Remarks */}
                         <td className="py-1.5 px-2 border-r border-gray-100 align-top">
                           <input
@@ -2829,7 +3531,7 @@ export default function NewPaymentRequestClient({
                     <td className="py-2.5 px-3 text-right font-mono font-bold text-gray-900 border-r border-gray-200">
                       {itemsTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                     </td>
-                    <td colSpan={3} className="px-3 text-gray-400 text-[11px]">
+                    <td colSpan={4} className="px-3 text-gray-400 text-[11px]">
                       รวมทั้งสิ้น {requisitionItems.length} รายการ
                     </td>
                   </tr>
@@ -2844,7 +3546,7 @@ export default function NewPaymentRequestClient({
                         {vatType === 'INCLUDED_7%' ? '' : '+'}
                         {calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                       </td>
-                      <td colSpan={3} className="px-3 text-blue-600 text-[10px]">
+                      <td colSpan={4} className="px-3 text-blue-600 text-[10px]">
                         {vatType === 'INCLUDED_7%'
                           ? `ถอด VAT 7% ในตัวจากยอดบิล (มูลค่าก่อน VAT: ${preVatBase.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿)`
                           : `บวก VAT 7% เพิ่มจากยอดบิล`}
@@ -2861,7 +3563,7 @@ export default function NewPaymentRequestClient({
                       <td className="py-2 px-3 text-right font-mono font-bold text-amber-800 border-r border-gray-200">
                         -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                       </td>
-                      <td colSpan={3} className="px-3 text-amber-700 text-[10px]">
+                      <td colSpan={4} className="px-3 text-amber-700 text-[10px]">
                         หักภาษี ณ ที่จ่ายตามที่ระบุในส่วนภาษีด้านล่าง
                       </td>
                     </tr>
@@ -2886,7 +3588,7 @@ export default function NewPaymentRequestClient({
                         <span className="text-[11px] font-bold">฿</span>
                       </div>
                     </td>
-                    <td colSpan={3} className="px-3 text-red-700 text-[10px]">
+                    <td colSpan={4} className="px-3 text-red-700 text-[10px]">
                       หักยอดที่บริษัท/พนักงานรูดบัตรเครดิตออกจากการเบิกเงินสด
                     </td>
                   </tr>
@@ -2899,7 +3601,7 @@ export default function NewPaymentRequestClient({
                     <td className="py-3 px-3 text-right font-mono text-red-600 font-extrabold text-base border-r border-gray-200">
                       {netPayable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                     </td>
-                    <td colSpan={3} className="px-3 text-gray-700 text-[11px] font-normal truncate">
+                    <td colSpan={4} className="px-3 text-gray-700 text-[11px] font-normal truncate">
                       ({bahtText})
                     </td>
                   </tr>
@@ -3734,6 +4436,11 @@ export default function NewPaymentRequestClient({
                       </a>
                       <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                         <span className="text-[10px] text-gray-400 font-mono">ไฟล์ #{idx + 1}</span>
+                        {(att as any).isSubstituteCertificate && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                            <FileText className="w-2.5 h-2.5 text-amber-700" /> ใบรับรองแทนใบเสร็จ (บก.111)
+                          </span>
+                        )}
                         {(att.fileHash || att.visualHash) && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                             <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> ตรวจสอบแล้ว ไม่ซ้ำ
@@ -4364,6 +5071,20 @@ export default function NewPaymentRequestClient({
             setSelectedVoucherRequest(updated);
             setMyRequests((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
           }}
+        />
+      )}
+
+      {/* Modal: Substitute Receipt Certificate (ใบรับรองแทนใบเสร็จรับเงิน) */}
+      {substituteModalOpen && substituteModalData && (
+        <SubstituteReceiptModal
+          isOpen={substituteModalOpen}
+          initialData={substituteModalData}
+          onClose={() => {
+            setSubstituteModalOpen(false);
+            setActiveSubstituteItemIdx(null);
+            setSubstituteModalData(null);
+          }}
+          onSaveAndAttach={handleModalSaveAndAttach}
         />
       )}
     </div>

@@ -256,15 +256,15 @@ export function extractDocumentFields(text?: string | null): {
     if (any13) taxId = any13[1];
   }
 
-  // 2. Invoice / Receipt Number (Includes เล่มที่/เลขที่)
+  // 2. Invoice / Receipt Number / Slip Transaction Ref (Includes เลขที่รายการ/รหัสอ้างอิง)
   let invoiceNo: string | null = null;
-  const invMatches = clean.match(/(?:เลขที่(?:\s*ใบกำกับภาษี|\s*ใบเสร็จ|\s*เอกสาร|\s*บิล)?|เล่มที่|Invoice\s*(?:No|Number|\#|\.)|Receipt\s*(?:No|\#|\.)|Bill\s*(?:No|\#|\.)|Doc\s*(?:No|\#|\.)|TAX\s*INVOICE\s*NO\.?|INV\s*NO\.?)[\s:：#\.\-]+([A-Za-z0-9\/\-_]{1,35})/i);
+  const invMatches = clean.match(/(?:เลขที่(?:\s*รายการ|\s*อ้างอิง|\s*คำสั่งซื้อ|\s*ใบกำกับภาษี|\s*ใบเสร็จ|\s*เอกสาร|\s*บิล)?|รหัสอ้างอิง|เล่มที่|Invoice\s*(?:No|Number|\#|\.)|Receipt\s*(?:No|\#|\.)|Bill\s*(?:No|\#|\.)|Doc\s*(?:No|\#|\.)|TAX\s*INVOICE\s*NO\.?|INV\s*NO\.?|Ref(?:\s*No|\.)?|Transaction\s*(?:ID|No|\#|\.))[\s:：#\.\-]+([A-Za-z0-9\/\-_]{3,40})/i);
   if (invMatches && invMatches[1].trim().length >= 3 && !/^(?:invoice|receipt|tax|abb|original|copy)$/i.test(invMatches[1].trim())) {
     invoiceNo = invMatches[1].trim();
   }
 
   if (!invoiceNo) {
-    const formatMatch = clean.match(/\b(INV[0-9\-_]{3,20}|IV[0-9\-_]{3,20}|ABB[0-9\-_]{3,20}|POS[0-9\-_]{3,20}|RC[0-9\-_]{3,20})\b/i);
+    const formatMatch = clean.match(/\b(INV[0-9\-_]{3,20}|IV[0-9\-_]{3,20}|ABB[0-9\-_]{3,20}|POS[0-9\-_]{3,20}|RC[0-9\-_]{3,20}|[0-9]{10,20}[A-Za-z0-9]{3,15})\b/i);
     if (formatMatch) {
       invoiceNo = formatMatch[1].trim();
     }
@@ -282,9 +282,9 @@ export function extractDocumentFields(text?: string | null): {
     }
   }
 
-  // 4. Net / Total Amount (Includes 'รวมเงิน', 'รับเงิน', cashsale pads & fallback to bottom line amount)
+  // 4. Net / Total Amount (Includes 'รวมเงิน', 'รับเงิน', 'จำนวน:', cashsale pads & fallback to bottom line amount)
   let amount: number | null = null;
-  const amtMatches = clean.match(/(?:รวมทั้งสิ้น|ยอดรวมทั้งสิ้น|รวมเงินทั้งสิ้น|ยอดรวมสุทธิ|ยอดเงินสุทธิ|จำนวนเงินรวมทั้งสิ้น|จำนวนเงินสุทธิ|จำนวนเงินรวม|ยอดชำระทั้งสิ้น|ยอดชำระ|ราคารวม\s*VAT|รวมเป็นเงินทั้งสิ้น|รวมเป็นเงิน|รวมเงิน|Grand\s*Total|Total\s*Amount|Net\s*Amount)[\s:：#\.\-|]*([0-9]{1,3}(?:[,\s][0-9]{3})*(?:\.[0-9]{2})?|[0-9]+(?:\.[0-9]{2})?)/i);
+  const amtMatches = clean.match(/(?:รวมทั้งสิ้น|ยอดรวมทั้งสิ้น|รวมเงินทั้งสิ้น|ยอดรวมสุทธิ|ยอดเงินสุทธิ|จำนวนเงินรวมทั้งสิ้น|จำนวนเงินสุทธิ|จำนวนเงินรวม|จำนวนเงิน|จำนวน|ยอดชำระทั้งสิ้น|ยอดชำระ|ราคารวม\s*VAT|รวมเป็นเงินทั้งสิ้น|รวมเป็นเงิน|รวมเงิน|Grand\s*Total|Total\s*Amount|Net\s*Amount)[\s:：#\.\-|]*([0-9]{1,3}(?:[,\s][0-9]{3})*(?:\.[0-9]{2})?|[0-9]+(?:\.[0-9]{2})?)/i);
   if (amtMatches && amtMatches[1]) {
     const rawNum = parseFloat(amtMatches[1].replace(/[,\s]/g, ''));
     if (!isNaN(rawNum) && rawNum > 0) {

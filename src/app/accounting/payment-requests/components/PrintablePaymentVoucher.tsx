@@ -42,6 +42,7 @@ const companyInfoMap: Record<
     address: string;
     telFax: string;
     branchTitle: string;
+    logoUrl: string;
   }
 > = {
   TG: {
@@ -51,6 +52,7 @@ const companyInfoMap: Record<
     address: '39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กทม. 10250',
     telFax: 'โทร: +66(0) 2328-0801-3 แฟกซ์: +66(0) 2328-0804',
     branchTitle: 'สำนักงานใหญ่',
+    logoUrl: '/4.png',
   },
   TE: {
     th: 'บริษัท เทอรา อิเล็กทริค จำกัด',
@@ -59,6 +61,7 @@ const companyInfoMap: Record<
     address: '39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กทม. 10250',
     telFax: 'โทร: +66(0) 2328-0801-3 แฟกซ์: +66(0) 2328-0804',
     branchTitle: 'สำนักงานใหญ่',
+    logoUrl: '/6.png',
   },
   TP: {
     th: 'บริษัท เทอรา เพาเวอร์ จำกัด',
@@ -67,6 +70,7 @@ const companyInfoMap: Record<
     address: '39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กทม. 10250',
     telFax: 'โทร: +66(0) 2328-0801-3 แฟกซ์: +66(0) 2328-0804',
     branchTitle: 'สำนักงานใหญ่',
+    logoUrl: '/7.png',
   },
 };
 
@@ -93,9 +97,18 @@ function formatThaiDate(dateStr?: string | Date | null): string {
   }
 }
 
+function resolveCompanyInfo(companyStr?: string) {
+  if (!companyStr) return companyInfoMap['TG'];
+  if (companyInfoMap[companyStr]) return companyInfoMap[companyStr];
+  const s = String(companyStr).toLowerCase();
+  if (s.includes('อิเล็กทริค') || s.includes('electric') || s === 'te') return companyInfoMap['TE'];
+  if (s.includes('พาวเวอร์') || s.includes('เพาเวอร์') || s.includes('power') || s === 'tp') return companyInfoMap['TP'];
+  return companyInfoMap['TG'];
+}
+
 export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: Props) {
   const printRef = useRef<HTMLDivElement>(null);
-  const companyInfo = companyInfoMap[request.company] || companyInfoMap['TG'];
+  const companyInfo = resolveCompanyInfo(request.company);
 
   // Font size adjustment state (percentage from 80% to 125%)
   const [fontScale, setFontScale] = useState<number>(100);
@@ -347,19 +360,36 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
     }
   };
 
-  // Auto-load signature from database or remembered in localStorage for requester
+  // Auto-load signature from database or remembered in localStorage for requester & supervisor
   useEffect(() => {
     let prep = request.requester_signature_url || null;
     let sup = request.supervisor_signature_url || null;
     let veri = request.ap_signature_url || null;
     let appr = request.approver_signature_url || null;
 
-    if (!prep && typeof window !== 'undefined' && request.requester_name) {
-      const cached = localStorage.getItem(`crm_saved_signature_${request.requester_name}`);
-      if (cached) {
-        prep = cached;
-        if (request.id) {
-          updatePaymentRequestSignatures(request.id, { preparedBy: cached }).catch(() => {});
+    if (typeof window !== 'undefined') {
+      if (!prep) {
+        const cached =
+          (request.requester_name ? localStorage.getItem(`crm_saved_signature_${request.requester_name}`) : null) ||
+          localStorage.getItem('crm_user_signature');
+        if (cached) {
+          prep = cached;
+          if (request.id) {
+            updatePaymentRequestSignatures(request.id, { preparedBy: cached }).catch(() => {});
+          }
+        }
+      }
+
+      if (!sup) {
+        const supName = request.supervisor_checked_by || request.assigned_supervisor_name || supervisorName;
+        const cachedSup =
+          (supName ? localStorage.getItem(`crm_saved_signature_${supName}`) : null) ||
+          localStorage.getItem('crm_supervisor_signature');
+        if (cachedSup) {
+          sup = cachedSup;
+          if (request.id) {
+            updatePaymentRequestSignatures(request.id, { supervisorApprovedBy: cachedSup }).catch(() => {});
+          }
         }
       }
     }
@@ -377,7 +407,43 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
     request.ap_signature_url,
     request.approver_signature_url,
     request.requester_name,
+    request.supervisor_checked_by,
+    request.assigned_supervisor_name,
+    supervisorName,
   ]);
+
+  const handleCopySignatureToSupervisor = async (sigUrl: string) => {
+    setSignatures((prev) => ({ ...prev, supervisorApprovedBy: sigUrl }));
+    setIsSavingSignature((prev) => ({ ...prev, supervisorApprovedBy: true }));
+    try {
+      if (request.id) {
+        await updatePaymentRequestSignatures(request.id, { supervisorApprovedBy: sigUrl });
+        if (onUpdate) {
+          onUpdate({
+            ...request,
+            supervisor_signature_url: sigUrl,
+          });
+        }
+      }
+      if (typeof window !== 'undefined') {
+        const supName = request.supervisor_checked_by || request.assigned_supervisor_name || supervisorName;
+        if (supName) {
+          try {
+            localStorage.setItem(`crm_saved_signature_${supName}`, sigUrl);
+          } catch {}
+        }
+        try {
+          localStorage.setItem('crm_supervisor_signature', sigUrl);
+        } catch {}
+      }
+      setSavedSuccessSlot('supervisorApprovedBy');
+      setTimeout(() => setSavedSuccessSlot(null), 3000);
+    } catch (err) {
+      console.error('Failed to copy signature:', err);
+    } finally {
+      setIsSavingSignature((prev) => ({ ...prev, supervisorApprovedBy: false }));
+    }
+  };
 
   const handleSignatureUpload = async (
     slot: 'preparedBy' | 'supervisorApprovedBy' | 'verifiedBy' | 'approvedBy',
@@ -448,10 +514,21 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
         }
       }
 
-      // 3. Cache requester signature in localStorage for all future payment vouchers
-      if (slot === 'preparedBy' && typeof window !== 'undefined' && request.requester_name) {
+      // 3. Cache signatures in localStorage for all future documents
+      if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem(`crm_saved_signature_${request.requester_name}`, uploadedUrl);
+          if (slot === 'preparedBy') {
+            localStorage.setItem('crm_user_signature', uploadedUrl);
+            if (request.requester_name) {
+              localStorage.setItem(`crm_saved_signature_${request.requester_name}`, uploadedUrl);
+            }
+          } else if (slot === 'supervisorApprovedBy') {
+            localStorage.setItem('crm_supervisor_signature', uploadedUrl);
+            const sName = request.supervisor_checked_by || request.assigned_supervisor_name || supervisorName;
+            if (sName) {
+              localStorage.setItem(`crm_saved_signature_${sName}`, uploadedUrl);
+            }
+          }
         } catch {}
       }
 
@@ -1164,8 +1241,8 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
               <div className="shrink-0 flex items-center justify-start pt-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/4.png"
-                  alt="TERA Logo"
+                  src={companyInfo.logoUrl || '/4.png'}
+                  alt={`${request.company || 'TERA'} Logo`}
                   className="h-14 sm:h-16 w-auto object-contain"
                 />
               </div>
@@ -1659,15 +1736,27 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                           <Check className="w-3 h-3" /> บันทึกแล้ว
                         </span>
                       ) : (
-                        <label className="cursor-pointer text-[10px] font-medium text-gray-600 hover:text-red-600 px-1.5 py-0.5 rounded border border-gray-300 hover:border-red-300 bg-gray-50 hover:bg-red-50 transition shadow-2xs">
-                          {signatures.supervisorApprovedBy ? 'เปลี่ยน' : 'แนบลายเซ็น'}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => handleSignatureUpload('supervisorApprovedBy', e)}
-                          />
-                        </label>
+                        <div className="flex flex-wrap items-center justify-center gap-1">
+                          <label className="cursor-pointer text-[10px] font-medium text-gray-600 hover:text-red-600 px-1.5 py-0.5 rounded border border-gray-300 hover:border-red-300 bg-gray-50 hover:bg-red-50 transition shadow-2xs">
+                            {signatures.supervisorApprovedBy ? 'เปลี่ยน' : 'แนบลายเซ็น'}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleSignatureUpload('supervisorApprovedBy', e)}
+                            />
+                          </label>
+                          {!signatures.supervisorApprovedBy && signatures.preparedBy && (
+                            <button
+                              type="button"
+                              onClick={() => handleCopySignatureToSupervisor(signatures.preparedBy!)}
+                              className="cursor-pointer text-[10px] font-semibold text-emerald-700 hover:text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 transition shadow-2xs inline-flex items-center gap-0.5"
+                              title="คลิกเดียว นำลายเซ็นของผู้จัดทำมาใส่ช่องนี้ทันที"
+                            >
+                              <Check className="w-2.5 h-2.5 stroke-[3]" /> ใช้ลายเซ็นเดียวกัน
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1983,8 +2072,8 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                       <div className="flex items-center gap-3">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src="/4.png"
-                          alt="TERA Logo"
+                          src={companyInfo.logoUrl || '/4.png'}
+                          alt={`${request.company || 'TERA'} Logo`}
                           className="h-10 w-auto object-contain shrink-0"
                         />
                         <div>

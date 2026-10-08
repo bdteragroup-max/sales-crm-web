@@ -66,28 +66,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 2. High-Performance Short-Circuit:
-    // If QR code was detected (bank transfer slip or QR receipt), it already has a 100% unique payload!
-    // Skip heavy OCR entirely for instantaneous response (~50ms)!
-    if (qrPayload) {
-      return NextResponse.json({
-        success: true,
-        fileName,
-        qrPayload,
-        barcode: qrPayload,
-        extractedTaxId: null,
-        extractedInvoiceNo: null,
-        extractedAmount: null,
-        extractedDate: null,
-        extractedSupplier: null,
-        extractedPhone: null,
-        extractedDescription: null,
-        extractedLineItems: [],
-        rawTextSnippet: null,
-      });
-    }
-
-    // 3. Fast OCR Auto-Scan via dedicated warm worker process
+    // 2. Fast OCR Auto-Scan via dedicated warm worker process
     let rawText = '';
     try {
       const ocrRes = await fastOcrManager.recognizeBuffer(buffer, 25000);
@@ -96,14 +75,14 @@ export async function POST(request: Request) {
       console.warn('Server OCR recognize error:', ocrErr);
     }
 
-    // 4. Extract structured business fields
+    // 3. Extract structured business fields
     const parsed = extractDocumentFields(rawText);
 
     return NextResponse.json({
       success: true,
       fileName,
-      qrPayload: null,
-      barcode: null,
+      qrPayload: qrPayload || null,
+      barcode: qrPayload || null,
       extractedTaxId: parsed.taxId,
       extractedInvoiceNo: parsed.invoiceNo,
       extractedAmount: parsed.amount,
