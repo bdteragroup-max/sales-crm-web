@@ -72,25 +72,18 @@ export default function SubstituteReceiptModal({
       let loadedFromStorage = false;
 
       if (typeof window !== 'undefined') {
-        if (!cachedRequester) {
-          const stored =
-            (initialData.requesterName ? localStorage.getItem(`crm_saved_signature_${initialData.requesterName}`) : null) ||
-            localStorage.getItem('crm_user_signature');
+        if (!cachedRequester && initialData.requesterName) {
+          const stored = localStorage.getItem(`crm_saved_signature_${initialData.requesterName}`);
           if (stored) {
             cachedRequester = stored;
             loadedFromStorage = true;
           }
         }
-        if (!cachedApprover) {
-          const storedSup =
-            (initialData.approverName ? localStorage.getItem(`crm_saved_signature_${initialData.approverName}`) : null) ||
-            localStorage.getItem('crm_supervisor_signature');
+        if (!cachedApprover && initialData.approverName) {
+          const storedSup = localStorage.getItem(`crm_saved_signature_${initialData.approverName}`);
           if (storedSup) {
             cachedApprover = storedSup;
             loadedFromStorage = true;
-          } else if (cachedRequester) {
-            // Default: sign once applies to both
-            cachedApprover = cachedRequester;
           }
         }
       }
@@ -204,17 +197,11 @@ export default function SubstituteReceiptModal({
   const persistSignaturesToStorage = (data: SubstituteReceiptData) => {
     if (typeof window === 'undefined') return;
     try {
-      if (data.requesterSignatureUrl) {
-        localStorage.setItem('crm_user_signature', data.requesterSignatureUrl);
-        if (data.requesterName) {
-          localStorage.setItem(`crm_saved_signature_${data.requesterName}`, data.requesterSignatureUrl);
-        }
+      if (data.requesterSignatureUrl && data.requesterName) {
+        localStorage.setItem(`crm_saved_signature_${data.requesterName}`, data.requesterSignatureUrl);
       }
-      if (data.approverSignatureUrl) {
-        localStorage.setItem('crm_supervisor_signature', data.approverSignatureUrl);
-        if (data.approverName) {
-          localStorage.setItem(`crm_saved_signature_${data.approverName}`, data.approverSignatureUrl);
-        }
+      if (data.approverSignatureUrl && data.approverName) {
+        localStorage.setItem(`crm_saved_signature_${data.approverName}`, data.approverSignatureUrl);
       }
     } catch {}
   };

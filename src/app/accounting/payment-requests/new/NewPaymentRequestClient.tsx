@@ -298,8 +298,8 @@ export default function NewPaymentRequestClient({
   >('VENDOR_BILL');
   const [urgency, setUrgency] = useState<'NORMAL' | 'EMERGENCY'>('NORMAL');
 
-  // Requisition Form Entry Mode: SINGLE (One bill/supplier) vs MULTI_ITEMS (Multiple items & multiple suppliers)
-  const [entryMode, setEntryMode] = useState<'SINGLE' | 'MULTI_ITEMS'>('SINGLE');
+  // Requisition Form Entry Mode: Fixed to MULTI_ITEMS (Multiple items & multiple suppliers)
+  const entryMode = 'MULTI_ITEMS' as const;
 
   // Multi-Item Requisition Table State (matching "รายการเบิกเงิน")
   const [requisitionItems, setRequisitionItems] = useState<RequisitionItem[]>([
@@ -727,7 +727,7 @@ export default function NewPaymentRequestClient({
       requesterSignatureUrl: item.requesterSignatureUrl || formRequesterSig || undefined,
       approverName: item.approverName || supervisorName || '',
       approverPosition: item.approverPosition || 'หัวหน้างาน',
-      approverSignatureUrl: item.approverSignatureUrl || formSupervisorSig || formRequesterSig || undefined,
+      approverSignatureUrl: item.approverSignatureUrl || formSupervisorSig || undefined,
       companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
       companyCode: company,
       logoUrl: COMPANY_LOGO_MAP[company] || '/4.png',
@@ -1041,17 +1041,14 @@ export default function NewPaymentRequestClient({
   // Auto-load remembered digital signatures
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const uSig =
-        (requesterName ? localStorage.getItem(`crm_saved_signature_${requesterName}`) : null) ||
-        localStorage.getItem('crm_user_signature');
-      if (uSig && !formRequesterSig) setFormRequesterSig(uSig);
+      try {
+        localStorage.removeItem('crm_supervisor_signature');
+      } catch {}
 
-      const sSig =
-        (supervisorName ? localStorage.getItem(`crm_saved_signature_${supervisorName}`) : null) ||
-        localStorage.getItem('crm_supervisor_signature');
-      if (sSig && !formSupervisorSig) setFormSupervisorSig(sSig);
+      const uSig = requesterName ? localStorage.getItem(`crm_saved_signature_${requesterName}`) : null;
+      if (uSig && !formRequesterSig) setFormRequesterSig(uSig);
     }
-  }, [requesterName, supervisorName]);
+  }, [requesterName]);
 
   // Supplier / Payee
   const [supplierName, setSupplierName] = useState('');
@@ -1664,21 +1661,21 @@ export default function NewPaymentRequestClient({
             });
 
             if (confirmFill.isConfirmed) {
-              if (extractedInvoiceNo && (!invoiceNumber || entryMode === 'SINGLE')) {
+              if (extractedInvoiceNo && !invoiceNumber) {
                 setInvoiceNumber(extractedInvoiceNo);
               }
-              if (extractedTaxId && (!supplierTaxId || entryMode === 'SINGLE')) {
+              if (extractedTaxId && !supplierTaxId) {
                 setSupplierTaxId(extractedTaxId);
               }
-              if (extractedSupplier && (!supplierName || entryMode === 'SINGLE')) {
+              if (extractedSupplier && !supplierName) {
                 setSupplierName(extractedSupplier);
               }
-              if (extractedDate && (!documentDate || entryMode === 'SINGLE')) {
+              if (extractedDate && !documentDate) {
                 const isoDate = formatDateToISO(extractedDate) || extractedDate;
                 setDocumentDate(isoDate);
               }
               if (extractedAmount && extractedAmount > 0) {
-                if (entryMode === 'SINGLE' || !subtotalAmount || Number(subtotalAmount) === 0) {
+                if (!subtotalAmount || Number(subtotalAmount) === 0) {
                   setSubtotalAmount(String(extractedAmount));
                 }
               }
@@ -1771,57 +1768,38 @@ export default function NewPaymentRequestClient({
     }
 
     let finalSupplierName = supplierName.trim();
-    const validItems =
-      entryMode === 'MULTI_ITEMS'
-        ? requisitionItems.filter((it) => it.description.trim() || Number(it.amount) > 0)
-        : [];
+    const validItems = requisitionItems.filter((it) => it.description.trim() || Number(it.amount) > 0);
 
-    if (entryMode === 'MULTI_ITEMS') {
-      if (validItems.length === 0) {
-        Swal.fire({
-          title: 'กรุณาระบุรายการเบิกเงิน',
-          text: 'ต้องมีอย่างน้อย 1 รายการพร้อมระบุชื่อรายการและจำนวนเงิน',
-          icon: 'warning',
-          confirmButtonColor: '#dc2626',
-        });
-        return;
-      }
+    if (validItems.length === 0) {
+      Swal.fire({
+        title: 'กรุณาระบุรายการเบิกเงิน',
+        text: 'ต้องมีอย่างน้อย 1 รายการพร้อมระบุชื่อรายการและจำนวนเงิน',
+        icon: 'warning',
+        confirmButtonColor: '#dc2626',
+      });
+      return;
+    }
 
-      const invalidRow = validItems.find((it) => !it.description.trim() || Number(it.amount) <= 0);
-      if (invalidRow) {
-        Swal.fire({
-          title: 'ข้อมูลรายการไม่ครบถ้วน',
-          text: 'กรุณาระบุชื่อรายการสินค้า/บริการ และจำนวนเงินที่มากกว่า 0 ให้ถูกต้องทุกแถว',
-          icon: 'warning',
-          confirmButtonColor: '#dc2626',
-        });
-        return;
-      }
+    const invalidRow = validItems.find((it) => !it.description.trim() || Number(it.amount) <= 0);
+    if (invalidRow) {
+      Swal.fire({
+        title: 'ข้อมูลรายการไม่ครบถ้วน',
+        text: 'กรุณาระบุชื่อรายการสินค้า/บริการ และจำนวนเงินที่มากกว่า 0 ให้ถูกต้องทุกแถว',
+        icon: 'warning',
+        confirmButtonColor: '#dc2626',
+      });
+      return;
+    }
 
-      // Auto-assign supplier name if not manually typed
-      if (!finalSupplierName) {
-        const uniqueSuppliers = Array.from(new Set(validItems.map((it) => it.supplierName?.trim()).filter(Boolean)));
-        if (uniqueSuppliers.length === 1) {
-          finalSupplierName = uniqueSuppliers[0] as string;
-        } else if (uniqueSuppliers.length > 1) {
-          finalSupplierName = `${uniqueSuppliers[0]} และอื่นๆ (รวม ${uniqueSuppliers.length} ร้านค้า)`;
-        } else {
-          finalSupplierName = `${requesterName.trim()} (สำรองจ่าย / Reimbursement)`;
-        }
-      }
-    } else {
-      if (!finalSupplierName) {
-        Swal.fire({ title: 'กรุณาระบุชื่อผู้รับเงิน / เจ้าหนี้', icon: 'warning', confirmButtonColor: '#dc2626' });
-        return;
-      }
-      if (!hasNoDocNumber && !invoiceNumber.trim()) {
-        Swal.fire({
-          title: 'กรุณาระบุเลขที่ใบเสร็จ/ใบกำกับ',
-          text: 'หากเป็นบิลไม่มีเลขที่ กรุณาติ๊กเลือก "ไม่มีเลขที่เอกสาร"',
-          icon: 'warning',
-          confirmButtonColor: '#dc2626',
-        });
-        return;
+    // Auto-assign supplier name if not manually typed
+    if (!finalSupplierName) {
+      const uniqueSuppliers = Array.from(new Set(validItems.map((it) => it.supplierName?.trim()).filter(Boolean)));
+      if (uniqueSuppliers.length === 1) {
+        finalSupplierName = uniqueSuppliers[0] as string;
+      } else if (uniqueSuppliers.length > 1) {
+        finalSupplierName = `${uniqueSuppliers[0]} และอื่นๆ (รวม ${uniqueSuppliers.length} ร้านค้า)`;
+      } else {
+        finalSupplierName = `${requesterName.trim()} (สำรองจ่าย / Reimbursement)`;
       }
     }
 
@@ -2342,95 +2320,6 @@ export default function NewPaymentRequestClient({
 
       {/* Main Symmetrical Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Form Mode Selector: Single Bill vs Multi-Item Requisition */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
-                <SlidersHorizontal className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                  รูปแบบการขอเบิกจ่ายเงิน (Requisition Format)
-                  <span className="text-[10px] font-normal text-gray-500 font-sans">
-                    (เลือกตามประเภทบิลหรือเอกสารแนบ)
-                  </span>
-                </h3>
-                <p className="text-[11px] text-gray-500">
-                  {entryMode === 'MULTI_ITEMS'
-                    ? 'โหมดรายการเบิกเงิน: รองรับหลายรายการสินค้า/บริการ และหลายผู้จำหน่าย (เช่น ใบสำคัญเบิกเงิน, เงินสดย่อย, สำรองจ่าย)'
-                    : 'โหมดบิลเดี่ยว: สำหรับการชำระหนี้การค้าใบกำกับภาษี/ใบเสร็จเดี่ยวจากคู่ค้ารายเดียว'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl shrink-0">
-              <button
-                type="button"
-                onClick={() => setEntryMode('SINGLE')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition ${
-                  entryMode === 'SINGLE'
-                    ? 'bg-white text-gray-900 shadow-2xs border border-gray-200'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <FileText className="w-3.5 h-3.5 text-blue-600" />
-                <span>บิลเดี่ยว (Single Bill)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEntryMode('MULTI_ITEMS');
-                  if (vatType === '7%') {
-                    setVatType('NONE');
-                  }
-                  if (requisitionItems.length === 1 && !requisitionItems[0].description) {
-                    const attWithItems = attachments.find(
-                      (a) => (a.extractedLineItems && a.extractedLineItems.length > 0) || a.extractedDescription
-                    );
-                    if (attWithItems?.extractedLineItems && attWithItems.extractedLineItems.length > 0) {
-                      setRequisitionItems(
-                        attWithItems.extractedLineItems.map((li, lIdx) => ({
-                          id: `item_${Date.now()}_${lIdx}`,
-                          billDate: attWithItems.extractedDate || documentDate || new Date().toISOString().split('T')[0],
-                          supplierName: attWithItems.extractedSupplier || supplierName || '',
-                          supplierTaxId: attWithItems.extractedTaxId || supplierTaxId || '',
-                          invoiceNumber: attWithItems.extractedInvoiceNo || invoiceNumber || '',
-                          description: li.description,
-                          amount: li.amount || (attWithItems.extractedLineItems!.length === 1 ? (parseFloat(subtotalAmount) || 0) : 0),
-                          remarks: '',
-                          paidByCreditCard: false,
-                        }))
-                      );
-                    } else {
-                      setRequisitionItems([
-                        {
-                          id: `item_${Date.now()}`,
-                          billDate: documentDate || new Date().toISOString().split('T')[0],
-                          supplierName: supplierName || '',
-                          supplierTaxId: supplierTaxId || '',
-                          invoiceNumber: invoiceNumber || '',
-                          description: purpose || attWithItems?.extractedDescription || '',
-                          amount: parseFloat(subtotalAmount) || 0,
-                          remarks: '',
-                          paidByCreditCard: false,
-                        },
-                      ]);
-                    }
-                  }
-                }}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition ${
-                  entryMode === 'MULTI_ITEMS'
-                    ? 'bg-red-600 text-white shadow-2xs'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span>รายการเบิกเงิน (หลายรายการ / หลายผู้จำหน่าย)</span>
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Row 1: Two Symmetrical Cards (Card 1: Organization & Channel | Card 2: Requester & Payee) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -2655,11 +2544,7 @@ export default function NewPaymentRequestClient({
                     <select
                       value={classification}
                       onChange={(e: any) => {
-                        const val = e.target.value;
-                        setClassification(val);
-                        if (val === 'REIMBURSEMENT' || val === 'PETTY_CASH') {
-                          setEntryMode('MULTI_ITEMS');
-                        }
+                        setClassification(e.target.value);
                       }}
                       className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900"
                     >
@@ -2891,13 +2776,11 @@ export default function NewPaymentRequestClient({
                     <div>
                       <div className="flex items-center justify-between min-h-[22px] mb-1">
                         <label className="text-[11px] font-semibold text-gray-700 flex items-center gap-1 truncate">
-                          <span>ชื่อผู้รับเงิน / บริษัทคู่ค้า</span>
-                          {entryMode === 'SINGLE' && <span className="text-red-600 font-bold">*</span>}
+                          <span>ชื่อผู้รับเงิน / บริษัทคู่ค้า (Payee)</span>
                         </label>
                       </div>
                       <input
                         type="text"
-                        required={entryMode === 'SINGLE'}
                         value={supplierName}
                         onChange={(e) => {
                           const val = e.target.value;
@@ -2907,11 +2790,7 @@ export default function NewPaymentRequestClient({
                             setPromptPayAccountName(val);
                           }
                         }}
-                        placeholder={
-                          entryMode === 'MULTI_ITEMS'
-                            ? `เช่น ${requesterName || 'ชื่อผู้ขอเบิก'} (สำรองจ่าย)`
-                            : 'เช่น บจก. สยามคอมเพรสเซอร์ หรือ นายสมชาย'
-                        }
+                        placeholder={`เช่น ${requesterName || 'ชื่อผู้ขอเบิก'} (สำรองจ่าย)`}
                         className="w-full h-10 text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-medium shadow-2xs"
                       />
                     </div>
@@ -4088,8 +3967,8 @@ export default function NewPaymentRequestClient({
           </div>
         )}
 
-        {/* Row 2: Two Symmetrical Cards (Card 3: Document & Purpose | Card 4: Financial Calculation & Net Payable) */}
-        <div className={`grid grid-cols-1 ${entryMode === 'SINGLE' ? 'lg:grid-cols-2' : ''} gap-6`}>
+        {/* Row 2: Card 3 (Document & Purpose) */}
+        <div className="grid grid-cols-1 gap-6">
           {/* Card 3: รายละเอียดเอกสาร & วัตถุประสงค์ */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
             <div>
@@ -4107,8 +3986,7 @@ export default function NewPaymentRequestClient({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {entryMode === 'MULTI_ITEMS' ? 'วันที่ทำใบเบิกเงิน' : 'วันที่ในเอกสาร / วันที่เกิดค่าใช้จ่าย'}{' '}
-                      <span className="text-red-600">*</span>
+                      วันที่ทำใบเบิกเงิน <span className="text-red-600">*</span>
                     </label>
                     <input
                       type="date"
@@ -4143,72 +4021,27 @@ export default function NewPaymentRequestClient({
                   </div>
                 </div>
 
-                {/* Invoice No. & No Document Number Checkbox (Only for SINGLE mode) */}
-                {entryMode === 'SINGLE' ? (
-                  <div className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-semibold text-gray-800">
-                        เลขที่ใบกำกับภาษี / ใบเสร็จ
-                      </label>
-                      <label className="text-xs text-gray-600 flex items-center gap-1.5 cursor-pointer font-medium">
-                        <input
-                          type="checkbox"
-                          checked={hasNoDocNumber}
-                          onChange={(e) => {
-                            setHasNoDocNumber(e.target.checked);
-                            if (e.target.checked) setInvoiceNumber('');
-                          }}
-                          className="rounded text-red-600 focus:ring-red-500 w-4 h-4"
-                        />
-                        <span>ไม่มีเลขที่เอกสาร</span>
-                      </label>
-                    </div>
-                    <input
-                      type="text"
-                      disabled={hasNoDocNumber}
-                      value={hasNoDocNumber ? '(ไม่มีเลขที่เอกสาร - ระบบจะใช้เลขที่ PAY No. อ้างอิง)' : invoiceNumber}
-                      onChange={(e) => setInvoiceNumber(e.target.value)}
-                      placeholder={hasNoDocNumber ? '' : 'เช่น INV-2026-0012'}
-                      className={`w-full text-xs rounded-xl border py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono ${
-                        hasNoDocNumber
-                          ? 'bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed italic'
-                          : 'border-gray-300 bg-white text-gray-900'
-                      }`}
-                    />
-                    <p className="text-[10px] text-gray-400 mt-1">
-                      * ระเบียบข้อ 8: ห้ามสร้างเลขที่บิลสมมติ (เช่น INV001) ขึ้นมาเองเด็ดขาด
-                    </p>
+                <div className="p-3 bg-red-50/60 rounded-xl border border-red-200 text-xs text-red-950 flex items-center gap-2.5">
+                  <Layers className="w-4 h-4 text-red-600 shrink-0" />
+                  <div>
+                    <span className="font-bold text-red-900">รายการเบิกเงินหลายรายการ / หลายผู้จำหน่าย:</span>{' '}
+                    <span className="text-gray-700">
+                      เลขที่บิลและผู้จำหน่ายจะบันทึกแยกรายแถวในตารางรายการเบิกเงินด้านบน
+                    </span>
                   </div>
-                ) : (
-                  <div className="p-3 bg-red-50/60 rounded-xl border border-red-200 text-xs text-red-950 flex items-center gap-2.5">
-                    <Layers className="w-4 h-4 text-red-600 shrink-0" />
-                    <div>
-                      <span className="font-bold text-red-900">โหมดรายการเบิกเงินหลายรายการ:</span>{' '}
-                      <span className="text-gray-700">
-                        เลขที่บิลและผู้จำหน่ายจะบันทึกแยกรายแถวในตารางรายการเบิกเงินด้านบน
-                      </span>
-                    </div>
-                  </div>
-                )}
+                </div>
 
                 {/* Purpose Textarea */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    {entryMode === 'MULTI_ITEMS'
-                      ? 'ชื่องาน / วัตถุประสงค์การขอเบิก (Job / Purpose)'
-                      : 'วัตถุประสงค์และรายละเอียดค่าใช้จ่าย (Purpose)'}{' '}
-                    <span className="text-red-600">*</span>
+                    ชื่องาน / วัตถุประสงค์การขอเบิก (Job / Purpose) <span className="text-red-600">*</span>
                   </label>
                   <textarea
                     required
                     rows={3}
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
-                    placeholder={
-                      entryMode === 'MULTI_ITEMS'
-                        ? 'เช่น เบิกซื้อวัสดุสนับสนุนงานขาย, ค่าใช้จ่ายประจำสาขา, ซื้ออุปกรณ์สำนักงาน'
-                        : 'ระบุลักษณะการจ่ายเงิน เช่น ค่าอะไหล่ซ่อมตู้ MDB, ค่าเช่าเครื่องจักร'
-                    }
+                    placeholder="เช่น เบิกซื้อวัสดุสนับสนุนงานขาย, ค่าใช้จ่ายประจำสาขา, ซื้ออุปกรณ์สำนักงาน"
                     className="w-full text-xs rounded-xl border border-gray-300 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900 leading-relaxed"
                   />
                   {/* Suggestions from uploaded documents if purpose is empty */}
@@ -4276,185 +4109,6 @@ export default function NewPaymentRequestClient({
               </div>
             </div>
           </div>
-
-          {/* Card 4: การคำนวณยอดเงิน & ภาษี (แสดงเฉพาะโหมด SINGLE เท่านั้น ในโหมด MULTI_ITEMS ลบออกเลยตามที่ผู้ใช้สั่ง) */}
-          {entryMode === 'SINGLE' && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
-                  <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                    4
-                  </span>
-                  <h2 className="text-sm font-bold text-gray-900">
-                    จำนวนเงินและภาษี (Financial Breakdown)
-                  </h2>
-                </div>
-
-                <div className="space-y-4">
-                  {/* Subtotal Input */}
-                  <div>
-                    <label className="block text-xs font-bold text-gray-800 mb-1">
-                      {vatType === 'INCLUDED_7%'
-                        ? 'จำนวนเงินรวมตามบิล (Total Amount Incl. VAT)'
-                        : 'จำนวนเงินก่อนภาษี (Pre-VAT Subtotal)'}{' '}
-                      <span className="text-red-600">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        step="0.01"
-                        required
-                        value={subtotalAmount}
-                        onChange={(e) => setSubtotalAmount(e.target.value)}
-                        placeholder="0.00"
-                        className="w-full text-base font-bold text-gray-900 rounded-xl border border-gray-300 py-2.5 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white font-mono"
-                      />
-                      <span className="absolute right-3.5 top-3 text-xs text-gray-400 font-bold">฿</span>
-                    </div>
-                  </div>
-
-                  {/* Symmetrical VAT & WHT Row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {/* VAT Selector */}
-                    <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200">
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-semibold text-gray-700">
-                          ภาษีมูลค่าเพิ่ม (VAT)
-                        </label>
-                      </div>
-                      <select
-                        value={vatType}
-                        onChange={(e: any) => setVatType(e.target.value)}
-                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
-                      >
-                        <option value="NONE">ไม่มี VAT / ยกเว้นภาษี (0%)</option>
-                        <option value="INCLUDED_7%">ราคารวม VAT แล้ว 7%</option>
-                        <option value="7%">บวก VAT 7% เพิ่มจากยอด (Pre-VAT)</option>
-                        <option value="CUSTOM">ระบุจำนวนเงิน VAT เอง</option>
-                      </select>
-                      {vatType === 'CUSTOM' ? (
-                        <input
-                          type="number"
-                          step="0.01"
-                          placeholder="จำนวนเงิน VAT"
-                          value={customVatAmount}
-                          onChange={(e) => setCustomVatAmount(e.target.value)}
-                          className="mt-1.5 w-full text-xs rounded-lg border border-gray-300 py-1 px-2 font-mono bg-white"
-                        />
-                      ) : vatType === 'INCLUDED_7%' ? (
-                        <div className="mt-1.5 p-2 bg-emerald-50/70 border border-emerald-200 rounded-lg text-[11px] text-emerald-800 space-y-0.5">
-                          <div className="flex justify-between font-mono">
-                            <span>ภาษีมูลค่าเพิ่ม 7% ในตัว:</span>
-                            <span className="font-bold">+{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                          </div>
-                          <div className="flex justify-between font-mono text-[10px] text-emerald-700">
-                            <span>มูลค่าสินค้าก่อน VAT:</span>
-                            <span>{preVatBase.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="block text-[11px] text-gray-600 font-mono mt-1">
-                          {calculatedVat > 0 ? `+${calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿` : '0.00 ฿ (ยอดเบิกเท่ากับยอดตามบิล)'}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* WHT Selector */}
-                    <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200">
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
-                        หัก ณ ที่จ่าย (WHT)
-                      </label>
-                      <select
-                        value={whtType}
-                        onChange={(e: any) => setWhtType(e.target.value)}
-                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
-                      >
-                        <option value="NONE">ไม่หัก (0%)</option>
-                        <option value="1%">1% (ค่าขนส่ง/ระวาง)</option>
-                        <option value="2%">2% (ค่าโฆษณา)</option>
-                        <option value="3%">3% (บริการ/จ้างทำของ/รับเหมา)</option>
-                        <option value="5%">5% (ค่าเช่า)</option>
-                        <option value="CUSTOM">กำหนดเอง</option>
-                      </select>
-                      {whtType === 'CUSTOM' ? (
-                        <div className="grid grid-cols-2 gap-1 mt-1.5">
-                          <input
-                            type="number"
-                            step="0.1"
-                            placeholder="%"
-                            value={customWhtPercent}
-                            onChange={(e) => setCustomWhtPercent(e.target.value)}
-                            className="w-full text-xs rounded border border-gray-300 py-1 px-1.5 font-mono bg-white"
-                          />
-                          <input
-                            type="number"
-                            step="0.01"
-                            placeholder="บาท"
-                            value={customWhtAmount}
-                            onChange={(e) => setCustomWhtAmount(e.target.value)}
-                            className="w-full text-xs rounded border border-gray-300 py-1 px-1.5 font-mono bg-white"
-                          />
-                        </div>
-                      ) : (
-                        <span className="block text-[11px] text-red-600 font-mono font-medium mt-1">
-                          -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Symmetrical Modern Red Net Payable Box */}
-                  <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl p-5 shadow-sm space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold tracking-wider uppercase text-red-100">
-                        ยอดชำระสุทธิ (NET PAYMENT AMOUNT)
-                      </span>
-                      <span className="text-[11px] font-mono font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">
-                        THB (฿)
-                      </span>
-                    </div>
-
-                    <div className="text-3xl font-mono font-extrabold tracking-tight">
-                      {netPayable.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                      <span className="text-base font-normal ml-1.5 text-red-100">บาท</span>
-                    </div>
-
-                    {/* Thai Baht text preview */}
-                    <div className="bg-black/15 backdrop-blur-xs p-2 rounded-xl text-xs text-white/95 font-medium flex items-center gap-1.5 truncate">
-                      <span className="opacity-75 shrink-0">ตัวอักษร:</span>
-                      <span className="truncate font-semibold">({bahtText})</span>
-                    </div>
-
-                    {/* Subtotal calculation note */}
-                    <div className="pt-2 border-t border-white/20 flex flex-wrap justify-between text-[11px] text-red-100/90 font-mono">
-                      <span>
-                        {vatType === 'INCLUDED_7%' ? 'ยอดรวม (รวม VAT): ' : 'ยอดรวม: '}
-                        {effectiveSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </span>
-                      {vatType === 'INCLUDED_7%' ? (
-                        <span>VAT (ในตัว 7%): {calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                      ) : (
-                        <span>VAT: +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                      )}
-                      <span>WHT: -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                    </div>
-                  </div>
-
-                  {/* Approval Tier Notice */}
-                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-[11px] text-gray-600 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-red-600 shrink-0" />
-                    <div>
-                      <span className="font-bold text-gray-800">ระดับการอนุมัติ: </span>
-                      <span>{approvalTier}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Row 3: Card 5 (Full Width Symmetrical Evidence Card) */}

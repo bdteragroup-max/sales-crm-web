@@ -183,23 +183,35 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+
         @font-face {
           font-family: 'TH Sarabun New';
           font-style: normal;
           font-weight: 400;
-          src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
+          src: local('TH Sarabun New'),
+               local('THSarabunNew'),
+               local('Sarabun'),
+               url('/Sarabun-Regular.woff2') format('woff2'),
+               url('/Sarabun-Regular.ttf') format('truetype'),
+               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Regular.woff2') format('woff2');
         }
         @font-face {
           font-family: 'TH Sarabun New';
           font-style: normal;
           font-weight: 700;
-          src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
+          src: local('TH Sarabun New Bold'),
+               local('THSarabunNew-Bold'),
+               local('Sarabun Bold'),
+               url('/Sarabun-Bold.woff2') format('woff2'),
+               url('/Sarabun-Bold.ttf') format('truetype'),
+               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Bold.woff2') format('woff2');
         }
         
         .ro-print-wrapper {
           min-height: 100vh;
           background: #e0e0e0;
-          font-family: 'TH Sarabun New', sans-serif;
+          font-family: 'TH Sarabun New', 'Sarabun', sans-serif;
           color: #000;
           padding: 20px 0;
         }
@@ -212,7 +224,7 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
         .ro-print-wrapper div, 
         .ro-print-wrapper td, 
         .ro-print-wrapper th {
-          font-family: 'TH Sarabun New', sans-serif;
+          font-family: 'TH Sarabun New', 'Sarabun', sans-serif;
           font-size: 14px;
           line-height: 1.35;
           -webkit-print-color-adjust: exact;

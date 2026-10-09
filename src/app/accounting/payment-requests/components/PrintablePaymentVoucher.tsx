@@ -360,7 +360,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
     }
   };
 
-  // Auto-load signature from database or remembered in localStorage for requester & supervisor
+  // Load signatures from database record
   useEffect(() => {
     let prep = request.requester_signature_url || null;
     let sup = request.supervisor_signature_url || null;
@@ -368,28 +368,16 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
     let appr = request.approver_signature_url || null;
 
     if (typeof window !== 'undefined') {
-      if (!prep) {
-        const cached =
-          (request.requester_name ? localStorage.getItem(`crm_saved_signature_${request.requester_name}`) : null) ||
-          localStorage.getItem('crm_user_signature');
+      // Purge legacy global key to prevent accidental signature leaks between users
+      try {
+        localStorage.removeItem('crm_supervisor_signature');
+      } catch {}
+
+      // Only load cached signature if it matches the exact requester's name
+      if (!prep && request.requester_name) {
+        const cached = localStorage.getItem(`crm_saved_signature_${request.requester_name}`);
         if (cached) {
           prep = cached;
-          if (request.id) {
-            updatePaymentRequestSignatures(request.id, { preparedBy: cached }).catch(() => {});
-          }
-        }
-      }
-
-      if (!sup) {
-        const supName = request.supervisor_checked_by || request.assigned_supervisor_name || supervisorName;
-        const cachedSup =
-          (supName ? localStorage.getItem(`crm_saved_signature_${supName}`) : null) ||
-          localStorage.getItem('crm_supervisor_signature');
-        if (cachedSup) {
-          sup = cachedSup;
-          if (request.id) {
-            updatePaymentRequestSignatures(request.id, { supervisorApprovedBy: cachedSup }).catch(() => {});
-          }
         }
       }
     }
@@ -407,43 +395,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
     request.ap_signature_url,
     request.approver_signature_url,
     request.requester_name,
-    request.supervisor_checked_by,
-    request.assigned_supervisor_name,
-    supervisorName,
   ]);
-
-  const handleCopySignatureToSupervisor = async (sigUrl: string) => {
-    setSignatures((prev) => ({ ...prev, supervisorApprovedBy: sigUrl }));
-    setIsSavingSignature((prev) => ({ ...prev, supervisorApprovedBy: true }));
-    try {
-      if (request.id) {
-        await updatePaymentRequestSignatures(request.id, { supervisorApprovedBy: sigUrl });
-        if (onUpdate) {
-          onUpdate({
-            ...request,
-            supervisor_signature_url: sigUrl,
-          });
-        }
-      }
-      if (typeof window !== 'undefined') {
-        const supName = request.supervisor_checked_by || request.assigned_supervisor_name || supervisorName;
-        if (supName) {
-          try {
-            localStorage.setItem(`crm_saved_signature_${supName}`, sigUrl);
-          } catch {}
-        }
-        try {
-          localStorage.setItem('crm_supervisor_signature', sigUrl);
-        } catch {}
-      }
-      setSavedSuccessSlot('supervisorApprovedBy');
-      setTimeout(() => setSavedSuccessSlot(null), 3000);
-    } catch (err) {
-      console.error('Failed to copy signature:', err);
-    } finally {
-      setIsSavingSignature((prev) => ({ ...prev, supervisorApprovedBy: false }));
-    }
-  };
 
   const handleSignatureUpload = async (
     slot: 'preparedBy' | 'supervisorApprovedBy' | 'verifiedBy' | 'approvedBy',
@@ -514,16 +466,12 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
         }
       }
 
-      // 3. Cache signatures in localStorage for all future documents
+      // 3. Cache signature for the specific person name only (no shared generic keys)
       if (typeof window !== 'undefined') {
         try {
-          if (slot === 'preparedBy') {
-            localStorage.setItem('crm_user_signature', uploadedUrl);
-            if (request.requester_name) {
-              localStorage.setItem(`crm_saved_signature_${request.requester_name}`, uploadedUrl);
-            }
+          if (slot === 'preparedBy' && request.requester_name) {
+            localStorage.setItem(`crm_saved_signature_${request.requester_name}`, uploadedUrl);
           } else if (slot === 'supervisorApprovedBy') {
-            localStorage.setItem('crm_supervisor_signature', uploadedUrl);
             const sName = request.supervisor_checked_by || request.assigned_supervisor_name || supervisorName;
             if (sName) {
               localStorage.setItem(`crm_saved_signature_${sName}`, uploadedUrl);
@@ -561,9 +509,17 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
           });
         }
       }
-      if (slot === 'preparedBy' && typeof window !== 'undefined' && request.requester_name) {
+      if (typeof window !== 'undefined') {
         try {
-          localStorage.removeItem(`crm_saved_signature_${request.requester_name}`);
+          if (slot === 'preparedBy' && request.requester_name) {
+            localStorage.removeItem(`crm_saved_signature_${request.requester_name}`);
+          } else if (slot === 'supervisorApprovedBy') {
+            const sName = request.supervisor_checked_by || request.assigned_supervisor_name || supervisorName;
+            if (sName) {
+              localStorage.removeItem(`crm_saved_signature_${sName}`);
+            }
+            localStorage.removeItem('crm_supervisor_signature');
+          }
         } catch {}
       }
     } catch (err) {
@@ -899,8 +855,9 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
           font-weight: 400;
           src: local('TH Sarabun'), local('TH Sarabun New'), local('THSarabunNew'),
                local('TH SarabunPSK'), local('TH Sarabun Thai'), local('Sarabun'),
+               url('/Sarabun-Regular.woff2') format('woff2'),
                url('/Sarabun-Regular.ttf') format('truetype'),
-               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
+               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Regular.woff2') format('woff2');
         }
 
         @font-face {
@@ -909,8 +866,9 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
           font-weight: 700;
           src: local('TH Sarabun Bold'), local('TH Sarabun New Bold'), local('THSarabunNew-Bold'),
                local('TH SarabunPSK Bold'), local('TH Sarabun Thai Bold'), local('Sarabun Bold'),
+               url('/Sarabun-Bold.woff2') format('woff2'),
                url('/Sarabun-Bold.ttf') format('truetype'),
-               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
+               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Bold.woff2') format('woff2');
         }
 
         .voucher-sarabun {
@@ -1770,16 +1728,6 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                               onChange={(e) => handleSignatureUpload('supervisorApprovedBy', e)}
                             />
                           </label>
-                          {!signatures.supervisorApprovedBy && signatures.preparedBy && (
-                            <button
-                              type="button"
-                              onClick={() => handleCopySignatureToSupervisor(signatures.preparedBy!)}
-                              className="cursor-pointer text-[10px] font-semibold text-emerald-700 hover:text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 transition shadow-2xs inline-flex items-center gap-0.5"
-                              title="คลิกเดียว นำลายเซ็นของผู้จัดทำมาใส่ช่องนี้ทันที"
-                            >
-                              <Check className="w-2.5 h-2.5 stroke-[3]" /> ใช้ลายเซ็นเดียวกัน
-                            </button>
-                          )}
                         </div>
                       )}
                     </div>
@@ -2217,8 +2165,10 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
         font-weight: 400;
         src: local('TH Sarabun New'),
              local('THSarabunNew'),
-             url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2'),
-             url('/Sarabun-Regular.ttf') format('truetype');
+             local('Sarabun'),
+             url('/Sarabun-Regular.woff2') format('woff2'),
+             url('/Sarabun-Regular.ttf') format('truetype'),
+             url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Regular.woff2') format('woff2');
       }
       @font-face {
         font-family: 'TH Sarabun New';
@@ -2226,8 +2176,10 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
         font-weight: 700;
         src: local('TH Sarabun New Bold'),
              local('THSarabunNew-Bold'),
-             url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2'),
-             url('/Sarabun-Bold.ttf') format('truetype');
+             local('Sarabun Bold'),
+             url('/Sarabun-Bold.woff2') format('woff2'),
+             url('/Sarabun-Bold.ttf') format('truetype'),
+             url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Bold.woff2') format('woff2');
       }
 
       .voucher-sarabun,

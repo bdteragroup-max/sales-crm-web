@@ -1594,14 +1594,18 @@ export default function PrintablePurchaseRequisitionModal({
 
       {/* TH Sarabun New @font-face & Robust Print-Only Isolation CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+
         @font-face {
           font-family: 'TH Sarabun New';
           font-style: normal;
           font-weight: 400;
           src: local('TH Sarabun New'),
                local('THSarabunNew'),
-               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2'),
-               url('/Sarabun-Regular.ttf') format('truetype');
+               local('Sarabun'),
+               url('/Sarabun-Regular.woff2') format('woff2'),
+               url('/Sarabun-Regular.ttf') format('truetype'),
+               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Regular.woff2') format('woff2');
         }
         @font-face {
           font-family: 'TH Sarabun New';
@@ -1609,8 +1613,10 @@ export default function PrintablePurchaseRequisitionModal({
           font-weight: 700;
           src: local('TH Sarabun New Bold'),
                local('THSarabunNew-Bold'),
-               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2'),
-               url('/Sarabun-Bold.ttf') format('truetype');
+               local('Sarabun Bold'),
+               url('/Sarabun-Bold.woff2') format('woff2'),
+               url('/Sarabun-Bold.ttf') format('truetype'),
+               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Bold.woff2') format('woff2');
         }
 
         #pr-printable-document,

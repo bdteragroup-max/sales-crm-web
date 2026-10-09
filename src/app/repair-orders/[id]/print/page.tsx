@@ -323,17 +323,29 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
   return (
     <div className="ro-print-wrapper w-full h-full overflow-y-auto print:overflow-visible print:h-auto">
       <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+
         @font-face {
           font-family: 'TH Sarabun New';
           font-style: normal;
           font-weight: 400;
-          src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
+          src: local('TH Sarabun New'),
+               local('THSarabunNew'),
+               local('Sarabun'),
+               url('/Sarabun-Regular.woff2') format('woff2'),
+               url('/Sarabun-Regular.ttf') format('truetype'),
+               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Regular.woff2') format('woff2');
         }
         @font-face {
           font-family: 'TH Sarabun New';
           font-style: normal;
           font-weight: 700;
-          src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
+          src: local('TH Sarabun New Bold'),
+               local('THSarabunNew-Bold'),
+               local('Sarabun Bold'),
+               url('/Sarabun-Bold.woff2') format('woff2'),
+               url('/Sarabun-Bold.ttf') format('truetype'),
+               url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@main/fonts/Sarabun/Sarabun-Bold.woff2') format('woff2');
         }
 
         /* ── Page setup ── */
@@ -350,7 +362,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         }
 
         .ro-print-wrapper {
-          font-family: 'TH Sarabun New', sans-serif;
+          font-family: 'TH Sarabun New', 'Sarabun', sans-serif;
           color: #111;
           font-size: 14px;
           line-height: 1.35;
