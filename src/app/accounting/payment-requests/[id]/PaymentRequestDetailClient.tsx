@@ -58,6 +58,7 @@ import {
   BookOpen,
   Lock,
   Edit2,
+  Edit3,
   X,
   Layers,
   RotateCcw,
@@ -1338,6 +1339,15 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             <Printer className="w-4 h-4" />
             พิมพ์ใบขออนุมัติจ่าย (Voucher)
           </button>
+          {request.status === 'RETURN_DOCUMENT' && (isStaff || isOwner) && (
+            <Link
+              href={`/accounting/payment-requests/${request.id}/edit`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>แก้ไขเอกสาร (เหมือนตอนสร้าง)</span>
+            </Link>
+          )}
           {['PENDING_SUPERVISOR', 'SUBMITTED', 'DRAFT', 'HOLD_DUPLICATE', 'RETURN_DOCUMENT'].includes(request.status) && (isStaff || isOwner) && (
             <button
               onClick={handleCancel}
@@ -1386,14 +1396,13 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             {/* Quick Action buttons for Owner or Staff */}
             {(isOwner || isStaff) && (
               <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                <button
-                  type="button"
-                  onClick={() => setIsEditingRequisition(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-orange-50 text-orange-800 border border-orange-300 text-xs font-bold rounded-xl shadow-2xs hover:shadow-xs transition"
+                <Link
+                  href={`/accounting/payment-requests/${request.id}/edit`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-orange-50 text-orange-900 border border-orange-300 text-xs font-bold rounded-xl shadow-2xs hover:shadow-xs transition"
                 >
-                  <Edit2 className="w-3.5 h-3.5 text-orange-600" />
-                  แก้ไขข้อมูลคำขอ
-                </button>
+                  <Edit3 className="w-3.5 h-3.5 text-orange-600" />
+                  แก้ไขเอกสาร (เหมือนตอนสร้าง)
+                </Link>
                 <button
                   type="button"
                   onClick={handleResubmit}
@@ -2120,13 +2129,12 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsEditingRequisition(true)}
-                      className="py-2 px-3 bg-white hover:bg-orange-50 text-orange-800 border border-orange-300 text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
+                    <Link
+                      href={`/accounting/payment-requests/${request.id}/edit`}
+                      className="py-2 px-3 bg-white hover:bg-orange-50 text-orange-900 border border-orange-300 text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
                     >
-                      <Edit2 className="w-3.5 h-3.5 text-orange-600" /> แก้ไขข้อมูล
-                    </button>
+                      <Edit3 className="w-3.5 h-3.5 text-orange-600" /> แก้ไขเอกสาร
+                    </Link>
                     <button
                       type="button"
                       disabled={isProcessing}

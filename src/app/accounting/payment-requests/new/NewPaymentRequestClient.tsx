@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   createPaymentRequest,
+  updateFullPaymentRequest,
   checkDuplicates,
   checkAttachmentDuplicates,
   getPaymentRequests,
@@ -68,6 +69,10 @@ import {
   QrCode,
   Eye,
   Calculator,
+  MessageSquare,
+  Edit2,
+  Edit3,
+  Save,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -83,6 +88,8 @@ type Props = {
   initialPhone?: string;
   initialSupervisor?: string;
   initialMyRequests?: PaymentRequestRecord[];
+  isEditMode?: boolean;
+  initialData?: (PaymentRequestRecord & { logs?: any[] }) | null;
 };
 
 function formatDisplayDate(val: any): string {
@@ -197,6 +204,8 @@ export default function NewPaymentRequestClient({
   initialPhone,
   initialSupervisor,
   initialMyRequests,
+  isEditMode = false,
+  initialData = null,
 }: Props) {
   const router = useRouter();
 
@@ -288,40 +297,105 @@ export default function NewPaymentRequestClient({
   }, [myRequests, requestStatusFilter, requestSearchQuery]);
 
   // Form States
-  const [company, setCompany] = useState<'TG' | 'TE' | 'TP'>('TG');
-  const [branch, setBranch] = useState(
-    initialBranch || (branchList[0] ? branchList[0].name : 'สำนักงานใหญ่')
-  );
-  const [customBranch, setCustomBranch] = useState('');
+  const [company, setCompany] = useState<'TG' | 'TE' | 'TP'>(initialData?.company || 'TG');
+  const [branch, setBranch] = useState(() => {
+    if (initialData?.branch) {
+      const found = branchList.find((b) => b.name === initialData.branch || b.id === initialData.branch);
+      return found ? found.name : 'อื่นๆ (ระบุ)';
+    }
+    return initialBranch || (branchList[0] ? branchList[0].name : 'สำนักงานใหญ่');
+  });
+  const [customBranch, setCustomBranch] = useState(() => {
+    if (initialData?.branch) {
+      const found = branchList.find((b) => b.name === initialData.branch || b.id === initialData.branch);
+      return found ? '' : initialData.branch;
+    }
+    return '';
+  });
   const [classification, setClassification] = useState<
     'VENDOR_BILL' | 'REIMBURSEMENT' | 'BRANCH_SITE' | 'PETTY_CASH' | 'CASH_ADVANCE'
-  >('VENDOR_BILL');
-  const [urgency, setUrgency] = useState<'NORMAL' | 'EMERGENCY'>('NORMAL');
+  >(initialData?.classification || 'VENDOR_BILL');
+  const [urgency, setUrgency] = useState<'NORMAL' | 'EMERGENCY'>(initialData?.urgency || 'NORMAL');
 
   // Requisition Form Entry Mode: Fixed to MULTI_ITEMS (Multiple items & multiple suppliers)
   const entryMode = 'MULTI_ITEMS' as const;
 
   // Multi-Item Requisition Table State (matching "รายการเบิกเงิน")
-  const [requisitionItems, setRequisitionItems] = useState<RequisitionItem[]>([
-    {
-      id: 'item_1',
-      billDate: new Date().toISOString().split('T')[0],
-      supplierName: '',
-      supplierTaxId: '',
-      invoiceNumber: '',
-      description: '',
-      amount: 0,
-      vatType: 'NO_VAT',
-      vatAmount: 0,
-      whtType: 'NONE',
-      whtPercent: 0,
-      whtAmount: 0,
-      netAmount: 0,
-      remarks: '',
-      paidByCreditCard: false,
-    },
-  ]);
-  const [creditCardDeduction, setCreditCardDeduction] = useState<string>('0');
+  const [requisitionItems, setRequisitionItems] = useState<RequisitionItem[]>(() => {
+    if (initialData?.items && Array.isArray(initialData.items) && initialData.items.length > 0) {
+      return initialData.items.map((it: any, idx: number) => ({
+        id: it.id || `item_${Date.now()}_${idx}`,
+        billDate: it.billDate || (initialData?.document_date ? formatDisplayDate(initialData.document_date) : new Date().toISOString().split('T')[0]),
+        supplierName: it.supplierName || '',
+        supplierTaxId: it.supplierTaxId || '',
+        invoiceNumber: it.invoiceNumber || '',
+        description: it.description || '',
+        quantity: it.quantity,
+        unitPrice: it.unitPrice,
+        amount: Number(it.amount) || 0,
+        vatType: it.vatType || 'NO_VAT',
+        vatAmount: Number(it.vatAmount) || 0,
+        whtType: it.whtType || 'NONE',
+        whtPercent: Number(it.whtPercent) || 0,
+        whtAmount: Number(it.whtAmount) || 0,
+        netAmount: Number(it.netAmount) || 0,
+        remarks: it.remarks || '',
+        paidByCreditCard: Boolean(it.paidByCreditCard),
+        isIrregularBill: Boolean(it.isIrregularBill),
+        substituteCertificateUrl: it.substituteCertificateUrl,
+        substituteCertificateFileName: it.substituteCertificateFileName,
+        substituteGroupKey: it.substituteGroupKey,
+        requesterSignatureUrl: it.requesterSignatureUrl,
+        approverName: it.approverName,
+        approverPosition: it.approverPosition,
+        approverSignatureUrl: it.approverSignatureUrl,
+      }));
+    }
+    if (initialData) {
+      const vatT = initialData.vat_type === '7%' ? '7%' : (initialData.vat_type === 'INCLUDED_7%' ? 'INCLUDED_7%' : 'NO_VAT');
+      return [{
+        id: 'item_1',
+        billDate: initialData.document_date ? formatDisplayDate(initialData.document_date) : new Date().toISOString().split('T')[0],
+        supplierName: initialData.supplier_name || '',
+        supplierTaxId: initialData.supplier_tax_id || '',
+        invoiceNumber: initialData.invoice_number || '',
+        description: initialData.purpose || '',
+        amount: Number(initialData.subtotal_amount) || 0,
+        vatType: vatT,
+        vatAmount: Number(initialData.vat_amount) || 0,
+        whtType: initialData.wht_type || 'NONE',
+        whtPercent: Number(initialData.wht_percent) || 0,
+        whtAmount: Number(initialData.wht_amount) || 0,
+        netAmount: Number(initialData.net_amount) || 0,
+        remarks: '',
+        paidByCreditCard: false,
+      }];
+    }
+    return [
+      {
+        id: 'item_1',
+        billDate: new Date().toISOString().split('T')[0],
+        supplierName: '',
+        supplierTaxId: '',
+        invoiceNumber: '',
+        description: '',
+        amount: 0,
+        vatType: 'NO_VAT',
+        vatAmount: 0,
+        whtType: 'NONE',
+        whtPercent: 0,
+        whtAmount: 0,
+        netAmount: 0,
+        remarks: '',
+        paidByCreditCard: false,
+      },
+    ];
+  });
+  const [creditCardDeduction, setCreditCardDeduction] = useState<string>(
+    initialData?.credit_card_deduction !== undefined && initialData?.credit_card_deduction !== null
+      ? String(initialData.credit_card_deduction)
+      : '0'
+  );
 
   const handleAddItem = (copyFromLast = false) => {
     setRequisitionItems((prev) => {
@@ -469,8 +543,8 @@ export default function NewPaymentRequestClient({
   const [activeSubstituteItemIdx, setActiveSubstituteItemIdx] = useState<number | null>(null);
   const [substituteModalData, setSubstituteModalData] = useState<SubstituteReceiptData | null>(null);
   const [isGeneratingCertMap, setIsGeneratingCertMap] = useState<Record<number, boolean>>({});
-  const [formRequesterSig, setFormRequesterSig] = useState<string | null>(null);
-  const [formSupervisorSig, setFormSupervisorSig] = useState<string | null>(null);
+  const [formRequesterSig, setFormRequesterSig] = useState<string | null>(initialData?.requester_signature_url || null);
+  const [formSupervisorSig, setFormSupervisorSig] = useState<string | null>(initialData?.supervisor_signature_url || null);
 
   const COMPANY_SHORT_MAP: Record<string, string> = {
     TG: 'บจก.เทอรา กรุ้ป',
@@ -990,9 +1064,13 @@ export default function NewPaymentRequestClient({
   };
 
   // Searchable Branch Combobox State
-  const [branchSearchQuery, setBranchSearchQuery] = useState(
-    initialBranch || (branchList[0] ? branchList[0].name : 'สำนักงานใหญ่')
-  );
+  const [branchSearchQuery, setBranchSearchQuery] = useState(() => {
+    if (initialData?.branch) {
+      const found = branchList.find((b) => b.name === initialData.branch || b.id === initialData.branch);
+      return found ? found.name : 'อื่นๆ (ระบุสาขา / ไซต์งานโครงการ)';
+    }
+    return initialBranch || (branchList[0] ? branchList[0].name : 'สำนักงานใหญ่');
+  });
   const [isBranchDropdownOpen, setIsBranchDropdownOpen] = useState(false);
   const branchDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -1033,10 +1111,10 @@ export default function NewPaymentRequestClient({
   };
 
   // Requester
-  const [requesterName, setRequesterName] = useState(currentUser?.fullName || '');
-  const [requesterDept, setRequesterDept] = useState(initialDept || '');
-  const [requesterPhone, setRequesterPhone] = useState(initialPhone || '');
-  const [supervisorName, setSupervisorName] = useState(initialSupervisor || '');
+  const [requesterName, setRequesterName] = useState(initialData?.requester_name || currentUser?.fullName || '');
+  const [requesterDept, setRequesterDept] = useState(initialData?.requester_department || initialDept || '');
+  const [requesterPhone, setRequesterPhone] = useState(initialData?.requester_phone || initialPhone || '');
+  const [supervisorName, setSupervisorName] = useState(initialData?.assigned_supervisor_name || initialSupervisor || '');
 
   // Auto-load remembered digital signatures
   useEffect(() => {
@@ -1045,76 +1123,148 @@ export default function NewPaymentRequestClient({
         localStorage.removeItem('crm_supervisor_signature');
       } catch {}
 
-      const uSig = requesterName ? localStorage.getItem(`crm_saved_signature_${requesterName}`) : null;
-      if (uSig && !formRequesterSig) setFormRequesterSig(uSig);
+      if (!initialData?.requester_signature_url) {
+        const uSig = requesterName ? localStorage.getItem(`crm_saved_signature_${requesterName}`) : null;
+        if (uSig && !formRequesterSig) setFormRequesterSig(uSig);
+      }
     }
-  }, [requesterName]);
+  }, [requesterName, initialData]);
 
   // Supplier / Payee
-  const [supplierName, setSupplierName] = useState('');
-  const [supplierTaxId, setSupplierTaxId] = useState('');
-  const [payeePhone, setPayeePhone] = useState('');
+  const [supplierName, setSupplierName] = useState(initialData?.supplier_name || '');
+  const [supplierTaxId, setSupplierTaxId] = useState(initialData?.supplier_tax_id || '');
+  const [payeePhone, setPayeePhone] = useState(initialData?.payee_phone || '');
 
   // Payment Destination & Bank / PromptPay Details (for AR / AP Team)
-  const [paymentMethod, setPaymentMethod] = useState<'BANK_TRANSFER' | 'PROMPTPAY' | 'CASH_CHEQUE'>('BANK_TRANSFER');
-  const [selectedBankCode, setSelectedBankCode] = useState<string>('KBANK');
-  const [bankName, setBankName] = useState('ธนาคารกสิกรไทย (KBANK)');
-  const [customBankName, setCustomBankName] = useState('');
-  const [bankAccountNo, setBankAccountNo] = useState('');
-  const [bankAccountName, setBankAccountName] = useState('');
-  const [hasCustomAccountName, setHasCustomAccountName] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'BANK_TRANSFER' | 'PROMPTPAY' | 'CASH_CHEQUE'>(() => {
+    if (initialData?.payment_method) {
+      return initialData.payment_method as any;
+    }
+    if (initialData?.bank_name?.includes('พร้อมเพย์')) return 'PROMPTPAY';
+    if (initialData?.bank_name === 'เงินสด / เช็ค') return 'CASH_CHEQUE';
+    return 'BANK_TRANSFER';
+  });
+
+  const initialBankResolved = useMemo(() => {
+    if (!initialData?.bank_name) return { code: 'KBANK', name: 'ธนาคารกสิกรไทย (KBANK)', custom: '' };
+    const bName = initialData.bank_name;
+    const found = THAI_BANKS.find(
+      (b) => b.name === bName || b.code === bName || bName.includes(b.shortName) || bName.includes(b.code)
+    );
+    if (found) return { code: found.code, name: found.name, custom: '' };
+    return { code: 'OTHER', name: bName, custom: bName };
+  }, [initialData?.bank_name]);
+
+  const [selectedBankCode, setSelectedBankCode] = useState<string>(initialBankResolved.code);
+  const [bankName, setBankName] = useState(initialBankResolved.name);
+  const [customBankName, setCustomBankName] = useState(initialBankResolved.custom);
+  const [bankAccountNo, setBankAccountNo] = useState(initialData?.bank_account_no || '');
+  const [bankAccountName, setBankAccountName] = useState(initialData?.bank_account_name || '');
+  const [hasCustomAccountName, setHasCustomAccountName] = useState(Boolean(initialData?.bank_account_name));
 
   // PromptPay specifics
-  const [promptPayType, setPromptPayType] = useState<'PHONE' | 'CITIZEN_ID' | 'TAX_ID' | 'E_WALLET'>('PHONE');
-  const [promptPayNumber, setPromptPayNumber] = useState('');
-  const [promptPayAccountName, setPromptPayAccountName] = useState('');
+  const [promptPayType, setPromptPayType] = useState<'PHONE' | 'CITIZEN_ID' | 'TAX_ID' | 'E_WALLET'>(() => {
+    if (initialData?.bank_name?.includes('โทรศัพท์')) return 'PHONE';
+    if (initialData?.bank_name?.includes('บัตรประชาชน')) return 'CITIZEN_ID';
+    if (initialData?.bank_name?.includes('นิติบุคคล')) return 'TAX_ID';
+    return 'PHONE';
+  });
+  const [promptPayNumber, setPromptPayNumber] = useState(
+    initialData?.payment_method === 'PROMPTPAY' || initialData?.bank_name?.includes('พร้อมเพย์')
+      ? (initialData?.bank_account_no || '')
+      : ''
+  );
+  const [promptPayAccountName, setPromptPayAccountName] = useState(
+    initialData?.payment_method === 'PROMPTPAY' || initialData?.bank_name?.includes('พร้อมเพย์')
+      ? (initialData?.bank_account_name || '')
+      : ''
+  );
 
   // Cash / Cheque specifics
-  const [cashChequeNote, setCashChequeNote] = useState('');
+  const [cashChequeNote, setCashChequeNote] = useState(
+    initialData?.payment_method === 'CASH_CHEQUE' || initialData?.bank_name === 'เงินสด / เช็ค'
+      ? (initialData?.bank_account_no || '')
+      : ''
+  );
 
   // Document details
-  const [documentDate, setDocumentDate] = useState(new Date().toISOString().split('T')[0]);
-  const [hasNoDocNumber, setHasNoDocNumber] = useState(false);
-  const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [subtotalAmount, setSubtotalAmount] = useState<string>('');
-  const [vatType, setVatType] = useState<'NONE' | 'INCLUDED_7%' | '7%' | 'CUSTOM'>('NONE');
-  const [customVatAmount, setCustomVatAmount] = useState<string>('');
-  const [whtType, setWhtType] = useState<'NONE' | '1%' | '2%' | '3%' | '5%' | 'CUSTOM'>('NONE');
-  const [customWhtPercent, setCustomWhtPercent] = useState<string>('');
-  const [customWhtAmount, setCustomWhtAmount] = useState<string>('');
+  const [documentDate, setDocumentDate] = useState(
+    initialData?.document_date ? formatDisplayDate(initialData.document_date) : new Date().toISOString().split('T')[0]
+  );
+  const [hasNoDocNumber, setHasNoDocNumber] = useState(Boolean(initialData?.has_no_doc_number));
+  const [invoiceNumber, setInvoiceNumber] = useState(initialData?.invoice_number || '');
+  const [subtotalAmount, setSubtotalAmount] = useState<string>(
+    initialData?.subtotal_amount ? String(initialData.subtotal_amount) : ''
+  );
+  const [vatType, setVatType] = useState<'NONE' | 'INCLUDED_7%' | '7%' | 'CUSTOM'>(
+    (initialData?.vat_type as any) || 'NONE'
+  );
+  const [customVatAmount, setCustomVatAmount] = useState<string>(
+    initialData?.vat_amount ? String(initialData.vat_amount) : ''
+  );
+  const [whtType, setWhtType] = useState<'NONE' | '1%' | '2%' | '3%' | '5%' | 'CUSTOM'>(
+    (initialData?.wht_type as any) || 'NONE'
+  );
+  const [customWhtPercent, setCustomWhtPercent] = useState<string>(
+    initialData?.wht_percent ? String(initialData.wht_percent) : ''
+  );
+  const [customWhtAmount, setCustomWhtAmount] = useState<string>(
+    initialData?.wht_amount ? String(initialData.wht_amount) : ''
+  );
 
-  const [purpose, setPurpose] = useState('');
-  const [costCenter, setCostCenter] = useState('');
-  const [poPrNumber, setPoPrNumber] = useState('');
-  const [requestedPaymentDate, setRequestedPaymentDate] = useState('');
-  const [submissionChannel, setSubmissionChannel] = useState<'WEB' | 'LINE' | 'EMAIL' | 'PHYSICAL'>('WEB');
+  const [purpose, setPurpose] = useState(initialData?.purpose || '');
+  const [costCenter, setCostCenter] = useState(initialData?.cost_center || '');
+  const [poPrNumber, setPoPrNumber] = useState(initialData?.po_pr_number || '');
+  const [requestedPaymentDate, setRequestedPaymentDate] = useState(
+    initialData?.requested_payment_date ? formatDisplayDate(initialData.requested_payment_date) : ''
+  );
+  const [submissionChannel, setSubmissionChannel] = useState<'WEB' | 'LINE' | 'EMAIL' | 'PHYSICAL'>(
+    (initialData?.submission_channel as any) || 'WEB'
+  );
 
   // Attachments with QR & OCR metadata
-  const [attachments, setAttachments] = useState<
-    {
-      url: string;
-      fileName: string;
-      fileType?: string;
-      fileHash?: string;
-      visualHash?: string;
-      coreVisualHash?: string;
-      fileSize?: number;
-      qrPayload?: string;
-      barcode?: string;
-      extractedTaxId?: string;
-      extractedInvoiceNo?: string;
-      extractedAmount?: number;
-      extractedDate?: string;
-      extractedSupplier?: string;
-      extractedPhone?: string;
-      extractedDescription?: string;
-      extractedLineItems?: ExtractedLineItem[];
-      rawTextSnippet?: string;
-      distinctiveTokens?: string[];
-      isSubstituteCertificate?: boolean;
-      relatedItemId?: string;
-    }[]
-  >([]);
+  const [attachments, setAttachments] = useState<any[]>(
+    Array.isArray(initialData?.attachments) ? initialData.attachments : []
+  );
+  const [resubmitExplanation, setResubmitExplanation] = useState('');
+
+  // Return revision resolution helpers
+  const returnLog = useMemo(() => {
+    if (!initialData?.logs) return null;
+    return initialData.logs.find(
+      (l: any) =>
+        l.to_status === 'RETURN_DOCUMENT' ||
+        l.action === 'SUPERVISOR_RETURNED' ||
+        (l.action === 'AP_CHECKED' && l.to_status === 'RETURN_DOCUMENT')
+    );
+  }, [initialData?.logs]);
+
+  const returnReason = useMemo(() => {
+    if (!initialData) return '';
+    return (
+      initialData.ap_notes ||
+      initialData.supervisor_notes ||
+      (returnLog?.notes && !returnLog.notes.startsWith('AP ดำเนินการ') ? returnLog.notes : '') ||
+      initialData.cancelled_reason ||
+      'เอกสารแนบหรือข้อมูลไม่ครบถ้วน กรุณาตรวจสอบเอกสารแนบ รายละเอียดใบเสร็จ หรือแก้ไขตามที่ได้รับแจ้ง'
+    );
+  }, [initialData, returnLog]);
+
+  const returnedBy = useMemo(() => {
+    if (!initialData) return '';
+    return (
+      returnLog?.performed_by ||
+      initialData.ap_checked_by ||
+      initialData.supervisor_checked_by ||
+      'เจ้าหน้าที่ฝ่ายบัญชี (AP)'
+    );
+  }, [initialData, returnLog]);
+
+  const returnedAt = useMemo(() => {
+    if (!returnLog?.created_at) return '';
+    return new Date(returnLog.created_at).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' });
+  }, [returnLog]);
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadScanStatus, setUploadScanStatus] = useState<string | null>(null);
   const [ocrAutoScanEnabled, setOcrAutoScanEnabled] = useState(true);
@@ -1292,6 +1442,7 @@ export default function NewPaymentRequestClient({
           attachments,
           fileHashes: attachments.map((a) => a.fileHash).filter(Boolean) as string[],
           items: validItems,
+          excludeId: initialData?.id,
         });
         setDupResult(res);
       } catch (err) {
@@ -1541,6 +1692,7 @@ export default function NewPaymentRequestClient({
             },
           ],
           fileHashes: [fileHash],
+          excludeId: initialData?.id,
         });
 
         if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
@@ -1759,7 +1911,7 @@ export default function NewPaymentRequestClient({
   };
 
   // Form Submit Handler
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, shouldResubmit = true) => {
     e.preventDefault();
 
     if (!requesterName.trim()) {
@@ -1881,6 +2033,79 @@ export default function NewPaymentRequestClient({
         finalBankName = 'เงินสด / เช็ค';
         finalAccountNo = cashChequeNote.trim() || 'ชำระเงินสดหรือเช็ค';
         finalAccountName = finalSupplierName;
+      }
+
+      if (isEditMode && initialData?.id) {
+        const res = await updateFullPaymentRequest(initialData.id, {
+          company,
+          branch: finalBranch,
+          classification,
+          urgency,
+          supplier_name: finalSupplierName,
+          supplier_tax_id: supplierTaxId.trim() || undefined,
+          payment_method: paymentMethod,
+          bank_name: finalBankName.trim() || undefined,
+          bank_account_no: finalAccountNo.trim() || undefined,
+          bank_account_name: finalAccountName.trim() || undefined,
+          payee_phone: payeePhone.trim() || undefined,
+          document_date: documentDate,
+          has_no_doc_number: entryMode === 'MULTI_ITEMS' ? true : hasNoDocNumber,
+          invoice_number: entryMode === 'MULTI_ITEMS' ? undefined : (hasNoDocNumber ? undefined : invoiceNumber.trim()),
+          subtotal_amount: entryMode === 'MULTI_ITEMS' ? multiItemsSummary.totalPreVatAmount : (vatType === 'INCLUDED_7%' ? preVatBase : effectiveSubtotal),
+          vat_type: entryMode === 'MULTI_ITEMS' ? (multiItemsSummary.totalVatAmount > 0 ? 'ITEMIZED' : 'NONE') : vatType,
+          vat_amount: calculatedVat,
+          wht_type: entryMode === 'MULTI_ITEMS' ? (multiItemsSummary.totalWhtAmount > 0 ? 'ITEMIZED' : 'NONE') : whtType,
+          wht_percent: entryMode === 'MULTI_ITEMS' ? 0 : whtPercentValue,
+          wht_amount: calculatedWht,
+          net_amount: netPayable,
+          purpose: purpose.trim(),
+          cost_center: costCenter.trim() || undefined,
+          po_pr_number: poPrNumber.trim() || undefined,
+          requested_payment_date: requestedPaymentDate || undefined,
+          submission_channel: submissionChannel,
+          attachments,
+          items: entryMode === 'MULTI_ITEMS'
+            ? validItems.map((it) => {
+                const taxes = calculateItemTaxes(it);
+                return {
+                  ...it,
+                  vatType: it.vatType || 'NO_VAT',
+                  vatAmount: taxes.vatAmount,
+                  whtType: it.whtType || 'NONE',
+                  whtPercent: taxes.whtPercent,
+                  whtAmount: taxes.whtAmount,
+                  netAmount: taxes.netAmount,
+                };
+              })
+            : undefined,
+          credit_card_deduction: entryMode === 'MULTI_ITEMS' ? effectiveCcDeduction : undefined,
+          requester_signature_url: formRequesterSig || undefined,
+          supervisor_signature_url: formSupervisorSig || undefined,
+          resubmit: shouldResubmit,
+          resubmitNote: resubmitExplanation.trim() || undefined,
+        });
+
+        if (res.success) {
+          await Swal.fire({
+            title: shouldResubmit ? 'บันทึกและส่งตรวจอีกครั้งสำเร็จ!' : 'บันทึกการแก้ไขเรียบร้อยแล้ว!',
+            html: `<div class="text-left text-xs text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <p>เลขที่คำขอ: <b class="font-mono text-red-600 text-sm">${res.payNumber || initialData.pay_number}</b></p>
+              <p>สถานะ: <b>${res.status}</b></p>
+              <p class="text-emerald-700 mt-1 font-medium">${shouldResubmit ? 'ระบบส่งข้อมูลที่แก้ไขกลับไปยังฝ่ายบัญชีเรียบร้อยแล้ว' : 'บันทึกข้อมูลการแก้ไขเรียบร้อยแล้ว'}</p>
+            </div>`,
+            icon: 'success',
+            confirmButtonColor: '#16a34a',
+          });
+          router.push(`/accounting/payment-requests/${initialData.id}`);
+        } else {
+          Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: res.error || 'ไม่สามารถบันทึกข้อมูลได้',
+            icon: 'error',
+            confirmButtonColor: '#dc2626',
+          });
+        }
+        return;
       }
 
       const res = await createPaymentRequest({
@@ -2065,22 +2290,31 @@ export default function NewPaymentRequestClient({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
         <div>
           <Link
-            href="/accounting/payment-requests"
+            href={isEditMode && initialData ? `/accounting/payment-requests/${initialData.id}` : "/accounting/payment-requests"}
             className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-600 transition mb-2 font-medium"
           >
-            <ChevronLeft className="w-4 h-4" /> กลับสู่ทะเบียนขอจ่ายเงิน (Payment Register)
+            <ChevronLeft className="w-4 h-4" /> {isEditMode && initialData ? `กลับไปหน้ารายละเอียดคำขอ (${initialData.pay_number})` : 'กลับสู่ทะเบียนขอจ่ายเงิน (Payment Register)'}
           </Link>
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 tracking-wide uppercase">
               TERA GROUP • PAYMENT SYSTEM
             </span>
+            {isEditMode && initialData && (
+              <span className={`px-2 py-0.5 rounded text-[11px] font-bold border tracking-wide uppercase ${
+                initialData.status === 'RETURN_DOCUMENT' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-blue-50 text-blue-700 border-blue-200'
+              }`}>
+                {initialData.status === 'RETURN_DOCUMENT' ? 'เอกสารถูกส่งคืนให้แก้ไข' : `โหมดแก้ไข: ${initialData.status}`}
+              </span>
+            )}
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5 mt-1">
-            <Building2 className="w-6 h-6 text-red-600" />
-            สร้างใบขออนุมัติจ่ายเงิน (New Payment Request)
+            {isEditMode ? <Edit3 className="w-6 h-6 text-orange-600" /> : <Building2 className="w-6 h-6 text-red-600" />}
+            {isEditMode && initialData ? `แก้ไขคำขอเบิกจ่ายเงิน (${initialData.pay_number})` : 'สร้างใบขออนุมัติจ่ายเงิน (New Payment Request)'}
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            ระบบศูนย์กลางการขอเบิกจ่ายและควบคุมป้องกันการจ่ายเงินซ้ำซ้อน เครือ Tera Group (TG, TE, TP)
+            {isEditMode && initialData
+              ? 'ปรับปรุงรายละเอียดคำขอ รายการสินค้า/บริการ ยอดเงิน และเอกสารแนบตามที่ได้รับแจ้ง'
+              : 'ระบบศูนย์กลางการขอเบิกจ่ายและควบคุมป้องกันการจ่ายเงินซ้ำซ้อน เครือ Tera Group (TG, TE, TP)'}
           </p>
         </div>
 
@@ -2088,93 +2322,154 @@ export default function NewPaymentRequestClient({
         <div className="bg-gray-50 border border-red-200/80 rounded-xl p-3.5 text-xs text-gray-800 max-w-sm">
           <p className="font-bold flex items-center gap-1.5 text-red-700">
             <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
-            กฎเหล็ก: No PAY No. = No Payment
+            {isEditMode ? 'ตรวจสอบความถูกต้องก่อนส่งตรวจใหม่' : 'กฎเหล็ก: No PAY No. = No Payment'}
           </p>
           <p className="text-[11px] text-gray-600 mt-0.5 leading-relaxed">
-            เอกสารทุกช่องทาง (LINE / Email / ตัวจริง) ต้องอ้างอิงเลข PAY No. เสมอ ฝ่ายการเงินจ่ายเฉพาะรายการใน Approved List
+            {isEditMode
+              ? 'เมื่อแก้ไขข้อมูลและแนบเอกสารครบถ้วนแล้ว ให้กดปุ่ม "บันทึกและส่งตรวจอีกครั้ง" เพื่อส่งให้ฝ่ายบัญชีตรวจสอบทันที'
+              : 'เอกสารทุกช่องทาง (LINE / Email / ตัวจริง) ต้องอ้างอิงเลข PAY No. เสมอ ฝ่ายการเงินจ่ายเฉพาะรายการใน Approved List'}
           </p>
         </div>
       </div>
 
-      {/* Tab Switcher: Create Request vs My Requests Status */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-gray-200 shadow-2xs">
-        <div className="flex items-center gap-1.5 p-1 bg-gray-100/90 rounded-xl">
-          <button
-            type="button"
-            onClick={() => setActiveTab('create')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
-              activeTab === 'create'
-                ? 'bg-white text-red-600 shadow-2xs border border-gray-200/80'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            สร้างคำขอเบิกเงินใหม่
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('my_requests');
-              refreshMyRequests();
-            }}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition relative ${
-              activeTab === 'my_requests'
-                ? 'bg-white text-red-600 shadow-2xs border border-gray-200/80'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            ติดตามสถานะคำขอเบิกของฉัน
-            {myRequests.length > 0 && (
-              <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                  activeTab === 'my_requests'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-gray-200 text-gray-700'
-                }`}
-              >
-                {myRequests.length}
-              </span>
-            )}
-            {attentionCount > 0 && (
-              <span
-                className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute -top-0.5 -right-0.5"
-                title="มีรายการต้องตรวจสอบหรือแก้ไขเอกสาร"
-              />
-            )}
-          </button>
-        </div>
+      {/* Return for Revision Banner in Edit Mode */}
+      {isEditMode && initialData && (
+        <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-orange-100/60 border-2 border-orange-300 rounded-2xl p-5 shadow-xs space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 bg-orange-100 text-orange-700 rounded-xl shrink-0 mt-0.5 border border-orange-200 shadow-2xs">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="font-bold text-sm sm:text-base text-orange-950">
+                    {initialData.status === 'RETURN_DOCUMENT'
+                      ? 'แก้ไขคำขอเบิกเงินที่ถูกส่งคืน (Returned Document Revision)'
+                      : `แก้ไขคำขอเบิกเงิน (${initialData.pay_number})`}
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-200 text-orange-900 border border-orange-300">
+                    {initialData.status === 'RETURN_DOCUMENT' ? 'ส่งคืนแก้ไขเอกสาร' : initialData.status}
+                  </span>
+                </div>
+                <p className="text-xs text-orange-900/80">
+                  เลขที่คำขอ: <b className="font-mono text-orange-950">{initialData.pay_number}</b>
+                  {returnedBy && (
+                    <> • ผู้ส่งคืน: <b className="text-orange-950">{returnedBy}</b></>
+                  )}
+                  {returnedAt && (
+                    <> • วันที่ส่งคืน: <b className="text-orange-950">{returnedAt}</b></>
+                  )}
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/accounting/payment-requests/${initialData.id}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-orange-900 hover:bg-orange-50 border border-orange-300 rounded-xl text-xs font-semibold shadow-2xs transition self-start"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              ดูหน้ารายละเอียดเดิม
+            </Link>
+          </div>
 
-        <div className="flex items-center gap-2 px-2">
-          {activeTab === 'my_requests' ? (
+          {initialData.status === 'RETURN_DOCUMENT' && returnReason && (
+            <div className="bg-white/95 rounded-xl p-3.5 border border-orange-200 text-xs space-y-1">
+              <span className="font-bold text-orange-950 flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
+                <MessageSquare className="w-3.5 h-3.5 text-orange-600" />
+                เหตุผลที่ฝ่ายบัญชีส่งกลับแก้ไข:
+              </span>
+              <p className="text-slate-800 font-medium pl-5 whitespace-pre-wrap leading-relaxed">
+                {returnReason}
+              </p>
+            </div>
+          )}
+
+          <p className="text-[11px] text-orange-900/90 leading-relaxed">
+            💡 ข้อมูลเดิมที่เคยกรอกไว้ทั้งหมดถูกโหลดขึ้นมาแล้ว ท่านสามารถแก้ไขรายการสินค้า/บริการ, ยอดเงิน, ปรับเปลี่ยนหรือแนบเอกสารใบเสร็จเพิ่มเติม จากนั้นกดปุ่ม <b>&ldquo;บันทึกและส่งตรวจอีกครั้ง&rdquo;</b> ด้านล่าง
+          </p>
+        </div>
+      )}
+
+      {/* Tab Switcher: Create Request vs My Requests Status (Hidden in Edit Mode) */}
+      {!isEditMode && (
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-gray-200 shadow-2xs">
+          <div className="flex items-center gap-1.5 p-1 bg-gray-100/90 rounded-xl">
             <button
               type="button"
-              onClick={refreshMyRequests}
-              disabled={isLoadingRequests}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition disabled:opacity-50"
+              onClick={() => setActiveTab('create')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
+                activeTab === 'create'
+                  ? 'bg-white text-red-600 shadow-2xs border border-gray-200/80'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingRequests ? 'animate-spin text-red-600' : ''}`} />
-              รีเฟรชข้อมูล
+              <Sparkles className="w-4 h-4" />
+              สร้างคำขอเบิกเงินใหม่
             </button>
-          ) : (
-            myRequests.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('my_requests');
+                refreshMyRequests();
+              }}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition relative ${
+                activeTab === 'my_requests'
+                  ? 'bg-white text-red-600 shadow-2xs border border-gray-200/80'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              ติดตามสถานะคำขอเบิกของฉัน
+              {myRequests.length > 0 && (
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    activeTab === 'my_requests'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-gray-200 text-gray-700'
+                  }`}
+                >
+                  {myRequests.length}
+                </span>
+              )}
+              {attentionCount > 0 && (
+                <span
+                  className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute -top-0.5 -right-0.5"
+                  title="มีรายการต้องตรวจสอบหรือแก้ไขเอกสาร"
+                />
+              )}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 px-2">
+            {activeTab === 'my_requests' ? (
               <button
                 type="button"
-                onClick={() => setActiveTab('my_requests')}
-                className="text-xs text-gray-500 hover:text-red-600 font-medium inline-flex items-center gap-1.5 transition"
+                onClick={refreshMyRequests}
+                disabled={isLoadingRequests}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition disabled:opacity-50"
               >
-                <span>คำขอของฉัน ({myRequests.length} รายการ)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoadingRequests ? 'animate-spin text-red-600' : ''}`} />
+                รีเฟรชข้อมูล
               </button>
-            )
-          )}
+            ) : (
+              myRequests.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('my_requests')}
+                  className="text-xs text-gray-500 hover:text-red-600 font-medium inline-flex items-center gap-1.5 transition"
+                >
+                  <span>คำขอของฉัน ({myRequests.length} รายการ)</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {activeTab === 'create' ? (
         <>
           {/* Quick link banner if user has requests */}
-          {myRequests.length > 0 && (
+          {!isEditMode && myRequests.length > 0 && (
             <div className="bg-gradient-to-r from-red-50/90 via-amber-50/40 to-white border border-red-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-2xs">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
@@ -3736,7 +4031,7 @@ export default function NewPaymentRequestClient({
                       attachments.forEach((att) => {
                         const effectiveDate = (att.extractedDate ? formatDateToISO(att.extractedDate) : null) || att.extractedDate || documentDate || new Date().toISOString().split('T')[0];
                         if (att.extractedLineItems && att.extractedLineItems.length > 0) {
-                          att.extractedLineItems.forEach((li, lIdx) => {
+                          att.extractedLineItems.forEach((li: any, lIdx: number) => {
                             allExtracted.push({
                               id: `item_${Date.now()}_${lIdx}_${Math.random().toString(36).slice(2, 5)}`,
                               billDate: effectiveDate,
@@ -4308,7 +4603,7 @@ export default function NewPaymentRequestClient({
 
                               // If in MULTI_ITEMS mode or table exists, populate requisition items
                               if (att.extractedLineItems && att.extractedLineItems.length > 0) {
-                                const newRows: RequisitionItem[] = att.extractedLineItems.map((li, lIdx) => ({
+                                const newRows: RequisitionItem[] = att.extractedLineItems.map((li: any, lIdx: number) => ({
                                   id: `item_${Date.now()}_${lIdx}`,
                                   billDate: att.extractedDate || documentDate || new Date().toISOString().split('T')[0],
                                   supplierName: att.extractedSupplier || supplierName || '',
@@ -4396,47 +4691,128 @@ export default function NewPaymentRequestClient({
           )}
         </div>
 
+        {/* Resubmission Note / Explanation in Edit Mode */}
+        {isEditMode && initialData?.status === 'RETURN_DOCUMENT' && (
+          <div className="bg-orange-50/90 border border-orange-200 rounded-2xl p-5 shadow-sm space-y-3">
+            <div className="flex items-center gap-2 text-sm font-bold text-orange-950">
+              <MessageSquare className="w-4 h-4 text-orange-600" />
+              <span>ชี้แจงการแก้ไข / ตอบกลับฝ่ายบัญชี (Resubmission Note)</span>
+              <span className="text-[11px] font-normal text-orange-700">(ระบุหรือไม่ก็ได้)</span>
+            </div>
+            <textarea
+              value={resubmitExplanation}
+              onChange={(e) => setResubmitExplanation(e.target.value)}
+              placeholder="ระบุข้อความชี้แจงการแก้ไข เช่น แนบใบเสร็จตัวจริงฉบับใหม่แล้ว, แก้ไขยอดเงินตามบิลเรียบร้อยแล้ว, ฯลฯ"
+              rows={2}
+              className="w-full text-xs p-3 rounded-xl border border-orange-300 focus:ring-2 focus:ring-orange-400 focus:outline-none bg-white text-gray-800 placeholder-gray-400"
+            />
+          </div>
+        )}
+
         {/* Bottom Symmetrical Action Bar */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 text-xs text-gray-500">
-            <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-bold border border-gray-200">
-              สถานะเริ่มต้น: SUBMITTED
-            </span>
-            <span>
-              ระบบจะสร้างเลขที่ <b className="font-mono text-gray-900">PAY-{company}-YYMM-XXXXX</b> อัตโนมัติ
-            </span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs text-gray-500">
+            {isEditMode && initialData ? (
+              <>
+                <span className={`px-2.5 py-1 rounded-full font-bold border ${
+                  initialData.status === 'RETURN_DOCUMENT'
+                    ? 'bg-orange-100 text-orange-900 border-orange-300'
+                    : 'bg-gray-100 text-gray-700 border-gray-200'
+                }`}>
+                  สถานะ: {initialData.status}
+                </span>
+                <span>
+                  กำลังแก้ไขเอกสารเลขที่ <b className="font-mono text-gray-900">{initialData.pay_number}</b>
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-bold border border-gray-200">
+                  สถานะเริ่มต้น: SUBMITTED
+                </span>
+                <span>
+                  ระบบจะสร้างเลขที่ <b className="font-mono text-gray-900">PAY-{company}-YYMM-XXXXX</b> อัตโนมัติ
+                </span>
+              </>
+            )}
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
             <Link
-              href="/accounting/payment-requests"
-              className="w-1/2 sm:w-auto px-5 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-center transition"
+              href={isEditMode && initialData ? `/accounting/payment-requests/${initialData.id}` : "/accounting/payment-requests"}
+              className="px-4 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-center transition"
             >
               ยกเลิก
             </Link>
-            <button
-              type="submit"
-              disabled={isSubmitting || Boolean(dupResult?.isExactDuplicate)}
-              className={`w-1/2 sm:w-auto px-6 py-2.5 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
-                dupResult?.isExactDuplicate
-                  ? 'bg-gray-400 cursor-not-allowed opacity-75'
-                  : 'bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50'
-              }`}
-            >
-              {isSubmitting ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" /> กำลังส่งคำขอ...
-                </>
-              ) : dupResult?.isExactDuplicate ? (
-                <>
-                  <ShieldAlert className="w-4 h-4" /> ระงับการส่ง (ตรวจพบข้อมูลซ้ำ)
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" /> ส่งคำขอเบิกจ่าย (Submit Request)
-                </>
-              )}
-            </button>
+
+            {isEditMode && initialData ? (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => handleSubmit(e, false)}
+                  disabled={isSubmitting || Boolean(dupResult?.isExactDuplicate)}
+                  className="px-4 py-2.5 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  title="บันทึกข้อมูลที่แก้ไขไว้ชั่วคราว ยังไม่ส่งฝ่ายบัญชีตรวจ"
+                >
+                  {isSubmitting ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5" />
+                  )}
+                  <span>บันทึกการแก้ไข (Save Only)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => handleSubmit(e, true)}
+                  disabled={isSubmitting || Boolean(dupResult?.isExactDuplicate)}
+                  className={`px-6 py-2.5 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
+                    dupResult?.isExactDuplicate
+                      ? 'bg-gray-400 cursor-not-allowed opacity-75'
+                      : 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50'
+                  }`}
+                  title="บันทึกข้อมูลและส่งกลับไปให้ฝ่ายบัญชีตรวจสอบทันที"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" /> กำลังส่งข้อมูล...
+                    </>
+                  ) : dupResult?.isExactDuplicate ? (
+                    <>
+                      <ShieldAlert className="w-4 h-4" /> ระงับการส่ง (ตรวจพบข้อมูลซ้ำ)
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" /> บันทึกและส่งตรวจอีกครั้ง (Resubmit)
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <button
+                type="submit"
+                disabled={isSubmitting || Boolean(dupResult?.isExactDuplicate)}
+                className={`w-full sm:w-auto px-6 py-2.5 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
+                  dupResult?.isExactDuplicate
+                    ? 'bg-gray-400 cursor-not-allowed opacity-75'
+                    : 'bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50'
+                }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" /> กำลังส่งคำขอ...
+                  </>
+                ) : dupResult?.isExactDuplicate ? (
+                  <>
+                    <ShieldAlert className="w-4 h-4" /> ระงับการส่ง (ตรวจพบข้อมูลซ้ำ)
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" /> ส่งคำขอเบิกจ่าย (Submit Request)
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </form>
@@ -4836,6 +5212,16 @@ export default function NewPaymentRequestClient({
                           <Printer className="w-3.5 h-3.5 text-red-600" />
                           พิมพ์ใบสำคัญจ่าย (PDF)
                         </button>
+
+                        {req.status === 'RETURN_DOCUMENT' && (
+                          <Link
+                            href={`/accounting/payment-requests/${req.id}/edit`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-orange-300 bg-orange-500 hover:bg-orange-600 text-white font-bold transition shadow-xs"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            แก้ไขเอกสารและส่งใหม่
+                          </Link>
+                        )}
 
                         <Link
                           href={`/accounting/payment-requests/${req.id}`}

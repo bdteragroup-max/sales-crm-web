@@ -28,6 +28,7 @@ import {
   Eye,
   RefreshCw,
   Trash2,
+  Edit3,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
@@ -800,6 +801,15 @@ export default function PaymentRequestsClient({
                           >
                             <Printer className="w-4 h-4" />
                           </button>
+                          {r.status === 'RETURN_DOCUMENT' && (
+                            <Link
+                              href={`/accounting/payment-requests/${r.id}/edit`}
+                              title="แก้ไขเอกสารและส่งใหม่ (เอกสารถูกส่งคืน)"
+                              className="p-1.5 text-orange-600 hover:text-white hover:bg-orange-500 rounded-lg transition"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </Link>
+                          )}
                           <Link
                             href={`/accounting/payment-requests/${r.id}`}
                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-red-600 text-gray-700 hover:text-white font-semibold rounded-lg text-xs transition shadow-2xs"

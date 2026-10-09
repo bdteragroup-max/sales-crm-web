@@ -2065,6 +2065,214 @@ export async function updatePaymentRequestRequisition(
   return { success: true };
 }
 
+// Update complete Payment Request details (e.g. when returned for revision or edited by owner/staff)
+export async function updateFullPaymentRequest(
+  id: string,
+  data: {
+    company: 'TG' | 'TE' | 'TP';
+    branch: string;
+    classification: 'VENDOR_BILL' | 'REIMBURSEMENT' | 'BRANCH_SITE' | 'PETTY_CASH' | 'CASH_ADVANCE';
+    urgency: 'NORMAL' | 'EMERGENCY';
+    supplier_name: string;
+    supplier_tax_id?: string | null;
+    bank_name?: string | null;
+    bank_account_no?: string | null;
+    bank_account_name?: string | null;
+    payment_method?: string | null;
+    payee_phone?: string | null;
+    document_date: string;
+    has_no_doc_number: boolean;
+    invoice_number?: string | null;
+    subtotal_amount: number;
+    vat_type?: string | null;
+    vat_amount?: number;
+    wht_type?: string | null;
+    wht_percent?: number;
+    wht_amount?: number;
+    net_amount?: number;
+    purpose: string;
+    cost_center?: string | null;
+    po_pr_number?: string | null;
+    requested_payment_date?: string | null;
+    submission_channel?: string | null;
+    attachments?: any[];
+    items?: RequisitionItem[];
+    credit_card_deduction?: number;
+    requester_signature_url?: string | null;
+    supervisor_signature_url?: string | null;
+    resubmit?: boolean;
+    resubmitNote?: string | null;
+  }
+) {
+  const currentUser = await getUser();
+  if (!currentUser) return { success: false, error: 'Unauthorized' };
+
+  const pool = getPool();
+  const reqRes = await pool.query(
+    'SELECT status, pay_number, requester_id, requester_name, ap_checked_by, supervisor_checked_by, assigned_supervisor_id FROM payment_requests WHERE id = $1',
+    [id]
+  );
+  if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
+
+  const current = reqRes.rows[0];
+  const isStaff = isAccountingStaff(currentUser.role);
+  const isOwner =
+    (currentUser.id && current.requester_id === currentUser.id) ||
+    (currentUser.fullName && current.requester_name?.trim().toLowerCase() === currentUser.fullName.trim().toLowerCase());
+
+  if (!isStaff && !isOwner) {
+    return { success: false, error: 'ไม่มีสิทธิ์แก้ไขคำขอนี้' };
+  }
+
+  if (!isStaff && !['RETURN_DOCUMENT', 'DRAFT', 'PENDING_SUPERVISOR', 'SUBMITTED', 'HOLD_DUPLICATE'].includes(current.status)) {
+    return { success: false, error: `ไม่สามารถแก้ไขข้อมูลได้ในสถานะ "${current.status}"` };
+  }
+
+  const subtotal = Number(data.subtotal_amount) || 0;
+  const vat = Number(data.vat_amount) || 0;
+  const wht = Number(data.wht_amount) || 0;
+  const net = data.net_amount !== undefined ? Number(data.net_amount) : Math.round((subtotal + vat - wht) * 100) / 100;
+
+  // Run duplicate check excluding this id
+  const dupCheck = await checkDuplicates({
+    company: data.company,
+    supplierName: data.supplier_name,
+    supplierTaxId: data.supplier_tax_id || undefined,
+    invoiceNumber: data.invoice_number || undefined,
+    poPrNumber: data.po_pr_number || undefined,
+    hasNoDocNumber: data.has_no_doc_number,
+    netAmount: net,
+    documentDate: data.document_date,
+    branch: data.branch,
+    attachments: Array.isArray(data.attachments) ? data.attachments : [],
+    fileHashes: Array.isArray(data.attachments)
+      ? (data.attachments as any[]).map((a: any) => a.fileHash).filter(Boolean)
+      : [],
+    items: data.items,
+    excludeId: id,
+  });
+
+  if (dupCheck.isExactDuplicate) {
+    const match = dupCheck.exactMatches[0];
+    return {
+      success: false,
+      error: `ตรวจพบข้อมูลซ้ำกับใบขอจ่าย ${match.pay_number}`,
+      isExactDuplicate: true,
+      exactMatches: dupCheck.exactMatches,
+    };
+  }
+
+  let targetStatus = current.status;
+  if (data.resubmit) {
+    if (current.ap_checked_by) {
+      targetStatus = 'SUBMITTED';
+    } else if (current.assigned_supervisor_id && !current.supervisor_checked_by && !isSupervisorOrManager(currentUser.role)) {
+      targetStatus = 'PENDING_SUPERVISOR';
+    } else {
+      targetStatus = 'SUBMITTED';
+    }
+  }
+
+  const attachmentsJson = JSON.stringify(data.attachments || []);
+  const itemsJson = JSON.stringify(data.items || []);
+
+  await pool.query(
+    `UPDATE payment_requests
+     SET company = $1,
+         branch = $2,
+         classification = $3,
+         urgency = $4,
+         supplier_name = $5,
+         supplier_tax_id = $6,
+         bank_name = $7,
+         bank_account_no = $8,
+         bank_account_name = $9,
+         payment_method = $10,
+         payee_phone = $11,
+         document_date = $12,
+         has_no_doc_number = $13,
+         invoice_number = $14,
+         subtotal_amount = $15,
+         vat_type = $16,
+         vat_amount = $17,
+         wht_type = $18,
+         wht_percent = $19,
+         wht_amount = $20,
+         net_amount = $21,
+         purpose = $22,
+         cost_center = $23,
+         po_pr_number = $24,
+         requested_payment_date = $25,
+         submission_channel = $26,
+         attachments = $27::jsonb,
+         items = $28::jsonb,
+         credit_card_deduction = $29,
+         requester_signature_url = COALESCE($30, requester_signature_url),
+         supervisor_signature_url = COALESCE($31, supervisor_signature_url),
+         status = $32,
+         updated_at = NOW()
+     WHERE id = $33`,
+    [
+      data.company,
+      data.branch,
+      data.classification,
+      data.urgency || 'NORMAL',
+      data.supplier_name,
+      data.supplier_tax_id || null,
+      data.bank_name || null,
+      data.bank_account_no || null,
+      data.bank_account_name || null,
+      data.payment_method || 'BANK_TRANSFER',
+      data.payee_phone || null,
+      data.document_date,
+      data.has_no_doc_number || false,
+      data.has_no_doc_number ? null : (data.invoice_number?.trim() || null),
+      subtotal,
+      data.vat_type || 'NONE',
+      vat,
+      data.wht_type || 'NONE',
+      data.wht_percent || 0.0,
+      wht,
+      net,
+      data.purpose,
+      data.cost_center || null,
+      data.po_pr_number || null,
+      data.requested_payment_date || null,
+      data.submission_channel || 'WEB',
+      attachmentsJson,
+      itemsJson,
+      Number(data.credit_card_deduction || 0),
+      data.requester_signature_url || null,
+      data.supervisor_signature_url || null,
+      targetStatus,
+      id,
+    ]
+  );
+
+  if (data.resubmit) {
+    const resubmitNote = data.resubmitNote
+      ? `ผู้ขอเบิกแก้ไขข้อมูลและส่งตรวจอีกครั้ง: ${data.resubmitNote}`
+      : 'ผู้ขอเบิกแก้ไขข้อมูลครบถ้วนและส่งตรวจอีกครั้ง';
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+       VALUES ($1, 'RESUBMITTED', $2, $3, $4, $5)`,
+      [id, currentUser.fullName, current.status, targetStatus, resubmitNote]
+    );
+  } else {
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, notes)
+       VALUES ($1, 'UPDATED', $2, $3)`,
+      [id, currentUser.fullName, 'แก้ไขรายละเอียดคำขอเบิกจ่าย']
+    );
+  }
+
+  revalidatePath('/accounting/payment-requests');
+  revalidatePath(`/accounting/payment-requests/${id}`);
+  revalidatePath(`/accounting/payment-requests/${id}/edit`);
+  return { success: true, id, payNumber: current.pay_number, status: targetStatus };
+}
+
+
 // Delete single attachment
 export async function deletePaymentRequestAttachment(
   id: string,
