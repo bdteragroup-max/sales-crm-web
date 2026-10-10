@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import SignatureCanvas from "react-signature-canvas";
 import {
   X,
   Printer,
-  Download,
   Save,
   Check,
   CheckCircle2,
@@ -22,9 +22,19 @@ import {
   Sparkles,
   ExternalLink,
   UserCheck,
+  Layers,
+  ChevronDown,
+  Wrench,
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { InverterQcData, saveInverterQc } from "@/app/actions/repairOrders";
+import { InverterQcData, InverterQcItemData, saveInverterQc } from "@/app/actions/repairOrders";
+import {
+  NormalizedRepairItem,
+  CommonQcData,
+  buildMultiItemQcData,
+  createDefaultItemQc,
+} from "../lib/qcHelpers";
+import OfficialQcPaper from "./OfficialQcPaper";
 
 interface InverterQcModalProps {
   isOpen: boolean;
@@ -35,147 +45,6 @@ interface InverterQcModalProps {
   users?: any[];
 }
 
-const parseOrderItems = (raw: any): any[] => {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw === "string") {
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-  return [];
-};
-
-const buildFormData = (order: any, fallbackInspectorName?: string): InverterQcData => {
-  const initialData: InverterQcData = order?.inverterQc || {};
-  const items = parseOrderItems(order?.items);
-  const firstItem = items[0] || {};
-
-  return {
-    receiveDate:
-      initialData.receiveDate ||
-      (order?.receivedDate
-        ? new Date(order.receivedDate).toISOString().split("T")[0]
-        : order?.createdAt
-        ? new Date(order.createdAt).toISOString().split("T")[0]
-        : ""),
-    inverterBrand: initialData.inverterBrand || firstItem.brand || "",
-    inverterModel: initialData.inverterModel || firstItem.model || "",
-    serialNumber: initialData.serialNumber || firstItem.serial || "",
-    workType: initialData.workType || order?.workType || order?.job?.jobType || "งานซ่อม INVERTER",
-    customerName: initialData.customerName || order?.customerCompany || order?.job?.customerName || "",
-
-    // 1. Input Voltage
-    inputVoltage: {
-      dcSinglePhase: {
-        checked: initialData.inputVoltage?.dcSinglePhase?.checked ?? false,
-        value: initialData.inputVoltage?.dcSinglePhase?.value || "",
-      },
-      acSinglePhase: {
-        checked: initialData.inputVoltage?.acSinglePhase?.checked ?? false,
-        value: initialData.inputVoltage?.acSinglePhase?.value || "",
-      },
-      acThreePhase: {
-        checked: initialData.inputVoltage?.acThreePhase?.checked ?? false,
-        rs: initialData.inputVoltage?.acThreePhase?.rs || "",
-        rt: initialData.inputVoltage?.acThreePhase?.rt || "",
-        st: initialData.inputVoltage?.acThreePhase?.st || "",
-      },
-    },
-
-    // 2. Output Voltage
-    outputVoltage: {
-      singlePhaseLN: {
-        checked: initialData.outputVoltage?.singlePhaseLN?.checked ?? false,
-        value: initialData.outputVoltage?.singlePhaseLN?.value || "",
-      },
-      threePhase220: {
-        checked: initialData.outputVoltage?.threePhase220?.checked ?? false,
-        uv: initialData.outputVoltage?.threePhase220?.uv || "",
-        uw: initialData.outputVoltage?.threePhase220?.uw || "",
-        vw: initialData.outputVoltage?.threePhase220?.vw || "",
-      },
-      threePhase380: {
-        checked: initialData.outputVoltage?.threePhase380?.checked ?? false,
-        uv: initialData.outputVoltage?.threePhase380?.uv || "",
-        uw: initialData.outputVoltage?.threePhase380?.uw || "",
-        vw: initialData.outputVoltage?.threePhase380?.vw || "",
-      },
-    },
-
-    // 3. Control Circuit & Timing
-    controlCircuit: {
-      control24Vdc: {
-        checked: initialData.controlCircuit?.control24Vdc?.checked ?? false,
-        x1: initialData.controlCircuit?.control24Vdc?.x1 || "",
-        x2: initialData.controlCircuit?.control24Vdc?.x2 || "",
-        x3: initialData.controlCircuit?.control24Vdc?.x3 || "",
-        x4: initialData.controlCircuit?.control24Vdc?.x4 || "",
-        x5: initialData.controlCircuit?.control24Vdc?.x5 || "",
-      },
-      testAcDuration: {
-        checked: initialData.controlCircuit?.testAcDuration?.checked ?? false,
-        minutes: initialData.controlCircuit?.testAcDuration?.minutes || "",
-      },
-      testDcDuration: {
-        checked: initialData.controlCircuit?.testDcDuration?.checked ?? false,
-        minutes: initialData.controlCircuit?.testDcDuration?.minutes || "",
-      },
-      testAcDcDuration: {
-        checked: initialData.controlCircuit?.testAcDcDuration?.checked ?? false,
-        minutes: initialData.controlCircuit?.testAcDcDuration?.minutes || "",
-      },
-    },
-
-    // 4. Parameter Setting
-    parameterSetting: {
-      keepCustomerOriginal: initialData.parameterSetting?.keepCustomerOriginal ?? false,
-      setNewForCustomer: initialData.parameterSetting?.setNewForCustomer ?? false,
-    },
-
-    // 5. Visual & Safety Checks
-    visualChecks: {
-      screwsAndPartsComplete: initialData.visualChecks?.screwsAndPartsComplete ?? false,
-      fanExhaustDirectionCorrect: initialData.visualChecks?.fanExhaustDirectionCorrect ?? false,
-      controlWiringNormal: initialData.visualChecks?.controlWiringNormal ?? false,
-      diodeConversionCorrect: initialData.visualChecks?.diodeConversionCorrect ?? false,
-    },
-
-    // 6. Parameter Rows
-    parameterRows:
-      initialData.parameterRows && initialData.parameterRows.length >= 6
-        ? initialData.parameterRows
-        : [
-            initialData.parameterRows?.[0] || "",
-            initialData.parameterRows?.[1] || "",
-            initialData.parameterRows?.[2] || "",
-            initialData.parameterRows?.[3] || "",
-            initialData.parameterRows?.[4] || "",
-            initialData.parameterRows?.[5] || "",
-          ],
-
-    // 7. Notes
-    notes: initialData.notes || "",
-
-    // 8. Signatures
-    inspectorName:
-      initialData.inspectorName ||
-      fallbackInspectorName ||
-      order?.technicianName ||
-      order?.job?.assignedToName ||
-      "",
-    inspectorSignatureUrl: initialData.inspectorSignatureUrl || undefined,
-    inspectorDate: initialData.inspectorDate || new Date().toISOString().split("T")[0],
-    reviewerName: initialData.reviewerName || "",
-    reviewerSignatureUrl: initialData.reviewerSignatureUrl || undefined,
-    reviewerDate: initialData.reviewerDate || new Date().toISOString().split("T")[0],
-    formRev: "QC-EN-01/Rev.00",
-  };
-};
-
 export default function InverterQcModal({
   isOpen,
   onClose,
@@ -185,6 +54,7 @@ export default function InverterQcModal({
   users = [],
 }: InverterQcModalProps) {
   const [activeTab, setActiveTab] = useState<"form" | "preview">("form");
+  const [activeItemIndex, setActiveItemIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [advanceStep, setAdvanceStep] = useState(true);
 
@@ -196,7 +66,23 @@ export default function InverterQcModal({
 
   const [hasSavedSig, setHasSavedSig] = useState(false);
 
-  // Determine current user / technician name
+  // Multi-item QC State
+  const [targetItems, setTargetItems] = useState<NormalizedRepairItem[]>([]);
+  const [common, setCommon] = useState<CommonQcData>({
+    receiveDate: "",
+    workType: "งานซ่อม INVERTER",
+    customerName: "",
+    inspectorName: "",
+    inspectorSignatureUrl: undefined,
+    inspectorDate: new Date().toISOString().split("T")[0],
+    reviewerName: "",
+    reviewerSignatureUrl: undefined,
+    reviewerDate: new Date().toISOString().split("T")[0],
+    formRev: "QC-EN-01/Rev.00",
+  });
+  const [itemsQc, setItemsQc] = useState<InverterQcItemData[]>([]);
+
+  // Resolve current logged in user name
   const resolvedCurrentUserName =
     currentUserName ||
     (typeof window !== "undefined"
@@ -205,10 +91,6 @@ export default function InverterQcModal({
     order?.technicianName ||
     order?.job?.assignedToName ||
     "";
-
-  const [formData, setFormData] = useState<InverterQcData>(() =>
-    buildFormData(order, resolvedCurrentUserName)
-  );
 
   // Sync state whenever modal is opened or order changes
   useEffect(() => {
@@ -225,54 +107,96 @@ export default function InverterQcModal({
           "";
       }
 
-      const data = buildFormData(order, resolvedName);
+      const multiData = buildMultiItemQcData(order, resolvedName);
+      setTargetItems(multiData.targetItems);
+      setActiveItemIndex(0);
+
+      const commonData = { ...multiData.common };
       if (typeof window !== "undefined") {
         const savedUserSig = localStorage.getItem("crm_user_signature");
         setHasSavedSig(!!savedUserSig);
-        if (savedUserSig && !data.inspectorSignatureUrl) {
-          data.inspectorSignatureUrl = savedUserSig;
+        if (savedUserSig && !commonData.inspectorSignatureUrl) {
+          commonData.inspectorSignatureUrl = savedUserSig;
         }
-
-        // If inspector name is empty, auto-populate with resolvedName
-        if (!data.inspectorName && resolvedName) {
-          data.inspectorName = resolvedName;
+        if (!commonData.inspectorName && resolvedName) {
+          commonData.inspectorName = resolvedName;
         }
       }
-      setFormData(data);
+
+      setCommon(commonData);
+      setItemsQc(multiData.itemsQc);
     }
   }, [isOpen, order, currentUserName]);
 
   if (!isOpen || !order) return null;
 
-  // Format Thai Date
-  const formatThaiDate = (dateStr?: string) => {
-    if (!dateStr) return "....................";
-    try {
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return dateStr;
-      const day = d.getDate();
-      const month = d.getMonth() + 1;
-      const year = d.getFullYear() + 543;
-      return `${day}/${month}/${year}`;
-    } catch {
-      return dateStr;
-    }
+  const currentItemTarget = targetItems[activeItemIndex] || targetItems[0];
+  const currentItemQc =
+    itemsQc[activeItemIndex] ||
+    (currentItemTarget ? createDefaultItemQc(currentItemTarget) : createDefaultItemQc({} as any));
+
+  // Helper to update active item QC
+  const updateActiveItem = (updater: (prev: InverterQcItemData) => InverterQcItemData) => {
+    setItemsQc((prev) => {
+      const next = [...prev];
+      const existing = next[activeItemIndex] || createDefaultItemQc(targetItems[activeItemIndex]);
+      next[activeItemIndex] = updater(existing);
+      return next;
+    });
   };
 
-  // Quick check all visual items
-  const handleCheckAllVisual = () => {
-    setFormData((prev) => ({
-      ...prev,
-      visualChecks: {
-        screwsAndPartsComplete: true,
-        fanExhaustDirectionCorrect: true,
-        controlWiringNormal: true,
-        diodeConversionCorrect: true,
-      },
-    }));
+  // Helper to update common data
+  const updateCommon = (updater: (prev: CommonQcData) => CommonQcData) => {
+    setCommon(updater);
   };
 
-  // Handle signature file attachment (PNG, JPG, etc.)
+  // Copy current item's QC values to all other items
+  const handleCopyCurrentItemToAll = () => {
+    if (targetItems.length <= 1) return;
+
+    Swal.fire({
+      title: "คัดลอกค่าผลเทสไปยังทุกรายการ?",
+      html: `ต้องการคัดลอกค่าแรงดัน, เวลาเทส, พารามิเตอร์ และผลตรวจเช็คจาก <b>ตัวที่ ${activeItemIndex + 1}</b> ไปยังอีก <b>${
+        targetItems.length - 1
+      } รายการ</b> หรือไม่?<br/><span class="text-xs text-gray-500">(ยี่ห้อ รุ่น และ Serial Number ของแต่ละรายการจะไม่ถูกเขียนทับ)</span>`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#ff2301",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "ใช่, คัดลอกไปทุกรายการ",
+      cancelButtonText: "ยกเลิก",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const source = currentItemQc;
+        setItemsQc((prev) =>
+          prev.map((item, idx) => {
+            if (idx === activeItemIndex) return item;
+            return {
+              ...item,
+              inputVoltage: JSON.parse(JSON.stringify(source.inputVoltage || {})),
+              outputVoltage: JSON.parse(JSON.stringify(source.outputVoltage || {})),
+              controlCircuit: JSON.parse(JSON.stringify(source.controlCircuit || {})),
+              parameterSetting: JSON.parse(JSON.stringify(source.parameterSetting || {})),
+              visualChecks: JSON.parse(JSON.stringify(source.visualChecks || {})),
+              parameterRows: JSON.parse(JSON.stringify(source.parameterRows || [])),
+              notes: source.notes || "",
+            };
+          })
+        );
+
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: `คัดลอกผลเทสไปยังทั้ง ${targetItems.length} รายการแล้ว`,
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      }
+    });
+  };
+
+  // File upload for signature
   const handleSignatureFileUpload = (
     e: React.ChangeEvent<HTMLInputElement>,
     target: "inspector" | "reviewer"
@@ -283,39 +207,31 @@ export default function InverterQcModal({
     if (!file.type.startsWith("image/")) {
       Swal.fire({
         icon: "warning",
-        title: "ประเภทไฟล์ไม่ถูกต้อง",
-        text: "กรุณาแนบไฟล์รูปภาพ เช่น PNG, JPG, JPEG",
-        confirmButtonColor: "#ff2301",
-      });
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      Swal.fire({
-        icon: "warning",
-        title: "ไฟล์มีขนาดใหญ่เกินไป",
-        text: "กรุณาแนบไฟล์รูปภาพขนาดไม่เกิน 5 MB",
-        confirmButtonColor: "#ff2301",
+        title: "ไฟล์ไม่ถูกต้อง",
+        text: "กรุณาเลือกไฟล์รูปภาพเท่านั้น (PNG, JPG, JPEG)",
       });
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      if (dataUrl) {
-        if (target === "inspector") {
-          setFormData((prev) => ({ ...prev, inspectorSignatureUrl: dataUrl }));
-        } else {
-          setFormData((prev) => ({ ...prev, reviewerSignatureUrl: dataUrl }));
+    reader.onload = (uploadEvent) => {
+      const dataUrl = uploadEvent.target?.result as string;
+      if (target === "inspector") {
+        updateCommon((prev) => ({ ...prev, inspectorSignatureUrl: dataUrl }));
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("crm_user_signature", dataUrl);
+            setHasSavedSig(true);
+          } catch {}
         }
+      } else {
+        updateCommon((prev) => ({ ...prev, reviewerSignatureUrl: dataUrl }));
       }
     };
     reader.readAsDataURL(file);
-    e.target.value = "";
   };
 
-  // Use saved signature from localStorage
+  // Use saved signature
   const handleUseSavedSignature = (target: "inspector" | "reviewer") => {
     if (typeof window === "undefined") return;
     const saved = localStorage.getItem("crm_user_signature");
@@ -328,29 +244,34 @@ export default function InverterQcModal({
       return;
     }
     if (target === "inspector") {
-      setFormData((prev) => ({ ...prev, inspectorSignatureUrl: saved }));
+      updateCommon((prev) => ({ ...prev, inspectorSignatureUrl: saved }));
     } else {
-      setFormData((prev) => ({ ...prev, reviewerSignatureUrl: saved }));
+      updateCommon((prev) => ({ ...prev, reviewerSignatureUrl: saved }));
     }
   };
 
   // Save changes
-  const handleSave = async (silent = false) => {
+  const handleSave = async (silent = false): Promise<InverterQcData | null> => {
     setIsSaving(true);
     try {
-      const dataToSave: InverterQcData = {
-        ...formData,
-        updatedAt: new Date().toISOString(),
-      };
+      const updatedCommon = { ...common };
 
       // Extract signatures from pads if active and not already set
-      if (!dataToSave.inspectorSignatureUrl && sigPadInspector.current && !sigPadInspector.current.isEmpty()) {
-        dataToSave.inspectorSignatureUrl = sigPadInspector.current
+      if (
+        !updatedCommon.inspectorSignatureUrl &&
+        sigPadInspector.current &&
+        !sigPadInspector.current.isEmpty()
+      ) {
+        updatedCommon.inspectorSignatureUrl = sigPadInspector.current
           .getTrimmedCanvas()
           .toDataURL("image/png");
       }
-      if (!dataToSave.reviewerSignatureUrl && sigPadReviewer.current && !sigPadReviewer.current.isEmpty()) {
-        dataToSave.reviewerSignatureUrl = sigPadReviewer.current
+      if (
+        !updatedCommon.reviewerSignatureUrl &&
+        sigPadReviewer.current &&
+        !sigPadReviewer.current.isEmpty()
+      ) {
+        updatedCommon.reviewerSignatureUrl = sigPadReviewer.current
           .getTrimmedCanvas()
           .toDataURL("image/png");
       }
@@ -358,20 +279,29 @@ export default function InverterQcModal({
       // Remember signature & inspector name in localStorage
       if (typeof window !== "undefined") {
         try {
-          if (dataToSave.inspectorSignatureUrl) {
-            localStorage.setItem("crm_user_signature", dataToSave.inspectorSignatureUrl);
+          if (updatedCommon.inspectorSignatureUrl) {
+            localStorage.setItem("crm_user_signature", updatedCommon.inspectorSignatureUrl);
             setHasSavedSig(true);
           }
-          if (dataToSave.inspectorName) {
-            localStorage.setItem("crm_user_inspector_name", dataToSave.inspectorName);
+          if (updatedCommon.inspectorName) {
+            localStorage.setItem("crm_user_inspector_name", updatedCommon.inspectorName);
           }
         } catch {}
       }
 
+      setCommon(updatedCommon);
+
+      const dataToSave: InverterQcData = {
+        ...updatedCommon,
+        // Root fields for item 0 backwards compatibility
+        ...(itemsQc[0] || {}),
+        itemsQc: itemsQc,
+        updatedAt: new Date().toISOString(),
+      };
+
       const res = await saveInverterQc(order.id, dataToSave, advanceStep);
       if (!res.success) throw new Error(res.error);
 
-      setFormData(dataToSave);
       if (onSaved) {
         onSaved(res.data);
       }
@@ -379,7 +309,7 @@ export default function InverterQcModal({
       if (!silent) {
         await Swal.fire({
           title: "บันทึกผลการตรวจ QC สำเร็จ",
-          text: `บันทึกข้อมูลแบบฟอร์ม QC-EN-01/Rev.00 เรียบร้อย${
+          text: `บันทึกข้อมูลแบบฟอร์ม QC-EN-01/Rev.00 (${targetItems.length} รายการ) เรียบร้อย${
             advanceStep ? ' และปรับสถานะเป็น "ตรวจสอบ QC หลังซ่อม"' : ""
           }`,
           icon: "success",
@@ -402,15 +332,26 @@ export default function InverterQcModal({
   };
 
   // Direct print via invisible iframe
-  const handlePrint = async () => {
+  const handlePrint = async (targetIdx?: number) => {
     const saved = await handleSave(true);
     if (!saved) return;
 
-    // Use browser print targeting the exact print stylesheet
-    const printContent = document.getElementById("inverter-qc-printable-area");
-    if (!printContent) {
+    const printableRoot = document.getElementById("inverter-qc-printable-area");
+    if (!printableRoot) {
       window.print();
       return;
+    }
+
+    let printHtml = "";
+    if (targetIdx !== undefined && targetIdx >= 0) {
+      const child = printableRoot.children[targetIdx];
+      if (child) {
+        printHtml = child.outerHTML;
+      } else {
+        printHtml = printableRoot.innerHTML;
+      }
+    } else {
+      printHtml = printableRoot.innerHTML;
     }
 
     const printFrame = document.createElement("iframe");
@@ -442,12 +383,11 @@ export default function InverterQcModal({
             }
             @media print {
               html, body {
-                width: 210mm !important;
-                height: 297mm !important;
-                max-height: 297mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                overflow: hidden !important;
+                background: #fff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
               }
             }
             * {
@@ -462,7 +402,10 @@ export default function InverterQcModal({
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            .qc-print-wrapper {
+            .qc-screen-only {
+              display: none !important;
+            }
+            .qc-page-sheet {
               width: 210mm;
               height: 297mm;
               max-height: 297mm;
@@ -470,12 +413,19 @@ export default function InverterQcModal({
               margin: 0 auto;
               box-sizing: border-box;
               overflow: hidden;
-              page-break-after: avoid !important;
-              break-after: avoid !important;
+              page-break-after: always !important;
+              break-after: page !important;
               page-break-inside: avoid !important;
               break-inside: avoid !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
             }
-            #inverter-qc-printable-area {
+            .qc-page-sheet:last-child {
+              page-break-after: auto !important;
+              break-after: auto !important;
+            }
+            .official-qc-paper {
               width: 100% !important;
               max-width: 100% !important;
               height: 100% !important;
@@ -491,9 +441,7 @@ export default function InverterQcModal({
           </style>
         </head>
         <body class="p-0 m-0">
-          <div class="qc-print-wrapper">
-            ${printContent.outerHTML}
-          </div>
+          ${printHtml}
         </body>
       </html>
     `);
@@ -517,7 +465,6 @@ export default function InverterQcModal({
     printFrame.onload = () => {
       setTimeout(triggerPrint, 500);
     };
-    // Fallback if onload doesn't fire
     setTimeout(triggerPrint, 1200);
   };
 
@@ -538,6 +485,11 @@ export default function InverterQcModal({
                 <span className="text-[10px] font-black uppercase tracking-wider bg-red-100 text-[#ff2301] px-2 py-0.5 rounded-full border border-red-200">
                   QC-EN-01/Rev.00
                 </span>
+                {targetItems.length > 1 && (
+                  <span className="text-[10px] font-bold bg-gray-900 text-white px-2 py-0.5 rounded-full shadow-2xs">
+                    {targetItems.length} รายการ
+                  </span>
+                )}
               </div>
               <p className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
                 <span>
@@ -576,7 +528,9 @@ export default function InverterQcModal({
                 }`}
               >
                 <Eye className="w-3.5 h-3.5" />
-                <span>ตัวอย่างเอกสาร A4</span>
+                <span>
+                  ตัวอย่างเอกสาร A4 {targetItems.length > 1 ? `(${targetItems.length} หน้า)` : ""}
+                </span>
               </button>
             </div>
 
@@ -592,24 +546,100 @@ export default function InverterQcModal({
 
         {/* Modal Body */}
         <div className="flex-1 overflow-y-auto bg-slate-50/70 p-4 sm:p-6 custom-scrollbar">
+          {/* ── TAB 1: FORM INPUTS ── */}
           <div className={activeTab === "form" ? "block" : "hidden"}>
-            {/* ── TAB 1: FORM INPUTS ── */}
-            <div className="max-w-4xl mx-auto space-y-5">
+            <div className="max-w-4xl mx-auto space-y-4">
+              {/* Multi-Item Selector Banner (When order has multiple items) */}
+              {targetItems.length > 1 && (
+                <div className="bg-white rounded-2xl border border-red-200/80 p-3.5 shadow-sm space-y-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-lg bg-red-100 text-[#ff2301] flex items-center justify-center">
+                        <Layers size={14} />
+                      </span>
+                      <span className="text-xs font-bold text-gray-800">
+                        รายการซ่อมในใบนี้ ({targetItems.length} รายการ):
+                      </span>
+                      <span className="text-[11px] text-gray-500">
+                        (คลิกเลือกรายการเพื่อกรอกผล QC ของแต่ละตัว)
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleCopyCurrentItemToAll}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100/80 text-[#ff2301] border border-red-200 text-xs font-bold transition shadow-2xs cursor-pointer active:scale-95"
+                      title="คัดลอกค่าแรงดันและพารามิเตอร์ของรายการนี้ ไปยังทุกรายการ"
+                    >
+                      <Copy size={13} />
+                      <span>คัดลอกค่าผลเทสไปทุกตัว ({targetItems.length} ตัว)</span>
+                    </button>
+                  </div>
+
+                  {/* Item Pills */}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {targetItems.map((target, idx) => {
+                      const isSelected = activeItemIndex === idx;
+                      const hasSerial = !!(itemsQc[idx]?.serialNumber || target.serial);
+
+                      return (
+                        <button
+                          key={target.id || idx}
+                          type="button"
+                          onClick={() => setActiveItemIndex(idx)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                            isSelected
+                              ? "bg-[#ff2301] text-white border-[#ff2301] shadow-sm shadow-red-500/20 scale-[1.02]"
+                              : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200"
+                          }`}
+                        >
+                          <span
+                            className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${
+                              isSelected ? "bg-white text-[#ff2301]" : "bg-gray-200 text-gray-700"
+                            }`}
+                          >
+                            {idx + 1}
+                          </span>
+                          <span>
+                            {target.brand || "INVERTER"}{" "}
+                            {target.model ? `(${target.model})` : ""}
+                          </span>
+                          {hasSerial && (
+                            <span
+                              className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                                isSelected ? "bg-red-900/30 text-white" : "bg-gray-200/80 text-gray-600"
+                              }`}
+                            >
+                              {itemsQc[idx]?.serialNumber || target.serial}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Header Equipment Details Card */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                  <span className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-[#ff2301]" />
-                    ข้อมูลอุปกรณ์และลูกค้า
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-[#ff2301]" />
+                      ข้อมูลอุปกรณ์และลูกค้า
+                    </span>
+                    {targetItems.length > 1 && (
+                      <span className="text-[11px] font-bold text-[#ff2301] bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
+                        กำลังกรอก: รายการที่ {activeItemIndex + 1} / {targetItems.length}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] font-medium text-gray-500">วันที่รับซ่อม:</span>
                     <input
                       type="date"
-                      value={formData.receiveDate || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, receiveDate: e.target.value }))
-                      }
+                      value={common.receiveDate || ""}
+                      onChange={(e) => updateCommon((prev) => ({ ...prev, receiveDate: e.target.value }))}
                       className="text-xs border border-gray-300 rounded-lg px-2 py-1 font-medium bg-gray-50 focus:bg-white focus:ring-1 focus:ring-red-500"
                     />
                   </div>
@@ -622,9 +652,9 @@ export default function InverterQcModal({
                     </label>
                     <input
                       type="text"
-                      value={formData.inverterBrand || ""}
+                      value={currentItemQc.inverterBrand || ""}
                       onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, inverterBrand: e.target.value }))
+                        updateActiveItem((prev) => ({ ...prev, inverterBrand: e.target.value }))
                       }
                       placeholder="เช่น INVT, YASKAWA, MITSUBISHI"
                       className="w-full text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white focus:ring-1 focus:ring-red-500"
@@ -636,9 +666,9 @@ export default function InverterQcModal({
                     </label>
                     <input
                       type="text"
-                      value={formData.inverterModel || ""}
+                      value={currentItemQc.inverterModel || ""}
                       onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, inverterModel: e.target.value }))
+                        updateActiveItem((prev) => ({ ...prev, inverterModel: e.target.value }))
                       }
                       placeholder="เช่น GD20-0R7G-4-EU"
                       className="w-full text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white focus:ring-1 focus:ring-red-500 font-medium"
@@ -650,9 +680,9 @@ export default function InverterQcModal({
                     </label>
                     <input
                       type="text"
-                      value={formData.serialNumber || ""}
+                      value={currentItemQc.serialNumber || ""}
                       onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, serialNumber: e.target.value }))
+                        updateActiveItem((prev) => ({ ...prev, serialNumber: e.target.value }))
                       }
                       placeholder="เช่น SN-2409001"
                       className="w-full text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white focus:ring-1 focus:ring-red-500 font-mono"
@@ -664,10 +694,8 @@ export default function InverterQcModal({
                     </label>
                     <input
                       type="text"
-                      value={formData.workType || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, workType: e.target.value }))
-                      }
+                      value={common.workType || ""}
+                      onChange={(e) => updateCommon((prev) => ({ ...prev, workType: e.target.value }))}
                       placeholder="เช่น ปั๊มน้ำ, สายพานลำเลียง, พัดลม"
                       className="w-full text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white focus:ring-1 focus:ring-red-500"
                     />
@@ -678,9 +706,9 @@ export default function InverterQcModal({
                     </label>
                     <input
                       type="text"
-                      value={formData.customerName || ""}
+                      value={common.customerName || ""}
                       onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, customerName: e.target.value }))
+                        updateCommon((prev) => ({ ...prev, customerName: e.target.value }))
                       }
                       placeholder="ชื่อบริษัทหรือบุคคลลูกค้า"
                       className="w-full text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white focus:ring-1 focus:ring-red-500 font-medium"
@@ -704,9 +732,9 @@ export default function InverterQcModal({
                     <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[190px]">
                       <input
                         type="checkbox"
-                        checked={formData.inputVoltage?.dcSinglePhase?.checked ?? false}
+                        checked={currentItemQc.inputVoltage?.dcSinglePhase?.checked ?? false}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             inputVoltage: {
                               ...prev.inputVoltage!,
@@ -724,9 +752,9 @@ export default function InverterQcModal({
                     <div className="flex items-center gap-1.5">
                       <input
                         type="text"
-                        value={formData.inputVoltage?.dcSinglePhase?.value || ""}
+                        value={currentItemQc.inputVoltage?.dcSinglePhase?.value || ""}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             inputVoltage: {
                               ...prev.inputVoltage!,
@@ -749,9 +777,9 @@ export default function InverterQcModal({
                     <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[190px]">
                       <input
                         type="checkbox"
-                        checked={formData.inputVoltage?.acSinglePhase?.checked ?? false}
+                        checked={currentItemQc.inputVoltage?.acSinglePhase?.checked ?? false}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             inputVoltage: {
                               ...prev.inputVoltage!,
@@ -769,9 +797,9 @@ export default function InverterQcModal({
                     <div className="flex items-center gap-1.5">
                       <input
                         type="text"
-                        value={formData.inputVoltage?.acSinglePhase?.value || ""}
+                        value={currentItemQc.inputVoltage?.acSinglePhase?.value || ""}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             inputVoltage: {
                               ...prev.inputVoltage!,
@@ -794,9 +822,9 @@ export default function InverterQcModal({
                     <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[190px]">
                       <input
                         type="checkbox"
-                        checked={formData.inputVoltage?.acThreePhase?.checked ?? false}
+                        checked={currentItemQc.inputVoltage?.acThreePhase?.checked ?? false}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             inputVoltage: {
                               ...prev.inputVoltage!,
@@ -811,14 +839,14 @@ export default function InverterQcModal({
                       />
                       <span>3 เฟส (380-400Vac)</span>
                     </label>
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">R-S:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">R-S:</span>
                         <input
                           type="text"
-                          value={formData.inputVoltage?.acThreePhase?.rs || ""}
+                          value={currentItemQc.inputVoltage?.acThreePhase?.rs || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               inputVoltage: {
                                 ...prev.inputVoltage!,
@@ -830,17 +858,17 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">R-T:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">R-T:</span>
                         <input
                           type="text"
-                          value={formData.inputVoltage?.acThreePhase?.rt || ""}
+                          value={currentItemQc.inputVoltage?.acThreePhase?.rt || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               inputVoltage: {
                                 ...prev.inputVoltage!,
@@ -852,17 +880,17 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">S-T:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">S-T:</span>
                         <input
                           type="text"
-                          value={formData.inputVoltage?.acThreePhase?.st || ""}
+                          value={currentItemQc.inputVoltage?.acThreePhase?.st || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               inputVoltage: {
                                 ...prev.inputVoltage!,
@@ -874,9 +902,9 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                     </div>
                   </div>
@@ -885,21 +913,22 @@ export default function InverterQcModal({
 
               {/* 2. POWER OUTPUT VOLTAGE หลังซ่อมเสร็จ */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
-                <div className="border-b border-gray-100 pb-2">
+                <div className="border-b border-gray-100 pb-2 flex items-center justify-between">
                   <span className="text-xs font-bold text-red-700 tracking-wide uppercase">
                     2. POWER OUTPUT VOLTAGE หลังซ่อมเสร็จ
                   </span>
+                  <span className="text-[10px] text-gray-400">ติ๊กถูกพร้อมกรอกค่าที่วัดได้</span>
                 </div>
 
                 <div className="space-y-2.5 text-xs">
-                  {/* Row 1: 1-Phase L-N */}
+                  {/* Row 1: 1-Phase LN */}
                   <div className="flex flex-wrap items-center gap-2 bg-gray-50/70 p-2.5 rounded-lg border border-gray-100">
-                    <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[200px]">
+                    <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[210px]">
                       <input
                         type="checkbox"
-                        checked={formData.outputVoltage?.singlePhaseLN?.checked ?? false}
+                        checked={currentItemQc.outputVoltage?.singlePhaseLN?.checked ?? false}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             outputVoltage: {
                               ...prev.outputVoltage!,
@@ -917,9 +946,9 @@ export default function InverterQcModal({
                     <div className="flex items-center gap-1.5">
                       <input
                         type="text"
-                        value={formData.outputVoltage?.singlePhaseLN?.value || ""}
+                        value={currentItemQc.outputVoltage?.singlePhaseLN?.value || ""}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             outputVoltage: {
                               ...prev.outputVoltage!,
@@ -937,14 +966,14 @@ export default function InverterQcModal({
                     </div>
                   </div>
 
-                  {/* Row 2: 3-Phase 220-230Vac */}
+                  {/* Row 2: 3-Phase 220 */}
                   <div className="flex flex-wrap items-center gap-2 bg-gray-50/70 p-2.5 rounded-lg border border-gray-100">
-                    <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[200px]">
+                    <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[210px]">
                       <input
                         type="checkbox"
-                        checked={formData.outputVoltage?.threePhase220?.checked ?? false}
+                        checked={currentItemQc.outputVoltage?.threePhase220?.checked ?? false}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             outputVoltage: {
                               ...prev.outputVoltage!,
@@ -959,14 +988,14 @@ export default function InverterQcModal({
                       />
                       <span>3 เฟส (220-230Vac)</span>
                     </label>
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">U-V:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">U-V:</span>
                         <input
                           type="text"
-                          value={formData.outputVoltage?.threePhase220?.uv || ""}
+                          value={currentItemQc.outputVoltage?.threePhase220?.uv || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               outputVoltage: {
                                 ...prev.outputVoltage!,
@@ -978,17 +1007,17 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">U-W:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">U-W:</span>
                         <input
                           type="text"
-                          value={formData.outputVoltage?.threePhase220?.uw || ""}
+                          value={currentItemQc.outputVoltage?.threePhase220?.uw || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               outputVoltage: {
                                 ...prev.outputVoltage!,
@@ -1000,17 +1029,17 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">V-W:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">V-W:</span>
                         <input
                           type="text"
-                          value={formData.outputVoltage?.threePhase220?.vw || ""}
+                          value={currentItemQc.outputVoltage?.threePhase220?.vw || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               outputVoltage: {
                                 ...prev.outputVoltage!,
@@ -1022,21 +1051,21 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Row 3: 3-Phase 380-400Vac */}
+                  {/* Row 3: 3-Phase 380 */}
                   <div className="flex flex-wrap items-center gap-2 bg-gray-50/70 p-2.5 rounded-lg border border-gray-100">
-                    <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[200px]">
+                    <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer min-w-[210px]">
                       <input
                         type="checkbox"
-                        checked={formData.outputVoltage?.threePhase380?.checked ?? false}
+                        checked={currentItemQc.outputVoltage?.threePhase380?.checked ?? false}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             outputVoltage: {
                               ...prev.outputVoltage!,
@@ -1051,14 +1080,14 @@ export default function InverterQcModal({
                       />
                       <span>3 เฟส (380-400Vac)</span>
                     </label>
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">U-V:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">U-V:</span>
                         <input
                           type="text"
-                          value={formData.outputVoltage?.threePhase380?.uv || ""}
+                          value={currentItemQc.outputVoltage?.threePhase380?.uv || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               outputVoltage: {
                                 ...prev.outputVoltage!,
@@ -1070,17 +1099,17 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">U-W:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">U-W:</span>
                         <input
                           type="text"
-                          value={formData.outputVoltage?.threePhase380?.uw || ""}
+                          value={currentItemQc.outputVoltage?.threePhase380?.uw || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               outputVoltage: {
                                 ...prev.outputVoltage!,
@@ -1092,17 +1121,17 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-500 text-[11px]">V-W:</span>
+                        <span className="text-[11px] text-gray-500 font-bold">V-W:</span>
                         <input
                           type="text"
-                          value={formData.outputVoltage?.threePhase380?.vw || ""}
+                          value={currentItemQc.outputVoltage?.threePhase380?.vw || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               outputVoltage: {
                                 ...prev.outputVoltage!,
@@ -1114,9 +1143,9 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          className="w-18 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">Vac</span>
+                        <span className="text-[10px] text-gray-500">Vac</span>
                       </div>
                     </div>
                   </div>
@@ -1125,21 +1154,22 @@ export default function InverterQcModal({
 
               {/* 3. CONTROL CIRCUIT และเทสระยะเวลาในการจ่ายไฟ */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
-                <div className="border-b border-gray-100 pb-2">
+                <div className="border-b border-gray-100 pb-2 flex items-center justify-between">
                   <span className="text-xs font-bold text-red-700 tracking-wide uppercase">
                     3. CONTROL CIRCUIT และเทสระยะเวลาในการจ่ายไฟ
                   </span>
+                  <span className="text-[10px] text-gray-400">ทดสอบสัญญาณและเวลาเบิร์นอิน</span>
                 </div>
 
                 <div className="space-y-2.5 text-xs">
-                  {/* Row 1: 24 Vdc (X1-X5) */}
+                  {/* Control 24Vdc */}
                   <div className="bg-gray-50/70 p-2.5 rounded-lg border border-gray-100 space-y-2">
                     <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={formData.controlCircuit?.control24Vdc?.checked ?? false}
+                        checked={currentItemQc.controlCircuit?.control24Vdc?.checked ?? false}
                         onChange={(e) =>
-                          setFormData((prev) => ({
+                          updateActiveItem((prev) => ({
                             ...prev,
                             controlCircuit: {
                               ...prev.controlCircuit!,
@@ -1152,48 +1182,49 @@ export default function InverterQcModal({
                         }
                         className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
                       />
-                      <span>24 Vdc (วัดแรงดัน Control Circuit ขั้ว X1 - X5)</span>
+                      <span>24 Vdc (แรงดันตามแต่ละช่องสัญญาณ X1 - X5)</span>
                     </label>
-                    <div className="flex flex-wrap items-center gap-2.5 pl-6">
-                      {(["x1", "x2", "x3", "x4", "x5"] as const).map((key, i) => (
-                        <div key={key} className="flex items-center gap-1">
-                          <span className="text-gray-600 font-semibold text-[11px] uppercase">
-                            X{i + 1}:
+
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pl-6">
+                      {(["x1", "x2", "x3", "x4", "x5"] as const).map((ch, idx) => (
+                        <div key={ch} className="flex items-center gap-1">
+                          <span className="text-[11px] font-bold text-gray-500 uppercase">
+                            {ch}:
                           </span>
                           <input
                             type="text"
-                            value={formData.controlCircuit?.control24Vdc?.[key] || ""}
+                            value={currentItemQc.controlCircuit?.control24Vdc?.[ch] || ""}
                             onChange={(e) =>
-                              setFormData((prev) => ({
+                              updateActiveItem((prev) => ({
                                 ...prev,
                                 controlCircuit: {
                                   ...prev.controlCircuit!,
                                   control24Vdc: {
                                     ...prev.controlCircuit!.control24Vdc!,
                                     checked: true,
-                                    [key]: e.target.value,
+                                    [ch]: e.target.value,
                                   },
                                 },
                               }))
                             }
-                            className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                            placeholder="Vdc"
+                            className="w-full text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white focus:ring-1 focus:ring-red-500"
                           />
-                          <span className="text-gray-500 text-[10px]">Vdc</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Timing Rows: AC, DC, AC+DC */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {/* Timing tests */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {/* AC */}
-                    <div className="flex items-center justify-between gap-2 bg-gray-50/70 p-2.5 rounded-lg border border-gray-100">
+                    <div className="bg-gray-50/70 p-2.5 rounded-lg border border-gray-100 flex flex-col justify-between gap-1.5">
                       <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={formData.controlCircuit?.testAcDuration?.checked ?? false}
+                          checked={currentItemQc.controlCircuit?.testAcDuration?.checked ?? false}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               controlCircuit: {
                                 ...prev.controlCircuit!,
@@ -1206,14 +1237,14 @@ export default function InverterQcModal({
                           }
                           className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
                         />
-                        <span>เทสจ่ายไฟ AC</span>
+                        <span>เทสการจ่ายไฟ AC</span>
                       </label>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5 pl-6">
                         <input
                           type="text"
-                          value={formData.controlCircuit?.testAcDuration?.minutes || ""}
+                          value={currentItemQc.controlCircuit?.testAcDuration?.minutes || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               controlCircuit: {
                                 ...prev.controlCircuit!,
@@ -1224,21 +1255,21 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          placeholder="เวลา"
-                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          placeholder="ระยะเวลา"
+                          className="w-20 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">นาที</span>
+                        <span className="text-gray-600">นาที</span>
                       </div>
                     </div>
 
                     {/* DC */}
-                    <div className="flex items-center justify-between gap-2 bg-gray-50/70 p-2.5 rounded-lg border border-gray-100">
+                    <div className="bg-gray-50/70 p-2.5 rounded-lg border border-gray-100 flex flex-col justify-between gap-1.5">
                       <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={formData.controlCircuit?.testDcDuration?.checked ?? false}
+                          checked={currentItemQc.controlCircuit?.testDcDuration?.checked ?? false}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               controlCircuit: {
                                 ...prev.controlCircuit!,
@@ -1251,14 +1282,14 @@ export default function InverterQcModal({
                           }
                           className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
                         />
-                        <span>เทสจ่ายไฟ DC</span>
+                        <span>เทสการจ่ายไฟ DC</span>
                       </label>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5 pl-6">
                         <input
                           type="text"
-                          value={formData.controlCircuit?.testDcDuration?.minutes || ""}
+                          value={currentItemQc.controlCircuit?.testDcDuration?.minutes || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               controlCircuit: {
                                 ...prev.controlCircuit!,
@@ -1269,21 +1300,21 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          placeholder="เวลา"
-                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          placeholder="ระยะเวลา"
+                          className="w-20 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">นาที</span>
+                        <span className="text-gray-600">นาที</span>
                       </div>
                     </div>
 
                     {/* AC + DC */}
-                    <div className="flex items-center justify-between gap-2 bg-gray-50/70 p-2.5 rounded-lg border border-gray-100">
+                    <div className="bg-gray-50/70 p-2.5 rounded-lg border border-gray-100 flex flex-col justify-between gap-1.5">
                       <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={formData.controlCircuit?.testAcDcDuration?.checked ?? false}
+                          checked={currentItemQc.controlCircuit?.testAcDcDuration?.checked ?? false}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               controlCircuit: {
                                 ...prev.controlCircuit!,
@@ -1296,14 +1327,14 @@ export default function InverterQcModal({
                           }
                           className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
                         />
-                        <span>เทส AC+DC พร้อมกัน</span>
+                        <span>เทส AC และ DC พร้อมกัน</span>
                       </label>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5 pl-6">
                         <input
                           type="text"
-                          value={formData.controlCircuit?.testAcDcDuration?.minutes || ""}
+                          value={currentItemQc.controlCircuit?.testAcDcDuration?.minutes || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({
+                            updateActiveItem((prev) => ({
                               ...prev,
                               controlCircuit: {
                                 ...prev.controlCircuit!,
@@ -1314,10 +1345,10 @@ export default function InverterQcModal({
                               },
                             }))
                           }
-                          placeholder="เวลา"
-                          className="w-16 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white"
+                          placeholder="ระยะเวลา"
+                          className="w-20 text-center font-mono font-bold text-xs border border-gray-300 rounded px-1.5 py-1 bg-white focus:ring-1 focus:ring-red-500"
                         />
-                        <span className="text-gray-500 text-[11px]">นาที</span>
+                        <span className="text-gray-600">นาที</span>
                       </div>
                     </div>
                   </div>
@@ -1326,19 +1357,20 @@ export default function InverterQcModal({
 
               {/* 4. การ Set ค่า Parameter */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
-                <div className="border-b border-gray-100 pb-2">
+                <div className="border-b border-gray-100 pb-2 flex items-center justify-between">
                   <span className="text-xs font-bold text-red-700 tracking-wide uppercase">
                     4. การ Set ค่า Parameter
                   </span>
+                  <span className="text-[10px] text-gray-400">เลือกรูปแบบที่ตั้งค่า</span>
                 </div>
 
-                <div className="space-y-2 text-xs">
-                  <label className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <label className="flex items-start gap-2.5 p-3 rounded-lg border border-gray-200 bg-gray-50/50 hover:bg-gray-50 cursor-pointer transition">
                     <input
                       type="checkbox"
-                      checked={formData.parameterSetting?.keepCustomerOriginal ?? false}
+                      checked={currentItemQc.parameterSetting?.keepCustomerOriginal ?? false}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        updateActiveItem((prev) => ({
                           ...prev,
                           parameterSetting: {
                             ...prev.parameterSetting!,
@@ -1346,19 +1378,22 @@ export default function InverterQcModal({
                           },
                         }))
                       }
-                      className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                      className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 mt-0.5"
                     />
-                    <span className="font-medium text-gray-800">
-                      Set ค่า Parameter เดิมให้ลูกค้า (โปรดบันทึกค่าลงในตารางด้านล่าง)
-                    </span>
+                    <div>
+                      <span className="font-bold text-gray-800">Set ค่า Parameter เดิมให้ลูกค้า</span>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
+                        คงค่าพารามิเตอร์เดิมตามที่ลูกค้าเคยตั้งไว้ใช้งาน
+                      </p>
+                    </div>
                   </label>
 
-                  <label className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <label className="flex items-start gap-2.5 p-3 rounded-lg border border-gray-200 bg-gray-50/50 hover:bg-gray-50 cursor-pointer transition">
                     <input
                       type="checkbox"
-                      checked={formData.parameterSetting?.setNewForCustomer ?? false}
+                      checked={currentItemQc.parameterSetting?.setNewForCustomer ?? false}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        updateActiveItem((prev) => ({
                           ...prev,
                           parameterSetting: {
                             ...prev.parameterSetting!,
@@ -1366,11 +1401,14 @@ export default function InverterQcModal({
                           },
                         }))
                       }
-                      className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                      className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 mt-0.5"
                     />
-                    <span className="font-medium text-gray-800">
-                      Set ค่า Parameter ใหม่ให้ลูกค้า (โปรดบันทึกค่าลงในตารางด้านล่าง)
-                    </span>
+                    <div>
+                      <span className="font-bold text-gray-800">Set ค่า Parameter ใหม่ให้ลูกค้า</span>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
+                        ตั้งค่าพารามิเตอร์ใหม่ให้เหมาะสมตามสเปกและงานของลูกค้า
+                      </p>
+                    </div>
                   </label>
                 </div>
               </div>
@@ -1381,22 +1419,16 @@ export default function InverterQcModal({
                   <span className="text-xs font-bold text-red-700 tracking-wide uppercase">
                     5. ตรวจเชคอะไหล่และความเรียบร้อยภายในก่อนส่งคืนลูกค้า
                   </span>
-                  <button
-                    type="button"
-                    onClick={handleCheckAllVisual}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition cursor-pointer"
-                  >
-                    <CheckSquare className="w-3.5 h-3.5" /> ติ๊กผ่านทั้งหมด
-                  </button>
+                  <span className="text-[10px] text-gray-400">ตรวจสอบความปลอดภัยทางกายภาพ</span>
                 </div>
 
                 <div className="space-y-2 text-xs">
                   <label className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.visualChecks?.screwsAndPartsComplete ?? false}
+                      checked={currentItemQc.visualChecks?.screwsAndPartsComplete ?? false}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        updateActiveItem((prev) => ({
                           ...prev,
                           visualChecks: {
                             ...prev.visualChecks!,
@@ -1406,7 +1438,7 @@ export default function InverterQcModal({
                       }
                       className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
                     />
-                    <span className="font-medium text-gray-800">
+                    <span className="text-gray-800 font-medium">
                       น็อตและอะไหล่ภายใน INVERTER ติดตั้งครบถ้วน
                     </span>
                   </label>
@@ -1414,9 +1446,9 @@ export default function InverterQcModal({
                   <label className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.visualChecks?.fanExhaustDirectionCorrect ?? false}
+                      checked={currentItemQc.visualChecks?.fanExhaustDirectionCorrect ?? false}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        updateActiveItem((prev) => ({
                           ...prev,
                           visualChecks: {
                             ...prev.visualChecks!,
@@ -1426,7 +1458,7 @@ export default function InverterQcModal({
                       }
                       className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
                     />
-                    <span className="font-medium text-gray-800">
+                    <span className="text-gray-800 font-medium">
                       ตรวจเช็คพัดลมต้องดูดลมออก (ไม่ติดตั้งสลับทาง)
                     </span>
                   </label>
@@ -1434,9 +1466,9 @@ export default function InverterQcModal({
                   <label className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.visualChecks?.controlWiringNormal ?? false}
+                      checked={currentItemQc.visualChecks?.controlWiringNormal ?? false}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        updateActiveItem((prev) => ({
                           ...prev,
                           visualChecks: {
                             ...prev.visualChecks!,
@@ -1446,17 +1478,17 @@ export default function InverterQcModal({
                       }
                       className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
                     />
-                    <span className="font-medium text-gray-800">
+                    <span className="text-gray-800 font-medium">
                       สายไฟ Control ภายใน Board Electronics อยู่ในตำแหน่งที่ถูกต้องและมีสภาพปกติ
                     </span>
                   </label>
 
-                  <label className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <label className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.visualChecks?.diodeConversionCorrect ?? false}
+                      checked={currentItemQc.visualChecks?.diodeConversionCorrect ?? false}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        updateActiveItem((prev) => ({
                           ...prev,
                           visualChecks: {
                             ...prev.visualChecks!,
@@ -1464,94 +1496,107 @@ export default function InverterQcModal({
                           },
                         }))
                       }
-                      className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                      className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 mt-0.5"
                     />
-                    <span className="font-medium text-gray-800">
-                      ตรวจสอบการแปลงไดโอดของ INVERTER อยู่ในสภาพที่ถูกต้อง (หากมีการแปลง) * โปรดดูคู่มือการแปลงก่อนทุกครั้ง
+                    <span className="text-gray-800 font-medium">
+                      ตรวจสอบการแปลงไดโอดของ INVERTER อยู่ในสภาพที่ถูกต้อง (หากมีการแปลง) *
+                      โปรดดูคู่มือการแปลงก่อนทุกครั้ง
                     </span>
                   </label>
                 </div>
               </div>
 
-              {/* 6. บันทึกค่า Parameter ที่ตั้งไว้ / รายละเอียดเพิ่มเติมหรือปัญหาที่พบ */}
+              {/* 6. บันทึกค่า Parameter ที่ตั้งไว้ */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
                 <div className="border-b border-gray-100 pb-2 flex items-center justify-between">
                   <span className="text-xs font-bold text-red-700 tracking-wide uppercase">
                     6. บันทึกค่า Parameter ที่ตั้งไว้ / รายละเอียดเพิ่มเติมหรือปัญหาที่พบ
                   </span>
-                  <span className="text-[11px] text-gray-400">กรอกรายการพารามิเตอร์หรือข้อสังเกต</span>
+                  <span className="text-[10px] text-gray-400">บรรทัดที่ 1 - 6 (พิมพ์ลงตาราง A4)</span>
                 </div>
 
-                <div className="space-y-1.5">
-                  {(formData.parameterRows || []).map((rowVal, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono text-gray-400 w-6 text-right">
-                        {idx + 1}.
-                      </span>
-                      <input
-                        type="text"
-                        value={rowVal}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFormData((prev) => {
-                            const rows = [...(prev.parameterRows || [])];
-                            rows[idx] = val;
-                            return { ...prev, parameterRows: rows };
-                          });
-                        }}
-                        placeholder={`ระบุพารามิเตอร์ / ผลการทดสอบแถวที่ ${idx + 1}...`}
-                        className="flex-1 text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white focus:ring-1 focus:ring-red-500"
-                      />
-                    </div>
-                  ))}
+                <div className="space-y-2 text-xs">
+                  {(currentItemQc.parameterRows || ["", "", "", "", "", ""]).map(
+                    (rowVal: string, rIdx: number) => (
+                      <div key={rIdx} className="flex items-center gap-2">
+                        <span className="w-6 text-center font-bold text-gray-400 text-xs shrink-0">
+                          {rIdx + 1}.
+                        </span>
+                        <input
+                          type="text"
+                          value={rowVal || ""}
+                          onChange={(e) => {
+                            const newRows = [
+                              ...(currentItemQc.parameterRows || ["", "", "", "", "", ""]),
+                            ];
+                            newRows[rIdx] = e.target.value;
+                            updateActiveItem((prev) => ({ ...prev, parameterRows: newRows }));
+                          }}
+                          placeholder={`บันทึกค่าพารามิเตอร์หรือรายละเอียดบรรทัดที่ ${rIdx + 1}...`}
+                          className="flex-1 text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white font-mono focus:ring-1 focus:ring-red-500"
+                        />
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
 
               {/* 7. หมายเหตุ */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-2">
-                <span className="text-xs font-bold text-gray-700">หมายเหตุ:</span>
+                <label className="block text-xs font-bold text-red-700 tracking-wide uppercase">
+                  7. หมายเหตุ:
+                </label>
                 <textarea
                   rows={2}
-                  value={formData.notes || ""}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-                  placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)..."
+                  value={currentItemQc.notes || ""}
+                  onChange={(e) => updateActiveItem((prev) => ({ ...prev, notes: e.target.value }))}
+                  placeholder="หมายเหตุเพิ่มเติมสำหรับการตรวจสอบ QC รายการนี้..."
                   className="w-full text-xs border border-gray-300 rounded-lg p-2.5 bg-white focus:ring-1 focus:ring-red-500"
                 />
               </div>
 
-              {/* 8. Signatures & Status Transition */}
+              {/* 8. Signatures: ผู้ตรวจเช็ค & ผู้ตรวจสอบ (Common across document) */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-4">
-                <div className="border-b border-gray-100 pb-2">
-                  <span className="text-xs font-bold text-gray-900">
-                    ผู้ตรวจเช็ค และ ผู้ตรวจสอบ (ลายมือชื่อ)
+                <div className="border-b border-gray-100 pb-2 flex items-center justify-between">
+                  <span className="text-xs font-bold text-red-700 tracking-wide uppercase">
+                    8. ลายเซ็นผู้ตรวจเช็ค และ ผู้ตรวจสอบ
                   </span>
+                  <span className="text-[10px] text-gray-400">ใช้ร่วมกันในใบตรวจ QC ชุดนี้</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* ผู้ตรวจเช็ค (Technician) */}
-                  <div className="bg-gray-50/70 p-3.5 rounded-xl border border-gray-200 space-y-2.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* ผู้ตรวจเช็ค (Inspector) */}
+                  <div className="border border-gray-200 rounded-xl p-3.5 space-y-3 bg-gray-50/50">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-gray-800">
-                        ผู้ตรวจเช็ค (Technician)
+                      <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                        <CheckSquare className="w-4 h-4 text-[#ff2301]" />
+                        ผู้ตรวจเช็ค (Technician / Inspector)
                       </span>
-                      <span className="text-[10px] text-gray-500 font-medium">ช่างผู้ตรวจ</span>
+                      <input
+                        type="date"
+                        value={common.inspectorDate || ""}
+                        onChange={(e) =>
+                          updateCommon((prev) => ({ ...prev, inspectorDate: e.target.value }))
+                        }
+                        className="text-xs border border-gray-300 rounded-lg px-2 py-0.5 bg-white"
+                      />
                     </div>
 
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label className="text-[11px] font-semibold text-gray-600">
-                          ลงชื่อตัวบรรจง:
+                          ชื่อผู้ตรวจเช็ค:
                         </label>
                         {resolvedCurrentUserName && (
                           <button
                             type="button"
                             onClick={() =>
-                              setFormData((prev) => ({
+                              updateCommon((prev) => ({
                                 ...prev,
                                 inspectorName: resolvedCurrentUserName,
                               }))
                             }
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:text-[#d91d00] hover:underline cursor-pointer bg-red-50/70 hover:bg-red-100/70 px-2 py-0.5 rounded-md border border-red-200 transition"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:underline cursor-pointer bg-red-50 hover:bg-red-100/70 px-2 py-0.5 rounded-md border border-red-200 transition"
                             title="ดึงชื่อผู้ใช้งานที่กำลังกรอกข้อมูล"
                           >
                             <UserCheck className="w-3.5 h-3.5" />
@@ -1563,11 +1608,11 @@ export default function InverterQcModal({
                         <input
                           type="text"
                           list="inspector-users-list"
-                          value={formData.inspectorName || ""}
+                          value={common.inspectorName || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, inspectorName: e.target.value }))
+                            updateCommon((prev) => ({ ...prev, inspectorName: e.target.value }))
                           }
-                          placeholder="ชื่อ-นามสกุลช่างผู้ตรวจเช็ค"
+                          placeholder="ชื่อ-นามสกุลผู้ตรวจเช็ค"
                           className="w-full text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white font-medium focus:ring-1 focus:ring-red-500"
                         />
                         <datalist id="inspector-users-list">
@@ -1576,18 +1621,6 @@ export default function InverterQcModal({
                               {resolvedCurrentUserName} (ผู้กรอก)
                             </option>
                           )}
-                          {order?.technicianName && order.technicianName !== resolvedCurrentUserName && (
-                            <option value={order.technicianName}>
-                              {order.technicianName} (ช่างประจำใบรับซ่อม)
-                            </option>
-                          )}
-                          {order?.job?.assignedToName &&
-                            order.job.assignedToName !== resolvedCurrentUserName &&
-                            order.job.assignedToName !== order.technicianName && (
-                              <option value={order.job.assignedToName}>
-                                {order.job.assignedToName} (ผู้รับผิดชอบ Job)
-                              </option>
-                            )}
                           {(users || []).map((u: any) => {
                             const name = u.fullName || u.name;
                             return name ? <option key={u.id || name} value={name} /> : null;
@@ -1606,11 +1639,11 @@ export default function InverterQcModal({
                     />
 
                     {/* Signature Preview or Drawing Canvas */}
-                    {formData.inspectorSignatureUrl ? (
+                    {common.inspectorSignatureUrl ? (
                       <div className="border border-emerald-300 bg-emerald-50/30 rounded-xl p-2.5 flex flex-col items-center gap-2">
                         <div className="bg-white p-1 rounded-lg border border-emerald-100 shadow-sm w-full flex items-center justify-center min-h-[60px]">
                           <img
-                            src={formData.inspectorSignatureUrl}
+                            src={common.inspectorSignatureUrl}
                             alt="Inspector Sig"
                             className="h-12 max-w-[200px] object-contain"
                           />
@@ -1627,7 +1660,10 @@ export default function InverterQcModal({
                           <button
                             type="button"
                             onClick={() =>
-                              setFormData((prev) => ({ ...prev, inspectorSignatureUrl: undefined }))
+                              updateCommon((prev) => ({
+                                ...prev,
+                                inspectorSignatureUrl: undefined,
+                              }))
                             }
                             className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition cursor-pointer"
                           >
@@ -1683,25 +1719,33 @@ export default function InverterQcModal({
                     )}
                   </div>
 
-                  {/* ผู้ตรวจสอบ (Reviewer / Supervisor) */}
-                  <div className="bg-gray-50/70 p-3.5 rounded-xl border border-gray-200 space-y-2.5">
+                  {/* ผู้ตรวจสอบ (Reviewer) */}
+                  <div className="border border-gray-200 rounded-xl p-3.5 space-y-3 bg-gray-50/50">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-gray-800">
-                        ผู้ตรวจสอบ (Reviewer / Supervisor)
+                      <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                        <CheckSquare className="w-4 h-4 text-emerald-600" />
+                        ผู้ตรวจสอบ (Reviewer / Approver)
                       </span>
-                      <span className="text-[10px] text-gray-500 font-medium">หัวหน้างาน</span>
+                      <input
+                        type="date"
+                        value={common.reviewerDate || ""}
+                        onChange={(e) =>
+                          updateCommon((prev) => ({ ...prev, reviewerDate: e.target.value }))
+                        }
+                        className="text-xs border border-gray-300 rounded-lg px-2 py-0.5 bg-white"
+                      />
                     </div>
 
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label className="text-[11px] font-semibold text-gray-600">
-                          ลงชื่อตัวบรรจง:
+                          ชื่อผู้ตรวจสอบ:
                         </label>
                         {resolvedCurrentUserName && (
                           <button
                             type="button"
                             onClick={() =>
-                              setFormData((prev) => ({
+                              updateCommon((prev) => ({
                                 ...prev,
                                 reviewerName: resolvedCurrentUserName,
                               }))
@@ -1718,9 +1762,9 @@ export default function InverterQcModal({
                         <input
                           type="text"
                           list="reviewer-users-list"
-                          value={formData.reviewerName || ""}
+                          value={common.reviewerName || ""}
                           onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, reviewerName: e.target.value }))
+                            updateCommon((prev) => ({ ...prev, reviewerName: e.target.value }))
                           }
                           placeholder="ชื่อ-นามสกุลผู้ตรวจสอบ"
                           className="w-full text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white font-medium focus:ring-1 focus:ring-red-500"
@@ -1749,11 +1793,11 @@ export default function InverterQcModal({
                     />
 
                     {/* Signature Preview or Drawing Canvas */}
-                    {formData.reviewerSignatureUrl ? (
+                    {common.reviewerSignatureUrl ? (
                       <div className="border border-emerald-300 bg-emerald-50/30 rounded-xl p-2.5 flex flex-col items-center gap-2">
                         <div className="bg-white p-1 rounded-lg border border-emerald-100 shadow-sm w-full flex items-center justify-center min-h-[60px]">
                           <img
-                            src={formData.reviewerSignatureUrl}
+                            src={common.reviewerSignatureUrl}
                             alt="Reviewer Sig"
                             className="h-12 max-w-[200px] object-contain"
                           />
@@ -1770,7 +1814,10 @@ export default function InverterQcModal({
                           <button
                             type="button"
                             onClick={() =>
-                              setFormData((prev) => ({ ...prev, reviewerSignatureUrl: undefined }))
+                              updateCommon((prev) => ({
+                                ...prev,
+                                reviewerSignatureUrl: undefined,
+                              }))
                             }
                             className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition cursor-pointer"
                           >
@@ -1848,410 +1895,77 @@ export default function InverterQcModal({
             </div>
           </div>
 
-          {/* ── TAB 2: LIVE A4 OFFICIAL PRINT PREVIEW ── */}
-          <div className={activeTab === "preview" ? "flex flex-col items-center" : "hidden"}>
-            <div className="text-center mb-3">
-              <span className="text-xs text-gray-500">
+          {/* ── TAB 2: LIVE A4 OFFICIAL PRINT PREVIEW & PRINTABLE DOM ── */}
+          <div className={activeTab === "preview" ? "flex flex-col items-center gap-6" : "hidden"}>
+            <div className="w-full max-w-[794px] flex flex-wrap items-center justify-between gap-2 px-1">
+              <span className="text-xs text-gray-500 flex items-center gap-1.5">
                 📄 แสดงตัวอย่างแบบฟอร์มขนาด A4 ตรงตามเอกสารทางการ (QC-EN-01/Rev.00)
               </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-gray-700 bg-white border border-gray-200 px-3 py-1 rounded-xl shadow-2xs">
+                  เอกสารทั้งหมด: <b>{targetItems.length} รายการ</b> ({targetItems.length} หน้า A4)
+                </span>
+                <Link
+                  href={`/repair-orders/${order.jobId || order.id}/inverter-qc/print`}
+                  target="_blank"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition"
+                  title="เปิดหน้าพิมพ์เอกสารในแท็บใหม่"
+                >
+                  <ExternalLink size={12} />
+                  <span>เปิดแท็บพิมพ์แยก</span>
+                </Link>
+              </div>
             </div>
 
-            {/* The Actual Official Printable Area */}
-            <div
-              id="inverter-qc-printable-area"
-              className="bg-white border-2 border-black w-full max-w-[794px] p-4 sm:p-5 text-black shadow-lg text-[11.5px] leading-snug font-['Sarabun',sans-serif] flex flex-col justify-between"
-              style={{ boxSizing: "border-box" }}
-            >
-              {/* Header Row: Logos (4, 6, 7) + Address on Left, Date Box on Right */}
-              <div className="flex items-center justify-between gap-3 pb-1.5 border-b-2 border-black">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex items-center gap-2 shrink-0">
-                    <img src="/4.png" alt="Tera Group" className="h-8 object-contain" />
-                    <img src="/6.png" alt="Tera Electric" className="h-8 object-contain" />
-                    <img src="/7.png" alt="Tera Power" className="h-8 object-contain" />
-                  </div>
-                  <div className="text-[11px] leading-tight text-gray-800">
-                    39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250
-                  </div>
-                </div>
-
-                {/* Top Right: วันที่รับซ่อม Box */}
-                <div className="border border-black rounded-xl px-3 py-1 text-center min-w-[170px] bg-white shrink-0">
-                  <span className="text-[11px] font-bold mr-2">วันที่รับซ่อม</span>
-                  <span className="font-bold border-b border-black inline-block min-w-[80px] text-center text-xs">
-                    {formatThaiDate(formData.receiveDate)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Form Title in Framed Box */}
-              <div className="my-1.5 border-2 border-black py-1 px-3 text-center bg-gray-50/50">
-                <h1 className="text-xs sm:text-[13px] font-bold text-red-700 tracking-wide">
-                  ใบตรวจสอบค่าต่างๆและบันทึกค่าพารามิเตอร์ของ INVERTER หลัง ทำการซ่อมเสร็จ
-                </h1>
-              </div>
-
-              {/* Equipment & Customer Meta Row */}
-              <div className="border border-black p-2 space-y-1 text-[11.5px] bg-white">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <span className="font-bold">INVERTER ยี่ห้อ : </span>
-                    <span className="font-bold">{formData.inverterBrand || "...................."}</span>
-                  </div>
-                  <div>
-                    <span className="font-bold">INVERTER รุ่น : </span>
-                    <span className="font-bold">{formData.inverterModel || "...................."}</span>
-                  </div>
-                  <div>
-                    <span className="font-bold">SERIAL NUMBER : </span>
-                    <span className="font-mono font-bold">{formData.serialNumber || "...................."}</span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 border-t border-dotted border-gray-300">
-                  <div>
-                    <span className="font-bold">ใช้กับงานประเภท : </span>
-                    <span>{formData.workType || "...................."}</span>
-                  </div>
-                  <div>
-                    <span className="font-bold">ลูกค้า : </span>
-                    <span className="font-bold">{formData.customerName || "...................."}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 1: POWER INPUT VOLTAGE */}
-              <div className="mt-1.5">
-                <div className="text-[11.5px] font-bold text-red-700 pb-0.5">
-                  POWER INPUT VOLTAGE หลังซ่อมเสร็จ
-                </div>
-                <div className="space-y-0.5 text-[11px] pl-1">
-                  {/* DC */}
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.inputVoltage?.dcSinglePhase?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>1 เฟส DC (+) , (-) .</span>
-                    <span className="border-b border-dotted border-black px-2 min-w-[65px] text-center font-bold inline-block mx-1">
-                      {formData.inputVoltage?.dcSinglePhase?.value || "......."}
-                    </span>
-                    <span>Vdc</span>
-                  </div>
-                  {/* AC 1-Phase */}
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.inputVoltage?.acSinglePhase?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>1 เฟส (220-230Vac) L-N .</span>
-                    <span className="border-b border-dotted border-black px-2 min-w-[65px] text-center font-bold inline-block mx-1">
-                      {formData.inputVoltage?.acSinglePhase?.value || "......."}
-                    </span>
-                    <span>Vac</span>
-                  </div>
-                  {/* AC 3-Phase */}
-                  <div className="flex items-center flex-wrap">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.inputVoltage?.acThreePhase?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>3 เฟส (380-400Vac) R-S</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.inputVoltage?.acThreePhase?.rs || "......."}
-                    </span>
-                    <span>Vac , R-T</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.inputVoltage?.acThreePhase?.rt || "......."}
-                    </span>
-                    <span>Vac , S-T</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.inputVoltage?.acThreePhase?.st || "......."}
-                    </span>
-                    <span>Vac</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 2: POWER OUTPUT VOLTAGE */}
-              <div className="mt-1.5">
-                <div className="text-[11.5px] font-bold text-red-700 pb-0.5">
-                  POWER OUTPUT VOLTAGE หลังซ่อมเสร็จ
-                </div>
-                <div className="space-y-0.5 text-[11px] pl-1">
-                  {/* 1-Phase */}
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.outputVoltage?.singlePhaseLN?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>1 เฟส L-N (220-230Vac)</span>
-                    <span className="border-b border-dotted border-black px-2 min-w-[65px] text-center font-bold inline-block mx-1">
-                      {formData.outputVoltage?.singlePhaseLN?.value || "......."}
-                    </span>
-                    <span>Vac</span>
-                  </div>
-                  {/* 3-Phase 220 */}
-                  <div className="flex items-center flex-wrap">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.outputVoltage?.threePhase220?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>3 เฟส (220-230Vac) U-V .</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.outputVoltage?.threePhase220?.uv || "......."}
-                    </span>
-                    <span>Vac , U-W .</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.outputVoltage?.threePhase220?.uw || "......."}
-                    </span>
-                    <span>Vac , V-W .</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.outputVoltage?.threePhase220?.vw || "......."}
-                    </span>
-                    <span>Vac</span>
-                  </div>
-                  {/* 3-Phase 380 */}
-                  <div className="flex items-center flex-wrap">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.outputVoltage?.threePhase380?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>3 เฟส (380-400Vac) U-V</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.outputVoltage?.threePhase380?.uv || "......."}
-                    </span>
-                    <span>Vac , U-W</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.outputVoltage?.threePhase380?.uw || "......."}
-                    </span>
-                    <span>Vac , V-W</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[40px] text-center font-bold inline-block mx-1">
-                      {formData.outputVoltage?.threePhase380?.vw || "......."}
-                    </span>
-                    <span>Vac</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 3: CONTROL CIRCUIT และเทสระยะเวลาในการจ่ายไฟ */}
-              <div className="mt-1.5">
-                <div className="text-[11.5px] font-bold text-red-700 pb-0.5">
-                  CONTROL CIRCUIT และเทสระยะเวลาในการจ่ายไฟ
-                </div>
-                <div className="space-y-0.5 text-[11px] pl-1">
-                  {/* 24Vdc */}
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1">
-                      {formData.controlCircuit?.control24Vdc?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>24 Vdc , X1 .</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[28px] text-center font-bold inline-block mx-0.5">
-                      {formData.controlCircuit?.control24Vdc?.x1 || "..."}
-                    </span>
-                    <span>Vdc , X2 .</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[28px] text-center font-bold inline-block mx-0.5">
-                      {formData.controlCircuit?.control24Vdc?.x2 || "..."}
-                    </span>
-                    <span>Vdc , X3 .</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[28px] text-center font-bold inline-block mx-0.5">
-                      {formData.controlCircuit?.control24Vdc?.x3 || "..."}
-                    </span>
-                    <span>Vdc , X4 .</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[28px] text-center font-bold inline-block mx-0.5">
-                      {formData.controlCircuit?.control24Vdc?.x4 || "..."}
-                    </span>
-                    <span>Vdc , X5 .</span>
-                    <span className="border-b border-dotted border-black px-1 min-w-[28px] text-center font-bold inline-block mx-0.5">
-                      {formData.controlCircuit?.control24Vdc?.x5 || "..."}
-                    </span>
-                    <span>Vdc</span>
-                  </div>
-
-                  {/* AC Timing */}
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.controlCircuit?.testAcDuration?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>เทสเฉพาะการจ่ายไฟ AC ระยะเวลา .</span>
-                    <span className="border-b border-dotted border-black px-1.5 min-w-[45px] text-center font-bold inline-block mx-1">
-                      {formData.controlCircuit?.testAcDuration?.minutes || "......."}
-                    </span>
-                    <span>นาที</span>
-                  </div>
-
-                  {/* DC Timing */}
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.controlCircuit?.testDcDuration?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>เทสเฉพาะการจ่ายไฟ DC ระยะเวลา .</span>
-                    <span className="border-b border-dotted border-black px-1.5 min-w-[45px] text-center font-bold inline-block mx-1">
-                      {formData.controlCircuit?.testDcDuration?.minutes || "......."}
-                    </span>
-                    <span>นาที</span>
-                  </div>
-
-                  {/* AC + DC Timing */}
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.controlCircuit?.testAcDcDuration?.checked ? "☑" : "☐"}
-                    </span>
-                    <span>เทสการจ่ายไฟ AC และ DC พร้อมกัน ระยะเวลา .</span>
-                    <span className="border-b border-dotted border-black px-1.5 min-w-[45px] text-center font-bold inline-block mx-1">
-                      {formData.controlCircuit?.testAcDcDuration?.minutes || "......."}
-                    </span>
-                    <span>นาที</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 4: การ Set ค่า Parameter */}
-              <div className="mt-1.5">
-                <div className="text-[11.5px] font-bold text-red-700 pb-0.5">
-                  การ Set ค่า Parameter
-                </div>
-                <div className="space-y-0.5 text-[11px] pl-1">
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.parameterSetting?.keepCustomerOriginal ? "☑" : "☐"}
-                    </span>
-                    <span>Set ค่า Parameter เดิมให้ลูกค้า (โปรดบันทึกค่าลงในตารางด้านล่าง)</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.parameterSetting?.setNewForCustomer ? "☑" : "☐"}
-                    </span>
-                    <span>Set ค่า Parameter ใหม่ให้ลูกค้า (โปรดบันทึกค่าลงในตารางด้านล่าง)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 5: ตรวจเชคอะไหล่และความเรียบร้อยภายในก่อนส่งคืนลูกค้า */}
-              <div className="mt-1.5">
-                <div className="text-[11.5px] font-bold text-red-700 pb-0.5">
-                  ตรวจเชคอะไหล่และความเรียบร้อยภายในก่อนส่งคืนลูกค้า
-                </div>
-                <div className="space-y-0.5 text-[11px] pl-1">
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.visualChecks?.screwsAndPartsComplete ? "☑" : "☐"}
-                    </span>
-                    <span>น็อตและอะไหล่ภายใน INVERTER ติดตั้งครบถ้วน</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.visualChecks?.fanExhaustDirectionCorrect ? "☑" : "☐"}
-                    </span>
-                    <span>ตรวจเช็คพัดลมต้องดูดลมออก (ไม่ติดตั้งสลับทาง)</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.visualChecks?.controlWiringNormal ? "☑" : "☐"}
-                    </span>
-                    <span>สายไฟ Control ภายใน Board Electronics อยู่ในตำแหน่งที่ถูกต้องและมีสภาพปกติ</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="inline-block w-14 sm:w-16 border-b border-black mr-2 shrink-0"></span>
-                    <span className="font-mono text-sm mr-1.5">
-                      {formData.visualChecks?.diodeConversionCorrect ? "☑" : "☐"}
-                    </span>
-                    <span>
-                      ตรวจสอบการแปลงไดโอดของ INVERTER อยู่ในสภาพที่ถูกต้อง (หากมีการแปลง) * โปรดดูคู่มือการแปลงก่อนทุกครั้ง
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 6: บันทึกค่า Parameter ที่ตั้งไว้ / รายละเอียดเพิ่มเติมหรือปัญหาที่พบ */}
-              <div className="mt-1.5">
-                <table className="w-full border-collapse border border-black text-[11px]">
-                  <thead>
-                    <tr className="border-b border-black bg-gray-50/30">
-                      <th className="py-0.5 px-2 text-center text-red-700 font-bold">
-                        บันทึกค่า Parameter ที่ตั้งไว้ / รายละเอียดเพิ่มเติมหรือปัญหาที่พบ
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(formData.parameterRows || []).slice(0, 6).map((r, i) => (
-                      <tr key={i} className="border-b border-black h-5">
-                        <td className="px-2 py-0.5 align-middle text-black">
-                          {r || ""}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Section 7: หมายเหตุ */}
-              <div className="mt-1.5 text-[11px]">
-                <div className="font-bold mb-0.5">หมายเหตุ:</div>
-                <div className="border-b border-dotted border-black min-h-[18px] px-1 font-medium">
-                  {formData.notes || ""}
-                </div>
-                <div className="border-b border-dotted border-black min-h-[18px] mt-0.5"></div>
-              </div>
-
-              {/* Section 8: Signatures & Form Code */}
-              <div className="mt-2.5 pt-1">
-                <div className="grid grid-cols-2 gap-8 text-center text-[11px]">
-                  {/* ผู้ตรวจเช็ค */}
-                  <div className="flex flex-col items-center justify-end min-h-[65px]">
-                    {formData.inspectorSignatureUrl ? (
-                      <img
-                        src={formData.inspectorSignatureUrl}
-                        alt="Inspector Signature"
-                        className="h-8 object-contain mb-0.5"
-                      />
-                    ) : (
-                      <div className="h-8"></div>
-                    )}
-                    <div className="border-t border-black w-44 mx-auto pt-0.5 font-bold">
-                      ( {formData.inspectorName || "......................................."} )
+            {/* Container for Printable Sheets */}
+            <div id="inverter-qc-printable-area" className="w-full flex flex-col items-center gap-8">
+              {targetItems.map((target, idx) => (
+                <div key={target.id || idx} className="qc-page-sheet w-full flex flex-col items-center">
+                  {/* Onscreen Page Header Indicator */}
+                  <div className="qc-screen-only w-full max-w-[794px] mb-2 px-4 py-2 bg-white border border-gray-200 rounded-xl shadow-xs flex items-center justify-between text-xs font-bold text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#ff2301] text-white flex items-center justify-center text-[10px] font-black">
+                        {idx + 1}
+                      </span>
+                      <span>
+                        หน้า {idx + 1} / {targetItems.length}: {target.displayTitle}
+                      </span>
                     </div>
-                    <div className="text-[10px] text-gray-700 mt-0.5">ผู้ตรวจเช็ค</div>
-                  </div>
-
-                  {/* ผู้ตรวจสอบ */}
-                  <div className="flex flex-col items-center justify-end min-h-[65px]">
-                    {formData.reviewerSignatureUrl ? (
-                      <img
-                        src={formData.reviewerSignatureUrl}
-                        alt="Reviewer Signature"
-                        className="h-8 object-contain mb-0.5"
-                      />
-                    ) : (
-                      <div className="h-8"></div>
-                    )}
-                    <div className="border-t border-black w-44 mx-auto pt-0.5 font-bold">
-                      ( {formData.reviewerName || "......................................."} )
+                    <div className="flex items-center gap-3">
+                      <span className="text-gray-500 font-mono text-[11px]">
+                        S/N: {itemsQc[idx]?.serialNumber || target.serial || "—"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handlePrint(idx)}
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:underline cursor-pointer"
+                        title="พิมพ์เฉพาะหน้านี้"
+                      >
+                        <Printer size={12} />
+                        <span>พิมพ์เฉพาะหน้านี้</span>
+                      </button>
                     </div>
-                    <div className="text-[10px] text-gray-700 mt-0.5">ผู้ตรวจสอบ</div>
                   </div>
-                </div>
 
-                {/* Form Footer Revision Code */}
-                <div className="text-right text-[9.5px] font-bold text-gray-800 mt-1">
-                  QC-EN-01/Rev.00
+                  {/* The Official A4 Document Paper */}
+                  <OfficialQcPaper
+                    id={`official-qc-paper-modal-${idx}`}
+                    item={target}
+                    qcItem={itemsQc[idx] || createDefaultItemQc(target)}
+                    common={common}
+                    pageIndex={idx}
+                    totalPages={targetItems.length}
+                    className="shadow-lg"
+                  />
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Modal Footer Controls */}
         <div className="px-5 py-3 border-t border-gray-200 bg-gray-50/80 flex flex-wrap items-center justify-between gap-3 shrink-0">
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 flex items-center gap-2">
             <span>
               สถานะเอกสาร:{" "}
               {order?.inverterQc ? (
@@ -2260,17 +1974,36 @@ export default function InverterQcModal({
                 <b className="text-amber-600">ยังไม่บันทึก QC</b>
               )}
             </span>
+            {targetItems.length > 1 && (
+              <span className="text-gray-400">• รายการซ่อม: <b>{targetItems.length} ตัว</b></span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
+            {targetItems.length > 1 && (
+              <button
+                type="button"
+                onClick={() => handlePrint(activeItemIndex)}
+                disabled={isSaving}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 font-bold text-xs transition shadow-2xs cursor-pointer"
+                title={`พิมพ์เฉพาะรายการตัวที่ ${activeItemIndex + 1}`}
+              >
+                <Printer className="w-3.5 h-3.5 text-gray-500" />
+                <span>พิมพ์เฉพาะตัวที่ {activeItemIndex + 1}</span>
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={handlePrint}
+              onClick={() => handlePrint()}
               disabled={isSaving}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xs transition shadow-sm cursor-pointer"
             >
               <Printer className="w-4 h-4 text-[#ff2301] shrink-0" />
-              <span className="text-gray-800 font-bold">พิมพ์ / บันทึก PDF (A4)</span>
+              <span className="text-gray-800 font-bold">
+                พิมพ์ / บันทึก PDF (A4){" "}
+                {targetItems.length > 1 ? `(ทั้งหมด ${targetItems.length} หน้า)` : ""}
+              </span>
             </button>
 
             <button
@@ -2280,7 +2013,9 @@ export default function InverterQcModal({
               className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#ff2301] hover:bg-[#d91d00] text-white font-bold text-xs transition shadow-md shadow-red-500/25 cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4 text-white shrink-0" />
-              <span className="text-white font-bold">{isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูล QC"}</span>
+              <span className="text-white font-bold">
+                {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูล QC"}
+              </span>
             </button>
           </div>
         </div>

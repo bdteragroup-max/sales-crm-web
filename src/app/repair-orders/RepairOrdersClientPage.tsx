@@ -1297,6 +1297,9 @@ export default function RepairOrdersClientPage({
                                   title="ตรวจ QC INVERTER แล้ว (คลิกเพื่อดู / พิมพ์ PDF)"
                                 >
                                   <Check size={10} className="stroke-[3]" /> QC
+                                  {Array.isArray(record.inverterQc.itemsQc) && record.inverterQc.itemsQc.length > 1
+                                    ? ` (${record.inverterQc.itemsQc.length})`
+                                    : ""}
                                 </button>
                               ) : null}
                             </div>
@@ -1950,6 +1953,9 @@ export default function RepairOrdersClientPage({
                   {selectedOrder.inverterQc ? (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                       <Check size={11} className="stroke-[3]" /> ตรวจ QC แล้ว
+                      {Array.isArray(selectedOrder.inverterQc.itemsQc) && selectedOrder.inverterQc.itemsQc.length > 1
+                        ? ` (${selectedOrder.inverterQc.itemsQc.length} รายการ)`
+                        : ""}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
@@ -2007,13 +2013,25 @@ export default function RepairOrdersClientPage({
                   <span>ตรวจ QC INVERTER</span>
                 </button>
 
+                {selectedOrder.inverterQc && (
+                  <Link
+                    href={`/repair-orders/${selectedOrder.jobId || selectedOrder.id}/inverter-qc/print`}
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold shadow-sm transition-all"
+                    title="พิมพ์เอกสาร QC INVERTER (PDF A4 ทุกรายการ)"
+                  >
+                    <Printer size={14} className="text-emerald-600" />
+                    <span>พิมพ์ PDF QC</span>
+                  </Link>
+                )}
+
                 <Link
                   href={`/repair-orders/${selectedOrder.jobId || selectedOrder.id}/print`}
                   target="_blank"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 text-xs font-bold shadow-sm transition-all"
                 >
                   <Printer size={14} />
-                  <span>พิมพ์ PDF</span>
+                  <span>พิมพ์ใบรับซ่อม</span>
                 </Link>
 
                 <Link

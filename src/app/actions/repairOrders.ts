@@ -291,13 +291,10 @@ export async function updateRepairOrderTechnician(jobId: string, technicianName:
   }
 }
 
-export interface InverterQcData {
-  receiveDate?: string;
+export interface InverterQcItemData {
   inverterBrand?: string;
   inverterModel?: string;
   serialNumber?: string;
-  workType?: string;
-  customerName?: string;
 
   // 1. POWER INPUT VOLTAGE หลังซ่อมเสร็จ
   inputVoltage?: {
@@ -347,6 +344,12 @@ export interface InverterQcData {
 
   // 7. หมายเหตุ:
   notes?: string;
+}
+
+export interface InverterQcData extends InverterQcItemData {
+  receiveDate?: string;
+  workType?: string;
+  customerName?: string;
 
   // 8. Signatures:
   inspectorName?: string;
@@ -358,6 +361,9 @@ export interface InverterQcData {
 
   formRev?: string;
   updatedAt?: string;
+
+  // Multi-item QC support
+  itemsQc?: InverterQcItemData[];
 }
 
 export async function saveInverterQc(
