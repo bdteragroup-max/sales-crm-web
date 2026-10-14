@@ -29,6 +29,9 @@ import {
   ChevronRight,
   Check,
   ChevronDown,
+  Eye,
+  ChevronUp,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -93,6 +96,33 @@ export default function EstimationsClientPage({
   const [assignDueDate, setAssignDueDate] = useState("");
   const [isAssigning, setIsAssigning] = useState(false);
 
+  // Requirement Detail Modal State (ดูข้อมูลเพิ่มเติม)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedDetailReq, setSelectedDetailReq] = useState<any>(null);
+
+  // Expand states for Company and Tech cards (สำหรับกดดูและอีก...รายการ)
+  const [expandedCompanies, setExpandedCompanies] = useState<Record<string, boolean>>({});
+  const [expandedTechs, setExpandedTechs] = useState<Record<string, boolean>>({});
+
+  const handleOpenDetailModal = (req: any) => {
+    setSelectedDetailReq(req);
+    setIsDetailModalOpen(true);
+  };
+
+  const toggleCompanyExpand = (companyName: string) => {
+    setExpandedCompanies((prev) => ({
+      ...prev,
+      [companyName]: !prev[companyName],
+    }));
+  };
+
+  const toggleTechExpand = (techName: string) => {
+    setExpandedTechs((prev) => ({
+      ...prev,
+      [techName]: !prev[techName],
+    }));
+  };
+
   // Close technician dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -136,39 +166,10 @@ export default function EstimationsClientPage({
     return assignedTo;
   };
 
-  // KPI Calculations
-  const totalPending = useMemo(() => {
-    return initialRecords.filter(
-      (r) => (r.estimationStatus || "PENDING") === "PENDING"
-    ).length;
-  }, [initialRecords]);
-
-  const totalEstimated = useMemo(() => {
-    return initialRecords.filter((r) => r.estimationStatus === "ESTIMATED")
-      .length;
-  }, [initialRecords]);
-
-  // Filtered records
-  const filteredRecords = useMemo(() => {
+  // ── 1. Base Filtered Records (Filtered by Search, Date, Month, Technician, Status - across all tabs) ──
+  const baseFilteredRecords = useMemo(() => {
     return initialRecords.filter((item) => {
-      let statusMatch = true;
-      const effStatus = item.estimationStatus || "PENDING";
-
-      if (activeTab === "PENDING") statusMatch = effStatus === "PENDING";
-      if (activeTab === "ESTIMATED") statusMatch = effStatus === "ESTIMATED";
-
-      if (
-        activeTab === "MONTHLY" ||
-        activeTab === "COMPANY" ||
-        activeTab === "TECHNICIAN"
-      ) {
-        if (filterStatus) {
-          statusMatch = effStatus === filterStatus;
-        } else {
-          statusMatch = true;
-        }
-      }
-
+      // Search matching
       const q = searchTerm.toLowerCase().trim();
       const searchMatch =
         !q ||
@@ -178,44 +179,69 @@ export default function EstimationsClientPage({
         item.requirementNumber?.toLowerCase().includes(q) ||
         item.contactName?.toLowerCase().includes(q);
 
-      let dateMatch = true;
-      const itemDate = new Date(item.createdAt || item.date);
-      if (filterDate) {
-        const fd = new Date(filterDate);
-        if (
-          itemDate.getFullYear() !== fd.getFullYear() ||
-          itemDate.getMonth() !== fd.getMonth() ||
-          itemDate.getDate() !== fd.getDate()
-        ) {
-          dateMatch = false;
-        }
-      }
-      if (filterMonth) {
-        const [y, m] = filterMonth.split("-");
-        if (
-          itemDate.getFullYear() !== parseInt(y) ||
-          itemDate.getMonth() !== parseInt(m) - 1
-        ) {
-          dateMatch = false;
-        }
+      if (!searchMatch) return false;
+
+      // Date & Month matching (checks item.date, item.createdAt, and item.estimatedAt)
+      if (filterDate || filterMonth) {
+        const rawDateValues = [item.date, item.createdAt, item.estimatedAt].filter(Boolean);
+
+        const matchesTarget = (val: any) => {
+          if (!val) return false;
+          const str = String(val);
+          if (filterDate && str.startsWith(filterDate)) return true;
+          if (filterMonth && str.startsWith(filterMonth)) return true;
+
+          const d = new Date(val);
+          if (isNaN(d.getTime())) return false;
+
+          if (filterDate) {
+            const [fy, fm, fd] = filterDate.split("-").map(Number);
+            const localMatch =
+              d.getFullYear() === fy &&
+              d.getMonth() + 1 === fm &&
+              d.getDate() === fd;
+            const utcMatch =
+              d.getUTCFullYear() === fy &&
+              d.getUTCMonth() + 1 === fm &&
+              d.getUTCDate() === fd;
+            if (localMatch || utcMatch) return true;
+          }
+
+          if (filterMonth) {
+            const [fy, fm] = filterMonth.split("-").map(Number);
+            const localMatch =
+              d.getFullYear() === fy && d.getMonth() + 1 === fm;
+            const utcMatch =
+              d.getUTCFullYear() === fy && d.getUTCMonth() + 1 === fm;
+            if (localMatch || utcMatch) return true;
+          }
+
+          return false;
+        };
+
+        const hasMatch = rawDateValues.some(matchesTarget);
+        if (!hasMatch) return false;
       }
 
-      let techMatch = true;
+      // Technician matching
       if (filterTechnician) {
-        if (
-          item.assignedToUserId !== filterTechnician &&
-          item.assignedTo !== filterTechnician &&
-          !item.assignedTo?.includes(filterTechnician)
-        ) {
-          techMatch = false;
-        }
+        const techMatch =
+          item.assignedToUserId === filterTechnician ||
+          item.assignedTo === filterTechnician ||
+          item.assignedTo?.includes(filterTechnician);
+        if (!techMatch) return false;
       }
 
-      return statusMatch && searchMatch && dateMatch && techMatch;
+      // Status filter
+      if (filterStatus) {
+        const effStatus = item.estimationStatus || "PENDING";
+        if (effStatus !== filterStatus) return false;
+      }
+
+      return true;
     });
   }, [
     initialRecords,
-    activeTab,
     searchTerm,
     filterDate,
     filterMonth,
@@ -223,9 +249,31 @@ export default function EstimationsClientPage({
     filterStatus,
   ]);
 
-  // Tab 4: Company Data
+  // ── 2. Tab-specific filtered records (For Tab 1: PENDING, Tab 2: ESTIMATED, Tab 3: MONTHLY) ──
+  const filteredRecords = useMemo(() => {
+    return baseFilteredRecords.filter((item) => {
+      const effStatus = item.estimationStatus || "PENDING";
+      if (activeTab === "PENDING") return effStatus === "PENDING";
+      if (activeTab === "ESTIMATED") return effStatus === "ESTIMATED";
+      return true; // For MONTHLY, COMPANY, TECHNICIAN
+    });
+  }, [baseFilteredRecords, activeTab]);
+
+  // KPI Calculations (Filtered so badges and counters match active filters)
+  const totalPending = useMemo(() => {
+    return baseFilteredRecords.filter(
+      (r) => (r.estimationStatus || "PENDING") === "PENDING"
+    ).length;
+  }, [baseFilteredRecords]);
+
+  const totalEstimated = useMemo(() => {
+    return baseFilteredRecords.filter((r) => r.estimationStatus === "ESTIMATED")
+      .length;
+  }, [baseFilteredRecords]);
+
+  // Tab 4: Company Data (Respects Search, Date, Month, Technician filters!)
   const companyData = useMemo(() => {
-    const companyMap = initialRecords.reduce((acc, record) => {
+    const companyMap = baseFilteredRecords.reduce((acc, record) => {
       const comp = record.companyName || "ไม่ระบุบริษัท";
       if (!acc[comp]) acc[comp] = [];
       acc[comp].push(record);
@@ -239,11 +287,11 @@ export default function EstimationsClientPage({
         records: companyMap[key],
       }))
       .sort((a, b) => b.count - a.count);
-  }, [initialRecords]);
+  }, [baseFilteredRecords]);
 
-  // Tab 5: Technician Data
+  // Tab 5: Technician Data (Respects Search, Date, Month filters!)
   const techData = useMemo(() => {
-    const techMap = initialRecords.reduce((acc, record) => {
+    const techMap = baseFilteredRecords.reduce((acc, record) => {
       let tech = record.assignedTo || "ยังไม่ระบุช่าง";
       if (tech !== "ยังไม่ระบุช่าง" && !tech.includes("(")) {
         const member = serviceTeamMembers?.find(
@@ -266,7 +314,7 @@ export default function EstimationsClientPage({
         records: techMap[key],
       }))
       .sort((a, b) => b.count - a.count);
-  }, [initialRecords, serviceTeamMembers]);
+  }, [baseFilteredRecords, serviceTeamMembers]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -708,7 +756,14 @@ export default function EstimationsClientPage({
             </button>
 
             <button
-              onClick={() => setActiveTab("MONTHLY")}
+              onClick={() => {
+                setActiveTab("MONTHLY");
+                if (!filterMonth) {
+                  const now = new Date();
+                  const currentYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+                  setFilterMonth(currentYm);
+                }
+              }}
               className={`pb-3.5 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
                 activeTab === "MONTHLY"
                   ? "border-[#ff2301] text-[#ff2301]"
@@ -795,7 +850,7 @@ export default function EstimationsClientPage({
               </span>
 
               {/* Date Filter */}
-              <div className="flex items-center gap-1.5">
+              <div className="relative flex items-center">
                 <input
                   type="date"
                   value={filterDate}
@@ -803,13 +858,23 @@ export default function EstimationsClientPage({
                     setFilterDate(e.target.value);
                     setFilterMonth("");
                   }}
-                  className="px-2.5 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301]"
+                  className={`pl-2.5 ${filterDate ? "pr-7 bg-red-50/50 border-red-200 font-bold" : "pr-2 bg-white border-gray-200"} py-1.5 border rounded-xl text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all`}
                   title="กรองตามวันที่ระบุ"
                 />
+                {filterDate && (
+                  <button
+                    type="button"
+                    onClick={() => setFilterDate("")}
+                    className="absolute right-2 text-gray-400 hover:text-[#ff2301]"
+                    title="ล้างวันที่"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
 
               {/* Month Filter */}
-              <div className="flex items-center gap-1.5">
+              <div className="relative flex items-center">
                 <input
                   type="month"
                   value={filterMonth}
@@ -817,9 +882,19 @@ export default function EstimationsClientPage({
                     setFilterMonth(e.target.value);
                     setFilterDate("");
                   }}
-                  className="px-2.5 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301]"
+                  className={`pl-2.5 ${filterMonth ? "pr-7 bg-red-50/50 border-red-200 font-bold" : "pr-2 bg-white border-gray-200"} py-1.5 border rounded-xl text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all`}
                   title="กรองตามเดือน"
                 />
+                {filterMonth && (
+                  <button
+                    type="button"
+                    onClick={() => setFilterMonth("")}
+                    className="absolute right-2 text-gray-400 hover:text-[#ff2301]"
+                    title="ล้างเดือน"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
 
               {/* Technician Filter */}
@@ -827,7 +902,9 @@ export default function EstimationsClientPage({
                 <select
                   value={filterTechnician}
                   onChange={(e) => setFilterTechnician(e.target.value)}
-                  className="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301]"
+                  className={`px-3 py-1.5 border rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all ${
+                    filterTechnician ? "bg-red-50/50 border-red-200 font-bold text-[#ff2301]" : "bg-white border-gray-200"
+                  }`}
                 >
                   <option value="">ช่าง/วิศวกรทั้งหมด</option>
                   {serviceTeamMembers?.map((member) => (
@@ -839,13 +916,15 @@ export default function EstimationsClientPage({
                 </select>
               </div>
 
-              {/* Status Filter for Monthly */}
-              {activeTab === "MONTHLY" && (
+              {/* Status Filter */}
+              {(activeTab === "MONTHLY" || activeTab === "COMPANY" || activeTab === "TECHNICIAN") && (
                 <div>
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301]"
+                    className={`px-3 py-1.5 border rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] transition-all ${
+                      filterStatus ? "bg-red-50/50 border-red-200 font-bold text-[#ff2301]" : "bg-white border-gray-200"
+                    }`}
                   >
                     <option value="">ทุกสถานะ</option>
                     <option value="PENDING">รอประเมิน</option>
@@ -869,6 +948,53 @@ export default function EstimationsClientPage({
 
         {/* Tab Contents */}
         <div className="p-6 bg-gray-50/40 min-h-[460px]">
+          {/* Monthly Tab Header Banner */}
+          {activeTab === "MONTHLY" && (
+            <div className="mb-6 bg-white p-5 rounded-3xl border border-gray-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center font-bold shrink-0">
+                  <CalendarDays className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-sm">
+                    {filterMonth ? (
+                      (() => {
+                        const [y, m] = filterMonth.split("-").map(Number);
+                        const monthNames = [
+                          "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
+                          "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
+                          "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+                        ];
+                        return `สรุปข้อมูลเดือน ${monthNames[m - 1] || m} ${y}`;
+                      })()
+                    ) : (
+                      "สรุปข้อมูลรายเดือน (เลือกเดือนในตัวกรองด้านบนเพื่อเจาะจงเดือน)"
+                    )}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    แสดงรายการงานประเมินราคาตามเดือนที่เลือก
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Monthly Stats Pills */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-700">
+                  ทั้งหมด: <strong className="text-gray-900 font-mono">{filteredRecords.length}</strong> งาน
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800">
+                  รอประเมิน: <strong className="font-mono">{filteredRecords.filter(r => (r.estimationStatus || "PENDING") === "PENDING").length}</strong> งาน
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+                  ประเมินแล้ว: <strong className="font-mono">{filteredRecords.filter(r => r.estimationStatus === "ESTIMATED").length}</strong> งาน
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-red-50 border border-red-200 text-xs font-bold text-[#ff2301]">
+                  มูลค่ารวม: <strong className="font-mono">฿{filteredRecords.reduce((sum, r) => sum + (Number(r.estimatedPrice) || 0), 0).toLocaleString()}</strong>
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* ── TAB 1, 2, 3: CARDS GRID (PENDING, ESTIMATED, MONTHLY) ── */}
           {(activeTab === "PENDING" ||
             activeTab === "ESTIMATED" ||
@@ -899,9 +1025,13 @@ export default function EstimationsClientPage({
                       className="bg-white rounded-3xl border border-gray-200/90 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group"
                     >
                       {/* Card Header */}
-                      <div className="p-5 border-b border-gray-100 flex justify-between items-start bg-gray-50/50">
+                      <div
+                        onClick={() => handleOpenDetailModal(record)}
+                        className="p-5 border-b border-gray-100 flex justify-between items-start bg-gray-50/50 hover:bg-red-50/30 transition-colors cursor-pointer"
+                        title="คลิกเพื่อดูข้อมูลเพิ่มเติม"
+                      >
                         <div className="flex flex-col gap-1">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-gray-200 text-gray-800 font-bold text-xs shadow-sm">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-gray-200 text-gray-800 font-bold text-xs shadow-sm group-hover:border-red-200">
                             <FileText className="w-3.5 h-3.5 text-[#ff2301]" />
                             {record.boqNumber ? (
                               <span className="text-[#ff2301] font-mono">
@@ -914,6 +1044,7 @@ export default function EstimationsClientPage({
                                 </span>
                               )
                             )}
+                            <ArrowUpRight className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                           </span>
                           {record.boqNumber && record.requirementNumber && (
                             <span className="text-[10px] text-gray-400 font-medium pl-1">
@@ -1117,16 +1248,28 @@ export default function EstimationsClientPage({
                       </div>
 
                       {/* Card Actions Footer */}
-                      <div className="p-4 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between gap-2">
-                        <Link
-                          href={`/sales/requirements/print/${record.id}`}
-                          target="_blank"
-                          className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-white text-gray-700 border border-gray-200 text-xs font-bold rounded-xl hover:bg-gray-50 hover:text-[#ff2301] hover:border-red-200 shadow-sm transition-all active:scale-95"
-                          title="ดาวน์โหลดหรือพิมพ์ PDF"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                          <span>PDF</span>
-                        </Link>
+                      <div className="p-4 bg-gray-50/80 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDetailModal(record)}
+                            className="inline-flex items-center gap-1.5 px-3 h-9 bg-white text-gray-700 border border-gray-200 text-xs font-bold rounded-xl hover:bg-gray-100 hover:text-gray-900 shadow-sm transition-all active:scale-95"
+                            title="ดูข้อมูลเพิ่มเติม"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-gray-500" />
+                            <span>ดูข้อมูลเพิ่มเติม</span>
+                          </button>
+
+                          <Link
+                            href={`/sales/requirements/print/${record.id}`}
+                            target="_blank"
+                            className="inline-flex items-center gap-1.5 px-3 h-9 bg-white text-gray-700 border border-gray-200 text-xs font-bold rounded-xl hover:bg-gray-100 hover:text-[#ff2301] hover:border-red-200 shadow-sm transition-all active:scale-95"
+                            title="ดาวน์โหลดหรือพิมพ์ PDF"
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                            <span>PDF</span>
+                          </Link>
+                        </div>
 
                         <div className="flex items-center gap-2">
                           {/* Manager Assign Button */}
@@ -1185,74 +1328,104 @@ export default function EstimationsClientPage({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {companyData.length === 0 ? (
                 <div className="col-span-full py-16 text-center text-gray-400 bg-white rounded-3xl border border-gray-200">
-                  ยังไม่มีข้อมูลแยกตามบริษัท
+                  {hasActiveFilters ? "ไม่พบข้อมูลบริษัทที่ตรงกับตัวกรอง" : "ยังไม่มีข้อมูลแยกตามบริษัท"}
                 </div>
               ) : (
-                companyData.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white p-6 rounded-3xl border border-gray-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-all"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-3 mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0">
-                            <Building2 className="w-5 h-5" />
-                          </div>
-                          <h3 className="font-bold text-gray-900 text-sm line-clamp-2">
-                            {item.company}
-                          </h3>
-                        </div>
-                        <span className="bg-red-50 text-[#ff2301] border border-red-200/80 px-2.5 py-1 rounded-full text-xs font-bold shrink-0">
-                          {item.count} รายการ
-                        </span>
-                      </div>
+                companyData.map((item, idx) => {
+                  const isExpanded = !!expandedCompanies[item.company];
+                  const displayedRecords = isExpanded ? item.records : item.records.slice(0, 3);
 
-                      <div className="space-y-2.5 pt-3 border-t border-gray-100">
-                        {item.records.slice(0, 3).map((o: any, i: number) => (
-                          <div
-                            key={i}
-                            className="p-3 rounded-xl bg-gray-50/80 border border-gray-100"
-                          >
-                            <span className="text-xs font-mono font-bold text-[#ff2301] block">
-                              {o.boqNumber ||
-                                o.requirementNumber ||
-                                "ไม่มีหมายเลข"}
-                            </span>
-                            <span className="text-gray-600 text-xs truncate block mt-0.5">
-                              เซลล์: {o.salesperson || "-"}
-                            </span>
-                            <div className="flex items-center justify-between mt-1.5">
-                              <span
-                                className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
-                                  (o.estimationStatus || "PENDING") ===
-                                  "PENDING"
-                                    ? "bg-amber-50 text-amber-700 border-amber-200"
-                                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                }`}
-                              >
-                                {(o.estimationStatus || "PENDING") === "PENDING"
-                                  ? "รอประเมิน"
-                                  : "ประเมินแล้ว"}
-                              </span>
-                              {o.estimatedPrice && (
-                                <span className="text-xs font-black text-gray-900 font-mono">
-                                  ฿{o.estimatedPrice.toLocaleString()}
-                                </span>
-                              )}
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-white p-6 rounded-3xl border border-gray-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-all"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-3 mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0">
+                              <Building2 className="w-5 h-5" />
                             </div>
+                            <h3 className="font-bold text-gray-900 text-sm line-clamp-2">
+                              {item.company}
+                            </h3>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                          <span className="bg-red-50 text-[#ff2301] border border-red-200/80 px-2.5 py-1 rounded-full text-xs font-bold shrink-0">
+                            {item.count} รายการ
+                          </span>
+                        </div>
 
-                    {item.count > 3 && (
-                      <div className="text-xs text-gray-400 pt-3 text-center border-t border-gray-50 mt-3 font-medium">
-                        และอีก {item.count - 3} รายการ...
+                        <div className={`space-y-2.5 pt-3 border-t border-gray-100 ${isExpanded ? "max-h-96 overflow-y-auto pr-1 custom-scrollbar" : ""}`}>
+                          {displayedRecords.map((o: any, i: number) => (
+                            <div
+                              key={o.id || i}
+                              onClick={() => handleOpenDetailModal(o)}
+                              className="p-3 rounded-xl bg-gray-50/80 border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all cursor-pointer group/item"
+                              title="คลิกเพื่อดูข้อมูลเพิ่มเติม"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-mono font-bold text-[#ff2301] group-hover/item:underline flex items-center gap-1">
+                                  {o.boqNumber ||
+                                    o.requirementNumber ||
+                                    "ไม่มีหมายเลข"}
+                                  <ArrowUpRight className="w-3 h-3 text-gray-400 opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                                </span>
+                                <span className="text-[10px] text-gray-400 font-mono">
+                                  {new Date(o.date || o.createdAt).toLocaleDateString("th-TH", {
+                                    day: "2-digit",
+                                    month: "short",
+                                  })}
+                                </span>
+                              </div>
+                              <span className="text-gray-600 text-xs truncate block mt-0.5">
+                                เซลล์: {o.salesperson || "-"}
+                              </span>
+                              <div className="flex items-center justify-between mt-1.5">
+                                <span
+                                  className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                                    (o.estimationStatus || "PENDING") ===
+                                    "PENDING"
+                                      ? "bg-amber-50 text-amber-700 border-amber-200"
+                                      : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  }`}
+                                >
+                                  {(o.estimationStatus || "PENDING") === "PENDING"
+                                    ? "รอประเมิน"
+                                    : "ประเมินแล้ว"}
+                                </span>
+                                {o.estimatedPrice && (
+                                  <span className="text-xs font-black text-gray-900 font-mono">
+                                    ฿{o.estimatedPrice.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))
+
+                      {item.count > 3 && (
+                        <button
+                          type="button"
+                          onClick={() => toggleCompanyExpand(item.company)}
+                          className="text-xs text-[#ff2301] hover:text-[#d81900] pt-3 text-center border-t border-gray-100 mt-3 font-bold hover:underline flex items-center justify-center gap-1.5 w-full transition-colors active:scale-95"
+                        >
+                          {isExpanded ? (
+                            <>
+                              <span>ย่อรายการ</span>
+                              <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform" />
+                            </>
+                          ) : (
+                            <>
+                              <span>และอีก {item.count - 3} รายการ... (กดเพื่อดูทั้งหมด)</span>
+                              <ChevronDown className="w-3.5 h-3.5 transition-transform" />
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
           )}
@@ -1262,76 +1435,98 @@ export default function EstimationsClientPage({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {techData.length === 0 ? (
                 <div className="col-span-full py-16 text-center text-gray-400 bg-white rounded-3xl border border-gray-200">
-                  ยังไม่มีข้อมูลแยกตามช่าง
+                  {hasActiveFilters ? "ไม่พบข้อมูลช่างที่ตรงกับตัวกรอง" : "ยังไม่มีข้อมูลแยกตามช่าง"}
                 </div>
               ) : (
-                techData.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white p-6 rounded-3xl border border-gray-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-all"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-3 mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] text-white flex items-center justify-center font-bold text-sm shadow-md shadow-red-500/20 shrink-0">
-                            {item.technician.slice(0, 2)}
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-gray-900 text-sm">
-                              {item.technician}
-                            </h3>
-                            <p className="text-[11px] text-gray-400 font-medium">
-                              ผู้รับผิดชอบงานประเมินราคา
-                            </p>
-                          </div>
-                        </div>
-                        <span className="bg-gray-100 text-gray-800 border border-gray-200 px-3 py-1 rounded-full text-xs font-bold shrink-0">
-                          {item.count} งาน
-                        </span>
-                      </div>
+                techData.map((item, idx) => {
+                  const isExpanded = !!expandedTechs[item.technician];
+                  const displayedRecords = isExpanded ? item.records : item.records.slice(0, 4);
 
-                      <div className="space-y-2 pt-3 border-t border-gray-100">
-                        {item.records.slice(0, 4).map((o: any, i: number) => (
-                          <div
-                            key={i}
-                            className="flex justify-between items-center text-xs p-2.5 rounded-xl bg-gray-50 border border-gray-100"
-                          >
-                            <div className="min-w-0 mr-2">
-                              <p className="font-bold text-gray-900 truncate text-[11px]">
-                                {o.companyName || "ไม่ระบุบริษัท"}
-                              </p>
-                              <p className="text-gray-400 truncate text-[10px] font-mono">
-                                กำหนดส่ง:{" "}
-                                {o.estimationDueDate
-                                  ? new Date(
-                                      o.estimationDueDate
-                                    ).toLocaleDateString("th-TH")
-                                  : "-"}
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-white p-6 rounded-3xl border border-gray-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-all"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-3 mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] text-white flex items-center justify-center font-bold text-sm shadow-md shadow-red-500/20 shrink-0">
+                              {item.technician.slice(0, 2)}
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-gray-900 text-sm">
+                                {item.technician}
+                              </h3>
+                              <p className="text-[11px] text-gray-400 font-medium">
+                                ผู้รับผิดชอบงานประเมินราคา
                               </p>
                             </div>
-                            <span
-                              className={`px-2 py-0.5 rounded-full font-bold shrink-0 text-[10px] border ${
-                                (o.estimationStatus || "PENDING") === "PENDING"
-                                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                                  : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              }`}
-                            >
-                              {(o.estimationStatus || "PENDING") === "PENDING"
-                                ? "รอประเมิน"
-                                : "เสร็จสิ้น"}
-                            </span>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                          <span className="bg-gray-100 text-gray-800 border border-gray-200 px-3 py-1 rounded-full text-xs font-bold shrink-0">
+                            {item.count} งาน
+                          </span>
+                        </div>
 
-                    {item.count > 4 && (
-                      <div className="text-xs text-gray-400 pt-3 text-center border-t border-gray-50 mt-3 font-medium">
-                        ดูเพิ่มเติมอีก {item.count - 4} งาน...
+                        <div className={`space-y-2 pt-3 border-t border-gray-100 ${isExpanded ? "max-h-96 overflow-y-auto pr-1 custom-scrollbar" : ""}`}>
+                          {displayedRecords.map((o: any, i: number) => (
+                            <div
+                              key={o.id || i}
+                              onClick={() => handleOpenDetailModal(o)}
+                              className="flex justify-between items-center text-xs p-2.5 rounded-xl bg-gray-50 border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all cursor-pointer group/item"
+                              title="คลิกเพื่อดูข้อมูลเพิ่มเติม"
+                            >
+                              <div className="min-w-0 mr-2">
+                                <p className="font-bold text-gray-900 truncate text-[11px] group-hover/item:text-[#ff2301] transition-colors flex items-center gap-1">
+                                  <span>{o.companyName || "ไม่ระบุบริษัท"}</span>
+                                  <ArrowUpRight className="w-3 h-3 text-gray-400 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0" />
+                                </p>
+                                <p className="text-gray-400 truncate text-[10px] font-mono">
+                                  กำหนดส่ง:{" "}
+                                  {o.estimationDueDate
+                                    ? new Date(
+                                        o.estimationDueDate
+                                      ).toLocaleDateString("th-TH")
+                                    : "-"}
+                                </p>
+                              </div>
+                              <span
+                                className={`px-2 py-0.5 rounded-full font-bold shrink-0 text-[10px] border ${
+                                  (o.estimationStatus || "PENDING") === "PENDING"
+                                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                }`}
+                              >
+                                {(o.estimationStatus || "PENDING") === "PENDING"
+                                  ? "รอประเมิน"
+                                  : "เสร็จสิ้น"}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))
+
+                      {item.count > 4 && (
+                        <button
+                          type="button"
+                          onClick={() => toggleTechExpand(item.technician)}
+                          className="text-xs text-[#ff2301] hover:text-[#d81900] pt-3 text-center border-t border-gray-50 mt-3 font-bold hover:underline flex items-center justify-center gap-1.5 w-full transition-colors active:scale-95"
+                        >
+                          {isExpanded ? (
+                            <>
+                              <span>ย่อรายการ</span>
+                              <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform" />
+                            </>
+                          ) : (
+                            <>
+                              <span>ดูเพิ่มเติมอีก {item.count - 4} งาน... (กดเพื่อดูทั้งหมด)</span>
+                              <ChevronDown className="w-3.5 h-3.5 transition-transform" />
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
           )}
@@ -1675,6 +1870,582 @@ export default function EstimationsClientPage({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Requirement Detail Modal (ดูข้อมูลเพิ่มเติม) ── */}
+      {isDetailModalOpen && selectedDetailReq && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-gray-200">
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-red-50 to-white shrink-0">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] text-white flex items-center justify-center shadow-md shadow-red-500/20 shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-base sm:text-lg font-black text-gray-900">
+                      รายละเอียดความต้องการลูกค้า / BOQ
+                    </h2>
+                    <span
+                      className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold border ${
+                        selectedDetailReq.estimationStatus === "ESTIMATED"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}
+                    >
+                      {selectedDetailReq.estimationStatus === "ESTIMATED"
+                        ? "ประเมินราคาแล้ว"
+                        : "รอประเมินราคา"}
+                    </span>
+                  </div>
+                  <p className="text-xs font-mono text-[#ff2301] truncate mt-0.5">
+                    {selectedDetailReq.boqNumber ||
+                      selectedDetailReq.requirementNumber ||
+                      "ไม่มีหมายเลข"}{" "}
+                    {selectedDetailReq.boqNumber &&
+                      selectedDetailReq.requirementNumber && (
+                        <span className="text-gray-400 font-sans">
+                          (Ref: {selectedDetailReq.requirementNumber})
+                        </span>
+                      )}
+                    {" • "}
+                    <span className="text-gray-500 font-sans">
+                      วันที่รับเรื่อง:{" "}
+                      {new Date(
+                        selectedDetailReq.date || selectedDetailReq.createdAt
+                      ).toLocaleDateString("th-TH", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDetailModalOpen(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body (Scrollable) */}
+            <div className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar text-xs">
+              {/* Section 1: Customer Information */}
+              <div className="bg-gray-50/70 p-4 sm:p-5 rounded-2xl border border-gray-100 space-y-3">
+                <div className="flex items-center gap-2 border-b border-gray-200/60 pb-2.5">
+                  <Building2 className="w-4 h-4 text-[#ff2301]" />
+                  <h3 className="font-bold text-gray-900 text-sm">
+                    ข้อมูลลูกค้าและการติดต่อ
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      ชื่อบริษัท / องค์กร
+                    </span>
+                    <p className="font-bold text-gray-900 text-sm">
+                      {selectedDetailReq.companyName || "—"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      พนักงานขายที่ดูแล (เซลล์)
+                    </span>
+                    <p className="font-bold text-gray-800">
+                      {selectedDetailReq.salesperson || "—"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      ชื่อผู้ติดต่อ
+                    </span>
+                    <p className="font-medium text-gray-800">
+                      {selectedDetailReq.contactName || "—"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      เบอร์โทรศัพท์
+                    </span>
+                    <p className="font-medium text-gray-800 font-mono">
+                      {selectedDetailReq.formData?.["เบอร์โทร"] || "—"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      อีเมล
+                    </span>
+                    <p className="font-medium text-gray-800">
+                      {selectedDetailReq.formData?.["อีเมล"] || "—"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      ที่อยู่บริษัท
+                    </span>
+                    <p className="font-medium text-gray-800">
+                      {selectedDetailReq.formData?.["ที่อยู่บริษัท"] || "—"}
+                    </p>
+                  </div>
+
+                  {/* Customer Type */}
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      ประเภทลูกค้า
+                    </span>
+                    <p className="font-medium text-gray-800">
+                      {[
+                        selectedDetailReq.formData?.["ประเภทลูกค้า_USER"] && "USER",
+                        selectedDetailReq.formData?.["ประเภทลูกค้า_ผู้รับเหมา"] &&
+                          "ผู้รับเหมา/ผู้ประมูลงาน",
+                        selectedDetailReq.formData?.["ประเภทลูกค้า_ร้านค้า"] &&
+                          "ร้านค้า/ตัวแทนจำหน่าย",
+                        selectedDetailReq.formData?.["ประเภทลูกค้า_ช่างติดตั้ง/ช่างรับซ่อม"] &&
+                          "ช่างติดตั้ง/ช่างรับซ่อม",
+                        selectedDetailReq.formData?.["ประเภทลูกค้า_Maker"] &&
+                          "Maker/ประกอบตู้",
+                        selectedDetailReq.formData?.["ประเภทลูกค้า_OEM"] && "OEM",
+                        selectedDetailReq.formData?.["ประเภทลูกค้า_ผู้ออกแบบ"] &&
+                          "ผู้ออกแบบ/ที่ปรึกษา",
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || "—"}
+                    </p>
+                  </div>
+
+                  {/* Timeline & Urgency */}
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      ระยะเวลาต้องการใบเสนอราคา / การใช้งาน
+                    </span>
+                    <div className="space-y-0.5 text-gray-800 font-medium">
+                      {selectedDetailReq.formData?.["ภายในวันที่_ใบเสนอราคา"] && (
+                        <p>
+                          ต้องการเสนอราคาภายใน:{" "}
+                          <span className="font-mono text-[#ff2301]">
+                            {selectedDetailReq.formData["ภายในวันที่_ใบเสนอราคา"]}
+                          </span>
+                        </p>
+                      )}
+                      {(selectedDetailReq.formData?.["ภายในวันที่_ใช้สินค้า"] ||
+                        selectedDetailReq.formData?.["ความต้องการใช้สินค้า_อื่นๆ_ระบุ"] ||
+                        selectedDetailReq.formData?.["ความต้องการใช้สินค้า_ด่วนมาก"] ||
+                        selectedDetailReq.formData?.["ความต้องการใช้สินค้า_ตั้งงบประมาณ"]) && (
+                        <p>
+                          ต้องการใช้สินค้า:{" "}
+                          <span className="font-mono text-[#ff2301]">
+                            {selectedDetailReq.formData["ภายในวันที่_ใช้สินค้า"] ||
+                              selectedDetailReq.formData["ความต้องการใช้สินค้า_อื่นๆ_ระบุ"] ||
+                              (selectedDetailReq.formData["ความต้องการใช้สินค้า_ด่วนมาก"]
+                                ? "ด่วนมาก"
+                                : "ตั้งงบประมาณ")}
+                          </span>
+                        </p>
+                      )}
+                      {!selectedDetailReq.formData?.["ภายในวันที่_ใบเสนอราคา"] &&
+                        !selectedDetailReq.formData?.["ภายในวันที่_ใช้สินค้า"] && <p>—</p>}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedDetailReq.formData?.["งบประมาณลูกค้า"] && (
+                  <div className="pt-2 border-t border-gray-200/60">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      งบประมาณลูกค้า
+                    </span>
+                    <p className="font-bold text-emerald-700 font-mono text-sm">
+                      ฿{Number(selectedDetailReq.formData["งบประมาณลูกค้า"]).toLocaleString()} บาท
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Section 2: Estimation & Assignment Status */}
+              <div className="bg-gray-50/70 p-4 sm:p-5 rounded-2xl border border-gray-100 space-y-3">
+                <div className="flex items-center gap-2 border-b border-gray-200/60 pb-2.5">
+                  <Calculator className="w-4 h-4 text-[#ff2301]" />
+                  <h3 className="font-bold text-gray-900 text-sm">
+                    สถานะการประเมินราคาและการมอบหมายงาน
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      ช่าง / วิศวกรผู้รับผิดชอบ
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-gray-200 text-gray-700 flex items-center justify-center font-bold text-xs">
+                        {selectedDetailReq.assignedTo
+                          ? selectedDetailReq.assignedTo.slice(0, 2)
+                          : "?"}
+                      </div>
+                      <span className="font-bold text-gray-800">
+                        {selectedDetailReq.assignedTo || "ยังไม่ระบุช่าง"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                      กำหนดส่งมอบงาน
+                    </span>
+                    <p className="font-bold text-gray-800 font-mono">
+                      {selectedDetailReq.estimationDueDate
+                        ? new Date(
+                            selectedDetailReq.estimationDueDate
+                          ).toLocaleDateString("th-TH", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : "—"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Estimation Results Banner */}
+                {selectedDetailReq.estimationStatus === "ESTIMATED" ? (
+                  <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
+                        ราคาประเมินค่าบริการ
+                      </span>
+                      <span className="text-lg font-black text-emerald-950 font-mono">
+                        ฿{selectedDetailReq.estimatedPrice?.toLocaleString()} บาท
+                      </span>
+                    </div>
+                    {selectedDetailReq.estimationNote && (
+                      <div className="text-xs text-emerald-900 bg-white/70 p-2.5 rounded-lg border border-emerald-100">
+                        <strong className="text-emerald-950">หมายเหตุการประเมิน:</strong>{" "}
+                        {selectedDetailReq.estimationNote}
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-[11px] text-emerald-700/90 pt-1">
+                      <span>ประเมินโดย: {selectedDetailReq.estimatedBy || "—"}</span>
+                      {selectedDetailReq.estimatedAt && (
+                        <span>
+                          เมื่อ:{" "}
+                          {new Date(selectedDetailReq.estimatedAt).toLocaleDateString(
+                            "th-TH",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-xl flex items-center justify-between text-xs">
+                    <span className="text-amber-800 font-bold flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-amber-600" />
+                      รายการนี้ยังไม่ได้รับการประเมินราคา
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsDetailModalOpen(false);
+                        handleOpenModal(selectedDetailReq);
+                      }}
+                      className="px-3 py-1 bg-[#ff2301] text-white font-bold rounded-lg hover:bg-[#d81900] shadow-sm transition-all"
+                    >
+                      ประเมินราคาทันที
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Section 3: Product Specifications & Details */}
+              <div className="bg-gray-50/70 p-4 sm:p-5 rounded-2xl border border-gray-100 space-y-4">
+                <div className="flex items-center gap-2 border-b border-gray-200/60 pb-2.5">
+                  <Layers className="w-4 h-4 text-[#ff2301]" />
+                  <h3 className="font-bold text-gray-900 text-sm">
+                    รายการสินค้าและสเปกที่ต้องการประเมิน
+                  </h3>
+                </div>
+
+                {/* Product Tags */}
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
+                    หมวดหมู่สินค้า
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      selectedDetailReq.formData?.["สินค้า_INVERTER"] && "INVERTER",
+                      selectedDetailReq.formData?.["สินค้า_MOTOR"] && "MOTOR",
+                      selectedDetailReq.formData?.["สินค้า_PUMP"] && "PUMP",
+                      selectedDetailReq.formData?.["สินค้า_MDB"] && "MDB",
+                      selectedDetailReq.formData?.["สินค้า_DB"] && "DB",
+                      selectedDetailReq.formData?.["สินค้า_CONTROL"] && "CONTROL",
+                      selectedDetailReq.formData?.["สินค้า_SOLAR_ROOF"] && "SOLAR ROOF",
+                      selectedDetailReq.formData?.["สินค้า_SOLAR_PUMP"] && "SOLAR PUMP",
+                      selectedDetailReq.formData?.["สินค้า_SOFT_START"] && "SOFT START",
+                      selectedDetailReq.formData?.["สินค้า_PLC_HMI"] && "PLC / HMI",
+                    ]
+                      .filter(Boolean)
+                      .map((p: any) => (
+                        <span
+                          key={p}
+                          className="px-3 py-1 bg-red-100/70 text-[#ff2301] font-bold text-xs rounded-xl border border-red-200"
+                        >
+                          {p}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Specifications Blocks */}
+                {selectedDetailReq.formData && (
+                  <div className="space-y-3">
+                    {/* INVERTER Specs */}
+                    {selectedDetailReq.formData["สินค้า_INVERTER"] && (
+                      <div className="bg-white p-4 rounded-xl border border-gray-200 space-y-2">
+                        <div className="font-bold text-[#ff2301] flex items-center justify-between text-xs">
+                          <span>รายละเอียด INVERTER</span>
+                          <span className="text-[10px] bg-red-50 text-[#ff2301] px-2 py-0.5 rounded-md font-semibold">
+                            INVERTER
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-700">
+                          <div>
+                            <span className="text-gray-400">ยี่ห้อ:</span>{" "}
+                            <strong>{selectedDetailReq.formData["INVERTER_ยี่ห้อ"] || "—"}</strong>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">ขนาด:</span>{" "}
+                            <strong>
+                              {selectedDetailReq.formData["INVERTER_ขนาดเครื่อง_kW"]
+                                ? `${selectedDetailReq.formData["INVERTER_ขนาดเครื่อง_kW"]} kW`
+                                : ""}
+                              {selectedDetailReq.formData["INVERTER_ขนาดเครื่อง_HP"]
+                                ? ` / ${selectedDetailReq.formData["INVERTER_ขนาดเครื่อง_HP"]} HP`
+                                : ""}
+                              {!selectedDetailReq.formData["INVERTER_ขนาดเครื่อง_kW"] &&
+                                !selectedDetailReq.formData["INVERTER_ขนาดเครื่อง_HP"] &&
+                                "—"}
+                            </strong>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">ไฟจ่ายเข้า (Input):</span>{" "}
+                            <strong>
+                              {[
+                                selectedDetailReq.formData["INVERTER_Input_220V_1P"] && "220V 1P",
+                                selectedDetailReq.formData["INVERTER_Input_220V_3P"] && "220V 3P",
+                                selectedDetailReq.formData["INVERTER_Input_380V_3P"] && "380V 3P",
+                                selectedDetailReq.formData["INVERTER_Input_อื่นๆ_ระบุ"],
+                              ]
+                                .filter(Boolean)
+                                .join(", ") || "—"}
+                            </strong>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">เครื่องเดิม:</span>{" "}
+                            <strong>
+                              {selectedDetailReq.formData["INVERTER_เครื่องเดิม"] || "—"}
+                              {selectedDetailReq.formData["INVERTER_เครื่องเดิม_รุ่น"] &&
+                                ` (รุ่น ${selectedDetailReq.formData["INVERTER_เครื่องเดิม_รุ่น"]})`}
+                            </strong>
+                          </div>
+                          <div className="sm:col-span-2">
+                            <span className="text-gray-400">ใช้งานกับมอเตอร์:</span>{" "}
+                            <strong>
+                              {selectedDetailReq.formData["INVERTER_Motor_kW"]
+                                ? `${selectedDetailReq.formData["INVERTER_Motor_kW"]} kW `
+                                : ""}
+                              {selectedDetailReq.formData["INVERTER_Motor_HP"]
+                                ? `${selectedDetailReq.formData["INVERTER_Motor_HP"]} HP `
+                                : ""}
+                              {selectedDetailReq.formData["INVERTER_Motor_ขับงานประเภท"]
+                                ? `(${selectedDetailReq.formData["INVERTER_Motor_ขับงานประเภท"]})`
+                                : ""}
+                            </strong>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* MOTOR Specs */}
+                    {selectedDetailReq.formData["สินค้า_MOTOR"] && (
+                      <div className="bg-white p-4 rounded-xl border border-gray-200 space-y-2">
+                        <div className="font-bold text-[#ff2301] flex items-center justify-between text-xs">
+                          <span>รายละเอียด MOTOR</span>
+                          <span className="text-[10px] bg-red-50 text-[#ff2301] px-2 py-0.5 rounded-md font-semibold">
+                            MOTOR
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-700">
+                          <div>
+                            <span className="text-gray-400">ยี่ห้อ:</span>{" "}
+                            <strong>{selectedDetailReq.formData["MOTOR_ยี่ห้อ"] || "—"}</strong>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">ขนาด:</span>{" "}
+                            <strong>
+                              {selectedDetailReq.formData["MOTOR_ขนาด_kW"]
+                                ? `${selectedDetailReq.formData["MOTOR_ขนาด_kW"]} kW`
+                                : ""}
+                              {selectedDetailReq.formData["MOTOR_ขนาด_HP"]
+                                ? ` / ${selectedDetailReq.formData["MOTOR_ขนาด_HP"]} HP`
+                                : ""}
+                            </strong>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* PUMP Specs */}
+                    {selectedDetailReq.formData["สินค้า_PUMP"] && (
+                      <div className="bg-white p-4 rounded-xl border border-gray-200 space-y-2">
+                        <div className="font-bold text-[#ff2301] flex items-center justify-between text-xs">
+                          <span>รายละเอียด PUMP</span>
+                          <span className="text-[10px] bg-red-50 text-[#ff2301] px-2 py-0.5 rounded-md font-semibold">
+                            PUMP
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-700">
+                          <div>
+                            <span className="text-gray-400">ยี่ห้อ:</span>{" "}
+                            <strong>{selectedDetailReq.formData["PUMP_ยี่ห้อ"] || "—"}</strong>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">รุ่น:</span>{" "}
+                            <strong>{selectedDetailReq.formData["PUMP_รุ่น"] || "—"}</strong>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Additional Notes from Sales */}
+                    {(selectedDetailReq.formData["รายละเอียดเพิ่มเติม"] ||
+                      selectedDetailReq.formData["หมายเหตุ"] ||
+                      selectedDetailReq.formData["note"]) && (
+                      <div className="bg-white p-4 rounded-xl border border-gray-200 space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                          บันทึก / ข้อมูลเพิ่มเติมจากฝ่ายขาย
+                        </span>
+                        <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                          {selectedDetailReq.formData["รายละเอียดเพิ่มเติม"] ||
+                            selectedDetailReq.formData["หมายเหตุ"] ||
+                            selectedDetailReq.formData["note"]}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Section 4: Attachments */}
+              <div className="bg-gray-50/70 p-4 sm:p-5 rounded-2xl border border-gray-100 space-y-3">
+                <div className="flex items-center gap-2 border-b border-gray-200/60 pb-2.5">
+                  <Paperclip className="w-4 h-4 text-[#ff2301]" />
+                  <h3 className="font-bold text-gray-900 text-sm">
+                    เอกสารและไฟล์แนบความต้องการ
+                  </h3>
+                </div>
+
+                {selectedDetailReq.formData?.attachments &&
+                selectedDetailReq.formData.attachments.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {selectedDetailReq.formData.attachments.map(
+                      (file: any, idx: number) => (
+                        <a
+                          key={idx}
+                          href={file.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl hover:border-red-200 hover:bg-red-50/30 transition-all text-xs text-gray-800 group"
+                        >
+                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                            <div className="w-8 h-8 rounded-lg bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0">
+                              <Paperclip className="w-4 h-4" />
+                            </div>
+                            <span className="font-bold truncate group-hover:text-[#ff2301] transition-colors">
+                              {file.name || `ไฟล์แนบ ${idx + 1}`}
+                            </span>
+                          </div>
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-400 group-hover:text-[#ff2301] shrink-0">
+                            เปิดดู <ExternalLink className="w-3.5 h-3.5" />
+                          </span>
+                        </a>
+                      )
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-xs italic py-2">
+                    ไม่มีไฟล์แนบในรายการนี้
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="p-4 sm:p-5 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <Link
+                href={`/sales/requirements/print/${selectedDetailReq.id}`}
+                target="_blank"
+                className="inline-flex items-center gap-1.5 px-4 h-10 bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 hover:text-[#ff2301] hover:border-red-200 text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95"
+              >
+                <Printer className="w-4 h-4" />
+                <span>พิมพ์ / เอกสาร PDF</span>
+              </Link>
+
+              <div className="flex items-center gap-2">
+                {isManager && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDetailModalOpen(false);
+                      handleOpenAssignModal(selectedDetailReq);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 h-10 bg-white text-[#ff2301] border border-red-200 hover:bg-red-50 hover:border-[#ff2301] text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>มอบหมายงาน</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDetailModalOpen(false);
+                    handleOpenModal(selectedDetailReq);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-5 h-10 bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white text-xs font-bold rounded-xl shadow-md shadow-red-500/20 transition-all active:scale-95"
+                >
+                  <Calculator className="w-4 h-4" />
+                  <span>
+                    {selectedDetailReq.estimationStatus === "ESTIMATED"
+                      ? "แก้ไขราคาประเมิน"
+                      : "ประเมินราคา"}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDetailModalOpen(false)}
+                  className="px-4 h-10 text-xs font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-100 rounded-xl transition-all shadow-sm active:scale-95"
+                >
+                  ปิด
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
