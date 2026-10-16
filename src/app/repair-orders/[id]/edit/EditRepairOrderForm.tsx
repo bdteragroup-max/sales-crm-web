@@ -32,6 +32,7 @@ import {
 import { LoadingButton } from "@/app/components/LoadingButton";
 import { createRepairOrder } from "@/app/actions/repairOrders";
 import { searchContacts } from "@/app/actions/sales";
+import { REPAIR_COMPANIES, getRepairCompany } from "@/app/repair-orders/lib/companyHelpers";
 import Swal from "sweetalert2";
 
 const CHECKLIST_OPTIONS = [
@@ -846,13 +847,15 @@ export default function EditRepairOrderForm({
               <div className="relative">
                 <select
                   name="company"
-                  value={formData.company || "TERA GROUP"}
+                  value={getRepairCompany(formData.company).dbCompany}
                   onChange={handleInputChange}
                   className="w-full px-3.5 py-2.5 text-xs font-semibold bg-white border border-gray-200 rounded-xl text-gray-800 outline-none focus:border-[#ff2301] focus:ring-2 focus:ring-[#ff2301]/20 transition-all appearance-none cursor-pointer pr-8"
                 >
-                  <option value="TERA GROUP">TERA GROUP</option>
-                  <option value="TERA ELECTRIC">TERA ELECTRIC</option>
-                  <option value="TERA POWER">TERA POWER</option>
+                  {REPAIR_COMPANIES.map((c) => (
+                    <option key={c.code} value={c.dbCompany}>
+                      {c.code} - {c.name} ({c.fullName})
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>

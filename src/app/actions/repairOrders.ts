@@ -73,6 +73,28 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
     let jobId = formData.jobId;
 
 
+    // Determine company code & DB company name (TP, TG, TE)
+    const rawCompany = (formData.company || "").trim().toUpperCase();
+    let compCode: "TP" | "TG" | "TE" = "TG";
+    let dbCompany = "TERA GROUP";
+
+    if (rawCompany === "TP" || rawCompany.includes("POWER") || rawCompany.includes("พาวเวอร์")) {
+      compCode = "TP";
+      dbCompany = "TERA POWER";
+    } else if (
+      rawCompany === "TE" ||
+      rawCompany.includes("ELECTRIC") ||
+      rawCompany.includes("อิเล็คทริค") ||
+      rawCompany.includes("อิเลคทริค") ||
+      rawCompany.includes("ENERGY")
+    ) {
+      compCode = "TE";
+      dbCompany = "TERA ELECTRIC";
+    } else {
+      compCode = "TG";
+      dbCompany = "TERA GROUP";
+    }
+
     // If no jobId is provided, we need to create a standalone job first
     if (!jobId) {
       const newJobNumber = await generateRepairOrderNumber();
@@ -81,7 +103,7 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
       const job = await prisma.job.create({
         data: {
           jobNumber: newJobNumber,
-          companyCode: "TERA GROUP", // Default
+          companyCode: compCode,
           jobType: formData.workType || "ซ่อม",
           month: closedDate.getMonth() + 1,
           yearBe: (closedDate.getFullYear() + 543) % 100,
@@ -92,6 +114,12 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
         }
       });
       jobId = job.id;
+    } else {
+      // Also update job companyCode if existing
+      await prisma.job.update({
+        where: { id: jobId },
+        data: { companyCode: compCode },
+      }).catch((e) => console.warn("Could not sync companyCode to job:", e));
     }
 
     const dataToSave = {
@@ -106,7 +134,7 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
       workType: formData.workType,
       forwardedBy: formData.forwardedBy,
       technicianName: formData.technicianName,
-      company: formData.company,
+      company: dbCompany,
       customerCompany: formData.customerCompany,
       customerAddress: formData.customerAddress,
       salesPerson: formData.salesPerson,
@@ -288,6 +316,65 @@ export async function updateRepairOrderTechnician(jobId: string, technicianName:
   } catch (error: unknown) {
     console.error("Error updating repair order technician:", error);
     return { success: false, error: error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปเดตผู้ซ่อม" };
+  }
+}
+
+export async function updateRepairOrderCompany(repairOrderIdOrJobId: string, companyInput: string) {
+  try {
+    const raw = (companyInput || "").trim().toUpperCase();
+    let compCode: "TP" | "TG" | "TE" = "TG";
+    let dbCompany = "TERA GROUP";
+
+    if (raw === "TP" || raw.includes("POWER") || raw.includes("พาวเวอร์")) {
+      compCode = "TP";
+      dbCompany = "TERA POWER";
+    } else if (
+      raw === "TE" ||
+      raw.includes("ELECTRIC") ||
+      raw.includes("อิเล็คทริค") ||
+      raw.includes("อิเลคทริค") ||
+      raw.includes("ENERGY")
+    ) {
+      compCode = "TE";
+      dbCompany = "TERA ELECTRIC";
+    } else {
+      compCode = "TG";
+      dbCompany = "TERA GROUP";
+    }
+
+    // Try finding by id first, then by jobId
+    let order = await prisma.repairOrder.findFirst({
+      where: {
+        OR: [
+          { id: repairOrderIdOrJobId },
+          { jobId: repairOrderIdOrJobId }
+        ]
+      }
+    });
+
+    if (!order) {
+      throw new Error("Repair order not found");
+    }
+
+    await prisma.repairOrder.update({
+      where: { id: order.id },
+      data: { company: dbCompany },
+    });
+
+    if (order.jobId) {
+      await prisma.job.update({
+        where: { id: order.jobId },
+        data: { companyCode: compCode },
+      }).catch((e) => console.warn("Could not sync companyCode to job:", e));
+    }
+
+    revalidatePath("/repair-orders");
+    revalidatePath("/service/dashboard");
+    revalidatePath("/jobs");
+    return { success: true, company: dbCompany, companyCode: compCode };
+  } catch (error: unknown) {
+    console.error("Error updating repair order company:", error);
+    return { success: false, error: error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปเดตสังกัดบริษัท" };
   }
 }
 

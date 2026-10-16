@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { createRepairOrder } from "@/app/actions/repairOrders";
 import { searchCompanies, searchContacts, getPostalInfo } from "@/app/actions/sales";
+import { REPAIR_COMPANIES, getRepairCompany } from "@/app/repair-orders/lib/companyHelpers";
 import Swal from "sweetalert2";
 
 interface UserOption {
@@ -97,7 +98,9 @@ export default function NewRepairOrderForm({
   const contactSearchRef = useRef<HTMLDivElement>(null);
 
   const [customerCompany, setCustomerCompany] = useState(initialData?.customerCompany || "");
-  const [serviceProviderCompany, setServiceProviderCompany] = useState(initialData?.company || "TERA GROUP");
+  const [serviceProviderCompany, setServiceProviderCompany] = useState(
+    getRepairCompany(initialData?.company).dbCompany
+  );
   const [customerAddress, setCustomerAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [subDistrict, setSubDistrict] = useState("");
@@ -631,9 +634,11 @@ export default function NewRepairOrderForm({
                   onChange={(e) => setServiceProviderCompany(e.target.value)}
                   className={inputClass}
                 >
-                  <option value="TERA GROUP">TERA GROUP</option>
-                  <option value="TERA ELECTRIC">TERA ELECTRIC</option>
-                  <option value="TERA POWER">TERA POWER</option>
+                  {REPAIR_COMPANIES.map((c) => (
+                    <option key={c.code} value={c.dbCompany}>
+                      {c.code} - {c.name} ({c.fullName})
+                    </option>
+                  ))}
                 </select>
               </div>
 

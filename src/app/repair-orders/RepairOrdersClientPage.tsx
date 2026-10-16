@@ -47,8 +47,14 @@ import InverterQcModal from "./components/InverterQcModal";
 import {
   deleteRepairOrder,
   updateRepairOrderStatus,
-  updateRepairOrderTechnician
+  updateRepairOrderTechnician,
+  updateRepairOrderCompany,
 } from "@/app/actions/repairOrders";
+import {
+  REPAIR_COMPANIES,
+  getRepairCompany,
+  type RepairCompanyOption,
+} from "./lib/companyHelpers";
 
 interface RepairOrdersClientPageProps {
   initialRepairOrders?: any[];
@@ -178,11 +184,12 @@ export default function RepairOrdersClientPage({
   const [statusFilter, setStatusFilter] = useState("");
   const [technicianFilter, setTechnicianFilter] = useState("");
   const [companyFilter, setCompanyFilter] = useState("");
+  const [companyCodeFilter, setCompanyCodeFilter] = useState<string>("ALL");
   const [datePeriod, setDatePeriod] = useState<"ALL" | "TODAY" | "WEEK" | "MONTH">("ALL");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
   // Sorting
-  const [sortField, setSortField] = useState<"date" | "jobNumber" | "customer" | "status">("date");
+  const [sortField, setSortField] = useState<"date" | "jobNumber" | "company" | "customer" | "status">("date");
   const [sortAsc, setSortAsc] = useState<boolean>(false);
 
   // Pagination
@@ -192,6 +199,7 @@ export default function RepairOrdersClientPage({
   // Interaction feedback
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [isUpdatingTech, setIsUpdatingTech] = useState<string | null>(null);
+  const [isUpdatingCompany, setIsUpdatingCompany] = useState<string | null>(null);
   const [copiedJobId, setCopiedJobId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -287,18 +295,25 @@ export default function RepairOrdersClientPage({
     ).length;
   }, [repairOrders]);
 
+  // Company Counts (TP, TG, TE)
+  const companyCounts = useMemo(() => {
+    const counts: Record<string, number> = { TP: 0, TG: 0, TE: 0 };
+    repairOrders.forEach((ro) => {
+      const code = getRepairCompany(ro.company || ro.job?.companyCode).code;
+      if (code in counts) counts[code]++;
+    });
+    return counts;
+  }, [repairOrders]);
+
   // ── Filtered & Sorted Records ──
   const filteredRepairs = useMemo(() => {
     return repairOrders
       .filter((ro) => {
         const term = searchTerm.trim().toLowerCase();
         const jobNum = ro.job?.jobNumber?.toLowerCase() || "";
-        const company = (
-          ro.customerCompany ||
-          ro.company ||
-          ro.job?.customerName ||
-          ""
-        ).toLowerCase();
+        const custName = (ro.customerCompany || ro.job?.customerName || "").toLowerCase();
+        const comp = getRepairCompany(ro.company || ro.job?.companyCode);
+        const internalCompText = `${comp.code} ${comp.name} ${comp.fullName} ${ro.company || ""} ${ro.job?.companyCode || ""}`.toLowerCase();
         const tech = (ro.technicianName || "").toLowerCase();
         const seller = (ro.job?.sellerName || ro.salesPerson || "").toLowerCase();
         const receiver = (ro.receiverName || "").toLowerCase();
@@ -316,7 +331,8 @@ export default function RepairOrdersClientPage({
         const matchesSearch =
           !term ||
           jobNum.includes(term) ||
-          company.includes(term) ||
+          custName.includes(term) ||
+          internalCompText.includes(term) ||
           tech.includes(term) ||
           seller.includes(term) ||
           receiver.includes(term) ||
@@ -356,6 +372,12 @@ export default function RepairOrdersClientPage({
             return false;
         }
 
+        // Internal Company Filter (TP, TG, TE)
+        if (companyCodeFilter && companyCodeFilter !== "ALL") {
+          const roComp = getRepairCompany(ro.company || ro.job?.companyCode);
+          if (roComp.code !== companyCodeFilter) return false;
+        }
+
         // Technician Filter
         if (technicianFilter) {
           if (technicianFilter === "__unassigned__") {
@@ -365,9 +387,9 @@ export default function RepairOrdersClientPage({
           }
         }
 
-        // Company Filter
+        // Customer Filter
         if (companyFilter) {
-          const orderComp = ro.customerCompany || ro.company || ro.job?.customerName || "";
+          const orderComp = ro.customerCompany || ro.job?.customerName || "";
           if (orderComp !== companyFilter) return false;
         }
 
@@ -411,9 +433,13 @@ export default function RepairOrdersClientPage({
           const numA = a.job?.jobNumber || "";
           const numB = b.job?.jobNumber || "";
           comparison = numA.localeCompare(numB);
+        } else if (sortField === "company") {
+          const compA = getRepairCompany(a.company || a.job?.companyCode).code;
+          const compB = getRepairCompany(b.company || b.job?.companyCode).code;
+          comparison = compA.localeCompare(compB);
         } else if (sortField === "customer") {
-          const custA = a.customerCompany || a.company || a.job?.customerName || "";
-          const custB = b.customerCompany || b.company || b.job?.customerName || "";
+          const custA = a.customerCompany || a.job?.customerName || "";
+          const custB = b.customerCompany || b.job?.customerName || "";
           comparison = custA.localeCompare(custB);
         } else if (sortField === "status") {
           const stA = a.job?.currentStep || "";
@@ -427,6 +453,7 @@ export default function RepairOrdersClientPage({
     searchTerm,
     activeTab,
     statusFilter,
+    companyCodeFilter,
     technicianFilter,
     companyFilter,
     datePeriod,
@@ -444,7 +471,7 @@ export default function RepairOrdersClientPage({
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, activeTab, statusFilter, technicianFilter, companyFilter, datePeriod, pageSize]);
+  }, [searchTerm, activeTab, statusFilter, companyCodeFilter, technicianFilter, companyFilter, datePeriod, pageSize]);
 
   // ── Active Filters Count ──
   const activeFiltersCount = useMemo(() => {
@@ -452,16 +479,18 @@ export default function RepairOrdersClientPage({
     if (searchTerm) count++;
     if (activeTab !== "ALL") count++;
     if (statusFilter) count++;
+    if (companyCodeFilter !== "ALL") count++;
     if (technicianFilter) count++;
     if (companyFilter) count++;
     if (datePeriod !== "ALL") count++;
     return count;
-  }, [searchTerm, activeTab, statusFilter, technicianFilter, companyFilter, datePeriod]);
+  }, [searchTerm, activeTab, statusFilter, companyCodeFilter, technicianFilter, companyFilter, datePeriod]);
 
   const handleResetFilters = () => {
     setSearchTerm("");
     setActiveTab("ALL");
     setStatusFilter("");
+    setCompanyCodeFilter("ALL");
     setTechnicianFilter("");
     setCompanyFilter("");
     setDatePeriod("ALL");
@@ -617,6 +646,64 @@ export default function RepairOrdersClientPage({
     }
   };
 
+  const handleCompanyChange = async (
+    repairOrderId: string,
+    newCompanyInput: string,
+    e?: React.MouseEvent | React.ChangeEvent
+  ) => {
+    if (e) e.stopPropagation();
+    if (!repairOrderId) return;
+    setIsUpdatingCompany(repairOrderId);
+
+    const comp = getRepairCompany(newCompanyInput);
+
+    // Optimistic Update
+    setRepairOrders((prev) =>
+      prev.map((ro) => {
+        if (ro.id === repairOrderId || ro.jobId === repairOrderId) {
+          return {
+            ...ro,
+            company: comp.dbCompany,
+            job: ro.job ? { ...ro.job, companyCode: comp.code } : { companyCode: comp.code },
+          };
+        }
+        return ro;
+      })
+    );
+
+    if (
+      selectedOrder &&
+      (selectedOrder.id === repairOrderId || selectedOrder.jobId === repairOrderId)
+    ) {
+      setSelectedOrder((prev: any) =>
+        prev
+          ? {
+              ...prev,
+              company: comp.dbCompany,
+              job: prev.job ? { ...prev.job, companyCode: comp.code } : { companyCode: comp.code },
+            }
+          : null
+      );
+    }
+
+    try {
+      const res = await updateRepairOrderCompany(repairOrderId, comp.code);
+      if (!res.success) throw new Error(res.error);
+      router.refresh();
+    } catch (error: any) {
+      Swal.fire({
+        title: "เกิดข้อผิดพลาด",
+        text: error.message || "ไม่สามารถเปลี่ยนสังกัดบริษัทได้",
+        icon: "error",
+        confirmButtonColor: "#ff2301",
+        customClass: { popup: "rounded-2xl" },
+      });
+      setRepairOrders(initialRepairOrders);
+    } finally {
+      setIsUpdatingCompany(null);
+    }
+  };
+
   const handleCopyJobNumber = (text: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     navigator.clipboard.writeText(text);
@@ -647,12 +734,14 @@ export default function RepairOrdersClientPage({
         .map((it: any) => `${it.type || ""} ${it.brand || ""} ${it.model || ""}`.trim())
         .filter(Boolean)
         .join("; ");
+      const comp = getRepairCompany(ro.company || ro.job?.companyCode);
 
       return {
         "ลำดับ": index + 1,
         "วันที่รับ": ro.receivedDate ? formatThaiDate(ro.receivedDate) : formatThaiDate(ro.createdAt),
         "เลขที่งาน": ro.job?.jobNumber || "—",
-        "ลูกค้า": ro.customerCompany || ro.company || ro.job?.customerName || "—",
+        "สังกัดบริษัท": `${comp.code} - ${comp.name} (${comp.fullName})`,
+        "ลูกค้า": ro.customerCompany || ro.job?.customerName || "—",
         "สินค้า/อุปกรณ์": ro.job?.item || itemsText || "—",
         "อาการเสีย": ro.symptoms || "—",
         "พนักงานขาย": ro.job?.sellerName || ro.salesPerson || "—",
@@ -672,7 +761,7 @@ export default function RepairOrdersClientPage({
   };
 
   // Toggle sorting
-  const handleSort = (field: "date" | "jobNumber" | "customer" | "status") => {
+  const handleSort = (field: "date" | "jobNumber" | "company" | "customer" | "status") => {
     if (sortField === field) {
       setSortAsc((prev) => !prev);
     } else {
@@ -902,17 +991,81 @@ export default function RepairOrdersClientPage({
           })}
         </div>
 
+        {/* Company Quick-Filter Pills (TP, TG, TE) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b border-gray-100 pb-3">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-black uppercase text-gray-400 mr-1 flex items-center gap-1">
+              <Building2 size={13} className="text-gray-400" /> สังกัดบริษัท:
+            </span>
+            <button
+              onClick={() => setCompanyCodeFilter("ALL")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                companyCodeFilter === "ALL"
+                  ? "bg-gray-900 text-white shadow-xs"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              ทั้งหมด ({repairOrders.length})
+            </button>
+            {REPAIR_COMPANIES.map((c) => {
+              const count = companyCounts[c.code] || 0;
+              const isSelected = companyCodeFilter === c.code;
+              return (
+                <button
+                  key={c.code}
+                  onClick={() => setCompanyCodeFilter(c.code)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                    isSelected
+                      ? c.badgeActive
+                      : `${c.badgeClass} hover:opacity-90`
+                  }`}
+                  title={`${c.name} (${c.fullName}) - ${c.description}`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${isSelected ? "bg-white" : c.dotClass}`} />
+                  <span>{c.code}</span>
+                  <span className="hidden sm:inline font-medium text-[11px] opacity-90">({c.name})</span>
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                      isSelected ? "bg-white/20 text-white" : "bg-black/5 text-current"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {companyCodeFilter !== "ALL" && (
+              <span className="text-xs text-gray-500 font-medium">
+                กรองสังกัด: <b className="text-gray-900">{companyCodeFilter} ({REPAIR_COMPANIES.find((c) => c.code === companyCodeFilter)?.name})</b>
+              </span>
+            )}
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={handleResetFilters}
+                className="inline-flex items-center gap-1 py-1 px-2.5 rounded-lg bg-red-50 hover:bg-red-100 text-[#ff2301] border border-red-200 text-[11px] font-bold transition-all shadow-xs"
+                title="ล้างตัวกรองทั้งหมด"
+              >
+                <RotateCcw size={11} />
+                <span>ล้างตัวกรอง ({activeFiltersCount})</span>
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Filter Controls Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-          {/* Universal Search Box (Span 4) */}
-          <div className="lg:col-span-4 relative">
+          {/* Universal Search Box (Span 3) */}
+          <div className="lg:col-span-3 relative">
             <Search
               size={17}
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
             />
             <input
               type="text"
-              placeholder="ค้นหาเลขที่งาน, ชื่อลูกค้า, อาการ, ช่าง..."
+              placeholder="ค้นหาเลขที่งาน, บริษัท, ลูกค้า, ช่าง..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-9 py-2.5 text-xs sm:text-sm font-medium border border-gray-200 rounded-xl bg-gray-50/50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all"
@@ -925,6 +1078,23 @@ export default function RepairOrdersClientPage({
                 <X size={14} />
               </button>
             )}
+          </div>
+
+          {/* Internal Company Filter (Span 2) */}
+          <div className="lg:col-span-2 relative">
+            <select
+              value={companyCodeFilter}
+              onChange={(e) => setCompanyCodeFilter(e.target.value)}
+              className="w-full text-xs font-semibold border border-gray-200 rounded-xl px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all appearance-none cursor-pointer pr-8"
+            >
+              <option value="ALL">สังกัดบริษัททั้งหมด ({repairOrders.length})</option>
+              {REPAIR_COMPANIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code} - {c.name} ({companyCounts[c.code] || 0})
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
 
           {/* Specific Status Selector (Span 2) */}
@@ -962,14 +1132,14 @@ export default function RepairOrdersClientPage({
             <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
 
-          {/* Company / Customer Filter (Span 2) */}
+          {/* Customer Filter (Span 2) */}
           <div className="lg:col-span-2 relative">
             <select
               value={companyFilter}
               onChange={(e) => setCompanyFilter(e.target.value)}
               className="w-full text-xs font-semibold border border-gray-200 rounded-xl px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all appearance-none cursor-pointer truncate pr-8"
             >
-              <option value="">ลูกค้า/บริษัททั้งหมด</option>
+              <option value="">ลูกค้าทั้งหมด</option>
               {companies?.map((c: any) => (
                 <option key={c.id || c.companyName} value={c.companyName}>
                   {c.companyName}
@@ -979,37 +1149,19 @@ export default function RepairOrdersClientPage({
             <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
 
-          {/* Date Period Filter (Span 1 or 2) */}
+          {/* Date Period Filter (Span 1) */}
           <div className="lg:col-span-1 relative">
             <select
               value={datePeriod}
               onChange={(e) => setDatePeriod(e.target.value as any)}
-              className="w-full text-xs font-semibold border border-gray-200 rounded-xl px-2.5 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all appearance-none cursor-pointer pr-7"
+              className="w-full text-xs font-semibold border border-gray-200 rounded-xl px-2 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all appearance-none cursor-pointer pr-6"
             >
-              <option value="ALL">ทุกช่วงเวลา</option>
+              <option value="ALL">ทุกช่วง</option>
               <option value="TODAY">วันนี้</option>
-              <option value="WEEK">7 วันล่าสุด</option>
+              <option value="WEEK">7 วัน</option>
               <option value="MONTH">เดือนนี้</option>
             </select>
-            <ChevronDown size={13} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
-          </div>
-
-          {/* Reset Filters Button (Span 1) */}
-          <div className="lg:col-span-1 flex items-center justify-end">
-            {activeFiltersCount > 0 ? (
-              <button
-                onClick={handleResetFilters}
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-red-50 hover:bg-red-100 text-[#ff2301] border border-red-200 text-xs font-bold transition-all shadow-sm"
-                title="ล้างตัวกรองทั้งหมด"
-              >
-                <RotateCcw size={13} />
-                <span>ล้าง ({activeFiltersCount})</span>
-              </button>
-            ) : (
-              <div className="w-full text-center text-[11px] text-gray-400 font-medium py-2">
-                {filteredRepairs.length} ผลลัพธ์
-              </div>
-            )}
+            <ChevronDown size={12} className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
         </div>
       </section>
@@ -1062,13 +1214,28 @@ export default function RepairOrdersClientPage({
                     </div>
                   </th>
 
+                  {/* Company Column (TP, TG, TE) */}
+                  <th
+                    onClick={() => handleSort("company")}
+                    className="py-3.5 px-4 text-[10px] font-black text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-900 whitespace-nowrap"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span>สังกัดบริษัท</span>
+                      {sortField === "company" ? (
+                        sortAsc ? <ArrowUp size={13} className="text-[#ff2301]" /> : <ArrowDown size={13} className="text-[#ff2301]" />
+                      ) : (
+                        <ArrowUpDown size={12} className="text-gray-300" />
+                      )}
+                    </div>
+                  </th>
+
                   {/* Customer Column */}
                   <th
                     onClick={() => handleSort("customer")}
                     className="py-3.5 px-4 text-[10px] font-black text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-900 min-w-[180px]"
                   >
                     <div className="flex items-center gap-1.5">
-                      <span>ลูกค้า / บริษัท</span>
+                      <span>ลูกค้า</span>
                       {sortField === "customer" ? (
                         sortAsc ? <ArrowUp size={13} className="text-[#ff2301]" /> : <ArrowDown size={13} className="text-[#ff2301]" />
                       ) : (
@@ -1123,6 +1290,7 @@ export default function RepairOrdersClientPage({
                       badge: "bg-gray-100 text-gray-700 border-gray-200",
                       dot: "bg-gray-400",
                     };
+                    const compInfo = getRepairCompany(record.company || record.job?.companyCode);
                     const itemsList = parseItems(record.items);
                     const mainItem = record.job?.item || itemsList[0]?.type || "งานซ่อมทั่วไป";
                     const relativeDays = getRelativeDays(record.receivedDate || record.createdAt);
@@ -1183,11 +1351,35 @@ export default function RepairOrdersClientPage({
                           )}
                         </td>
 
-                        {/* 3. Customer / Company */}
+                        {/* 2.5 Company (TP, TG, TE) with Quick Edit Dropdown */}
+                        <td className="py-3.5 px-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                          <div className="relative inline-block">
+                            <select
+                              value={compInfo.code}
+                              onChange={(e) => handleCompanyChange(record.id, e.target.value, e)}
+                              disabled={isUpdatingCompany === record.id}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border tracking-wide cursor-pointer outline-none transition-all appearance-none pr-6 shadow-xs ${
+                                compInfo.badgeClass
+                              } ${isUpdatingCompany === record.id ? "opacity-50" : ""}`}
+                              title={`สังกัด: ${compInfo.code} - ${compInfo.name} (${compInfo.fullName}) - คลิกเพื่อเปลี่ยน`}
+                            >
+                              {REPAIR_COMPANIES.map((opt) => (
+                                <option key={opt.code} value={opt.code}>
+                                  {opt.code} ({opt.name})
+                                </option>
+                              ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-current opacity-70">
+                              <ChevronDown size={11} />
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* 3. Customer */}
                         <td className="py-3.5 px-4">
                           <div className="flex flex-col max-w-[200px]">
-                            <p className="font-bold text-gray-900 truncate">
-                              {record.customerCompany || record.company || record.job?.customerName || "—"}
+                            <p className="font-bold text-gray-900 truncate" title={record.customerCompany || record.job?.customerName || "—"}>
+                              {record.customerCompany || record.job?.customerName || "—"}
                             </p>
                             {record.phoneNumber && (
                               <span className="text-[10px] text-gray-500 font-mono flex items-center gap-1 mt-0.5">
@@ -1500,6 +1692,7 @@ export default function RepairOrdersClientPage({
                 badge: "bg-gray-100 text-gray-700 border-gray-200",
                 dot: "bg-gray-400",
               };
+              const compInfo = getRepairCompany(record.company || record.job?.companyCode);
               const itemsList = parseItems(record.items);
               const mainItem = record.job?.item || itemsList[0]?.type || "งานซ่อมทั่วไป";
 
@@ -1509,23 +1702,43 @@ export default function RepairOrdersClientPage({
                   onClick={() => setSelectedOrder(record)}
                   className="bg-white rounded-3xl p-5 border border-gray-200/90 shadow-sm hover:shadow-md hover:border-gray-300 transition-all flex flex-col justify-between cursor-pointer group"
                 >
-                  {/* Card Header: Job No & Status */}
+                  {/* Card Header: Company, Job No & Status */}
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono font-black text-sm text-[#ff2301]">
-                          {record.job?.jobNumber || "—"}
-                        </span>
-                        <button
-                          onClick={(e) => handleCopyJobNumber(record.job?.jobNumber || "", e)}
-                          className="text-gray-300 hover:text-gray-600 p-0.5 rounded transition-colors"
-                        >
-                          {copiedJobId === record.job?.jobNumber ? (
-                            <Check size={12} className="text-emerald-500" />
-                          ) : (
-                            <Copy size={12} />
-                          )}
-                        </button>
+                      <div className="flex items-center gap-2">
+                        {/* Company Badge with quick-edit dropdown */}
+                        <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+                          <select
+                            value={compInfo.code}
+                            onChange={(e) => handleCompanyChange(record.id, e.target.value, e)}
+                            disabled={isUpdatingCompany === record.id}
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-black border tracking-wide cursor-pointer outline-none appearance-none pr-5 ${compInfo.badgeClass}`}
+                            title={`สังกัด: ${compInfo.code} - ${compInfo.name} - คลิกเพื่อเปลี่ยน`}
+                          >
+                            {REPAIR_COMPANIES.map((opt) => (
+                              <option key={opt.code} value={opt.code}>
+                                {opt.code}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown size={10} className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 opacity-70" />
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <span className="font-mono font-black text-sm text-[#ff2301]">
+                            {record.job?.jobNumber || "—"}
+                          </span>
+                          <button
+                            onClick={(e) => handleCopyJobNumber(record.job?.jobNumber || "", e)}
+                            className="text-gray-300 hover:text-gray-600 p-0.5 rounded transition-colors"
+                          >
+                            {copiedJobId === record.job?.jobNumber ? (
+                              <Check size={12} className="text-emerald-500" />
+                            ) : (
+                              <Copy size={12} />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       <span
@@ -1538,7 +1751,7 @@ export default function RepairOrdersClientPage({
                     {/* Customer */}
                     <div className="mb-3">
                       <p className="text-sm font-black text-gray-900 line-clamp-1">
-                        {record.customerCompany || record.company || record.job?.customerName || "—"}
+                        {record.customerCompany || record.job?.customerName || "—"}
                       </p>
                       <p className="text-[11px] text-gray-400 font-medium">
                         วันที่รับ: {formatThaiDate(record.receivedDate || record.createdAt)}
@@ -1690,87 +1903,140 @@ export default function RepairOrdersClientPage({
       {/* ───────────────────────────────────────────────────────────
           5. QUICK PREVIEW SLIDE-OVER DRAWER (MODERN & SYMMETRICAL)
       ─────────────────────────────────────────────────────────── */}
-      {selectedOrder && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
-          {/* Backdrop overlay */}
-          <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
-            onClick={() => setSelectedOrder(null)}
-          />
+      {selectedOrder && (() => {
+        const selectedComp = getRepairCompany(selectedOrder.company || selectedOrder.job?.companyCode);
+        return (
+          <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+            {/* Backdrop overlay */}
+            <div
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+              onClick={() => setSelectedOrder(null)}
+            />
 
-          {/* Slide-over panel */}
-          <div className="relative w-full max-w-2xl bg-white shadow-2xl border-l border-gray-200 flex flex-col z-10 animate-in slide-in-from-right duration-300">
-            {/* Drawer Header */}
-            <div className="p-6 border-b border-gray-100 flex items-start justify-between gap-4 bg-gray-50/50">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#c71a00] flex items-center justify-center text-white shadow-md shadow-red-500/20">
-                  <Wrench size={22} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-black text-lg text-[#ff2301]">
-                      {selectedOrder.job?.jobNumber || "—"}
-                    </span>
-                    <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-200/80 text-gray-700">
-                      {selectedOrder.workType || "ซ่อม"}
-                    </span>
+            {/* Slide-over panel */}
+            <div className="relative w-full max-w-2xl bg-white shadow-2xl border-l border-gray-200 flex flex-col z-10 animate-in slide-in-from-right duration-300">
+              {/* Drawer Header */}
+              <div className="p-6 border-b border-gray-100 flex items-start justify-between gap-4 bg-gray-50/50">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#c71a00] flex items-center justify-center text-white shadow-md shadow-red-500/20">
+                    <Wrench size={22} />
                   </div>
-                  <h2 className="text-base font-bold text-gray-900 mt-0.5">
-                    {selectedOrder.customerCompany ||
-                      selectedOrder.company ||
-                      selectedOrder.job?.customerName ||
-                      "—"}
-                  </h2>
-                </div>
-              </div>
-
-              {/* Close Button */}
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-all"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Drawer Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-              {/* Quick Status Bar */}
-              <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    สถานะปัจจุบัน
-                  </span>
-                  <span className="text-sm font-black text-gray-900">
-                    {STATUS_CONFIG[selectedOrder.job?.currentStep]?.label ||
-                      selectedOrder.job?.currentStep ||
-                      "รอรับซ่อม"}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    วันที่รับซ่อม
-                  </span>
-                  <span className="text-xs font-bold text-gray-800">
-                    {formatThaiDate(selectedOrder.receivedDate || selectedOrder.createdAt)}
-                  </span>
-                </div>
-              </div>
-
-              {/* General Information Card */}
-              <div className="space-y-3">
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Building2 size={14} className="text-[#ff2301]" /> ข้อมูลทั่วไป & ผู้ติดต่อ
-                </h3>
-                <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
                   <div>
-                    <span className="text-[10px] text-gray-400 font-bold uppercase block">
-                      บริษัท / ลูกค้า
-                    </span>
-                    <p className="text-xs font-bold text-gray-900 mt-0.5">
-                      {selectedOrder.customerCompany || selectedOrder.company || "—"}
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono font-black text-lg text-[#ff2301]">
+                        {selectedOrder.job?.jobNumber || "—"}
+                      </span>
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${selectedComp.badgeClass}`}>
+                        {selectedComp.code} ({selectedComp.name})
+                      </span>
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-200/80 text-gray-700">
+                        {selectedOrder.workType || "ซ่อม"}
+                      </span>
+                    </div>
+                    <h2 className="text-base font-bold text-gray-900 mt-0.5">
+                      {selectedOrder.customerCompany ||
+                        selectedOrder.job?.customerName ||
+                        "—"}
+                    </h2>
                   </div>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-all"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Drawer Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                {/* Quick Status Bar */}
+                <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                      สถานะปัจจุบัน
+                    </span>
+                    <span className="text-sm font-black text-gray-900">
+                      {STATUS_CONFIG[selectedOrder.job?.currentStep]?.label ||
+                        selectedOrder.job?.currentStep ||
+                        "รอรับซ่อม"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                      สังกัดบริษัท (Company)
+                    </span>
+                    <div className="relative inline-block mt-1">
+                      <select
+                        value={selectedComp.code}
+                        onChange={(e) => handleCompanyChange(selectedOrder.id, e.target.value)}
+                        disabled={isUpdatingCompany === selectedOrder.id}
+                        className={`px-2.5 py-1 text-xs font-bold rounded-xl border outline-none cursor-pointer appearance-none pr-6 shadow-xs ${selectedComp.badgeClass}`}
+                        title="คลิกเพื่อเปลี่ยนสังกัดบริษัท"
+                      >
+                        {REPAIR_COMPANIES.map((opt) => (
+                          <option key={opt.code} value={opt.code}>
+                            {opt.code} - {opt.name}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={11} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-current opacity-70" />
+                    </div>
+                  </div>
+                  <div className="sm:text-right">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                      วันที่รับซ่อม
+                    </span>
+                    <span className="text-xs font-bold text-gray-800">
+                      {formatThaiDate(selectedOrder.receivedDate || selectedOrder.createdAt)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* General Information Card */}
+                <div className="space-y-3">
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Building2 size={14} className="text-[#ff2301]" /> ข้อมูลทั่วไป & ผู้ติดต่อ
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
+                    {/* Internal Service Entity */}
+                    <div className="col-span-2 p-3 bg-gray-50/80 rounded-xl border border-gray-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase block">
+                          บริษัทผู้รับบริการ / รับซ่อม (Internal Entity)
+                        </span>
+                        <p className="text-xs font-bold text-gray-900 mt-0.5">
+                          {selectedComp.fullName}{" "}
+                          <span className="text-gray-500 font-medium">({selectedComp.code} - {selectedComp.name})</span>
+                        </p>
+                      </div>
+                      <div className="relative shrink-0">
+                        <select
+                          value={selectedComp.code}
+                          onChange={(e) => handleCompanyChange(selectedOrder.id, e.target.value)}
+                          disabled={isUpdatingCompany === selectedOrder.id}
+                          className={`w-full sm:w-auto px-3 py-1.5 text-xs font-bold rounded-xl border outline-none cursor-pointer appearance-none pr-7 shadow-xs ${selectedComp.badgeClass}`}
+                        >
+                          {REPAIR_COMPANIES.map((opt) => (
+                            <option key={opt.code} value={opt.code}>
+                              {opt.code} - {opt.name} ({opt.fullName})
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={12} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-current opacity-70" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase block">
+                        บริษัท / ลูกค้า
+                      </span>
+                      <p className="text-xs font-bold text-gray-900 mt-0.5">
+                        {selectedOrder.customerCompany || selectedOrder.job?.customerName || "—"}
+                      </p>
+                    </div>
                   <div>
                     <span className="text-[10px] text-gray-400 font-bold uppercase block">
                       เบอร์โทรศัพท์
@@ -2055,7 +2321,8 @@ export default function RepairOrdersClientPage({
             </div>
           </div>
         </div>
-      )}
+      );
+      })()}
 
       {/* ── Inverter QC Inspection & PDF Modal ── */}
       <InverterQcModal
