@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -101,6 +101,7 @@ const repNav = [
 const serviceNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมฝ่ายบริการ', href: '/service/dashboard' },
   { icon: PhoneCall, label: 'Service Desk', href: '/service/calls' },
+  { icon: ClipboardCheck, label: 'ตรวจเช็ค & Fault Report (CR)', href: '/service/check-reports' },
   { icon: Wrench, label: 'ใบรับซ่อม (ซ่อมใน)', href: '/repair-orders' },
   { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
   { icon: FileSignature, label: 'ใบส่งมอบงาน', href: '/repair-deliveries' },
@@ -120,6 +121,7 @@ const serviceMgrNav = [
 
 const technicianNav = [
   { icon: Wrench, label: 'งานผลิตของฉัน (Cabinet)', href: '/technician/production' },
+  { icon: ClipboardCheck, label: 'ตรวจเช็ค & Fault Report (CR)', href: '/service/check-reports' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: Building2, label: 'งานซ่อมสถานที่ (Facility Repairs)', href: '/technician/facility-repairs' },
   { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },

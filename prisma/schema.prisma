@@ -598,6 +598,49 @@ model RepairOrder {
   job             Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 
+model InverterCheckReport {
+  id                     String    @id @default(cuid())
+  crNumber               String    @unique
+  checkDate              DateTime  @default(now()) @db.Timestamptz(6)
+  customerName           String?
+  customerCompany        String?
+  customerPhone          String?
+  customerAddress        String?
+  inspectorName          String?
+  salesPerson            String?
+  inverterBrand          String?
+  inverterModel          String?
+  serialNumber           String?
+  motorKw                String?
+  applicationLoad        String?
+  purchaseDate           DateTime? @db.Timestamptz(6)
+  saleDate               DateTime? @db.Timestamptz(6)
+  faultDate              DateTime? @db.Timestamptz(6)
+  warrantyStatus         String?
+  symptoms               String?
+  causeOfFault           String?
+  recommendations        String?
+  requireParts           Json?
+  diodeMeasurement       Json?
+  powerInputVoltage      Json?
+  powerOutputVoltage     Json?
+  panelComponentsCheck   Json?
+  photos                 Json?
+  reportBy               String?
+  status                 String    @default("PENDING")
+  convertedJobId         String?
+  convertedJobNumber     String?
+  convertedRepairOrderId String?
+  companyCode            String?   @default("TG")
+  equipmentType          String?   @default("INVERTER")
+  createdAt              DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@index([crNumber])
+  @@index([status])
+  @@index([customerCompany])
+}
+
 model RepairDelivery {
   id                  String    @id @default(cuid())
   deliveryNumber      String    @unique
