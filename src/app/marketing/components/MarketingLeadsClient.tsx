@@ -27,10 +27,14 @@ import {
   List,
   AlertCircle,
   XCircle,
-  MessageSquare
+  MessageSquare,
+  Download,
+  Loader2
 } from 'lucide-react'
 import DeleteLeadButton from './DeleteLeadButton'
 import LeadSourceBadge, { parseLeadAttribution } from './LeadSourceBadge'
+import { exportMarketingLeadsToExcel } from '@/app/actions/marketing'
+import Swal from 'sweetalert2'
 
 export interface MarketingLeadItem {
   id: string
@@ -85,6 +89,54 @@ export default function MarketingLeadsClient({
   const [selectedStage, setSelectedStage] = useState(initialStage)
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
   const [copiedPhoneId, setCopiedPhoneId] = useState<string | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
+
+  // Export leads to Excel
+  const handleExportToExcel = async () => {
+    if (filteredLeads.length === 0) {
+      Swal.fire('ไม่มีข้อมูล', 'ไม่พบข้อมูลที่ตรงกับตัวกรองสำหรับการส่งออก', 'info')
+      return
+    }
+
+    setIsExporting(true)
+    try {
+      const leadIds = filteredLeads.map((l) => l.id)
+      const res = await exportMarketingLeadsToExcel(leadIds)
+      if (res.success && res.data) {
+        const byteCharacters = atob(res.data)
+        const byteNumbers = new Array(byteCharacters.length)
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i)
+        }
+        const byteArray = new Uint8Array(byteNumbers)
+        const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `Marketing_Leads_${new Date().toISOString().slice(0, 10)}.xlsx`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: `ส่งออกข้อมูลสำเร็จ ${filteredLeads.length} รายการ`,
+          showConfirmButton: false,
+          timer: 2500,
+        })
+      } else {
+        Swal.fire('เกิดข้อผิดพลาด', res.error || 'ไม่สามารถส่งออกข้อมูลได้', 'error')
+      }
+    } catch (err: any) {
+      console.error(err)
+      Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถดาวน์โหลดไฟล์ Excel ได้', 'error')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   // Copy phone helper
   const handleCopyPhone = (id: string, phone: string, e: React.MouseEvent) => {
@@ -376,7 +428,18 @@ export default function MarketingLeadsClient({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <button
+            onClick={handleExportToExcel}
+            disabled={isExporting}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-emerald-700 border border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50/70 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs active:scale-95 disabled:opacity-50"
+            id="export-excel-btn"
+            title="ส่งออกข้อมูล Lead เป็นไฟล์ Excel ตามเงื่อนไขตัวกรองปัจจุบัน"
+          >
+            {isExporting ? <Loader2 size={16} className="animate-spin text-emerald-600" /> : <Download size={16} className="text-emerald-600" />}
+            <span>ส่งออก Excel ({filteredLeads.length})</span>
+          </button>
+
           <Link
             href="/marketing/import"
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs active:scale-95"

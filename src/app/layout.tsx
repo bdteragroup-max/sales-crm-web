@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Prompt } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const prompt = Prompt({ 
-  weight: ['300', '400', '500', '600', '700', '800'],
-  subsets: ["latin", "thai"],
+const inter = Inter({
+  subsets: ["latin"],
   display: "swap",
-  variable: "--font-prompt"
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th">
-      <body className={`${prompt.variable} ${prompt.className} antialiased`}>
+      <body className={`${inter.variable} ${inter.className} antialiased`}>
         <Suspense fallback={null}>
           <GlobalProgressBar />
         </Suspense>

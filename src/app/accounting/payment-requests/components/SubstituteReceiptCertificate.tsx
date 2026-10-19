@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { thaiBahtText } from '@/app/lib/thaiBahtText';
+import { truncate2Decimals } from '../utils/itemTaxes';
 
 export type SubstituteReceiptLineItem = {
   id?: string;
@@ -99,7 +100,7 @@ export function parseDescriptionQtyAndPrice(
   if (match && match[1]) {
     const qty = parseInt(match[1], 10);
     if (qty > 0 && qty < 10000) {
-      const unitPrice = Math.round((totalAmount / qty) * 100) / 100;
+      const unitPrice = truncate2Decimals(totalAmount / qty);
       return { quantity: qty, unitPrice };
     }
   }

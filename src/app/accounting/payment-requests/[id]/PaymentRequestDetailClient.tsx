@@ -14,6 +14,7 @@ import {
   financeDisbursePayment,
   postPaymentRequestToGL,
   recordOriginalDocumentReceipt,
+  revertPaymentRequestOriginalReceipt,
   cancelPaymentRequest,
   deletePaymentRequest,
   addPaymentRequestAttachments,
@@ -24,7 +25,7 @@ import {
   updatePaymentRequestRequisition,
   deletePaymentRequestAttachment,
 } from '@/app/actions/paymentRequests';
-import { calculateItemTaxes } from '../utils/itemTaxes';
+import { calculateItemTaxes, truncate2Decimals } from '../utils/itemTaxes';
 import { ExtractedLineItem } from '@/lib/attachmentUtils';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
 import { THAI_BANKS, PROMPTPAY_TYPES } from '../new/NewPaymentRequestClient';
@@ -211,8 +212,9 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   const [paymentNotes, setPaymentNotes] = useState('');
 
   // GL Posting form
-  const [glVoucherNo, setGlVoucherNo] = useState('');
-  const [glNotes, setGlNotes] = useState('');
+  const [glVoucherNo, setGlVoucherNo] = useState(request.gl_voucher_no || '');
+  const [glNotes, setGlNotes] = useState(request.gl_notes || '');
+  const [isEditingGL, setIsEditingGL] = useState(false);
 
   // Original Document form
   const [originalReceiver, setOriginalReceiver] = useState(currentUser?.fullName || '');
@@ -325,7 +327,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   const [editUrgency, setEditUrgency] = useState<'NORMAL' | 'EMERGENCY'>(request.urgency || 'NORMAL');
   const isIncludedInitial = request.vat_type === 'INCLUDED_7%' || request.vat_type === 'INCLUDE';
   const initialSubtotal = isIncludedInitial
-    ? Math.round((Number(request.subtotal_amount || 0) + Number(request.vat_amount || 0)) * 100) / 100
+    ? truncate2Decimals(Number(request.subtotal_amount || 0) + Number(request.vat_amount || 0))
     : Number(request.subtotal_amount) || 0;
   const [editSubtotal, setEditSubtotal] = useState<number>(initialSubtotal);
   const [editVatType, setEditVatType] = useState<string>(request.vat_type || 'NO_VAT');
@@ -336,6 +338,12 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
   // Resubmit state
   const [resubmitNote, setResubmitNote] = useState('');
+
+  // Accounting Return for Revision Modal State
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [returnByRole, setReturnByRole] = useState<'AP' | 'ACCOUNTING_MANAGER'>('AP');
+  const [returnRecipient, setReturnRecipient] = useState<'REQUESTER' | 'SUPERVISOR'>('REQUESTER');
+  const [returnReasonInput, setReturnReasonInput] = useState('');
 
   // Copy PAY Number
   const handleCopyNumber = () => {
@@ -507,13 +515,13 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   // Requisition Save Handler
   const isIncludedVat = editVatType === 'INCLUDED_7%' || editVatType === 'INCLUDE';
   const calcEditVat = (editVatType === 'EXCLUDE' || editVatType === '7%')
-    ? Math.round(editSubtotal * 0.07 * 100) / 100
+    ? truncate2Decimals(editSubtotal * 0.07)
     : isIncludedVat
-    ? Math.round(((editSubtotal * 7) / 107) * 100) / 100
+    ? truncate2Decimals((editSubtotal * 7) / 107)
     : 0;
-  const editPreVatBase = isIncludedVat ? Math.max(0, editSubtotal - calcEditVat) : editSubtotal;
-  const calcEditWht = Math.round(((editPreVatBase * editWhtPercent) / 100) * 100) / 100;
-  const calcEditNet = Math.max(0, Math.round(((isIncludedVat ? editSubtotal : editSubtotal + calcEditVat) - calcEditWht) * 100) / 100);
+  const editPreVatBase = isIncludedVat ? Math.max(0, truncate2Decimals(editSubtotal - calcEditVat)) : editSubtotal;
+  const calcEditWht = truncate2Decimals((editPreVatBase * editWhtPercent) / 100);
+  const calcEditNet = Math.max(0, truncate2Decimals((isIncludedVat ? editSubtotal : editSubtotal + calcEditVat) - calcEditWht));
 
   const handleSaveRequisition = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -642,41 +650,30 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     }
   };
 
+  const openReturnModal = (role: 'AP' | 'ACCOUNTING_MANAGER') => {
+    setReturnByRole(role);
+    setReturnRecipient('REQUESTER');
+    setReturnReasonInput(role === 'AP' ? (apNotes || '') : (supNotes || ''));
+    setReturnModalOpen(true);
+  };
+
   // AP Review Handler
   const handleAPReview = async (newStatus: 'DOCUMENT_CHECK' | 'ACCOUNTING_CHECKED' | 'HOLD_DUPLICATE' | 'RETURN_DOCUMENT') => {
-    let finalNotes = apNotes;
     if (newStatus === 'RETURN_DOCUMENT') {
-      const { value: reason } = await Swal.fire({
-        title: 'ส่งคืนเอกสารให้ผู้ขอเบิกแก้ไข',
-        input: 'textarea',
-        inputValue: apNotes,
-        inputLabel: 'ระบุเหตุผลในการส่งกลับให้แก้ไข (Reason for Return)',
-        inputPlaceholder: 'เช่น เอกสารแนบไม่ครบถ้วน, ขาดใบเสร็จตัวจริง, ยอดเงินไม่ตรงกับใบแจ้งหนี้...',
-        inputValidator: (value) => {
-          if (!value || !value.trim()) {
-            return 'กรุณาระบุเหตุผลการส่งคืนเอกสารเพื่อให้ผู้ขอเบิกทราบสิ่งที่ต้องแก้ไข!';
-          }
-        },
-        showCancelButton: true,
-        confirmButtonColor: '#ea580c',
-        confirmButtonText: 'ยืนยันส่งคืนแก้ไข',
-        cancelButtonText: 'ยกเลิก',
-      });
-      if (!reason) return;
-      finalNotes = reason.trim();
+      openReturnModal('AP');
+      return;
     }
 
     setIsProcessing(true);
     try {
       const res = await apReviewPaymentRequest(request.id, {
         status: newStatus,
-        notes: finalNotes,
+        notes: apNotes,
         checkedBy: userName,
       });
       if (res.success) {
         Swal.fire({
-          title: newStatus === 'RETURN_DOCUMENT' ? 'ส่งคืนเอกสารเรียบร้อย' : 'บันทึกผลการตรวจสอบ AP เรียบร้อย',
-          text: newStatus === 'RETURN_DOCUMENT' ? 'ระบบแจ้งเหตุผลและส่งเอกสารกลับให้ผู้ขอเบิกแก้ไขแล้ว' : undefined,
+          title: 'บันทึกผลการตรวจสอบ AP เรียบร้อย',
           icon: 'success',
           timer: 2000,
           showConfirmButton: false,
@@ -692,39 +689,21 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
   // Supervisor Review Handler
   const handleSupervisorReview = async (newStatus: 'ACCOUNTING_CHECKED' | 'RETURN_DOCUMENT' | 'HOLD_DUPLICATE') => {
-    let finalNotes = supNotes;
     if (newStatus === 'RETURN_DOCUMENT') {
-      const { value: reason } = await Swal.fire({
-        title: 'ส่งคืนเอกสารให้ผู้ขอเบิกแก้ไข',
-        input: 'textarea',
-        inputValue: supNotes,
-        inputLabel: 'ระบุเหตุผลในการส่งกลับให้แก้ไข (Reason for Return)',
-        inputPlaceholder: 'เช่น เอกสารแนบไม่ครบถ้วน, ขาดใบเสร็จตัวจริง, ยอดเงินเกินงบประมาณ...',
-        inputValidator: (value) => {
-          if (!value || !value.trim()) {
-            return 'กรุณาระบุเหตุผลการส่งคืนเอกสาร!';
-          }
-        },
-        showCancelButton: true,
-        confirmButtonColor: '#ea580c',
-        confirmButtonText: 'ยืนยันส่งคืนแก้ไข',
-        cancelButtonText: 'ยกเลิก',
-      });
-      if (!reason) return;
-      finalNotes = reason.trim();
+      openReturnModal('ACCOUNTING_MANAGER');
+      return;
     }
 
     setIsProcessing(true);
     try {
       const res = await supervisorReviewPaymentRequest(request.id, {
         status: newStatus,
-        notes: finalNotes,
+        notes: supNotes,
         reviewedBy: userName,
       });
       if (res.success) {
         Swal.fire({
-          title: newStatus === 'RETURN_DOCUMENT' ? 'ส่งคืนเอกสารเรียบร้อย' : 'หัวหน้าฝ่ายบัญชีสอบทานเรียบร้อย',
-          text: newStatus === 'RETURN_DOCUMENT' ? 'ระบบแจ้งเหตุผลและส่งเอกสารกลับให้ผู้ขอเบิกแก้ไขแล้ว' : undefined,
+          title: 'หัวหน้าฝ่ายบัญชีสอบทานเรียบร้อย',
           icon: 'success',
           timer: 2000,
           showConfirmButton: false,
@@ -732,6 +711,62 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         router.refresh();
       } else {
         Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error, icon: 'error' });
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Confirm Return for Revision (Recipient Selection: Requester or Supervisor)
+  const handleConfirmReturn = async () => {
+    if (!returnReasonInput.trim()) {
+      Swal.fire({ title: 'กรุณาระบุเหตุผลการส่งคืนเอกสาร', icon: 'warning' });
+      return;
+    }
+
+    setIsProcessing(true);
+    setReturnModalOpen(false);
+    try {
+      if (returnByRole === 'AP') {
+        const res = await apReviewPaymentRequest(request.id, {
+          status: 'RETURN_DOCUMENT',
+          notes: returnReasonInput.trim(),
+          checkedBy: userName,
+          returnRecipient,
+        });
+        if (res.success) {
+          await Swal.fire({
+            title: 'ส่งคืนเอกสารเรียบร้อย',
+            html: `<div class="text-left text-xs bg-orange-50 p-3 rounded-lg border border-orange-200">
+              <p>ผู้รับเอกสาร: <b>${returnRecipient === 'SUPERVISOR' ? `หัวหน้างาน (${request.assigned_supervisor_name || 'หัวหน้างาน'})` : `ผู้ขอเบิก (${request.requester_name})`}</b></p>
+              <p class="mt-1">${returnRecipient === 'SUPERVISOR' ? 'ระบบส่งกลับให้หัวหน้างานตรวจสอบแก้ไขโดยตรง' : 'ระบบรีเซ็ตกระบวนการกลับขั้นตอนที่ 1 ต้องผ่านการอนุมัติจากหัวหน้างานใหม่ทั้งหมด'}</p>
+            </div>`,
+            icon: 'success',
+          });
+          router.refresh();
+        } else {
+          Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error, icon: 'error' });
+        }
+      } else {
+        const res = await supervisorReviewPaymentRequest(request.id, {
+          status: 'RETURN_DOCUMENT',
+          notes: returnReasonInput.trim(),
+          reviewedBy: userName,
+          returnRecipient,
+        });
+        if (res.success) {
+          await Swal.fire({
+            title: 'ส่งคืนเอกสารเรียบร้อย',
+            html: `<div class="text-left text-xs bg-orange-50 p-3 rounded-lg border border-orange-200">
+              <p>ผู้รับเอกสาร: <b>${returnRecipient === 'SUPERVISOR' ? `หัวหน้างาน (${request.assigned_supervisor_name || 'หัวหน้างาน'})` : `ผู้ขอเบิก (${request.requester_name})`}</b></p>
+              <p class="mt-1">${returnRecipient === 'SUPERVISOR' ? 'ระบบส่งกลับให้หัวหน้างานตรวจสอบแก้ไขโดยตรง' : 'ระบบรีเซ็ตกระบวนการกลับขั้นตอนที่ 1 ต้องผ่านการอนุมัติจากหัวหน้างานใหม่ทั้งหมด'}</p>
+            </div>`,
+            icon: 'success',
+          });
+          router.refresh();
+        } else {
+          Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error, icon: 'error' });
+        }
       }
     } finally {
       setIsProcessing(false);
@@ -823,7 +858,14 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         glNotes,
       });
       if (res.success) {
-        Swal.fire({ title: 'บันทึกบัญชี GL เรียบร้อย', icon: 'success', timer: 1500, showConfirmButton: false });
+        setIsEditingGL(false);
+        Swal.fire({
+          title: 'บันทึกบัญชี Express/Odoo เรียบร้อย',
+          text: request.original_received_at ? 'ระบบได้ทำการบันทึกและปิดรายการ (CLOSED) สมบูรณ์เรียบร้อยแล้ว' : 'บันทึกเลขที่ GL Voucher เรียบร้อย',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false,
+        });
         router.refresh();
       } else {
         Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error, icon: 'error' });
@@ -835,6 +877,15 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
   // Original Document Receipt Handler
   const handleOriginalReceipt = async () => {
+    if (!isStep6Done) {
+      Swal.fire({
+        title: 'ต้องบันทึกบัญชี Express/Odoo ก่อน',
+        text: 'ตามระเบียบปฏิบัติ ต้องลงบันทึกบัญชี GL ในระบบบัญชีให้เรียบร้อยก่อน จึงจะสามารถบันทึกรับเอกสารตัวจริงได้',
+        icon: 'warning',
+      });
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const res = await recordOriginalDocumentReceipt(request.id, {
@@ -846,6 +897,40 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           title: 'ประทับตราและบันทึกรับเอกสารตัวจริงเรียบร้อย!',
           text: 'ปั๊มตรา "RECEIVED ORIGINAL/PAID" แนบเข้าประวัติเรียบร้อย',
           icon: 'success',
+        });
+        router.refresh();
+      } else {
+        Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error, icon: 'error' });
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Revert Original Document Receipt Handler
+  const handleRevertOriginalReceipt = async () => {
+    const confirm = await Swal.fire({
+      title: 'ยกเลิกการรับเอกสารตัวจริง?',
+      text: 'ระบบจะยกเลิกสถานะการรับเอกสารตัวจริงของรายการนี้ เพื่อให้สามารถดำเนินการตามขั้นตอนใหม่อีกครั้ง',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'ยืนยันยกเลิก',
+      cancelButtonText: 'ปิดหน้าต่าง',
+    });
+    if (!confirm.isConfirmed) return;
+
+    setIsProcessing(true);
+    try {
+      const res = await revertPaymentRequestOriginalReceipt(request.id);
+      if (res.success) {
+        Swal.fire({
+          title: 'ยกเลิกการรับตัวจริงเรียบร้อย',
+          text: 'สถานะถูกปรับกลับเพื่อให้ดำเนินการบันทึกลงบัญชี Express/Odoo ก่อนรับตัวจริง',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
         });
         router.refresh();
       } else {
@@ -1698,6 +1783,12 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       <th className="py-2.5 px-2.5 w-28 text-center border-r border-slate-200">ภาษี (VAT)</th>
                       <th className="py-2.5 px-2.5 w-28 text-center border-r border-slate-200">หัก ณ ที่จ่าย (WHT)</th>
                       <th className="py-2.5 px-3 w-32 text-right border-r border-slate-200">ยอดสุทธิ (฿)</th>
+                      <th className="py-2.5 px-3 min-w-[130px] border-r border-slate-200 text-center">
+                        <div className="flex items-center justify-center gap-1 text-blue-700">
+                          <Paperclip className="w-3.5 h-3.5" />
+                          <span>เอกสารแนบประจำบิล</span>
+                        </div>
+                      </th>
                       <th className="py-2.5 px-3 w-28">หมายเหตุ</th>
                     </tr>
                   </thead>
@@ -1778,6 +1869,29 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                           <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 border-r border-slate-100 align-top">
                             {Number(item.netAmount || rowTaxes.netAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
+                          {/* Item Attachments */}
+                          <td className="py-2.5 px-3 border-r border-slate-100 align-top min-w-[130px]">
+                            {Array.isArray(item.attachments) && item.attachments.length > 0 ? (
+                              <div className="flex flex-col gap-1">
+                                {item.attachments.map((att: any, aIdx: number) => (
+                                  <a
+                                    key={att.id || aIdx}
+                                    href={att.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-1.5 py-1 rounded text-[10px] font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 max-w-[150px] truncate transition shadow-2xs group"
+                                    title={att.fileName}
+                                  >
+                                    <FileText className="w-3 h-3 text-blue-600 shrink-0" />
+                                    <span className="truncate">{att.fileName}</span>
+                                    <ExternalLink className="w-2.5 h-2.5 text-blue-400 group-hover:text-blue-600 shrink-0 ml-auto" />
+                                  </a>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-[11px] text-slate-300">-</span>
+                            )}
+                          </td>
                           <td className="py-2.5 px-3 text-slate-500 text-[11px] align-top">
                             {item.remarks || '-'}
                           </td>
@@ -1802,7 +1916,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       <td className="py-2.5 px-3 text-right font-mono text-slate-900 font-extrabold border-r border-slate-200">
                         {request.items.reduce((sum: number, it: any) => sum + (Number(it.netAmount || calculateItemTaxes(it).netAmount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
-                      <td className="text-[10px] text-center text-slate-400">
+                      <td colSpan={2} className="text-[10px] text-center text-slate-400">
                         {request.items.length} รายการ
                       </td>
                     </tr>
@@ -1814,7 +1928,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                         <td className="py-2 px-3 text-right font-mono font-bold border-r border-slate-200">
                           -{Number(request.credit_card_deduction).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
-                        <td className="text-[10px] text-center text-slate-400">หักออกจากยอดเบิก</td>
+                        <td colSpan={2} className="text-[10px] text-center text-slate-400">หักออกจากยอดเบิก</td>
                       </tr>
                     )}
                     <tr className="bg-slate-100 font-bold">
@@ -1824,7 +1938,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       <td className="py-2.5 px-3 text-right font-mono text-red-700 font-extrabold text-sm border-r border-slate-200">
                         {Number(request.net_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
-                      <td></td>
+                      <td colSpan={2}></td>
                     </tr>
                   </tfoot>
                 </table>
@@ -2502,7 +2616,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           )}
 
           {/* Action Panel: AP Post to GL (Express / Odoo) */}
-          {request.status === 'PAID' && isStaff && (
+          {isStaff && isStep5Done && (!request.gl_voucher_no || isEditingGL) && (
             <form
               onSubmit={handlePostGL}
               className="bg-white p-5 rounded-2xl border-2 border-cyan-300 shadow-sm space-y-3"
@@ -2510,15 +2624,41 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-cyan-950 font-bold text-xs uppercase tracking-wide">
                   <BookOpen className="w-4 h-4 text-cyan-700" />
-                  บันทึกลงบัญชี Express / Odoo (GL Posting)
+                  ขั้นตอนที่ 6: บันทึกลงบัญชี Express / Odoo (GL Posting)
                 </div>
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
-                  <ShieldCheck className="w-3 h-3 text-cyan-600" /> สิทธิ์: ฝ่ายบัญชี
-                </span>
+                <div className="flex items-center gap-2">
+                  {isEditingGL && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingGL(false)}
+                      className="text-[11px] text-gray-500 hover:text-gray-700 underline"
+                    >
+                      ยกเลิกการแก้ไข
+                    </button>
+                  )}
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
+                    <ShieldCheck className="w-3 h-3 text-cyan-600" /> สิทธิ์: ฝ่ายบัญชี
+                  </span>
+                </div>
               </div>
               <p className="text-[11px] text-slate-500">
                 นำรายการที่จ่ายแล้วบันทึกเข้าสู่โปรแกรมบัญชี พร้อมอ้างอิงเลขที่ PAY No.
               </p>
+
+              {request.original_received_at && (
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-3.5 text-xs text-purple-950 flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <div className="font-bold flex items-center gap-1.5">
+                      <span>รายการนี้มีบันทึกรับเอกสารตัวจริงไว้แล้ว ({request.original_stamp_text})</span>
+                      <span className="bg-purple-200 text-purple-900 text-[10px] px-1.5 py-0.5 rounded font-bold">รอระบุเลขที่บัญชี</span>
+                    </div>
+                    <p className="text-[11px] text-purple-800 leading-relaxed">
+                      เนื่องจากมีการบันทึกรับเอกสารตัวจริงไว้ก่อนหน้านี้ เมื่อท่านระบุเลขที่ใบสำคัญบัญชี Express หรือ Odoo ด้านล่างนี้แล้วกดบันทึก ระบบจะปรับสถานะเป็น <b>ปิดรายการสมบูรณ์ (CLOSED)</b> และขึ้นเครื่องหมายเสร็จสิ้นครบทั้ง 7 ขั้นตอนให้ทันที
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-[11px] font-semibold text-slate-700 mb-1">
@@ -2534,13 +2674,24 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={isProcessing}
-                className="w-full py-2 px-3 bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5"
-              >
-                <Check className="w-4 h-4" /> บันทึกเลขที่ GL Voucher
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="flex-1 py-2 px-3 bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="w-4 h-4" /> {request.original_received_at ? 'บันทึกเลขที่ GL Voucher และปิดรายการสมบูรณ์' : 'บันทึกเลขที่ GL Voucher'}
+                </button>
+                {isEditingGL && (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingGL(false)}
+                    className="py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition cursor-pointer"
+                  >
+                    ยกเลิก
+                  </button>
+                )}
+              </div>
             </form>
           )}
 
@@ -2560,26 +2711,40 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 เมื่อได้รับเอกสารตัวจริง ให้ค้นหาเลข PAY No. และประทับตรา "RECEIVED ORIGINAL/PAID"
               </p>
 
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  ข้อความประทับตรา (Stamp Text):
-                </label>
-                <input
-                  type="text"
-                  value={stampText}
-                  onChange={(e) => setStampText(e.target.value)}
-                  className="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2.5 font-mono"
-                />
-              </div>
+              {!isStep6Done ? (
+                <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-2 text-xs">
+                  <div className="flex items-center gap-2 text-amber-900 font-bold">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>จำเป็นต้องบันทึกบัญชี (GL Posting) ก่อนรับเอกสารตัวจริง</span>
+                  </div>
+                  <p className="text-amber-800 text-[11px] leading-relaxed">
+                    ตามระเบียบขั้นตอนการปฏิบัติงาน ต้องทำการลงบันทึกบัญชีในระบบ Express หรือ Odoo (ระบุเลขที่ GL Voucher) ในขั้นตอนที่ 6 ให้เสร็จสิ้นก่อน จึงจะสามารถบันทึกรับเอกสารตัวจริงได้
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      ข้อความประทับตรา (Stamp Text):
+                    </label>
+                    <input
+                      type="text"
+                      value={stampText}
+                      onChange={(e) => setStampText(e.target.value)}
+                      className="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2.5 font-mono"
+                    />
+                  </div>
 
-              <button
-                type="button"
-                disabled={isProcessing}
-                onClick={handleOriginalReceipt}
-                className="w-full py-2 px-3 bg-violet-700 hover:bg-violet-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5"
-              >
-                <CheckCircle2 className="w-4 h-4" /> บันทึกว่าได้รับเอกสารตัวจริงแล้ว
-              </button>
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleOriginalReceipt}
+                    className="w-full py-2 px-3 bg-violet-700 hover:bg-violet-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-4 h-4" /> บันทึกว่าได้รับเอกสารตัวจริงแล้ว
+                  </button>
+                </>
+              )}
             </div>
           )}
 
@@ -2646,16 +2811,50 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   <span className="text-indigo-700 font-bold">{request.bank_reference_no}</span>
                 </div>
               )}
-              {request.gl_voucher_no && (
+              {request.gl_voucher_no ? (
                 <div className="flex justify-between items-center font-mono">
                   <span className="text-slate-500 font-sans">เลขที่ GL:</span>
-                  <span className="text-cyan-800 font-bold">{request.gl_voucher_no}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-cyan-800 font-bold">{request.gl_voucher_no}</span>
+                    {isStaff && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setGlVoucherNo(request.gl_voucher_no || '');
+                          setIsEditingGL(true);
+                        }}
+                        className="text-[10px] text-cyan-600 hover:text-cyan-800 underline font-sans cursor-pointer"
+                      >
+                        แก้ไข
+                      </button>
+                    )}
+                  </div>
                 </div>
+              ) : (
+                isStep5Done && (
+                  <div className="flex justify-between items-center text-[10px]">
+                    <span className="text-slate-500">เลขที่ GL (Express/Odoo):</span>
+                    <span className="text-red-600 font-semibold">ยังไม่ลงบัญชี</span>
+                  </div>
+                )
               )}
               {request.original_received_at && (
-                <div className="p-2 bg-violet-50 rounded-lg text-violet-900 font-semibold text-[10px] flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-violet-600 shrink-0" />
-                  <span>ได้รับเอกสารตัวจริงแล้ว ({request.original_stamp_text})</span>
+                <div className="p-2 bg-violet-50 rounded-lg text-violet-900 font-semibold text-[10px] flex items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-violet-600 shrink-0" />
+                    <span>ได้รับเอกสารตัวจริงแล้ว ({request.original_stamp_text})</span>
+                  </div>
+                  {isStaff && (
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={handleRevertOriginalReceipt}
+                      className="text-[10px] text-red-600 hover:text-red-800 underline font-sans shrink-0 cursor-pointer"
+                      title="ยกเลิกการรับตัวจริง เพื่อแก้ไขหรือเริ่มทำตามขั้นตอน"
+                    >
+                      ยกเลิก
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -3285,6 +3484,150 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             router.refresh();
           }}
         />
+      )}
+
+      {/* Modal: Accounting Return for Revision (ส่งคืนแก้ไขเอกสาร พร้อมเลือกผู้รับ) */}
+      {returnModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="p-4 px-6 bg-gradient-to-r from-orange-600 to-amber-600 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white">
+                  <RotateCcw className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    ส่งคืนแก้ไขเอกสาร (Return for Revision)
+                  </h3>
+                  <p className="text-[11px] text-orange-100">
+                    {returnByRole === 'AP' ? 'ฝ่ายบัญชีเจ้าหนี้ (AP)' : 'หัวหน้าฝ่ายบัญชี (Supervisor)'} • เลือกผู้รับและระบุสิ่งที่ต้องแก้ไข
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReturnModalOpen(false)}
+                className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4 text-xs text-gray-700">
+              {/* Recipient Selection */}
+              <div>
+                <label className="block text-xs font-bold text-gray-900 mb-2">
+                  ระบุผู้รับเอกสารส่งคืน (Select Return Recipient) <span className="text-red-500">*</span>
+                </label>
+                <div className="space-y-2.5">
+                  {/* Option 1: Requester */}
+                  <label
+                    className={`block p-3.5 rounded-xl border-2 cursor-pointer transition ${
+                      returnRecipient === 'REQUESTER'
+                        ? 'border-orange-500 bg-orange-50/60 ring-2 ring-orange-100'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="radio"
+                        name="returnRecipient"
+                        value="REQUESTER"
+                        checked={returnRecipient === 'REQUESTER'}
+                        onChange={() => setReturnRecipient('REQUESTER')}
+                        className="mt-0.5 text-orange-600 focus:ring-orange-500"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-gray-900 text-xs">
+                            ส่งคืนให้ผู้ขอเบิก ({request.requester_name})
+                          </span>
+                          <span className="text-[10px] font-bold text-orange-800 bg-orange-100 px-2 py-0.5 rounded-full">
+                            รีเซ็ตกลับขั้นตอนที่ 1
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">
+                          กระบวนการจะรีเซ็ตกลับไปขั้นตอนที่ 1 เมื่อผู้ขอเบิกทำการแก้ไขแล้ว <b>จำเป็นต้องส่งให้หัวหน้างานของตนเองอนุมัติใหม่ทั้งหมด</b> ก่อนจะส่งกลับมายังฝ่ายบัญชี (ป้องกันการลัดขั้นตอน)
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* Option 2: Supervisor */}
+                  <label
+                    className={`block p-3.5 rounded-xl border-2 cursor-pointer transition ${
+                      returnRecipient === 'SUPERVISOR'
+                        ? 'border-blue-500 bg-blue-50/60 ring-2 ring-blue-100'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="radio"
+                        name="returnRecipient"
+                        value="SUPERVISOR"
+                        checked={returnRecipient === 'SUPERVISOR'}
+                        onChange={() => setReturnRecipient('SUPERVISOR')}
+                        className="mt-0.5 text-blue-600 focus:ring-blue-500"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-gray-900 text-xs">
+                            ส่งคืนให้หัวหน้างาน {request.assigned_supervisor_name ? `(${request.assigned_supervisor_name})` : 'ผู้อนุมัติ'}
+                          </span>
+                          <span className="text-[10px] font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">
+                            ส่งตรงถึงหัวหน้างาน
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">
+                          ส่งกลับไปให้หัวหน้างานตรวจสอบหรือแก้ไขความถูกต้อง โดย<b>ไม่ต้องส่งกลับไปหาผู้ขอเบิก</b> และเมื่อหัวหน้างานอนุมัติ จะส่งตรงกลับมาที่ฝ่ายบัญชีทันที
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Reason Textarea */}
+              <div>
+                <label className="block text-xs font-bold text-gray-900 mb-1.5">
+                  ระบุเหตุผลในการส่งคืนและสิ่งที่ต้องแก้ไข <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={returnReasonInput}
+                  onChange={(e) => setReturnReasonInput(e.target.value)}
+                  placeholder="เช่น เอกสารแนบไม่ครบถ้วน, ขาดใบเสร็จตัวจริง, ยอดเงินไม่ตรงกับใบแจ้งหนี้, เอกสารแนบประจำบิลไม่ชัดเจน..."
+                  className="w-full text-xs rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-800"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 px-6 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setReturnModalOpen(false)}
+                className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmReturn}
+                disabled={isProcessing}
+                className="px-5 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 active:bg-orange-800 rounded-xl shadow-sm transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>ยืนยันส่งคืนเอกสาร</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -11,8 +11,9 @@ import {
   getPaymentRequests,
   PaymentRequestRecord,
   RequisitionItem,
+  ItemAttachment,
 } from '@/app/actions/paymentRequests';
-import { calculateItemTaxes } from '../utils/itemTaxes';
+import { calculateItemTaxes, truncate2Decimals } from '../utils/itemTaxes';
 import {
   normalizeAttachmentName,
   isDistinctiveAttachmentName,
@@ -73,6 +74,7 @@ import {
   Edit2,
   Edit3,
   Save,
+  Loader2,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -349,6 +351,7 @@ export default function NewPaymentRequestClient({
         approverName: it.approverName,
         approverPosition: it.approverPosition,
         approverSignatureUrl: it.approverSignatureUrl,
+        attachments: Array.isArray(it.attachments) ? it.attachments : [],
       }));
     }
     if (initialData) {
@@ -369,6 +372,7 @@ export default function NewPaymentRequestClient({
         netAmount: Number(initialData.net_amount) || 0,
         remarks: '',
         paidByCreditCard: false,
+        attachments: [],
       }];
     }
     return [
@@ -388,6 +392,7 @@ export default function NewPaymentRequestClient({
         netAmount: 0,
         remarks: '',
         paidByCreditCard: false,
+        attachments: [],
       },
     ];
   });
@@ -396,6 +401,24 @@ export default function NewPaymentRequestClient({
       ? String(initialData.credit_card_deduction)
       : '0'
   );
+
+  const [itemUploadingIdx, setItemUploadingIdx] = useState<number | null>(null);
+  const [showPreSubmitReviewModal, setShowPreSubmitReviewModal] = useState(false);
+  const [pendingShouldResubmit, setPendingShouldResubmit] = useState(true);
+
+
+  const handleRemoveItemAttachment = (itemIndex: number, attIndex: number) => {
+    setRequisitionItems((prev) => {
+      return prev.map((it, idx) => {
+        if (idx !== itemIndex) return it;
+        const currentAtts = Array.isArray(it.attachments) ? it.attachments : [];
+        return {
+          ...it,
+          attachments: currentAtts.filter((_, aIdx) => aIdx !== attIndex),
+        };
+      });
+    });
+  };
 
   const handleAddItem = (copyFromLast = false) => {
     setRequisitionItems((prev) => {
@@ -418,6 +441,7 @@ export default function NewPaymentRequestClient({
         netAmount: 0,
         remarks: '',
         paidByCreditCard: false,
+        attachments: [],
       };
       return [...prev, newItem];
     });
@@ -1325,15 +1349,15 @@ export default function NewPaymentRequestClient({
       totalPreVatAmount += taxes.preVatAmount;
     });
 
-    const netPayable = Math.max(0, Math.round((totalNetAmount - effectiveCcDeduction) * 100) / 100);
+    const netPayable = Math.max(0, truncate2Decimals(totalNetAmount - effectiveCcDeduction));
 
     return {
-      totalRawAmount: Math.round(totalRawAmount * 100) / 100,
-      totalGrossAmount: Math.round(totalGrossAmount * 100) / 100,
-      totalVatAmount: Math.round(totalVatAmount * 100) / 100,
-      totalWhtAmount: Math.round(totalWhtAmount * 100) / 100,
-      totalNetAmount: Math.round(totalNetAmount * 100) / 100,
-      totalPreVatAmount: Math.round(totalPreVatAmount * 100) / 100,
+      totalRawAmount: truncate2Decimals(totalRawAmount),
+      totalGrossAmount: truncate2Decimals(totalGrossAmount),
+      totalVatAmount: truncate2Decimals(totalVatAmount),
+      totalWhtAmount: truncate2Decimals(totalWhtAmount),
+      totalNetAmount: truncate2Decimals(totalNetAmount),
+      totalPreVatAmount: truncate2Decimals(totalPreVatAmount),
       netPayable,
     };
   }, [requisitionItems, effectiveCcDeduction]);
@@ -1345,9 +1369,9 @@ export default function NewPaymentRequestClient({
   if (entryMode === 'MULTI_ITEMS') {
     calculatedVat = multiItemsSummary.totalVatAmount;
   } else if (vatType === '7%') {
-    calculatedVat = Math.round(effectiveSubtotal * 0.07 * 100) / 100;
+    calculatedVat = truncate2Decimals(effectiveSubtotal * 0.07);
   } else if (vatType === 'INCLUDED_7%') {
-    calculatedVat = Math.round(((effectiveSubtotal * 7) / 107) * 100) / 100;
+    calculatedVat = truncate2Decimals((effectiveSubtotal * 7) / 107);
   } else if (vatType === 'CUSTOM') {
     calculatedVat = parseFloat(customVatAmount) || 0;
   }
@@ -1355,7 +1379,7 @@ export default function NewPaymentRequestClient({
   // Pre-VAT base amount: If VAT is included in bill, pre-VAT is (effectiveSubtotal - calculatedVat), otherwise it's effectiveSubtotal
   const preVatBase = entryMode === 'MULTI_ITEMS'
     ? multiItemsSummary.totalPreVatAmount
-    : (vatType === 'INCLUDED_7%' ? Math.max(0, effectiveSubtotal - calculatedVat) : effectiveSubtotal);
+    : (vatType === 'INCLUDED_7%' ? Math.max(0, truncate2Decimals(effectiveSubtotal - calculatedVat)) : effectiveSubtotal);
 
   let calculatedWht = 0;
   let whtPercentValue = 0;
@@ -1363,24 +1387,24 @@ export default function NewPaymentRequestClient({
     calculatedWht = multiItemsSummary.totalWhtAmount;
   } else if (whtType === '1%') {
     whtPercentValue = 1;
-    calculatedWht = Math.round(preVatBase * 0.01 * 100) / 100;
+    calculatedWht = truncate2Decimals(preVatBase * 0.01);
   } else if (whtType === '2%') {
     whtPercentValue = 2;
-    calculatedWht = Math.round(preVatBase * 0.02 * 100) / 100;
+    calculatedWht = truncate2Decimals(preVatBase * 0.02);
   } else if (whtType === '3%') {
     whtPercentValue = 3;
-    calculatedWht = Math.round(preVatBase * 0.03 * 100) / 100;
+    calculatedWht = truncate2Decimals(preVatBase * 0.03);
   } else if (whtType === '5%') {
     whtPercentValue = 5;
-    calculatedWht = Math.round(preVatBase * 0.05 * 100) / 100;
+    calculatedWht = truncate2Decimals(preVatBase * 0.05);
   } else if (whtType === 'CUSTOM') {
     whtPercentValue = parseFloat(customWhtPercent) || 0;
-    calculatedWht = parseFloat(customWhtAmount) || Math.round(((preVatBase * whtPercentValue) / 100) * 100) / 100;
+    calculatedWht = parseFloat(customWhtAmount) || truncate2Decimals((preVatBase * whtPercentValue) / 100);
   }
 
   const netPayable = entryMode === 'MULTI_ITEMS'
     ? multiItemsSummary.netPayable
-    : Math.max(0, Math.round(((vatType === 'INCLUDED_7%' ? effectiveSubtotal : effectiveSubtotal + calculatedVat) - calculatedWht) * 100) / 100);
+    : Math.max(0, truncate2Decimals((vatType === 'INCLUDED_7%' ? effectiveSubtotal : effectiveSubtotal + calculatedVat) - calculatedWht));
   const bahtText = thaiBahtText(netPayable);
 
   // Approval matrix tier
@@ -1910,6 +1934,176 @@ export default function NewPaymentRequestClient({
     setAttachments((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  // Line-Item Attachment Upload Handler with Complete Multi-Signal Duplicate Detection
+  const handleItemAttachmentUpload = async (itemIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const targetItem = requisitionItems[itemIndex];
+    if (!targetItem) return;
+
+    setItemUploadingIdx(itemIndex);
+    try {
+      const newAtts: any[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // 1. Calculate digital fingerprints (SHA-256 + Visual Hashes)
+        setUploadScanStatus(`กำลังตรวจจับ QR/สลิป และคำนวณลายนิ้วมือ (${file.name})...`);
+        const fileHash = await computeFileHash(file);
+        const visualHashes = await computeVisualHashes(file);
+        const visualHash = visualHashes?.visualHash;
+        const coreVisualHash = visualHashes?.coreVisualHash;
+
+        // 2. Client-side QR / Barcode detection for slips
+        let qrPayload: string | undefined = undefined;
+        let barcode: string | undefined = undefined;
+        if (file.type.startsWith('image/')) {
+          try {
+            const slipRes = await detectSlipQrAndBarcode(file);
+            if (slipRes.detected) {
+              qrPayload = slipRes.qrPayload;
+              barcode = slipRes.barcode;
+            }
+          } catch (err) {
+            console.debug('Slip detection skipped for item file:', err);
+          }
+        }
+
+        // 3. Duplicate check against current form files (both main attachments and all line items)
+        const allCurrentFormAtts = [
+          ...attachments,
+          ...requisitionItems.flatMap((it) => it.attachments || []),
+          ...newAtts,
+        ];
+        const isAlreadyAttached = allCurrentFormAtts.some((a: any) => {
+          if (a.fileHash && a.fileHash === fileHash) return true;
+          if (qrPayload && a.qrPayload && (a.qrPayload === qrPayload || (qrPayload.length >= 15 && a.qrPayload.includes(qrPayload)))) return true;
+          if (visualHash && a.visualHash && visualHammingDistance(visualHash, a.visualHash) <= 2) return true;
+          if (coreVisualHash && a.coreVisualHash && visualHammingDistance(coreVisualHash, a.coreVisualHash) <= 2) return true;
+          if (normalizeAttachmentName(a.fileName) === normalizeAttachmentName(file.name) && a.fileSize === file.size) return true;
+          return false;
+        });
+
+        if (isAlreadyAttached) {
+          await Swal.fire({
+            title: 'ไฟล์นี้ถูกแนบอยู่แล้วในแบบฟอร์มนี้',
+            text: `ไฟล์ "${file.name}" มีอยู่ในรายการเอกสารแนบของแบบฟอร์มนี้แล้ว (อาจแนบในรายการนี้หรือรายการอื่น)`,
+            icon: 'info',
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'ตกลง',
+          });
+          continue;
+        }
+
+        // 4. Check duplicate against database active payment requests
+        setUploadScanStatus(`กำลังตรวจสอบประวัติการใช้เอกสารในระบบกลาง...`);
+        const dupCheck = await checkAttachmentDuplicates({
+          items: [
+            {
+              fileName: file.name,
+              fileHash,
+              visualHash: visualHash || undefined,
+              coreVisualHash: coreVisualHash || undefined,
+              fileSize: file.size,
+              qrPayload,
+              barcode,
+              currentAmount: Number(targetItem.amount) || undefined,
+              currentSupplier: (targetItem.supplierName?.trim() || supplierName.trim() || undefined),
+            },
+          ],
+          fileHashes: [fileHash],
+          excludeId: initialData?.id,
+        });
+
+        if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
+          const match = dupCheck.matches[0];
+          let explanationText = '';
+          if (match.matchType === 'ATTACHMENT_QR') {
+            explanationText = `ระบบตรวจพบว่ารหัส QR Code บนสลิป/บิลนี้ตรงกับเอกสารที่เคยแนบในระบบกลาง 100% (PromptPay Transfer Slip Payload ตรงกัน)`;
+          } else if (match.matchType === 'ATTACHMENT_BARCODE') {
+            explanationText = `ระบบตรวจพบบาร์โค้ด (${match.barcode || barcode}) ตรงกับเอกสารเดิมในระบบ`;
+          } else if (match.matchType === 'ATTACHMENT_VISUAL') {
+            explanationText = match.reason || `ระบบตรวจพบว่าลายนิ้วมือโครงสร้างภาพเอกสารนี้ (Visual Fingerprint) ตรงกับเอกสารในระบบกลาง`;
+          } else if (match.matchType === 'ATTACHMENT_NAME_SIMILAR') {
+            explanationText = `ระบบตรวจพบว่าชื่อเอกสารและขนาดไฟล์ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
+          } else {
+            explanationText = `ระบบตรวจพบว่าเนื้อหาดิจิทัลของไฟล์นี้ (SHA-256) ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
+          }
+
+          await Swal.fire({
+            title: 'ตรวจพบเอกสารแนบซ้ำซ้อนในระบบ!',
+            html: `
+              <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
+                <p class="font-bold text-red-900 text-sm">ไฟล์ "${file.name}" เคยถูกใช้งานในระบบแล้ว</p>
+                <p class="text-gray-700">${explanationText}:</p>
+                <div class="bg-white p-3 rounded-lg border border-red-100 font-mono text-[11px] space-y-1">
+                  <p><span class="text-gray-500 font-sans">เลขที่คำขอเดิม:</span> <b class="text-red-700 font-bold">${match.pay_number}</b></p>
+                  <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${match.supplier_name || '-'}</b></p>
+                  <p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b>${Number(match.net_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿</b></p>
+                  <p><span class="text-gray-500 font-sans">สถานะปัจจุบัน:</span> <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-800 font-bold">${match.status}</span></p>
+                  <p><span class="text-gray-500 font-sans">ผู้เบิกเดิม:</span> <b>${match.requester_name || '-'}</b></p>
+                  ${match.matchedFileName ? `<p><span class="text-gray-500 font-sans">ชื่อไฟล์เดิม:</span> <b class="text-slate-800">${match.matchedFileName}</b></p>` : ''}
+                </div>
+                <p class="text-red-600 font-medium">⚠️ ระบบไม่อนุญาตให้ใช้เอกสารซ้ำซ้อนเพื่อป้องกันการเบิกจ่ายซ้ำ</p>
+              </div>
+            `,
+            icon: 'error',
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'รับทราบและเปลี่ยนไฟล์',
+          });
+          continue; // Skip uploading this duplicate file
+        }
+
+        // 5. Upload via API
+        setUploadScanStatus(`กำลังอัปโหลดไฟล์ ${file.name}...`);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('bucket', 'uploadsService');
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+          newAtts.push({
+            id: `item_att_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 6)}`,
+            url: data.url,
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+            fileHash,
+            visualHash: visualHash || undefined,
+            coreVisualHash: coreVisualHash || undefined,
+            qrPayload: qrPayload || undefined,
+            barcode: barcode || undefined,
+          });
+        }
+      }
+
+      if (newAtts.length > 0) {
+        setRequisitionItems((prev) => {
+          return prev.map((it, idx) => {
+            if (idx !== itemIndex) return it;
+            const currentAtts = Array.isArray(it.attachments) ? it.attachments : [];
+            return {
+              ...it,
+              attachments: [...currentAtts, ...newAtts],
+            };
+          });
+        });
+      }
+    } catch (err) {
+      console.error('Error uploading item attachment:', err);
+      Swal.fire({ title: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์', icon: 'error' });
+    } finally {
+      setItemUploadingIdx(null);
+      setUploadScanStatus(null);
+      e.target.value = '';
+    }
+  };
+
   // Form Submit Handler
   const handleSubmit = async (e: React.FormEvent, shouldResubmit = true) => {
     e.preventDefault();
@@ -1986,7 +2180,7 @@ export default function NewPaymentRequestClient({
           ? `เลขที่ PO/PR ${match.po_pr_number || ''} เคยถูกบันทึกแล้ว`
           : `เลขที่บิล ${match.invoice_number || invoiceNumber} ของ ${match.supplier_name} เคยถูกบันทึกแล้ว`;
 
-      const result = await Swal.fire({
+      await Swal.fire({
         title: 'ไม่อนุญาตให้สร้างรายการซ้ำซ้อน',
         html: `
           <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
@@ -2011,8 +2205,36 @@ export default function NewPaymentRequestClient({
       return;
     }
 
+    // If save only (not resubmitting for approval), proceed directly
+    if (isEditMode && !shouldResubmit) {
+      await executeActualSubmit(false);
+      return;
+    }
+
+    // For submitting for approval, open review modal to allow user to review attached documents
+    setPendingShouldResubmit(shouldResubmit);
+    setShowPreSubmitReviewModal(true);
+  };
+
+  // Actually execute payment request create or update
+  const executeActualSubmit = async (shouldResubmit = true) => {
     setIsSubmitting(true);
+    setShowPreSubmitReviewModal(false);
+
     try {
+      const validItems = requisitionItems.filter((it) => it.description.trim() || Number(it.amount) > 0);
+      let finalSupplierName = supplierName.trim();
+      if (!finalSupplierName) {
+        const uniqueSuppliers = Array.from(new Set(validItems.map((it) => it.supplierName?.trim()).filter(Boolean)));
+        if (uniqueSuppliers.length === 1) {
+          finalSupplierName = uniqueSuppliers[0] as string;
+        } else if (uniqueSuppliers.length > 1) {
+          finalSupplierName = `${uniqueSuppliers[0]} และอื่นๆ (รวม ${uniqueSuppliers.length} ร้านค้า)`;
+        } else {
+          finalSupplierName = `${requesterName.trim()} (สำรองจ่าย / Reimbursement)`;
+        }
+      }
+
       const finalBranch = branch === 'อื่นๆ (ระบุ)' ? (customBranch || 'สำนักงานใหญ่') : branch;
 
       let finalBankName = bankName;
@@ -2075,6 +2297,7 @@ export default function NewPaymentRequestClient({
                   whtPercent: taxes.whtPercent,
                   whtAmount: taxes.whtAmount,
                   netAmount: taxes.netAmount,
+                  attachments: Array.isArray(it.attachments) ? it.attachments : [],
                 };
               })
             : undefined,
@@ -2091,7 +2314,7 @@ export default function NewPaymentRequestClient({
             html: `<div class="text-left text-xs text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200">
               <p>เลขที่คำขอ: <b class="font-mono text-red-600 text-sm">${res.payNumber || initialData.pay_number}</b></p>
               <p>สถานะ: <b>${res.status}</b></p>
-              <p class="text-emerald-700 mt-1 font-medium">${shouldResubmit ? 'ระบบส่งข้อมูลที่แก้ไขกลับไปยังฝ่ายบัญชีเรียบร้อยแล้ว' : 'บันทึกข้อมูลการแก้ไขเรียบร้อยแล้ว'}</p>
+              <p class="text-emerald-700 mt-1 font-medium">${shouldResubmit ? 'ระบบส่งข้อมูลที่แก้ไขกลับไปเพื่อดำเนินการตามขั้นตอนเรียบร้อยแล้ว' : 'บันทึกข้อมูลการแก้ไขเรียบร้อยแล้ว'}</p>
             </div>`,
             icon: 'success',
             confirmButtonColor: '#16a34a',
@@ -2151,6 +2374,7 @@ export default function NewPaymentRequestClient({
                 whtPercent: taxes.whtPercent,
                 whtAmount: taxes.whtAmount,
                 netAmount: taxes.netAmount,
+                attachments: Array.isArray(it.attachments) ? it.attachments : [],
               };
             })
           : undefined,
@@ -3608,6 +3832,12 @@ export default function NewPaymentRequestClient({
                     <th className="py-2.5 px-2 w-32 text-center border-r border-gray-200" title="ติ๊กเลือกเมื่อไม่มีใบเสร็จรับเงิน เพื่อสร้างใบรับรองแทนใบเสร็จรับเงิน (บก.111 / Certification of Payment) แนบอัตโนมัติ">
                       บิลไม่สมบูรณ์ / ใบรับรองแทน
                     </th>
+                    <th className="py-2.5 px-2.5 min-w-[140px] text-center border-r border-gray-200">
+                      <div className="flex items-center justify-center gap-1 text-blue-700 font-bold">
+                        <Paperclip className="w-3.5 h-3.5" />
+                        <span>เอกสารแนบประจำบิล</span>
+                      </div>
+                    </th>
                     <th className="py-2.5 px-2.5 min-w-[110px] text-left border-r border-gray-200">หมายเหตุ</th>
                     <th className="py-2.5 px-2 w-10 text-center">ลบ</th>
                   </tr>
@@ -3913,6 +4143,69 @@ export default function NewPaymentRequestClient({
                           </div>
                         </td>
 
+                        {/* Item Attachments */}
+                        <td className="py-1.5 px-2 border-r border-gray-100 align-top min-w-[140px]">
+                          <div className="space-y-1.5">
+                            {/* Upload Button */}
+                            <label className={`flex items-center justify-center gap-1 w-full py-1 px-1.5 rounded-lg border border-dashed text-[11px] font-medium transition cursor-pointer ${
+                              itemUploadingIdx === idx
+                                ? 'bg-blue-50 border-blue-300 text-blue-500 pointer-events-none'
+                                : 'bg-gray-50/80 hover:bg-blue-50/70 border-gray-300 hover:border-blue-400 text-gray-700 hover:text-blue-700'
+                            }`}>
+                              {itemUploadingIdx === idx ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
+                                  <span>กำลังอัปโหลด...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Paperclip className="w-3 h-3 text-blue-600" />
+                                  <span>+ แนบไฟล์บิลนี้</span>
+                                </>
+                              )}
+                              <input
+                                type="file"
+                                accept="image/*,application/pdf"
+                                multiple
+                                className="hidden"
+                                disabled={itemUploadingIdx === idx}
+                                onChange={(e) => handleItemAttachmentUpload(idx, e)}
+                              />
+                            </label>
+
+                            {/* Item Attachments List */}
+                            {item.attachments && item.attachments.length > 0 && (
+                              <div className="space-y-1 max-h-28 overflow-y-auto pr-0.5">
+                                {item.attachments.map((att: ItemAttachment, aIdx: number) => (
+                                  <div
+                                    key={att.id || aIdx}
+                                    className="flex items-center justify-between gap-1 p-1 px-1.5 rounded-md bg-blue-50/90 border border-blue-200 text-[10px] text-blue-900 shadow-2xs"
+                                  >
+                                    <a
+                                      href={att.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-1 min-w-0 flex-1 hover:underline text-blue-700 font-semibold truncate"
+                                      title={att.fileName}
+                                    >
+                                      <FileText className="w-3 h-3 shrink-0 text-blue-600" />
+                                      <span className="truncate">{att.fileName}</span>
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveItemAttachment(idx, aIdx)}
+                                      className="text-gray-400 hover:text-red-600 p-0.5 rounded transition shrink-0 ml-1"
+                                      title="ลบไฟล์นี้"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+
                         {/* Remarks */}
                         <td className="py-1.5 px-2 border-r border-gray-100 align-top">
                           <input
@@ -3941,7 +4234,6 @@ export default function NewPaymentRequestClient({
                 </tbody>
 
                 {/* Table Footer Totals */}
-                {/* Table Footer Totals */}
                 <tfoot className="bg-gray-50/90 border-t-2 border-gray-200 text-xs">
                   {/* Total Amount Row */}
                   <tr className="border-b border-gray-200 font-semibold bg-gray-50/90">
@@ -3964,7 +4256,7 @@ export default function NewPaymentRequestClient({
                     <td className="py-2.5 px-3 text-right font-mono font-extrabold text-gray-900 border-r border-gray-200">
                       {multiItemsSummary.totalNetAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                     </td>
-                    <td colSpan={4} className="px-3 text-gray-500 text-[11px]">
+                    <td colSpan={5} className="px-3 text-gray-500 text-[11px]">
                       รวม {requisitionItems.length} รายการ (ก่อนหักบัตรเครดิต)
                     </td>
                   </tr>
@@ -3981,7 +4273,7 @@ export default function NewPaymentRequestClient({
                         <span className="text-gray-400 font-normal">0.00 ฿</span>
                       )}
                     </td>
-                    <td colSpan={4} className="px-3 text-red-700 text-[10px]">
+                    <td colSpan={5} className="px-3 text-red-700 text-[10px]">
                       หักยอดที่บริษัท/พนักงานรูดบัตรเครดิตออกจากการเบิกเงินสด
                     </td>
                   </tr>
@@ -3994,7 +4286,7 @@ export default function NewPaymentRequestClient({
                     <td className="py-3 px-3 text-right font-mono text-red-600 font-extrabold text-base border-r border-gray-200">
                       {multiItemsSummary.netPayable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                     </td>
-                    <td colSpan={4} className="px-3 text-gray-700 text-[11px] font-normal truncate">
+                    <td colSpan={5} className="px-3 text-gray-700 text-[11px] font-normal truncate">
                       ({bahtText})
                     </td>
                   </tr>
@@ -4745,6 +5037,19 @@ export default function NewPaymentRequestClient({
               ยกเลิก
             </Link>
 
+            <button
+              type="button"
+              onClick={() => {
+                setPendingShouldResubmit(isEditMode ? true : false);
+                setShowPreSubmitReviewModal(true);
+              }}
+              className="px-3.5 py-2.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition flex items-center justify-center gap-1.5"
+              title="ตรวจสอบเอกสารแนบทั้งหมดก่อนส่ง"
+            >
+              <Eye className="w-3.5 h-3.5 text-blue-600" />
+              <span>ตรวจสอบเอกสารแนบ ({attachments.length + requisitionItems.reduce((acc, it) => acc + (it.attachments?.length || 0), 0)} ไฟล์)</span>
+            </button>
+
             {isEditMode && initialData ? (
               <>
                 <button
@@ -5263,6 +5568,224 @@ export default function NewPaymentRequestClient({
           }}
           onSaveAndAttach={handleModalSaveAndAttach}
         />
+      )}
+
+      {/* Modal: Pre-Submission Document Review (ตรวจสอบเอกสารแนบก่อนส่งคำขออนุมัติ) */}
+      {showPreSubmitReviewModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="p-4 px-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    ตรวจสอบเอกสารแนบก่อนส่งคำขอ (Pre-Submission Review)
+                  </h3>
+                  <p className="text-[11px] text-slate-300">
+                    โปรดตรวจสอบเอกสารแนบประจำบิลและเอกสารทั่วไปให้ครบถ้วนก่อนส่งให้ผู้อนุมัติ
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPreSubmitReviewModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-5 text-xs text-gray-700 flex-1">
+              {/* Summary Banner */}
+              <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl flex items-center justify-between text-blue-900">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="font-semibold">
+                    เอกสารแนบรวมทั้งหมด {attachments.length + requisitionItems.reduce((acc, it) => acc + (it.attachments?.length || 0), 0)} ไฟล์
+                  </span>
+                </div>
+                <div className="text-[11px] text-blue-700 space-x-2">
+                  <span>บิลประจำรายการ: <b>{requisitionItems.reduce((acc, it) => acc + (it.attachments?.length || 0), 0)}</b></span>
+                  <span>|</span>
+                  <span>เอกสารทั่วไป: <b>{attachments.length}</b></span>
+                </div>
+              </div>
+
+              {/* Section 1: Item-level Attachments */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                  <h4 className="font-bold text-gray-900 flex items-center gap-1.5 text-xs">
+                    <Layers className="w-3.5 h-3.5 text-red-600" />
+                    เอกสารแนบประจำรายการเบิกเงิน ({requisitionItems.length} รายการ)
+                  </h4>
+                  <span className="text-[10px] text-gray-500">บิลและเอกสารเฉพาะของแต่ละรายการ</span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {requisitionItems.map((it, idx) => {
+                    const itAtts = Array.isArray(it.attachments) ? it.attachments : [];
+                    return (
+                      <div key={it.id || idx} className="p-3 rounded-xl border border-gray-200 bg-gray-50/60 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="font-bold text-gray-900 text-xs">
+                              รายการที่ {idx + 1}: {it.description || '(ยังไม่ระบุชื่อสินค้า/บริการ)'}
+                            </span>
+                            <div className="text-[11px] text-gray-500 flex flex-wrap items-center gap-2 mt-0.5">
+                              <span>ร้านค้า: <b>{it.supplierName || 'ไม่ระบุ'}</b></span>
+                              {it.invoiceNumber && <span>เลขที่บิล: <b>{it.invoiceNumber}</b></span>}
+                              <span>วันที่: <b>{it.billDate || '-'}</b></span>
+                            </div>
+                          </div>
+                          <span className="font-mono font-bold text-gray-900 text-xs shrink-0">
+                            {Number(it.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                          </span>
+                        </div>
+
+                        {/* Attachments for this item */}
+                        {itAtts.length > 0 ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            {itAtts.map((att: ItemAttachment, aIdx: number) => {
+                              const isImage = att.fileType?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(att.fileName || att.url);
+                              return (
+                                <a
+                                  key={att.id || aIdx}
+                                  href={att.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-2 rounded-lg bg-white border border-blue-200 hover:border-blue-400 hover:shadow-xs transition group"
+                                >
+                                  {isImage ? (
+                                    <div className="w-8 h-8 rounded bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
+                                      <img src={att.url} alt={att.fileName} className="w-full h-full object-cover" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-8 h-8 rounded bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100 text-blue-600">
+                                      <FileText className="w-4 h-4" />
+                                    </div>
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-semibold text-gray-800 text-[11px] truncate group-hover:text-blue-600">
+                                      {att.fileName}
+                                    </p>
+                                    <p className="text-[10px] text-gray-400">คลิกเพื่อเปิดดูไฟล์</p>
+                                  </div>
+                                  <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 shrink-0" />
+                                </a>
+                              );
+                            })}
+                          </div>
+                        ) : it.isIrregularBill && it.substituteCertificateUrl ? (
+                          <div className="pt-1">
+                            <a
+                              href={it.substituteCertificateUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-900 font-medium text-[11px] transition"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-amber-700" />
+                              <span>ใบรับรองแทนใบเสร็จรับเงิน (บก.111 / PDF)</span>
+                              <ExternalLink className="w-3 h-3 text-amber-700" />
+                            </a>
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-gray-400 italic pt-0.5">
+                            * ไม่มีเอกสารแนบเฉพาะรายการนี้ (ใช้เอกสารแนบทั่วไป)
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Section 2: General Attachments */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                  <h4 className="font-bold text-gray-900 flex items-center gap-1.5 text-xs">
+                    <Paperclip className="w-3.5 h-3.5 text-blue-600" />
+                    เอกสารแนบทั่วไป / ใบเสร็จหลัก ({attachments.length} ไฟล์)
+                  </h4>
+                  <span className="text-[10px] text-gray-500">เอกสารประกอบการขอเบิกภาพรวม</span>
+                </div>
+
+                {attachments.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {attachments.map((att, aIdx) => {
+                      const isImage = att.fileType?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(att.fileName || att.url);
+                      return (
+                        <a
+                          key={att.id || aIdx}
+                          href={att.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-2 rounded-lg bg-white border border-gray-200 hover:border-blue-400 hover:shadow-xs transition group"
+                        >
+                          {isImage ? (
+                            <div className="w-9 h-9 rounded bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
+                              <img src={att.url} alt={att.fileName} className="w-full h-full object-cover" />
+                            </div>
+                          ) : (
+                            <div className="w-9 h-9 rounded bg-gray-50 flex items-center justify-center shrink-0 border border-gray-200 text-gray-600">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-gray-800 text-[11px] truncate group-hover:text-blue-600">
+                              {att.fileName}
+                            </p>
+                            <p className="text-[10px] text-gray-400">
+                              {att.fileSize ? `${Math.round(att.fileSize / 1024)} KB` : 'เอกสารแนบ'} • คลิกเพื่อดูตัวอย่าง
+                            </p>
+                          </div>
+                          <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 shrink-0" />
+                        </a>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs">
+                    ไม่มีเอกสารแนบทั่วไป
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 px-6 bg-gray-50 border-t border-gray-200 flex flex-wrap items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setShowPreSubmitReviewModal(false)}
+                className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+              >
+                ย้อนกลับไปแก้ไข
+              </button>
+
+              <button
+                type="button"
+                onClick={() => executeActualSubmit(pendingShouldResubmit)}
+                disabled={isSubmitting}
+                className="px-6 py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-xl shadow-sm transition flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+              >
+                {isSubmitting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    กำลังส่งข้อมูล...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    ยืนยันความถูกต้องและส่งคำขอ (Confirm & Submit)
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

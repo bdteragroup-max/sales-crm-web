@@ -10,9 +10,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-prompt)", "Prompt", "sans-serif"],
-        mono: ["var(--font-prompt)", "Prompt", "sans-serif"],
-        'ibm-thai': ["'IBM Plex Sans Thai'", "'IBM Plex Sans'", "sans-serif"],
+        sans: ["var(--font-inter)", "'Inter Thai Looped'", "-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Roboto", "sans-serif"],
+        mono: ["var(--font-inter)", "'Inter Thai Looped'", "monospace"],
+        prompt: ["var(--font-inter)", "'Inter Thai Looped'", "sans-serif"],
+        'ibm-thai': ["var(--font-inter)", "'Inter Thai Looped'", "sans-serif"],
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '0.875rem' }],

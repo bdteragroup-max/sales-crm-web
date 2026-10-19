@@ -12,6 +12,7 @@ import {
   getSubstituteCertificateFileName,
 } from './SubstituteReceiptCertificate';
 import SubstituteReceiptCertificateView from './SubstituteReceiptCertificate';
+import { truncate2Decimals } from '../utils/itemTaxes';
 import {
   X,
   Printer,
@@ -143,16 +144,16 @@ export default function SubstituteReceiptModal({
       if (field === 'quantity') {
         const q = Number(val) || 1;
         const u = Number(updated.unitPrice) || 0;
-        updated.amount = Math.round(q * u * 100) / 100;
+        updated.amount = truncate2Decimals(q * u);
       } else if (field === 'unitPrice') {
         const q = Number(updated.quantity) || 1;
         const u = Number(val) || 0;
-        updated.amount = Math.round(q * u * 100) / 100;
+        updated.amount = truncate2Decimals(q * u);
       } else if (field === 'amount') {
         const total = Number(val) || 0;
         const q = Number(updated.quantity) || 1;
         if (q > 0) {
-          updated.unitPrice = Math.round((total / q) * 100) / 100;
+          updated.unitPrice = truncate2Decimals(total / q);
         }
       }
       return updated;
@@ -169,16 +170,16 @@ export default function SubstituteReceiptModal({
       if (field === 'quantity') {
         const q = Number(val) || 1;
         const u = Number(current.unitPrice) || 0;
-        current.amount = Math.round(q * u * 100) / 100;
+        current.amount = truncate2Decimals(q * u);
       } else if (field === 'unitPrice') {
         const q = Number(current.quantity) || 1;
         const u = Number(val) || 0;
-        current.amount = Math.round(q * u * 100) / 100;
+        current.amount = truncate2Decimals(q * u);
       } else if (field === 'amount') {
         const total = Number(val) || 0;
         const q = Number(current.quantity) || 1;
         if (q > 0) {
-          current.unitPrice = Math.round((total / q) * 100) / 100;
+          current.unitPrice = truncate2Decimals(total / q);
         }
       }
       items[idx] = current;

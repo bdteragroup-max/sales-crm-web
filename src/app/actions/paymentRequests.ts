@@ -122,6 +122,16 @@ export type PaymentRequestRecord = {
   updated_at: string;
 };
 
+export type ItemAttachment = {
+  id?: string;
+  url: string;
+  fileName: string;
+  fileType?: string;
+  fileSize?: number;
+  fileHash?: string;
+  visualHash?: string;
+};
+
 export type RequisitionItem = {
   id?: string;
   billDate: string;
@@ -148,6 +158,7 @@ export type RequisitionItem = {
   approverName?: string;
   approverPosition?: string;
   approverSignatureUrl?: string;
+  attachments?: ItemAttachment[];
 };
 
 
@@ -277,10 +288,10 @@ export async function checkAttachmentDuplicates(params: {
     let query = `
       SELECT 
         id, pay_number, company, branch, supplier_name, supplier_tax_id, 
-        invoice_number, net_amount, document_date, status, requester_name, attachments, created_at
+        invoice_number, net_amount, document_date, status, requester_name, attachments, items, created_at
       FROM payment_requests
       WHERE status NOT IN ('CANCELLED', 'REJECTED')
-        AND attachments IS NOT NULL
+        AND (attachments IS NOT NULL OR items IS NOT NULL)
     `;
     const values: any[] = [];
     if (excludeId) {
@@ -294,8 +305,29 @@ export async function checkAttachmentDuplicates(params: {
     const matchedReqIds = new Set<string>();
 
     for (const row of res.rows) {
-      if (!Array.isArray(row.attachments)) continue;
-      for (const att of row.attachments) {
+      const allRowAttachments: any[] = [];
+      let rowAtts = row.attachments;
+      if (typeof rowAtts === 'string') {
+        try { rowAtts = JSON.parse(rowAtts); } catch {}
+      }
+      if (Array.isArray(rowAtts)) {
+        allRowAttachments.push(...rowAtts);
+      }
+
+      let rowItems = row.items;
+      if (typeof rowItems === 'string') {
+        try { rowItems = JSON.parse(rowItems); } catch {}
+      }
+      if (Array.isArray(rowItems)) {
+        for (const it of rowItems) {
+          if (Array.isArray(it.attachments)) {
+            allRowAttachments.push(...it.attachments);
+          }
+        }
+      }
+
+      if (allRowAttachments.length === 0) continue;
+      for (const att of allRowAttachments) {
         for (const item of checkItems) {
           let isMatch = false;
           let matchType = '';
@@ -628,22 +660,40 @@ export async function checkDuplicates(params: {
   const allAttItems: AttachmentCheckItem[] = [
     ...(attachmentItems || []),
     ...(Array.isArray(attachments) ? attachments : []),
-  ].map((it) => ({
+  ];
+  if (Array.isArray(items)) {
+    for (const it of items) {
+      if (Array.isArray(it.attachments)) {
+        allAttItems.push(
+          ...it.attachments.map((a: any) => ({
+            ...a,
+            currentAmount: Number(it.amount) || (netAmount > 0 ? netAmount : undefined),
+            currentSupplier: it.supplierName?.trim() || cleanSupplier || undefined,
+          }))
+        );
+      }
+    }
+  }
+  const mappedAttItems: AttachmentCheckItem[] = allAttItems.map((it) => ({
     ...it,
     currentAmount: it.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
     currentSupplier: it.currentSupplier ?? (cleanSupplier || undefined),
   }));
   if (fileHashes && fileHashes.length > 0) {
     for (const h of fileHashes) {
-      if (typeof h === 'string' && h.trim() && !allAttItems.some((it) => it.fileHash === h.trim())) {
-        allAttItems.push({ fileHash: h.trim() });
+      if (typeof h === 'string' && h.trim() && !mappedAttItems.some((it) => it.fileHash === h.trim())) {
+        mappedAttItems.push({
+          fileHash: h.trim(),
+          currentAmount: netAmount > 0 ? netAmount : undefined,
+          currentSupplier: cleanSupplier || undefined,
+        });
       }
     }
   }
 
-  if (allAttItems.length > 0 && exactMatches.length === 0) {
+  if (mappedAttItems.length > 0 && exactMatches.length === 0) {
     const attDupRes = await checkAttachmentDuplicates({
-      items: allAttItems,
+      items: mappedAttItems,
       excludeId,
     });
     if (attDupRes.isDuplicate && attDupRes.matches.length > 0) {
@@ -784,8 +834,17 @@ export async function checkDuplicates(params: {
   }
 
   // 6. Attachment Multi-Signal Cross-Check (Invariance across separate cameras, angles, and phone models)
-  if (Array.isArray(attachments) && attachments.length > 0) {
-    const checkItems: AttachmentCheckItem[] = attachments.map((a: any) => ({
+  const allAttachments: any[] = [...(Array.isArray(attachments) ? attachments : [])];
+  if (Array.isArray(items)) {
+    items.forEach((it) => {
+      if (Array.isArray(it.attachments)) {
+        allAttachments.push(...it.attachments);
+      }
+    });
+  }
+
+  if (allAttachments.length > 0) {
+    const checkItems: AttachmentCheckItem[] = allAttachments.map((a: any) => ({
       fileName: a.fileName,
       fileHash: a.fileHash,
       visualHash: a.visualHash,
@@ -1484,6 +1543,7 @@ export async function apReviewPaymentRequest(
     status: 'DOCUMENT_CHECK' | 'ACCOUNTING_CHECKED' | 'HOLD_DUPLICATE' | 'RETURN_DOCUMENT';
     notes?: string;
     checkedBy: string;
+    returnRecipient?: 'REQUESTER' | 'SUPERVISOR';
   }
 ) {
   const currentUser = await getUser();
@@ -1495,31 +1555,72 @@ export async function apReviewPaymentRequest(
   }
 
   const pool = getPool();
-  const currentReq = await pool.query('SELECT status, pay_number FROM payment_requests WHERE id = $1', [id]);
+  const currentReq = await pool.query('SELECT status, pay_number, requester_name, assigned_supervisor_name FROM payment_requests WHERE id = $1', [id]);
   if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
 
   const prevStatus = currentReq.rows[0].status;
+  const isReturn = data.status === 'RETURN_DOCUMENT';
+  const returnToSupervisor = isReturn && data.returnRecipient === 'SUPERVISOR';
 
-  await pool.query(
-    `UPDATE payment_requests
-     SET status = $1,
-         ap_checked_by = $2,
-         ap_checked_at = NOW(),
-         ap_notes = $3,
-         updated_at = NOW()
-     WHERE id = $4`,
-    [data.status, data.checkedBy, data.notes || null, id]
-  );
+  if (returnToSupervisor) {
+    // Return directly to supervisor - does not need to go back to requester
+    await pool.query(
+      `UPDATE payment_requests
+       SET status = 'PENDING_SUPERVISOR',
+           supervisor_checked_by = NULL,
+           supervisor_checked_at = NULL,
+           supervisor_signature_url = NULL,
+           ap_notes = $1,
+           updated_at = NOW()
+       WHERE id = $2`,
+      [data.notes || null, id]
+    );
 
-  const apLogNote = data.status === 'RETURN_DOCUMENT'
-    ? (data.notes ? `AP ส่งคืนแก้ไขเอกสาร: ${data.notes}` : 'AP ส่งคืนแก้ไขเอกสาร')
-    : (data.notes || 'AP ดำเนินการตรวจสอบเอกสารและภาษี');
+    const supName = currentReq.rows[0].assigned_supervisor_name || 'หัวหน้างาน';
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+       VALUES ($1, 'ACCOUNTING_RETURNED_TO_SUPERVISOR', $2, $3, 'PENDING_SUPERVISOR', $4)`,
+      [id, data.checkedBy, prevStatus, `ฝ่ายบัญชี (AP) ส่งคืนให้หัวหน้างาน (${supName}) ตรวจสอบแก้ไข: ${data.notes || '-'}`]
+    );
+  } else if (isReturn) {
+    // Return to requester - Process RESETS (Starts from Step 1)
+    await pool.query(
+      `UPDATE payment_requests
+       SET status = 'RETURN_DOCUMENT',
+           supervisor_checked_by = NULL,
+           supervisor_checked_at = NULL,
+           supervisor_signature_url = NULL,
+           ap_checked_by = NULL,
+           ap_checked_at = NULL,
+           ap_notes = $1,
+           updated_at = NOW()
+       WHERE id = $2`,
+      [data.notes || null, id]
+    );
 
-  await pool.query(
-    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
-     VALUES ($1, 'AP_CHECKED', $2, $3, $4, $5)`,
-    [id, data.checkedBy, prevStatus, data.status, apLogNote]
-  );
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+       VALUES ($1, 'ACCOUNTING_RETURNED_TO_REQUESTER', $2, $3, 'RETURN_DOCUMENT', $4)`,
+      [id, data.checkedBy, prevStatus, `ฝ่ายบัญชี (AP) ส่งคืนให้ผู้ขอเบิกแก้ไข (รีเซ็ตกลับขั้นตอนที่ 1 ต้องผ่านการอนุมัติจากหัวหน้างานใหม่): ${data.notes || '-'}`]
+    );
+  } else {
+    await pool.query(
+      `UPDATE payment_requests
+       SET status = $1,
+           ap_checked_by = $2,
+           ap_checked_at = NOW(),
+           ap_notes = $3,
+           updated_at = NOW()
+       WHERE id = $4`,
+      [data.status, data.checkedBy, data.notes || null, id]
+    );
+
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+       VALUES ($1, 'AP_CHECKED', $2, $3, $4, $5)`,
+      [id, data.checkedBy, prevStatus, data.status, data.notes || 'AP ดำเนินการตรวจสอบเอกสารและภาษี']
+    );
+  }
 
   revalidatePath('/accounting/payment-requests');
   revalidatePath(`/accounting/payment-requests/${id}`);
@@ -1533,6 +1634,7 @@ export async function supervisorReviewPaymentRequest(
     status: 'ACCOUNTING_CHECKED' | 'RETURN_DOCUMENT' | 'HOLD_DUPLICATE';
     notes?: string;
     reviewedBy: string;
+    returnRecipient?: 'REQUESTER' | 'SUPERVISOR';
   }
 ) {
   const currentUser = await getUser();
@@ -1544,26 +1646,69 @@ export async function supervisorReviewPaymentRequest(
   }
 
   const pool = getPool();
-  const currentReq = await pool.query('SELECT status FROM payment_requests WHERE id = $1', [id]);
+  const currentReq = await pool.query('SELECT status, pay_number, requester_name, assigned_supervisor_name FROM payment_requests WHERE id = $1', [id]);
   if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
   const prevStatus = currentReq.rows[0].status;
+  const isReturn = data.status === 'RETURN_DOCUMENT';
+  const returnToSupervisor = isReturn && data.returnRecipient === 'SUPERVISOR';
 
-  await pool.query(
-    `UPDATE payment_requests
-     SET status = $1,
-         accounting_manager_checked_by = $2,
-         accounting_manager_checked_at = NOW(),
-         accounting_manager_notes = $3,
-         updated_at = NOW()
-     WHERE id = $4`,
-    [data.status, data.reviewedBy, data.notes || null, id]
-  );
+  if (returnToSupervisor) {
+    await pool.query(
+      `UPDATE payment_requests
+       SET status = 'PENDING_SUPERVISOR',
+           supervisor_checked_by = NULL,
+           supervisor_checked_at = NULL,
+           supervisor_signature_url = NULL,
+           accounting_manager_notes = $1,
+           updated_at = NOW()
+       WHERE id = $2`,
+      [data.notes || null, id]
+    );
 
-  await pool.query(
-    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
-     VALUES ($1, 'ACCOUNTING_MANAGER_CHECKED', $2, $3, $4, $5)`,
-    [id, data.reviewedBy, prevStatus, data.status, data.notes || 'ผู้จัดการฝ่ายบัญชีสอบทานรายการ']
-  );
+    const supName = currentReq.rows[0].assigned_supervisor_name || 'หัวหน้างาน';
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+       VALUES ($1, 'ACCOUNTING_RETURNED_TO_SUPERVISOR', $2, $3, 'PENDING_SUPERVISOR', $4)`,
+      [id, data.reviewedBy, prevStatus, `ผู้จัดการฝ่ายบัญชีส่งคืนให้หัวหน้างาน (${supName}) ตรวจสอบแก้ไข: ${data.notes || '-'}`]
+    );
+  } else if (isReturn) {
+    await pool.query(
+      `UPDATE payment_requests
+       SET status = 'RETURN_DOCUMENT',
+           supervisor_checked_by = NULL,
+           supervisor_checked_at = NULL,
+           supervisor_signature_url = NULL,
+           ap_checked_by = NULL,
+           ap_checked_at = NULL,
+           accounting_manager_notes = $1,
+           updated_at = NOW()
+       WHERE id = $2`,
+      [data.notes || null, id]
+    );
+
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+       VALUES ($1, 'ACCOUNTING_RETURNED_TO_REQUESTER', $2, $3, 'RETURN_DOCUMENT', $4)`,
+      [id, data.reviewedBy, prevStatus, `ผู้จัดการฝ่ายบัญชีส่งคืนให้ผู้ขอเบิกแก้ไข (รีเซ็ตกลับขั้นตอนที่ 1 ต้องผ่านการอนุมัติจากหัวหน้างานใหม่): ${data.notes || '-'}`]
+    );
+  } else {
+    await pool.query(
+      `UPDATE payment_requests
+       SET status = $1,
+           accounting_manager_checked_by = $2,
+           accounting_manager_checked_at = NOW(),
+           accounting_manager_notes = $3,
+           updated_at = NOW()
+       WHERE id = $4`,
+      [data.status, data.reviewedBy, data.notes || null, id]
+    );
+
+    await pool.query(
+      `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+       VALUES ($1, 'ACCOUNTING_MANAGER_CHECKED', $2, $3, $4, $5)`,
+      [id, data.reviewedBy, prevStatus, data.status, data.notes || 'ผู้จัดการฝ่ายบัญชีสอบทานรายการ']
+    );
+  }
 
   revalidatePath('/accounting/payment-requests');
   revalidatePath(`/accounting/payment-requests/${id}`);
@@ -1783,8 +1928,14 @@ export async function recordOriginalDocumentReceipt(
   const reqRes = await pool.query('SELECT status, gl_voucher_no, gl_posted_at FROM payment_requests WHERE id = $1', [id]);
   if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
   const prevStatus = reqRes.rows[0].status;
-  const hasGL = !!(reqRes.rows[0].gl_voucher_no || reqRes.rows[0].gl_posted_at || reqRes.rows[0].status === 'POSTED_TO_GL');
-  const newStatus = hasGL ? 'CLOSED' : 'ORIGINAL_RECEIVED';
+  const hasGL = !!(reqRes.rows[0].gl_voucher_no || reqRes.rows[0].gl_posted_at || reqRes.rows[0].status === 'POSTED_TO_GL' || reqRes.rows[0].status === 'CLOSED');
+  if (!hasGL) {
+    return {
+      success: false,
+      error: 'ไม่สามารถรับเอกสารตัวจริงได้: จำเป็นต้องบันทึกการลงระบบบัญชี (Express หรือ Odoo / GL Posting ในขั้นตอนที่ 6) ให้เรียบร้อยก่อน',
+    };
+  }
+  const newStatus = 'CLOSED';
 
   const defaultStamp = `RECEIVED ORIGINAL/PAID - ${new Date().toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok' })}`;
   const finalStamp = data.stampText?.trim() || defaultStamp;
@@ -1805,6 +1956,46 @@ export async function recordOriginalDocumentReceipt(
     `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
      VALUES ($1, 'ORIGINAL_RECEIVED', $2, $3, $4, $5)`,
     [id, data.originalReceivedBy, prevStatus, newStatus, `ได้รับเอกสารตัวจริงแล้ว ปั๊มตรา: "${finalStamp}" โดย ${data.originalReceivedBy}${hasGL ? ' (ลงบัญชี GL เรียบร้อย - ปิดรายการสมบูรณ์)' : ''}`]
+  );
+
+  revalidatePath('/accounting/payment-requests');
+  revalidatePath(`/accounting/payment-requests/${id}`);
+  return { success: true };
+}
+
+// Revert Original Document Receipt (allows correction or sequential processing)
+export async function revertPaymentRequestOriginalReceipt(id: string) {
+  const currentUser = await getUser();
+  if (!currentUser || !isAccountingStaff(currentUser.role)) {
+    return {
+      success: false,
+      error: 'ไม่มีสิทธิ์: เฉพาะฝ่ายบัญชีเท่านั้นที่สามารถยกเลิกการรับเอกสารตัวจริงได้',
+    };
+  }
+
+  const pool = getPool();
+  const reqRes = await pool.query('SELECT status, gl_voucher_no, original_received_at FROM payment_requests WHERE id = $1', [id]);
+  if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
+  const row = reqRes.rows[0];
+  const prevStatus = row.status;
+  const newStatus = row.gl_voucher_no ? 'POSTED_TO_GL' : 'PAID';
+
+  await pool.query(
+    `UPDATE payment_requests
+     SET original_received_at = NULL,
+         original_received_by = NULL,
+         original_stamp_text = NULL,
+         original_notes = NULL,
+         status = $1,
+         updated_at = NOW()
+     WHERE id = $2`,
+    [newStatus, id]
+  );
+
+  await pool.query(
+    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+     VALUES ($1, 'REVERT_ORIGINAL', $2, $3, $4, $5)`,
+    [id, currentUser.fullName || 'ฝ่ายบัญชี', prevStatus, newStatus, 'ยกเลิกสถานะรับเอกสารตัวจริงชั่วคราว เพื่อแก้ไขหรือดำเนินการบันทึกบัญชี Express/Odoo']
   );
 
   revalidatePath('/accounting/payment-requests');
@@ -2164,7 +2355,15 @@ export async function updateFullPaymentRequest(
 
   let targetStatus = current.status;
   if (data.resubmit) {
-    if (current.ap_checked_by) {
+    // If the request was returned to user (RETURN_DOCUMENT), reset back to Step 1 (PENDING_SUPERVISOR)
+    // so it requires supervisor approval again, never bypassing supervisor
+    if (current.status === 'RETURN_DOCUMENT' || !current.supervisor_checked_by) {
+      if (current.assigned_supervisor_id && !isSupervisorOrManager(currentUser.role)) {
+        targetStatus = 'PENDING_SUPERVISOR';
+      } else {
+        targetStatus = 'SUBMITTED';
+      }
+    } else if (current.ap_checked_by) {
       targetStatus = 'SUBMITTED';
     } else if (current.assigned_supervisor_id && !current.supervisor_checked_by && !isSupervisorOrManager(currentUser.role)) {
       targetStatus = 'PENDING_SUPERVISOR';
@@ -2249,10 +2448,25 @@ export async function updateFullPaymentRequest(
     ]
   );
 
+  if (data.resubmit && targetStatus === 'PENDING_SUPERVISOR') {
+    await pool.query(
+      `UPDATE payment_requests
+       SET supervisor_checked_by = NULL,
+           supervisor_checked_at = NULL,
+           supervisor_signature_url = NULL,
+           ap_checked_by = NULL,
+           ap_checked_at = NULL
+       WHERE id = $1`,
+      [id]
+    );
+  }
+
   if (data.resubmit) {
     const resubmitNote = data.resubmitNote
-      ? `ผู้ขอเบิกแก้ไขข้อมูลและส่งตรวจอีกครั้ง: ${data.resubmitNote}`
-      : 'ผู้ขอเบิกแก้ไขข้อมูลครบถ้วนและส่งตรวจอีกครั้ง';
+      ? `ผู้ขอเบิกแก้ไขข้อมูลและส่งขออนุมัติใหม่ (เริ่มต้นขั้นตอนที่ 1): ${data.resubmitNote}`
+      : (targetStatus === 'PENDING_SUPERVISOR'
+          ? 'ผู้ขอเบิกแก้ไขข้อมูลครบถ้วนและส่งขออนุมัติใหม่ (เริ่มต้นขั้นตอนที่ 1: รอหัวหน้างานอนุมัติ)'
+          : 'ผู้ขอเบิกแก้ไขข้อมูลครบถ้วนและส่งตรวจอีกครั้ง');
     await pool.query(
       `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
        VALUES ($1, 'RESUBMITTED', $2, $3, $4, $5)`,

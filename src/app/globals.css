@@ -1,4 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+/* Inter Thai Looped (Cadson Demak Custom Font for Grab) */
+@font-face {
+  font-family: 'Inter Thai Looped';
+  src: url('/fonts/inter-thai-looped/InterThaiLooped[wght].ttf') format('truetype-variations'),
+       url('/fonts/inter-thai-looped/InterThaiLooped-Regular.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Thai Looped';
+  src: url('/fonts/inter-thai-looped/InterThaiLooped-Italic[wght].ttf') format('truetype-variations'),
+       url('/fonts/inter-thai-looped/InterThaiLooped-Italic.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Thai Looped';
+  src: url('/fonts/inter-thai-looped/InterThaiLooped-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Thai Looped';
+  src: url('/fonts/inter-thai-looped/InterThaiLooped-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Thai Looped';
+  src: url('/fonts/inter-thai-looped/InterThaiLooped-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Thai Looped';
+  src: url('/fonts/inter-thai-looped/InterThaiLooped-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Thai Looped';
+  src: url('/fonts/inter-thai-looped/InterThaiLooped-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Thai Looped';
+  src: url('/fonts/inter-thai-looped/InterThaiLooped-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -9,6 +74,7 @@
   --foreground: #1a1a1a;
   /* Dark gray */
   --brand-red: #ff2301;
+  --font-prompt: var(--font-inter);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,7 +85,7 @@
 }
 
 body {
-  font-family: 'Prompt', sans-serif;
+  font-family: var(--font-inter), 'Inter Thai Looped', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--background);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
@@ -28,7 +94,7 @@ body {
 }
 
 .font-ibm-thai {
-  font-family: 'IBM Plex Sans Thai', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: var(--font-inter), 'Inter Thai Looped', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 /* Hide number input spinners globally */
@@ -46,7 +112,7 @@ input[type="number"] {
 
 .number,
 .data {
-  font-family: var(--font-prompt), 'Prompt', sans-serif;
+  font-family: var(--font-inter), 'Inter Thai Looped', sans-serif;
   font-variant-numeric: tabular-nums;
 }
 

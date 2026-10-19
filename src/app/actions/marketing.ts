@@ -3,6 +3,7 @@
 import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
 import { notifyUser } from '@/app/lib/pushNotification'
+import ExcelJS from 'exceljs'
 
 export async function createMarketingLead(data: {
   customerName: string
@@ -572,3 +573,188 @@ export async function claimLead(leadId: string, userId: string) {
     return { success: false, error: error.message || 'Failed to claim lead' };
   }
 }
+
+export async function exportMarketingLeadsToExcel(leadIds?: string[]): Promise<{ success: boolean; data?: string; error?: string }> {
+  try {
+    const whereClause: any = {}
+    if (leadIds && leadIds.length > 0) {
+      whereClause.id = { in: leadIds }
+    }
+
+    const leads = await (prisma as any).marketingLead.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        quotation: {
+          select: {
+            status: true,
+            salesperson: {
+              select: {
+                fullName: true,
+              }
+            }
+          }
+        },
+        createdBy: {
+          select: {
+            fullName: true,
+          }
+        },
+        assignedTo: {
+          select: {
+            fullName: true,
+          }
+        },
+        adCampaign: {
+          select: {
+            id: true,
+            name: true,
+            internalCode: true,
+            channel: {
+              select: {
+                name: true,
+              }
+            }
+          }
+        }
+      }
+    })
+
+    // Also fetch telesale info for matched companies
+    const companyNames = leads.map((l: any) => l.customerName).filter(Boolean);
+    const matchedCompanyIds = leads.map((l: any) => l.matchedCompanyId).filter(Boolean);
+    const companyNamedLeads = leads.map((l: any) => l.companyName).filter(Boolean);
+    const allCompanyNames = Array.from(new Set([...companyNames, ...companyNamedLeads]));
+
+    let companyById = new Map<string, any>();
+    let companyByName = new Map<string, any>();
+    if (matchedCompanyIds.length > 0 || allCompanyNames.length > 0) {
+      const companies = await prisma.company.findMany({
+        where: {
+          OR: [
+            { id: { in: matchedCompanyIds } },
+            { companyName: { in: allCompanyNames } }
+          ]
+        },
+        select: {
+          id: true,
+          companyName: true,
+          customerStatus: true,
+          telesales: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: {
+              callOutcome: true,
+              result: true,
+              conversationSummary: true,
+              createdAt: true,
+              user: { select: { fullName: true } }
+            }
+          }
+        }
+      });
+      for (const c of companies) {
+        if (c.id) companyById.set(c.id, c);
+        if (c.companyName) companyByName.set(c.companyName.toLowerCase().trim(), c);
+      }
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Tera CRM';
+    workbook.created = new Date();
+
+    const sheet = workbook.addWorksheet('Marketing Leads');
+    sheet.columns = [
+      { header: 'ลำดับ', key: 'no', width: 8 },
+      { header: 'วันที่บันทึก', key: 'createdAt', width: 18 },
+      { header: 'ชื่อลูกค้า / ผู้ติดต่อ', key: 'customerName', width: 28 },
+      { header: 'เบอร์โทรศัพท์', key: 'phone', width: 18 },
+      { header: 'ชื่อบริษัท / องค์กร', key: 'companyName', width: 30 },
+      { header: 'จังหวัด', key: 'province', width: 16 },
+      { header: 'อำเภอ / เขต', key: 'district', width: 16 },
+      { header: 'แหล่งที่มาของ Lead', key: 'leadSource', width: 20 },
+      { header: 'ช่องทางโฆษณา', key: 'channel', width: 18 },
+      { header: 'แคมเปญโฆษณา', key: 'campaign', width: 25 },
+      { header: 'สินค้าที่สนใจ', key: 'product', width: 26 },
+      { header: 'ประเภทสินค้า', key: 'productType', width: 20 },
+      { header: 'รายละเอียดความต้องการ', key: 'conversation', width: 35 },
+      { header: 'สถานะการส่งต่อ', key: 'forwardStatus', width: 20 },
+      { header: 'วันที่ส่งต่อ', key: 'forwardedAt', width: 18 },
+      { header: 'เซลส์ผู้รับผิดชอบ', key: 'assignedSales', width: 24 },
+      { header: 'สถานะใบเสนอราคา', key: 'quotationStatus', width: 20 },
+      { header: 'เซลส์ผู้เสนอราคา', key: 'quotationSales', width: 24 },
+      { header: 'ผลการโทรล่าสุด (Telesale)', key: 'callOutcome', width: 24 },
+      { header: 'สรุปการคุยกับลูกค้า', key: 'callSummary', width: 35 },
+      { header: 'ผู้บันทึก Lead', key: 'createdBy', width: 22 },
+    ];
+
+    // Header styling
+    const headerRow = sheet.getRow(1);
+    headerRow.font = { name: 'Sarabun', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF1E293B' } // Slate-800
+    };
+    headerRow.height = 28;
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+
+    leads.forEach((l: any, idx: number) => {
+      let comp = l.matchedCompanyId ? companyById.get(l.matchedCompanyId) : null;
+      if (!comp && l.customerName) comp = companyByName.get(l.customerName.toLowerCase().trim());
+      if (!comp && l.companyName) comp = companyByName.get(l.companyName.toLowerCase().trim());
+      const latestT = comp?.telesales?.[0] || null;
+
+      const dateStr = l.createdAt ? new Date(l.createdAt).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : '-';
+
+      const forwardStr = l.isForwarded ? 'ส่งต่อฝ่ายขายแล้ว' : 'ยังไม่ส่งต่อ (New Lead)';
+      const forwardDateStr = l.forwardedAt ? new Date(l.forwardedAt).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : '-';
+
+      sheet.addRow({
+        no: idx + 1,
+        createdAt: dateStr,
+        customerName: l.customerName || '-',
+        phone: l.phoneNumber || '-',
+        companyName: l.companyName || comp?.companyName || '-',
+        province: l.province || '-',
+        district: l.district || '-',
+        leadSource: l.leadSource || '-',
+        channel: l.adCampaign?.channel?.name || '-',
+        campaign: l.adCampaign?.name || l.campaignSource || '-',
+        product: l.productOfInterest || '-',
+        productType: l.productType || '-',
+        conversation: l.conversationContent || '-',
+        forwardStatus: forwardStr,
+        forwardedAt: forwardDateStr,
+        assignedSales: l.assignedTo?.fullName || '-',
+        quotationStatus: l.quotation?.status || '-',
+        quotationSales: l.quotation?.salesperson?.fullName || '-',
+        callOutcome: latestT?.callOutcome || latestT?.result || '-',
+        callSummary: latestT?.conversationSummary || '-',
+        createdBy: l.createdBy?.fullName || '-',
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return {
+      success: true,
+      data: Buffer.from(buffer).toString('base64')
+    };
+  } catch (error: any) {
+    console.error('Export leads error:', error);
+    return { success: false, error: error.message || 'Failed to export leads' };
+  }
+}
+
