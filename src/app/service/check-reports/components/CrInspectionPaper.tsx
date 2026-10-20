@@ -24,6 +24,18 @@ export default function CrInspectionPaper({ report, className = "" }: CrInspecti
   const pInput = report?.powerInputVoltage || {};
   const pOutput = report?.powerOutputVoltage || {};
   const panelItems: any[] = report?.panelComponentsCheck || [];
+  const motor = report?.motorMeasurement || {};
+  const hasMotorValues = Boolean(
+    motor?.windingU1U2 ||
+      motor?.windingV1V2 ||
+      motor?.windingW1W2 ||
+      motor?.insulationUGround ||
+      motor?.insulationVGround ||
+      motor?.insulationWGround
+  );
+  const showMotorSection = eqType === "MOTOR" || hasMotorValues;
+  const showPanelSection =
+    eqType === "CONTROL_CABINET" || (!showMotorSection && panelItems.length > 0);
 
   return (
     <div
@@ -195,56 +207,153 @@ export default function CrInspectionPaper({ report, className = "" }: CrInspecti
           </tbody>
         </table>
 
-        {/* Section 2: 13 PANEL COMPONENTS CHECK */}
-        <div className="font-bold text-[12px] bg-neutral-200 border border-black px-2 py-1 mb-1">
-          ตรวจสอบสภาพ อุปกรณ์ภายในตู้ควบคุม (PANEL INSPECTION)
-        </div>
+        {/* Section 2: MOTOR INSPECTION (for MOTOR or when motor values recorded) */}
+        {showMotorSection && (
+          <>
+            <div className="font-bold text-[12px] bg-neutral-200 border border-black px-2 py-1 mb-1">
+              ผลการตรวจวัดมอเตอร์ไฟฟ้า (MOTOR ELECTRICAL INSPECTION)
+            </div>
 
-        <table className="w-full border-collapse border border-black text-[11px] mb-3">
-          <thead>
-            <tr className="bg-neutral-100">
-              <th className="border border-black p-1 text-center w-10">ลำดับ</th>
-              <th className="border border-black p-1 text-left">รายการอุปกรณ์</th>
-              <th className="border border-black p-1 text-center w-24">สภาพปกติ</th>
-              <th className="border border-black p-1 text-center w-24">ชำรุด</th>
-              <th className="border border-black p-1 text-left">โปรดระบุรายละเอียด</th>
-            </tr>
-          </thead>
-          <tbody>
-            {panelItems.map((item, idx) => {
-              const isNormal = item.status === "NORMAL";
-              const isDamaged = item.status === "DAMAGED";
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              {/* 1. Winding Resistance */}
+              <div>
+                <div className="font-bold text-[10.5px] bg-neutral-100 border border-black px-1.5 py-1">
+                  1. ตารางวัดค่าความต้านทานขดลวด (Winding Resistance)
+                </div>
+                <div className="text-[9px] text-gray-700 italic border-x border-black px-1.5 py-0.5 bg-neutral-50/50">
+                  * ใช้มัลติมิเตอร์ย่าน Ω ตัดไฟและแยกมอเตอร์ก่อนวัด
+                </div>
+                <table className="w-full border-collapse border border-black text-[11px]">
+                  <thead>
+                    <tr className="bg-neutral-100">
+                      <th className="border border-black p-1 text-left">จุดวัด</th>
+                      <th className="border border-black p-1 text-center w-28">ค่าที่วัดได้ (Ω)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">U1–U2</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.windingU1U2 ? `${motor.windingU1U2} Ω` : "-"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">V1–V2</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.windingV1V2 ? `${motor.windingV1V2} Ω` : "-"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">W1–W2</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.windingW1W2 ? `${motor.windingW1W2} Ω` : "-"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-              return (
-                <tr key={idx} className={idx % 2 === 1 ? "bg-neutral-50/50" : ""}>
-                  <td className="border border-black p-1 text-center font-bold">{idx + 1}</td>
-                  <td className="border border-black p-1 font-medium">{item.name}</td>
-                  <td className="border border-black p-1 text-center font-bold">
-                    {isNormal ? (
-                      <span className="inline-flex items-center gap-1 justify-center">
-                        <Check className="w-3.5 h-3.5 text-black" />
-                        <span>ปกติ</span>
-                      </span>
-                    ) : (
-                      ""
-                    )}
-                  </td>
-                  <td className="border border-black p-1 text-center font-bold text-red-600">
-                    {isDamaged ? (
-                      <span className="inline-flex items-center gap-1 justify-center text-red-600">
-                        <X className="w-3.5 h-3.5 text-red-600" />
-                        <span>ชำรุด</span>
-                      </span>
-                    ) : (
-                      ""
-                    )}
-                  </td>
-                  <td className="border border-black p-1 text-slate-700">{item.remark || "-"}</td>
+              {/* 2. Insulation Resistance */}
+              <div>
+                <div className="font-bold text-[10.5px] bg-neutral-100 border border-black px-1.5 py-1">
+                  2. ตารางวัดฉนวนขดลวดลงกราวด์ (Insulation Resistance)
+                </div>
+                <div className="text-[9px] text-gray-700 italic border-x border-black px-1.5 py-0.5 bg-neutral-50/50">
+                  * ใช้เครื่อง Insulation Tester (Megger)
+                </div>
+                <table className="w-full border-collapse border border-black text-[11px]">
+                  <thead>
+                    <tr className="bg-neutral-100">
+                      <th className="border border-black p-1 text-left">จุดวัด</th>
+                      <th className="border border-black p-1 text-center w-28">ค่า Megger (MΩ)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">U – โครงมอเตอร์</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.insulationUGround ? `${motor.insulationUGround} MΩ` : "-"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">V – โครงมอเตอร์</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.insulationVGround ? `${motor.insulationVGround} MΩ` : "-"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">W – โครงมอเตอร์</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.insulationWGround ? `${motor.insulationWGround} MΩ` : "-"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {motor?.notes && (
+              <div className="border border-black p-1.5 text-[10.5px] mb-2 bg-neutral-50">
+                <b>หมายเหตุการตรวจเช็คมอเตอร์:</b> {motor.notes}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Section: 13 PANEL COMPONENTS CHECK (shown when control cabinet or when not motor) */}
+        {showPanelSection && (
+          <>
+            <div className="font-bold text-[12px] bg-neutral-200 border border-black px-2 py-1 mb-1">
+              ตรวจสอบสภาพ อุปกรณ์ภายในตู้ควบคุม (PANEL INSPECTION)
+            </div>
+
+            <table className="w-full border-collapse border border-black text-[11px] mb-3">
+              <thead>
+                <tr className="bg-neutral-100">
+                  <th className="border border-black p-1 text-center w-10">ลำดับ</th>
+                  <th className="border border-black p-1 text-left">รายการอุปกรณ์</th>
+                  <th className="border border-black p-1 text-center w-24">สภาพปกติ</th>
+                  <th className="border border-black p-1 text-center w-24">ชำรุด</th>
+                  <th className="border border-black p-1 text-left">โปรดระบุรายละเอียด</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {panelItems.map((item, idx) => {
+                  const isNormal = item.status === "NORMAL";
+                  const isDamaged = item.status === "DAMAGED";
+
+                  return (
+                    <tr key={idx} className={idx % 2 === 1 ? "bg-neutral-50/50" : ""}>
+                      <td className="border border-black p-1 text-center font-bold">{idx + 1}</td>
+                      <td className="border border-black p-1 font-medium">{item.name}</td>
+                      <td className="border border-black p-1 text-center font-bold">
+                        {isNormal ? (
+                          <span className="inline-flex items-center gap-1 justify-center">
+                            <Check className="w-3.5 h-3.5 text-black" />
+                            <span>ปกติ</span>
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </td>
+                      <td className="border border-black p-1 text-center font-bold text-red-600">
+                        {isDamaged ? (
+                          <span className="inline-flex items-center gap-1 justify-center text-red-600">
+                            <X className="w-3.5 h-3.5 text-red-600" />
+                            <span>ชำรุด</span>
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </td>
+                      <td className="border border-black p-1 text-slate-700">{item.remark || "-"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
+        )}
       </div>
 
       {/* Signature Section */}

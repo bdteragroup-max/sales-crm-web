@@ -39,7 +39,18 @@ export default function FaultReportPaper({
     diode.pos_to_r_black || diode.pos_to_s_black || diode.pos_to_t_black ||
     diode.neg_to_r_red || diode.neg_to_s_red || diode.neg_to_t_red
   );
-  const showDiodeSection = eqType === "INVERTER" || hasDiodeValues;
+
+  const motor = report?.motorMeasurement || {};
+  const hasMotorValues = Boolean(
+    motor?.windingU1U2 ||
+      motor?.windingV1V2 ||
+      motor?.windingW1W2 ||
+      motor?.insulationUGround ||
+      motor?.insulationVGround ||
+      motor?.insulationWGround
+  );
+  const showMotorSection = eqType === "MOTOR" || hasMotorValues;
+  const showDiodeSection = (eqType === "INVERTER" || hasDiodeValues) && !showMotorSection;
 
   const parts: any[] = report?.requireParts || [];
   const photos = report?.photos || {};
@@ -220,6 +231,125 @@ export default function FaultReportPaper({
             </tr>
           </tbody>
         </table>
+
+        {/* Section: MOTOR MEASUREMENT TABLE (Shown for Motor or when Motor is tested) */}
+        {showMotorSection && (
+          <div className="mb-3">
+            <div className="font-bold text-[11px] bg-neutral-200 border border-black px-2 py-1 mb-1 flex items-center justify-between">
+              <span>
+                {isEn
+                  ? "ELECTRIC MOTOR ELECTRICAL MEASUREMENT RESULTS"
+                  : "ผลการตรวจวัดค่าทางไฟฟ้าของมอเตอร์ (Winding & Insulation)"}
+              </span>
+              <span className="text-[9.5px] font-normal text-gray-700">
+                {isEn ? "Units: Resistance (Ω), Megger (MΩ)" : "หน่วย: ความต้านทาน (Ω), เมกะโอห์ม (MΩ)"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {/* 1. Winding Resistance Table */}
+              <div>
+                <div className="font-bold text-[10px] bg-neutral-100 border border-black px-1.5 py-0.5">
+                  {isEn
+                    ? "1. Winding Resistance Table (Multimeter Ω)"
+                    : "1. ตารางวัดค่าความต้านทานขดลวด (Winding Resistance)"}
+                </div>
+                <div className="text-[8.5px] text-gray-600 italic border-x border-black px-1.5 py-0.5 bg-neutral-50/50">
+                  {isEn
+                    ? "* Multimeter Ω (Disconnect power & isolate motor before test)"
+                    : "* ใช้มัลติมิเตอร์ย่าน Ω โดยตัดแหล่งจ่ายไฟและแยกมอเตอร์ก่อนวัด"}
+                </div>
+                <table className="w-full border-collapse border border-black text-[10.5px]">
+                  <thead>
+                    <tr className="bg-neutral-100">
+                      <th className="border border-black p-1 text-left">{isEn ? "Point" : "จุดวัด"}</th>
+                      <th className="border border-black p-1 text-center w-28">
+                        {isEn ? "Measured (Ω)" : "ค่าที่วัดได้ (Ω)"}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">U1–U2</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.windingU1U2 ? `${motor.windingU1U2} Ω` : "-"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">V1–V2</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.windingV1V2 ? `${motor.windingV1V2} Ω` : "-"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">W1–W2</td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.windingW1W2 ? `${motor.windingW1W2} Ω` : "-"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 2. Insulation Resistance Table */}
+              <div>
+                <div className="font-bold text-[10px] bg-neutral-100 border border-black px-1.5 py-0.5">
+                  {isEn
+                    ? "2. Insulation Resistance Table (Megger MΩ)"
+                    : "2. ตารางวัดฉนวนขดลวดลงกราวด์ (Insulation Resistance)"}
+                </div>
+                <div className="text-[8.5px] text-gray-600 italic border-x border-black px-1.5 py-0.5 bg-neutral-50/50">
+                  {isEn
+                    ? "* Use Insulation Tester (Megger), not standard multimeter"
+                    : "* ใช้เครื่อง Insulation Tester (Megger) ไม่ใช่มัลติมิเตอร์ธรรมดา"}
+                </div>
+                <table className="w-full border-collapse border border-black text-[10.5px]">
+                  <thead>
+                    <tr className="bg-neutral-100">
+                      <th className="border border-black p-1 text-left">{isEn ? "Point" : "จุดวัด"}</th>
+                      <th className="border border-black p-1 text-center w-28">
+                        {isEn ? "Megger (MΩ)" : "ค่า Megger (MΩ)"}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">
+                        {isEn ? "U – Motor Frame" : "U – โครงมอเตอร์"}
+                      </td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.insulationUGround ? `${motor.insulationUGround} MΩ` : "-"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">
+                        {isEn ? "V – Motor Frame" : "V – โครงมอเตอร์"}
+                      </td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.insulationVGround ? `${motor.insulationVGround} MΩ` : "-"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black p-1 font-bold">
+                        {isEn ? "W – Motor Frame" : "W – โครงมอเตอร์"}
+                      </td>
+                      <td className="border border-black p-1 text-center font-mono font-bold">
+                        {motor?.insulationWGround ? `${motor.insulationWGround} MΩ` : "-"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {motor?.notes && (
+              <div className="border border-black p-1.5 text-[10px] mt-1 bg-neutral-50">
+                <b>{isEn ? "Motor Inspection Note: " : "หมายเหตุการตรวจเช็คมอเตอร์: "}</b>
+                {motor.notes}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Section: DIODE MEASUREMENT TABLE (Shown for Inverter or when Diode is tested) */}
         {showDiodeSection && (

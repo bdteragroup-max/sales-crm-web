@@ -46,10 +46,12 @@ import {
   PanelComponentItem,
   DiodeMeasurement,
   PowerVoltageCheck,
+  MotorMeasurement,
 } from "@/app/actions/inverterCheckReports";
 import DiodeMeasurementCard from "./DiodeMeasurementCard";
 import PowerVoltageCard from "./PowerVoltageCard";
 import PanelComponentsCard from "./PanelComponentsCard";
+import MotorMeasurementCard from "./MotorMeasurementCard";
 import ConvertToRoModal from "./ConvertToRoModal";
 import {
   DEFAULT_PANEL_COMPONENTS,
@@ -135,21 +137,34 @@ export default function CheckReportForm({
   const [showPanelDetails, setShowPanelDetails] = useState<boolean>(
     initialData?.equipmentType ? initialData.equipmentType === "CONTROL_CABINET" : false
   );
+  const [showMotorDetails, setShowMotorDetails] = useState<boolean>(
+    initialData?.equipmentType
+      ? initialData.equipmentType === "MOTOR" || initialData.equipmentType === "PUMP"
+      : false
+  );
 
   const handleEquipmentTypeChange = (type: EquipmentType) => {
     setEquipmentType(type);
     if (type === "INVERTER") {
       setShowDiodeDetails(true);
       setShowPanelDetails(false);
+      setShowMotorDetails(false);
       if (!inverterBrand || inverterBrand === "TERA GROUP") setInverterBrand("INVT");
     } else if (type === "CONTROL_CABINET") {
       setShowDiodeDetails(false);
       setShowPanelDetails(true);
+      setShowMotorDetails(false);
       if (!inverterBrand || inverterBrand === "INVT") setInverterBrand("TERA GROUP");
-    } else {
-      // MOTOR or PUMP
+    } else if (type === "MOTOR") {
       setShowDiodeDetails(false);
       setShowPanelDetails(false);
+      setShowMotorDetails(true);
+      if (inverterBrand === "INVT" || inverterBrand === "TERA GROUP") setInverterBrand("");
+    } else {
+      // PUMP
+      setShowDiodeDetails(false);
+      setShowPanelDetails(false);
+      setShowMotorDetails(true);
       if (inverterBrand === "INVT" || inverterBrand === "TERA GROUP") setInverterBrand("");
     }
   };
@@ -201,6 +216,9 @@ export default function CheckReportForm({
     initialData?.panelComponentsCheck?.length
       ? initialData.panelComponentsCheck
       : DEFAULT_PANEL_COMPONENTS
+  );
+  const [motorMeasurement, setMotorMeasurement] = useState<MotorMeasurement>(
+    initialData?.motorMeasurement || {}
   );
 
   // Photos State
@@ -528,6 +546,7 @@ export default function CheckReportForm({
         powerInputVoltage,
         powerOutputVoltage,
         panelComponentsCheck,
+        motorMeasurement,
         photos,
         reportBy: currentUserName,
       };
@@ -1143,7 +1162,7 @@ export default function CheckReportForm({
                 type: "MOTOR" as const,
                 title: "มอเตอร์ไฟฟ้า (Motor)",
                 sub: "Electric Motor Inspection",
-                desc: "ตรวจวัดสภาพมอเตอร์ ขนาด kW/HP โหลดการทำงานและสาเหตุความเสียหาย",
+                desc: "ตรวจวัดความต้านทานขดลวด (Ω), ค่าฉนวน Megger (MΩ) และสาเหตุชำรุด",
                 icon: <Cog className="w-5 h-5" />,
               },
               {
@@ -1492,6 +1511,54 @@ export default function CheckReportForm({
                 <PanelComponentsCard
                   items={panelComponentsCheck}
                   onChange={setPanelComponentsCheck}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= SECTION: MOTOR ELECTRICAL MEASUREMENT ================= */}
+        {equipmentType === "MOTOR" || equipmentType === "PUMP" ? (
+          <MotorMeasurementCard
+            value={motorMeasurement}
+            onChange={setMotorMeasurement}
+          />
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4">
+            <button
+              type="button"
+              onClick={() => setShowMotorDetails(!showMotorDetails)}
+              className="w-full flex items-center justify-between text-left cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <Cog className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-800 group-hover:text-amber-600 transition-colors">
+                    การตรวจวัดมอเตอร์ไฟฟ้า: ความต้านทานขดลวด & ฉนวนลงกราวด์ (Motor Inspection) — ทางเลือกเพิ่มเติม
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    คลิกเพื่อบันทึกกรณีมีมอเตอร์ไฟฟ้าหรือชุดขับมอเตอร์ในระบบที่ตรวจเช็ค
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-amber-600">
+                  {showMotorDetails ? "ซ่อนแบบฟอร์ม" : "+ แสดงแบบฟอร์มตรวจวัดมอเตอร์ไฟฟ้า"}
+                </span>
+                {showMotorDetails ? (
+                  <ChevronUp className="w-4 h-4 text-slate-400" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                )}
+              </div>
+            </button>
+            {showMotorDetails && (
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                <MotorMeasurementCard
+                  value={motorMeasurement}
+                  onChange={setMotorMeasurement}
                 />
               </div>
             )}

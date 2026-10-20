@@ -62,6 +62,22 @@ export interface PanelComponentItem {
   remark?: string;
 }
 
+export interface MotorMeasurement {
+  // 1. ตารางวัดค่าความต้านทานขดลวด (Winding Resistance)
+  // ใช้มัลติมิเตอร์ย่าน Ω โดยต้องตัดแหล่งจ่ายไฟและแยกมอเตอร์ออกจากวงจรควบคุมก่อนวัด
+  windingU1U2?: string;
+  windingV1V2?: string;
+  windingW1W2?: string;
+
+  // 2. ตารางวัดฉนวนขดลวดลงกราวด์ (Insulation Resistance)
+  // ใช้เครื่อง Insulation Tester (Megger) ไม่ใช่มัลติมิเตอร์ธรรมดา
+  insulationUGround?: string;
+  insulationVGround?: string;
+  insulationWGround?: string;
+
+  notes?: string;
+}
+
 export interface InverterCheckReportFormData {
   id?: string;
   crNumber?: string;
@@ -89,6 +105,7 @@ export interface InverterCheckReportFormData {
   powerInputVoltage?: Partial<PowerVoltageCheck>;
   powerOutputVoltage?: Partial<PowerVoltageCheck>;
   panelComponentsCheck?: PanelComponentItem[];
+  motorMeasurement?: MotorMeasurement;
   photos?: {
     nameplate?: string[];
     front?: string[];
@@ -255,6 +272,7 @@ export async function createInverterCheckReport(formData: InverterCheckReportFor
         powerInputVoltage: (formData.powerInputVoltage || {}) as any,
         powerOutputVoltage: (formData.powerOutputVoltage || {}) as any,
         panelComponentsCheck: (formData.panelComponentsCheck || []) as any,
+        motorMeasurement: (formData.motorMeasurement || {}) as any,
         photos: (formData.photos || {}) as any,
         reportBy: formData.reportBy || user?.fullName,
         status: formData.status || "PENDING",
@@ -317,6 +335,7 @@ export async function updateInverterCheckReport(id: string, formData: InverterCh
         powerInputVoltage: (formData.powerInputVoltage || {}) as any,
         powerOutputVoltage: (formData.powerOutputVoltage || {}) as any,
         panelComponentsCheck: (formData.panelComponentsCheck || []) as any,
+        motorMeasurement: (formData.motorMeasurement || {}) as any,
         photos: (formData.photos || {}) as any,
         reportBy: formData.reportBy,
         status: formData.status || existing.status,

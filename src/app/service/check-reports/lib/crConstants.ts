@@ -107,7 +107,7 @@ export const EQUIPMENT_TYPE_CONFIG: Record<
     badge: "bg-amber-50 text-amber-700 border-amber-200/80",
     color: "text-amber-600",
     powerUnitLabel: "ขนาดของมอเตอร์ (kW of Motor / HP)",
-    description: "ตรวจวัดสภาพมอเตอร์ ขนาด kW/HP โหลดการทำงาน และบันทึกสาเหตุความเสียหาย",
+    description: "ตรวจวัดค่าความต้านทานขดลวด (Ω), ค่าฉนวน Megger (MΩ) และบันทึกสาเหตุความเสียหาย",
   },
   PUMP: {
     label: "ปั๊มน้ำ (Water Pump)",

@@ -625,6 +625,7 @@ model InverterCheckReport {
   powerInputVoltage      Json?
   powerOutputVoltage     Json?
   panelComponentsCheck   Json?
+  motorMeasurement       Json?
   photos                 Json?
   reportBy               String?
   status                 String    @default("PENDING")
