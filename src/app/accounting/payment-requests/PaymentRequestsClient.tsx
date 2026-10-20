@@ -40,6 +40,7 @@ type Props = {
   branches?: { id: string; name: string }[];
   userRole?: string;
   userFullName?: string;
+  isSupervisor?: boolean;
 };
 
 const COMPANY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -109,6 +110,7 @@ export default function PaymentRequestsClient({
   branches,
   userRole,
   userFullName,
+  isSupervisor,
 }: Props) {
   const [requests, setRequests] = useState<PaymentRequestRecord[]>(initialRequests);
   const [stats, setStats] = useState<any>(initialStats);
@@ -326,6 +328,24 @@ export default function PaymentRequestsClient({
               </h1>
               <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
                 ระบบควบคุมการเบิกจ่าย ตรวจสอบเอกสาร และป้องกันการจ่ายเงินซ้ำซ้อน ทั้งสำนักงานใหญ่และสาขาต่างจังหวัด
+              </p>
+            </>
+          ) : isSupervisor ? (
+            <>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider bg-amber-50 text-amber-800 border border-amber-200 uppercase">
+                  Supervisor & Team Portal
+                </span>
+                <span className="text-xs text-gray-400 font-medium">พอร์ทัลหัวหน้างานและทีม</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+                <div className="p-2 bg-amber-50 text-amber-600 rounded-xl border border-amber-100 flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-amber-600" />
+                </div>
+                <span>รายการขอเบิกจ่ายและอนุมัติของทีม (Team & My Requests)</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
+                ตรวจสอบและอนุมัติคำขอเบิกจ่ายของทีมงานใต้บังคับบัญชา และติดตามสถานะคำขอเบิกจ่ายส่วนตัวของคุณ
               </p>
             </>
           ) : (

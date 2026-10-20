@@ -87,6 +87,7 @@ type Props = {
     employeeId?: string | null;
     department?: string | null;
     branch?: string | null;
+    isDirectSupervisor?: boolean;
   } | null;
 };
 
@@ -250,6 +251,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       requestBranch: request.branch,
       requestAssignedSupervisorId: request.assigned_supervisor_id,
       requestAssignedSupervisorName: request.assigned_supervisor_name,
+      isDirectSupervisor: currentUser?.isDirectSupervisor,
     });
   }, [currentUser, request]);
   // Data-driven milestone checks for stepper

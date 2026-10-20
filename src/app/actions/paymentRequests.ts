@@ -220,7 +220,18 @@ function sanitizePaymentRequest(row: any): PaymentRequestRecord {
     wht_amount: Number(row.wht_amount || 0),
     net_amount: Number(row.net_amount || 0),
     credit_card_deduction: Number(row.credit_card_deduction || 0),
-    items: Array.isArray(row.items) ? row.items : [],
+    items: Array.isArray(row.items)
+      ? row.items
+      : typeof row.items === 'string'
+      ? (() => {
+          try {
+            const p = JSON.parse(row.items);
+            return Array.isArray(p) ? p : [];
+          } catch {
+            return [];
+          }
+        })()
+      : [],
   };
 }
 
@@ -893,6 +904,135 @@ export async function checkDuplicates(params: {
   };
 }
 
+/**
+ * Helper to fetch accessible user scope for payment requests.
+ * - Accounting / Super Admin / Executive: unrestricted (can view all company requests).
+ * - Supervisors: can view self + assigned to self + direct/secondary subordinates.
+ * - General Employees: can view only self.
+ */
+async function getUserScopeFilter(currentUser: any) {
+  if (!currentUser) {
+    return {
+      isUnrestricted: false,
+      currentUser: null,
+      subNames: [] as string[],
+      subUserIds: [] as string[],
+      subEmpIds: [] as string[],
+    };
+  }
+
+  // Accounting staff, Accounting manager, Super admin, Executive have company-wide access
+  if (canManageAllPaymentRequests(currentUser.role)) {
+    return {
+      isUnrestricted: true,
+      currentUser,
+      subNames: [] as string[],
+      subUserIds: [] as string[],
+      subEmpIds: [] as string[],
+    };
+  }
+
+  // Restricted: Find direct and secondary subordinates in teraDb.employees
+  let subNames: string[] = [];
+  let subUserIds: string[] = [];
+  let subEmpIds: string[] = [];
+
+  if (currentUser.employeeId) {
+    try {
+      const { teraDb } = await import('@/app/lib/teraDb');
+      const subs = await teraDb.employees.findMany({
+        where: {
+          OR: [
+            { supervisor_id: currentUser.employeeId },
+            { secondary_supervisor_id: currentUser.employeeId },
+          ],
+          is_active: true,
+        },
+        select: {
+          emp_id: true,
+          name: true,
+        },
+      });
+
+      subEmpIds = subs.map((s) => s.emp_id).filter(Boolean);
+      subNames = subs.map((s) => s.name?.trim()).filter(Boolean) as string[];
+
+      if (subEmpIds.length > 0) {
+        const crmUsers = await prisma.user.findMany({
+          where: { employeeId: { in: subEmpIds } },
+          select: { id: true },
+        });
+        subUserIds = crmUsers.map((u) => u.id);
+      }
+    } catch (e) {
+      console.warn('Error fetching subordinates in getUserScopeFilter:', e);
+    }
+  }
+
+  return {
+    isUnrestricted: false,
+    currentUser,
+    subNames,
+    subUserIds,
+    subEmpIds,
+  };
+}
+
+function buildUserScopeClause(
+  scope: Awaited<ReturnType<typeof getUserScopeFilter>>,
+  startIdx: number
+): { clause: string; values: any[]; nextIdx: number } {
+  if (scope.isUnrestricted) {
+    return { clause: '', values: [], nextIdx: startIdx };
+  }
+
+  if (!scope.currentUser) {
+    return { clause: '1 = 0', values: [], nextIdx: startIdx };
+  }
+
+  const { currentUser, subNames, subUserIds } = scope;
+  const conditions: string[] = [];
+  const values: any[] = [];
+  let idx = startIdx;
+
+  // 1. Own requests (as requester)
+  conditions.push(`requester_id = $${idx++}`);
+  values.push(currentUser.id);
+
+  if (currentUser.fullName) {
+    conditions.push(`requester_name ILIKE $${idx++}`);
+    values.push(`%${currentUser.fullName.trim()}%`);
+  }
+
+  // 2. Assigned supervisor
+  if (currentUser.employeeId) {
+    conditions.push(`assigned_supervisor_id = $${idx++}`);
+    values.push(currentUser.employeeId.trim());
+  }
+
+  if (currentUser.fullName) {
+    conditions.push(`assigned_supervisor_name ILIKE $${idx++}`);
+    values.push(`%${currentUser.fullName.trim()}%`);
+  }
+
+  // 3. Subordinates' requests
+  if (subUserIds && subUserIds.length > 0) {
+    conditions.push(`requester_id = ANY($${idx++})`);
+    values.push(subUserIds);
+  }
+
+  if (subNames && subNames.length > 0) {
+    conditions.push(`requester_name = ANY($${idx++})`);
+    values.push(subNames);
+  }
+
+  return {
+    clause: conditions.length > 0 ? `(${conditions.join(' OR ')})` : '1 = 0',
+    values,
+    nextIdx: idx,
+  };
+}
+
 export async function getPaymentRequests(filters: {
   company?: string;
   branch?: string;
@@ -907,23 +1047,23 @@ export async function getPaymentRequests(filters: {
   requesterName?: string;
 } = {}) {
   const currentUser = await getUser();
-  const isStaff = currentUser ? canManageAllPaymentRequests(currentUser.role) : false;
-  const isManager = currentUser ? isSupervisorOrManager(currentUser.role) : false;
-
-  // Role Scope Guard:
-  // - Accounting staff, Executives, Super Admin: can view all company requests
-  // - Department Managers / Supervisors: can view requests needing supervisor approval or all requests
-  // - General employees: only see their own requests!
-  if (currentUser && !isStaff && !isManager) {
-    filters.requesterId = currentUser.id;
-    filters.requesterName = currentUser.fullName;
-  }
+  const scope = await getUserScopeFilter(currentUser);
 
   const pool = getPool();
   const whereClauses: string[] = [];
   const values: any[] = [];
   let paramIdx = 1;
 
+  // Role Scope Guard:
+  // - Accounting staff, Executives, Super Admin: unrestricted (sees all)
+  // - Supervisors: sees self + assigned to self + direct/secondary subordinates
+  // - General employees: sees only self
+  if (!scope.isUnrestricted) {
+    const scopeRes = buildUserScopeClause(scope, paramIdx);
+    whereClauses.push(scopeRes.clause);
+    values.push(...scopeRes.values);
+    paramIdx = scopeRes.nextIdx;
+  }
   if (filters.requesterId && filters.requesterName) {
     whereClauses.push(`(requester_id = $${paramIdx} OR requester_name ILIKE $${paramIdx + 1})`);
     values.push(filters.requesterId, `%${filters.requesterName}%`);
@@ -1030,14 +1170,14 @@ export async function getPaymentRequests(filters: {
 export async function getPaymentRequestDashboardStats() {
   const pool = getPool();
   const currentUser = await getUser();
-  const isStaff = currentUser ? canManageAllPaymentRequests(currentUser.role) : false;
-  const isManager = currentUser ? isSupervisorOrManager(currentUser.role) : false;
+  const scope = await getUserScopeFilter(currentUser);
 
   let userScopeClause = '';
   const values: any[] = [];
-  if (currentUser && !isStaff && !isManager) {
-    userScopeClause = ' AND (requester_id = $1 OR requester_name ILIKE $2)';
-    values.push(currentUser.id, `%${currentUser.fullName}%`);
+  if (!scope.isUnrestricted) {
+    const scopeRes = buildUserScopeClause(scope, 1);
+    userScopeClause = ` AND ${scopeRes.clause}`;
+    values.push(...scopeRes.values);
   }
 
   const sql = `
@@ -1072,14 +1212,25 @@ export async function getPaymentRequestById(id: string) {
   if (reqRes.rows.length === 0) return null;
 
   const row = reqRes.rows[0];
-  const isStaff = currentUser ? canManageAllPaymentRequests(currentUser.role) : false;
-  const isManager = currentUser ? isSupervisorOrManager(currentUser.role) : false;
-  if (currentUser && !isStaff && !isManager) {
+  const scope = await getUserScopeFilter(currentUser);
+
+  if (!scope.isUnrestricted) {
+    if (!currentUser) return null;
+
     const isOwner =
       (row.requester_id && row.requester_id === currentUser.id) ||
       (row.requester_name && currentUser.fullName && row.requester_name.trim().toLowerCase() === currentUser.fullName.trim().toLowerCase());
-    if (!isOwner) {
-      // General employees cannot view requests belonging to other people!
+
+    const isAssignedSup =
+      (currentUser.employeeId && row.assigned_supervisor_id && currentUser.employeeId.trim().toUpperCase() === row.assigned_supervisor_id.trim().toUpperCase()) ||
+      (currentUser.fullName && row.assigned_supervisor_name && currentUser.fullName.trim().toLowerCase() === row.assigned_supervisor_name.trim().toLowerCase());
+
+    const isSubordinate =
+      (scope.subUserIds && row.requester_id && scope.subUserIds.includes(row.requester_id)) ||
+      (scope.subNames && row.requester_name && scope.subNames.some((n: string) => n.toLowerCase() === row.requester_name.trim().toLowerCase()));
+
+    if (!isOwner && !isAssignedSup && !isSubordinate) {
+      // General employees or non-subordinate supervisors cannot view requests belonging to other people!
       return null;
     }
   }
@@ -1382,7 +1533,10 @@ export async function supervisorApprovePaymentRequest(
       const { teraDb } = await import('@/app/lib/teraDb');
       const directSub = await teraDb.employees.findFirst({
         where: {
-          supervisor_id: currentUser.employeeId,
+          OR: [
+            { supervisor_id: currentUser.employeeId },
+            { secondary_supervisor_id: currentUser.employeeId },
+          ],
           name: { contains: reqRow.requester_name?.trim() },
         },
       });
@@ -1478,7 +1632,10 @@ export async function supervisorReturnPaymentRequest(
       const { teraDb } = await import('@/app/lib/teraDb');
       const directSub = await teraDb.employees.findFirst({
         where: {
-          supervisor_id: currentUser.employeeId,
+          OR: [
+            { supervisor_id: currentUser.employeeId },
+            { secondary_supervisor_id: currentUser.employeeId },
+          ],
           name: { contains: reqRow.requester_name?.trim() },
         },
       });
@@ -2118,10 +2275,9 @@ export async function resubmitPaymentRequest(
   }
 
   // If AP had already checked it before returning, it goes back directly to SUBMITTED (AP review)
-  // If only supervisor had checked it (or neither), and requester is not manager, it goes to PENDING_SUPERVISOR
+  // If supervisor approval is needed, it goes to PENDING_SUPERVISOR
   let targetStatus = 'SUBMITTED';
-  const role = currentUser.role || '';
-  if (!isSupervisorOrManager(role) && !current.supervisor_checked_by && !current.ap_checked_by) {
+  if (current.assigned_supervisor_id && !current.supervisor_checked_by) {
     targetStatus = 'PENDING_SUPERVISOR';
   } else if (current.ap_checked_by) {
     targetStatus = 'SUBMITTED';
@@ -2358,14 +2514,14 @@ export async function updateFullPaymentRequest(
     // If the request was returned to user (RETURN_DOCUMENT), reset back to Step 1 (PENDING_SUPERVISOR)
     // so it requires supervisor approval again, never bypassing supervisor
     if (current.status === 'RETURN_DOCUMENT' || !current.supervisor_checked_by) {
-      if (current.assigned_supervisor_id && !isSupervisorOrManager(currentUser.role)) {
+      if (current.assigned_supervisor_id) {
         targetStatus = 'PENDING_SUPERVISOR';
       } else {
         targetStatus = 'SUBMITTED';
       }
     } else if (current.ap_checked_by) {
       targetStatus = 'SUBMITTED';
-    } else if (current.assigned_supervisor_id && !current.supervisor_checked_by && !isSupervisorOrManager(currentUser.role)) {
+    } else if (current.assigned_supervisor_id && !current.supervisor_checked_by) {
       targetStatus = 'PENDING_SUPERVISOR';
     } else {
       targetStatus = 'SUBMITTED';

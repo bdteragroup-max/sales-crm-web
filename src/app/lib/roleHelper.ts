@@ -186,15 +186,23 @@ export function canSupervisorApproveRequest({
     return { canApprove: true };
   }
 
-  // 6. Branch AND Department match
+  // If a specific assigned supervisor is designated and current user does not match, strictly deny
+  if (requestAssignedSupervisorId || requestAssignedSupervisorName) {
+    return {
+      canApprove: false,
+      reason: `สิทธิ์นี้สงวนไว้สำหรับหัวหน้างานผู้รับผิดชอบ (${requestAssignedSupervisorName || requestAssignedSupervisorId})`,
+    };
+  }
+
+  // 6. Branch AND Department match (Fallback ONLY when no specific supervisor was assigned)
   const deptMatch =
     matchDepartment(userDepartment, requestDepartment) ||
     matchDepartment(userRole, requestDepartment);
 
   const branchMatch =
-    !requestBranch ||
-    !userBranch ||
-    matchBranch(userBranch, requestBranch);
+    userBranch && requestBranch
+      ? matchBranch(userBranch, requestBranch)
+      : (!requestBranch || !userBranch);
 
   if (deptMatch && branchMatch) {
     return { canApprove: true };
@@ -209,9 +217,7 @@ export function canSupervisorApproveRequest({
 
   return {
     canApprove: false,
-    reason: requestAssignedSupervisorName
-      ? `สิทธิ์นี้สงวนไว้สำหรับหัวหน้างานผู้รับผิดชอบ (${requestAssignedSupervisorName})`
-      : `สิทธิ์นี้สงวนไว้เฉพาะหัวหน้างานฝ่าย ${requestDepartment || 'ที่เกี่ยวข้อง'} สาขา ${requestBranch || ''}`,
+    reason: `สิทธิ์นี้สงวนไว้เฉพาะหัวหน้างานฝ่าย ${requestDepartment || 'ที่เกี่ยวข้อง'} สาขา ${requestBranch || ''}`,
   };
 }
 

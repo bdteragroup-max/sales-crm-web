@@ -8,6 +8,8 @@ import {
   getSystemBranches,
 } from '@/app/actions/paymentRequests';
 
+import { canManageAllPaymentRequests } from '@/app/lib/roleHelper';
+
 export const dynamic = 'force-dynamic';
 
 export default async function PaymentRequestsPage() {
@@ -19,6 +21,27 @@ export default async function PaymentRequestsPage() {
   let requests: any[] = [];
   let stats: any = {};
   let branches: any[] = [];
+  let isSupervisor = false;
+
+  if (user.employeeId && !canManageAllPaymentRequests(user.role)) {
+    try {
+      const { teraDb } = await import('@/app/lib/teraDb');
+      const subCount = await teraDb.employees.count({
+        where: {
+          OR: [
+            { supervisor_id: user.employeeId },
+            { secondary_supervisor_id: user.employeeId },
+          ],
+          is_active: true,
+        },
+      });
+      if (subCount > 0) {
+        isSupervisor = true;
+      }
+    } catch (e) {
+      console.warn('Error checking supervisor status in PaymentRequestsPage:', e);
+    }
+  }
 
   try {
     const [fetchedRequests, fetchedStats, fetchedBranches] = await Promise.all([
@@ -29,6 +52,19 @@ export default async function PaymentRequestsPage() {
     requests = fetchedRequests;
     stats = fetchedStats;
     branches = fetchedBranches;
+
+    if (!isSupervisor && !canManageAllPaymentRequests(user.role)) {
+      if (
+        requests.some(
+          (r: any) =>
+            r.assigned_supervisor_id === user.employeeId ||
+            (user.fullName &&
+              r.assigned_supervisor_name?.trim().toLowerCase() === user.fullName.trim().toLowerCase())
+        )
+      ) {
+        isSupervisor = true;
+      }
+    }
   } catch (err) {
     console.error('Error fetching payment requests:', err);
   }
@@ -48,6 +84,7 @@ export default async function PaymentRequestsPage() {
           branches={branches}
           userRole={user.role}
           userFullName={user.fullName}
+          isSupervisor={isSupervisor}
         />
       </main>
     </div>

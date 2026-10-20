@@ -26,6 +26,25 @@ export default async function PaymentRequestDetailPage({
     notFound();
   }
 
+  let isDirectSupervisor = false;
+  if (user.employeeId && request.requester_name) {
+    try {
+      const { teraDb } = await import('@/app/lib/teraDb');
+      const directSub = await teraDb.employees.findFirst({
+        where: {
+          OR: [
+            { supervisor_id: user.employeeId },
+            { secondary_supervisor_id: user.employeeId },
+          ],
+          name: { contains: request.requester_name?.trim() },
+        },
+      });
+      if (directSub) isDirectSupervisor = true;
+    } catch (e) {
+      console.warn('Error checking direct supervisor in PaymentRequestDetailPage:', e);
+    }
+  }
+
   return (
     <div className="flex h-screen bg-slate-50 text-gray-900 font-sans overflow-hidden">
       <Sidebar
@@ -44,6 +63,7 @@ export default async function PaymentRequestDetailPage({
             employeeId: user.employeeId,
             department: profile.defaultDept,
             branch: profile.defaultBranch,
+            isDirectSupervisor,
           }}
         />
       </main>

@@ -106,6 +106,75 @@ function resolveCompanyInfo(companyStr?: string) {
   return companyInfoMap['TG'];
 }
 
+interface NormalizedAttachmentItem {
+  name: string;
+  url: string;
+  size?: number;
+  type: string;
+  raw?: any;
+  source?: 'request' | 'item' | 'certificate' | 'slip';
+  itemIndex?: number;
+  supplierName?: string;
+}
+
+// Safely embed any image format (JPG, PNG, WebP, GIF, progressive JPEG) into pdf-lib PDFDocument
+async function embedImageToPdfDoc(
+  pdfDoc: any,
+  imageBytes: ArrayBuffer,
+  fileExt: string,
+  mimeType?: string
+) {
+  const isPng = fileExt === 'png' || (mimeType && mimeType.includes('png'));
+  try {
+    if (isPng) {
+      return await pdfDoc.embedPng(imageBytes);
+    } else {
+      return await pdfDoc.embedJpg(imageBytes);
+    }
+  } catch {
+    try {
+      if (isPng) {
+        return await pdfDoc.embedJpg(imageBytes);
+      } else {
+        return await pdfDoc.embedPng(imageBytes);
+      }
+    } catch (err2) {
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const blob = new Blob([imageBytes]);
+        const imgUrl = URL.createObjectURL(blob);
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = (e) => reject(e);
+            img.src = imgUrl;
+          });
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width || 800;
+          canvas.height = img.naturalHeight || img.height || 600;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            const pngDataUrl = canvas.toDataURL('image/png');
+            const base64Data = pngDataUrl.split(',')[1];
+            const binaryString = atob(base64Data);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+            return await pdfDoc.embedPng(bytes.buffer);
+          }
+        } finally {
+          URL.revokeObjectURL(imgUrl);
+        }
+      }
+      throw err2;
+    }
+  }
+}
+
 export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: Props) {
   const printRef = useRef<HTMLDivElement>(null);
   const companyInfo = resolveCompanyInfo(request.company);
@@ -119,40 +188,130 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
   const [showDownloadMenu, setShowDownloadMenu] = useState<boolean>(false);
   const [showAttachmentsMenu, setShowAttachmentsMenu] = useState<boolean>(false);
 
-  // Normalize & Parse Attachments (supporting array, JSON string, and payment slip)
+  // Safely parse requisition items (array or JSON string)
+  const parsedItems = React.useMemo(() => {
+    if (Array.isArray(request.items)) return request.items;
+    if (typeof request.items === 'string') {
+      try {
+        const parsed = JSON.parse(request.items);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {}
+    }
+    return [];
+  }, [request.items]);
+
+  // Normalize & Parse Attachments (supporting request attachments, item attachments, substitute certificates, and payment slip)
   const normalizedAttachments = React.useMemo(() => {
-    let list: any[] = [];
+    const list: NormalizedAttachmentItem[] = [];
+    const seenUrls = new Set<string>();
+
+    const addAttachment = (item: {
+      name: string;
+      url: string;
+      size?: number;
+      type?: string;
+      raw?: any;
+      source?: 'request' | 'item' | 'certificate' | 'slip';
+      itemIndex?: number;
+      supplierName?: string;
+    }) => {
+      if (!item.url || typeof item.url !== 'string') return;
+      const cleanUrl = item.url.trim();
+      if (!cleanUrl || seenUrls.has(cleanUrl)) return;
+      seenUrls.add(cleanUrl);
+      list.push({
+        name: item.name,
+        url: cleanUrl,
+        size: item.size,
+        type: item.type || '',
+        raw: item.raw,
+        source: item.source,
+        itemIndex: item.itemIndex,
+        supplierName: item.supplierName,
+      });
+    };
+
+    // 1. Request-level attachments
+    let reqAtts: any[] = [];
     if (Array.isArray(request.attachments)) {
-      list = [...request.attachments];
+      reqAtts = request.attachments;
     } else if (typeof request.attachments === 'string') {
       try {
         const parsed = JSON.parse(request.attachments);
-        if (Array.isArray(parsed)) list = [...parsed];
+        if (Array.isArray(parsed)) reqAtts = parsed;
       } catch {}
     }
+    reqAtts.forEach((att: any, idx: number) => {
+      const name = att.fileName || att.name || `เอกสารแนบ_${idx + 1}`;
+      addAttachment({
+        name,
+        url: att.url,
+        size: att.fileSize || att.size,
+        type: att.fileType || att.type || '',
+        raw: att,
+        source: 'request',
+      });
+    });
 
-    // Include payment slip if available and not already in attachments
-    if (request.payment_slip_url) {
-      const hasSlip = list.some((a: any) => a.url === request.payment_slip_url);
-      if (!hasSlip) {
-        list.push({
-          fileName: 'สลิปหลักฐานการโอนเงิน (Payment Slip)',
-          url: request.payment_slip_url,
-          fileType: 'image/jpeg',
+    // 2. Requisition Items: item attachments and substitute certificates
+    parsedItems.forEach((it: any, itemIdx: number) => {
+      const itemNum = itemIdx + 1;
+      const supplier = it.supplierName ? String(it.supplierName).trim() : '';
+      const prefix = supplier ? `[บิล ${supplier}]` : `[รายการที่ ${itemNum}]`;
+
+      // 2.1 Direct attachments on the item (item.attachments)
+      let itemAtts: any[] = [];
+      if (Array.isArray(it.attachments)) {
+        itemAtts = it.attachments;
+      } else if (typeof it.attachments === 'string') {
+        try {
+          const parsed = JSON.parse(it.attachments);
+          if (Array.isArray(parsed)) itemAtts = parsed;
+        } catch {}
+      }
+
+      itemAtts.forEach((att: any, attIdx: number) => {
+        const baseName = att.fileName || att.name || `เอกสารแนบ_${itemNum}_${attIdx + 1}`;
+        const displayName = `${prefix} ${baseName}`;
+        addAttachment({
+          name: displayName,
+          url: att.url,
+          size: att.fileSize || att.size,
+          type: att.fileType || att.type || '',
+          raw: att,
+          source: 'item',
+          itemIndex: itemNum,
+          supplierName: supplier,
+        });
+      });
+
+      // 2.2 Substitute Certificate (ใบรับรองแทนใบเสร็จรับเงิน PDF)
+      if (it.substituteCertificateUrl) {
+        const certName = it.substituteCertificateFileName || `${prefix} ใบรับรองแทนใบเสร็จรับเงิน.pdf`;
+        addAttachment({
+          name: certName.startsWith('[') ? certName : `${prefix} ${certName}`,
+          url: it.substituteCertificateUrl,
+          type: 'application/pdf',
+          raw: it,
+          source: 'certificate',
+          itemIndex: itemNum,
+          supplierName: supplier,
         });
       }
+    });
+
+    // 3. Payment Slip (if available and not already added)
+    if (request.payment_slip_url) {
+      addAttachment({
+        name: 'สลิปหลักฐานการโอนเงิน (Payment Slip)',
+        url: request.payment_slip_url,
+        type: 'image/jpeg',
+        source: 'slip',
+      });
     }
 
-    return list
-      .map((att: any, idx: number) => {
-        const name = att.fileName || att.name || `เอกสารแนบ_${idx + 1}`;
-        const url = att.url || '';
-        const size = att.fileSize || att.size;
-        const type = att.fileType || att.type || '';
-        return { name, url, size, type, raw: att };
-      })
-      .filter((att) => !!att.url);
-  }, [request.attachments, request.payment_slip_url]);
+    return list;
+  }, [request.attachments, parsedItems, request.payment_slip_url]);
 
   const hasAttachments = normalizedAttachments.length > 0;
 
@@ -584,17 +743,16 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
           if (!res.ok) continue;
           const attBytes = await res.arrayBuffer();
 
-          if (ext === 'pdf' || att.type?.includes('pdf')) {
+          if (ext === 'pdf' || att.type?.includes('pdf') || att.url?.toLowerCase().includes('.pdf')) {
             const attDoc = await PDFDocument.load(attBytes, { ignoreEncryption: true });
             const copiedPages = await mergedPdf.copyPages(attDoc, attDoc.getPageIndices());
             copiedPages.forEach((p) => mergedPdf.addPage(p));
-          } else if (['jpg', 'jpeg', 'png', 'webp'].includes(ext) || att.type?.startsWith('image/')) {
-            let imgEmbed;
-            if (ext === 'png' || att.type?.includes('png')) {
-              imgEmbed = await mergedPdf.embedPng(attBytes);
-            } else {
-              imgEmbed = await mergedPdf.embedJpg(attBytes);
-            }
+          } else if (
+            ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ||
+            att.type?.startsWith('image/') ||
+            /\.(jpg|jpeg|png|webp|gif)/i.test(att.url || '')
+          ) {
+            const imgEmbed = await embedImageToPdfDoc(mergedPdf, attBytes, ext, att.type);
             const page = mergedPdf.addPage([595.28, 841.89]);
             const dims = imgEmbed.scaleToFit(535, 780);
             page.drawImage(imgEmbed, {
@@ -643,14 +801,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
   };
 
   const handlePrint = async () => {
-    const hasPdfAttachment = normalizedAttachments.some(
-      (att) =>
-        att.name?.toLowerCase().endsWith('.pdf') ||
-        att.type?.includes('pdf') ||
-        att.url?.toLowerCase().includes('.pdf')
-    );
-
-    if (hasAttachments && hasPdfAttachment && activeTab !== 'voucher') {
+    if (hasAttachments && activeTab !== 'voucher') {
       await handlePrintMergedPdf();
     } else {
       window.print();
@@ -755,20 +906,16 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
               if (!res.ok) continue;
               const attBytes = await res.arrayBuffer();
 
-              if (ext === 'pdf' || att.type?.includes('pdf')) {
+              if (ext === 'pdf' || att.type?.includes('pdf') || att.url?.toLowerCase().includes('.pdf')) {
                 const attDoc = await PDFDocument.load(attBytes, { ignoreEncryption: true });
                 const copiedPages = await mergedPdf.copyPages(attDoc, attDoc.getPageIndices());
                 copiedPages.forEach((p) => mergedPdf.addPage(p));
               } else if (
-                ['jpg', 'jpeg', 'png', 'webp'].includes(ext) ||
-                att.type?.startsWith('image/')
+                ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ||
+                att.type?.startsWith('image/') ||
+                /\.(jpg|jpeg|png|webp|gif)/i.test(att.url || '')
               ) {
-                let imgEmbed;
-                if (ext === 'png' || att.type?.includes('png')) {
-                  imgEmbed = await mergedPdf.embedPng(attBytes);
-                } else {
-                  imgEmbed = await mergedPdf.embedJpg(attBytes);
-                }
+                const imgEmbed = await embedImageToPdfDoc(mergedPdf, attBytes, ext, att.type);
                 const page = mergedPdf.addPage([595.28, 841.89]); // A4 portrait in points
                 const dims = imgEmbed.scaleToFit(535, 780);
                 page.drawImage(imgEmbed, {
@@ -1336,7 +1483,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
 
             {/* 4. Financial Details Table */}
             <div className="border border-black mb-2">
-              {Array.isArray(request.items) && request.items.length > 0 ? (
+              {parsedItems.length > 0 ? (
                 <table className="w-full text-left border-collapse text-xs sm:text-sm">
                   <thead>
                     <tr className="bg-gray-200 text-black font-bold border-b border-black text-center">
@@ -1349,7 +1496,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                     </tr>
                   </thead>
                   <tbody className="bg-white text-black">
-                    {request.items.map((it: any, idx: number) => (
+                    {parsedItems.map((it: any, idx: number) => (
                       <tr key={idx} className="border-b border-black">
                         <td className="py-2 px-1 text-center border-r border-black align-top font-mono">
                           {idx + 1}
@@ -1389,6 +1536,40 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                               )}
                             </div>
                           )}
+
+                          {/* Item Bill Attachments & Substitute Certificate Info */}
+                          {(() => {
+                            let itemAtts: any[] = [];
+                            if (Array.isArray(it.attachments)) {
+                              itemAtts = it.attachments;
+                            } else if (typeof it.attachments === 'string') {
+                              try {
+                                const p = JSON.parse(it.attachments);
+                                if (Array.isArray(p)) itemAtts = p;
+                              } catch {}
+                            }
+                            const hasCert = !!it.substituteCertificateUrl;
+                            if (itemAtts.length === 0 && !hasCert) return null;
+
+                            return (
+                              <div className="mt-1 pt-1 border-t border-dotted border-gray-300 text-[10px] space-y-0.5 font-sans">
+                                {itemAtts.length > 0 && (
+                                  <div className="flex items-center gap-1 text-blue-900">
+                                    <span className="font-bold shrink-0">📎 เอกสารแนบ ({itemAtts.length}):</span>
+                                    <span className="text-gray-700 truncate max-w-[280px]" title={itemAtts.map((a: any) => a.fileName || a.name || 'ไฟล์แนบ').join(', ')}>
+                                      {itemAtts.map((a: any) => a.fileName || a.name || 'ไฟล์แนบ').join(', ')}
+                                    </span>
+                                  </div>
+                                )}
+                                {hasCert && (
+                                  <div className="flex items-center gap-1 text-amber-900">
+                                    <span className="font-bold shrink-0">📄 ใบรับรองแทนใบเสร็จ:</span>
+                                    <span className="text-amber-800">มีแนบในชุดเอกสาร</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </td>
                         <td className="py-2 px-3 text-right font-mono border-r border-black align-top font-medium">
                           {Number(it.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -2053,7 +2234,11 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                             {companyInfo.th}
                           </h3>
                           <div className="text-xs text-gray-600 leading-tight">
-                            เอกสารแนบประกอบใบขออนุมัติจ่ายเงิน / Attachment to Payment Request Voucher
+                            {att.source === 'certificate'
+                              ? 'ใบรับรองแทนใบเสร็จรับเงิน (บิลไม่สมบูรณ์) / Certificate in Place of Receipt'
+                              : att.source === 'item'
+                              ? `เอกสารแนบประจำบิล (รายการที่ ${att.itemIndex || ''}${att.supplierName ? `: ${att.supplierName}` : ''}) / Item Bill Attachment`
+                              : 'เอกสารแนบประกอบใบขออนุมัติจ่ายเงิน / Attachment to Payment Request Voucher'}
                           </div>
                         </div>
                       </div>
@@ -2071,7 +2256,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                     {/* File Details & Quick Actions */}
                     <div className="mt-2 pt-2 border-t border-dashed border-gray-300 flex flex-wrap items-center justify-between text-xs gap-2">
                       <div className="flex items-center gap-2 text-gray-800">
-                        <span className="font-bold text-black">เอกสารแนบรายการที่ {idx + 1}:</span>
+                        <span className="font-bold text-black">เอกสารแนบแผ่นที่ {idx + 1}:</span>
                         <span className="font-semibold text-black truncate max-w-xs sm:max-w-md" title={att.name}>
                           {att.name}
                         </span>
@@ -2198,6 +2383,10 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
           background: white !important;
           margin: 0 !important;
           padding: 0 !important;
+        }
+        .printable-sheet {
+          page-break-after: always;
+          break-after: page;
         }
       }
     `}} />
