@@ -16,17 +16,26 @@ export default function MotorMeasurementCard({
   disabled = false,
 }: MotorMeasurementCardProps) {
   const updateField = (field: keyof MotorMeasurement, val: string) => {
-    onChange({
+    const nextVal = {
       ...value,
       [field]: val,
-    });
+    };
+    // Keep wire colors and U/V/W in sync
+    if (field === "windingU1U2") nextVal.windingBrownBlack = val;
+    if (field === "windingBrownBlack") nextVal.windingU1U2 = val;
+    if (field === "windingV1V2") nextVal.windingBlackGrey = val;
+    if (field === "windingBlackGrey") nextVal.windingV1V2 = val;
+    if (field === "windingW1W2") nextVal.windingBrownGrey = val;
+    if (field === "windingBrownGrey") nextVal.windingW1W2 = val;
+
+    onChange(nextVal);
   };
 
   // Helper evaluation for winding resistance unbalance
   const windingBalance = useMemo(() => {
-    const u = parseFloat(value.windingU1U2 || "");
-    const v = parseFloat(value.windingV1V2 || "");
-    const w = parseFloat(value.windingW1W2 || "");
+    const u = parseFloat(value.windingBrownBlack || value.windingU1U2 || "");
+    const v = parseFloat(value.windingBlackGrey || value.windingV1V2 || "");
+    const w = parseFloat(value.windingBrownGrey || value.windingW1W2 || "");
 
     if (isNaN(u) || isNaN(v) || isNaN(w) || u <= 0 || v <= 0 || w <= 0) {
       return null;
@@ -100,18 +109,26 @@ export default function MotorMeasurementCard({
               </div>
 
               <div className="divide-y divide-slate-100 text-xs">
-                {/* U1-U2 */}
+                {/* 1. Brown - Black (U1-U2) */}
                 <div className="grid grid-cols-2 items-center px-4 py-3 hover:bg-slate-50/60 transition-colors">
-                  <div className="flex items-center gap-2 font-bold text-slate-800">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                    <span>U1 – U2</span>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2 font-bold text-slate-800">
+                      <span className="flex items-center -space-x-1">
+                        <span className="w-3 h-3 rounded-full bg-[#8B4513] border border-white" title="สายสีน้ำตาล (Brown)" />
+                        <span className="w-3 h-3 rounded-full bg-black border border-white" title="สายสีดำ (Black)" />
+                      </span>
+                      <span>สายสี น้ำตาล กับ ดำ</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 block pl-5 font-mono">
+                      (Brown – Black / U1–U2)
+                    </span>
                   </div>
                   <div className="flex items-center justify-end gap-2">
                     <input
                       type="text"
                       disabled={disabled}
-                      value={value.windingU1U2 || ""}
-                      onChange={(e) => updateField("windingU1U2", e.target.value)}
+                      value={value.windingBrownBlack || value.windingU1U2 || ""}
+                      onChange={(e) => updateField("windingBrownBlack", e.target.value)}
                       placeholder="0.00"
                       className="w-28 text-right text-xs font-mono font-bold px-2.5 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 disabled:bg-slate-50"
                     />
@@ -119,18 +136,26 @@ export default function MotorMeasurementCard({
                   </div>
                 </div>
 
-                {/* V1-V2 */}
+                {/* 2. Black - Grey (V1-V2) */}
                 <div className="grid grid-cols-2 items-center px-4 py-3 hover:bg-slate-50/60 transition-colors">
-                  <div className="flex items-center gap-2 font-bold text-slate-800">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    <span>V1 – V2</span>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2 font-bold text-slate-800">
+                      <span className="flex items-center -space-x-1">
+                        <span className="w-3 h-3 rounded-full bg-black border border-white" title="สายสีดำ (Black)" />
+                        <span className="w-3 h-3 rounded-full bg-gray-400 border border-white" title="สายสีเทา (Grey)" />
+                      </span>
+                      <span>สายสี ดำ กับ เทา</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 block pl-5 font-mono">
+                      (Black – Grey / V1–V2)
+                    </span>
                   </div>
                   <div className="flex items-center justify-end gap-2">
                     <input
                       type="text"
                       disabled={disabled}
-                      value={value.windingV1V2 || ""}
-                      onChange={(e) => updateField("windingV1V2", e.target.value)}
+                      value={value.windingBlackGrey || value.windingV1V2 || ""}
+                      onChange={(e) => updateField("windingBlackGrey", e.target.value)}
                       placeholder="0.00"
                       className="w-28 text-right text-xs font-mono font-bold px-2.5 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 disabled:bg-slate-50"
                     />
@@ -138,18 +163,26 @@ export default function MotorMeasurementCard({
                   </div>
                 </div>
 
-                {/* W1-W2 */}
+                {/* 3. Brown - Grey (W1-W2) */}
                 <div className="grid grid-cols-2 items-center px-4 py-3 hover:bg-slate-50/60 transition-colors">
-                  <div className="flex items-center gap-2 font-bold text-slate-800">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    <span>W1 – W2</span>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2 font-bold text-slate-800">
+                      <span className="flex items-center -space-x-1">
+                        <span className="w-3 h-3 rounded-full bg-[#8B4513] border border-white" title="สายสีน้ำตาล (Brown)" />
+                        <span className="w-3 h-3 rounded-full bg-gray-400 border border-white" title="สายสีเทา (Grey)" />
+                      </span>
+                      <span>สายสี น้ำตาล กับ เทา</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 block pl-5 font-mono">
+                      (Brown – Grey / W1–W2)
+                    </span>
                   </div>
                   <div className="flex items-center justify-end gap-2">
                     <input
                       type="text"
                       disabled={disabled}
-                      value={value.windingW1W2 || ""}
-                      onChange={(e) => updateField("windingW1W2", e.target.value)}
+                      value={value.windingBrownGrey || value.windingW1W2 || ""}
+                      onChange={(e) => updateField("windingBrownGrey", e.target.value)}
                       placeholder="0.00"
                       className="w-28 text-right text-xs font-mono font-bold px-2.5 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 disabled:bg-slate-50"
                     />

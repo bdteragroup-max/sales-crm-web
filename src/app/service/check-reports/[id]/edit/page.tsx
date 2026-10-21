@@ -4,6 +4,7 @@ import { getUser } from "@/app/lib/dal";
 import {
   getInverterCheckReportById,
   getActiveUsersForCheckReport,
+  getRecentCompaniesForCheckReport,
 } from "@/app/actions/inverterCheckReports";
 import CheckReportForm from "../../components/CheckReportForm";
 
@@ -20,12 +21,16 @@ export default async function EditCheckReportPage({
   }
 
   const { id } = await params;
-  const res = await getInverterCheckReportById(id);
+  const [res, users, companies] = await Promise.all([
+    getInverterCheckReportById(id),
+    getActiveUsersForCheckReport(),
+    getRecentCompaniesForCheckReport(),
+  ]);
+
   if (!res.success || !res.data) {
     notFound();
   }
 
-  const users = await getActiveUsersForCheckReport();
   const report = JSON.parse(JSON.stringify(res.data));
 
   return (
@@ -33,6 +38,7 @@ export default async function EditCheckReportPage({
       <CheckReportForm
         initialData={report}
         users={users}
+        companies={companies}
         currentUserName={session.fullName || ""}
         isEdit={true}
       />

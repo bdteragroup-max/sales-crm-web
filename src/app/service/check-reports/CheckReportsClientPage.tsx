@@ -308,7 +308,7 @@ export default function CheckReportsClientPage({
               <span>PRE-INSPECTION & FAULT DIAGNOSIS</span>
               <span className="text-gray-300">•</span>
               <span className="text-gray-400 font-normal">
-                บันทึกผลตรวจวัดทางเทคนิค แรงดันไฟ ไดโอด และเช็คสภาพตู้ก่อนเปิดใบรับซ่อม
+                บันทึกผลตรวจวัดทางเทคนิค แรงดันไฟ ไดโอด วิเคราะห์สาเหตุชำรุด และออกรายงานหลังรับซ่อม
               </span>
             </p>
           </div>
@@ -340,7 +340,7 @@ export default function CheckReportsClientPage({
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#bf1a01] text-white font-bold text-xs tracking-wider uppercase shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all active:scale-95 cursor-pointer"
           >
             <Plus size={16} className="stroke-[2.5]" />
-            <span>สร้างใบตรวจเช็คใหม่ (+ New CR)</span>
+            <span>สร้างรายงานตรวจเช็คใหม่ (+ New CR)</span>
           </Link>
         </div>
       </header>
@@ -354,7 +354,7 @@ export default function CheckReportsClientPage({
             id: "ALL",
             title: "ทั้งหมด (Total)",
             count: stats.total,
-            sub: "เอกสารตรวจเช็คทั้งหมดในระบบ",
+            sub: "เอกสารรายงานตรวจเช็คทั้งหมดในระบบ",
             icon: <FileText size={19} className="text-gray-600" />,
             iconBg: "bg-gray-100",
             borderAccent: "border-l-4 border-gray-400",
@@ -364,7 +364,7 @@ export default function CheckReportsClientPage({
             id: "PENDING",
             title: "รอซ่อม / รอดำเนินการ (Pending)",
             count: stats.pending,
-            sub: "ยังไม่ได้แปลงเป็นใบรับซ่อม",
+            sub: "ยังไม่ได้ระบุใบรับซ่อม",
             icon: <Clock size={19} className="text-[#ff2301]" />,
             iconBg: "bg-red-50",
             borderAccent: "border-l-4 border-[#ff2301]",
@@ -372,9 +372,9 @@ export default function CheckReportsClientPage({
           },
           {
             id: "CONVERTED_TO_RO",
-            title: "เปิดใบรับซ่อมแล้ว (Converted)",
+            title: "เชื่อมโยงกับใบรับซ่อมแล้ว (Linked RO)",
             count: stats.converted,
-            sub: "เข้าสู่กระบวนการซ่อมเรียบร้อย",
+            sub: "อ้างอิงใบรับซ่อมเรียบร้อย",
             icon: <Wrench size={19} className="text-gray-700" />,
             iconBg: "bg-gray-100",
             borderAccent: "border-l-4 border-gray-700",
@@ -474,8 +474,8 @@ export default function CheckReportsClientPage({
         <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1">
           {[
             { id: "ALL", label: "ทั้งหมด", count: stats.total },
-            { id: "PENDING", label: "รอซ่อม / รอดำเนินการ", count: stats.pending },
-            { id: "CONVERTED_TO_RO", label: "เปิดใบรับซ่อมแล้ว (RO)", count: stats.converted },
+            { id: "PENDING", label: "รอระบุใบรับซ่อม (Pending)", count: stats.pending },
+            { id: "CONVERTED_TO_RO", label: "เชื่อมโยงใบรับซ่อม (RO)", count: stats.converted },
             { id: "WARRANTY_CLAIM", label: "ส่งเคลมโรงงาน", count: stats.claim },
             { id: "CLOSED_NO_REPAIR", label: "ปิดงาน / ไม่ต้องซ่อม", count: stats.closed },
           ].map((tab) => {

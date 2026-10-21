@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { EQUIPMENT_TYPE_CONFIG } from "../lib/crConstants";
+import { translateReportData } from "@/app/actions/translateReport";
+import { Sparkles, Loader2 } from "lucide-react";
 
 interface FaultReportPaperProps {
   report: any;
@@ -15,6 +17,85 @@ export default function FaultReportPaper({
   className = "",
 }: FaultReportPaperProps) {
   const isEn = lang === "EN";
+
+  // Auto-translate state for English report
+  const [translatedData, setTranslatedData] = useState<{
+    causeOfFault?: string;
+    symptoms?: string;
+    customerName?: string;
+    customerCompany?: string;
+    inspectorName?: string;
+    approvedByName?: string;
+    reportBy?: string;
+    recommendations?: string;
+    applicationLoad?: string;
+    requireParts?: any[];
+  } | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  useEffect(() => {
+    if (!isEn) {
+      setTranslatedData(null);
+      return;
+    }
+
+    let isMounted = true;
+    setIsTranslating(true);
+
+    translateReportData({
+      causeOfFault: report?.causeOfFault,
+      symptoms: report?.symptoms,
+      customerName: report?.customerName,
+      customerCompany: report?.customerCompany,
+      inspectorName: report?.inspectorName,
+      approvedByName: report?.approvedByName,
+      reportBy: report?.reportBy,
+      recommendations: report?.recommendations,
+      applicationLoad: report?.applicationLoad,
+      requireParts: report?.requireParts,
+    })
+      .then((res) => {
+        if (isMounted) {
+          setTranslatedData(res);
+          setIsTranslating(false);
+        }
+      })
+      .catch((err) => {
+        console.error("Auto translation error:", err);
+        if (isMounted) setIsTranslating(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    isEn,
+    report?.causeOfFault,
+    report?.symptoms,
+    report?.customerName,
+    report?.customerCompany,
+    report?.inspectorName,
+    report?.approvedByName,
+    report?.reportBy,
+    report?.recommendations,
+    report?.applicationLoad,
+    report?.requireParts,
+  ]);
+
+  const displayCustomer = isEn
+    ? translatedData?.customerCompany ||
+      translatedData?.customerName ||
+      report?.customerCompany ||
+      report?.customerName ||
+      "-"
+    : report?.customerCompany || report?.customerName || "-";
+
+  const displaySymptoms = isEn && translatedData?.symptoms ? translatedData.symptoms : report?.symptoms;
+  const displayCause = isEn && translatedData?.causeOfFault ? translatedData.causeOfFault : report?.causeOfFault;
+  const displayAppLoad = isEn && translatedData?.applicationLoad ? translatedData.applicationLoad : report?.applicationLoad;
+  const displayParts = isEn && translatedData?.requireParts ? translatedData.requireParts : (report?.requireParts || []);
+  const displayReporter = isEn && translatedData?.inspectorName ? translatedData.inspectorName : (report?.inspectorName || report?.reportBy || "-");
+  const displayApprover = isEn && (translatedData?.approvedByName || translatedData?.reportBy) ? (translatedData.approvedByName || translatedData.reportBy) : (report?.approvedByName || report?.reportBy || "......................................................");
 
   const formatDate = (dateStr?: string | Date | null) => {
     if (!dateStr) return "-";
@@ -35,9 +116,18 @@ export default function FaultReportPaper({
   const eqConfig = EQUIPMENT_TYPE_CONFIG[eqType] || EQUIPMENT_TYPE_CONFIG.INVERTER;
 
   const diode = report?.diodeMeasurement || {};
+  const hasInverter = Boolean(
+    diode?.hasInverter ??
+      (diode?.inverterModel ||
+        diode?.igbtStatus ||
+        diode?.meterPhotoDiode ||
+        diode?.pos_to_r_black ||
+        diode?.phaseShortCheck)
+  );
   const hasDiodeValues = Boolean(
     diode.pos_to_r_black || diode.pos_to_s_black || diode.pos_to_t_black ||
-    diode.neg_to_r_red || diode.neg_to_s_red || diode.neg_to_t_red
+    diode.neg_to_r_red || diode.neg_to_s_red || diode.neg_to_t_red ||
+    diode.igbtStatus
   );
 
   const motor = report?.motorMeasurement || {};
@@ -50,16 +140,21 @@ export default function FaultReportPaper({
       motor?.insulationWGround
   );
   const showMotorSection = eqType === "MOTOR" || hasMotorValues;
-  const showDiodeSection = (eqType === "INVERTER" || hasDiodeValues) && !showMotorSection;
+  const showDiodeSection = (eqType === "INVERTER" || (eqType === "CONTROL_CABINET" && hasInverter && hasDiodeValues)) && !showMotorSection;
 
   const parts: any[] = report?.requireParts || [];
   const photos = report?.photos || {};
-  const allPhotoUrls: string[] = [
-    ...(photos.nameplate || []),
-    ...(photos.front || []),
-    ...(photos.side || []),
-    ...(photos.damage || []),
+  const photoSlots = [
+    { key: "front", label: isEn ? "Front" : "ด้านหน้า", url: photos.front?.[0] },
+    { key: "left", label: isEn ? "Left Side" : "ด้านซ้าย", url: photos.left?.[0] || photos.side?.[0] },
+    { key: "right", label: isEn ? "Right Side" : "ด้านขวา", url: photos.right?.[0] },
+    { key: "top", label: isEn ? "Top" : "ด้านบน", url: photos.top?.[0] },
+    { key: "fan", label: isEn ? "Fan" : "พัดลม", url: photos.fan?.[0] },
+    { key: "inside", label: isEn ? "Inside" : "ด้านใน", url: photos.inside?.[0] || photos.damage?.[0] },
+    { key: "terminal", label: isEn ? "Terminal Block" : "บล็อคเทอร์มินอล", url: photos.terminal?.[0] },
+    { key: "nameplate", label: isEn ? "Nameplate" : "เนมเพลท", url: photos.nameplate?.[0] },
   ];
+  const hasAnyPhotos = photoSlots.some((s) => !!s.url) || Boolean(photos.other?.length);
 
   return (
     <div
@@ -93,6 +188,21 @@ export default function FaultReportPaper({
           <h2 className="text-base font-black tracking-wide text-black uppercase">
             {isEn ? eqConfig.faultReportTitleEn : eqConfig.faultReportTitleTh}
           </h2>
+          {isEn && (
+            <div className="mt-1 print:hidden flex items-center justify-center">
+              {isTranslating ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
+                  กำลังแปลข้อมูลเป็นภาษาอังกฤษอัตโนมัติ...
+                </span>
+              ) : translatedData ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <Sparkles className="w-3 h-3 text-emerald-600" />
+                  แปลข้อมูลภาษาไทยเป็นภาษาอังกฤษอัตโนมัติแล้ว
+                </span>
+              ) : null}
+            </div>
+          )}
         </div>
 
         {/* Spec & Fault Details Table */}
@@ -103,7 +213,7 @@ export default function FaultReportPaper({
                 {isEn ? "Customer" : "ลูกค้า"}
               </td>
               <td className="border border-black p-1.5 w-1/3">
-                {report?.customerCompany || report?.customerName || "-"}
+                {displayCustomer}
               </td>
               <td className="border border-black bg-neutral-100 p-1.5 font-bold w-28">
                 {isEn
@@ -118,6 +228,11 @@ export default function FaultReportPaper({
               </td>
               <td className="border border-black p-1.5 font-bold">
                 {report?.inverterBrand} {report?.inverterModel}
+                {eqType === "CONTROL_CABINET" && hasInverter && diode?.inverterModel && (
+                  <div className="text-[10px] text-blue-800 font-normal mt-0.5">
+                    Inverter ในตู้: {diode.inverterBrand || "INVT"} {diode.inverterModel} {diode.inverterSerial ? `(S/N: ${diode.inverterSerial})` : ""}
+                  </div>
+                )}
               </td>
             </tr>
             <tr>
@@ -193,7 +308,7 @@ export default function FaultReportPaper({
                 {isEn ? "Application & Load" : "ลักษณะการใช้งาน / โหลด"}
               </td>
               <td className="border border-black p-1.5" colSpan={3}>
-                {report?.applicationLoad || "-"}
+                {displayAppLoad || "-"}
               </td>
             </tr>
             <tr>
@@ -201,10 +316,10 @@ export default function FaultReportPaper({
                 {isEn ? "Fault Description" : "อธิบายสาเหตุการเสีย"}
               </td>
               <td className="border border-black p-1.5" colSpan={3}>
-                <div className="font-semibold text-red-950">{report?.symptoms || "-"}</div>
-                {report?.causeOfFault && (
+                <div className="font-semibold text-red-950">{displaySymptoms || "-"}</div>
+                {displayCause && (
                   <div className="text-gray-700 text-[10px] mt-0.5">
-                    {isEn ? "Cause: " : "สาเหตุที่พบ: "} {report.causeOfFault}
+                    {isEn ? "Cause: " : "สาเหตุที่พบ: "} {displayCause}
                   </div>
                 )}
               </td>
@@ -214,16 +329,16 @@ export default function FaultReportPaper({
                 {isEn ? "Required parts" : "ส่วนที่ต้องการเปลี่ยน"}
               </td>
               <td className="border border-black p-1.5" colSpan={3}>
-                {parts.length === 0
+                {displayParts.length === 0
                   ? "-"
-                  : parts.map((p, i) => `${p.partName || "-"} (${p.qty || 1} ${isEn ? "pcs" : "ชิ้น"})`).join(", ")}
+                  : displayParts.map((p: any) => `${p.partName || "-"} (${p.qty || 1} ${isEn ? "pcs" : "ชิ้น"})`).join(", ")}
               </td>
             </tr>
             <tr>
               <td className="border border-black bg-neutral-100 p-1.5 font-bold">
                 {isEn ? "Report By" : "ผู้ทำรายงาน"}
               </td>
-              <td className="border border-black p-1.5">{report?.inspectorName || report?.reportBy || "-"}</td>
+              <td className="border border-black p-1.5">{displayReporter}</td>
               <td className="border border-black bg-neutral-100 p-1.5 font-bold">
                 {isEn ? "Check Date" : "วันที่ตรวจเช็ค"}
               </td>
@@ -458,36 +573,74 @@ export default function FaultReportPaper({
           </>
         )}
 
-        {/* Section: PHOTOS ATTACHMENT */}
-        {allPhotoUrls.length > 0 && (
-          <div className="mb-2">
-            <div className="font-bold text-[11px] bg-neutral-200 border border-black px-2 py-0.5 mb-1">
-              {isEn ? "FAULT PHOTOS & NAMEPLATE" : "รูปถ่ายหน้างาน / NAMEPLATE / จุดชำรุด"}
+        {/* Section: PHOTOS ATTACHMENT (รูปสินค้า 8 ด้าน) */}
+        {hasAnyPhotos && (
+          <div className="mt-4 mb-2 print:break-before-page">
+            <div className="font-bold text-[12px] bg-[#d9e1f2] border border-black text-center py-1 mb-3">
+              {isEn ? "PRODUCT PHOTOS" : "รูปสินค้า"}
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {allPhotoUrls.slice(0, 4).map((url, i) => (
-                <div key={i} className="border border-black h-24 overflow-hidden bg-neutral-50 flex items-center justify-center">
-                  <img src={url} alt="" className="w-full h-full object-contain" />
-                </div>
+
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              {[
+                [photoSlots[0], photoSlots[1]], // ด้านหน้า | ด้านซ้าย
+                [photoSlots[2], photoSlots[3]], // ด้านขวา | ด้านบน
+                [photoSlots[4], photoSlots[5]], // พัดลม | ด้านใน
+                [photoSlots[6], photoSlots[7]], // บล็อคเทอร์มินอล | เนมเพลท
+              ].map((row, rIdx) => (
+                <React.Fragment key={rIdx}>
+                  {row.map((slot) => (
+                    <div key={slot.key} className="flex flex-col items-center">
+                      <div className="w-full h-44 sm:h-48 border border-black bg-white flex items-center justify-center p-1.5 overflow-hidden">
+                        {slot.url ? (
+                          <img
+                            src={slot.url}
+                            alt={slot.label}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        ) : (
+                          <span className="text-[10px] text-gray-400 font-mono">
+                            {isEn ? "(No photo)" : "(ไม่มีรูปภาพ)"}
+                          </span>
+                        )}
+                      </div>
+                      <div className="border border-black text-center py-0.5 px-6 font-bold text-[11px] bg-white mt-1.5 min-w-[130px] max-w-[200px]">
+                        {slot.label}
+                      </div>
+                    </div>
+                  ))}
+                </React.Fragment>
               ))}
             </div>
           </div>
         )}
       </div>
 
-      {/* Signature Section */}
-      <div className="border border-black grid grid-cols-2 text-center text-[10.5px] mt-2">
-        <div className="border-r border-black p-2.5 space-y-3">
-          <div className="font-bold">{isEn ? "Reported By (Technician)" : "ผู้ทำรายงาน / ช่างผู้ตรวจเช็ค"}</div>
-          <div className="h-8"></div>
-          <div>( {report?.inspectorName || report?.reportBy || "......................................................"} )</div>
-          <div>{isEn ? "Date: " : "วันที่ "} {formatDate(report?.checkDate)}</div>
+      {/* Signature Section - Typed Name only, matching Image 3 */}
+      <div className="border-2 border-black grid grid-cols-2 text-center text-[10.5px] mt-4 print:break-inside-avoid">
+        <div className="border-r-2 border-black p-3 flex flex-col justify-between min-h-[95px]">
+          <div className="font-bold text-[11px]">{isEn ? "Reported By (Technician)" : "ผู้ทำรายงาน / ช่างผู้ตรวจเช็ค"}</div>
+          <div className="my-auto py-1.5">
+            <div className="font-bold text-[11px]">
+              ( {displayReporter} )
+            </div>
+            <div className="text-[10px] mt-1 text-gray-800">
+              {isEn ? "Date: " : "วันที่ "}
+              {report?.checkDate ? formatDate(report.checkDate) : "........ / ........ / ................"}
+            </div>
+          </div>
         </div>
-        <div className="p-2.5 space-y-3">
-          <div className="font-bold">{isEn ? "Approved By (Manager / Engineer)" : "ผู้ตรวจสอบ / หัวหน้างาน"}</div>
-          <div className="h-8"></div>
-          <div>( ...................................................... )</div>
-          <div>{isEn ? "Date: " : "วันที่ "} ........ / ........ / ................</div>
+
+        <div className="p-3 flex flex-col justify-between min-h-[95px]">
+          <div className="font-bold text-[11px]">{isEn ? "Approved By (Manager / Engineer)" : "ผู้ตรวจสอบ / หัวหน้างาน"}</div>
+          <div className="my-auto py-1.5">
+            <div className="font-bold text-[11px]">
+              ( {displayApprover} )
+            </div>
+            <div className="text-[10px] mt-1 text-gray-800">
+              {isEn ? "Date: " : "วันที่ "}
+              {report?.approvedDate ? formatDate(report.approvedDate) : "........ / ........ / ................"}
+            </div>
+          </div>
         </div>
       </div>
     </div>

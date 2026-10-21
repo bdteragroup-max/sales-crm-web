@@ -1,21 +1,25 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, AlertTriangle, Layers, Check, X } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Layers, Check, X, Zap, ArrowRight, Ban } from "lucide-react";
 import { PanelComponentItem } from "@/app/actions/inverterCheckReports";
 
 interface PanelComponentsCardProps {
   items: PanelComponentItem[];
   onChange: (items: PanelComponentItem[]) => void;
   disabled?: boolean;
+  hasInverter?: boolean;
+  onNavigateToInverter?: () => void;
 }
 
 export default function PanelComponentsCard({
   items,
   onChange,
   disabled = false,
+  hasInverter = true,
+  onNavigateToInverter,
 }: PanelComponentsCardProps) {
-  const updateStatus = (index: number, status: "NORMAL" | "DAMAGED") => {
+  const updateStatus = (index: number, status: "NORMAL" | "DAMAGED" | "NOT_APPLICABLE") => {
     const next = [...items];
     next[index] = { ...next[index], status };
     onChange(next);
@@ -28,7 +32,12 @@ export default function PanelComponentsCard({
   };
 
   const markAllNormal = () => {
-    const next = items.map((it) => ({ ...it, status: "NORMAL" as const }));
+    const next = items.map((it) => {
+      if (it.key === "inverter" && !hasInverter) {
+        return { ...it, status: "NOT_APPLICABLE" as const, remark: "ไม่มีในตู้นี้ (No Inverter / Soft Starter)" };
+      }
+      return { ...it, status: "NORMAL" as const };
+    });
     onChange(next);
   };
 
@@ -40,10 +49,21 @@ export default function PanelComponentsCard({
             <Layers className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-800">
-              ตรวจสอบสภาพอุปกรณ์ภายในตู้ควบคุม (13 รายการ)
-            </h3>
-            <p className="text-xs text-slate-500">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-base font-bold text-slate-800">
+                ตรวจสอบสภาพอุปกรณ์ภายในตู้ควบคุม (13 รายการ)
+              </h3>
+              {hasInverter ? (
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                  <Zap className="w-3 h-3" /> ตู้นี้มี Inverter / Soft Starter
+                </span>
+              ) : (
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
+                  <Ban className="w-3 h-3 text-slate-400" /> ตู้ไม่มี Inverter / Soft Starter
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
               ตรวจสอบความสมบูรณ์และจุดชำรุดของอุปกรณ์แต่ละชิ้นส่วนภายในตู้
             </p>
           </div>
@@ -63,7 +83,9 @@ export default function PanelComponentsCard({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {items.map((item, idx) => {
-          const isNormal = item.status === "NORMAL";
+          const isInverterItem = item.key === "inverter";
+          const isNotApplicable = item.status === "NOT_APPLICABLE" || (isInverterItem && !hasInverter && item.status !== "DAMAGED");
+          const isNormal = item.status === "NORMAL" && !isNotApplicable;
           const isDamaged = item.status === "DAMAGED";
 
           return (
@@ -72,6 +94,8 @@ export default function PanelComponentsCard({
               className={`rounded-xl border p-3 transition-all ${
                 isDamaged
                   ? "border-rose-300 bg-rose-50/40"
+                  : isNotApplicable
+                  ? "border-slate-200 bg-slate-100/60 opacity-80"
                   : isNormal
                   ? "border-slate-200 bg-slate-50/40 hover:bg-slate-50/80"
                   : "border-slate-200 bg-white"
@@ -83,38 +107,80 @@ export default function PanelComponentsCard({
                     {idx + 1}
                   </span>
                   <span className="text-xs font-bold text-slate-800">{item.name}</span>
+
+                  {isInverterItem && !hasInverter && (
+                    <span className="text-[10px] font-semibold text-slate-500 bg-slate-200/80 px-1.5 py-0.5 rounded">
+                      ไม่มีในตู้นี้
+                    </span>
+                  )}
+                  {isInverterItem && hasInverter && (
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                      <Zap className="w-2.5 h-2.5" /> Inverter
+                    </span>
+                  )}
                 </div>
 
                 {/* Status Toggle Buttons */}
                 <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200 shadow-2xs">
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => updateStatus(idx, "NORMAL")}
-                    className={`px-2 py-1 rounded text-[11px] font-semibold flex items-center gap-1 transition-all ${
-                      isNormal
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "text-slate-500 hover:text-slate-800"
-                    }`}
-                  >
-                    <Check className="w-3 h-3" />
-                    ปกติ
-                  </button>
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => updateStatus(idx, "DAMAGED")}
-                    className={`px-2 py-1 rounded text-[11px] font-semibold flex items-center gap-1 transition-all ${
-                      isDamaged
-                        ? "bg-rose-600 text-white shadow-xs"
-                        : "text-slate-500 hover:text-rose-600"
-                    }`}
-                  >
-                    <X className="w-3 h-3" />
-                    ชำรุด
-                  </button>
+                  {isInverterItem && !hasInverter ? (
+                    <button
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => updateStatus(idx, "NOT_APPLICABLE")}
+                      className="px-2 py-1 rounded text-[11px] font-semibold bg-slate-200 text-slate-700 flex items-center gap-1"
+                    >
+                      <Ban className="w-3 h-3" />
+                      ไม่มี (N/A)
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => updateStatus(idx, "NORMAL")}
+                        className={`px-2 py-1 rounded text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                          isNormal
+                            ? "bg-emerald-600 text-white shadow-xs"
+                            : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        <Check className="w-3 h-3" />
+                        ปกติ
+                      </button>
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => updateStatus(idx, "DAMAGED")}
+                        className={`px-2 py-1 rounded text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                          isDamaged
+                            ? "bg-rose-600 text-white shadow-xs"
+                            : "text-slate-500 hover:text-rose-600"
+                        }`}
+                      >
+                        <X className="w-3 h-3" />
+                        ชำรุด
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
+
+              {/* Extra helper for Inverter when cabinet has inverter */}
+              {isInverterItem && hasInverter && onNavigateToInverter && (
+                <div className="mb-2 p-1.5 rounded-lg bg-blue-50/70 border border-blue-200/80 flex items-center justify-between text-[11px]">
+                  <span className="text-blue-800 font-medium">
+                    มีการตรวจเช็ค Diode, Module IGBT และบอร์ดคอนโทรล
+                  </span>
+                  <button
+                    type="button"
+                    onClick={onNavigateToInverter}
+                    className="font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>ตรวจละเอียด</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
 
               {/* Remark input if damaged or custom info */}
               <div>

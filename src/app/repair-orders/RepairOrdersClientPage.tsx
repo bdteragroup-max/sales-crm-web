@@ -1532,6 +1532,15 @@ export default function RepairOrdersClientPage({
                               <ClipboardCheck size={15} />
                             </button>
 
+                            {/* Check Report (CR) Button */}
+                            <Link
+                              href={`/service/check-reports/new?roId=${record.id}`}
+                              className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                              title="ออกรายงานตรวจเช็ค / Fault Report (CR) จากใบรับซ่อมนี้"
+                            >
+                              <FileSpreadsheet size={15} />
+                            </Link>
+
                             {/* Print PDF Button */}
                             <Link
                               href={`/repair-orders/${record.jobId || record.id}/print`}
@@ -1838,6 +1847,14 @@ export default function RepairOrdersClientPage({
                     </div>
 
                     <div className="flex items-center gap-1">
+                      <Link
+                        href={`/service/check-reports/new?roId=${record.id}`}
+                        className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        title="ออกรายงานตรวจเช็ค (CR)"
+                      >
+                        <FileSpreadsheet size={15} />
+                      </Link>
+
                       <Link
                         href={`/repair-orders/${record.jobId || record.id}/print`}
                         target="_blank"

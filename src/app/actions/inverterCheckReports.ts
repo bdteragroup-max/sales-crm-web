@@ -37,6 +37,47 @@ export interface DiodeMeasurement {
   neg_to_w_red?: string;
 
   notes?: string;
+
+  // Check List Repair items (from Excel template - 6 inspection items + parameter notes)
+  // 1. ตรวจเช็คพาวเวอร์บอร์ด
+  // 1.1 ตรวจเช็คไดโอด Module IGBT
+  igbtStatus?: "NORMAL" | "ABNORMAL" | ""; // Module IGBT ใช้งานได้ปกติ / ไม่ปกติ
+  meterPhotoDiode?: string; // รูปถ่ายมิเตอร์ 1.1 ตรวจเช็คไดโอด Module IGBT
+
+  // 1.2 ตรวจสอบแต่ละเฟสถึงกัน หรือไม่
+  phaseShortCheck?: "NORMAL" | "SHORT" | ""; // ตรวจสอบแต่ละเฟสถึงกันหรือไม่ (ปกติ ไม่ถึงกัน / ผิดปกติ ถึงกัน)
+  meterPhotoPhase?: string; // รูปถ่ายมิเตอร์ 1.2
+
+  // 1.3 ตรวจเช็คไฟ 24 Vdc ออกจากบอร์ดหรือไม่
+  powerBoard24VStatus?: "NORMAL" | "ABNORMAL" | ""; // ปกติ (มีไฟ 24 Vdc) / ผิดปกติ (ไม่มีไฟ)
+  powerBoard24VValue?: string; // ค่าแรงดันที่วัดได้ (Vdc)
+  meterPhotoPower24V?: string; // รูปถ่ายมิเตอร์ 1.3
+
+  // 2. ตรวจเช็คบอร์ดคอนโทรล
+  // 2.1 ตรวจเช็คไฟ 24 Vdc ออกจากเทอร์มินอลหรือไม่ เช่น DI1 X1
+  controlBoard24VStatus?: "NORMAL" | "ABNORMAL" | ""; // ปกติ (มีไฟ 24 Vdc) / ผิดปกติ (ไม่มีไฟ)
+  controlBoard24VValue?: string; // ค่าแรงดันที่วัดได้ (Vdc)
+  meterPhotoControl24V?: string; // รูปถ่ายมิเตอร์ 2.1
+
+  // 2.2 ตรวจเช็คไฟ 10 Vdc ออกจากเทอร์มินอลหรือไม่ เช่น +10V เทียบ GND
+  controlBoard10VStatus?: "NORMAL" | "ABNORMAL" | ""; // ปกติ (มีไฟ 10 Vdc) / ผิดปกติ (ไม่มีไฟ)
+  controlBoard10VValue?: string; // ค่าแรงดันที่วัดได้ (Vdc)
+  meterPhotoControl10V?: string; // รูปถ่ายมิเตอร์ 2.2
+
+  // 3. ตรวจเช็คคาปาซิเตอร์ตัวใหญ่
+  capacitorStatus?: "NORMAL" | "ABNORMAL" | ""; // ปกติ (ไม่บวม/ไม่รั่ว) / ผิดปกติ (บวม/รั่ว/เสื่อม)
+  capacitorValue?: string; // ค่าความจุ หรือ รายละเอียดสภาพ
+  photoCapacitor?: string; // รูปถ่ายคาปาซิเตอร์
+
+  // 4. ทำการบันทึกค่าพารามิเตอร์(ให้พิมพ์เอา)
+  parameterNotes?: string;
+
+  // สำหรับตู้คอนโทรล (CONTROL_CABINET): บันทึกว่าตู้นี้มี Inverter / Soft Starter หรือไม่ และสเปก Inverter ในตู้
+  hasInverter?: boolean;
+  inverterBrand?: string;
+  inverterModel?: string;
+  inverterSerial?: string;
+  inverterKw?: string;
 }
 
 export interface PowerVoltageCheck {
@@ -58,7 +99,7 @@ export interface PowerVoltageCheck {
 export interface PanelComponentItem {
   key: string;
   name: string;
-  status: "NORMAL" | "DAMAGED" | "NOT_SPECIFIED";
+  status: "NORMAL" | "DAMAGED" | "NOT_SPECIFIED" | "NOT_APPLICABLE";
   remark?: string;
 }
 
@@ -69,6 +110,11 @@ export interface MotorMeasurement {
   windingV1V2?: string;
   windingW1W2?: string;
 
+  // ไวร์ริ่งสีสายตามแบบฟอร์มมอเตอร์ (Brown-Black, Black-Grey, Brown-Grey)
+  windingBrownBlack?: string;
+  windingBlackGrey?: string;
+  windingBrownGrey?: string;
+
   // 2. ตารางวัดฉนวนขดลวดลงกราวด์ (Insulation Resistance)
   // ใช้เครื่อง Insulation Tester (Megger) ไม่ใช่มัลติมิเตอร์ธรรมดา
   insulationUGround?: string;
@@ -76,6 +122,21 @@ export interface MotorMeasurement {
   insulationWGround?: string;
 
   notes?: string;
+}
+
+export interface CheckReportPhotos {
+  front?: string[];
+  left?: string[];
+  right?: string[];
+  top?: string[];
+  fan?: string[];
+  inside?: string[];
+  terminal?: string[];
+  nameplate?: string[];
+  // legacy/fallback compatibility:
+  side?: string[];
+  damage?: string[];
+  other?: string[];
 }
 
 export interface InverterCheckReportFormData {
@@ -106,17 +167,17 @@ export interface InverterCheckReportFormData {
   powerOutputVoltage?: Partial<PowerVoltageCheck>;
   panelComponentsCheck?: PanelComponentItem[];
   motorMeasurement?: MotorMeasurement;
-  photos?: {
-    nameplate?: string[];
-    front?: string[];
-    side?: string[];
-    damage?: string[];
-    other?: string[];
-  };
+  photos?: CheckReportPhotos;
   reportBy?: string;
+  approvedByName?: string;
+  approvedDate?: string;
   status?: string; // PENDING | CONVERTED_TO_RO | WARRANTY_CLAIM | CLOSED_NO_REPAIR
   companyCode?: string; // TG | TP | TE
   equipmentType?: string; // INVERTER | CONTROL_CABINET | MOTOR | PUMP
+  hasInverterInCabinet?: boolean; // For CONTROL_CABINET: whether cabinet contains an Inverter/Soft Starter
+  convertedJobId?: string;
+  convertedJobNumber?: string;
+  convertedRepairOrderId?: string;
 }
 
 /**
@@ -268,16 +329,24 @@ export async function createInverterCheckReport(formData: InverterCheckReportFor
         causeOfFault: formData.causeOfFault,
         recommendations: formData.recommendations,
         requireParts: (formData.requireParts || []) as any,
-        diodeMeasurement: (formData.diodeMeasurement || {}) as any,
+        diodeMeasurement: {
+          ...(formData.diodeMeasurement || {}),
+          ...(formData.hasInverterInCabinet !== undefined
+            ? { hasInverter: formData.hasInverterInCabinet }
+            : {}),
+        } as any,
         powerInputVoltage: (formData.powerInputVoltage || {}) as any,
         powerOutputVoltage: (formData.powerOutputVoltage || {}) as any,
         panelComponentsCheck: (formData.panelComponentsCheck || []) as any,
         motorMeasurement: (formData.motorMeasurement || {}) as any,
         photos: (formData.photos || {}) as any,
-        reportBy: formData.reportBy || user?.fullName,
-        status: formData.status || "PENDING",
+        reportBy: formData.approvedByName || formData.reportBy || user?.fullName,
+        status: formData.status || (formData.convertedJobNumber ? "CONVERTED_TO_RO" : "PENDING"),
         companyCode: formData.companyCode || "TG",
         equipmentType: formData.equipmentType || "INVERTER",
+        convertedJobId: formData.convertedJobId || null,
+        convertedJobNumber: formData.convertedJobNumber || null,
+        convertedRepairOrderId: formData.convertedRepairOrderId || null,
       },
     });
 
@@ -331,16 +400,24 @@ export async function updateInverterCheckReport(id: string, formData: InverterCh
         causeOfFault: formData.causeOfFault,
         recommendations: formData.recommendations,
         requireParts: (formData.requireParts || []) as any,
-        diodeMeasurement: (formData.diodeMeasurement || {}) as any,
+        diodeMeasurement: {
+          ...(formData.diodeMeasurement || {}),
+          ...(formData.hasInverterInCabinet !== undefined
+            ? { hasInverter: formData.hasInverterInCabinet }
+            : {}),
+        } as any,
         powerInputVoltage: (formData.powerInputVoltage || {}) as any,
         powerOutputVoltage: (formData.powerOutputVoltage || {}) as any,
         panelComponentsCheck: (formData.panelComponentsCheck || []) as any,
         motorMeasurement: (formData.motorMeasurement || {}) as any,
         photos: (formData.photos || {}) as any,
-        reportBy: formData.reportBy,
+        reportBy: formData.approvedByName !== undefined ? formData.approvedByName : (formData.reportBy || existing.reportBy),
         status: formData.status || existing.status,
         companyCode: formData.companyCode || existing.companyCode,
         equipmentType: formData.equipmentType || existing.equipmentType || "INVERTER",
+        convertedJobId: formData.convertedJobId !== undefined ? formData.convertedJobId : existing.convertedJobId,
+        convertedJobNumber: formData.convertedJobNumber !== undefined ? formData.convertedJobNumber : existing.convertedJobNumber,
+        convertedRepairOrderId: formData.convertedRepairOrderId !== undefined ? formData.convertedRepairOrderId : existing.convertedRepairOrderId,
       },
     });
 
@@ -531,39 +608,130 @@ export async function convertCheckReportToRepairOrder(
   }
 }
 
+// In-memory cache for recent/search company results (TTL 60s)
+const companySearchCache = new Map<string, { data: any[]; timestamp: number }>();
+const CACHE_TTL_MS = 60 * 1000;
+
 /**
- * Fast search companies for check report creation & editing
- * Returns matching companies with contacts, assigned sales reps, and full address.
+ * Get recent companies for instant dropdown display in check reports (0ms wait)
+ */
+export async function getRecentCompaniesForCheckReport() {
+  const cacheKey = "__recent_companies__";
+  const cached = companySearchCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  try {
+    const companies = await prisma.company.findMany({
+      take: 30,
+      orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        companyName: true,
+        taxId: true,
+        address: true,
+        subDistrict: true,
+        district: true,
+        province: true,
+        postalCode: true,
+        assignedUser: {
+          select: {
+            id: true,
+            fullName: true,
+            role: true,
+            employeeSale: {
+              select: {
+                nickname: true,
+                department: true,
+              },
+            },
+          },
+        },
+        contacts: {
+          select: {
+            id: true,
+            contactName: true,
+            position: true,
+            mobilePhone: true,
+            email: true,
+          },
+          take: 5,
+        },
+      },
+    });
+
+    companySearchCache.set(cacheKey, { data: companies, timestamp: Date.now() });
+    return companies;
+  } catch (err) {
+    console.error("Error fetching recent companies for check report:", err);
+    return [];
+  }
+}
+
+/**
+ * Ultra-fast search companies for check report creation & editing
+ * Targets companyName, taxId, and contact phone/name with in-memory caching
  */
 export async function searchCompaniesForCheckReport(query: string) {
   if (!query || query.trim().length === 0) return [];
   const q = query.trim();
+  const cacheKey = q.toLowerCase();
+
+  const cached = companySearchCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
   const cleanDigits = q.replace(/\D/g, "");
+  const isOnlyDigits = /^\d+$/.test(q);
   const isPhoneQuery = cleanDigits.length >= 3;
 
   try {
-    const companies = await prisma.company.findMany({
-      where: {
-        OR: [
-          { companyName: { contains: q, mode: "insensitive" as const } },
-          { taxId: { contains: q, mode: "insensitive" as const } },
-          { address: { contains: q, mode: "insensitive" as const } },
-          { province: { contains: q, mode: "insensitive" as const } },
-          { district: { contains: q, mode: "insensitive" as const } },
-          {
-            contacts: {
-              some: {
-                OR: [
-                  { contactName: { contains: q, mode: "insensitive" as const } },
-                  { mobilePhone: { contains: q, mode: "insensitive" as const } },
-                  ...(isPhoneQuery
-                    ? [{ mobilePhone: { contains: cleanDigits, mode: "insensitive" as const } }]
-                    : []),
-                ],
-              },
+    const searchConditions: any[] = [];
+
+    if (isOnlyDigits) {
+      // Pure numbers: search taxId and contact mobile phone
+      searchConditions.push({ taxId: { contains: q } });
+      searchConditions.push({
+        contacts: {
+          some: {
+            mobilePhone: { contains: cleanDigits },
+          },
+        },
+      });
+    } else {
+      // Primary: Match company name (fastest, most common)
+      searchConditions.push({
+        companyName: { contains: q, mode: "insensitive" as const },
+      });
+
+      // Secondary: Phone match if includes digits
+      if (isPhoneQuery) {
+        searchConditions.push({
+          contacts: {
+            some: {
+              mobilePhone: { contains: cleanDigits },
             },
           },
-        ],
+        });
+      }
+
+      // Secondary: Contact person name if query length >= 2
+      if (q.length >= 2) {
+        searchConditions.push({
+          contacts: {
+            some: {
+              contactName: { contains: q, mode: "insensitive" as const },
+            },
+          },
+        });
+      }
+    }
+
+    const companies = await prisma.company.findMany({
+      where: {
+        OR: searchConditions,
       },
       select: {
         id: true,
@@ -595,12 +763,18 @@ export async function searchCompaniesForCheckReport(query: string) {
             mobilePhone: true,
             email: true,
           },
-          orderBy: { createdAt: "desc" },
+          take: 5,
         },
       },
-      take: 20,
+      take: 25,
       orderBy: { updatedAt: "desc" },
     });
+
+    if (companySearchCache.size > 200) {
+      const oldestKey = companySearchCache.keys().next().value;
+      if (oldestKey) companySearchCache.delete(oldestKey);
+    }
+    companySearchCache.set(cacheKey, { data: companies, timestamp: Date.now() });
 
     return companies;
   } catch (err) {
@@ -637,4 +811,67 @@ export async function getActiveUsersForCheckReport() {
     return [];
   }
 }
+
+/**
+ * Fast search Repair Orders (RO) to link to a Check Report
+ */
+export async function searchRepairOrdersForCheckReport(query: string = "") {
+  try {
+    const q = query.trim();
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { job: { jobNumber: { contains: q, mode: "insensitive" as const } } },
+        { customerCompany: { contains: q, mode: "insensitive" as const } },
+        { job: { customer: { contains: q, mode: "insensitive" as const } } },
+        { senderName: { contains: q, mode: "insensitive" as const } },
+        { phoneNumber: { contains: q, mode: "insensitive" as const } },
+      ];
+    }
+
+    const orders = await prisma.repairOrder.findMany({
+      where,
+      include: {
+        job: true,
+      },
+      take: 20,
+      orderBy: { createdAt: "desc" },
+    });
+
+    return orders;
+  } catch (err) {
+    console.error("Error searching repair orders for check report:", err);
+    return [];
+  }
+}
+
+/**
+ * Get single repair order with job details for populating check report
+ */
+export async function getRepairOrderForCheckReport(id: string) {
+  try {
+    const order = await prisma.repairOrder.findFirst({
+      where: {
+        OR: [
+          { id },
+          { jobId: id },
+          { job: { jobNumber: id } },
+        ],
+      },
+      include: {
+        job: true,
+      },
+    });
+
+    if (!order) {
+      return { success: false, error: "ไม่พบข้อมูลใบรับซ่อม" };
+    }
+
+    return { success: true, data: order };
+  } catch (err: any) {
+    console.error("Error fetching repair order for check report:", err);
+    return { success: false, error: err.message || "Failed to fetch repair order" };
+  }
+}
+
 
