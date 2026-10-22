@@ -4,22 +4,24 @@ import React from "react";
 
 interface PhotosPaperProps {
   report: any;
+  lang?: "TH" | "EN";
   className?: string;
 }
 
-export default function PhotosPaper({ report, className = "" }: PhotosPaperProps) {
+export default function PhotosPaper({ report, lang = "TH", className = "" }: PhotosPaperProps) {
+  const isEn = lang === "EN";
   const photos = report?.photos || {};
   const eqType = report?.equipmentType || "INVERTER";
   const isCabinet = eqType === "CONTROL_CABINET";
   const photoSlots = [
-    { key: "front", label: "ด้านหน้า", url: photos.front?.[0] },
-    { key: "left", label: "ด้านซ้าย", url: photos.left?.[0] || photos.side?.[0] },
-    { key: "right", label: "ด้านขวา", url: photos.right?.[0] },
-    { key: "top", label: "ด้านบน", url: photos.top?.[0] },
-    { key: "fan", label: "พัดลม", url: photos.fan?.[0] },
-    { key: "inside", label: "ด้านใน", url: photos.inside?.[0] || photos.damage?.[0] },
-    { key: "terminal", label: isCabinet ? "น็อตเทอร์มินอล" : "บล็อคเทอร์มินอล", url: photos.terminal?.[0] },
-    { key: "nameplate", label: "เนมเพลท", url: photos.nameplate?.[0] },
+    { key: "front", label: isEn ? "Front View" : "ด้านหน้า", url: photos.front?.[0] },
+    { key: "left", label: isEn ? "Left Side View" : "ด้านซ้าย", url: photos.left?.[0] || photos.side?.[0] },
+    { key: "right", label: isEn ? "Right Side View" : "ด้านขวา", url: photos.right?.[0] },
+    { key: "top", label: isEn ? "Top View" : "ด้านบน", url: photos.top?.[0] },
+    { key: "fan", label: isEn ? "Cooling Fan" : "พัดลม", url: photos.fan?.[0] },
+    { key: "inside", label: isEn ? "Internal View / Damage" : "ด้านใน", url: photos.inside?.[0] || photos.damage?.[0] },
+    { key: "terminal", label: isEn ? (isCabinet ? "Terminal Screws" : "Terminal Block") : (isCabinet ? "น็อตเทอร์มินอล" : "บล็อคเทอร์มินอล"), url: photos.terminal?.[0] },
+    { key: "nameplate", label: isEn ? "Nameplate" : "เนมเพลท", url: photos.nameplate?.[0] },
   ];
 
   const compCode = (report?.companyCode || "TG").toUpperCase();
@@ -30,37 +32,58 @@ export default function PhotosPaper({ report, className = "" }: PhotosPaperProps
       ? "/7.png"
       : "/4.png";
 
-  const companyTitle =
-    compCode === "TP"
+  const companyTitle = isEn
+    ? compCode === "TP"
+      ? "TERA POWER CO., LTD."
+      : compCode === "TE"
+      ? "TERA ELECTRIC CO., LTD."
+      : "TERA GROUP CO., LTD."
+    : compCode === "TP"
       ? "บริษัท เทอรา พาวเวอร์ จำกัด"
       : compCode === "TE"
-      ? "บริษัท เทอรา อิเล็คทริค แอนด์ เอ็นเนอร์ยี่ จำกัด"
+      ? "บริษัท เทอรา อิเล็คทริค จำกัด"
       : "บริษัท เทอรา กรุ๊ป จำกัด";
 
   return (
     <div
-      className={`photos-paper bg-white border-2 border-black w-full max-w-[794px] p-6 text-black text-[12px] leading-snug font-['Sarabun',sans-serif] flex flex-col justify-between box-border mx-auto print:border-none print:p-0 ${className}`}
+      className={`photos-paper bg-white border-2 border-black w-full max-w-[1020px] p-6 text-black text-[12px] leading-snug font-['Sarabun',sans-serif] flex flex-col justify-between box-border mx-auto print:border-none print:p-0 ${className}`}
       style={{ boxSizing: "border-box" }}
     >
       <div>
-        {/* Header */}
+        {/* Header Row: Company Title & Document Number (Identical across all forms) */}
         <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
-          <div className="flex items-center gap-2.5">
-            <img src={logoSrc} alt={compCode} className="h-8 max-w-[100px] object-contain" />
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-24 flex items-center justify-start shrink-0">
+              <img
+                src={logoSrc}
+                alt={compCode}
+                className="max-h-10 max-w-full object-contain"
+              />
+            </div>
             <div>
               <div className="font-bold text-[13px]">{companyTitle}</div>
-              <div className="text-[10px] text-gray-500">รูปถ่ายสินค้าและความเสียหาย (Fault Photos)</div>
+              <div className="text-[10px] text-gray-600">
+                {isEn
+                  ? "Inverter & Drive System Division — Product & Fault Photos"
+                  : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"}
+              </div>
             </div>
           </div>
-          <div className="font-mono text-[11px] font-bold text-red-600">
-            CR: {report?.crNumber || "-"}
-            {report?.serialNumber && ` (S/N: ${report.serialNumber})`}
+          <div className="text-right">
+            <div className="font-mono font-bold text-[12px] text-black">
+              CR: {report?.crNumber || "-"}
+            </div>
+            {report?.convertedJobNumber && (
+              <div className="text-[10px] font-bold text-gray-700 font-mono">
+                Ref RO: {report.convertedJobNumber}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Section Header matching Image 2 */}
         <div className="font-bold text-[13px] bg-[#d9e1f2] border border-black text-center py-1 mb-4">
-          รูปสินค้า
+          {isEn ? "PRODUCT PHOTOS" : "รูปสินค้า"}
         </div>
 
         {/* 2-Column 8-photo grid matching Image 2 */}
@@ -82,11 +105,13 @@ export default function PhotosPaper({ report, className = "" }: PhotosPaperProps
                         className="max-h-full max-w-full object-contain"
                       />
                     ) : (
-                      <span className="text-[10px] text-gray-400 font-mono">(ไม่มีรูปภาพ)</span>
+                      <span className="text-[10px] text-gray-400 font-mono">
+                        {isEn ? "(No photo available)" : "(ไม่มีรูปภาพ)"}
+                      </span>
                     )}
                   </div>
                   {/* Boxed label matching template */}
-                  <div className="border border-black text-center py-0.5 px-6 font-bold text-[11px] bg-white mt-1.5 min-w-[130px] max-w-[200px]">
+                  <div className="border border-black text-center py-0.5 px-6 font-bold text-[11px] bg-white mt-1.5 min-w-[130px] max-w-[220px]">
                     {slot.label}
                   </div>
                 </div>

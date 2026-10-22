@@ -53,7 +53,7 @@ export const WARRANTY_STATUS_OPTIONS = [
 export const COMPANY_OPTIONS = [
   { value: "TG", label: "TERA GROUP (TG)", full: "บริษัท เทอรา กรุ๊ป จำกัด" },
   { value: "TP", label: "TERA POWER (TP)", full: "บริษัท เทอรา พาวเวอร์ จำกัด" },
-  { value: "TE", label: "TERA ELECTRIC (TE)", full: "บริษัท เทอรา อิเล็คทริค แอนด์ เอ็นเนอร์ยี่ จำกัด" },
+  { value: "TE", label: "TERA ELECTRIC (TE)", full: "บริษัท เทอรา อิเล็คทริค จำกัด" },
 ];
 
 export type EquipmentType = "INVERTER" | "CONTROL_CABINET" | "MOTOR" | "PUMP";

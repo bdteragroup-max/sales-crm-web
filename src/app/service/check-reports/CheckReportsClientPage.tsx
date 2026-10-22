@@ -785,18 +785,8 @@ export default function CheckReportsClientPage({
                             <Printer className="w-4 h-4" />
                           </Link>
 
-                          {/* Convert to RO Button (if not already converted) */}
-                          {!isConverted ? (
-                            <button
-                              type="button"
-                              onClick={() => openConvertModal(report)}
-                              className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#bf1a01] text-white font-bold text-[11px] shadow-xs flex items-center gap-1 cursor-pointer transition-all active:scale-95"
-                              title="แปลงเป็นใบรับซ่อมทันที"
-                            >
-                              <Wrench className="w-3 h-3" />
-                              <span>แปลงเป็น RO</span>
-                            </button>
-                          ) : (
+                          {/* View converted RO if already converted */}
+                          {isConverted && (
                             <Link
                               href={`/repair-orders/${report.convertedJobId}/edit`}
                               className="p-1.5 rounded-lg bg-gray-100 text-gray-700 hover:text-gray-900 hover:bg-gray-200 transition-colors"

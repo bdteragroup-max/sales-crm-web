@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -17,6 +17,7 @@ import { getPendingRepairDeliveryCount } from '@/app/actions/repairDeliveries';
 import { getPendingEstimationCount } from '@/app/actions/estimations';
 import { getPendingMarketingRequestCount } from '@/app/actions/marketingRequests';
 import { getUnreadMarketingBoardCount } from '@/app/actions/marketingBoard';
+import { getPendingServiceClaimCount } from '@/app/actions/serviceClaims';
 import CoinMiniWidget from './CoinMiniWidget';
 import NotificationBell from './NotificationBell'; // HMR flush
 
@@ -38,6 +39,7 @@ const executiveNav = [
 
   // ── 2. Operations & Engineering ──
   { icon: Briefcase, label: 'ติดตามงานทั้งหมด (Master Jobs Tracker)', href: '/jobs' },
+  { icon: ShieldAlert, label: 'ระบบแจ้งเคลม (Service Claims)', href: '/service/claims' },
   { icon: FolderOpen, label: 'ภาพรวมโครงการ (Projects Dashboard)', href: '/projects/dashboard' },
   { icon: Boxes, label: 'ภาพรวมฝ่ายผลิต (Production Dashboard)', href: '/production/dashboard' },
   { icon: Wrench, label: 'ภาพรวมงานบริการ (Service Overview)', href: '/executive/service' },
@@ -100,6 +102,7 @@ const repNav = [
 
 const serviceNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมฝ่ายบริการ', href: '/service/dashboard' },
+  { icon: ShieldAlert, label: 'รายการแจ้งเคลม (Claims Intake)', href: '/service/claims' },
   { icon: PhoneCall, label: 'Service Desk', href: '/service/calls' },
   { icon: ClipboardCheck, label: 'ตรวจเช็ค & Fault Report (CR)', href: '/service/check-reports' },
   { icon: Wrench, label: 'ใบรับซ่อม (ซ่อมใน)', href: '/repair-orders' },
@@ -121,6 +124,7 @@ const serviceMgrNav = [
 
 const technicianNav = [
   { icon: Wrench, label: 'งานผลิตของฉัน (Cabinet)', href: '/technician/production' },
+  { icon: ShieldAlert, label: 'รายการแจ้งเคลม (Claims)', href: '/service/claims' },
   { icon: ClipboardCheck, label: 'ตรวจเช็ค & Fault Report (CR)', href: '/service/check-reports' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: Building2, label: 'งานซ่อมสถานที่ (Facility Repairs)', href: '/technician/facility-repairs' },
@@ -141,6 +145,7 @@ const purchasingNav = [
 
 const storeNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
+  { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (Service Claim)', href: '/service/claims' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
   { icon: Package, label: 'รายการเบิก/ยืมวัสดุอุปกรณ์', href: '/store/requisitions' },
@@ -148,6 +153,7 @@ const storeNav = [
 
 const storeAndPurchasingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
+  { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (Service Claim)', href: '/service/claims' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
   { icon: Package, label: 'รายการเบิก/ยืมวัสดุอุปกรณ์', href: '/store/requisitions' },
@@ -190,6 +196,7 @@ const projectAdminNav = [
 const productionNav = [
   { icon: LayoutDashboard, label: 'Production Dashboard', href: '/production/dashboard' },
   { icon: Package, label: 'สถานะคำสั่งผลิต', href: '/orders' },
+  { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (QC Claim)', href: '/service/claims' },
   { icon: ClipboardList, label: 'ตรวจสอบคุณภาพ (QC)', href: '/production/qc' },
   { icon: Activity, label: 'ทดสอบการทำงาน (FAT)', href: '/production/fat' },
   { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
@@ -225,6 +232,7 @@ const bdNav = [
 ];
 
 const commonNav = [
+  { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (Service Claim)', href: '/service/claims' },
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests/new' },
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
@@ -370,6 +378,7 @@ function ResponsiveSidebar({
   const [pendingEstimationCount, setPendingEstimationCount] = useState(0);
   const [pendingMarketingRequestCount, setPendingMarketingRequestCount] = useState(0);
   const [unreadMarketingBoardCount, setUnreadMarketingBoardCount] = useState(0);
+  const [pendingClaimCount, setPendingClaimCount] = useState(0);
 
   const [selectedContext, setSelectedContext] = useState<string>('All (Default)');
   const [isContextSwitcherOpen, setIsContextSwitcherOpen] = useState(false);
@@ -426,6 +435,7 @@ function ResponsiveSidebar({
 
     getPendingMarketingRequestCount().then(setPendingMarketingRequestCount).catch(() => { });
     getUnreadMarketingBoardCount().then(setUnreadMarketingBoardCount).catch(() => { });
+    getPendingServiceClaimCount().then(setPendingClaimCount).catch(() => { });
   }, [router, nav, userRole]);
 
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -599,6 +609,11 @@ function ResponsiveSidebar({
                   {href === '/marketing-board' && unreadMarketingBoardCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-[#ff2301] text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10 animate-pulse">
                       {unreadMarketingBoardCount > 99 ? '99+' : unreadMarketingBoardCount}
+                    </span>
+                  )}
+                  {href === '/service/claims' && pendingClaimCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-amber-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10 animate-pulse">
+                      {pendingClaimCount > 99 ? '99+' : pendingClaimCount}
                     </span>
                   )}
                 </Link>
@@ -818,6 +833,11 @@ function ResponsiveSidebar({
                     {href === '/marketing-board' && unreadMarketingBoardCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
                         {unreadMarketingBoardCount > 99 ? '99+' : unreadMarketingBoardCount}
+                      </span>
+                    )}
+                    {href === '/service/claims' && pendingClaimCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-amber-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingClaimCount > 99 ? '99+' : pendingClaimCount}
                       </span>
                     )}
                   </div>

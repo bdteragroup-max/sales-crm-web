@@ -49,8 +49,11 @@ export async function translateReportData(data: {
   inspectorName?: string;
   approvedByName?: string;
   reportBy?: string;
+  salesPerson?: string;
   recommendations?: string;
   applicationLoad?: string;
+  parameterNotes?: string;
+  capacitorValue?: string;
   requireParts?: { partName: string; qty: number }[];
 }) {
   const [
@@ -61,8 +64,11 @@ export async function translateReportData(data: {
     inspectorName,
     approvedByName,
     reportBy,
+    salesPerson,
     recommendations,
     applicationLoad,
+    parameterNotes,
+    capacitorValue,
   ] = await Promise.all([
     translateText(data.causeOfFault || ""),
     translateText(data.symptoms || ""),
@@ -71,8 +77,11 @@ export async function translateReportData(data: {
     translateText(data.inspectorName || ""),
     translateText(data.approvedByName || ""),
     translateText(data.reportBy || ""),
+    translateText(data.salesPerson || ""),
     translateText(data.recommendations || ""),
     translateText(data.applicationLoad || ""),
+    translateText(data.parameterNotes || ""),
+    translateText(data.capacitorValue || ""),
   ]);
 
   let requireParts = data.requireParts;
@@ -93,24 +102,34 @@ export async function translateReportData(data: {
     inspectorName: inspectorName || data.inspectorName,
     approvedByName: approvedByName || data.approvedByName,
     reportBy: reportBy || data.reportBy,
+    salesPerson: salesPerson || data.salesPerson,
     recommendations: recommendations || data.recommendations,
     applicationLoad: applicationLoad || data.applicationLoad,
+    parameterNotes: parameterNotes || data.parameterNotes,
+    capacitorValue: capacitorValue || data.capacitorValue,
     requireParts,
   };
 }
 
 /**
- * Fallback dictionary for common pump and service terms if network fails
+ * Fallback dictionary for common terms if network fails
  */
 function fallbackThaiToEn(text: string): string {
   let res = text;
   const dict: [RegExp, string][] = [
+    [/นายชลประการ พลดงนอก/g, "Mr. Chonprakarn Phondonnok"],
+    [/นางสาวผกามาศ จันทร์เมือง/g, "Ms. Phakamat Chanmueang"],
+    [/คุณบรรพต ริพรม/g, "Mr. Banphot Riprom"],
     [/นาย/g, "Mr. "],
     [/นางสาว/g, "Ms. "],
     [/นาง/g, "Mrs. "],
-    [/คุณ/g, "Khun "],
+    [/คุณ/g, "Mr./Khun "],
     [/บริษัท/g, "Company "],
     [/จำกัด/g, "Co., Ltd."],
+    [/เคสตัวอินเวอร์เตอร์\s*แตก/g, "The inverter case is broken."],
+    [/IGBT เฟส\s*U\s*V\s*W\s*เสีย/g, "The IGBT phases U V W are broken."],
+    [/อินเวอร์เตอร์มีคราบฝุ่นจำนวนมาก/g, "The inverter has a lot of dust stains."],
+    [/สภาพสมบูรณ์ ไม่พบคราบน้ำยาหรือรอยบวม/g, "Good condition, no electrolyte leakage or bulging"],
     [/ใบพัดปั๊มได้รับการเสียหาย/g, "The pump impeller is damaged."],
     [/ใบพัด/g, "Impeller"],
     [/เสื้อปั๊ม/g, "Pump casing"],

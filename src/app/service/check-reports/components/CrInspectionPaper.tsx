@@ -79,7 +79,7 @@ export default function CrInspectionPaper({ report, className = "" }: CrInspecti
               {report?.companyCode === "TP"
                 ? "บริษัท เทอรา พาวเวอร์ จำกัด"
                 : report?.companyCode === "TE"
-                ? "บริษัท เทอรา อิเล็คทริค แอนด์ เอ็นเนอร์ยี่ จำกัด"
+                ? "บริษัท เทอรา อิเล็คทริค จำกัด"
                 : "บริษัท เทอรา กรุ๊ป จำกัด"}
             </div>
             <div className="text-[10px] text-gray-600">

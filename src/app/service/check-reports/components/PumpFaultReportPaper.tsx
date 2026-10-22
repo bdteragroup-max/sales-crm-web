@@ -131,12 +131,12 @@ export default function PumpFaultReportPaper({
     ? compCode === "TP"
       ? "TERA POWER CO., LTD."
       : compCode === "TE"
-      ? "TERA ELECTRIC AND ENERGY CO., LTD."
+      ? "TERA ELECTRIC CO., LTD."
       : "TERA GROUP CO., LTD."
     : compCode === "TP"
     ? "บริษัท เทอรา พาวเวอร์ จำกัด"
     : compCode === "TE"
-    ? "บริษัท เทอรา อิเล็คทริค แอนด์ เอ็นเนอร์ยี่ จำกัด"
+    ? "บริษัท เทอรา อิเล็คทริค จำกัด"
     : "บริษัท เทอรา กรุ๊ป จำกัด";
 
   const photos = report?.photos || {};

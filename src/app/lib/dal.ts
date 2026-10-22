@@ -49,6 +49,7 @@ export const getUser = cache(async () => {
           employeeId: true,
           isActive: true,
           employeeSale: true,
+          phoneNumber: true,
         },
       })
       hasDbError = false;

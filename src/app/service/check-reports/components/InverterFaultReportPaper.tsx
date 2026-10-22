@@ -146,12 +146,12 @@ export default function InverterFaultReportPaper({
     ? compCode === "TP"
       ? "TERA POWER CO., LTD."
       : compCode === "TE"
-      ? "TERA ELECTRIC AND ENERGY CO., LTD."
+      ? "TERA ELECTRIC CO., LTD."
       : "TERA GROUP CO., LTD."
     : compCode === "TP"
     ? "บริษัท เทอรา พาวเวอร์ จำกัด"
     : compCode === "TE"
-    ? "บริษัท เทอรา อิเล็คทริค แอนด์ เอ็นเนอร์ยี่ จำกัด"
+    ? "บริษัท เทอรา อิเล็คทริค จำกัด"
     : "บริษัท เทอรา กรุ๊ป จำกัด";
 
   const warrantyText = isEn
@@ -188,9 +188,12 @@ export default function InverterFaultReportPaper({
     photos.terminal?.[0] ||
     diode.meterPhotoDiode;
 
+  const rawModel = (report?.inverterModel || diode.inverterModel || "-").trim();
+  const brand = (report?.inverterBrand || diode.inverterBrand || "").trim();
   const modelText =
-    (report?.inverterBrand ? `${report.inverterBrand} ` : "") +
-    (report?.inverterModel || diode.inverterModel || "-");
+    brand && rawModel.toLowerCase().startsWith(brand.toLowerCase())
+      ? rawModel.slice(brand.length).trim()
+      : rawModel;
 
   const serialText = report?.serialNumber || diode.inverterSerial || "-";
   const powerText = report?.motorKw || diode.inverterKw || "-";

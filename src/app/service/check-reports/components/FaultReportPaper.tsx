@@ -130,6 +130,13 @@ export default function FaultReportPaper({
     diode.igbtStatus
   );
 
+  const rawModel = (report?.inverterModel || diode?.inverterModel || "").trim();
+  const brand = (report?.inverterBrand || diode?.inverterBrand || "").trim();
+  const cleanModel =
+    brand && rawModel.toLowerCase().startsWith(brand.toLowerCase())
+      ? rawModel.slice(brand.length).trim()
+      : rawModel || report?.inverterModel || "-";
+
   const motor = report?.motorMeasurement || {};
   const hasMotorValues = Boolean(
     motor?.windingU1U2 ||
@@ -174,7 +181,7 @@ export default function FaultReportPaper({
               {report?.companyCode === "TP"
                 ? "TERA POWER CO., LTD."
                 : report?.companyCode === "TE"
-                ? "TERA ELECTRIC AND ENERGY CO., LTD."
+                ? "TERA ELECTRIC CO., LTD."
                 : "TERA GROUP CO., LTD."}
             </div>
             <div className="text-[10px] text-gray-500 font-mono">
@@ -227,7 +234,9 @@ export default function FaultReportPaper({
                   : "รุ่น"}
               </td>
               <td className="border border-black p-1.5 font-bold">
-                {report?.inverterBrand} {report?.inverterModel}
+                {eqType === "CONTROL_CABINET" && report?.inverterBrand
+                  ? `${report.inverterBrand} ${cleanModel}`
+                  : cleanModel}
                 {eqType === "CONTROL_CABINET" && hasInverter && diode?.inverterModel && (
                   <div className="text-[10px] text-blue-800 font-normal mt-0.5">
                     Inverter ในตู้: {diode.inverterBrand || "INVT"} {diode.inverterModel} {diode.inverterSerial ? `(S/N: ${diode.inverterSerial})` : ""}

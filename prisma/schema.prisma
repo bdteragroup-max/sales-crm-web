@@ -642,6 +642,41 @@ model InverterCheckReport {
   @@index([customerCompany])
 }
 
+model ServiceClaim {
+  id                 String    @id @default(cuid())
+  claimNumber        String    @unique
+  claimDate          DateTime  @default(now()) @db.Timestamptz(6)
+  department         String    // WAREHOUSE (คลังสินค้า) | QC (ตรวจสอบคุณภาพ) | OTHER
+  reporterName       String    // ผู้แจ้งเคลม
+  reporterPhone      String?   // เบอร์ติดต่อผู้แจ้ง
+  brand              String?   // ยี่ห้อ เช่น INVT, TERA GROUP
+  model              String    // Model (รุ่นสินค้า)
+  serialNumber       String?   // S/N
+  nameplatePhotoUrl  String    // รูปเนมเพลทข้างตัวเครื่อง
+  symptoms           String    // อาการเสีย
+  defectPhotos       Json?     // รูปภาพความเสียหาย / จุดชำรุดเพิ่มเติม
+  defectVideoUrl     String?   // วีดีโออาการเสีย / การทำงานผิดปกติ
+  equipmentType      String?   @default("INVERTER") // INVERTER | CONTROL_CABINET | MOTOR | PUMP | OTHER
+  urgency            String    @default("NORMAL") // NORMAL | URGENT | CRITICAL
+  companyCode        String?   @default("TG") // TG | TE | TP
+  status             String    @default("PENDING") // PENDING | UNDER_REVIEW | ACCEPTED | REJECTED | CONVERTED_CR | CONVERTED_RO | CLOSED
+  serviceNotes       String?   // ความเห็น/บันทึกการตอบกลับจากฝ่ายเซอร์วิส
+  serviceHandledBy   String?   // ช่าง/เจ้าหน้าที่เซอร์วิสผู้รับเรื่อง
+  handledAt          DateTime? @db.Timestamptz(6)
+  linkedCrId         String?   // InverterCheckReport id (ถ้าเปิดใบตรวจเช็ค CR)
+  linkedCrNumber     String?   // CR Number
+  linkedRoId         String?   // RepairOrder id (ถ้าเปิดใบรับซ่อม RO)
+  linkedRoNumber     String?   // RO Number
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@index([claimNumber])
+  @@index([department])
+  @@index([status])
+  @@index([model])
+  @@index([serialNumber])
+}
+
 model RepairDelivery {
   id                  String    @id @default(cuid())
   deliveryNumber      String    @unique

@@ -31,10 +31,14 @@ import {
   Layers,
   ArrowUpDown,
   History,
-  Plus
+  Plus,
+  FileSpreadsheet,
+  BarChart3,
+  Download
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import GoodsReceiveModal, { POItem, GoodsReceiptRecord } from './GoodsReceiveModal';
+import ReceiveReportModal from './ReceiveReportModal';
 
 interface StoreReceiveClientProps {
   initialPos: POItem[];
@@ -64,6 +68,9 @@ export default function StoreReceiveClient({
 
   // Quantity Entry & Staggered Receive Modal State
   const [receiveModalPo, setReceiveModalPo] = useState<POItem | null>(null);
+
+  // Report Modal State
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -716,6 +723,15 @@ export default function StoreReceiveClient({
           </Link>
 
           <button
+            onClick={() => setIsReportModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-300 shadow-sm transition-all hover:scale-[1.02]"
+            title="ดูรายงาน PO ที่รับสินค้า และ PO สินค้าที่ค้างรับ (พร้อมส่งออก Excel)"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <span>รายงานรับสินค้า / ค้างรับ</span>
+          </button>
+
+          <button
             onClick={() => router.refresh()}
             className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-semibold border border-blue-200 shadow-sm transition-all"
             title="รีเฟรชข้อมูล"
@@ -934,29 +950,40 @@ export default function StoreReceiveClient({
             )}
           </div>
 
-          {/* Tab Switcher Buttons */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl flex-shrink-0">
+          {/* Tab Switcher & Report Action */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+              <button
+                onClick={() => handleTabChange('pending')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  activeTab === 'pending'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Package className="w-3.5 h-3.5" />
+                <span>รอตรวจรับ ({filteredPending.length})</span>
+              </button>
+              <button
+                onClick={() => handleTabChange('received')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  activeTab === 'received'
+                    ? 'bg-white text-emerald-600 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>รับเข้าแล้ว ({filteredReceived.length})</span>
+              </button>
+            </div>
+
             <button
-              onClick={() => handleTabChange('pending')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'pending'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              onClick={() => setIsReportModalOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-300 shadow-xs transition-all hover:scale-[1.02]"
+              title="เปิดดูรายงาน PO ที่รับสินค้าแล้ว และ PO สินค้าที่ค้างรับ พร้อมส่งออก Excel"
             >
-              <Package className="w-3.5 h-3.5" />
-              <span>รอตรวจรับ ({filteredPending.length})</span>
-            </button>
-            <button
-              onClick={() => handleTabChange('received')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'received'
-                  ? 'bg-white text-emerald-600 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>รับเข้าแล้ว ({filteredReceived.length})</span>
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Report รายงาน</span>
             </button>
           </div>
         </div>
@@ -2047,6 +2074,15 @@ export default function StoreReceiveClient({
           userName={userName}
         />
       )}
+
+      {/* 9. Goods Receiving & Backorder Report Modal */}
+      <ReceiveReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        initialPending={pos}
+        initialReceived={receivedPos}
+        userName={userName}
+      />
     </div>
   );
 }
