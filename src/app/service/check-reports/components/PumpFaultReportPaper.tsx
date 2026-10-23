@@ -232,7 +232,7 @@ export default function PumpFaultReportPaper({
       {/* PAGE 1: MAIN REPORT (11 COLUMNS + PUMP NAMEPLATE)              */}
       {/* ============================================================== */}
       <div
-        className="page-1 bg-white border-2 border-black p-6 text-[11px] leading-snug flex flex-col justify-between box-border min-h-[1050px] shadow-sm mb-6 print:mb-0 print:border-none print:p-0 print:shadow-none print:min-h-0 print:break-after-page"
+        className="page-1 print-page-sheet bg-white border-2 border-black p-6 text-[11px] leading-snug flex flex-col justify-between box-border min-h-[1050px] shadow-sm mb-6 print:mb-0 print:border-none print:p-0 print:shadow-none print:min-h-0 print:block"
         style={{ boxSizing: "border-box" }}
       >
         <div>
@@ -363,7 +363,7 @@ export default function PumpFaultReportPaper({
           {/* Big Nameplate Photo Centered */}
           <div className="w-full flex justify-center mb-4">
             <div className="border border-black p-2 bg-white w-full max-w-[620px] flex flex-col items-center">
-              <div className="w-full h-72 sm:h-80 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
+              <div className="pump-nameplate-frame w-full h-72 sm:h-80 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
                 {nameplatePhoto ? (
                   <img
                     src={nameplatePhoto}
@@ -407,7 +407,7 @@ export default function PumpFaultReportPaper({
       {/* PAGE 2: ATTACHMENT (แนบปั๊มด้วย ว่าเสียส่วนไหน)                  */}
       {/* ============================================================== */}
       <div
-        className="page-2 bg-white border-2 border-black p-6 text-[11px] leading-snug flex flex-col justify-between box-border min-h-[1050px] shadow-sm print:border-none print:p-0 print:shadow-none print:min-h-0 print:break-before-page"
+        className="page-2 print-page-sheet bg-white border-2 border-black p-6 text-[11px] leading-snug flex flex-col justify-between box-border min-h-[1050px] shadow-sm print:border-none print:p-0 print:shadow-none print:min-h-0 print:block"
         style={{ boxSizing: "border-box" }}
       >
         <div>
@@ -458,7 +458,7 @@ export default function PumpFaultReportPaper({
           <div className="grid grid-cols-12 gap-3 mb-4">
             {/* Left Column: Full Pump View (ภาพรวมตัวปั๊มน้ำ) */}
             <div className="col-span-12 sm:col-span-4 border border-black p-2 bg-white flex flex-col justify-between">
-              <div className="w-full h-80 sm:h-96 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
+              <div className="pump-body-frame w-full h-80 sm:h-96 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
                 {pumpBodyPhoto ? (
                   <img
                     src={pumpBodyPhoto}
@@ -486,7 +486,7 @@ export default function PumpFaultReportPaper({
               <div className="grid grid-cols-2 gap-2.5 h-full">
                 {/* 1. Diffuser / Chamber / Bowl */}
                 <div className="border border-black p-1.5 bg-white flex flex-col justify-between">
-                  <div className="w-full h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
+                  <div className="pump-part-frame w-full h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
                     {damagedPartPhotos[0]?.url ? (
                       <img
                         src={damagedPartPhotos[0].url}
@@ -515,7 +515,7 @@ export default function PumpFaultReportPaper({
 
                 {/* 2. Impeller */}
                 <div className="border border-black p-1.5 bg-white flex flex-col justify-between">
-                  <div className="w-full h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
+                  <div className="pump-part-frame w-full h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
                     {damagedPartPhotos[1]?.url ? (
                       <img
                         src={damagedPartPhotos[1].url}
@@ -544,7 +544,7 @@ export default function PumpFaultReportPaper({
 
                 {/* 3. Bushing / Sleeve / Shaft / Seal */}
                 <div className="border border-black p-1.5 bg-white flex flex-col justify-between">
-                  <div className="w-full h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
+                  <div className="pump-part-frame w-full h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
                     {damagedPartPhotos[2]?.url ? (
                       <img
                         src={damagedPartPhotos[2].url}
@@ -573,7 +573,7 @@ export default function PumpFaultReportPaper({
 
                 {/* 4. Broken fragments / Other Damaged Parts */}
                 <div className="border border-black p-1.5 bg-white flex flex-col justify-between">
-                  <div className="w-full h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
+                  <div className="pump-part-frame w-full h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200">
                     {damagedPartPhotos[3]?.url ? (
                       <img
                         src={damagedPartPhotos[3].url}
@@ -631,6 +631,68 @@ export default function PumpFaultReportPaper({
           )}
         </div>
       </div>
+
+      {/* Embedded Scoped Print Style */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        @media print {
+          .pump-fault-report-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: block !important;
+          }
+          .page-1,
+          .page-2 {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: always !important;
+            break-after: page !important;
+            box-sizing: border-box !important;
+            display: block !important;
+          }
+          .pump-nameplate-frame {
+            height: 180px !important;
+            max-height: 180px !important;
+            overflow: hidden !important;
+          }
+          .pump-nameplate-frame img {
+            max-height: 170px !important;
+            max-width: 100% !important;
+            object-fit: contain !important;
+          }
+          .pump-body-frame {
+            height: 180px !important;
+            max-height: 180px !important;
+            overflow: hidden !important;
+          }
+          .pump-body-frame img {
+            max-height: 172px !important;
+            max-width: 100% !important;
+            object-fit: contain !important;
+          }
+          .pump-part-frame {
+            height: 80px !important;
+            max-height: 80px !important;
+            overflow: hidden !important;
+          }
+          .pump-part-frame img {
+            max-height: 74px !important;
+            max-width: 100% !important;
+            object-fit: contain !important;
+          }
+        }
+      `,
+        }}
+      />
     </div>
   );
 }

@@ -123,6 +123,10 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
               ประเภทอุปกรณ์: <b className="text-gray-900">{eqConfig.label}</b>
             </span>
 
+            <span className="text-[11px] font-medium text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200 hidden sm:inline-flex items-center gap-1">
+              <span>📄 แนะนำ: การพิมพ์แบบ <b>แนวนอน (Landscape)</b></span>
+            </span>
+
             {/* Print Button */}
             <button
               type="button"
@@ -189,17 +193,17 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
       </div>
 
       {/* Printable Sheet View - Continuous Flow Downwards without page cuts */}
-      <div className="w-full max-w-[1020px] mx-auto flex flex-col items-center gap-6 print:gap-6">
+      <div className="w-full max-w-[1020px] mx-auto flex flex-col items-center gap-6 print:gap-0 print:block">
         {/* Inverter Reports (Fault Report -> Check list repair -> Photos 8 sides) */}
         {isInverter && (
           <>
-            <div className="w-full print:break-inside-avoid print:break-after-page">
+            <div className="w-full print:block">
               <InverterFaultReportPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
-            <div className="w-full print:break-inside-avoid print:break-after-page">
+            <div className="w-full print:block">
               <CheckListRepairPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
-            <div className="w-full print:break-inside-avoid">
+            <div className="w-full print:block">
               <PhotosPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
           </>
@@ -208,15 +212,15 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
         {/* Pump Reports */}
         {isPump && !isInverter && (
           <>
-            <div className="w-full print:break-inside-avoid print:break-after-page">
+            <div className="w-full print:block">
               <PumpFaultReportPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
             {hasInverter && (
-              <div className="w-full print:break-inside-avoid print:break-after-page">
+              <div className="w-full print:block">
                 <CheckListRepairPaper report={report} lang={isEn ? "EN" : "TH"} />
               </div>
             )}
-            <div className="w-full print:break-inside-avoid">
+            <div className="w-full print:block">
               <PhotosPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
           </>
@@ -225,10 +229,10 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
         {/* Motor Reports */}
         {isMotor && !isInverter && (
           <>
-            <div className="w-full print:break-inside-avoid print:break-after-page">
+            <div className="w-full print:block">
               <MotorFaultReportPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
-            <div className="w-full print:break-inside-avoid">
+            <div className="w-full print:block">
               <PhotosPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
           </>
@@ -237,20 +241,40 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
         {/* Control Cabinet & General Reports */}
         {!isInverter && !isPump && !isMotor && (
           <>
-            <div className="w-full print:break-inside-avoid print:break-after-page">
+            <div className="w-full print:block">
               <FaultReportPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
             {hasInverter && (
-              <div className="w-full print:break-inside-avoid print:break-after-page">
+              <div className="w-full print:block">
                 <CheckListRepairPaper report={report} lang={isEn ? "EN" : "TH"} />
               </div>
             )}
-            <div className="w-full print:break-inside-avoid">
+            <div className="w-full print:block">
               <PhotosPaper report={report} lang={isEn ? "EN" : "TH"} />
             </div>
           </>
         )}
       </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        @page {
+          size: A4 landscape;
+          margin: 5mm 6mm;
+        }
+        @media print {
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `,
+        }}
+      />
     </div>
   );
 }

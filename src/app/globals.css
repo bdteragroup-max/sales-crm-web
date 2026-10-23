@@ -158,16 +158,23 @@ input[type="number"] {
   animation: fadeIn 0.8s ease-out forwards;
 }
 
+@page {
+  size: A4 landscape;
+  margin: 5mm 6mm;
+}
+
 @media print {
   @page {
     size: A4 landscape;
-    margin: 10mm;
+    margin: 5mm 6mm;
   }
 
   body {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
     background-color: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   aside,
@@ -177,9 +184,48 @@ input[type="number"] {
 
   .flex-1,
   .overflow-y-auto,
-  .overflow-hidden,
   .custom-scrollbar {
     overflow: visible !important;
     height: auto !important;
+  }
+
+  /* Prevent images from overflowing frames in print */
+  img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+  }
+
+  /* Prevent print elements from splitting horizontally across pages */
+  .print-break-inside-avoid,
+  [class*="print:break-inside-avoid"] {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Force clean page break before an element */
+  .print-break-before-page,
+  [class*="print:break-before-page"] {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  /* Force clean page break after an element */
+  .print-break-after-page,
+  [class*="print:break-after-page"] {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  /* Complete self-contained single sheet container for A4 Landscape */
+  .print-page-sheet {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
 }

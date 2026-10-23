@@ -204,7 +204,7 @@ export default function MotorFaultReportPaper({
       className={`motor-fault-report-container w-full max-w-[840px] mx-auto text-black font-['Sarabun',sans-serif] ${className}`}
     >
       <div
-        className="bg-white border-2 border-black p-6 text-[11px] leading-snug flex flex-col justify-between box-border min-h-[1050px] shadow-sm print:border-none print:p-0 print:shadow-none print:min-h-0 print:break-inside-avoid"
+        className="motor-fault-report-page print-page-sheet bg-white border-2 border-black p-6 text-[11px] leading-snug flex flex-col justify-between box-border min-h-[1050px] shadow-sm print:border-none print:p-0 print:shadow-none print:min-h-0 print:block"
         style={{ boxSizing: "border-box" }}
       >
         <div>
@@ -373,7 +373,7 @@ export default function MotorFaultReportPaper({
               </div>
 
               {/* Photo Box */}
-              <div className="w-full h-44 sm:h-52 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200 mb-2">
+              <div className="motor-photo-box w-full h-40 sm:h-48 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200 mb-2">
                 {damagePhoto1 ? (
                   <img
                     src={damagePhoto1}
@@ -425,7 +425,7 @@ export default function MotorFaultReportPaper({
               </div>
 
               {/* Photo Box */}
-              <div className="w-full h-44 sm:h-52 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200 mb-2">
+              <div className="motor-photo-box w-full h-40 sm:h-48 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200 mb-2">
                 {damagePhoto2 ? (
                   <img
                     src={damagePhoto2}
@@ -477,7 +477,7 @@ export default function MotorFaultReportPaper({
               </div>
 
               {/* Photo Box */}
-              <div className="w-full h-44 sm:h-52 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200 mb-2">
+              <div className="motor-photo-box w-full h-40 sm:h-48 flex items-center justify-center overflow-hidden bg-slate-50 border border-neutral-200 mb-2">
                 {damagePhoto3 ? (
                   <img
                     src={damagePhoto3}
@@ -570,11 +570,45 @@ export default function MotorFaultReportPaper({
         </div>
 
         {/* Footer info (No signature box as requested) */}
-        <div className="border-t border-gray-300 pt-2 text-[10px] text-gray-500 flex justify-between items-center">
+        <div className="border-t border-gray-300 pt-1 text-[9.5px] print:text-[8.5px] text-gray-500 flex justify-between items-center">
           <span>{companyTitle} — Service & Quality Control</span>
           <span>{isEn ? "Electric Motor Inspection Report" : "เอกสารรายงานการตรวจเช็คมอเตอร์ไฟฟ้า"}</span>
         </div>
       </div>
+
+      {/* Embedded Print Style */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        @media print {
+          .motor-fault-report-page {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: always !important;
+            break-after: page !important;
+            box-sizing: border-box !important;
+            display: block !important;
+          }
+          .motor-photo-box {
+            height: 140px !important;
+            max-height: 140px !important;
+            overflow: hidden !important;
+          }
+          .motor-photo-box img {
+            max-height: 132px !important;
+            max-width: 100% !important;
+            object-fit: contain !important;
+          }
+        }
+      `,
+        }}
+      />
     </div>
   );
 }
