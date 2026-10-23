@@ -182,11 +182,17 @@ export default function InverterFaultReportPaper({
   // Photo 2: เนมเพลท (Nameplate)
   const nameplatePhoto = photos.nameplate?.[0];
   // Photo 3: ความเสียหายของบอร์ด (Board Damage)
-  const damagePhoto =
-    photos.damage?.[0] ||
-    photos.inside?.[0] ||
-    photos.terminal?.[0] ||
-    diode.meterPhotoDiode;
+  const damagePhotosList: string[] =
+    Array.isArray(photos.damage) && photos.damage.filter(Boolean).length > 0
+      ? photos.damage.filter(Boolean)
+      : photos.inside?.[0]
+      ? [photos.inside[0]]
+      : photos.terminal?.[0]
+      ? [photos.terminal[0]]
+      : diode.meterPhotoDiode
+      ? [diode.meterPhotoDiode]
+      : [];
+  const damagePhotoCount = damagePhotosList.length;
 
   const rawModel = (report?.inverterModel || diode.inverterModel || "-").trim();
   const brand = (report?.inverterBrand || diode.inverterBrand || "").trim();
@@ -392,7 +398,13 @@ export default function InverterFaultReportPaper({
                   </td>
                   {/* 13 */}
                   <td className="border border-black p-1 text-[8.5px] leading-tight text-gray-700">
-                    {isEn ? "3 photos attached below" : "แนบ 3 รูปถ่ายด้านล่าง"}
+                    {isEn
+                      ? damagePhotoCount > 1
+                        ? `${(frontPhoto ? 1 : 0) + (nameplatePhoto ? 1 : 0) + damagePhotoCount} photos attached`
+                        : "3 photos attached below"
+                      : damagePhotoCount > 1
+                      ? `แนบ ${(frontPhoto ? 1 : 0) + (nameplatePhoto ? 1 : 0) + damagePhotoCount} รูปถ่ายด้านล่าง`
+                      : "แนบ 3 รูปถ่ายด้านล่าง"}
                   </td>
                   {/* 14 */}
                   <td className="border border-black p-1 text-left break-words text-[9px] font-medium">
@@ -469,14 +481,8 @@ export default function InverterFaultReportPaper({
 
             {/* Photo 3: ความเสียหายของบอร์ด */}
             <div className="flex flex-col items-center">
-              <div className="w-full h-56 sm:h-64 border border-black bg-white flex items-center justify-center p-1.5 overflow-hidden">
-                {damagePhoto ? (
-                  <img
-                    src={damagePhoto}
-                    alt="Board Damage"
-                    className="max-h-full max-w-full object-contain"
-                  />
-                ) : (
+              <div className="w-full h-56 sm:h-64 border border-black bg-white flex items-center justify-center p-1 overflow-hidden">
+                {damagePhotoCount === 0 ? (
                   <div className="text-center text-gray-400 p-2">
                     <span className="text-[11px] block font-semibold">
                       {isEn ? "(No Board Damage Photo)" : "(ไม่มีรูปความเสียหายของบอร์ด)"}
@@ -485,10 +491,66 @@ export default function InverterFaultReportPaper({
                       {isEn ? "Damaged Components / PCB" : "รูปความเสียหายของบอร์ด/IGBT"}
                     </span>
                   </div>
+                ) : damagePhotoCount === 1 ? (
+                  <img
+                    src={damagePhotosList[0]}
+                    alt="Board Damage"
+                    className="max-h-full max-w-full object-contain"
+                  />
+                ) : damagePhotoCount === 2 ? (
+                  <div className="w-full h-full grid grid-cols-2 gap-1 p-0.5">
+                    {damagePhotosList.map((url, idx) => (
+                      <div
+                        key={idx}
+                        className="relative w-full h-full border border-gray-200 bg-neutral-50 flex items-center justify-center overflow-hidden"
+                      >
+                        <img
+                          src={url}
+                          alt={`Board Damage #${idx + 1}`}
+                          className="max-h-full max-w-full object-contain"
+                        />
+                        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-white text-[8.5px] font-bold font-mono">
+                          #{idx + 1}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="w-full h-full grid grid-cols-2 grid-rows-2 gap-1 p-0.5">
+                    {damagePhotosList.slice(0, 4).map((url, idx) => {
+                      const isFourthAndMore = idx === 3 && damagePhotoCount > 4;
+                      return (
+                        <div
+                          key={idx}
+                          className="relative w-full h-full border border-gray-200 bg-neutral-50 flex items-center justify-center overflow-hidden"
+                        >
+                          <img
+                            src={url}
+                            alt={`Board Damage #${idx + 1}`}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                          <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-white text-[8.5px] font-bold font-mono">
+                            #{idx + 1}
+                          </span>
+                          {isFourthAndMore && (
+                            <div className="absolute inset-0 bg-black/60 text-white flex items-center justify-center font-bold text-[10px]">
+                              +{damagePhotoCount - 3}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
               <div className="border border-black px-4 py-1 mt-2 text-center font-bold text-[11px] bg-white min-w-[120px]">
-                {isEn ? "Board Damage" : "ความเสียหายของบอร์ด"}
+                {isEn
+                  ? damagePhotoCount > 1
+                    ? `Board Damage (${damagePhotoCount})`
+                    : "Board Damage"
+                  : damagePhotoCount > 1
+                  ? `ความเสียหายของบอร์ด (${damagePhotoCount} รูป)`
+                  : "ความเสียหายของบอร์ด"}
               </div>
             </div>
           </div>
