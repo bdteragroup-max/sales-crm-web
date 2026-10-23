@@ -42,6 +42,7 @@ import {
   LayoutList,
   ScrollText,
   Sliders,
+  Star,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import {
@@ -253,7 +254,7 @@ export const INVERTER_PHOTO_SLOTS: {
     title: "3. ด้านใน (Inside)",
     enTitle: "Inside / Internal View",
     desc: "รูปถ่ายบอร์ดและอุปกรณ์ด้านในตัวเครื่อง",
-    badge: "ด้านใน (หน้า 1 / 8 ด้าน)",
+    badge: "ด้านใน (รูปสินค้า 8 ด้าน)",
   },
   {
     key: "damage",
@@ -1225,6 +1226,24 @@ export default function CheckReportForm({
       }
       return prev;
     });
+  };
+
+  const setAsPrimaryPhoto = (category: PhotoKey, index: number) => {
+    if (index <= 0) return;
+    setPhotos((prev) => {
+      const list = [...(prev[category] || [])];
+      if (index >= list.length) return prev;
+      const [picked] = list.splice(index, 1);
+      list.unshift(picked);
+      return {
+        ...prev,
+        [category]: list,
+      };
+    });
+    setSelectedPhotoIndex((prev) => ({
+      ...prev,
+      [category]: 0,
+    }));
   };
 
   // Submit Handler
@@ -2913,6 +2932,16 @@ export default function CheckReportForm({
                               >
                                 <Search className="w-3.5 h-3.5" /> ดูรูปใหญ่
                               </button>
+                              {photoList.length > 1 && activeIdx > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setAsPrimaryPhoto(slot.key, activeIdx)}
+                                  className="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow flex items-center gap-1 cursor-pointer"
+                                  title="ตั้งเป็นรูปหลักที่จะแสดงในหน้ารายงาน (รูปแรก)"
+                                >
+                                  <Star className="w-3.5 h-3.5 fill-current" /> ตั้งรูปหลัก
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => removePhoto(slot.key, activeIdx)}
@@ -2952,6 +2981,14 @@ export default function CheckReportForm({
                                       alt={`Thumb ${pIdx + 1}`}
                                       className="w-full h-full object-cover"
                                     />
+                                    {pIdx === 0 && (
+                                      <span
+                                        className="absolute top-0.5 left-0.5 px-1 rounded bg-amber-500 text-white text-[7.5px] font-bold leading-none py-0.5 shadow-2xs z-10"
+                                        title="รูปหลักที่จะแสดงในหน้ารายงาน"
+                                      >
+                                        หลัก
+                                      </span>
+                                    )}
                                     <span className="absolute bottom-0.5 left-0.5 px-1 rounded bg-black/60 text-white text-[8px] font-mono leading-none py-0.5">
                                       {pIdx + 1}
                                     </span>
@@ -3280,6 +3317,31 @@ export default function CheckReportForm({
                   <ExternalLink className="w-4 h-4" />
                   <span className="hidden sm:inline">เปิดแท็บใหม่</span>
                 </a>
+                {previewModal.category &&
+                  (photos[previewModal.category as PhotoKey]?.length || 0) > 1 &&
+                  previewModal.index !== undefined &&
+                  previewModal.index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAsPrimaryPhoto(previewModal.category as PhotoKey, previewModal.index!);
+                        setPreviewModal((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                title: `${prev.title.split("(")[0].trim()} (รูปที่ 1/${photos[prev.category as PhotoKey]?.length || 1})`,
+                                index: 0,
+                              }
+                            : null
+                        );
+                      }}
+                      className="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer shadow-xs"
+                      title="ตั้งเป็นรูปหลักที่จะแสดงเป็นรูปแรกในรายงาน"
+                    >
+                      <Star className="w-3.5 h-3.5 fill-current" />
+                      <span className="hidden sm:inline">ตั้งเป็นรูปหลัก</span>
+                    </button>
+                  )}
                 {previewModal.category && previewModal.index !== undefined && (
                   <button
                     type="button"

@@ -183,8 +183,8 @@ export default function InverterFaultReportPaper({
   const nameplatePhoto = photos.nameplate?.[0];
   // Photo 3: ความเสียหายของบอร์ด (Board Damage)
   const damagePhoto =
-    photos.inside?.[0] ||
     photos.damage?.[0] ||
+    photos.inside?.[0] ||
     photos.terminal?.[0] ||
     diode.meterPhotoDiode;
 
