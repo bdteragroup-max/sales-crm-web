@@ -204,8 +204,8 @@ export default function CheckListRepairPaper({
       className={`check-list-repair-paper w-full max-w-[1020px] text-black text-[11px] leading-snug font-['Sarabun',sans-serif] mx-auto print:border-none print:p-0 ${className}`}
       style={{ boxSizing: "border-box" }}
     >
-      {/* SHEET 1: CHECK LIST & METER PHOTOS */}
-      <div className="check-list-sheet-1 print-page-sheet bg-white border-2 border-black p-6 flex flex-col justify-between box-border min-h-[960px] shadow-sm print:border-none print:p-0 print:shadow-none print:min-h-0 print:h-auto print:block">
+      {/* ================= SHEET 1: ผลการตรวจวัดไดโอดภายในตัวเครื่องอินเวอร์เตอร์ (Screenshot 3) ================= */}
+      <div className="check-list-sheet-2 print-page-sheet bg-white border-2 border-black p-6 flex flex-col justify-between box-border min-h-[960px] shadow-sm print:border-none print:p-0 print:shadow-none print:min-h-0 print:h-auto print:block">
         <div>
           {/* Translation Banner (Screen Only) */}
           {isEn && (
@@ -224,7 +224,446 @@ export default function CheckListRepairPaper({
           </div>
         )}
 
-        {/* Header Row: Company Title & Document Number (Identical across all forms) */}
+          {/* Header Row for Sheet 1 */}
+          <div className="flex items-center justify-between border-b-2 border-black pb-1.5 mb-2">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-20 flex items-center justify-start shrink-0">
+                <img
+                  src={logoSrc}
+                  alt={compCode}
+                  className="max-h-8 max-w-full object-contain"
+                />
+              </div>
+              <div>
+                <div className="font-bold text-[12px]">{companyTitle}</div>
+                <div className="text-[9.5px] text-gray-600">
+                  {isEn
+                    ? "Inverter & Drive System Division — Internal Diode & IGBT Inspection"
+                    : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — ผลการตรวจวัดไดโอดและไอจีบีที"}
+                </div>
+              </div>
+            </div>
+
+            <div className="text-right text-[10px]">
+              <div className="font-mono font-bold text-[11px] text-black">
+                CR: {report?.crNumber || "-"}
+              </div>
+              <div className="text-[9px] text-gray-600">
+                {brandVal} {cleanModelVal}
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center font-bold text-[12px] mb-1.5">
+            {isEn
+              ? "Inverter Internal Diode & IGBT Measurement Results"
+              : "ผลการตรวจวัดไดโอดภายในตัวเครื่องอินเวอร์เตอร์"}
+          </div>
+
+          {/* TABLE 1: ขั้ว (+) Matching Top Table in Screenshot 3 */}
+          <table className="w-full border-collapse border-2 border-black text-[9.5px] text-center mb-2">
+            <thead>
+              <tr className="border-b border-black">
+                {/* Left Header */}
+                <th className="border-r border-black p-1 font-bold w-[12%] bg-white" rowSpan={1}>
+                  {isEn ? "Probe (-) Black" : "สายมิเตอร์ลบ (ดำ)"}
+                </th>
+                <th className="border-r-2 border-black p-1 font-bold w-[38%] bg-white" colSpan={4}>
+                  {isEn ? "Probe (+) Red" : "สายมิเตอร์บวก (แดง)"}
+                </th>
+                {/* Right Header */}
+                <th className="border-r border-black p-1 font-bold w-[12%] bg-white" rowSpan={1}>
+                  {isEn ? "Probe (+) Red" : "สายมิเตอร์บวก (แดง)"}
+                </th>
+                <th className="p-1 font-bold w-[38%] bg-white" colSpan={4}>
+                  {isEn ? "Probe (-) Black" : "สายมิเตอร์ลบ (ดำ)"}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Row 1: R & U */}
+              <tr className="border-b border-black">
+                {/* Left (+) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  +
+                </td>
+                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#b4a7d6]">
+                  R
+                </td>
+                <td className="border-r border-black font-mono p-1 w-[11%] bg-white">
+                  {diode.pos_to_r_black || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#f6b26b]">
+                  U
+                </td>
+                <td className="border-r-2 border-black font-mono p-1 w-[11%] bg-white">
+                  {diode.pos_to_u_red || "-"}
+                </td>
+
+                {/* Right (+) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  +
+                </td>
+                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#b4a7d6]">
+                  R
+                </td>
+                <td className="border-r border-black font-mono p-1 w-[11%] bg-white">
+                  {diode.pos_to_r_red || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#f6b26b]">
+                  U
+                </td>
+                <td className="font-mono p-1 w-[11%] bg-white">
+                  {diode.pos_to_u_black || "-"}
+                </td>
+              </tr>
+
+              {/* Row 2: S & V */}
+              <tr className="border-b border-black">
+                {/* Left (+) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  +
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
+                  S
+                </td>
+                <td className="border-r border-black font-mono p-1 bg-white">
+                  {diode.pos_to_s_black || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
+                  V
+                </td>
+                <td className="border-r-2 border-black font-mono p-1 bg-white">
+                  {diode.pos_to_v_red || "-"}
+                </td>
+
+                {/* Right (+) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  +
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
+                  S
+                </td>
+                <td className="border-r border-black font-mono p-1 bg-white">
+                  {diode.pos_to_s_red || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
+                  V
+                </td>
+                <td className="font-mono p-1 bg-white">
+                  {diode.pos_to_v_black || "-"}
+                </td>
+              </tr>
+
+              {/* Row 3: T & W */}
+              <tr>
+                {/* Left (+) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  +
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
+                  T
+                </td>
+                <td className="border-r border-black font-mono p-1 bg-white">
+                  {diode.pos_to_t_black || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
+                  W
+                </td>
+                <td className="border-r-2 border-black font-mono p-1 bg-white">
+                  {diode.pos_to_w_red || "-"}
+                </td>
+
+                {/* Right (+) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  +
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
+                  T
+                </td>
+                <td className="border-r border-black font-mono p-1 bg-white">
+                  {diode.pos_to_t_red || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
+                  W
+                </td>
+                <td className="font-mono p-1 bg-white">
+                  {diode.pos_to_w_black || "-"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* TABLE 2: ขั้ว (-) Matching Bottom Table in Screenshot 3 */}
+          <table className="w-full border-collapse border-2 border-black text-[9.5px] text-center mb-2">
+            <thead>
+              <tr className="border-b border-black">
+                {/* Left Header */}
+                <th className="border-r border-black p-1 font-bold w-[12%] bg-white" rowSpan={1}>
+                  {isEn ? "Probe (+) Red" : "สายมิเตอร์บวก (แดง)"}
+                </th>
+                <th className="border-r-2 border-black p-1 font-bold w-[38%] bg-white" colSpan={4}>
+                  {isEn ? "Probe (-) Black" : "สายมิเตอร์ลบ (ดำ)"}
+                </th>
+                {/* Right Header */}
+                <th className="border-r border-black p-1 font-bold w-[12%] bg-white" rowSpan={1}>
+                  {isEn ? "Probe (-) Black" : "สายมิเตอร์ลบ (ดำ)"}
+                </th>
+                <th className="p-1 font-bold w-[38%] bg-white" colSpan={4}>
+                  {isEn ? "Probe (+) Red" : "สายมิเตอร์บวก (แดง)"}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Row 1: R & U */}
+              <tr className="border-b border-black">
+                {/* Left (-) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  -
+                </td>
+                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#b4a7d6]">
+                  R
+                </td>
+                <td className="border-r border-black font-mono p-1 w-[11%] bg-white">
+                  {diode.neg_to_r_red || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#f6b26b]">
+                  U
+                </td>
+                <td className="border-r-2 border-black font-mono p-1 w-[11%] bg-white">
+                  {diode.neg_to_u_black || "-"}
+                </td>
+
+                {/* Right (-) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  -
+                </td>
+                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#b4a7d6]">
+                  R
+                </td>
+                <td className="border-r border-black font-mono p-1 w-[11%] bg-white">
+                  {diode.neg_to_r_black || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#f6b26b]">
+                  U
+                </td>
+                <td className="font-mono p-1 w-[11%] bg-white">
+                  {diode.neg_to_u_red || "-"}
+                </td>
+              </tr>
+
+              {/* Row 2: S & V */}
+              <tr className="border-b border-black">
+                {/* Left (-) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  -
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
+                  S
+                </td>
+                <td className="border-r border-black font-mono p-1 bg-white">
+                  {diode.neg_to_s_red || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
+                  V
+                </td>
+                <td className="border-r-2 border-black font-mono p-1 bg-white">
+                  {diode.neg_to_v_black || "-"}
+                </td>
+
+                {/* Right (-) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  -
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
+                  S
+                </td>
+                <td className="border-r border-black font-mono p-1 bg-white">
+                  {diode.neg_to_s_black || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
+                  V
+                </td>
+                <td className="font-mono p-1 bg-white">
+                  {diode.neg_to_v_red || "-"}
+                </td>
+              </tr>
+
+              {/* Row 3: T & W */}
+              <tr>
+                {/* Left (-) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  -
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
+                  T
+                </td>
+                <td className="border-r border-black font-mono p-1 bg-white">
+                  {diode.neg_to_t_red || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
+                  W
+                </td>
+                <td className="border-r-2 border-black font-mono p-1 bg-white">
+                  {diode.neg_to_w_black || "-"}
+                </td>
+
+                {/* Right (-) */}
+                <td className="border-r border-black font-bold text-center text-xs bg-white">
+                  -
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
+                  T
+                </td>
+                <td className="border-r border-black font-mono p-1 bg-white">
+                  {diode.neg_to_t_black || "-"}
+                </td>
+                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
+                  W
+                </td>
+                <td className="font-mono p-1 bg-white">
+                  {diode.neg_to_w_red || "-"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* POWER VOLTAGE SECTION (ถ้ามีค่าหรือบันทึกหลัง QC) */}
+          {hasPowerVoltage && (
+            <div className="mb-2">
+              <div className="font-bold text-[10.5px] mb-0.5">
+                {isEn
+                  ? "Power Voltage Measurement (Post-QC Test)"
+                  : "การตรวจวัดแรงดันไฟฟ้า (Power Voltage Measurement - หลัง QC ทดสอบเครื่อง)"}
+              </div>
+              <table className="w-full border-collapse border border-black text-[9.5px] mb-1.5">
+                <tbody>
+                  <tr className="bg-neutral-100">
+                    <td className="border border-black p-1 font-bold" colSpan={2}>
+                      {isEn
+                        ? "POWER INPUT VOLTAGE (Pre/During Installation)"
+                        : "POWER INPUT VOLTAGE (ก่อน/ระหว่างติดตั้ง)"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black p-1 w-1/2">
+                      {isEn ? "1 Phase DC (+) , (-) :" : "1 เฟส DC (+) , (-) :"} <b>{pInput.inputDc ? `${pInput.inputDc} Vdc` : "-"}</b>
+                    </td>
+                    <td className="border border-black p-1 w-1/2">
+                      {isEn ? "1 Phase (220-230Vac) L-N :" : "1 เฟส (220-230Vac) L-N :"} <b>{pInput.input1PhaseAc ? `${pInput.input1PhaseAc} Vac` : "-"}</b>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black p-1" colSpan={2}>
+                      {isEn ? "3 Phase (380-400Vac) R-S :" : "3 เฟส (380-400Vac) R-S :"} <b>{pInput.input3PhaseRs ? `${pInput.input3PhaseRs} Vac` : "-"}</b> , 
+                      R-T : <b>{pInput.input3PhaseRt ? `${pInput.input3PhaseRt} Vac` : "-"}</b> , 
+                      S-T : <b>{pInput.input3PhaseSt ? `${pInput.input3PhaseSt} Vac` : "-"}</b>
+                    </td>
+                  </tr>
+                  <tr className="bg-neutral-100">
+                    <td className="border border-black p-1 font-bold" colSpan={2}>
+                      {isEn
+                        ? "POWER OUTPUT VOLTAGE (During Inspection)"
+                        : "POWER OUTPUT VOLTAGE (ระหว่างตรวจเช็ค)"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black p-1">
+                      {isEn ? "1 Phase L-N (220-230Vac) :" : "1 เฟส L-N (220-230Vac) :"} <b>{pOutput.output1PhaseLn ? `${pOutput.output1PhaseLn} Vac` : "-"}</b>
+                    </td>
+                    <td className="border border-black p-1">
+                      {isEn ? "3 Phase (220-230Vac) U-V:" : "3 เฟส (220-230Vac) U-V:"} <b>{pOutput.output3Phase220Uv || "-"}</b>, U-W: <b>{pOutput.output3Phase220Uw || "-"}</b>, V-W: <b>{pOutput.output3Phase220Vw || "-"}</b>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black p-1" colSpan={2}>
+                      {isEn ? "3 Phase (380-400Vac) U-V :" : "3 เฟส (380-400Vac) U-V :"} <b>{pOutput.output3Phase380Uv ? `${pOutput.output3Phase380Uv} Vac` : "-"}</b> , 
+                      U-W : <b>{pOutput.output3Phase380Uw ? `${pOutput.output3Phase380Uw} Vac` : "-"}</b> , 
+                      V-W : <b>{pOutput.output3Phase380Vw ? `${pOutput.output3Phase380Vw} Vac` : "-"}</b>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Findings & Required Parts */}
+          <div className="mb-2 border border-black p-1.5 text-[9.5px] space-y-0.5 bg-white">
+            <div>
+              <span className="font-bold">
+                {isEn ? "Cause of Fault / Diagnosis: " : "สาเหตุความเสียหาย / ข้อวินิจฉัย: "}
+              </span>
+              <span>{displayCauseOfFault}</span>
+            </div>
+            <div>
+              <span className="font-bold">
+                {isEn ? "Recommendations / Corrective Action: " : "ข้อเสนอแนะในการซ่อมแซม: "}
+              </span>
+              <span>{displayRecommendations}</span>
+            </div>
+            <div>
+              <span className="font-bold">
+                {isEn ? "Damaged Parts & Required Replacement: " : "อะไหล่ที่ต้องเปลี่ยน: "}
+              </span>
+              <span>
+                {Array.isArray(displayParts) && displayParts.length > 0
+                  ? displayParts
+                      .map((p: any) => `${p.partName || "-"} (${p.qty || 1} ${isEn ? "pcs" : "ชิ้น"})`)
+                      .join(", ")
+                  : isEn ? "None / Board-level repair" : "ไม่มี / ซ่อมระดับบอร์ด"}
+              </span>
+            </div>
+          </div>
+
+          {/* Signature Block matching company standard */}
+          <div className="border-2 border-black grid grid-cols-2 text-center text-[10px] mt-2 mb-1 print:break-inside-avoid">
+            <div className="border-r-2 border-black p-1.5 flex flex-col justify-between min-h-[64px]">
+              <div className="font-bold text-[10px]">
+                {isEn ? "Inspected By (Technician)" : "ผู้ทำรายงาน / ช่างผู้ตรวจเช็ค"}
+              </div>
+              <div className="my-auto py-0.5">
+                <div className="font-bold text-[10.5px]">
+                  ( {displayInspector} )
+                </div>
+                <div className="text-[9px] mt-0.5 text-gray-700">
+                  {isEn ? "Date: " : "วันที่ "}
+                  {checkDateStr}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-1.5 flex flex-col justify-between min-h-[64px]">
+              <div className="font-bold text-[10px]">
+                {isEn ? "Approved By (Engineer / Supervisor)" : "ผู้ตรวจสอบ / หัวหน้างาน"}
+              </div>
+              <div className="my-auto py-0.5">
+                <div className="font-bold text-[10.5px]">
+                  ( {displayApprover} )
+                </div>
+                <div className="text-[9px] mt-0.5 text-gray-700">
+                  {isEn ? "Date: " : "วันที่ "}
+                  {approvedDateStr}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer info Sheet 1 */}
+          <div className="border-t border-gray-300 pt-1 text-[9px] print:text-[8px] text-gray-500 flex justify-between items-center">
+            <span>{companyTitle} — Service & Quality Control</span>
+            <span>
+              {isEn
+                ? "Inverter Diode & IGBT Inspection (Sheet 1/2)"
+                : "ผลการตรวจวัดไดโอดภายในเครื่องอินเวอร์เตอร์ (แผ่นที่ 1/2)"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= SHEET 2: CHECK LIST & METER PHOTOS ================= */}
+      <div className="check-list-sheet-1 print-page-sheet bg-white border-2 border-black p-6 flex flex-col justify-between box-border min-h-[960px] shadow-sm mt-6 pt-4 print:border-none print:p-0 print:shadow-none print:min-h-0 print:h-auto print:mt-0 print:pt-0 print:block">
+        <div>
+          {/* Header Row: Company Title & Document Number (Identical across all forms) */}
         <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
           <div className="flex items-center gap-3">
             <div className="h-10 w-24 flex items-center justify-start shrink-0">
@@ -744,457 +1183,18 @@ export default function CheckListRepairPaper({
           </div>
         </div>
 
-        {/* Footer for Sheet 1 */}
+        {/* Footer for Sheet 2 */}
         <div className="border-t border-gray-300 pt-0.5 text-[8.5px] print:text-[7.5px] text-gray-500 flex justify-between items-center mt-1">
           <span>{companyTitle} — Service & Quality Control</span>
           <span>
             {isEn
-              ? "Inverter Inspection & Checklist (Sheet 1/2)"
-              : "เอกสารตรวจเช็คอินเวอร์เตอร์และภาพมิเตอร์ (แผ่นที่ 1/2)"}
+              ? "Inverter Inspection & Checklist (Sheet 2/2)"
+              : "เอกสารตรวจเช็คอินเวอร์เตอร์และภาพมิเตอร์ (แผ่นที่ 2/2)"}
           </span>
         </div>
       </div>
     </div>
-    {/* End of Sheet 1 */}
-
-      {/* ================= SHEET 2: ผลการตรวจวัดไดโอดภายในตัวเครื่องอินเวอร์เตอร์ (Screenshot 3) ================= */}
-      <div className="check-list-sheet-2 print-page-sheet bg-white border-2 border-black p-6 flex flex-col justify-between box-border min-h-[960px] shadow-sm mt-6 pt-4 print:border-none print:p-0 print:shadow-none print:min-h-0 print:h-auto print:mt-0 print:pt-0 print:block">
-        <div>
-          {/* Header Row for Sheet 2 */}
-          <div className="flex items-center justify-between border-b-2 border-black pb-1.5 mb-2">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-20 flex items-center justify-start shrink-0">
-                <img
-                  src={logoSrc}
-                  alt={compCode}
-                  className="max-h-8 max-w-full object-contain"
-                />
-              </div>
-              <div>
-                <div className="font-bold text-[12px]">{companyTitle}</div>
-                <div className="text-[9.5px] text-gray-600">
-                  {isEn
-                    ? "Inverter & Drive System Division — Internal Diode & IGBT Inspection"
-                    : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — ผลการตรวจวัดไดโอดและไอจีบีที"}
-                </div>
-              </div>
-            </div>
-
-            <div className="text-right text-[10px]">
-              <div className="font-mono font-bold text-[11px] text-black">
-                CR: {report?.crNumber || "-"}
-              </div>
-              <div className="text-[9px] text-gray-600">
-                {brandVal} {cleanModelVal}
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center font-bold text-[12px] mb-1.5">
-            {isEn
-              ? "Inverter Internal Diode & IGBT Measurement Results"
-              : "ผลการตรวจวัดไดโอดภายในตัวเครื่องอินเวอร์เตอร์"}
-          </div>
-
-          {/* TABLE 1: ขั้ว (+) Matching Top Table in Screenshot 3 */}
-          <table className="w-full border-collapse border-2 border-black text-[9.5px] text-center mb-2">
-            <thead>
-              <tr className="border-b border-black">
-                {/* Left Header */}
-                <th className="border-r border-black p-1 font-bold w-[12%] bg-white" rowSpan={1}>
-                  {isEn ? "Probe (-) Black" : "สายมิเตอร์ลบ (ดำ)"}
-                </th>
-                <th className="border-r-2 border-black p-1 font-bold w-[38%] bg-white" colSpan={4}>
-                  {isEn ? "Probe (+) Red" : "สายมิเตอร์บวก (แดง)"}
-                </th>
-                {/* Right Header */}
-                <th className="border-r border-black p-1 font-bold w-[12%] bg-white" rowSpan={1}>
-                  {isEn ? "Probe (+) Red" : "สายมิเตอร์บวก (แดง)"}
-                </th>
-                <th className="p-1 font-bold w-[38%] bg-white" colSpan={4}>
-                  {isEn ? "Probe (-) Black" : "สายมิเตอร์ลบ (ดำ)"}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* Row 1: R & U */}
-              <tr className="border-b border-black">
-                {/* Left (+) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  +
-                </td>
-                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#b4a7d6]">
-                  R
-                </td>
-                <td className="border-r border-black font-mono p-1 w-[11%] bg-white">
-                  {diode.pos_to_r_black || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#f6b26b]">
-                  U
-                </td>
-                <td className="border-r-2 border-black font-mono p-1 w-[11%] bg-white">
-                  {diode.pos_to_u_red || "-"}
-                </td>
-
-                {/* Right (+) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  +
-                </td>
-                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#b4a7d6]">
-                  R
-                </td>
-                <td className="border-r border-black font-mono p-1 w-[11%] bg-white">
-                  {diode.pos_to_r_red || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#f6b26b]">
-                  U
-                </td>
-                <td className="font-mono p-1 w-[11%] bg-white">
-                  {diode.pos_to_u_black || "-"}
-                </td>
-              </tr>
-
-              {/* Row 2: S & V */}
-              <tr className="border-b border-black">
-                {/* Left (+) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  +
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
-                  S
-                </td>
-                <td className="border-r border-black font-mono p-1 bg-white">
-                  {diode.pos_to_s_black || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
-                  V
-                </td>
-                <td className="border-r-2 border-black font-mono p-1 bg-white">
-                  {diode.pos_to_v_red || "-"}
-                </td>
-
-                {/* Right (+) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  +
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
-                  S
-                </td>
-                <td className="border-r border-black font-mono p-1 bg-white">
-                  {diode.pos_to_s_red || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
-                  V
-                </td>
-                <td className="font-mono p-1 bg-white">
-                  {diode.pos_to_v_black || "-"}
-                </td>
-              </tr>
-
-              {/* Row 3: T & W */}
-              <tr>
-                {/* Left (+) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  +
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
-                  T
-                </td>
-                <td className="border-r border-black font-mono p-1 bg-white">
-                  {diode.pos_to_t_black || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
-                  W
-                </td>
-                <td className="border-r-2 border-black font-mono p-1 bg-white">
-                  {diode.pos_to_w_red || "-"}
-                </td>
-
-                {/* Right (+) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  +
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
-                  T
-                </td>
-                <td className="border-r border-black font-mono p-1 bg-white">
-                  {diode.pos_to_t_red || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
-                  W
-                </td>
-                <td className="font-mono p-1 bg-white">
-                  {diode.pos_to_w_black || "-"}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          {/* TABLE 2: ขั้ว (-) Matching Bottom Table in Screenshot 3 */}
-          <table className="w-full border-collapse border-2 border-black text-[9.5px] text-center mb-2">
-            <thead>
-              <tr className="border-b border-black">
-                {/* Left Header */}
-                <th className="border-r border-black p-1 font-bold w-[12%] bg-white" rowSpan={1}>
-                  {isEn ? "Probe (+) Red" : "สายมิเตอร์บวก (แดง)"}
-                </th>
-                <th className="border-r-2 border-black p-1 font-bold w-[38%] bg-white" colSpan={4}>
-                  {isEn ? "Probe (-) Black" : "สายมิเตอร์ลบ (ดำ)"}
-                </th>
-                {/* Right Header */}
-                <th className="border-r border-black p-1 font-bold w-[12%] bg-white" rowSpan={1}>
-                  {isEn ? "Probe (-) Black" : "สายมิเตอร์ลบ (ดำ)"}
-                </th>
-                <th className="p-1 font-bold w-[38%] bg-white" colSpan={4}>
-                  {isEn ? "Probe (+) Red" : "สายมิเตอร์บวก (แดง)"}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* Row 1: R & U */}
-              <tr className="border-b border-black">
-                {/* Left (-) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  -
-                </td>
-                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#b4a7d6]">
-                  R
-                </td>
-                <td className="border-r border-black font-mono p-1 w-[11%] bg-white">
-                  {diode.neg_to_r_red || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#f6b26b]">
-                  U
-                </td>
-                <td className="border-r-2 border-black font-mono p-1 w-[11%] bg-white">
-                  {diode.neg_to_u_black || "-"}
-                </td>
-
-                {/* Right (-) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  -
-                </td>
-                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#b4a7d6]">
-                  R
-                </td>
-                <td className="border-r border-black font-mono p-1 w-[11%] bg-white">
-                  {diode.neg_to_r_black || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 w-[8%] bg-[#f6b26b]">
-                  U
-                </td>
-                <td className="font-mono p-1 w-[11%] bg-white">
-                  {diode.neg_to_u_red || "-"}
-                </td>
-              </tr>
-
-              {/* Row 2: S & V */}
-              <tr className="border-b border-black">
-                {/* Left (-) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  -
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
-                  S
-                </td>
-                <td className="border-r border-black font-mono p-1 bg-white">
-                  {diode.neg_to_s_red || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
-                  V
-                </td>
-                <td className="border-r-2 border-black font-mono p-1 bg-white">
-                  {diode.neg_to_v_black || "-"}
-                </td>
-
-                {/* Right (-) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  -
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
-                  S
-                </td>
-                <td className="border-r border-black font-mono p-1 bg-white">
-                  {diode.neg_to_s_black || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
-                  V
-                </td>
-                <td className="font-mono p-1 bg-white">
-                  {diode.neg_to_v_red || "-"}
-                </td>
-              </tr>
-
-              {/* Row 3: T & W */}
-              <tr>
-                {/* Left (-) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  -
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
-                  T
-                </td>
-                <td className="border-r border-black font-mono p-1 bg-white">
-                  {diode.neg_to_t_red || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
-                  W
-                </td>
-                <td className="border-r-2 border-black font-mono p-1 bg-white">
-                  {diode.neg_to_w_black || "-"}
-                </td>
-
-                {/* Right (-) */}
-                <td className="border-r border-black font-bold text-center text-xs bg-white">
-                  -
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#b4a7d6]">
-                  T
-                </td>
-                <td className="border-r border-black font-mono p-1 bg-white">
-                  {diode.neg_to_t_black || "-"}
-                </td>
-                <td className="border-r border-black font-bold p-1 bg-[#f6b26b]">
-                  W
-                </td>
-                <td className="font-mono p-1 bg-white">
-                  {diode.neg_to_w_red || "-"}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          {/* POWER VOLTAGE SECTION (ถ้ามีค่าหรือบันทึกหลัง QC) */}
-          {hasPowerVoltage && (
-            <div className="mb-2">
-              <div className="font-bold text-[10.5px] mb-0.5">
-                {isEn
-                  ? "Power Voltage Measurement (Post-QC Test)"
-                  : "การตรวจวัดแรงดันไฟฟ้า (Power Voltage Measurement - หลัง QC ทดสอบเครื่อง)"}
-              </div>
-              <table className="w-full border-collapse border border-black text-[9.5px] mb-1.5">
-                <tbody>
-                  <tr className="bg-neutral-100">
-                    <td className="border border-black p-1 font-bold" colSpan={2}>
-                      {isEn
-                        ? "POWER INPUT VOLTAGE (Pre/During Installation)"
-                        : "POWER INPUT VOLTAGE (ก่อน/ระหว่างติดตั้ง)"}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black p-1 w-1/2">
-                      {isEn ? "1 Phase DC (+) , (-) :" : "1 เฟส DC (+) , (-) :"} <b>{pInput.inputDc ? `${pInput.inputDc} Vdc` : "-"}</b>
-                    </td>
-                    <td className="border border-black p-1 w-1/2">
-                      {isEn ? "1 Phase (220-230Vac) L-N :" : "1 เฟส (220-230Vac) L-N :"} <b>{pInput.input1PhaseAc ? `${pInput.input1PhaseAc} Vac` : "-"}</b>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black p-1" colSpan={2}>
-                      {isEn ? "3 Phase (380-400Vac) R-S :" : "3 เฟส (380-400Vac) R-S :"} <b>{pInput.input3PhaseRs ? `${pInput.input3PhaseRs} Vac` : "-"}</b> , 
-                      R-T : <b>{pInput.input3PhaseRt ? `${pInput.input3PhaseRt} Vac` : "-"}</b> , 
-                      S-T : <b>{pInput.input3PhaseSt ? `${pInput.input3PhaseSt} Vac` : "-"}</b>
-                    </td>
-                  </tr>
-                  <tr className="bg-neutral-100">
-                    <td className="border border-black p-1 font-bold" colSpan={2}>
-                      {isEn
-                        ? "POWER OUTPUT VOLTAGE (During Inspection)"
-                        : "POWER OUTPUT VOLTAGE (ระหว่างตรวจเช็ค)"}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black p-1">
-                      {isEn ? "1 Phase L-N (220-230Vac) :" : "1 เฟส L-N (220-230Vac) :"} <b>{pOutput.output1PhaseLn ? `${pOutput.output1PhaseLn} Vac` : "-"}</b>
-                    </td>
-                    <td className="border border-black p-1">
-                      {isEn ? "3 Phase (220-230Vac) U-V:" : "3 เฟส (220-230Vac) U-V:"} <b>{pOutput.output3Phase220Uv || "-"}</b>, U-W: <b>{pOutput.output3Phase220Uw || "-"}</b>, V-W: <b>{pOutput.output3Phase220Vw || "-"}</b>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black p-1" colSpan={2}>
-                      {isEn ? "3 Phase (380-400Vac) U-V :" : "3 เฟส (380-400Vac) U-V :"} <b>{pOutput.output3Phase380Uv ? `${pOutput.output3Phase380Uv} Vac` : "-"}</b> , 
-                      U-W : <b>{pOutput.output3Phase380Uw ? `${pOutput.output3Phase380Uw} Vac` : "-"}</b> , 
-                      V-W : <b>{pOutput.output3Phase380Vw ? `${pOutput.output3Phase380Vw} Vac` : "-"}</b>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Findings & Required Parts */}
-          <div className="mb-2 border border-black p-1.5 text-[9.5px] space-y-0.5 bg-white">
-            <div>
-              <span className="font-bold">
-                {isEn ? "Cause of Fault / Diagnosis: " : "สาเหตุความเสียหาย / ข้อวินิจฉัย: "}
-              </span>
-              <span>{displayCauseOfFault}</span>
-            </div>
-            <div>
-              <span className="font-bold">
-                {isEn ? "Recommendations / Corrective Action: " : "ข้อเสนอแนะในการซ่อมแซม: "}
-              </span>
-              <span>{displayRecommendations}</span>
-            </div>
-            <div>
-              <span className="font-bold">
-                {isEn ? "Damaged Parts & Required Replacement: " : "อะไหล่ที่ต้องเปลี่ยน: "}
-              </span>
-              <span>
-                {Array.isArray(displayParts) && displayParts.length > 0
-                  ? displayParts
-                      .map((p: any) => `${p.partName || "-"} (${p.qty || 1} ${isEn ? "pcs" : "ชิ้น"})`)
-                      .join(", ")
-                  : isEn ? "None / Board-level repair" : "ไม่มี / ซ่อมระดับบอร์ด"}
-              </span>
-            </div>
-          </div>
-
-          {/* Signature Block matching company standard */}
-          <div className="border-2 border-black grid grid-cols-2 text-center text-[10px] mt-2 mb-1 print:break-inside-avoid">
-            <div className="border-r-2 border-black p-1.5 flex flex-col justify-between min-h-[64px]">
-              <div className="font-bold text-[10px]">
-                {isEn ? "Inspected By (Technician)" : "ผู้ทำรายงาน / ช่างผู้ตรวจเช็ค"}
-              </div>
-              <div className="my-auto py-0.5">
-                <div className="font-bold text-[10.5px]">
-                  ( {displayInspector} )
-                </div>
-                <div className="text-[9px] mt-0.5 text-gray-700">
-                  {isEn ? "Date: " : "วันที่ "}
-                  {checkDateStr}
-                </div>
-              </div>
-            </div>
-
-            <div className="p-1.5 flex flex-col justify-between min-h-[64px]">
-              <div className="font-bold text-[10px]">
-                {isEn ? "Approved By (Engineer / Supervisor)" : "ผู้ตรวจสอบ / หัวหน้างาน"}
-              </div>
-              <div className="my-auto py-0.5">
-                <div className="font-bold text-[10.5px]">
-                  ( {displayApprover} )
-                </div>
-                <div className="text-[9px] mt-0.5 text-gray-700">
-                  {isEn ? "Date: " : "วันที่ "}
-                  {approvedDateStr}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer info Sheet 2 */}
-          <div className="border-t border-gray-300 pt-1 text-[9px] print:text-[8px] text-gray-500 flex justify-between items-center">
-            <span>{companyTitle} — Service & Quality Control</span>
-            <span>
-              {isEn
-                ? "Inverter Diode & IGBT Inspection (Sheet 2/2)"
-                : "ผลการตรวจวัดไดโอดภายในเครื่องอินเวอร์เตอร์ (แผ่นที่ 2/2)"}
-            </span>
-          </div>
-        </div>
-      </div>
+    {/* End of Sheet 2 */}
 
       {/* Embedded Scoped Print Style */}
       <style
