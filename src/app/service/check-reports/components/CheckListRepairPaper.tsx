@@ -51,8 +51,14 @@ export default function CheckListRepairPaper({
       customerCompany: report?.customerCompany,
       inspectorName: report?.inspectorName,
       salesPerson: report?.salesPerson,
-      approvedByName: report?.approvedByName,
-      reportBy: report?.reportBy,
+      approvedByName:
+        report?.approvedByName ||
+        report?.reportBy ||
+        (report?.diodeMeasurement as any)?.approvedByName,
+      reportBy:
+        report?.reportBy ||
+        report?.approvedByName ||
+        (report?.diodeMeasurement as any)?.approvedByName,
       recommendations: report?.recommendations,
       applicationLoad: report?.applicationLoad,
       parameterNotes: report?.diodeMeasurement?.parameterNotes,
@@ -83,6 +89,7 @@ export default function CheckListRepairPaper({
     report?.salesPerson,
     report?.approvedByName,
     report?.reportBy,
+    report?.approvedDate,
     report?.recommendations,
     report?.applicationLoad,
     report?.diodeMeasurement?.parameterNotes,
@@ -147,6 +154,30 @@ export default function CheckListRepairPaper({
   const displayInspector = isEn
     ? translatedData?.inspectorName || report?.inspectorName || "-"
     : report?.inspectorName || "-";
+
+  const displayApprover = isEn
+    ? translatedData?.approvedByName ||
+      translatedData?.reportBy ||
+      report?.approvedByName ||
+      report?.reportBy ||
+      (report?.diodeMeasurement as any)?.approvedByName ||
+      "Authorized Signer"
+    : report?.approvedByName ||
+      report?.reportBy ||
+      (report?.diodeMeasurement as any)?.approvedByName ||
+      "ผู้มีอำนาจลงนาม";
+
+  const rawApprovedDate =
+    report?.approvedDate ||
+    (report?.diodeMeasurement as any)?.approvedDate;
+
+  const approvedDateStr = rawApprovedDate
+    ? new Date(rawApprovedDate).toLocaleDateString(isEn ? "en-GB" : "th-TH", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+    : checkDateStr;
 
   const displaySalesPerson = isEn
     ? translatedData?.salesPerson || report?.salesPerson || "-"
@@ -1143,11 +1174,11 @@ export default function CheckListRepairPaper({
               </div>
               <div className="my-auto py-0.5">
                 <div className="font-bold text-[10.5px]">
-                  ( {report?.approvedByName || (isEn ? "Authorized Signer" : "ผู้มีอำนาจลงนาม")} )
+                  ( {displayApprover} )
                 </div>
                 <div className="text-[9px] mt-0.5 text-gray-700">
                   {isEn ? "Date: " : "วันที่ "}
-                  {checkDateStr}
+                  {approvedDateStr}
                 </div>
               </div>
             </div>

@@ -447,13 +447,22 @@ export default function CheckReportForm({
 
   // Approver / Reviewer (Typed name - no signature required)
   const [approvedByName, setApprovedByName] = useState(
-    initialData?.approvedByName || initialData?.reportBy || ""
+    initialData?.approvedByName ||
+      initialData?.reportBy ||
+      (initialData?.diodeMeasurement as any)?.approvedByName ||
+      ""
   );
-  const [approvedDate, setApprovedDate] = useState(
-    initialData?.approvedDate
-      ? new Date(initialData.approvedDate).toISOString().split("T")[0]
-      : ""
-  );
+  const [approvedDate, setApprovedDate] = useState(() => {
+    const rawDate =
+      initialData?.approvedDate ||
+      (initialData?.diodeMeasurement as any)?.approvedDate;
+    if (!rawDate) return "";
+    try {
+      return new Date(rawDate).toISOString().split("T")[0];
+    } catch {
+      return "";
+    }
+  });
   const [isApproverDropdownOpen, setIsApproverDropdownOpen] = useState(false);
   const approverDropdownRef = useRef<HTMLDivElement>(null);
 

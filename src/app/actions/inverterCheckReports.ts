@@ -262,7 +262,16 @@ export async function getInverterCheckReports(params?: {
       orderBy: { createdAt: "desc" },
     });
 
-    return { success: true, data: reports };
+    const enrichedReports = reports.map((r) => {
+      const diodeMeta = (r.diodeMeasurement as any) || {};
+      return {
+        ...r,
+        approvedByName: diodeMeta.approvedByName || r.reportBy || null,
+        approvedDate: diodeMeta.approvedDate || null,
+      };
+    });
+
+    return { success: true, data: enrichedReports };
   } catch (error: any) {
     console.error("Error fetching InverterCheckReports:", error);
     return { success: false, error: error.message || "Failed to fetch reports", data: [] };
@@ -281,7 +290,14 @@ export async function getInverterCheckReportById(id: string) {
       return { success: false, error: "Report not found" };
     }
 
-    return { success: true, data: report };
+    const diodeMeta = (report.diodeMeasurement as any) || {};
+    const enriched = {
+      ...report,
+      approvedByName: diodeMeta.approvedByName || report.reportBy || null,
+      approvedDate: diodeMeta.approvedDate || null,
+    };
+
+    return { success: true, data: enriched };
   } catch (error: any) {
     console.error("Error fetching InverterCheckReport by id:", error);
     return { success: false, error: error.message || "Failed to fetch report" };
@@ -331,6 +347,8 @@ export async function createInverterCheckReport(formData: InverterCheckReportFor
         requireParts: (formData.requireParts || []) as any,
         diodeMeasurement: {
           ...(formData.diodeMeasurement || {}),
+          approvedByName: formData.approvedByName || formData.reportBy || undefined,
+          approvedDate: formData.approvedDate || undefined,
           ...(formData.hasInverterInCabinet !== undefined
             ? { hasInverter: formData.hasInverterInCabinet }
             : {}),
@@ -352,7 +370,15 @@ export async function createInverterCheckReport(formData: InverterCheckReportFor
 
     revalidatePath("/service/check-reports");
     revalidatePath("/service/dashboard");
-    return { success: true, data: report };
+    const createdDiodeMeta = (report.diodeMeasurement as any) || {};
+    return {
+      success: true,
+      data: {
+        ...report,
+        approvedByName: createdDiodeMeta.approvedByName || report.reportBy || null,
+        approvedDate: createdDiodeMeta.approvedDate || null,
+      },
+    };
   } catch (error: any) {
     console.error("Error creating InverterCheckReport:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการบันทึกรายงาน" };
@@ -401,7 +427,9 @@ export async function updateInverterCheckReport(id: string, formData: InverterCh
         recommendations: formData.recommendations,
         requireParts: (formData.requireParts || []) as any,
         diodeMeasurement: {
-          ...(formData.diodeMeasurement || {}),
+          ...((formData.diodeMeasurement || existing.diodeMeasurement || {}) as any),
+          approvedByName: formData.approvedByName !== undefined ? formData.approvedByName : ((existing.diodeMeasurement as any)?.approvedByName || existing.reportBy),
+          approvedDate: formData.approvedDate !== undefined ? formData.approvedDate : (existing.diodeMeasurement as any)?.approvedDate,
           ...(formData.hasInverterInCabinet !== undefined
             ? { hasInverter: formData.hasInverterInCabinet }
             : {}),
@@ -424,7 +452,15 @@ export async function updateInverterCheckReport(id: string, formData: InverterCh
     revalidatePath("/service/check-reports");
     revalidatePath(`/service/check-reports/${id}`);
     revalidatePath("/service/dashboard");
-    return { success: true, data: updated };
+    const updatedDiodeMeta = (updated.diodeMeasurement as any) || {};
+    return {
+      success: true,
+      data: {
+        ...updated,
+        approvedByName: updatedDiodeMeta.approvedByName || updated.reportBy || null,
+        approvedDate: updatedDiodeMeta.approvedDate || null,
+      },
+    };
   } catch (error: any) {
     console.error("Error updating InverterCheckReport:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการแก้ไขรายงาน" };
