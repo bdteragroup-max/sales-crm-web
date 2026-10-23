@@ -19,10 +19,63 @@ export default function PhotosPaper({ report, lang = "TH", className = "" }: Pho
     { key: "right", label: isEn ? "Right Side View" : "ด้านขวา", url: photos.right?.[0] },
     { key: "top", label: isEn ? "Top View" : "ด้านบน", url: photos.top?.[0] },
     { key: "fan", label: isEn ? "Cooling Fan" : "พัดลม", url: photos.fan?.[0] },
-    { key: "inside", label: isEn ? "Internal View / Damage" : "ด้านใน", url: photos.inside?.[0] || photos.damage?.[0] },
+    { key: "inside", label: isEn ? "Internal View" : "ด้านใน", url: photos.inside?.[0] || photos.damage?.[0] },
     { key: "terminal", label: isEn ? (isCabinet ? "Terminal Screws" : "Terminal Block") : (isCabinet ? "น็อตเทอร์มินอล" : "บล็อคเทอร์มินอล"), url: photos.terminal?.[0] },
     { key: "nameplate", label: isEn ? "Nameplate" : "เนมเพลท", url: photos.nameplate?.[0] },
   ];
+
+  // Collect additional photos (multi-photos > 1, damage photos, other photos)
+  const additionalPhotos: { url: string; label: string }[] = [];
+
+  // 1. Damage photos if not used as primary inside photo
+  if (Array.isArray(photos.damage) && photos.damage.length > 0) {
+    photos.damage.forEach((url: string, idx: number) => {
+      if (url && (url !== photos.inside?.[0])) {
+        additionalPhotos.push({
+          url,
+          label: isEn ? `Damage / Fault #${idx + 1}` : `จุดชำรุดเสียหาย #${idx + 1}`,
+        });
+      }
+    });
+  }
+
+  // 2. Extra photos (> 1) from standard slots
+  const slotLabels: Record<string, { th: string; en: string }> = {
+    front: { th: "ด้านหน้า", en: "Front View" },
+    left: { th: "ด้านซ้าย", en: "Left Side View" },
+    right: { th: "ด้านขวา", en: "Right Side View" },
+    top: { th: "ด้านบน", en: "Top View" },
+    fan: { th: "พัดลม", en: "Cooling Fan" },
+    inside: { th: "ด้านใน", en: "Internal View" },
+    terminal: { th: isCabinet ? "น็อตเทอร์มินอล" : "บล็อคเทอร์มินอล", en: isCabinet ? "Terminal Screws" : "Terminal Block" },
+    nameplate: { th: "เนมเพลท", en: "Nameplate" },
+  };
+
+  Object.entries(slotLabels).forEach(([key, lbl]) => {
+    const list = photos[key];
+    if (Array.isArray(list) && list.length > 1) {
+      list.slice(1).forEach((url: string, idx: number) => {
+        if (url) {
+          additionalPhotos.push({
+            url,
+            label: isEn ? `${lbl.en} #${idx + 2}` : `${lbl.th} #${idx + 2}`,
+          });
+        }
+      });
+    }
+  });
+
+  // 3. Other photos
+  if (Array.isArray(photos.other) && photos.other.length > 0) {
+    photos.other.forEach((url: string, idx: number) => {
+      if (url) {
+        additionalPhotos.push({
+          url,
+          label: isEn ? `Additional Photo #${idx + 1}` : `รูปภาพเพิ่มเติม #${idx + 1}`,
+        });
+      }
+    });
+  }
 
   const compCode = (report?.companyCode || "TG").toUpperCase();
   const logoSrc =
@@ -119,6 +172,31 @@ export default function PhotosPaper({ report, lang = "TH", className = "" }: Pho
             </React.Fragment>
           ))}
         </div>
+
+        {/* Attached Additional Photos (Page 2 / continuation if extra photos exist) */}
+        {additionalPhotos.length > 0 && (
+          <div className="mt-8 pt-6 border-t-2 border-black print:break-before-page">
+            <div className="font-bold text-[13px] bg-[#d9e1f2] border border-black text-center py-1 mb-4">
+              {isEn ? "ATTACHED & ADDITIONAL PHOTOS" : "รูปภาพแนบเพิ่มเติม"}
+            </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              {additionalPhotos.map((item, idx) => (
+                <div key={idx} className="flex flex-col items-center">
+                  <div className="w-full h-48 sm:h-52 border border-black bg-white flex items-center justify-center p-1.5 overflow-hidden">
+                    <img
+                      src={item.url}
+                      alt={item.label}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                  <div className="border border-black text-center py-0.5 px-6 font-bold text-[11px] bg-white mt-1.5 min-w-[130px] max-w-[240px]">
+                    {item.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

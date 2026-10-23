@@ -81,8 +81,10 @@ export type PhotoKey =
   | "top"
   | "fan"
   | "inside"
+  | "damage"
   | "terminal"
-  | "nameplate";
+  | "nameplate"
+  | "other";
 
 export const PHOTO_SLOTS: {
   key: PhotoKey;
@@ -95,9 +97,11 @@ export const PHOTO_SLOTS: {
   { key: "right", title: "3. ด้านขวา", enTitle: "Right", desc: "รูปถ่ายฝั่งขวาของเครื่อง" },
   { key: "top", title: "4. ด้านบน", enTitle: "Top", desc: "รูปถ่ายด้านบนตัวเครื่อง" },
   { key: "fan", title: "5. พัดลม", enTitle: "Fan", desc: "รูปถ่ายพัดลมระบายความร้อน" },
-  { key: "inside", title: "6. ด้านใน", enTitle: "Inside", desc: "รูปถ่ายบอร์ด/อุปกรณ์ด้านใน" },
+  { key: "inside", title: "6. ด้านใน", enTitle: "Inside", desc: "รูปถ่ายบอร์ดและอุปกรณ์ด้านในตัวเครื่อง" },
   { key: "terminal", title: "7. บล็อคเทอร์มินอล", enTitle: "Terminal Block", desc: "รูปถ่ายบล็อคต่อสายไฟ" },
   { key: "nameplate", title: "8. เนมเพลท", enTitle: "Nameplate", desc: "รูปถ่ายป้ายชื่อและสเปกเครื่อง" },
+  { key: "damage", title: "9. จุดชำรุดเสียหาย", enTitle: "Damage", desc: "รูปถ่ายจุดชำรุดเสียหายหรืออุปกรณ์ไหม้" },
+  { key: "other", title: "10. รูปภาพอื่นๆ", enTitle: "Others", desc: "รูปภาพประกอบเพิ่มเติมอื่นๆ" },
 ];
 
 export const PUMP_PHOTO_SLOTS: {
@@ -149,6 +153,20 @@ export const PUMP_PHOTO_SLOTS: {
     desc: "ภาพเศษชิ้นส่วนที่แตกหัก หรือชิ้นส่วนอื่นๆ ที่ชำรุด",
     badge: "จุดเสีย 4",
   },
+  {
+    key: "damage",
+    title: "7. จุดชำรุดเสียหายเพิ่มเติม",
+    enTitle: "Additional Damage",
+    desc: "ภาพถ่ายจุดชำรุดเสียหายอื่นๆ ของปั๊มน้ำ",
+    badge: "จุดเสียเพิ่มเติม",
+  },
+  {
+    key: "other",
+    title: "8. รูปภาพอื่นๆ",
+    enTitle: "Other Photos",
+    desc: "รูปภาพประกอบเพิ่มเติมอื่นๆ",
+    badge: "รูปภาพเพิ่มเติม",
+  },
 ];
 
 export const MOTOR_PHOTO_SLOTS: {
@@ -193,6 +211,20 @@ export const MOTOR_PHOTO_SLOTS: {
     desc: "ภาพถ่ายตัวมอเตอร์ทั้งตัว หรืออุปกรณ์ส่วนประกอบอื่นๆ",
     badge: "ตัวมอเตอร์",
   },
+  {
+    key: "damage",
+    title: "6. จุดชำรุดเสียหายเพิ่มเติม",
+    enTitle: "Additional Damage",
+    desc: "ภาพถ่ายจุดชำรุดเสียหายอื่นๆ ของมอเตอร์",
+    badge: "จุดเสียเพิ่มเติม",
+  },
+  {
+    key: "other",
+    title: "7. รูปภาพอื่นๆ",
+    enTitle: "Other Photos",
+    desc: "รูปภาพประกอบเพิ่มเติมอื่นๆ",
+    badge: "รูปภาพเพิ่มเติม",
+  },
 ];
 
 export const INVERTER_PHOTO_SLOTS: {
@@ -218,45 +250,59 @@ export const INVERTER_PHOTO_SLOTS: {
   },
   {
     key: "inside",
-    title: "3. ความเสียหายของบอร์ด (Board Damage)",
+    title: "3. ด้านใน (Inside)",
+    enTitle: "Inside / Internal View",
+    desc: "รูปถ่ายบอร์ดและอุปกรณ์ด้านในตัวเครื่อง",
+    badge: "ด้านใน (หน้า 1 / 8 ด้าน)",
+  },
+  {
+    key: "damage",
+    title: "4. ความเสียหายของบอร์ด (Board Damage)",
     enTitle: "Board / IGBT Damage",
     desc: "รูปถ่ายจุดชำรุดเสียหาย บอร์ดไหม้ Module IGBT หรืออุปกรณ์ชำรุด",
     badge: "ความเสียหายบอร์ด (หน้า 1)",
   },
   {
     key: "left",
-    title: "4. ด้านซ้าย",
+    title: "5. ด้านซ้าย",
     enTitle: "Left",
     desc: "รูปถ่ายฝั่งซ้ายของตัวเครื่องอินเวอร์เตอร์",
     badge: "ด้านซ้าย",
   },
   {
     key: "right",
-    title: "5. ด้านขวา",
+    title: "6. ด้านขวา",
     enTitle: "Right",
     desc: "รูปถ่ายฝั่งขวาของตัวเครื่องอินเวอร์เตอร์",
     badge: "ด้านขวา",
   },
   {
     key: "top",
-    title: "6. ด้านบน",
+    title: "7. ด้านบน",
     enTitle: "Top",
     desc: "รูปถ่ายด้านบนตัวเครื่องอินเวอร์เตอร์",
     badge: "ด้านบน",
   },
   {
     key: "fan",
-    title: "7. พัดลมระบายความร้อน",
+    title: "8. พัดลมระบายความร้อน",
     enTitle: "Cooling Fan",
     desc: "รูปถ่ายพัดลมระบายความร้อนตัวเครื่อง",
     badge: "พัดลม",
   },
   {
     key: "terminal",
-    title: "8. บล็อคเทอร์มินอล",
+    title: "9. บล็อคเทอร์มินอล",
     enTitle: "Terminal Block",
     desc: "รูปถ่ายบล็อคต่อสายไฟและสายคอนโทรล",
     badge: "บล็อคเทอร์มินอล",
+  },
+  {
+    key: "other",
+    title: "10. รูปภาพอื่นๆ เพิ่มเติม",
+    enTitle: "Additional Photos",
+    desc: "รูปภาพประกอบเพิ่มเติมอื่นๆ นอกเหนือจากมุมมาตรฐาน",
+    badge: "รูปภาพเพิ่มเติม",
   },
 ];
 
@@ -323,6 +369,20 @@ export const CABINET_PHOTO_SLOTS: {
     desc: "รูปถ่ายป้ายเนมเพลทตู้ควบคุมระบบไฟฟ้า",
     badge: "เนมเพลท",
   },
+  {
+    key: "damage",
+    title: "9. จุดชำรุดเสียหาย",
+    enTitle: "Damaged Parts",
+    desc: "รูปถ่ายจุดชำรุดเสียหายในตู้ควบคุม",
+    badge: "จุดชำรุด",
+  },
+  {
+    key: "other",
+    title: "10. รูปภาพอื่นๆ",
+    enTitle: "Others",
+    desc: "รูปภาพประกอบเพิ่มเติมอื่นๆ",
+    badge: "รูปภาพเพิ่มเติม",
+  },
 ];
 
 function generateUploadSuffix(): string {
@@ -347,6 +407,15 @@ export default function CheckReportForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadingSlot, setUploadingSlot] = useState<PhotoKey | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<Record<string, number>>({});
+  const [previewModal, setPreviewModal] = useState<{
+    url: string;
+    title: string;
+    category?: string;
+    index?: number;
+  } | null>(null);
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
 
   // Equipment Type Selection
@@ -546,20 +615,33 @@ export default function CheckReportForm({
     initialData?.motorMeasurement || {}
   );
 
-  // Photos: exactly 1 photo per side
+  // Photos: supports multiple photos per slot
   const [photos, setPhotos] = useState<CheckReportPhotos>(() => {
     const raw = initialData?.photos || {};
     const normalized: CheckReportPhotos = {};
-    PHOTO_SLOTS.forEach((slot) => {
-      const existing = raw[slot.key];
-      if (Array.isArray(existing) && existing.length > 0) {
-        normalized[slot.key] = [existing[0]];
+    const allKeys: PhotoKey[] = [
+      "front",
+      "left",
+      "right",
+      "top",
+      "fan",
+      "inside",
+      "damage",
+      "terminal",
+      "nameplate",
+      "other",
+    ];
+    allKeys.forEach((key) => {
+      const existing = raw[key];
+      if (Array.isArray(existing)) {
+        normalized[key] = existing.filter(Boolean);
       } else if (typeof existing === "string" && existing) {
-        normalized[slot.key] = [existing];
+        normalized[key] = [existing];
       } else {
-        normalized[slot.key] = [];
+        normalized[key] = [];
       }
     });
+    if (Array.isArray(raw.side)) normalized.side = raw.side.filter(Boolean);
     return normalized;
   });
 
@@ -1034,48 +1116,73 @@ export default function CheckReportForm({
     setRequireParts(next);
   };
 
-  // Image Upload handler to Supabase (1 photo per side)
+  // Image Upload handler to Supabase (supports multiple photos per slot)
   const handlePhotoUpload = async (category: PhotoKey, files: FileList | null) => {
     if (!files || files.length === 0) return;
 
+    const fileArray = Array.from(files);
+    const oversized = fileArray.filter((f) => f.size > 20 * 1024 * 1024);
+    if (oversized.length > 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "มีไฟล์ขนาดใหญ่เกิน 20MB",
+        text: `ไฟล์ ${oversized.map((f) => f.name).join(", ")} มีขนาดเกิน 20MB ระบบจะข้ามไฟล์เหล่านี้`,
+      });
+    }
+
+    const validFiles = fileArray.filter((f) => f.size <= 20 * 1024 * 1024);
+    if (validFiles.length === 0) return;
+
     setIsUploading(true);
+    setUploadingSlot(category);
+    setUploadProgress({ current: 0, total: validFiles.length });
+
     try {
       const { createClient } = await import("@/utils/supabase/client");
       const supabase = createClient();
 
-      const file = files[0];
-      if (file.size > 20 * 1024 * 1024) {
-        Swal.fire({
-          icon: "warning",
-          title: "ไฟล์ขนาดใหญ่เกิน 20MB",
-          text: file.name,
-        });
-        return;
+      const uploadedUrls: string[] = [];
+
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        const uniqueSuffix = generateUploadSuffix();
+        const filename = `cr-${category}-${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+
+        const { data, error } = await supabase.storage
+          .from("uploadsService")
+          .upload(filename, file, {
+            contentType: file.type,
+            upsert: true,
+          });
+
+        if (error) {
+          console.error(`Upload error for ${file.name}:`, error);
+          continue;
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("uploadsService").getPublicUrl(data.path);
+
+        uploadedUrls.push(publicUrl);
+        setUploadProgress({ current: i + 1, total: validFiles.length });
       }
 
-      const uniqueSuffix = generateUploadSuffix();
-      const filename = `cr-${category}-${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
-
-      const { data, error } = await supabase.storage
-        .from("uploadsService")
-        .upload(filename, file, {
-          contentType: file.type,
-          upsert: true,
+      if (uploadedUrls.length > 0) {
+        setPhotos((prev) => {
+          const existing = prev[category] || [];
+          const updated = [...existing, ...uploadedUrls];
+          // Set newly added image as active thumbnail
+          setSelectedPhotoIndex((p) => ({
+            ...p,
+            [category]: updated.length - 1,
+          }));
+          return {
+            ...prev,
+            [category]: updated,
+          };
         });
-
-      if (error) {
-        console.error("Upload error:", error);
-        throw error;
       }
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("uploadsService").getPublicUrl(data.path);
-
-      setPhotos((prev) => ({
-        ...prev,
-        [category]: [publicUrl],
-      }));
     } catch (err: any) {
       console.error("Upload failed:", err);
       Swal.fire({
@@ -1085,14 +1192,39 @@ export default function CheckReportForm({
       });
     } finally {
       setIsUploading(false);
+      setUploadingSlot(null);
+      setUploadProgress(null);
     }
   };
 
-  const removePhoto = (category: PhotoKey) => {
-    setPhotos((prev) => ({
-      ...prev,
-      [category]: [],
-    }));
+  const removePhoto = (category: PhotoKey, index?: number) => {
+    setPhotos((prev) => {
+      const currentList = prev[category] || [];
+      if (index === undefined) {
+        return {
+          ...prev,
+          [category]: [],
+        };
+      }
+      const updated = currentList.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        [category]: updated,
+      };
+    });
+
+    // Adjust selected index if it is now out of range
+    setSelectedPhotoIndex((prev) => {
+      const currentIdx = prev[category] || 0;
+      if (index === undefined) {
+        return { ...prev, [category]: 0 };
+      }
+      const newLen = (photos[category]?.length || 1) - 1;
+      if (currentIdx >= newLen) {
+        return { ...prev, [category]: Math.max(0, newLen - 1) };
+      }
+      return prev;
+    });
   };
 
   // Submit Handler
@@ -2569,7 +2701,8 @@ export default function CheckReportForm({
             : isCabinet
             ? CABINET_PHOTO_SLOTS
             : PHOTO_SLOTS;
-          const uploadedCount = activeSlots.filter((s) => Boolean(photos[s.key]?.[0])).length;
+          const uploadedCount = activeSlots.filter((s) => Boolean(photos[s.key]?.length)).length;
+          const totalPhotosCount = activeSlots.reduce((sum, s) => sum + (photos[s.key]?.length || 0), 0);
 
           return (
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-6">
@@ -2626,26 +2759,28 @@ export default function CheckReportForm({
                             : "bg-teal-50 text-teal-700 border-teal-200"
                         }`}
                       >
-                        ถ่ายแล้ว {uploadedCount}/{activeSlots.length} รูป
+                        ถ่ายแล้ว {uploadedCount}/{activeSlots.length} หมวด ({totalPhotosCount} รูป)
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {isInverter
-                        ? "มาตรฐานรายงานอินเวอร์เตอร์: ด้านหน้า, เนมเพลท, ความเสียหายของบอร์ด (แสดงหน้า 1) และรูปประกอบ 8 ด้าน"
+                        ? "รูปถ่ายอินเวอร์เตอร์: ด้านหน้า, เนมเพลท, ด้านในตัวเครื่อง, ความเสียหายของบอร์ด และรูปประกอบทุกมุม (อัปโหลดได้หลายรูปต่อช่อง)"
                         : isPump
-                        ? "มาตรฐานรายงานปั๊มน้ำ: หน้า 1 ป้ายเนมเพลท | หน้า 2 ภาพรวมตัวปั๊มน้ำ (ซ้าย) และชิ้นส่วนที่เสียหาย (เสื้อปั๊ม, ใบพัด, บูช, เศษชิ้นส่วน)"
+                        ? "มาตรฐานรายงานปั๊มน้ำ: ป้ายเนมเพลท, ภาพรวมตัวปั๊ม และชิ้นส่วนที่เสียหาย (อัปโหลดได้หลายรูปต่อช่อง)"
                         : isMotor
-                        ? "มาตรฐานรายงานมอเตอร์ไฟฟ้า: ป้ายเนมเพลท และจุดชำรุดเสียหายขดลวด 3 สายสี (น้ำตาล-ดำ, ดำ-เทา, น้ำตาล-เทา)"
+                        ? "มาตรฐานรายงานมอเตอร์ไฟฟ้า: ป้ายเนมเพลท และจุดชำรุดเสียหายขดลวด 3 สายสี (อัปโหลดได้หลายรูปต่อช่อง)"
                         : isCabinet
-                        ? "รูปถ่ายตู้คอนโทรล 8 ด้าน: ด้านหน้า, ด้านซ้าย, ด้านขวา, ด้านบน, พัดลม, ด้านใน, น็อตเทอร์มินอล และเนมเพลท"
-                        : "มาตรฐานรูปถ่าย 8 ด้านตามชีต รูปภาพสินค้า ในไฟล์ Excel: หน้า, หลัง, ซ้าย, ขวา, บน, พัดลม, ด้านใน และเนมเพลท"}
+                        ? "รูปถ่ายตู้คอนโทรล: ด้านหน้า, ด้านซ้าย, ด้านขวา, ด้านบน, พัดลม, ด้านใน, น็อตเทอร์มินอล และเนมเพลท (อัปโหลดได้หลายรูปต่อช่อง)"
+                        : "มาตรฐานรูปถ่ายตรวจเช็คอุปกรณ์ (อัปโหลดได้หลายรูปต่อช่อง)"}
                     </p>
                   </div>
                 </div>
                 {isUploading && (
                   <span className="text-xs font-semibold text-teal-600 flex items-center gap-1.5 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    กำลังอัปโหลดรูปภาพ...
+                    {uploadProgress
+                      ? `กำลังอัปโหลดรูปภาพ (${uploadProgress.current}/${uploadProgress.total})...`
+                      : "กำลังอัปโหลดรูปภาพ..."}
                   </span>
                 )}
               </div>
@@ -2679,15 +2814,21 @@ export default function CheckReportForm({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-xs">
                 {activeSlots.map((slot) => {
-                  const fileUrl = photos[slot.key]?.[0];
-                  const hasPhoto = Boolean(fileUrl);
+                  const photoList = photos[slot.key] || [];
+                  const hasPhotos = photoList.length > 0;
+                  const activeIdx = Math.min(
+                    selectedPhotoIndex[slot.key] || 0,
+                    Math.max(0, photoList.length - 1)
+                  );
+                  const currentPhotoUrl = photoList[activeIdx];
+                  const isSlotUploading = isUploading && uploadingSlot === slot.key;
                   const badge = (slot as any).badge;
 
                   return (
                     <div
                       key={slot.key}
                       className={`rounded-2xl border transition-all p-3 flex flex-col justify-between ${
-                        hasPhoto
+                        hasPhotos
                           ? isPump
                             ? "border-blue-300 bg-blue-50/20 shadow-xs"
                             : isMotor
@@ -2697,15 +2838,15 @@ export default function CheckReportForm({
                       }`}
                     >
                       <div className="flex items-center justify-between gap-1 mb-2">
-                        <div>
-                          <span className="font-bold text-slate-800 text-xs block">
+                        <div className="min-w-0 pr-1">
+                          <span className="font-bold text-slate-800 text-xs block truncate" title={slot.title}>
                             {slot.title}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-medium">
+                          <span className="text-[10px] text-slate-400 font-medium block truncate">
                             {slot.enTitle}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 shrink-0">
                           {badge && (
                             <span
                               className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
@@ -2719,93 +2860,206 @@ export default function CheckReportForm({
                               {badge}
                             </span>
                           )}
-                          {hasPhoto ? (
+                          {hasPhotos ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                              <Check className="w-3 h-3" /> ถ่ายแล้ว
+                              <Check className="w-3 h-3" /> {photoList.length} รูป
                             </span>
                           ) : (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-200/70 text-slate-600">
-                              1 รูป
+                              0 รูป
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {hasPhoto ? (
-                        <div className="space-y-2">
-                          <div className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white h-48 flex items-center justify-center shadow-2xs">
+                      {hasPhotos ? (
+                        <div className="space-y-2 flex-1 flex flex-col justify-between">
+                          {/* Main Preview Container */}
+                          <div className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white h-44 flex items-center justify-center shadow-2xs">
                             <img
-                              src={fileUrl}
-                              alt={slot.title}
-                              className="w-full h-full object-contain p-1"
+                              src={currentPhotoUrl}
+                              alt={`${slot.title} #${activeIdx + 1}`}
+                              className="w-full h-full object-contain p-1 cursor-pointer transition-transform group-hover:scale-102"
+                              onClick={() =>
+                                setPreviewModal({
+                                  url: currentPhotoUrl,
+                                  title: `${slot.title} (รูปที่ ${activeIdx + 1}/${photoList.length})`,
+                                  category: slot.key,
+                                  index: activeIdx,
+                                })
+                              }
                             />
+
+                            {/* Photo Counter badge */}
+                            {photoList.length > 1 && (
+                              <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-mono font-semibold pointer-events-none">
+                                {activeIdx + 1} / {photoList.length}
+                              </div>
+                            )}
+
+                            {/* Hover Actions */}
                             <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                              <label className="px-2.5 py-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-800 text-xs font-bold cursor-pointer transition-all shadow">
-                                เปลี่ยนรูป
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setPreviewModal({
+                                    url: currentPhotoUrl,
+                                    title: `${slot.title} (รูปที่ ${activeIdx + 1}/${photoList.length})`,
+                                    category: slot.key,
+                                    index: activeIdx,
+                                  })
+                                }
+                                className="px-2.5 py-1.5 rounded-lg bg-white/95 hover:bg-white text-slate-800 text-xs font-bold transition-all shadow flex items-center gap-1 cursor-pointer"
+                              >
+                                <Search className="w-3.5 h-3.5" /> ดูรูปใหญ่
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removePhoto(slot.key, activeIdx)}
+                                className="p-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white transition-all shadow cursor-pointer"
+                                title="ลบรูปนี้"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {isSlotUploading && (
+                              <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center gap-1 text-teal-600">
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span className="text-[10px] font-bold">กำลังอัปโหลด...</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Thumbnails Row (if > 1 photo) or Add More Bar */}
+                          <div className="space-y-1.5">
+                            {photoList.length > 1 && (
+                              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 custom-scrollbar">
+                                {photoList.map((url, pIdx) => (
+                                  <div
+                                    key={pIdx}
+                                    onClick={() =>
+                                      setSelectedPhotoIndex((prev) => ({ ...prev, [slot.key]: pIdx }))
+                                    }
+                                    className={`relative group/thumb w-12 h-12 rounded-lg border-2 overflow-hidden shrink-0 cursor-pointer bg-white transition-all ${
+                                      pIdx === activeIdx
+                                        ? "border-teal-500 ring-2 ring-teal-500/20"
+                                        : "border-slate-200 hover:border-slate-400 opacity-70 hover:opacity-100"
+                                    }`}
+                                  >
+                                    <img
+                                      src={url}
+                                      alt={`Thumb ${pIdx + 1}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <span className="absolute bottom-0.5 left-0.5 px-1 rounded bg-black/60 text-white text-[8px] font-mono leading-none py-0.5">
+                                      {pIdx + 1}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        removePhoto(slot.key, pIdx);
+                                      }}
+                                      className="absolute top-0 right-0 p-0.5 bg-rose-600 text-white rounded-bl opacity-0 group-hover/thumb:opacity-100 transition-opacity hover:bg-rose-700"
+                                      title="ลบรูปนี้"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+
+                                {/* Inline Add More Button in Thumbnail Row */}
+                                <label className="w-12 h-12 rounded-lg border-2 border-dashed border-teal-300 hover:border-teal-500 hover:bg-teal-50/50 flex flex-col items-center justify-center text-teal-600 shrink-0 cursor-pointer transition-colors" title="เพิ่มรูปภาพ">
+                                  <Plus className="w-4 h-4" />
+                                  <span className="text-[8px] font-bold leading-none mt-0.5">เพิ่ม</span>
+                                  <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    className="hidden"
+                                    disabled={isUploading}
+                                    onChange={(e) => handlePhotoUpload(slot.key, e.target.files)}
+                                  />
+                                </label>
+                              </div>
+                            )}
+
+                            {/* Bottom Bar: Title & Action */}
+                            <div className="flex items-center justify-between gap-1 py-1 px-2 rounded-lg border border-slate-200 bg-white text-xs">
+                              <span className="font-semibold text-slate-700 truncate text-[11px]" title={slot.title}>
+                                {slot.title.replace(/^\d+\.\s*/, "")}
+                              </span>
+                              <label className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-600 hover:text-teal-700 hover:underline cursor-pointer shrink-0">
+                                <Plus className="w-3 h-3" /> เพิ่มรูป
                                 <input
                                   type="file"
+                                  multiple
                                   accept="image/*"
                                   className="hidden"
                                   disabled={isUploading}
                                   onChange={(e) => handlePhotoUpload(slot.key, e.target.files)}
                                 />
                               </label>
-                              <button
-                                type="button"
-                                onClick={() => removePhoto(slot.key)}
-                                className="p-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white transition-all shadow cursor-pointer"
-                                title="ลบรูป"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
                             </div>
-                          </div>
-
-                          <div className="py-1 px-2 rounded-lg border border-slate-300 bg-white text-center">
-                            <span className="font-semibold text-slate-700 text-xs">
-                              {slot.title.replace(/^\d+\.\s*/, "")}
-                            </span>
                           </div>
                         </div>
                       ) : (
+                        /* Empty Slot Upload Box */
                         <label
                           className={`border-2 border-dashed rounded-xl h-48 flex flex-col items-center justify-center text-center p-3 cursor-pointer transition-all group ${
                             isPump
                               ? "border-slate-200 hover:border-blue-400 hover:bg-blue-50/30 text-slate-400 hover:text-blue-600"
+                              : isMotor
+                              ? "border-slate-200 hover:border-amber-400 hover:bg-amber-50/30 text-slate-400 hover:text-amber-600"
                               : "border-slate-200 hover:border-teal-400 hover:bg-teal-50/30 text-slate-400 hover:text-teal-600"
                           }`}
                         >
-                          <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-colors ${
-                              isPump
-                                ? "bg-slate-100 group-hover:bg-blue-100 text-slate-400 group-hover:text-blue-600"
-                                : "bg-slate-100 group-hover:bg-teal-100 text-slate-400 group-hover:text-teal-600"
-                            }`}
-                          >
-                            <Upload className="w-5 h-5" />
-                          </div>
-                          <span
-                            className={`font-bold text-xs mb-0.5 ${
-                              isPump
-                                ? "text-slate-700 group-hover:text-blue-700"
-                                : "text-slate-700 group-hover:text-teal-700"
-                            }`}
-                          >
-                            + อัปโหลดรูปภาพ
-                          </span>
-                          <span className="text-[10px] text-slate-400">
-                            {slot.desc}
-                          </span>
-                          <span className="text-[9px] text-slate-400 mt-1 bg-white px-2 py-0.5 rounded border border-slate-200">
-                            ( 1 รูป )
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            disabled={isUploading}
-                            onChange={(e) => handlePhotoUpload(slot.key, e.target.files)}
-                          />
+                          {isSlotUploading ? (
+                            <div className="flex flex-col items-center justify-center gap-1 text-teal-600">
+                              <Loader2 className="w-6 h-6 animate-spin" />
+                              <span className="text-xs font-bold">กำลังอัปโหลด...</span>
+                            </div>
+                          ) : (
+                            <>
+                              <div
+                                className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-colors ${
+                                  isPump
+                                    ? "bg-slate-100 group-hover:bg-blue-100 text-slate-400 group-hover:text-blue-600"
+                                    : isMotor
+                                    ? "bg-slate-100 group-hover:bg-amber-100 text-slate-400 group-hover:text-amber-600"
+                                    : "bg-slate-100 group-hover:bg-teal-100 text-slate-400 group-hover:text-teal-600"
+                                }`}
+                              >
+                                <Upload className="w-5 h-5" />
+                              </div>
+                              <span
+                                className={`font-bold text-xs mb-0.5 ${
+                                  isPump
+                                    ? "text-slate-700 group-hover:text-blue-700"
+                                    : isMotor
+                                    ? "text-slate-700 group-hover:text-amber-700"
+                                    : "text-slate-700 group-hover:text-teal-700"
+                                }`}
+                              >
+                                + อัปโหลดรูปภาพ
+                              </span>
+                              <span className="text-[10px] text-slate-400 line-clamp-2 px-1">
+                                {slot.desc}
+                              </span>
+                              <span className="text-[9px] text-slate-500 mt-1 bg-white px-2 py-0.5 rounded border border-slate-200 font-medium">
+                                เลือกได้หลายรูป
+                              </span>
+                              <input
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                className="hidden"
+                                disabled={isUploading}
+                                onChange={(e) => handlePhotoUpload(slot.key, e.target.files)}
+                              />
+                            </>
+                          )}
                         </label>
                       )}
                     </div>
@@ -2995,6 +3249,114 @@ export default function CheckReportForm({
             router.refresh();
           }}
         />
+      )}
+
+      {/* Fullscreen Photo Lightbox Modal */}
+      {previewModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex flex-col items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setPreviewModal(null)}
+        >
+          <div
+            className="relative max-w-4xl w-full flex flex-col items-center max-h-[92vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="w-full flex items-center justify-between text-white pb-3 px-2">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-teal-400" />
+                <span className="font-bold text-sm sm:text-base">
+                  {previewModal.title}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewModal.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+                  title="เปิดรูปในแท็บใหม่"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span className="hidden sm:inline">เปิดแท็บใหม่</span>
+                </a>
+                {previewModal.category && previewModal.index !== undefined && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      removePhoto(previewModal.category as PhotoKey, previewModal.index);
+                      setPreviewModal(null);
+                    }}
+                    className="p-2 rounded-lg bg-rose-600/80 hover:bg-rose-600 text-white transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+                    title="ลบรูปนี้"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="hidden sm:inline">ลบรูป</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setPreviewModal(null)}
+                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                  title="ปิด"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Image with Navigation */}
+            <div className="relative w-full flex items-center justify-center bg-black/40 rounded-2xl overflow-hidden p-2">
+              <img
+                src={previewModal.url}
+                alt={previewModal.title}
+                className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-2xl"
+              />
+
+              {/* Prev / Next controls if category has multiple photos */}
+              {previewModal.category &&
+                (photos[previewModal.category as PhotoKey]?.length || 0) > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const list = photos[previewModal.category as PhotoKey] || [];
+                        const prevIdx =
+                          (previewModal.index! - 1 + list.length) % list.length;
+                        setPreviewModal({
+                          url: list[prevIdx],
+                          title: `${previewModal.title.split("(")[0].trim()} (รูปที่ ${prevIdx + 1}/${list.length})`,
+                          category: previewModal.category,
+                          index: prevIdx,
+                        });
+                      }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-all cursor-pointer shadow-lg"
+                      title="รูปก่อนหน้า"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const list = photos[previewModal.category as PhotoKey] || [];
+                        const nextIdx = (previewModal.index! + 1) % list.length;
+                        setPreviewModal({
+                          url: list[nextIdx],
+                          title: `${previewModal.title.split("(")[0].trim()} (รูปที่ ${nextIdx + 1}/${list.length})`,
+                          category: previewModal.category,
+                          index: nextIdx,
+                        });
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-all cursor-pointer shadow-lg"
+                      title="รูปถัดไป"
+                    >
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
