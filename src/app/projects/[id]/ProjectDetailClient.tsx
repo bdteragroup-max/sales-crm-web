@@ -48,6 +48,7 @@ import {
   Mail,
   User,
   Info,
+  Package,
 } from "lucide-react";
 import {
   updateTaskStatus,
@@ -600,6 +601,16 @@ export default function ProjectDetailClient({
                   </button>
                 </div>
               )}
+
+              {/* Quick Project Material Requisition Button */}
+              <Link
+                href={`/requisitions/new?projectId=${project.id}&type=PROJECT`}
+                className="h-10 inline-flex items-center gap-2 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs"
+                title="สร้างใบเบิกของเข้าโครงการนี้ (ระบบจะดึงข้อมูลโครงการและสาขาให้อัตโนมัติ)"
+              >
+                <Package size={14} />
+                <span>+ เบิกของโครงการ</span>
+              </Link>
 
               {/* Link to Accounting Dashboard */}
               <Link

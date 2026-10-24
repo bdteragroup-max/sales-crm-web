@@ -26,6 +26,7 @@ export default async function RequisitionPDF({ params }: { params: Promise<{ id:
 
   const items = (requisition.items as any[]) || []
   const tableRows = [...items]
+  const photos = Array.isArray(requisition.deliveryPhotos) ? (requisition.deliveryPhotos as string[]) : []
 
   // Checkbox logic for company
   const isGroup = requisition.company === "Group"
@@ -188,21 +189,48 @@ export default async function RequisitionPDF({ params }: { params: Promise<{ id:
             </div>
 
             {/* Date, Doc No & Company Selection */}
-            <div style={{ width: "42%", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-              <div style={{ display: "flex", gap: "16px", marginBottom: "6px", fontSize: "12.5px" }}>
+            <div style={{ width: "48%", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: "12px", marginBottom: "4px", fontSize: "12px" }}>
                 {requisition.requisitionNumber && (
                   <div>
-                    <span style={{ fontWeight: "bold", marginRight: "6px" }}>เลขที่:</span>
+                    <span style={{ fontWeight: "bold", marginRight: "4px" }}>เลขที่:</span>
                     <span style={{ fontFamily: "monospace", fontWeight: "bold", color: "#b91c1c" }}>
                       {requisition.requisitionNumber}
                     </span>
                   </div>
                 )}
                 <div>
-                  <span style={{ fontWeight: "bold", marginRight: "6px" }}>วันที่:</span>
+                  <span style={{ fontWeight: "bold", marginRight: "4px" }}>วันที่:</span>
                   <span>{requisitionDateStr}</span>
                 </div>
+                {requisition.deliveryDate && (
+                  <div>
+                    <span style={{ fontWeight: "bold", marginRight: "4px", color: "#0369a1" }}>เดินทางวันที่:</span>
+                    <span style={{ fontWeight: "bold" }}>
+                      {new Date(requisition.deliveryDate).toLocaleDateString("th-TH", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )}
               </div>
+
+              {(requisition.branch || requisition.projectName || requisition.destinationSite) && (
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: "10px", marginBottom: "4px", fontSize: "11px", color: "#475569" }}>
+                  {requisition.branch && (
+                    <div><span style={{ fontWeight: "bold" }}>สาขา:</span> {requisition.branch}</div>
+                  )}
+                  {requisition.projectName && (
+                    <div><span style={{ fontWeight: "bold" }}>โครงการ:</span> {requisition.projectName}</div>
+                  )}
+                  {requisition.destinationSite && (
+                    <div><span style={{ fontWeight: "bold" }}>ปลายทาง:</span> {requisition.destinationSite}</div>
+                  )}
+                </div>
+              )}
+
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "center", fontSize: "12px" }} className="pdf-table">
                 <thead>
                   <tr>
@@ -228,10 +256,10 @@ export default async function RequisitionPDF({ params }: { params: Promise<{ id:
               <thead>
                 <tr>
                   <th style={{ width: "6%", padding: "5px 4px" }}>ลำดับ</th>
-                  <th style={{ width: "38%", padding: "5px 6px" }}>รายการเบิก/รายละเอียด</th>
+                  <th style={{ width: "36%", padding: "5px 6px" }}>รายการเบิก/รายละเอียด</th>
                   <th style={{ width: "8%", padding: "5px 4px" }}>จำนวน</th>
                   <th style={{ width: "8%", padding: "5px 4px" }}>หน่วย</th>
-                  <th style={{ width: "18%", padding: "5px 6px" }}>งานที่ใช้</th>
+                  <th style={{ width: "20%", padding: "5px 6px" }}>งานที่ใช้</th>
                   <th style={{ width: "22%", padding: "5px 6px" }}>หมายเหตุ</th>
                 </tr>
               </thead>
@@ -250,34 +278,119 @@ export default async function RequisitionPDF({ params }: { params: Promise<{ id:
             </table>
           </div>
 
-          {/* Signatures */}
-          <div className="signatures-section" style={{ display: "flex", justifyContent: "space-around", marginTop: "8px", paddingBottom: "4px" }}>
-            <div style={{ textAlign: "center", width: "38%" }}>
-              <div style={{ height: "48px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "4px" }}>
+          {/* 4 Signatures Section (Matching Company Excel Form) */}
+          <div className="signatures-section" style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", paddingBottom: "4px" }}>
+            {/* 1. ผู้ขอเบิก */}
+            <div style={{ textAlign: "center", width: "23%" }}>
+              <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "4px" }}>
                 {requisition.requesterSignatureUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={requisition.requesterSignatureUrl} alt="Requester" style={{ maxHeight: "48px", maxWidth: "160px", objectFit: "contain" }} />
+                  <img src={requisition.requesterSignatureUrl} alt="Requester" style={{ maxHeight: "46px", maxWidth: "130px", objectFit: "contain" }} />
                 ) : null}
               </div>
-              <div style={{ borderBottom: "1px dotted black", width: "70%", margin: "0 auto 4px" }}></div>
-              <div style={{ fontWeight: "bold", fontSize: "13px" }}>ผู้ขอเบิก</div>
-              <div style={{ fontSize: "12.5px", marginTop: "1px" }}>({requisition.requester?.fullName || "......................................"})</div>
+              <div style={{ borderBottom: "1px dotted black", width: "85%", margin: "0 auto 4px" }}></div>
+              <div style={{ fontWeight: "bold", fontSize: "12px" }}>ผู้ขอเบิก</div>
+              <div style={{ fontSize: "11px", marginTop: "1px" }}>({requisition.requester?.fullName || "...................................."})</div>
             </div>
 
-            <div style={{ textAlign: "center", width: "38%" }}>
-              <div style={{ height: "48px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "4px" }}>
+            {/* 2. ผู้อนุมัติ */}
+            <div style={{ textAlign: "center", width: "23%" }}>
+              <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "4px" }}>
                 {requisition.approverSignatureUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={requisition.approverSignatureUrl} alt="Approver" style={{ maxHeight: "48px", maxWidth: "160px", objectFit: "contain" }} />
+                  <img src={requisition.approverSignatureUrl} alt="Approver" style={{ maxHeight: "46px", maxWidth: "130px", objectFit: "contain" }} />
                 ) : null}
               </div>
-              <div style={{ borderBottom: "1px dotted black", width: "70%", margin: "0 auto 4px" }}></div>
-              <div style={{ fontWeight: "bold", fontSize: "13px" }}>ผู้อนุมัติ</div>
-              <div style={{ fontSize: "12.5px", marginTop: "1px" }}>({requisition.approver?.fullName || "......................................"})</div>
+              <div style={{ borderBottom: "1px dotted black", width: "85%", margin: "0 auto 4px" }}></div>
+              <div style={{ fontWeight: "bold", fontSize: "12px" }}>ผู้อนุมัติ</div>
+              <div style={{ fontSize: "11px", marginTop: "1px" }}>({requisition.approver?.fullName || "...................................."})</div>
+            </div>
+
+            {/* 3. ผู้เบิก-จ่าย (ฝ่ายคลัง) */}
+            <div style={{ textAlign: "center", width: "23%" }}>
+              <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "4px" }}>
+                {requisition.storeStaffSignatureUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={requisition.storeStaffSignatureUrl} alt="Store Dispenser" style={{ maxHeight: "46px", maxWidth: "130px", objectFit: "contain" }} />
+                ) : null}
+              </div>
+              <div style={{ borderBottom: "1px dotted black", width: "85%", margin: "0 auto 4px" }}></div>
+              <div style={{ fontWeight: "bold", fontSize: "12px" }}>ผู้เบิก-จ่าย (ฝ่ายคลัง)</div>
+              <div style={{ fontSize: "11px", marginTop: "1px" }}>({requisition.storeStaffName || "...................................."})</div>
+            </div>
+
+            {/* 4. ผู้รับของ */}
+            <div style={{ textAlign: "center", width: "23%" }}>
+              <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", marginBottom: "4px" }}>
+                {requisition.receiverSignatureUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={requisition.receiverSignatureUrl} alt="Receiver" style={{ maxHeight: "46px", maxWidth: "130px", objectFit: "contain" }} />
+                ) : null}
+              </div>
+              <div style={{ borderBottom: "1px dotted black", width: "85%", margin: "0 auto 4px" }}></div>
+              <div style={{ fontWeight: "bold", fontSize: "12px" }}>ผู้รับของ</div>
+              <div style={{ fontSize: "11px", marginTop: "1px" }}>({requisition.receiverName || "...................................."})</div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Page 2: Photo Proof of Delivery (if any photos exist) */}
+      {photos.length > 0 && (
+        <div
+          className="requisition-sheet bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden mt-6 print:mt-0 print:break-before-page"
+          style={{
+            width: "297mm",
+            minHeight: "210mm",
+            padding: "8mm 10mm",
+            fontSize: "13px",
+            color: "#000",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              border: "2px solid black",
+              padding: "12px 16px",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              boxSizing: "border-box",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid #000", paddingBottom: "8px", marginBottom: "12px" }}>
+              <div style={{ fontWeight: "bold", fontSize: "16px" }}>
+                หลักฐานรูปถ่ายการส่งมอบของหน้างาน (Proof of Delivery)
+              </div>
+              <div style={{ fontSize: "12px" }}>
+                เอกสารแนบใบเบิกเลขที่: <span style={{ fontFamily: "monospace", fontWeight: "bold", color: "#b91c1c" }}>{requisition.requisitionNumber}</span>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", flex: 1, alignItems: "start" }}>
+              {photos.map((pUrl, idx) => (
+                <div key={idx} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "6px", textAlign: "center", backgroundColor: "#f8fafc" }}>
+                  <div style={{ height: "160px", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "#000", borderRadius: "6px" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={pUrl} alt={`Delivery Proof ${idx + 1}`} style={{ maxHeight: "160px", maxWidth: "100%", objectFit: "contain" }} />
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+                    รูปถ่ายที่ {idx + 1}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {requisition.deliveryNote && (
+              <div style={{ marginTop: "10px", padding: "8px 12px", border: "1px dashed #94a3b8", borderRadius: "6px", fontSize: "12px", backgroundColor: "#f8fafc" }}>
+                <span style={{ fontWeight: "bold" }}>หมายเหตุการส่งมอบ / สถานที่วางของ:</span> {requisition.deliveryNote}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

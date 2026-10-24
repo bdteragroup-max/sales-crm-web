@@ -45,10 +45,17 @@ export async function createMaterialRequisition(data: any) {
           date: new Date(data.date),
           company: data.company,
           items: data.items,
-          requesterId: session.id,
-          approverId: data.approverId || null,
+          ...(session.id ? { requester: { connect: { id: session.id } } } : {}),
+          ...(data.approverId ? { approver: { connect: { id: data.approverId } } } : {}),
           requesterSignatureUrl: data.requesterSignatureUrl,
           status: "PENDING_APPROVAL",
+          requisitionType: data.requisitionType || "BORROW_EQUIPMENT",
+          projectId: data.projectId || null,
+          projectName: data.projectName || null,
+          branch: data.branch || "BKK-HQ",
+          destinationSite: data.destinationSite || null,
+          deliveryDate: data.deliveryDate ? new Date(data.deliveryDate) : null,
+          deliveryNote: data.deliveryNote || null,
         },
       });
     });
@@ -91,8 +98,19 @@ export async function updateMaterialRequisition(id: string, data: any) {
         date: new Date(data.date),
         company: data.company,
         items: data.items,
-        approverId: data.approverId || null,
+        ...(data.approverId !== undefined
+          ? data.approverId
+            ? { approver: { connect: { id: data.approverId } } }
+            : { approver: { disconnect: true } }
+          : {}),
         ...(data.requesterSignatureUrl ? { requesterSignatureUrl: data.requesterSignatureUrl } : {}),
+        requisitionType: data.requisitionType || undefined,
+        projectId: data.projectId !== undefined ? data.projectId : undefined,
+        projectName: data.projectName !== undefined ? data.projectName : undefined,
+        branch: data.branch !== undefined ? data.branch : undefined,
+        destinationSite: data.destinationSite !== undefined ? data.destinationSite : undefined,
+        deliveryDate: data.deliveryDate ? new Date(data.deliveryDate) : (data.deliveryDate === null ? null : undefined),
+        deliveryNote: data.deliveryNote !== undefined ? data.deliveryNote : undefined,
       },
     });
 
@@ -383,6 +401,80 @@ export async function returnMaterialRequisition(
   }
 }
 
+export async function submitReturnRequest(
+  id: string,
+  data: {
+    returnedItems: Array<{
+      index: number;
+      returnQuantity: number;
+      condition?: string;
+      remark?: string;
+    }>;
+    returnNote?: string;
+    photos?: string[];
+  }
+) {
+  try {
+    const session = await getUser();
+    if (!session) return { success: false, error: "Unauthorized" };
+
+    const req = await prisma.materialRequisition.findUnique({
+      where: { id },
+      include: { requester: { select: { fullName: true } } },
+    });
+    if (!req) return { success: false, error: "Requisition not found" };
+
+    // Update Requisition status to RETURN_PENDING
+    const updated = await prisma.materialRequisition.update({
+      where: { id },
+      data: {
+        status: "RETURN_PENDING",
+        returnRequestedAt: new Date(),
+        returnRequestNote: data.returnNote || null,
+        returnRequestPhotos: data.photos && data.photos.length > 0 ? data.photos : undefined,
+      },
+    });
+
+    // Notify all warehouse users
+    const warehouseUsers = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { role: { contains: 'warehouse', mode: 'insensitive' } },
+          { role: { contains: 'คลังสินค้า', mode: 'insensitive' } },
+          { role: { contains: 'store', mode: 'insensitive' } },
+          { role: { contains: 'สโตร์', mode: 'insensitive' } },
+        ]
+      },
+      select: { id: true }
+    });
+
+    if (warehouseUsers.length > 0) {
+      Promise.all(
+        warehouseUsers.map((u) =>
+          sendPushToUser(u.id, {
+            title: 'แจ้งส่งคืนอุปกรณ์เข้าสโตร์',
+            body: `คุณ ${session.fullName || req.requester?.fullName || 'พนักงาน'} ได้แจ้งขอส่งคืนอุปกรณ์ใบเบิก ${req.requisitionNumber} กำลังนำมาส่ง`,
+            url: `/store/requisitions/${id}`,
+            category: 'REQUISITION_UPDATE',
+          })
+        )
+      ).catch(console.error);
+    }
+
+    revalidatePath("/requisitions");
+    revalidatePath(`/requisitions/${id}`);
+    revalidatePath("/store/requisitions");
+    revalidatePath(`/store/requisitions/${id}`);
+    revalidatePath("/store/dashboard");
+
+    return { success: true, id: updated.id };
+  } catch (error: any) {
+    console.error("Error submitting return request:", error);
+    return { success: false, error: error.message || "Failed to submit return request" };
+  }
+}
+
 export async function getRequisitionById(id: string) {
   try {
     const session = await getUser();
@@ -405,3 +497,141 @@ export async function getRequisitionById(id: string) {
     return { success: false, error: error.message };
   }
 }
+
+export async function recordStoreFulfill(
+  id: string,
+  data: {
+    storeStaffName?: string;
+    storeStaffSignatureUrl?: string;
+    deliveryDate?: string;
+    deliveryNote?: string;
+    status?: string; // 'DISPATCHED' (อยู่ระหว่างจัดส่ง) or 'COMPLETED' (ส่งมอบสำเร็จ)
+  }
+) {
+  try {
+    const session = await getUser();
+    if (!session) return { success: false, error: "Unauthorized" };
+
+    const requisition = await prisma.materialRequisition.update({
+      where: { id },
+      data: {
+        storeStaffId: session.id,
+        storeStaffName: data.storeStaffName || session.fullName || "เจ้าหน้าที่สโตร์",
+        storeStaffSignatureUrl: data.storeStaffSignatureUrl || undefined,
+        dispensedAt: new Date(),
+        status: data.status || "COMPLETED",
+        ...(data.deliveryDate ? { deliveryDate: new Date(data.deliveryDate) } : {}),
+        ...(data.deliveryNote !== undefined ? { deliveryNote: data.deliveryNote } : {}),
+      },
+    });
+
+    if (requisition.requesterId) {
+      sendPushToUser(requisition.requesterId, {
+        title: 'สโตร์ได้จัดส่ง/ส่งมอบของแล้ว',
+        body: `ใบเบิกของ ${requisition.requisitionNumber} ได้รับการจัดเตรียมและส่งมอบเรียบร้อยแล้ว`,
+        url: `/requisitions/${id}`,
+        category: 'REQUISITION_UPDATE',
+      }).catch(console.error);
+    }
+
+    revalidatePath("/requisitions");
+    revalidatePath(`/requisitions/${id}`);
+    revalidatePath("/store/requisitions");
+    revalidatePath(`/store/requisitions/${id}`);
+    revalidatePath("/store/dashboard");
+    return { success: true, id: requisition.id };
+  } catch (error: any) {
+    console.error("Error fulfilling requisition:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function recordSiteHandover(
+  id: string,
+  data: {
+    receiverName: string;
+    receiverSignatureUrl?: string;
+    deliveryPhotos?: string[];
+    deliveryNote?: string;
+  }
+) {
+  try {
+    const session = await getUser();
+    if (!session) return { success: false, error: "Unauthorized" };
+
+    const requisition = await prisma.materialRequisition.update({
+      where: { id },
+      data: {
+        receiverName: data.receiverName,
+        receiverSignatureUrl: data.receiverSignatureUrl || undefined,
+        receivedAt: new Date(),
+        deliveryPhotos: data.deliveryPhotos && data.deliveryPhotos.length > 0 ? data.deliveryPhotos : undefined,
+        ...(data.deliveryNote !== undefined ? { deliveryNote: data.deliveryNote } : {}),
+        status: "COMPLETED",
+      },
+    });
+
+    if (requisition.requesterId) {
+      sendPushToUser(requisition.requesterId, {
+        title: 'บันทึกตรวจรับของหน้างานแล้ว',
+        body: `ใบเบิกของ ${requisition.requisitionNumber} ได้รับการเซ็นตรวจรับหน้างานเรียบร้อยแล้ว`,
+        url: `/requisitions/${id}`,
+        category: 'REQUISITION_UPDATE',
+      }).catch(console.error);
+    }
+
+    revalidatePath("/requisitions");
+    revalidatePath(`/requisitions/${id}`);
+    revalidatePath("/store/requisitions");
+    revalidatePath(`/store/requisitions/${id}`);
+    revalidatePath("/store/dashboard");
+    return { success: true, id: requisition.id };
+  } catch (error: any) {
+    console.error("Error recording site handover:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getActiveProjectsForRequisition() {
+  try {
+    const projects = await prisma.project.findMany({
+      select: {
+        id: true,
+        projectNumber: true,
+        name: true,
+        clientName: true,
+        siteAddress: true,
+        province: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 150,
+    });
+    return { success: true, data: projects };
+  } catch (error: any) {
+    console.error("Error fetching projects for requisition:", error);
+    return { success: false, data: [] };
+  }
+}
+
+export async function getRequisitionsByProject(projectId: string) {
+  try {
+    const data = await prisma.materialRequisition.findMany({
+      where: {
+        OR: [
+          { projectId: projectId },
+          { projectName: { contains: projectId, mode: 'insensitive' } }
+        ]
+      },
+      include: {
+        requester: { select: { fullName: true } },
+        approver: { select: { fullName: true } },
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    return { success: true, data };
+  } catch (error: any) {
+    console.error("Error fetching requisitions by project:", error);
+    return { success: false, data: [] };
+  }
+}
+

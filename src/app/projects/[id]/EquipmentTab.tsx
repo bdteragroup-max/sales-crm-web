@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Save, X, Wrench, Settings, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Plus, Edit2, Trash2, Save, X, Wrench, Settings, AlertCircle, Package } from 'lucide-react';
 import { createProjectEquipment, updateProjectEquipment, deleteProjectEquipment } from '@/app/actions/projects';
 
 export default function EquipmentTab({ project, isManager }: { project: any, isManager: boolean }) {
@@ -90,7 +91,7 @@ export default function EquipmentTab({ project, isManager }: { project: any, isM
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
         <div className="flex items-center gap-2">
           <Wrench className="text-brand-red" size={24} />
           <div>
@@ -98,14 +99,26 @@ export default function EquipmentTab({ project, isManager }: { project: any, isM
             <p className="text-sm text-gray-500">จัดการข้อมูลรถและเครื่องมือที่ใช้ในโครงการ</p>
           </div>
         </div>
-        {isManager && !isAdding && (
-          <button
-            onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-red text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-colors shadow-sm"
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href={`/requisitions/new?projectId=${project.id}&type=PROJECT`}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold rounded-xl transition-all shadow-xs"
+            title="เบิกของ/วัสดุเข้าโครงการนี้"
           >
-            <Plus size={16} /> เพิ่มอุปกรณ์
-          </button>
-        )}
+            <Package size={16} />
+            <span>+ เบิกของเข้าโครงการ</span>
+          </Link>
+
+          {isManager && !isAdding && (
+            <button
+              onClick={() => setIsAdding(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-brand-red text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-colors shadow-sm"
+            >
+              <Plus size={16} /> เพิ่มอุปกรณ์
+            </button>
+          )}
+        </div>
       </div>
 
       {isAdding && (

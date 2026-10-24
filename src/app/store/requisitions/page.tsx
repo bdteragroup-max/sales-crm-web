@@ -40,6 +40,10 @@ export default async function StoreRequisitionsPage() {
     date: req.date ? req.date.toISOString() : null,
     createdAt: req.createdAt ? req.createdAt.toISOString() : null,
     updatedAt: req.updatedAt ? req.updatedAt.toISOString() : null,
+    deliveryDate: req.deliveryDate ? req.deliveryDate.toISOString() : null,
+    dispensedAt: req.dispensedAt ? req.dispensedAt.toISOString() : null,
+    receivedAt: req.receivedAt ? req.receivedAt.toISOString() : null,
+    returnRequestedAt: req.returnRequestedAt ? req.returnRequestedAt.toISOString() : null,
     items: Array.isArray(req.items) ? (req.items as any[]) : [],
     requesterName: req.requester?.fullName || 'ไม่ระบุ',
     approverName: req.approver?.fullName || 'ไม่ระบุ'

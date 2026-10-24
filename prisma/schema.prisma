@@ -3087,20 +3087,38 @@ model sales_depreciation_claims {
 }
 
 model MaterialRequisition {
-  id                    String   @id @default(cuid())
-  requisitionNumber     String   @unique
-  date                  DateTime @db.Timestamptz(6)
+  id                    String    @id @default(cuid())
+  requisitionNumber     String    @unique
+  date                  DateTime  @db.Timestamptz(6)
   company               String
   items                 Json
   requesterId           String?
   approverId            String?
   requesterSignatureUrl String?
   approverSignatureUrl  String?
-  status                String   @default("PENDING_APPROVAL")
-  createdAt             DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt             DateTime @updatedAt @db.Timestamptz(6)
-  approver              User?    @relation("MaterialApprover", fields: [approverId], references: [id])
-  requester             User?    @relation("MaterialRequester", fields: [requesterId], references: [id])
+  status                String    @default("PENDING_APPROVAL")
+  createdAt             DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(6)
+  requisitionType       String?   @default("PROJECT")
+  projectId             String?
+  projectName           String?
+  branch                String?   @default("BKK-HQ")
+  destinationSite       String?
+  deliveryDate          DateTime? @db.Timestamptz(6)
+  storeStaffId          String?
+  storeStaffName        String?
+  storeStaffSignatureUrl String?
+  dispensedAt           DateTime? @db.Timestamptz(6)
+  receiverName          String?
+  receiverSignatureUrl  String?
+  receivedAt            DateTime? @db.Timestamptz(6)
+  deliveryPhotos        Json?
+  deliveryNote          String?
+  returnRequestedAt     DateTime? @db.Timestamptz(6)
+  returnRequestNote     String?
+  returnRequestPhotos   Json?
+  approver              User?     @relation("MaterialApprover", fields: [approverId], references: [id])
+  requester             User?     @relation("MaterialRequester", fields: [requesterId], references: [id])
 
   @@map("material_requisitions")
 }

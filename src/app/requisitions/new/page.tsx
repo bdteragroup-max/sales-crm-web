@@ -9,20 +9,37 @@ export const metadata = {
   title: 'สร้างใบเบิก/ยืมของ - TeraSales',
 };
 
-export default async function NewRequisitionPage() {
+export default async function NewRequisitionPage(props: {
+  searchParams?: Promise<{ projectId?: string; type?: string; branch?: string }>;
+}) {
   const session = await getUser();
   if (!session) return <div>Unauthorized</div>;
 
-  // Fetch users for approver dropdown. Typically this might be restricted to managers,
-  // but for now, we'll fetch all active users.
+  const searchParams = props.searchParams ? await props.searchParams : {};
+
+  // Fetch users for approver dropdown
   const users = await prisma.user.findMany({
     where: { isActive: true },
     select: { id: true, fullName: true, role: true },
     orderBy: { fullName: 'asc' }
   });
 
+  // Fetch active projects for quick selection
+  const projects = await prisma.project.findMany({
+    select: {
+      id: true,
+      projectNumber: true,
+      name: true,
+      clientName: true,
+      siteAddress: true,
+      province: true,
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 200,
+  });
+
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link 
           href="/requisitions"
@@ -31,15 +48,24 @@ export default async function NewRequisitionPage() {
           &larr;
         </Link>
         <div>
-          <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2">
             <Package className="text-red-600" />
-            สร้างใบเบิก/ยืมของ
+            สร้างใบเบิกของงานโครงการ / เบิกยืมอุปกรณ์
           </h1>
-          <p className="text-gray-500 mt-1">กรอกข้อมูลเพื่อส่งคำขอเบิกหรือยืมวัสดุอุปกรณ์</p>
+          <p className="text-gray-500 text-xs md:text-sm mt-0.5">
+            กรอกข้อมูลเพื่อส่งคำขอเบิกของเข้าโครงการ หรือยืมวัสดุอุปกรณ์สำหรับสาขาและไซต์งานทั่วประเทศ
+          </p>
         </div>
       </div>
 
-      <RequisitionForm users={users} currentUser={session} />
+      <RequisitionForm 
+        users={users} 
+        currentUser={session} 
+        projects={projects}
+        initialProjectId={searchParams.projectId}
+        initialType={searchParams.type}
+        initialBranch={searchParams.branch}
+      />
     </div>
   );
 }

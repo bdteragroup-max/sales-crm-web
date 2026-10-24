@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateRequisitionStatus, returnMaterialRequisition } from '@/app/actions/requisitions';
+import { updateRequisitionStatus, returnMaterialRequisition, recordStoreFulfill, recordSiteHandover } from '@/app/actions/requisitions';
 import {
   CheckCircle,
   Loader2,
@@ -16,10 +16,24 @@ import {
   AlertCircle,
   Layers,
   CheckCircle2,
+  Camera,
+  Image as ImageIcon,
+  Building,
+  MapPin,
+  Eraser,
+  Upload,
+  Plus,
+  Trash2,
+  Smartphone,
+  Eye,
+  Wrench,
+  Building2,
+  Bell,
 } from 'lucide-react';
 import ConfirmModal from '@/app/components/ConfirmModal';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
+import SignatureCanvas from 'react-signature-canvas';
 
 interface StoreFulfillFormProps {
   requisition: any;
@@ -55,10 +69,32 @@ export default function StoreFulfillForm({
   }>>([]);
   const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
 
+  // Handover (Proof of Delivery / Receiver Signature) Modal State
+  const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
+  const [handoverReceiverName, setHandoverReceiverName] = useState<string>(
+    requisition.receiverName || requisition.requester?.fullName || requisition.requesterName || ''
+  );
+  const [handoverStoreStaffName, setHandoverStoreStaffName] = useState<string>(
+    requisition.storeStaffName || currentUserName || 'เจ้าหน้าที่สโตร์'
+  );
+  const [handoverDeliveryNote, setHandoverDeliveryNote] = useState<string>(requisition.deliveryNote || '');
+  const [handoverPhotos, setHandoverPhotos] = useState<string[]>(
+    Array.isArray(requisition.deliveryPhotos) ? requisition.deliveryPhotos : []
+  );
+  const [storeStaffSigFile, setStoreStaffSigFile] = useState<string | null>(null);
+  const [receiverSigFile, setReceiverSigFile] = useState<string | null>(null);
+  const [isSubmittingHandover, setIsSubmittingHandover] = useState(false);
+
+  const storeSigPad = useRef<any>(null);
+  const receiverSigPad = useRef<any>(null);
+  const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<string | null>(null);
+
   const getStatusInfo = (status: string) => {
     switch (status) {
       case 'APPROVED':
         return { label: 'รอจัดของ / ส่งมอบ', badge: 'bg-amber-100 text-amber-800 border-amber-200' };
+      case 'RETURN_PENDING':
+        return { label: 'แจ้งคืนแล้ว (รอตรวจรับ)', badge: 'bg-amber-100 text-amber-900 border-amber-300 font-bold animate-pulse' };
       case 'COMPLETED':
         return { label: 'ส่งมอบแล้ว (รอคืน/ใช้งาน)', badge: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
       case 'RETURNED':
@@ -133,7 +169,7 @@ export default function StoreFulfillForm({
     setReturnDate(new Date().toISOString().slice(0, 10));
     setReturnerName(requisition.requester?.fullName || requisition.requesterName || '');
     setReceiverName(currentUserName);
-    setReturnNote('');
+    setReturnNote(requisition.returnRequestNote || '');
     setIsReturnModalOpen(true);
   };
 
@@ -224,37 +260,251 @@ export default function StoreFulfillForm({
     }
   };
 
+  // Open Handover Modal
+  const openHandoverModal = () => {
+    setHandoverReceiverName(requisition.receiverName || requisition.requester?.fullName || requisition.requesterName || '');
+    setHandoverStoreStaffName(requisition.storeStaffName || currentUserName || 'เจ้าหน้าที่สโตร์');
+    setHandoverDeliveryNote(requisition.deliveryNote || '');
+    setHandoverPhotos(Array.isArray(requisition.deliveryPhotos) ? requisition.deliveryPhotos : []);
+    setIsHandoverModalOpen(true);
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file) => {
+      if (file.size > 8 * 1024 * 1024) {
+        Swal.fire({ icon: 'warning', title: 'ไฟล์มีขนาดใหญ่เกิน 8MB' });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (result) {
+          setHandoverPhotos((prev) => [...prev, result]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setHandoverPhotos((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleSubmitHandover = async () => {
+    if (!handoverReceiverName.trim()) {
+      Swal.fire({ icon: 'warning', title: 'กรุณาระบุชื่อผู้รับของหน้างาน' });
+      return;
+    }
+
+    setIsSubmittingHandover(true);
+    try {
+      const storeSigData = storeStaffSigFile || (storeSigPad.current && !storeSigPad.current.isEmpty() ? storeSigPad.current.getTrimmedCanvas().toDataURL('image/png') : null);
+      const receiverSigData = receiverSigFile || (receiverSigPad.current && !receiverSigPad.current.isEmpty() ? receiverSigPad.current.getTrimmedCanvas().toDataURL('image/png') : null);
+
+      if (!requisition.storeStaffSignatureUrl && storeSigData) {
+        await recordStoreFulfill(requisition.id, {
+          storeStaffName: handoverStoreStaffName,
+          storeStaffSignatureUrl: storeSigData,
+          deliveryNote: handoverDeliveryNote,
+        });
+      }
+
+      const res = await recordSiteHandover(requisition.id, {
+        receiverName: handoverReceiverName,
+        receiverSignatureUrl: receiverSigData || requisition.receiverSignatureUrl || undefined,
+        deliveryPhotos: handoverPhotos,
+        deliveryNote: handoverDeliveryNote,
+      });
+
+      if (res.success) {
+        setRequisition((prev: any) => ({
+          ...prev,
+          status: 'COMPLETED',
+          receiverName: handoverReceiverName,
+          receiverSignatureUrl: receiverSigData || prev.receiverSignatureUrl,
+          storeStaffName: handoverStoreStaffName || prev.storeStaffName,
+          storeStaffSignatureUrl: storeSigData || prev.storeStaffSignatureUrl,
+          deliveryPhotos: handoverPhotos,
+          deliveryNote: handoverDeliveryNote,
+          receivedAt: new Date().toISOString(),
+        }));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'บันทึกตรวจรับของสำเร็จ',
+          text: 'ระบบได้บันทึกข้อมูลและแนบรูปถ่ายเข้าโครงการเรียบร้อยแล้ว',
+          timer: 2500,
+          showConfirmButton: false,
+        });
+        setIsHandoverModalOpen(false);
+        router.refresh();
+      } else {
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: res.error || 'ไม่สามารถบันทึกได้' });
+      }
+    } catch (e: any) {
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' });
+    } finally {
+      setIsSubmittingHandover(false);
+    }
+  };
+
   const statusInfo = getStatusInfo(requisition.status);
   const hasReturnedItems = requisition.status === 'RETURNED' || requisition.status === 'PARTIALLY_RETURNED' ||
     (Array.isArray(requisition.items) && requisition.items.some((it: any) => it.returnedQuantity !== undefined));
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-8 mt-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8 space-y-6 mt-6">
       <div className="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">รายละเอียดใบเบิก/ยืมของ</h2>
-          <p className="text-xs text-gray-500 mt-0.5">จัดการสถานะการจัดส่งมอบและรับคืนอุปกรณ์</p>
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+            <span>รายละเอียดใบเบิก</span>
+            <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700 border border-slate-200">
+              {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+                <>
+                  <Wrench size={12} className="text-slate-600" />
+                  <span>เบิกยืมสโตร์ (อุปกรณ์)</span>
+                </>
+              ) : (
+                <>
+                  <Building2 size={12} className="text-slate-600" />
+                  <span>เบิกของงานโครงการ</span>
+                </>
+              )}
+            </span>
+          </h2>
+          <p className="text-xs text-gray-500 mt-0.5">จัดการสถานะการจัดส่งมอบ ตรวจรับหน้างาน และรับคืนอุปกรณ์</p>
         </div>
-        <span className={`px-3 py-1 text-sm font-bold rounded-full border ${statusInfo.badge}`}>
+        <span className={`px-3 py-1 text-xs md:text-sm font-bold rounded-full border ${statusInfo.badge}`}>
           {statusInfo.label}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Return Request Notification Banner if employee requested return */}
+      {(requisition.status === 'RETURN_PENDING' || requisition.returnRequestedAt) && (
+        <div className="p-4 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-2 border-amber-300 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md">
+              <RotateCcw size={22} className="animate-spin-slow" />
+            </div>
+            <div>
+              <div className="font-bold text-amber-950 text-sm flex items-center gap-2">
+                <span>พนักงานแจ้งขอส่งคืนอุปกรณ์เข้าสโตร์แล้ว</span>
+                <span className="text-[11px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">
+                  รอเจ้าหน้าที่สโตร์ตรวจรับของ
+                </span>
+              </div>
+              <p className="text-xs text-amber-900/90 mt-1">
+                เวลาที่แจ้ง: {requisition.returnRequestedAt ? new Date(requisition.returnRequestedAt).toLocaleString('th-TH') : '-'}
+                {requisition.returnRequestNote && (
+                  <span className="block mt-0.5 font-medium text-amber-950">
+                    หมายเหตุจากพนักงาน: "{requisition.returnRequestNote}"
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 self-end sm:self-center">
+            {Array.isArray(requisition.returnRequestPhotos) && requisition.returnRequestPhotos.length > 0 && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-amber-800 font-medium">รูปแนบ:</span>
+                <div className="flex -space-x-2">
+                  {requisition.returnRequestPhotos.map((img: string, idx: number) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={idx}
+                      src={img}
+                      alt="Proof"
+                      onClick={() => setSelectedPhotoPreview(img)}
+                      className="w-8 h-8 rounded-lg object-cover border-2 border-white shadow-sm cursor-pointer hover:scale-110 transition-transform"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={openReturnModal}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
+            >
+              <RotateCcw size={14} />
+              <span>ตรวจรับคืนเดี๋ยวนี้</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Main Info Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs md:text-sm">
         <div>
-          <p className="text-sm font-semibold text-gray-500 mb-1">เลขที่ใบเบิก</p>
-          <p className="font-bold text-gray-900">{requisition.requisitionNumber}</p>
+          <p className="text-xs font-semibold text-gray-500 mb-0.5">เลขที่ใบเบิก</p>
+          <p className="font-bold text-red-700 font-mono text-sm">{requisition.requisitionNumber}</p>
         </div>
         <div>
-          <p className="text-sm font-semibold text-gray-500 mb-1">วันที่</p>
+          <p className="text-xs font-semibold text-gray-500 mb-0.5">วันที่ทำรายการ</p>
           <p className="font-bold text-gray-900">
             {requisition.date ? new Date(requisition.date).toLocaleDateString('th-TH') : '-'}
           </p>
         </div>
         <div>
-          <p className="text-sm font-semibold text-gray-500 mb-1">บริษัท</p>
+          <p className="text-xs font-semibold text-gray-500 mb-0.5">บริษัท</p>
           <p className="font-bold text-gray-900">{requisition.company || '-'}</p>
         </div>
+        <div>
+          <p className="text-xs font-semibold text-gray-500 mb-0.5">สาขา / คลังสินค้า</p>
+          <p className="font-bold text-slate-800">{requisition.branch || 'BKK-HQ'}</p>
+        </div>
+
+        {/* Second Row: Adapted for Requisition Type */}
+        {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+          <>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-0.5">วัตถุประสงค์ในการยืม</p>
+              <p className="font-bold text-amber-950 truncate" title={requisition.deliveryNote || '-'}>
+                {requisition.deliveryNote || '-'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-amber-900 mb-0.5">กำหนดส่งคืนสโตร์</p>
+              <p className="font-black text-rose-600">
+                {requisition.deliveryDate ? new Date(requisition.deliveryDate).toLocaleDateString('th-TH') : 'ไม่ระบุ'}
+              </p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-xs font-semibold text-gray-500 mb-0.5">สถานที่นำไปใช้งาน</p>
+              <p className="font-medium text-slate-700 truncate" title={requisition.destinationSite || '-'}>
+                {requisition.destinationSite || '-'}
+                {requisition.projectName ? ` (โครงการ: ${requisition.projectName})` : ''}
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-0.5">โครงการ / ชื่องานติดตั้ง</p>
+              <p className="font-bold text-blue-800 truncate" title={requisition.projectName || '-'}>
+                {requisition.projectName || requisition.items?.[0]?.job || '-'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-0.5">วันส่งของหน้างาน</p>
+              <p className="font-bold text-blue-700">
+                {requisition.deliveryDate ? new Date(requisition.deliveryDate).toLocaleDateString('th-TH') : '-'}
+              </p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-xs font-semibold text-gray-500 mb-0.5">สถานที่จัดส่ง / ไซต์งาน</p>
+              <p className="font-medium text-slate-700 truncate" title={requisition.destinationSite || '-'}>
+                {requisition.destinationSite || '-'}
+                {requisition.deliveryNote ? ` • วิธีส่ง: ${requisition.deliveryNote}` : ''}
+              </p>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Return Information Banner if returned */}
@@ -308,10 +558,19 @@ export default function StoreFulfillForm({
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 text-sm">
                 <th className="px-4 py-3 font-semibold text-gray-700 w-12 text-center">ลำดับ</th>
-                <th className="px-4 py-3 font-semibold text-gray-700">รายละเอียด</th>
-                <th className="px-4 py-3 font-semibold text-gray-700 text-right">จำนวนเบิก</th>
-                <th className="px-4 py-3 font-semibold text-gray-700">หน่วย</th>
-                <th className="px-4 py-3 font-semibold text-gray-700">งานที่ใช้</th>
+                <th className="px-4 py-3 font-semibold text-gray-700">
+                  {requisition.requisitionType === 'BORROW_EQUIPMENT' ? 'ชื่อเครื่องมือ / อุปกรณ์' : 'รายการวัสดุ / อุปกรณ์'}
+                </th>
+                {requisition.requisitionType === 'BORROW_EQUIPMENT' && (
+                  <th className="px-4 py-3 font-semibold text-gray-700 w-32">รหัส / Serial No.</th>
+                )}
+                <th className="px-4 py-3 font-semibold text-gray-700 text-right w-24">จำนวน</th>
+                <th className="px-4 py-3 font-semibold text-gray-700 w-24">หน่วย</th>
+                {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+                  <th className="px-4 py-3 font-semibold text-gray-700 w-36">สภาพก่อนยืม</th>
+                ) : (
+                  <th className="px-4 py-3 font-semibold text-gray-700">งานที่ใช้ / Sub-Job</th>
+                )}
                 <th className="px-4 py-3 font-semibold text-gray-700">สถานะการคืน</th>
                 <th className="px-4 py-3 font-semibold text-gray-700">หมายเหตุ</th>
               </tr>
@@ -326,9 +585,20 @@ export default function StoreFulfillForm({
                   <tr key={index} className="hover:bg-gray-50/50">
                     <td className="px-4 py-3 text-center text-gray-500">{index + 1}</td>
                     <td className="px-4 py-3 font-medium text-gray-900">{item.detail}</td>
+                    {requisition.requisitionType === 'BORROW_EQUIPMENT' && (
+                      <td className="px-4 py-3 font-mono text-xs text-slate-600">{item.assetCode || '-'}</td>
+                    )}
                     <td className="px-4 py-3 font-bold text-gray-900 text-right">{item.quantity}</td>
                     <td className="px-4 py-3 text-gray-700">{item.unit}</td>
-                    <td className="px-4 py-3 text-gray-700">{item.job || '-'}</td>
+                    {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+                      <td className="px-4 py-3 text-xs text-slate-700">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 font-medium">
+                          {item.condition || 'ปกติ'}
+                        </span>
+                      </td>
+                    ) : (
+                      <td className="px-4 py-3 text-gray-700">{item.job || '-'}</td>
+                    )}
                     <td className="px-4 py-3">
                       {hasRet ? (
                         <div className="space-y-1">
@@ -382,33 +652,115 @@ export default function StoreFulfillForm({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8 justify-around pt-6 border-t border-gray-100">
-        <div className="flex flex-col items-center">
-          <label className="block text-sm font-semibold text-gray-700 mb-4 text-center">ผู้ขอเบิก</label>
-          <div className="w-[200px] h-[80px] flex items-center justify-center bg-gray-50 rounded-xl border border-gray-200">
-            {requisition.requesterSignatureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={requisition.requesterSignatureUrl} alt="Requester Signature" className="max-h-[70px] object-contain" />
-            ) : (
-              <span className="text-gray-400 text-xs">ไม่มีลายเซ็น</span>
-            )}
-          </div>
-          <p className="text-gray-900 font-medium mt-3">({requisition.requester?.fullName || requisition.requesterName || '-'})</p>
+      {/* 4 Signatures Section (Matching Company Excel Form) */}
+      <div className="pt-6 border-t border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <label className="block text-sm font-bold text-gray-900">
+            สถานะการลงนาม 4 ฝ่าย (Signatures Status)
+          </label>
+          <span className="text-xs text-gray-500">
+            ผู้ขอเบิก • ผู้อนุมัติ • ผู้เบิก-จ่ายคลัง • ผู้รับของหน้างาน
+          </span>
         </div>
 
-        <div className="flex flex-col items-center">
-          <label className="block text-sm font-semibold text-gray-700 mb-4 text-center">ผู้อนุมัติ</label>
-          <div className="w-[200px] h-[80px] flex items-center justify-center bg-gray-50 rounded-xl border border-gray-200">
-            {requisition.approverSignatureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={requisition.approverSignatureUrl} alt="Approver Signature" className="max-h-[70px] object-contain" />
-            ) : (
-              <span className="text-gray-400 text-xs">ไม่มีลายเซ็น</span>
-            )}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* 1. Requester */}
+          <div className="flex flex-col items-center p-3 rounded-2xl border border-slate-200/80 bg-slate-50/50">
+            <span className="text-xs font-bold text-gray-700 mb-2">1. ผู้ขอเบิก</span>
+            <div className="w-full h-[75px] flex items-center justify-center bg-white rounded-xl border border-gray-200 p-1">
+              {requisition.requesterSignatureUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={requisition.requesterSignatureUrl} alt="Requester Signature" className="max-h-full object-contain" />
+              ) : (
+                <span className="text-gray-400 text-xs">ไม่มีลายเซ็น</span>
+              )}
+            </div>
+            <p className="text-gray-900 font-semibold text-xs mt-2 truncate w-full text-center">
+              ({requisition.requester?.fullName || requisition.requesterName || '-'})
+            </p>
           </div>
-          <p className="text-gray-900 font-medium mt-3">({requisition.approver?.fullName || requisition.approverName || '-'})</p>
+
+          {/* 2. Approver */}
+          <div className="flex flex-col items-center p-3 rounded-2xl border border-slate-200/80 bg-slate-50/50">
+            <span className="text-xs font-bold text-gray-700 mb-2">2. ผู้อนุมัติ</span>
+            <div className="w-full h-[75px] flex items-center justify-center bg-white rounded-xl border border-gray-200 p-1">
+              {requisition.approverSignatureUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={requisition.approverSignatureUrl} alt="Approver Signature" className="max-h-full object-contain" />
+              ) : (
+                <span className="text-gray-400 text-xs">ไม่มีลายเซ็น</span>
+              )}
+            </div>
+            <p className="text-gray-900 font-semibold text-xs mt-2 truncate w-full text-center">
+              ({requisition.approver?.fullName || requisition.approverName || '-'})
+            </p>
+          </div>
+
+          {/* 3. Store Staff */}
+          <div className="flex flex-col items-center p-3 rounded-2xl border border-slate-200/80 bg-slate-50/50">
+            <span className="text-xs font-bold text-gray-700 mb-2">3. ผู้เบิก-จ่าย (ฝ่ายคลัง)</span>
+            <div className="w-full h-[75px] flex items-center justify-center bg-white rounded-xl border border-gray-200 p-1">
+              {requisition.storeStaffSignatureUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={requisition.storeStaffSignatureUrl} alt="Store Dispenser" className="max-h-full object-contain" />
+              ) : (
+                <span className="text-amber-600 text-xs font-medium">ยังไม่ลงนามจ่ายของ</span>
+              )}
+            </div>
+            <p className="text-gray-900 font-semibold text-xs mt-2 truncate w-full text-center">
+              ({requisition.storeStaffName || 'เจ้าหน้าที่สโตร์'})
+            </p>
+          </div>
+
+          {/* 4. Receiver */}
+          <div className="flex flex-col items-center p-3 rounded-2xl border border-slate-200/80 bg-slate-50/50">
+            <span className="text-xs font-bold text-gray-700 mb-2">4. ผู้รับของหน้างาน</span>
+            <div className="w-full h-[75px] flex items-center justify-center bg-white rounded-xl border border-gray-200 p-1">
+              {requisition.receiverSignatureUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={requisition.receiverSignatureUrl} alt="Receiver Signature" className="max-h-full object-contain" />
+              ) : (
+                <span className="text-rose-600 text-xs font-medium">ยังไม่มีคนเซ็นรับ</span>
+              )}
+            </div>
+            <p className="text-gray-900 font-semibold text-xs mt-2 truncate w-full text-center">
+              ({requisition.receiverName || 'ผู้รับของหน้างาน'})
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Proof of Delivery Photos Gallery */}
+      {Array.isArray(requisition.deliveryPhotos) && requisition.deliveryPhotos.length > 0 && (
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <Camera size={16} className="text-blue-600" />
+              <span>หลักฐานรูปถ่ายการส่งมอบของหน้างาน ({requisition.deliveryPhotos.length} รูป)</span>
+            </span>
+            {requisition.deliveryNote && (
+              <span className="text-xs text-slate-500 truncate max-w-xs">
+                หมายเหตุ: {requisition.deliveryNote}
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+            {requisition.deliveryPhotos.map((photoUrl: string, pIdx: number) => (
+              <div
+                key={pIdx}
+                onClick={() => setSelectedPhotoPreview(photoUrl)}
+                className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-black cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all shadow-xs"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photoUrl} alt={`Proof ${pIdx + 1}`} className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
+                  <Eye size={18} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-gray-100">
@@ -418,29 +770,47 @@ export default function StoreFulfillForm({
           className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 rounded-xl font-bold transition-colors text-sm"
         >
           <Printer size={18} />
-          พิมพ์ PDF
+          พิมพ์ PDF 4 ลายเซ็น
         </Link>
+
+        {/* Handover & Receive on site */}
+        <button
+          type="button"
+          onClick={openHandoverModal}
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm text-sm"
+        >
+          <Smartphone size={18} />
+          <span>บันทึกตรวจรับของหน้างาน (เซ็นรับ + รูปถ่าย)</span>
+        </button>
 
         {requisition.status === 'APPROVED' && (
           <button
             type="button"
             disabled={loading}
             onClick={handleCompleteClick}
-            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-sm disabled:opacity-50 text-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-sm disabled:opacity-50 text-sm"
           >
             {loading ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
-            ส่งมอบของเรียบร้อย
+            ส่งมอบเรียบร้อย (ด่วน)
           </button>
         )}
 
-        {(requisition.status === 'COMPLETED' || requisition.status === 'PARTIALLY_RETURNED') && (
+        {(requisition.status === 'COMPLETED' || requisition.status === 'PARTIALLY_RETURNED' || requisition.status === 'RETURN_PENDING') && (
           <button
             type="button"
             onClick={openReturnModal}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm text-sm"
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm text-sm ${
+              requisition.status === 'RETURN_PENDING'
+                ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
+                : 'bg-slate-800 text-white hover:bg-slate-900'
+            }`}
           >
             <RotateCcw size={18} />
-            {requisition.status === 'PARTIALLY_RETURNED' ? 'บันทึกรับคืนของเพิ่มเติม' : 'บันทึกรับคืนของ'}
+            {requisition.status === 'RETURN_PENDING'
+              ? 'ตรวจรับคืนเข้าสโตร์ (พนักงานแจ้งคืนแล้ว)'
+              : requisition.status === 'PARTIALLY_RETURNED'
+              ? 'บันทึกรับคืนของเพิ่มเติม'
+              : 'บันทึกรับคืนของ'}
           </button>
         )}
 
@@ -448,7 +818,7 @@ export default function StoreFulfillForm({
           <button
             type="button"
             onClick={openReturnModal}
-            className="flex items-center gap-2 px-6 py-2.5 bg-teal-50 text-teal-800 border border-teal-200 rounded-xl font-bold hover:bg-teal-100 transition-colors shadow-sm text-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-teal-50 text-teal-800 border border-teal-200 rounded-xl font-bold hover:bg-teal-100 transition-colors shadow-sm text-sm"
           >
             <RotateCcw size={18} className="text-teal-600" />
             ดู / แก้ไขบันทึกการคืนของ
@@ -780,6 +1150,330 @@ export default function StoreFulfillForm({
                 )}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Handover & Proof of Delivery Modal (Mobile-Friendly Signature & Camera) */}
+      {isHandoverModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in">
+          <div
+            className="fixed inset-0"
+            onClick={() => !isSubmittingHandover && setIsHandoverModalOpen(false)}
+          />
+
+          <div className="relative bg-white rounded-3xl shadow-2xl border border-slate-200/90 w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden z-10 animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-200">
+                  <Smartphone className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                      บันทึกส่งมอบ & ตรวจรับของหน้างาน
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                      POD & Handover
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-2">
+                    <span>เลขที่: <strong className="text-slate-700">{requisition.requisitionNumber}</strong></span>
+                    <span>•</span>
+                    <span>โครงการ: <strong className="text-slate-700">{requisition.projectName || requisition.destinationSite || '-'}</strong></span>
+                    <span>•</span>
+                    <span>สาขา: <strong className="text-slate-700">{requisition.branch || 'BKK-HQ'}</strong></span>
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => !isSubmittingHandover && setIsHandoverModalOpen(false)}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 space-y-6 overflow-y-auto max-h-[calc(92vh-140px)]">
+              {/* Notice */}
+              <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-2xl text-xs text-blue-900 flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong>แก้ปัญหาใบส่งของไม่มีคนเซ็น & เอกสารสูญหาย:</strong>{' '}
+                  ผู้รับของหน้างานสามารถเซ็นรับผ่านหน้าจอมือถือได้ทันที พร้อมถ่ายรูปสินค้า/อุปกรณ์ที่ส่งมอบ เพื่อแนบเป็นหลักฐานดิจิทัลอัตโนมัติ
+                </div>
+              </div>
+
+              {/* 1. ผู้รับของหน้างาน */}
+              <div className="space-y-3 p-4 bg-slate-50/70 border border-slate-200/80 rounded-2xl">
+                <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <User className="w-4 h-4 text-blue-600" />
+                  <span>1. ผู้รับของหน้างาน (Receiver) <span className="text-rose-500">*</span></span>
+                </label>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    ชื่อ-นามสกุล ผู้รับของ
+                  </label>
+                  <input
+                    type="text"
+                    value={handoverReceiverName}
+                    onChange={(e) => setHandoverReceiverName(e.target.value)}
+                    placeholder="เช่น สมชาย ใจดี (โฟร์แมน / วิศวกรโครงการ)"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden font-medium"
+                  />
+                </div>
+
+                {/* Receiver Signature Canvas */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-slate-600">
+                      ลายเซ็นผู้รับของ (เซ็นบนหน้าจอด้วยนิ้ว/ปากกา หรืออัปโหลดไฟล์)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => receiverSigPad.current?.clear()}
+                        className="text-[11px] text-slate-500 hover:text-rose-600 flex items-center gap-1 font-semibold"
+                      >
+                        <Eraser size={12} /> ล้างลายเซ็น
+                      </button>
+                      <label className="text-[11px] text-blue-600 hover:text-blue-700 flex items-center gap-1 font-semibold cursor-pointer">
+                        <Upload size={12} /> แนบรูปภาพ
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) {
+                              const r = new FileReader();
+                              r.onload = (ev) => setReceiverSigFile(ev.target?.result as string);
+                              r.readAsDataURL(f);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {receiverSigFile ? (
+                    <div className="relative border border-slate-300 bg-white rounded-xl p-2 h-36 flex items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={receiverSigFile} alt="Receiver Signature" className="max-h-full object-contain" />
+                      <button
+                        type="button"
+                        onClick={() => setReceiverSigFile(null)}
+                        className="absolute top-2 right-2 p-1 bg-rose-50 text-rose-600 rounded-lg text-xs hover:bg-rose-100"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border border-slate-300 bg-white rounded-xl overflow-hidden shadow-inner">
+                      <SignatureCanvas
+                        ref={receiverSigPad}
+                        canvasProps={{
+                          className: 'w-full h-36 bg-white cursor-crosshair',
+                        }}
+                      />
+                    </div>
+                  )}
+                  <p className="text-[11px] text-slate-400 mt-1 italic">
+                    * สามารถเซ็นลากนิ้วบนมือถือได้โดยตรง
+                  </p>
+                </div>
+              </div>
+
+              {/* 2. เจ้าหน้าที่สโตร์ผู้จ่ายของ (ถ้ายังไม่มีการเซ็นจ่าย) */}
+              {!requisition.storeStaffSignatureUrl && (
+                <div className="space-y-3 p-4 bg-slate-50/70 border border-slate-200/80 rounded-2xl">
+                  <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Building className="w-4 h-4 text-indigo-600" />
+                    <span>2. เจ้าหน้าที่สโตร์ / ผู้เบิก-จ่าย ฝ่ายคลัง</span>
+                  </label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">
+                      ชื่อผู้เบิก-จ่าย
+                    </label>
+                    <input
+                      type="text"
+                      value={handoverStoreStaffName}
+                      onChange={(e) => setHandoverStoreStaffName(e.target.value)}
+                      placeholder="ชื่อเจ้าหน้าที่สโตร์"
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-semibold text-slate-600">
+                        ลายเซ็นผู้จ่ายของ
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => storeSigPad.current?.clear()}
+                        className="text-[11px] text-slate-500 hover:text-rose-600 flex items-center gap-1 font-semibold"
+                      >
+                        <Eraser size={12} /> ล้างลายเซ็น
+                      </button>
+                    </div>
+                    {storeStaffSigFile ? (
+                      <div className="relative border border-slate-300 bg-white rounded-xl p-2 h-32 flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={storeStaffSigFile} alt="Store Staff Signature" className="max-h-full object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => setStoreStaffSigFile(null)}
+                          className="absolute top-2 right-2 p-1 bg-rose-50 text-rose-600 rounded-lg text-xs hover:bg-rose-100"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="border border-slate-300 bg-white rounded-xl overflow-hidden shadow-inner">
+                        <SignatureCanvas
+                          ref={storeSigPad}
+                          canvasProps={{
+                            className: 'w-full h-32 bg-white cursor-crosshair',
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. รูปถ่ายการส่งมอบของหน้างาน (Proof of Delivery Photos) */}
+              <div className="space-y-3 p-4 bg-slate-50/70 border border-slate-200/80 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-emerald-600" />
+                    <span>3. รูปถ่ายการส่งมอบของหน้างาน (Proof Photos)</span>
+                  </label>
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 cursor-pointer shadow-xs transition-colors">
+                    <Plus size={14} />
+                    <span>ถ่ายรูป / เพิ่มรูป</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handlePhotoUpload}
+                    />
+                  </label>
+                </div>
+                <p className="text-xs text-slate-500">
+                  ถ่ายรูปกองวัสดุอุปกรณ์, รถขนส่ง, หรือการรับมอบ ณ ไซต์งาน เพื่อเก็บเป็นหลักฐานในระบบถาวร (ไม่มีวันหาย)
+                </p>
+
+                {handoverPhotos.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-1">
+                    {handoverPhotos.map((photoUrl, pIdx) => (
+                      <div
+                        key={pIdx}
+                        className="group relative aspect-video rounded-xl overflow-hidden border border-slate-300 bg-black/5"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photoUrl} alt={`Photo ${pIdx + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePhoto(pIdx)}
+                          className="absolute top-1.5 right-1.5 p-1 bg-rose-600/90 hover:bg-rose-700 text-white rounded-lg opacity-90 transition-opacity shadow-sm"
+                          title="ลบรูปนี้"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <label className="border-2 border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center text-slate-400 hover:text-emerald-600 hover:border-emerald-300 bg-white cursor-pointer transition-colors">
+                    <Camera size={32} className="mb-2 text-slate-400" />
+                    <span className="text-xs font-semibold">แตะเพื่อถ่ายรูปด้วยกล้องมือถือ หรือเลือกรูปจากเครื่อง</span>
+                    <span className="text-[11px] text-slate-400 mt-0.5">รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 8MB</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handlePhotoUpload}
+                    />
+                  </label>
+                )}
+              </div>
+
+              {/* 4. หมายเหตุ / ข้อความเพิ่มเติม */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  หมายเหตุการส่งมอบ / สถานที่รับของ
+                </label>
+                <textarea
+                  rows={2}
+                  value={handoverDeliveryNote}
+                  onChange={(e) => setHandoverDeliveryNote(e.target.value)}
+                  placeholder="เช่น ส่งมอบครบถ้วนที่หน้างานไซน์ Zone C ชั้น 2, มีสายไฟม้วนใหญ่ 1 ม้วน..."
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden font-medium"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-5 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                disabled={isSubmittingHandover}
+                onClick={() => setIsHandoverModalOpen(false)}
+                className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all disabled:opacity-50"
+              >
+                ยกเลิก
+              </button>
+
+              <button
+                type="button"
+                disabled={isSubmittingHandover}
+                onClick={handleSubmitHandover}
+                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20 transition-all hover:scale-[1.02] disabled:opacity-50"
+              >
+                {isSubmittingHandover ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>กำลังบันทึกข้อมูล...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>บันทึกตรวจรับของหน้างาน & บันทึกเสร็จสมบูรณ์</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Photo Preview Lightbox */}
+      {selectedPhotoPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+          onClick={() => setSelectedPhotoPreview(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] bg-transparent">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={selectedPhotoPreview}
+              alt="Proof Preview"
+              className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl"
+            />
+            <button
+              onClick={() => setSelectedPhotoPreview(null)}
+              className="absolute -top-10 right-0 p-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
           </div>
         </div>
       )}

@@ -34,7 +34,14 @@ import {
   Download,
   TrendingUp,
   PieChart,
-  Filter
+  Filter,
+  Camera,
+  Smartphone,
+  MapPin,
+  Briefcase,
+  Wrench,
+  Bell,
+  AlertTriangle
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
@@ -69,6 +76,22 @@ export interface Requisition {
   updatedAt?: string | null;
   requesterName?: string;
   approverName?: string;
+  // Project & Provincial Branch fields
+  requisitionType?: string | null;
+  projectId?: string | null;
+  projectName?: string | null;
+  branch?: string | null;
+  destinationSite?: string | null;
+  deliveryDate?: string | null;
+  storeStaffName?: string | null;
+  storeStaffSignatureUrl?: string | null;
+  receiverName?: string | null;
+  receiverSignatureUrl?: string | null;
+  deliveryPhotos?: any;
+  deliveryNote?: string | null;
+  returnRequestedAt?: string | Date | null;
+  returnRequestNote?: string | null;
+  returnRequestPhotos?: any;
 }
 
 interface StoreRequisitionsClientProps {
@@ -84,7 +107,8 @@ export default function StoreRequisitionsClient({
 
   const [requisitions, setRequisitions] = useState<Requisition[]>(initialRequisitions);
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'ALL' | 'APPROVED' | 'COMPLETED' | 'RETURNED' | 'PENDING_APPROVAL'>('APPROVED');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'APPROVED' | 'RETURN_PENDING' | 'COMPLETED' | 'RETURNED' | 'PENDING_APPROVAL'>('APPROVED');
+  const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<string | null>(null);
 
   // Modal State
   const [detailReq, setDetailReq] = useState<Requisition | null>(null);
@@ -116,10 +140,31 @@ export default function StoreRequisitionsClient({
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'PROJECT' | 'BORROW_EQUIPMENT'>('ALL');
+  const [projectFilter, setProjectFilter] = useState<string>('ALL');
+  const [branchFilter, setBranchFilter] = useState<string>('ALL');
   const [companyFilter, setCompanyFilter] = useState<'ALL' | 'TE' | 'TP' | 'TG'>('ALL');
   const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('ALL');
   const [yearFilter, setYearFilter] = useState('ALL');
+
+  const BRANCH_OPTIONS = [
+    { code: 'ALL', name: 'ทุกสาขา' },
+    { code: 'BKK-HQ', name: 'สำนักงานใหญ่ (กรุงเทพฯ)' },
+    { code: 'BKK-WH', name: 'คลัง 62 (สโตร์กลาง)' },
+    { code: 'KK01', name: 'สาขาขอนแก่น (KK01)' },
+    { code: 'CMI01', name: 'สาขาเชียงใหม่ (CMI01)' },
+    { code: 'PSNL01', name: 'สาขาพิษณุโลก (PSNL01)' },
+    { code: 'SN01', name: 'สาขาสกลนคร (SN01)' },
+    { code: 'UB01', name: 'สาขาอุบลราชธานี (UB01)' },
+    { code: 'SRT01', name: 'สาขาสุราษฎร์ธานี (SRT01)' },
+    { code: 'UDN01', name: 'สาขาอุดรธานี (UDN01)' },
+    { code: 'SRN01', name: 'สาขาสุรินทร์ (SRN01)' },
+    { code: 'ROI01', name: 'สาขาร้อยเอ็ด (ROI01)' },
+    { code: 'KRI01', name: 'สาขากระบี่ (KRI01)' },
+    { code: 'SMK', name: 'สาขาสมุทรสาคร (SMK)' },
+    { code: 'OTHER', name: 'สาขาอื่นๆ' },
+  ];
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -164,6 +209,13 @@ export default function StoreRequisitionsClient({
           badge: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold',
           icon: CheckCircle2,
           iconColor: 'text-emerald-600'
+        };
+      case 'RETURN_PENDING':
+        return {
+          label: 'แจ้งคืนแล้ว (รอตรวจรับ)',
+          badge: 'bg-amber-100 text-amber-900 border-amber-300 font-bold animate-pulse',
+          icon: Bell,
+          iconColor: 'text-amber-700'
         };
       case 'RETURNED':
         return {
@@ -293,9 +345,10 @@ export default function StoreRequisitionsClient({
 
   // Tab Counts
   const tabCounts = useMemo(() => {
-    const counts = { ALL: requisitions.length, APPROVED: 0, COMPLETED: 0, RETURNED: 0, PENDING_APPROVAL: 0 };
+    const counts = { ALL: requisitions.length, APPROVED: 0, RETURN_PENDING: 0, COMPLETED: 0, RETURNED: 0, PENDING_APPROVAL: 0 };
     requisitions.forEach(req => {
       if (req.status === 'APPROVED') counts.APPROVED++;
+      if (req.status === 'RETURN_PENDING') counts.RETURN_PENDING++;
       if (req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED') counts.COMPLETED++;
       if (req.status === 'RETURNED') counts.RETURNED++;
       if (req.status === 'PENDING_APPROVAL') counts.PENDING_APPROVAL++;
@@ -303,13 +356,62 @@ export default function StoreRequisitionsClient({
     return counts;
   }, [requisitions]);
 
+  // Type Counts (Project vs Borrow)
+  const typeCounts = useMemo(() => {
+    let project = 0;
+    let borrow = 0;
+    requisitions.forEach(req => {
+      if (req.requisitionType === 'PROJECT') {
+        project++;
+      } else {
+        borrow++;
+      }
+    });
+    return { ALL: requisitions.length, PROJECT: project, BORROW_EQUIPMENT: borrow };
+  }, [requisitions]);
+
+  // Project Options for dropdown (sorted with requisition counts)
+  const projectOptions = useMemo(() => {
+    const projectMap = new Map<string, number>();
+
+    requisitions.forEach(req => {
+      // If typeFilter is selected, optionally filter project options
+      if (typeFilter !== 'ALL') {
+        const rType = req.requisitionType || 'BORROW_EQUIPMENT';
+        if (rType !== typeFilter) return;
+      }
+
+      const names = new Set<string>();
+      if (req.projectName?.trim()) {
+        names.add(req.projectName.trim());
+      }
+      if (Array.isArray(req.items)) {
+        req.items.forEach((it: any) => {
+          if (it.job?.trim()) {
+            names.add(it.job.trim());
+          }
+        });
+      }
+
+      names.forEach(name => {
+        projectMap.set(name, (projectMap.get(name) || 0) + 1);
+      });
+    });
+
+    return Array.from(projectMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'th'));
+  }, [requisitions, typeFilter]);
+
   // Filter Engine
   const filteredRequisitions = useMemo(() => {
     return requisitions.filter(req => {
       // 1. Tab Status Filter
       if (activeTab !== 'ALL') {
         if (activeTab === 'COMPLETED') {
-          if (req.status !== 'COMPLETED' && req.status !== 'PARTIALLY_RETURNED') return false;
+          if (req.status !== 'COMPLETED' && req.status !== 'PARTIALLY_RETURNED' && req.status !== 'RETURN_PENDING') return false;
+        } else if (activeTab === ('RETURN_PENDING' as any)) {
+          if (req.status !== 'RETURN_PENDING') return false;
         } else if (req.status !== activeTab) {
           return false;
         }
@@ -319,6 +421,27 @@ export default function StoreRequisitionsClient({
       if (companyFilter !== 'ALL') {
         const c = normalizeCompany(req.company);
         if (c !== companyFilter) return false;
+      }
+
+      // 2.1 Requisition Type Filter
+      if (typeFilter !== 'ALL') {
+        const rType = req.requisitionType || 'BORROW_EQUIPMENT';
+        if (rType !== typeFilter) return false;
+      }
+
+      // 2.1.1 Project Filter (เฉพาะงานโปรเจค / โครงการที่เลือก)
+      if (projectFilter !== 'ALL') {
+        const pLower = projectFilter.toLowerCase().trim();
+        const matchesProject =
+          (req.projectName && req.projectName.toLowerCase().trim() === pLower) ||
+          (Array.isArray(req.items) && req.items.some((it: any) => it.job && it.job.toLowerCase().trim() === pLower));
+        if (!matchesProject) return false;
+      }
+
+      // 2.2 Branch Filter
+      if (branchFilter !== 'ALL') {
+        const b = req.branch || 'BKK-HQ';
+        if (b !== branchFilter) return false;
       }
 
       // 3. Date / Month / Year
@@ -346,6 +469,10 @@ export default function StoreRequisitionsClient({
         const comp = (req.company || '').toLowerCase();
         const requester = (req.requesterName || '').toLowerCase();
         const approver = (req.approverName || '').toLowerCase();
+        const projectName = (req.projectName || '').toLowerCase();
+        const destinationSite = (req.destinationSite || '').toLowerCase();
+        const branch = (req.branch || '').toLowerCase();
+        const receiver = (req.receiverName || '').toLowerCase();
 
         // Search in items
         const itemMatch = req.items?.some(it => {
@@ -360,6 +487,10 @@ export default function StoreRequisitionsClient({
           !comp.includes(q) &&
           !requester.includes(q) &&
           !approver.includes(q) &&
+          !projectName.includes(q) &&
+          !destinationSite.includes(q) &&
+          !branch.includes(q) &&
+          !receiver.includes(q) &&
           !itemMatch
         ) {
           return false;
@@ -368,7 +499,7 @@ export default function StoreRequisitionsClient({
 
       return true;
     });
-  }, [requisitions, activeTab, companyFilter, dateFilter, monthFilter, yearFilter, searchQuery]);
+  }, [requisitions, activeTab, companyFilter, typeFilter, projectFilter, branchFilter, dateFilter, monthFilter, yearFilter, searchQuery]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredRequisitions.length / pageSize));
@@ -384,6 +515,9 @@ export default function StoreRequisitionsClient({
 
   const handleResetFilters = () => {
     setSearchQuery('');
+    setTypeFilter('ALL');
+    setProjectFilter('ALL');
+    setBranchFilter('ALL');
     setCompanyFilter('ALL');
     setDateFilter('');
     setMonthFilter('ALL');
@@ -393,6 +527,9 @@ export default function StoreRequisitionsClient({
 
   const hasActiveFilters =
     searchQuery !== '' ||
+    typeFilter !== 'ALL' ||
+    projectFilter !== 'ALL' ||
+    branchFilter !== 'ALL' ||
     companyFilter !== 'ALL' ||
     dateFilter !== '' ||
     monthFilter !== 'ALL' ||
@@ -1518,7 +1655,7 @@ export default function StoreRequisitionsClient({
     setReturnDate(new Date().toISOString().slice(0, 10));
     setReturnerName(req.requesterName || '');
     setReceiverName(userName || 'เจ้าหน้าที่สโตร์');
-    setReturnNote('');
+    setReturnNote(req.returnRequestNote || '');
 
     const items = Array.isArray(req.items) ? req.items : [];
     const initialItemsState = items.map((it, idx) => {
@@ -2000,6 +2137,19 @@ export default function StoreRequisitionsClient({
               <Clock className="w-3.5 h-3.5" />
               <span>รอจัดของ ({tabCounts.APPROVED})</span>
             </button>
+            {tabCounts.RETURN_PENDING > 0 && (
+              <button
+                onClick={() => handleTabChange('RETURN_PENDING' as any)}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === 'RETURN_PENDING'
+                    ? 'bg-amber-500 text-white shadow-sm'
+                    : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 animate-pulse'
+                }`}
+              >
+                <Bell className="w-3.5 h-3.5" />
+                <span>รอตรวจรับคืน ({tabCounts.RETURN_PENDING})</span>
+              </button>
+            )}
             <button
               onClick={() => handleTabChange('COMPLETED')}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
@@ -2036,14 +2186,116 @@ export default function StoreRequisitionsClient({
           </div>
         </div>
 
+        {/* Row 1.5: Requisition Type & Specific Project Filter */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/60">
+          {/* Left: Requisition Type Segmented Control */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0">
+              <Layers className="w-3.5 h-3.5 text-slate-500" />
+              <span>ประเภทใบเบิก:</span>
+            </span>
+            <div className="inline-flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-xs gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('ALL');
+                  setCurrentPage(1);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  typeFilter === 'ALL'
+                    ? 'bg-slate-900 text-white shadow-xs font-bold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <span>ทุกประเภท ({typeCounts.ALL})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('PROJECT');
+                  setCurrentPage(1);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  typeFilter === 'PROJECT'
+                    ? 'bg-blue-600 text-white shadow-xs font-bold'
+                    : 'text-blue-700 hover:bg-blue-50'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                <span>งานโปรเจค / โครงการ ({typeCounts.PROJECT})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('BORROW_EQUIPMENT');
+                  setCurrentPage(1);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  typeFilter === 'BORROW_EQUIPMENT'
+                    ? 'bg-amber-600 text-white shadow-xs font-bold'
+                    : 'text-amber-800 hover:bg-amber-50'
+                }`}
+              >
+                <Wrench className="w-3.5 h-3.5" />
+                <span>เบิกยืมสโตร์ ({typeCounts.BORROW_EQUIPMENT})</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Specific Project / Job Dropdown */}
+          <div className="flex items-center gap-2 flex-1 lg:justify-end">
+            <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0">
+              <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+              <span>งานโปรเจค:</span>
+            </span>
+            <div className="relative flex-1 max-w-md">
+              <select
+                value={projectFilter}
+                onChange={e => {
+                  setProjectFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className={`w-full pl-3 pr-8 py-2 bg-white border rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${
+                  projectFilter !== 'ALL'
+                    ? 'border-blue-500 text-blue-900 bg-blue-50/40 ring-1 ring-blue-500/20 font-bold'
+                    : 'border-slate-300 text-slate-700 hover:border-slate-400'
+                }`}
+                title="เลือกโครงการเพื่อกรองเฉพาะงานโปรเจคนั้นๆ"
+              >
+                <option value="ALL">
+                  ทุกโครงการ / ทุกชื่องาน ({projectOptions.length} โครงการ)
+                </option>
+                {projectOptions.map(p => (
+                  <option key={p.name} value={p.name}>
+                    {p.name} ({p.count} รายการ)
+                  </option>
+                ))}
+              </select>
+              {projectFilter !== 'ALL' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProjectFilter('ALL');
+                    setCurrentPage(1);
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full"
+                  title="ล้างการเลือกโครงการ"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Row 2: Search & Advanced Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
           {/* Search Box */}
-          <div className="md:col-span-6 relative">
+          <div className="md:col-span-5 relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="ค้นหาเลขที่ใบเบิก, ผู้ขอเบิก, บริษัท หรือรายการอุปกรณ์..."
+              placeholder="ค้นหาเลขที่, โครงการ, สาขา, ผู้ขอ/รับของ..."
               value={searchQuery}
               onChange={e => {
                 setSearchQuery(e.target.value);
@@ -2059,6 +2311,24 @@ export default function StoreRequisitionsClient({
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
+          </div>
+
+          {/* Branch Filter */}
+          <div className="md:col-span-3">
+            <select
+              value={branchFilter}
+              onChange={e => {
+                setBranchFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            >
+              {BRANCH_OPTIONS.map(b => (
+                <option key={b.code} value={b.code}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Month Filter */}
@@ -2081,26 +2351,26 @@ export default function StoreRequisitionsClient({
           </div>
 
           {/* Year Filter */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <select
               value={yearFilter}
               onChange={e => {
                 setYearFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             >
               <option value="ALL">ทุกปี</option>
               {uniqueYears.map(y => (
                 <option key={y} value={y}>
-                  ปี {parseInt(y, 10) + 543} ({y})
+                  {parseInt(y, 10) + 543}
                 </option>
               ))}
             </select>
           </div>
 
           {/* Exact Date Filter */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <input
               type="date"
               value={dateFilter}
@@ -2108,7 +2378,8 @@ export default function StoreRequisitionsClient({
                 setDateFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              title="เลือกวันที่เจาะจง"
             />
           </div>
         </div>
@@ -2121,6 +2392,40 @@ export default function StoreRequisitionsClient({
               {searchQuery && (
                 <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200">
                   ค้นหา: &quot;{searchQuery}&quot;
+                </span>
+              )}
+              {typeFilter !== 'ALL' && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md border border-indigo-200 font-semibold">
+                  ประเภท:{' '}
+                  {typeFilter === 'PROJECT' ? (
+                    <>
+                      <Building2 className="w-3 h-3" />
+                      <span>งานโปรเจค / โครงการ</span>
+                    </>
+                  ) : (
+                    <>
+                      <Wrench className="w-3 h-3" />
+                      <span>เบิกยืมสโตร์</span>
+                    </>
+                  )}
+                </span>
+              )}
+              {projectFilter !== 'ALL' && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200 font-semibold">
+                  <Briefcase className="w-3 h-3 text-blue-600" />
+                  <span>โปรเจค: {projectFilter}</span>
+                  <button
+                    onClick={() => { setProjectFilter('ALL'); setCurrentPage(1); }}
+                    className="hover:text-blue-900 ml-0.5"
+                    title="ล้างตัวกรองโปรเจค"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {branchFilter !== 'ALL' && (
+                <span className="px-2 py-0.5 bg-sky-50 text-sky-700 rounded-md border border-sky-200 font-semibold">
+                  สาขา: {BRANCH_OPTIONS.find(b => b.code === branchFilter)?.name || branchFilter}
                 </span>
               )}
               {companyFilter !== 'ALL' && (
@@ -2205,7 +2510,7 @@ export default function StoreRequisitionsClient({
                       {/* Requisition Number & Date */}
                       <td className="py-3.5 px-4">
                         <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span
                               onClick={() => setDetailReq(req)}
                               className="font-bold text-slate-900 hover:text-blue-600 cursor-pointer"
@@ -2219,10 +2524,62 @@ export default function StoreRequisitionsClient({
                             >
                               <Copy className="w-3 h-3" />
                             </button>
+                            <span
+                              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                req.requisitionType === 'BORROW_EQUIPMENT'
+                                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                  : 'bg-blue-50 text-blue-800 border border-blue-200'
+                              }`}
+                            >
+                              {req.requisitionType === 'BORROW_EQUIPMENT' ? (
+                                <>
+                                  <Wrench className="w-2.5 h-2.5" />
+                                  <span>เบิกยืมสโตร์</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Building2 className="w-2.5 h-2.5" />
+                                  <span>โครงการ</span>
+                                </>
+                              )}
+                            </span>
                           </div>
-                          <span className="text-[11px] text-slate-500">
-                            {req.date ? formatThaiDate(req.date) : formatThaiDate(req.createdAt)}
-                          </span>
+
+                          {req.projectName && (
+                            <div className="text-[11px] font-semibold text-slate-800 flex items-center gap-1 max-w-[220px] truncate" title={req.projectName}>
+                              <Briefcase className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                              <span className="truncate">{req.projectName}</span>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                            {req.branch && (
+                              <span className="inline-flex items-center gap-0.5 text-slate-700 font-medium bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">
+                                <MapPin className="w-2.5 h-2.5 text-slate-500" />
+                                {req.branch}
+                              </span>
+                            )}
+                            <span>{req.date ? formatThaiDate(req.date) : formatThaiDate(req.createdAt)}</span>
+                          </div>
+
+                          {/* Digital Signatures & Photo Status Badges */}
+                          <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                            {req.receiverSignatureUrl ? (
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title={`ผู้รับของ: ${req.receiverName || '-'}`}>
+                                <Check className="w-2.5 h-2.5" /> เซ็นรับแล้ว
+                              </span>
+                            ) : req.status === 'COMPLETED' ? (
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200" title="ยังไม่มีการบันทึกลายเซ็นผู้รับของหน้างาน">
+                                <AlertTriangle className="w-2.5 h-2.5 text-rose-600" /> รอเซ็นรับ
+                              </span>
+                            ) : null}
+
+                            {Array.isArray(req.deliveryPhotos) && req.deliveryPhotos.length > 0 && (
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                <Camera className="w-2.5 h-2.5" /> {req.deliveryPhotos.length} รูป
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
 
@@ -2243,6 +2600,11 @@ export default function StoreRequisitionsClient({
                           <div className="text-[11px] text-slate-500 truncate" title={`ผู้อนุมัติ: ${req.approverName || '-'}`}>
                             อนุมัติ: <span className="text-slate-700">{req.approverName || '-'}</span>
                           </div>
+                          {req.receiverName && (
+                            <div className="text-[10px] text-emerald-700 font-medium truncate" title={`ผู้รับของ: ${req.receiverName}`}>
+                              ผู้รับ: {req.receiverName}
+                            </div>
+                          )}
                         </div>
                       </td>
 
@@ -2280,6 +2642,15 @@ export default function StoreRequisitionsClient({
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
+                          <Link
+                            href={`/store/requisitions/${req.id}`}
+                            className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition-all border border-blue-200"
+                            title="เปิดหน้าตรวจรับของ เซ็นรับผ่านมือถือ และแนบรูปภาพ"
+                          >
+                            <Smartphone className="w-3.5 h-3.5" />
+                            <span>ตรวจรับ/เซ็น</span>
+                          </Link>
+
                           {req.status === 'APPROVED' ? (
                             <>
                               <button
@@ -2291,24 +2662,20 @@ export default function StoreRequisitionsClient({
                                 <Check className="w-3.5 h-3.5" />
                                 <span>{isLoading ? 'กำลังบันทึก...' : 'ส่งมอบแล้ว'}</span>
                               </button>
-
-                              <Link
-                                href={`/store/requisitions/${req.id}`}
-                                className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all"
-                                title="เปิดหน้าฟอร์มจัดของและตรวจสอบลายเซ็น"
-                              >
-                                <span>ฟอร์มจัดของ</span>
-                              </Link>
                             </>
-                          ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' ? (
+                          ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' || req.status === 'RETURN_PENDING' ? (
                             <>
                               <button
                                 onClick={() => openReturnModal(req)}
-                                className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02]"
-                                title="บันทึกรับคืนวัสดุและอุปกรณ์เข้าสโตร์"
+                                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] ${
+                                  req.status === 'RETURN_PENDING'
+                                    ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                }`}
+                                title={req.status === 'RETURN_PENDING' ? 'พนักงานแจ้งขอส่งคืนแล้ว - คลิกเพื่อตรวจรับของ' : 'บันทึกรับคืนวัสดุและอุปกรณ์เข้าสโตร์'}
                               >
                                 <RotateCcw className="w-3.5 h-3.5" />
-                                <span>{req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
+                                <span>{req.status === 'RETURN_PENDING' ? 'ตรวจรับคืน' : req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
                               </button>
 
                               <button
@@ -2382,17 +2749,36 @@ export default function StoreRequisitionsClient({
 
               return (
                 <div key={req.id} className="p-4 rounded-xl border border-slate-200 bg-white space-y-3">
-                  {/* Top Row: Requisition Number, Company, Status */}
+                  {/* Top Row: Requisition Number, Company, Type, Status */}
                   <div className="flex items-start justify-between gap-2">
-                    <div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <span
                         onClick={() => setDetailReq(req)}
                         className="font-bold text-slate-900 text-sm hover:text-blue-600 cursor-pointer"
                       >
                         {req.requisitionNumber}
                       </span>
-                      <span className={`ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold border ${compBadge.badge}`}>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${compBadge.badge}`}>
                         {compBadge.short}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                          req.requisitionType === 'BORROW_EQUIPMENT'
+                            ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                            : 'bg-blue-50 text-blue-800 border border-blue-200'
+                        }`}
+                      >
+                        {req.requisitionType === 'BORROW_EQUIPMENT' ? (
+                          <>
+                            <Wrench className="w-2.5 h-2.5" />
+                            <span>เบิกยืมสโตร์</span>
+                          </>
+                        ) : (
+                          <>
+                            <Building2 className="w-2.5 h-2.5" />
+                            <span>โครงการ</span>
+                          </>
+                        )}
                       </span>
                     </div>
 
@@ -2402,7 +2788,30 @@ export default function StoreRequisitionsClient({
                     </span>
                   </div>
 
-                  {/* Requester, Approver, Date */}
+                  {/* Project & Branch */}
+                  {(req.projectName || req.branch) && (
+                    <div className="text-xs space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                      {req.projectName && (
+                        <div className="font-semibold text-slate-800 flex items-center gap-1.5">
+                          <Briefcase className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                          <span className="truncate">{req.projectName}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                        {req.branch && (
+                          <span className="inline-flex items-center gap-0.5 font-medium text-slate-700">
+                            <MapPin className="w-3 h-3 text-slate-400" />
+                            {req.branch}
+                          </span>
+                        )}
+                        {req.destinationSite && (
+                          <span className="truncate text-slate-500">• {req.destinationSite}</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Requester, Approver, Receiver, Date */}
                   <div className="text-xs space-y-1 text-slate-700">
                     <div className="flex items-center gap-1">
                       <User className="w-3.5 h-3.5 text-slate-400" />
@@ -2413,8 +2822,32 @@ export default function StoreRequisitionsClient({
                       <span className="text-slate-500">ผู้อนุมัติ:</span>{' '}
                       <span className="text-slate-700">{req.approverName || '-'}</span>
                     </div>
+                    {req.receiverName && (
+                      <div className="text-emerald-700 font-medium">
+                        <span>ผู้รับของหน้างาน:</span> {req.receiverName}
+                      </div>
+                    )}
                     <div className="text-slate-500 text-[11px]">
                       วันที่: {req.date ? formatThaiDate(req.date) : formatThaiDate(req.createdAt)}
+                    </div>
+
+                    {/* Signature & Photos Badges */}
+                    <div className="flex flex-wrap items-center gap-1 pt-1">
+                      {req.receiverSignatureUrl ? (
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <Check className="w-2.5 h-2.5" /> เซ็นรับแล้ว
+                        </span>
+                      ) : req.status === 'COMPLETED' ? (
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                          <AlertTriangle className="w-2.5 h-2.5 text-rose-600" /> ยังไม่มีคนเซ็นรับ
+                        </span>
+                      ) : null}
+
+                      {Array.isArray(req.deliveryPhotos) && req.deliveryPhotos.length > 0 && (
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                          <Camera className="w-2.5 h-2.5" /> {req.deliveryPhotos.length} รูปหลักฐาน
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -2438,53 +2871,46 @@ export default function StoreRequisitionsClient({
                   </div>
 
                   {/* Mobile Actions */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                    <Link
+                      href={`/store/requisitions/${req.id}`}
+                      className="flex-1 min-w-[120px] flex items-center justify-center gap-1 px-3 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors"
+                      title="บันทึกตรวจรับของหน้างาน & เซ็นรับ"
+                    >
+                      <Smartphone className="w-3.5 h-3.5" />
+                      <span>ตรวจรับ/เซ็น</span>
+                    </Link>
+
                     <Link
                       href={`/requisitions/${req.id}/pdf`}
                       target="_blank"
                       className="flex items-center gap-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
                     >
                       <Printer className="w-3.5 h-3.5" />
-                      <span>พิมพ์ PDF</span>
+                      <span>PDF</span>
                     </Link>
 
                     {req.status === 'APPROVED' ? (
                       <button
                         onClick={() => handleQuickFulfill(req)}
                         disabled={isLoading}
-                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm disabled:opacity-50"
+                        className="flex-1 min-w-[120px] flex items-center justify-center gap-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm disabled:opacity-50"
                       >
                         <Check className="w-3.5 h-3.5" />
-                        <span>{isLoading ? 'กำลังบันทึก...' : 'ส่งมอบแล้ว'}</span>
+                        <span>{isLoading ? '...' : 'ส่งมอบแล้ว'}</span>
                       </button>
                     ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' ? (
-                      <div className="flex-1 flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <button
                           onClick={() => openReturnModal(req)}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm"
+                          className="flex items-center justify-center gap-1 px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow-sm"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                           <span>{req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
                         </button>
                         <button
                           onClick={() => setDetailReq(req)}
-                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ) : req.status === 'RETURNED' ? (
-                      <div className="flex-1 flex items-center gap-2">
-                        <button
-                          onClick={() => openReturnModal(req)}
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold"
-                        >
-                          <RotateCcw className="w-3.5 h-3.5 text-teal-600" />
-                          <span>ดูการคืนของ</span>
-                        </button>
-                        <button
-                          onClick={() => setDetailReq(req)}
-                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                          className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -2492,10 +2918,9 @@ export default function StoreRequisitionsClient({
                     ) : (
                       <button
                         onClick={() => setDetailReq(req)}
-                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        <span>ดูข้อมูล</span>
                       </button>
                     )}
                   </div>
@@ -2885,6 +3310,42 @@ export default function StoreRequisitionsClient({
 
             {/* Body */}
             <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-xs text-slate-700">
+              {/* Employee return request notification */}
+              {(returnModalReq.returnRequestedAt || returnModalReq.returnRequestNote) && (
+                <div className="p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                    <RotateCcw size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-bold text-amber-950 text-xs">
+                      พนักงานได้แจ้งขอส่งคืนอุปกรณ์เมื่อ {formatThaiDate(returnModalReq.returnRequestedAt, true)}
+                    </div>
+                    {returnModalReq.returnRequestNote && (
+                      <div className="text-xs text-amber-900 mt-1">
+                        หมายเหตุจากพนักงาน: <span className="font-semibold">"{returnModalReq.returnRequestNote}"</span>
+                      </div>
+                    )}
+                    {Array.isArray(returnModalReq.returnRequestPhotos) && returnModalReq.returnRequestPhotos.length > 0 && (
+                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-amber-200/60">
+                        <span className="text-[11px] text-amber-800 font-medium">รูปถ่ายแนบ ({returnModalReq.returnRequestPhotos.length}):</span>
+                        <div className="flex gap-1.5">
+                          {returnModalReq.returnRequestPhotos.map((img: string, idx: number) => (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              key={idx}
+                              src={img}
+                              alt="Tool"
+                              onClick={() => setSelectedPhotoPreview(img)}
+                              className="w-9 h-9 rounded-lg object-cover border border-amber-300 shadow-xs cursor-pointer hover:scale-105 transition-transform"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Return Form Metadata */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200/70">
                 <div>
@@ -3909,6 +4370,25 @@ export default function StoreRequisitionsClient({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Photo Lightbox Preview */}
+      {selectedPhotoPreview && (
+        <div
+          onClick={() => setSelectedPhotoPreview(null)}
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm cursor-pointer animate-fadeIn"
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={selectedPhotoPreview} alt="Preview" className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl" />
+            <button
+              onClick={() => setSelectedPhotoPreview(null)}
+              className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-slate-800 flex items-center justify-center shadow-lg hover:bg-slate-100"
+            >
+              <X size={16} />
+            </button>
           </div>
         </div>
       )}

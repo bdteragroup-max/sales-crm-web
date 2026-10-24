@@ -228,7 +228,7 @@ const bdNav = [
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
   { icon: Tv, label: 'Team Overview (TV)', href: '/bd/tickets/tv' },
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
-  { icon: Package, label: 'เบิก/ยืมวัสดุอุปกรณ์', href: '/requisitions' }
+  { icon: Package, label: 'เบิกของโครงการ / เบิกยืมอุปกรณ์', href: '/requisitions' }
 ];
 
 const commonNav = [
@@ -238,7 +238,7 @@ const commonNav = [
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
   { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' },
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
-  { icon: Package, label: 'เบิก/ยืมวัสดุอุปกรณ์', href: '/requisitions' }
+  { icon: Package, label: 'เบิกของโครงการ / เบิกยืมอุปกรณ์', href: '/requisitions' }
 ];
 
 export default function SidebarClient(props: SidebarProps) {
@@ -308,7 +308,7 @@ export default function SidebarClient(props: SidebarProps) {
   let navToAppend = isExecutive ? [] : commonNav;
 
   if (isBdRole) {
-    navToAppend = navToAppend.filter(item => !['/marketing/requests/new', '/requisitions', '/facility-repairs/new', '/support/tickets'].includes(item.href));
+    navToAppend = navToAppend.filter(item => !['/marketing/requests/new', '/facility-repairs/new', '/support/tickets'].includes(item.href));
   }
   if (isTechnician) {
     navToAppend = navToAppend.filter(item => item.href !== '/facility-repairs/new');
@@ -318,6 +318,15 @@ export default function SidebarClient(props: SidebarProps) {
   }
 
   const finalNav = Array.from(new Map([...nav, ...navToAppend].map(item => [item.href, item])).values());
+
+  // Guarantee that /requisitions is ALWAYS visible to all employees & provincial branches
+  if (!finalNav.some(item => item.href === '/requisitions')) {
+    finalNav.push({
+      icon: Package,
+      label: 'เบิกของโครงการ / เบิกยืมอุปกรณ์',
+      href: '/requisitions',
+    });
+  }
 
   // Guarantee that /accounting/payment-requests/new is ALWAYS visible to all department roles
   if (!finalNav.some(item => item.href === '/accounting/payment-requests/new')) {
