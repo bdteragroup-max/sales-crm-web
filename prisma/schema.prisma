@@ -2142,6 +2142,7 @@ model MarketingLead {
   address             String?
   businessType        String?
   customerType        String?
+  occupation          String?
   district            String?
   postalCode          String?
   province            String?

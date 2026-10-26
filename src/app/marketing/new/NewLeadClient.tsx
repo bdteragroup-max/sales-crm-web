@@ -32,9 +32,14 @@ import {
   Building,
   HelpCircle,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Briefcase
 } from 'lucide-react'
 import { getChannelBadgeStyle } from '../components/LeadSourceBadge'
+import {
+  PRODUCT_GROUPS,
+  getOccupationsForProductGroup
+} from '../constants/productOccupations'
 
 export default function NewLeadClient({
   userId,
@@ -73,6 +78,7 @@ export default function NewLeadClient({
   const [phoneNumber, setPhoneNumber] = useState('')
   const [productOfInterest, setProductOfInterest] = useState('')
   const [productType, setProductType] = useState('')
+  const [occupation, setOccupation] = useState('')
   const [conversationContent, setConversationContent] = useState('')
 
   // Autocomplete State for Customer Search
@@ -218,6 +224,7 @@ export default function NewLeadClient({
     setPhoneNumber('')
     setProductOfInterest('')
     setProductType('')
+    setOccupation('')
     setConversationContent('')
     setSelectedChannel('Facebook')
     setSelectedCampaignId('')
@@ -252,6 +259,7 @@ export default function NewLeadClient({
       phoneNumber: phoneNumber.trim() || undefined,
       productOfInterest: productOfInterest.trim() || undefined,
       productType: productType || undefined,
+      occupation: occupation || undefined,
       conversationContent: conversationContent.trim() || undefined,
       createdByUserId: userId,
       leadSource: selectedChannel || null,
@@ -479,12 +487,12 @@ export default function NewLeadClient({
               )}
             </div>
 
-            {/* Symmetrical 2-Column: Product & Product Category */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            {/* Product Interest, Product Group & Occupation */}
+            <div className="space-y-4 pt-1">
               <div className="space-y-1.5">
                 <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                   <Package size={13} className="text-gray-400" />
-                  <span>สินค้าที่สนใจ</span>
+                  <span>สินค้าที่สนใจ (Product of Interest)</span>
                 </label>
                 <div className="relative">
                   <input
@@ -492,36 +500,76 @@ export default function NewLeadClient({
                     name="productOfInterest"
                     value={productOfInterest}
                     onChange={(e) => setProductOfInterest(e.target.value)}
-                    placeholder="เช่น Solar Roof 5kW, Inverter"
+                    placeholder="เช่น Solar Roof 5kW, Inverter GD20, ปั๊มบาดาล"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-900 placeholder:text-gray-400 bg-gray-50/60 hover:bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all shadow-xs"
                     id="lead-product-interest-input"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <Layers size={13} className="text-gray-400" />
-                  <span>ประเภทสินค้า / โซลูชัน</span>
-                </label>
-                <select
-                  name="productType"
-                  value={productType}
-                  onChange={(e) => setProductType(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-800 bg-gray-50/60 hover:bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all shadow-xs cursor-pointer"
-                  id="lead-product-type-select"
-                >
-                  <option value="">-- เลือกประเภทสินค้า --</option>
-                  <option value="Solar Roof">Solar Roof (โซล่ารูฟท็อป)</option>
-                  <option value="Solar Pump">Solar Pump (ปั๊มน้ำโซล่า)</option>
-                  <option value="Inverter Veichi">Inverter Veichi</option>
-                  <option value="Inverter Other">Inverter Other</option>
-                  <option value="Motor">Motor (มอเตอร์ไฟฟ้า)</option>
-                  <option value="Pump">Pump (ปั๊มน้ำอุตสาหกรรม)</option>
-                  <option value="MDB/DB">MDB/DB (ตู้ควบคุมไฟฟ้า)</option>
-                  <option value="Part">Part (อะไหล่และอุปกรณ์)</option>
-                  <option value="Other">Other (อื่นๆ)</option>
-                </select>
+              {/* Symmetrical 2-Column: Product Group & Occupation */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Layers size={13} className="text-gray-400" />
+                      <span>กลุ่มสินค้า (Product Group)</span>
+                    </span>
+                    <span className="text-[10px] text-brand-red font-bold">กำหนดเพื่อเลือกอาชีพ</span>
+                  </label>
+                  <select
+                    name="productType"
+                    value={productType}
+                    onChange={(e) => {
+                      setProductType(e.target.value)
+                      setOccupation('')
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-800 bg-gray-50/60 hover:bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all shadow-xs cursor-pointer"
+                    id="lead-product-type-select"
+                  >
+                    <option value="">-- เลือกกลุ่มสินค้า --</option>
+                    <optgroup label="กลุ่มสินค้าหลัก">
+                      <option value="Pump">Pump (ปั๊มน้ำ)</option>
+                      <option value="Solar Rooftop">Solar Rooftop (โซล่ารูฟท็อป)</option>
+                      <option value="AC Drive">AC Drive (อินเวอร์เตอร์)</option>
+                    </optgroup>
+                    <optgroup label="หมวดหมู่อื่นๆ">
+                      <option value="Solar Pump">Solar Pump (ปั๊มน้ำโซล่า)</option>
+                      <option value="Inverter Veichi">Inverter Veichi</option>
+                      <option value="Motor">Motor (มอเตอร์ไฟฟ้า)</option>
+                      <option value="MDB/DB">MDB/DB (ตู้ควบคุมไฟฟ้า)</option>
+                      <option value="Part">Part (อะไหล่และอุปกรณ์)</option>
+                      <option value="Other">Other (อื่นๆ)</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Briefcase size={13} className="text-gray-400" />
+                      <span>อาชีพ (Occupation)</span>
+                    </span>
+                    {productType && (
+                      <span className="text-[10px] text-emerald-600 font-bold">ตามกลุ่ม {productType}</span>
+                    )}
+                  </label>
+                  <select
+                    name="occupation"
+                    value={occupation}
+                    onChange={(e) => setOccupation(e.target.value)}
+                    disabled={!productType}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-800 bg-gray-50/60 hover:bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all shadow-xs cursor-pointer disabled:bg-gray-100/70 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    id="lead-occupation-select"
+                  >
+                    <option value="">
+                      {productType ? '-- เลือกอาชีพที่สอดคล้อง --' : '-- กรุณาเลือกกลุ่มสินค้าก่อน --'}
+                    </option>
+                    {productType && getOccupationsForProductGroup(productType).map((occ) => (
+                      <option key={occ} value={occ}>{occ}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>

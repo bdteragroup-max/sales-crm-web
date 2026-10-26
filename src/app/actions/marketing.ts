@@ -10,6 +10,7 @@ export async function createMarketingLead(data: {
   phoneNumber?: string
   productOfInterest?: string
   productType?: string
+  occupation?: string | null
   conversationContent?: string
   createdByUserId: string
   leadSource?: string | null
@@ -23,6 +24,8 @@ export async function createMarketingLead(data: {
         phoneNumber: data.phoneNumber,
         productOfInterest: data.productOfInterest,
         productType: data.productType,
+        occupation: data.occupation || null,
+        businessType: data.occupation || null,
         conversationContent: data.conversationContent,
         createdByUserId: data.createdByUserId,
         leadSource: data.leadSource || null,
@@ -383,6 +386,7 @@ export async function updateMarketingLead(id: string, data: {
   phoneNumber?: string
   productOfInterest?: string
   productType?: string
+  occupation?: string | null
   conversationContent?: string
   assignedToId?: string | null
   leadSource?: string | null
@@ -390,9 +394,14 @@ export async function updateMarketingLead(id: string, data: {
   adCampaignId?: string | null
 }) {
   try {
+    const updatePayload: any = { ...data }
+    if (data.occupation !== undefined) {
+      updatePayload.occupation = data.occupation
+      updatePayload.businessType = data.occupation
+    }
     const lead = await (prisma as any).marketingLead.update({
       where: { id },
-      data
+      data: updatePayload
     })
     revalidatePath('/marketing')
     revalidatePath(`/marketing/${id}`)
@@ -676,7 +685,8 @@ export async function exportMarketingLeadsToExcel(leadIds?: string[]): Promise<{
       { header: 'ช่องทางโฆษณา', key: 'channel', width: 18 },
       { header: 'แคมเปญโฆษณา', key: 'campaign', width: 25 },
       { header: 'สินค้าที่สนใจ', key: 'product', width: 26 },
-      { header: 'ประเภทสินค้า', key: 'productType', width: 20 },
+      { header: 'กลุ่มสินค้า / ประเภท', key: 'productType', width: 20 },
+      { header: 'อาชีพ', key: 'occupation', width: 20 },
       { header: 'รายละเอียดความต้องการ', key: 'conversation', width: 35 },
       { header: 'สถานะการส่งต่อ', key: 'forwardStatus', width: 20 },
       { header: 'วันที่ส่งต่อ', key: 'forwardedAt', width: 18 },
@@ -735,6 +745,7 @@ export async function exportMarketingLeadsToExcel(leadIds?: string[]): Promise<{
         campaign: l.adCampaign?.name || l.campaignSource || '-',
         product: l.productOfInterest || '-',
         productType: l.productType || '-',
+        occupation: l.occupation || l.businessType || '-',
         conversation: l.conversationContent || '-',
         forwardStatus: forwardStr,
         forwardedAt: forwardDateStr,

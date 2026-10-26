@@ -3,8 +3,13 @@
 import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateMarketingLead } from '@/app/actions/marketing'
-import { Loader2, Save, ArrowLeft, CheckCircle2, Radio, Megaphone, Layers } from 'lucide-react'
+import { Loader2, Save, ArrowLeft, CheckCircle2, Radio, Megaphone, Layers, Briefcase } from 'lucide-react'
 import Link from 'next/link'
+import {
+  PRODUCT_GROUPS,
+  getOccupationsForProductGroup,
+  normalizeProductGroup
+} from '@/app/marketing/constants/productOccupations'
 
 export default function EditLeadClient({ 
   lead, 
@@ -19,6 +24,10 @@ export default function EditLeadClient({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
+
+  // Product and Occupation state
+  const [productType, setProductType] = useState(lead.productType || '')
+  const [occupation, setOccupation] = useState(lead.occupation || lead.businessType || '')
 
   // Attribution state
   const [selectedChannel, setSelectedChannel] = useState(
@@ -68,7 +77,8 @@ export default function EditLeadClient({
       customerName: formData.get('customerName') as string,
       phoneNumber: formData.get('phoneNumber') as string,
       productOfInterest: formData.get('productOfInterest') as string,
-      productType: formData.get('productType') as string,
+      productType: productType || undefined,
+      occupation: occupation || null,
       conversationContent: formData.get('conversationContent') as string,
       assignedToId: (formData.get('assignedToId') as string) || null,
       leadSource: selectedChannel || null,
@@ -265,22 +275,49 @@ export default function EditLeadClient({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-black text-gray-700 uppercase tracking-wider">ประเภทสินค้า (ระบุถ้าทราบ)</label>
+          <label className="text-xs font-black text-gray-700 uppercase tracking-wider">กลุ่มสินค้า (Product Group)</label>
           <select 
             name="productType" 
-            defaultValue={lead.productType || ''}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all text-sm font-medium text-gray-700"
+            value={productType}
+            onChange={(e) => {
+              setProductType(e.target.value)
+              setOccupation('')
+            }}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all text-sm font-medium text-gray-700 cursor-pointer"
           >
-            <option value="">- เลือก -</option>
-            <option value="Inverter Veichi">Inverter Veichi</option>
-            <option value="Inverter Other">Inverter Other</option>
-            <option value="Motor">Motor</option>
-            <option value="Pump">Pump</option>
-            <option value="Part">Part</option>
-            <option value="MDB/DB">MDB/DB</option>
-            <option value="Solar Roof">Solar Roof</option>
-            <option value="Solar Pump">Solar Pump</option>
-            <option value="Other">Other</option>
+            <option value="">- เลือกกลุ่มสินค้า -</option>
+            <optgroup label="กลุ่มสินค้าหลัก">
+              <option value="Pump">Pump (ปั๊มน้ำ)</option>
+              <option value="Solar Rooftop">Solar Rooftop (โซล่ารูฟท็อป)</option>
+              <option value="AC Drive">AC Drive (อินเวอร์เตอร์)</option>
+            </optgroup>
+            <optgroup label="หมวดหมู่อื่นๆ">
+              <option value="Solar Pump">Solar Pump (ปั๊มน้ำโซล่า)</option>
+              <option value="Inverter Veichi">Inverter Veichi</option>
+              <option value="Motor">Motor (มอเตอร์ไฟฟ้า)</option>
+              <option value="MDB/DB">MDB/DB (ตู้ควบคุมไฟฟ้า)</option>
+              <option value="Part">Part (อะไหล่และอุปกรณ์)</option>
+              <option value="Other">Other (อื่นๆ)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center justify-between">
+            <span>อาชีพ (Occupation)</span>
+            {productType && <span className="text-[10px] text-emerald-600 font-bold">ตามกลุ่ม {productType}</span>}
+          </label>
+          <select 
+            name="occupation" 
+            value={occupation}
+            onChange={(e) => setOccupation(e.target.value)}
+            disabled={!productType}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all text-sm font-medium text-gray-700 cursor-pointer disabled:bg-gray-100/70 disabled:text-gray-400 disabled:cursor-not-allowed"
+          >
+            <option value="">{productType ? '- เลือกอาชีพ -' : '- กรุณาเลือกกลุ่มสินค้าก่อน -'}</option>
+            {productType && getOccupationsForProductGroup(productType).map((occ) => (
+              <option key={occ} value={occ}>{occ}</option>
+            ))}
           </select>
         </div>
       </div>

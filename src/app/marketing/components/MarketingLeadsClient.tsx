@@ -42,6 +42,7 @@ export interface MarketingLeadItem {
   phoneNumber?: string | null
   productOfInterest?: string | null
   productType?: string | null
+  occupation?: string | null
   conversationContent?: string | null
   createdByUserId?: string
   isForwarded: boolean
@@ -87,6 +88,7 @@ export default function MarketingLeadsClient({
   const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [selectedChannel, setSelectedChannel] = useState(initialChannel)
   const [selectedStage, setSelectedStage] = useState(initialStage)
+  const [selectedProductGroup, setSelectedProductGroup] = useState('')
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
   const [copiedPhoneId, setCopiedPhoneId] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
@@ -248,7 +250,16 @@ export default function MarketingLeadsClient({
         }
       }
 
-      // 2. Stage Filter
+      // 2. Product Group Filter
+      if (selectedProductGroup) {
+        const pg = selectedProductGroup.toLowerCase()
+        const pt = (l.productType || '').toLowerCase()
+        if (!pt.includes(pg)) {
+          return false
+        }
+      }
+
+      // 3. Stage Filter
       if (selectedStage !== 'all') {
         if (selectedStage === 'new' && isForwarded) return false
         if (selectedStage === 'forwarded' && (!isForwarded || isWon || isLost)) return false
@@ -257,27 +268,28 @@ export default function MarketingLeadsClient({
         if (selectedStage === 'lost' && !isLost) return false
       }
 
-      // 3. Search Query Filter
+      // 4. Search Query Filter
       if (searchQuery.trim()) {
         const s = searchQuery.toLowerCase().trim()
         const matchName = l.customerName.toLowerCase().includes(s)
         const matchPhone = l.phoneNumber && l.phoneNumber.includes(s)
         const matchProduct = l.productOfInterest && l.productOfInterest.toLowerCase().includes(s)
         const matchType = l.productType && l.productType.toLowerCase().includes(s)
+        const matchOccupation = l.occupation && l.occupation.toLowerCase().includes(s)
         const matchChannel = channel && channel.toLowerCase().includes(s)
         const matchAdSet = (adSetName && adSetName.toLowerCase().includes(s)) || (adSetCode && adSetCode.toLowerCase().includes(s))
         const matchCampaign = (campaignName && campaignName.toLowerCase().includes(s)) || (campaignCode && campaignCode.toLowerCase().includes(s))
         const matchSales = l.assignedTo?.fullName?.toLowerCase().includes(s) || l.quotation?.salesperson?.fullName?.toLowerCase().includes(s)
         const matchTelesale = (telesaleSummary && telesaleSummary.toLowerCase().includes(s)) || (telesaleOutcome && telesaleOutcome.toLowerCase().includes(s))
 
-        if (!matchName && !matchPhone && !matchProduct && !matchType && !matchChannel && !matchAdSet && !matchCampaign && !matchSales && !matchTelesale) {
+        if (!matchName && !matchPhone && !matchProduct && !matchType && !matchOccupation && !matchChannel && !matchAdSet && !matchCampaign && !matchSales && !matchTelesale) {
           return false
         }
       }
 
       return true
     })
-  }, [initialLeads, searchQuery, selectedChannel, selectedStage])
+  }, [initialLeads, searchQuery, selectedChannel, selectedProductGroup, selectedStage])
 
   // Symmetrical Workflow Stepper
   const renderWorkflowStepper = (lead: MarketingLeadItem) => {
@@ -606,7 +618,19 @@ export default function MarketingLeadsClient({
           </div>
 
           {/* Symmetrical Control Controls on Right */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={selectedProductGroup}
+              onChange={(e) => setSelectedProductGroup(e.target.value)}
+              className="px-3 py-2.5 bg-gray-50 hover:bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all cursor-pointer shadow-xs"
+              id="marketing-product-group-select"
+            >
+              <option value="">ทุกกลุ่มสินค้า (All Products)</option>
+              <option value="Pump">Pump (ปั๊มน้ำ)</option>
+              <option value="Solar Rooftop">Solar Rooftop</option>
+              <option value="AC Drive">AC Drive</option>
+            </select>
+
             <select
               value={selectedChannel}
               onChange={(e) => setSelectedChannel(e.target.value)}
@@ -728,11 +752,12 @@ export default function MarketingLeadsClient({
               <span>ไม่สนใจ ({metrics.notInterestedLeads})</span>
             </button>
 
-            {(searchQuery || selectedChannel || selectedStage !== 'all') && (
+            {(searchQuery || selectedChannel || selectedProductGroup || selectedStage !== 'all') && (
               <button
                 onClick={() => {
                   setSearchQuery('')
                   setSelectedChannel('')
+                  setSelectedProductGroup('')
                   setSelectedStage('all')
                 }}
                 className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all flex items-center gap-1"
@@ -844,11 +869,18 @@ export default function MarketingLeadsClient({
                         <p className="font-bold text-gray-800 text-xs sm:text-sm truncate" title={lead.productOfInterest || '-'}>
                           {lead.productOfInterest || '-'}
                         </p>
-                        {lead.productType && (
-                          <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-[10px] rounded-md font-bold uppercase border border-gray-200/80 truncate max-w-full">
-                            {lead.productType}
-                          </span>
-                        )}
+                        <div className="flex flex-wrap items-center gap-1 mt-1">
+                          {lead.productType && (
+                            <span className="inline-block px-1.5 py-0.5 bg-gray-100 text-gray-700 text-[10px] rounded-md font-bold uppercase border border-gray-200/80 truncate max-w-[130px]" title={lead.productType}>
+                              {lead.productType}
+                            </span>
+                          )}
+                          {lead.occupation && (
+                            <span className="inline-block px-1.5 py-0.5 bg-red-50 text-brand-red text-[10px] rounded-md font-bold border border-red-100 truncate max-w-[130px]" title={lead.occupation}>
+                              {lead.occupation}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* 4. Workflow Stepper (16%) */}
@@ -1033,9 +1065,18 @@ export default function MarketingLeadsClient({
 
                     {lead.productType && (
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-400 font-medium">ประเภท:</span>
+                        <span className="text-gray-400 font-medium">กลุ่มสินค้า:</span>
                         <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-[10px] font-bold rounded">
                           {lead.productType}
+                        </span>
+                      </div>
+                    )}
+
+                    {lead.occupation && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-400 font-medium">อาชีพ:</span>
+                        <span className="px-2 py-0.5 bg-red-50 text-brand-red text-[10px] font-bold rounded border border-red-100">
+                          {lead.occupation}
                         </span>
                       </div>
                     )}

@@ -12,6 +12,7 @@ import {
   Languages,
   Globe,
 } from "lucide-react";
+import CheckReportClaimPaper from "../../components/CheckReportClaimPaper";
 import CheckListRepairPaper from "../../components/CheckListRepairPaper";
 import PumpFaultReportPaper from "../../components/PumpFaultReportPaper";
 import MotorFaultReportPaper from "../../components/MotorFaultReportPaper";
@@ -25,60 +26,62 @@ interface PrintClientPageProps {
   initialTab?: string;
 }
 
-export type PrintTabKey =
-  | "pump_th"
-  | "pump_en"
-  | "motor_th"
-  | "motor_en"
-  | "inverter_th"
-  | "inverter_en"
-  | "fault_th"
-  | "fault_en";
+export type ViewTab = "claim" | "fault" | "checklist" | "photos" | "all";
 
 export default function PrintClientPage({ report, initialTab }: PrintClientPageProps) {
   const searchParams = useSearchParams();
-  const requestedTab = initialTab || searchParams?.get("tab");
+  const requestedTab = initialTab || searchParams?.get("tab") || "";
 
   const eqType = report?.equipmentType || "INVERTER";
   const eqConfig = EQUIPMENT_TYPE_CONFIG[eqType] || EQUIPMENT_TYPE_CONFIG.INVERTER;
   const isInverter = eqType === "INVERTER";
   const isPump = eqType === "PUMP";
   const isMotor = eqType === "MOTOR";
-  const diode = report?.diodeMeasurement || {};
-  const hasInverter = Boolean(
-    diode?.hasInverter ??
-      (diode?.inverterModel ||
-        diode?.igbtStatus ||
-        diode?.meterPhotoDiode ||
-        diode?.pos_to_r_black ||
-        diode?.phaseShortCheck ||
-        report?.inverterModel ||
-        report?.inverterBrand)
-  );
 
-  // Initial tab: check query param first, then fallback by equipment type
-  const getInitialTab = (): PrintTabKey => {
-    const isEnParam =
-      requestedTab === "en" ||
-      requestedTab === "inverter_en" ||
-      requestedTab === "fault_en" ||
-      requestedTab === "pump_en" ||
-      requestedTab === "motor_en";
+  // Check if inverter checklist should be shown:
+  // ONLY for INVERTER, or CONTROL_CABINET that has an Inverter inside.
+  // PUMP and MOTOR should NEVER show Inverter checklists!
+  const shouldShowInverterChecklist =
+    isInverter || (eqType === "CONTROL_CABINET" && Boolean(report?.hasInverterInCabinet));
 
-    if (isMotor) return isEnParam ? "motor_en" : "motor_th";
-    if (isPump) return isEnParam ? "pump_en" : "pump_th";
-    if (isInverter) return isEnParam ? "inverter_en" : "inverter_th";
-    return isEnParam ? "fault_en" : "fault_th";
+  // Determine initial language:
+  const isInitiallyEn =
+    requestedTab === "en" ||
+    requestedTab.includes("_en");
+
+  // Determine initial tab:
+  // If specific tab in query:
+  // - "claim": claim
+  // - "fault", "pump", "motor", "inverter": fault
+  // Defaults when no tab specified:
+  // - PUMP or MOTOR: default to dedicated fault report ("fault")
+  // - INVERTER or CONTROL_CABINET: default to "claim"
+  const getInitialTab = (): ViewTab => {
+    if (requestedTab.includes("claim")) return "claim";
+    if (
+      requestedTab.includes("fault") ||
+      requestedTab.includes("pump") ||
+      requestedTab.includes("motor") ||
+      requestedTab.includes("inverter")
+    ) {
+      return "fault";
+    }
+    if (requestedTab.includes("checklist")) return "checklist";
+    if (requestedTab.includes("photos")) return "photos";
+    if (requestedTab.includes("all")) return "all";
+
+    if (isPump || isMotor) return "fault";
+    return "claim";
   };
 
-  const [activeTab, setActiveTab] = useState<PrintTabKey>(getInitialTab);
-  const [orientation, setOrientation] = useState<"landscape" | "portrait">("landscape");
+  const [activeTab, setActiveTab] = useState<ViewTab>(getInitialTab);
+  const [lang, setLang] = useState<"TH" | "EN">(isInitiallyEn ? "EN" : "TH");
+  const [orientation, setOrientation] = useState<"landscape" | "portrait">(() => {
+    if (isInverter && getInitialTab() === "fault") return "landscape";
+    return "portrait";
+  });
 
-  const isEn =
-    activeTab === "inverter_en" ||
-    activeTab === "fault_en" ||
-    activeTab === "pump_en" ||
-    activeTab === "motor_en";
+  const isEn = lang === "EN";
 
   useEffect(() => {
     const originalTitle = document.title;
@@ -102,8 +105,10 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
 
   return (
     <div className="min-h-screen bg-neutral-100 p-4 sm:p-8 flex flex-col items-center print:p-0 print:bg-white text-black font-['Sarabun',sans-serif]">
-      {/* Screen Navigation Bar (Hidden when printing) */}
-      <div className="w-full max-w-[1020px] mb-4 flex flex-col gap-2 print:hidden">
+      {/* ───────────────────────────────────────────────────────────
+          SCREEN NAVIGATION BAR (Hidden when printing)
+      ─────────────────────────────────────────────────────────── */}
+      <div className="w-full max-w-[1020px] mb-4 flex flex-col gap-2.5 print:hidden">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Link
@@ -124,19 +129,19 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-gray-500 bg-white px-2.5 py-1.5 rounded-lg border border-gray-200">
-              ประเภทอุปกรณ์: <b className="text-gray-900">{eqConfig.label}</b>
+            <span className="text-[11px] font-bold text-gray-600 bg-white px-2.5 py-1.5 rounded-lg border border-gray-200">
+              อุปกรณ์: <b className="text-gray-900">{eqConfig.label}</b>
             </span>
 
             {orientation === "landscape" ? (
               <span className="text-[11px] font-medium text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200 hidden sm:inline-flex items-center gap-1.5">
                 <RectangleHorizontal size={14} className="text-amber-700" />
-                <span>แนะนำ: การพิมพ์แบบ <b>แนวนอน (Landscape)</b></span>
+                <span>โหมดการพิมพ์: <b>แนวนอน (Landscape)</b></span>
               </span>
             ) : (
-              <span className="text-[11px] font-medium text-blue-800 bg-blue-50 px-2.5 py-1.5 rounded-lg border border-blue-200 hidden sm:inline-flex items-center gap-1.5">
-                <RectangleVertical size={14} className="text-blue-700" />
-                <span>โหมดการพิมพ์: <b>แนวตั้ง (Portrait)</b></span>
+              <span className="text-[11px] font-medium text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200 hidden sm:inline-flex items-center gap-1.5">
+                <RectangleVertical size={14} className="text-emerald-700" />
+                <span>โหมดการพิมพ์: <b>แนวตั้ง A4 (Portrait)</b></span>
               </span>
             )}
 
@@ -147,161 +152,197 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
               className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#bf1a01] rounded-xl shadow-md shadow-red-500/25 transition cursor-pointer active:scale-95"
             >
               <Printer size={15} />
-              <span>พิมพ์เอกสารนี้</span>
+              <span>พิมพ์เอกสารนี้ (Print)</span>
             </button>
           </div>
         </div>
 
-        {/* Tab Switcher - Language & Orientation Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2 rounded-xl border border-gray-200 shadow-2xs text-xs font-bold">
-          {/* Language Selector */}
+        {/* ───────────────────────────────────────────────────────────
+            CONTROLS: Format, Language & Orientation Switchers
+        ─────────────────────────────────────────────────────────── */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-gray-200 shadow-2xs text-xs font-bold">
+          {/* Format / Layout Selector */}
           <div className="flex items-center gap-2">
-            <span className="text-[11px] text-gray-500 font-semibold px-1">ภาษาเอกสาร:</span>
-            {/* Thai Version */}
+            <span className="text-[11px] text-gray-500 font-semibold px-1">รูปแบบเอกสาร:</span>
             <button
               type="button"
-              onClick={() =>
-                setActiveTab(
-                  isMotor
-                    ? "motor_th"
-                    : isPump
-                    ? "pump_th"
-                    : isInverter
-                    ? "inverter_th"
-                    : "fault_th"
-                )
-              }
-              className={`px-4 py-1.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
-                !isEn
+              onClick={() => {
+                setActiveTab("fault");
+                if (isInverter) setOrientation("landscape");
+                else setOrientation("portrait");
+              }}
+              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                activeTab === "fault"
                   ? "bg-slate-900 text-white shadow-xs font-bold"
                   : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
               }`}
             >
-              <Languages size={15} />
-              <span>ภาษาไทย (TH)</span>
+              <span>
+                {isPump
+                  ? "แบบฟอร์มปั๊มน้ำ (Pump Fault Report)"
+                  : isMotor
+                  ? "แบบฟอร์มมอเตอร์ (Motor Fault Report)"
+                  : isInverter
+                  ? "รายงาน Inverter (Fault Report - แนวนอน)"
+                  : "รายงานตรวจเช็ค (Fault Report)"}
+              </span>
             </button>
 
-            {/* English Version */}
             <button
               type="button"
-              onClick={() =>
-                setActiveTab(
-                  isMotor
-                    ? "motor_en"
-                    : isPump
-                    ? "pump_en"
-                    : isInverter
-                    ? "inverter_en"
-                    : "fault_en"
-                )
-              }
-              className={`px-4 py-1.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
-                isEn
+              onClick={() => {
+                setActiveTab("claim");
+                setOrientation("portrait");
+              }}
+              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                activeTab === "claim"
                   ? "bg-slate-900 text-white shadow-xs font-bold"
                   : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
               }`}
             >
-              <Globe size={15} />
-              <span>ภาษาอังกฤษ (EN)</span>
+              <span>แบบใบแจ้งเคลม (Claim Style - A4 แนวตั้ง)</span>
             </button>
           </div>
 
-          {/* Orientation Selector */}
-          <div className="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-gray-200 pt-2 sm:pt-0 sm:pl-3">
-            <span className="text-[11px] text-gray-500 font-semibold px-1">ทิศทางการพิมพ์:</span>
-            <button
-              type="button"
-              onClick={() => setOrientation("landscape")}
-              className={`px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
-                orientation === "landscape"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
-              }`}
-            >
-              <RectangleHorizontal size={15} />
-              <span>แนวนอน (Landscape)</span>
-              <span className="text-[10px] opacity-85 font-normal hidden lg:inline">(แนะนำ)</span>
-            </button>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Language Selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-gray-500 font-semibold px-1">ภาษา:</span>
+              <button
+                type="button"
+                onClick={() => setLang("TH")}
+                className={`px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 cursor-pointer text-xs ${
+                  lang === "TH"
+                    ? "bg-slate-900 text-white shadow-xs font-bold"
+                    : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                <Languages size={13} />
+                <span>ไทย</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setOrientation("portrait")}
-              className={`px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
-                orientation === "portrait"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
-              }`}
-            >
-              <RectangleVertical size={15} />
-              <span>แนวตั้ง (Portrait)</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setLang("EN")}
+                className={`px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 cursor-pointer text-xs ${
+                  lang === "EN"
+                    ? "bg-slate-900 text-white shadow-xs font-bold"
+                    : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                <Globe size={13} />
+                <span>EN</span>
+              </button>
+            </div>
+
+            {/* Orientation Selector */}
+            <div className="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-gray-200 pt-2 sm:pt-0 sm:pl-3">
+              <span className="text-[11px] text-gray-500 font-semibold px-1">ทิศทาง:</span>
+              <button
+                type="button"
+                onClick={() => setOrientation("portrait")}
+                className={`px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 cursor-pointer text-xs ${
+                  orientation === "portrait"
+                    ? "bg-slate-900 text-white shadow-xs font-bold"
+                    : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                <RectangleVertical size={13} />
+                <span>แนวตั้ง</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setOrientation("landscape")}
+                className={`px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 cursor-pointer text-xs ${
+                  orientation === "landscape"
+                    ? "bg-slate-900 text-white shadow-xs font-bold"
+                    : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                <RectangleHorizontal size={13} />
+                <span>แนวนอน</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Printable Sheet View - Continuous Flow Downwards without page cuts */}
+      {/* ───────────────────────────────────────────────────────────
+          PRINTABLE SHEET VIEW (All Document Pages in Continuous Flow)
+      ─────────────────────────────────────────────────────────── */}
       <div
         className={`w-full ${
           orientation === "landscape" ? "max-w-[1020px]" : "max-w-[800px]"
         } mx-auto flex flex-col items-center gap-6 print:gap-0 print:block print:max-w-none transition-all duration-200`}
       >
-        {/* Inverter Reports (Fault Report -> Check list repair -> Photos 8 sides) */}
-        {isInverter && (
+        {activeTab === "fault" ? (
           <>
+            {/* Page 1: Fault Report (Landscape Table or Portrait for Pump/Motor) */}
             <div className="w-full print:block">
-              <InverterFaultReportPaper report={report} lang={isEn ? "EN" : "TH"} />
+              {isInverter && (
+                <InverterFaultReportPaper report={report} lang={lang} />
+              )}
+              {isPump && !isInverter && (
+                <PumpFaultReportPaper report={report} lang={lang} />
+              )}
+              {isMotor && !isInverter && (
+                <MotorFaultReportPaper report={report} lang={lang} />
+              )}
+              {!isInverter && !isPump && !isMotor && (
+                <FaultReportPaper report={report} lang={lang} />
+              )}
             </div>
+
+            {/* Check List Repair (เฉพาะอินเวอร์เตอร์ / ตู้คอนโทรลที่มีอินเวอร์เตอร์เท่านั้น) */}
+            {shouldShowInverterChecklist && (
+              <div className="w-full print:block">
+                <CheckListRepairPaper report={report} lang={lang} />
+              </div>
+            )}
+
+            {/* รูปถ่าย */}
             <div className="w-full print:block">
-              <CheckListRepairPaper report={report} lang={isEn ? "EN" : "TH"} />
-            </div>
-            <div className="w-full print:block">
-              <PhotosPaper report={report} lang={isEn ? "EN" : "TH"} />
+              <PhotosPaper report={report} lang={lang} />
             </div>
           </>
-        )}
-
-        {/* Pump Reports */}
-        {isPump && !isInverter && (
+        ) : activeTab === "checklist" ? (
           <>
-            <div className="w-full print:block">
-              <PumpFaultReportPaper report={report} lang={isEn ? "EN" : "TH"} />
-            </div>
-            {hasInverter && (
+            {/* เฉพาะหน้า Check List Repair */}
+            {shouldShowInverterChecklist ? (
               <div className="w-full print:block">
-                <CheckListRepairPaper report={report} lang={isEn ? "EN" : "TH"} />
+                <CheckListRepairPaper report={report} lang={lang} />
+              </div>
+            ) : (
+              <div className="w-full print:block">
+                <CheckReportClaimPaper report={report} lang={lang} />
               </div>
             )}
             <div className="w-full print:block">
-              <PhotosPaper report={report} lang={isEn ? "EN" : "TH"} />
+              <PhotosPaper report={report} lang={lang} />
             </div>
           </>
-        )}
-
-        {/* Motor Reports */}
-        {isMotor && !isInverter && (
+        ) : activeTab === "photos" ? (
+          <div className="w-full print:block">
+            <PhotosPaper report={report} lang={lang} />
+          </div>
+        ) : (
           <>
+            {/* Page 1: แบบฟอร์มใบแจ้งเคลมและรายงานตรวจเช็ค (A4 แนวตั้ง) */}
             <div className="w-full print:block">
-              <MotorFaultReportPaper report={report} lang={isEn ? "EN" : "TH"} />
+              <CheckReportClaimPaper report={report} lang={lang} />
             </div>
-            <div className="w-full print:block">
-              <PhotosPaper report={report} lang={isEn ? "EN" : "TH"} />
-            </div>
-          </>
-        )}
 
-        {/* Control Cabinet & General Reports */}
-        {!isInverter && !isPump && !isMotor && (
-          <>
-            <div className="w-full print:block">
-              <FaultReportPaper report={report} lang={isEn ? "EN" : "TH"} />
-            </div>
-            {hasInverter && (
+            {/* Check List Repair (เฉพาะอินเวอร์เตอร์ / ตู้คอนโทรลที่มีอินเวอร์เตอร์เท่านั้น) */}
+            {shouldShowInverterChecklist && (
               <div className="w-full print:block">
-                <CheckListRepairPaper report={report} lang={isEn ? "EN" : "TH"} />
+                <CheckListRepairPaper report={report} lang={lang} />
               </div>
             )}
+
+            {/* รูปถ่าย */}
             <div className="w-full print:block">
-              <PhotosPaper report={report} lang={isEn ? "EN" : "TH"} />
+              <PhotosPaper report={report} lang={lang} />
             </div>
           </>
         )}
@@ -312,12 +353,12 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
           __html: `
         @page {
           size: A4 ${orientation};
-          margin: ${orientation === "landscape" ? "5mm 6mm" : "6mm 5mm"};
+          margin: ${orientation === "landscape" ? "5mm 6mm" : "6mm 8mm"};
         }
         @media print {
           @page {
             size: A4 ${orientation};
-            margin: ${orientation === "landscape" ? "5mm 6mm" : "6mm 5mm"};
+            margin: ${orientation === "landscape" ? "5mm 6mm" : "6mm 8mm"};
           }
           html, body {
             margin: 0 !important;

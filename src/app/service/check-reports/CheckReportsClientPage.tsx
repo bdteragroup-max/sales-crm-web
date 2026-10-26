@@ -780,7 +780,7 @@ export default function CheckReportsClientPage({
                             href={`/service/check-reports/${report.id}/print`}
                             target="_blank"
                             className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors shadow-2xs"
-                            title="พิมพ์รายงาน (CR / Fault Report)"
+                            title="พิมพ์ใบแจ้งเคลม / รายงานตรวจเช็ค (Claim & Inspection Report)"
                           >
                             <Printer className="w-4 h-4" />
                           </Link>

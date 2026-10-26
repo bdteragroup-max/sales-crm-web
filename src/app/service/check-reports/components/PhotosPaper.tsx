@@ -13,6 +13,40 @@ export default function PhotosPaper({ report, lang = "TH", className = "" }: Pho
   const photos = report?.photos || {};
   const eqType = report?.equipmentType || "INVERTER";
   const isCabinet = eqType === "CONTROL_CABINET";
+  const isPump = eqType === "PUMP";
+  const isMotor = eqType === "MOTOR";
+
+  const divisionSubtitle = isEn
+    ? isPump
+      ? "Water Pump Inspection Division — Product & Fault Photos"
+      : isMotor
+      ? "Electric Motor Inspection Division — Product & Fault Photos"
+      : isCabinet
+      ? "Control Cabinet Inspection Division — Product & Fault Photos"
+      : "Inverter & Drive System Division — Product & Fault Photos"
+    : isPump
+    ? "ฝ่ายบริการและตรวจเช็คปั๊มน้ำ — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
+    : isMotor
+    ? "ฝ่ายบริการและตรวจเช็คมอเตอร์ไฟฟ้า — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
+    : isCabinet
+    ? "ฝ่ายบริการและตรวจเช็คตู้คอนโทรล — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
+    : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)";
+
+  const divisionSubtitleSheet2 = isEn
+    ? isPump
+      ? "Water Pump Inspection Division — Additional & Fault Photos"
+      : isMotor
+      ? "Electric Motor Inspection Division — Additional & Fault Photos"
+      : isCabinet
+      ? "Control Cabinet Inspection Division — Additional & Fault Photos"
+      : "Inverter & Drive System Division — Additional & Fault Photos"
+    : isPump
+    ? "ฝ่ายบริการและตรวจเช็คปั๊มน้ำ — รูปภาพแนบเพิ่มเติม"
+    : isMotor
+    ? "ฝ่ายบริการและตรวจเช็คมอเตอร์ไฟฟ้า — รูปภาพแนบเพิ่มเติม"
+    : isCabinet
+    ? "ฝ่ายบริการและตรวจเช็คตู้คอนโทรล — รูปภาพแนบเพิ่มเติม"
+    : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปภาพแนบเพิ่มเติม";
   const photoSlots = [
     { key: "front", label: isEn ? "Front View" : "ด้านหน้า", url: photos.front?.[0] },
     { key: "left", label: isEn ? "Left Side View" : "ด้านซ้าย", url: photos.left?.[0] || photos.side?.[0] },
@@ -118,9 +152,7 @@ export default function PhotosPaper({ report, lang = "TH", className = "" }: Pho
             <div>
               <div className="font-bold text-[13px]">{companyTitle}</div>
               <div className="text-[10px] text-gray-600">
-                {isEn
-                  ? "Inverter & Drive System Division — Product & Fault Photos"
-                  : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"}
+                {divisionSubtitle}
               </div>
             </div>
           </div>
@@ -200,9 +232,7 @@ export default function PhotosPaper({ report, lang = "TH", className = "" }: Pho
                 <div>
                   <div className="font-bold text-[12px]">{companyTitle}</div>
                   <div className="text-[9.5px] text-gray-600">
-                    {isEn
-                      ? "Inverter & Drive System Division — Additional & Fault Photos"
-                      : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปภาพแนบเพิ่มเติม"}
+                    {divisionSubtitleSheet2}
                   </div>
                 </div>
               </div>

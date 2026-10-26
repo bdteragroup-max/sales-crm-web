@@ -571,7 +571,12 @@ export default function CheckReportForm({
 
   // Equipment Spec
   const [inverterBrand, setInverterBrand] = useState(
-    initialData?.inverterBrand || (initialData?.equipmentType === "CONTROL_CABINET" ? "TERA GROUP" : "INVT")
+    initialData?.inverterBrand ||
+      (initialData?.equipmentType === "CONTROL_CABINET"
+        ? "TERA GROUP"
+        : initialData?.equipmentType === "PUMP" || initialData?.equipmentType === "MOTOR"
+        ? ""
+        : "INVT")
   );
   const [inverterModel, setInverterModel] = useState(initialData?.inverterModel || "");
   const [serialNumber, setSerialNumber] = useState(initialData?.serialNumber || "");
@@ -1324,7 +1329,10 @@ export default function CheckReportForm({
         hasInverterInCabinet,
         diodeMeasurement: {
           ...diodeMeasurement,
-          hasInverter: equipmentType === "CONTROL_CABINET" ? hasInverterInCabinet : true,
+          hasInverter:
+            equipmentType === "CONTROL_CABINET"
+              ? hasInverterInCabinet
+              : equipmentType === "INVERTER",
         },
         powerInputVoltage,
         powerOutputVoltage,

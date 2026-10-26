@@ -6,6 +6,12 @@ import { decrypt } from '@/app/lib/session'
 import ExcelJS from 'exceljs'
 import { revalidatePath } from 'next/cache'
 import { notifyUser } from '@/app/lib/pushNotification'
+import {
+  PRODUCT_GROUPS,
+  PRODUCT_OCCUPATIONS,
+  normalizeProductGroup,
+  getOccupationsForProductGroup,
+} from '@/app/marketing/constants/productOccupations'
 
 // ==========================================
 // Types & Interfaces
@@ -30,11 +36,14 @@ export interface ValidatedLeadRow {
   leadSource: string
   productOfInterest: string
   productType: string
+  productGroup: string
+  occupation: string
   note: string
 
   // Normalization
   normalizedPhone: string | null
   normalizedName: string
+  normalizedCompany?: string
 
   // Validation & Duplicate Assessment
   status: LeadValidationStatus
@@ -187,9 +196,11 @@ export async function generateExcelTemplate(): Promise<string> {
     { header: 'ตำบล / แขวง', key: 'subDistrict', width: 18 },
     { header: 'ที่อยู่', key: 'address', width: 35 },
     { header: 'รหัสไปรษณีย์', key: 'postalCode', width: 15 },
-    { header: 'แหล่งที่มาของ Lead', key: 'leadSource', width: 22 },
+    { header: 'กลุ่มสินค้า (Product Group) *', key: 'productGroup', width: 26 },
+    { header: 'อาชีพ (Occupation) *', key: 'occupation', width: 24 },
     { header: 'สินค้าที่สนใจ', key: 'productOfInterest', width: 26 },
     { header: 'ประเภทสินค้า', key: 'productType', width: 20 },
+    { header: 'แหล่งที่มาของ Lead', key: 'leadSource', width: 22 },
     { header: 'แคมเปญโฆษณา', key: 'campaignSource', width: 22 },
     { header: 'ประเภทลูกค้า', key: 'customerType', width: 20 },
     { header: 'เลขประจำตัวผู้เสียภาษี', key: 'taxId', width: 22 },
@@ -197,7 +208,7 @@ export async function generateExcelTemplate(): Promise<string> {
     { header: 'หมายเหตุเพิ่มเติม', key: 'note', width: 30 },
   ]
 
-  // Add sample rows
+  // Add 3 sample rows showcasing the 3 core product groups
   worksheet.addRow({
     customerName: 'สมชาย ใจดี',
     phoneNumber: '0812345678',
@@ -207,9 +218,11 @@ export async function generateExcelTemplate(): Promise<string> {
     subDistrict: 'สามเสนใน',
     address: '123 ถนนพหลโยธิน',
     postalCode: '10400',
-    leadSource: 'Facebook Ads',
+    productGroup: 'Solar Rooftop',
+    occupation: 'เจ้าของกิจการ',
     productOfInterest: 'ระบบโซลาร์เซลล์ On-Grid 5kW',
     productType: 'Solar Rooftop',
+    leadSource: 'Facebook Ads',
     campaignSource: 'Solar Q3 Campaign',
     customerType: 'นิติบุคคล',
     taxId: '0105551234567',
@@ -218,22 +231,45 @@ export async function generateExcelTemplate(): Promise<string> {
   })
 
   worksheet.addRow({
-    customerName: 'วิภาดา เจริญรัตน์',
-    phoneNumber: '0929988776',
+    customerName: 'วิชัย เกษตรก้าวหน้า',
+    phoneNumber: '0891234567',
     companyName: '',
-    province: 'นนทบุรี',
-    district: 'เมืองนนทบุรี',
-    subDistrict: 'บางกระสอ',
-    address: '45/8 หมู่บ้านลัดดารมย์',
-    postalCode: '11000',
-    leadSource: 'Google Ads',
-    productOfInterest: 'โคมไฟถนนพลังงานแสงอาทิตย์',
-    productType: 'Lighting',
-    campaignSource: 'Search Solar Lights',
+    province: 'สุพรรณบุรี',
+    district: 'อู่ทอง',
+    subDistrict: 'ดอนคา',
+    address: '88 หมู่ 3',
+    postalCode: '72160',
+    productGroup: 'Pump',
+    occupation: 'เกษตรกร',
+    productOfInterest: 'ปั๊มน้ำบาดาลโซล่าเซลล์ 3HP',
+    productType: 'Pump',
+    leadSource: 'TikTok Ads',
+    campaignSource: 'Solar Pump Farmer',
     customerType: 'บุคคลธรรมดา',
     taxId: '',
-    email: 'wiphada@gmail.com',
-    note: 'สนใจติดตั้งบ้านเดี่ยว 10 ชุด'
+    email: 'wichai@gmail.com',
+    note: 'สูบน้ำเข้านา 20 ไร่ ต้องการพร้อมแผง'
+  })
+
+  worksheet.addRow({
+    customerName: 'ธนากร วิศวอุตสาหกรรม',
+    phoneNumber: '0929988776',
+    companyName: 'บจก. สยามอินดัสทรี 2024',
+    province: 'สมุทรปราการ',
+    district: 'บางพลี',
+    subDistrict: 'บางปลา',
+    address: '45/8 นิคมอุตสาหกรรม',
+    postalCode: '10540',
+    productGroup: 'AC Drive',
+    occupation: 'วิศวกร',
+    productOfInterest: 'อินเวอร์เตอร์ควบคุมมอเตอร์ AC Drive 15kW',
+    productType: 'AC Drive',
+    leadSource: 'Google Ads',
+    campaignSource: 'Search AC Drive',
+    customerType: 'นิติบุคคล',
+    taxId: '0105566001122',
+    email: 'thanakorn@siamindustry.co.th',
+    note: 'ปรับความเร็วมอเตอร์สายพานลำเลียงในโรงงาน'
   })
 
   // Header styling: Elegant dark navy/red accent
@@ -250,6 +286,41 @@ export async function generateExcelTemplate(): Promise<string> {
   // Sample row font
   worksheet.getRow(2).font = { name: 'Sarabun', size: 10 }
   worksheet.getRow(3).font = { name: 'Sarabun', size: 10 }
+  worksheet.getRow(4).font = { name: 'Sarabun', size: 10 }
+
+  // Sheet 2: Reference Guide for Product Groups & Occupations
+  const refSheet = workbook.addWorksheet('คู่มือกลุ่มสินค้าและอาชีพ (Ref)')
+  refSheet.columns = [
+    { header: 'กลุ่มสินค้า (Product Group)', key: 'group', width: 28 },
+    { header: 'อาชีพที่แนะนำ (Recommended Occupations)', key: 'occupations', width: 75 },
+    { header: 'หมายเหตุ', key: 'note', width: 35 },
+  ]
+
+  refSheet.addRow({
+    group: 'Pump',
+    occupations: 'เกษตรกร, ช่างไฟฟ้า, ร้านค้าทั่วไป, ตัวแทนจำหน่าย, ผู้รับเจาะน้ำบาดาล, อื่นๆ',
+    note: 'กลุ่มปั๊มน้ำ ปั๊มบาดาล ปั๊มโซล่าเซลล์'
+  })
+  refSheet.addRow({
+    group: 'Solar Rooftop',
+    occupations: 'ผู้ใช้งาน(บ้าน), ผู้ใช้งาน (อุตสาหกรรม), วิศวกร, ช่างไฟฟ้า, ผู้รับเหมา, เจ้าของกิจการ, ตัวแทนเจ้าของกิจการ, อื่นๆ',
+    note: 'กลุ่มติดตั้งโซล่าเซลล์บ้าน อาคาร โรงงาน'
+  })
+  refSheet.addRow({
+    group: 'AC Drive',
+    occupations: 'จป., วิศวกร, ช่างประจำโรงงาน, ช่างไฟฟ้า, ผู้รับเหมา, เจ้าของกิจการ, ตัวแทนเจ้าของกิจการ, อื่นๆ',
+    note: 'กลุ่มอินเวอร์เตอร์ VFD ควบคุมมอเตอร์'
+  })
+
+  const refHeader = refSheet.getRow(1)
+  refHeader.font = { name: 'Sarabun', size: 11, bold: true, color: { argb: 'FFFFFFFF' } }
+  refHeader.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FF0F172A' }
+  }
+  refHeader.alignment = { vertical: 'middle', horizontal: 'center' }
+  refHeader.height = 28
 
   const buffer = await workbook.xlsx.writeBuffer()
   return Buffer.from(buffer).toString('base64')
@@ -265,9 +336,11 @@ export async function generateCsvTemplate(): Promise<string> {
     'ตำบล / แขวง',
     'ที่อยู่',
     'รหัสไปรษณีย์',
-    'แหล่งที่มาของ Lead',
+    'กลุ่มสินค้า (Product Group)',
+    'อาชีพ (Occupation)',
     'สินค้าที่สนใจ',
     'ประเภทสินค้า',
+    'แหล่งที่มาของ Lead',
     'แคมเปญโฆษณา',
     'ประเภทลูกค้า',
     'เลขประจำตัวผู้เสียภาษี',
@@ -284,9 +357,11 @@ export async function generateCsvTemplate(): Promise<string> {
     'สามเสนใน',
     '123 ถนนพหลโยธิน',
     '10400',
-    'Facebook Ads',
+    'Solar Rooftop',
+    'เจ้าของกิจการ',
     'ระบบโซลาร์เซลล์ On-Grid 5kW',
     'Solar Rooftop',
+    'Facebook Ads',
     'Solar Q3 Campaign',
     'นิติบุคคล',
     '0105551234567',
@@ -294,9 +369,53 @@ export async function generateCsvTemplate(): Promise<string> {
     'สนใจติดตั้งโรงงาน ต้องการนัดสำรวจหน้างาน'
   ]
 
+  const sample2 = [
+    'วิชัย เกษตรก้าวหน้า',
+    '0891234567',
+    '',
+    'สุพรรณบุรี',
+    'อู่ทอง',
+    'ดอนคา',
+    '88 หมู่ 3',
+    '72160',
+    'Pump',
+    'เกษตรกร',
+    'ปั๊มน้ำบาดาลโซล่าเซลล์ 3HP',
+    'Pump',
+    'TikTok Ads',
+    'Solar Pump Farmer',
+    'บุคคลธรรมดา',
+    '',
+    'wichai@gmail.com',
+    'สูบน้ำเข้านา 20 ไร่ ต้องการพร้อมแผง'
+  ]
+
+  const sample3 = [
+    'ธนากร วิศวอุตสาหกรรม',
+    '0929988776',
+    'บจก. สยามอินดัสทรี 2024',
+    'สมุทรปราการ',
+    'บางพลี',
+    'บางปลา',
+    '45/8 นิคมอุตสาหกรรม',
+    '10540',
+    'AC Drive',
+    'วิศวกร',
+    'อินเวอร์เตอร์ควบคุมมอเตอร์ AC Drive 15kW',
+    'AC Drive',
+    'Google Ads',
+    'Search AC Drive',
+    'นิติบุคคล',
+    '0105566001122',
+    'thanakorn@siamindustry.co.th',
+    'ปรับความเร็วมอเตอร์สายพานลำเลียงในโรงงาน'
+  ]
+
   const csvContent = '\uFEFF' + [
     headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','),
-    sample1.map(v => `"${v.replace(/"/g, '""')}"`).join(',')
+    sample1.map(v => `"${v.replace(/"/g, '""')}"`).join(','),
+    sample2.map(v => `"${v.replace(/"/g, '""')}"`).join(','),
+    sample3.map(v => `"${v.replace(/"/g, '""')}"`).join(',')
   ].join('\r\n')
 
   return Buffer.from(csvContent, 'utf-8').toString('base64')
@@ -504,12 +623,42 @@ export async function validateImportLeads(rawRows: any[]): Promise<{
           k =>
             (k.includes('สินค้าที่สนใจ') || k.includes('สินค้า') || k.includes('product') || k.includes('item') || k.includes('interest')) &&
             !k.includes('ประเภท') &&
+            !k.includes('กลุ่ม') &&
             !k.includes('type')
         )
       )
 
-      // Product Type
-      const productType = cleanVal(findVal(k => k.includes('ประเภทสินค้า') || k.includes('producttype')))
+      // Product Group (กลุ่มสินค้า)
+      const rawProductGroup = cleanVal(
+        findVal(
+          k =>
+            k.includes('กลุ่มสินค้า') ||
+            k.includes('productgroup') ||
+            k.includes('หมวดสินค้า') ||
+            k.includes('กลุ่มผลิตภัณฑ์')
+        )
+      )
+
+      // Product Type (ประเภทสินค้า)
+      const rawProductType = cleanVal(findVal(k => k.includes('ประเภทสินค้า') || k.includes('producttype')))
+
+      // Determine final productGroup and productType
+      const resolvedProductGroup = normalizeProductGroup(rawProductGroup || rawProductType)
+      const resolvedProductType = rawProductType || resolvedProductGroup
+
+      // Occupation (อาชีพ)
+      const occupation = cleanVal(
+        findVal(
+          k =>
+            k.includes('อาชีพ') ||
+            k.includes('occupation') ||
+            k.includes('สายอาชีพ') ||
+            k.includes('กลุ่มอาชีพ') ||
+            k.includes('profession') ||
+            k.includes('career') ||
+            k.includes('job')
+        )
+      )
 
       // Customer Type
       const customerType = cleanVal(findVal(k => k.includes('ประเภทลูกค้า') || k.includes('customertype')))
@@ -554,7 +703,9 @@ export async function validateImportLeads(rawRows: any[]): Promise<{
         campaignSource,
         leadSource,
         productOfInterest,
-        productType,
+        productType: resolvedProductType,
+        productGroup: resolvedProductGroup,
+        occupation,
         note,
         normalizedPhone: normPhone,
         normalizedName: normName,
@@ -937,6 +1088,8 @@ export async function generateSummaryReportExcel(rows: ValidatedLeadRow[], stats
     { header: 'เบอร์โทรศัพท์', key: 'phoneNumber', width: 18 },
     { header: 'บริษัท / องค์กร', key: 'companyName', width: 25 },
     { header: 'จังหวัด', key: 'province', width: 16 },
+    { header: 'กลุ่มสินค้า', key: 'productGroup', width: 20 },
+    { header: 'อาชีพ', key: 'occupation', width: 20 },
     { header: 'แหล่งที่มา', key: 'leadSource', width: 18 },
     { header: 'สินค้าที่สนใจ', key: 'productOfInterest', width: 25 },
     { header: 'ประเภทข้อมูลที่ซ้ำ', key: 'matchedType', width: 18 },
@@ -966,6 +1119,8 @@ export async function generateSummaryReportExcel(rows: ValidatedLeadRow[], stats
       phoneNumber: r.phoneNumber || '-',
       companyName: r.companyName || '-',
       province: r.province || '-',
+      productGroup: r.productGroup || r.productType || '-',
+      occupation: r.occupation || '-',
       leadSource: r.leadSource || '-',
       productOfInterest: r.productOfInterest || '-',
       matchedType: r.matchedType === 'CUSTOMER' ? 'ลูกค้าเดิม' : r.matchedType === 'LEAD' ? 'Lead ในระบบ' : r.matchedType === 'IN_FILE' ? 'ซ้ำในไฟล์' : '-',
@@ -1067,12 +1222,14 @@ export async function importMarketingLeads(options: {
           address: row.address || null,
           postalCode: row.postalCode || null,
           customerType: row.customerType || null,
+          occupation: row.occupation || null,
+          businessType: row.occupation || null,
           taxId: row.taxId || null,
           email: row.email || null,
           campaignSource: row.campaignSource || null,
           leadSource: row.leadSource || null,
           productOfInterest: row.productOfInterest || null,
-          productType: row.productType || null,
+          productType: row.productGroup || row.productType || null,
           conversationContent: row.note ? `[ข้อมูลนำเข้าจากไฟล์]: ${row.note}` : null,
           createdByUserId: payload.userId as string,
           assignedToId: targetUserId,

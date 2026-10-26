@@ -1823,277 +1823,464 @@ export default function StoreRequisitionsClient({
   return (
     <div className="space-y-6">
       {/* 1. Header & Navigation Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
-        <div>
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mb-1.5">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
+        {/* Top Meta Bar: Breadcrumbs (Left) & User Profile (Right) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
             <Link href="/store/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1">
               <Warehouse className="w-3.5 h-3.5" />
               <span>คลังสินค้าและสโตร์</span>
             </Link>
-            <span>/</span>
+            <span className="text-slate-300">/</span>
             <span className="text-slate-800 font-semibold">รายการเบิกและยืมวัสดุอุปกรณ์ (Requisitions)</span>
           </div>
 
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
-              <Package className="w-5 h-5" />
-            </div>
-            รายการเบิกและยืมวัสดุอุปกรณ์
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            คลังสินค้า: ตรวจสอบรายการขอเบิกที่ผ่านการอนุมัติ จัดเตรียมอุปกรณ์ และบันทึกการส่งมอบ
-          </p>
+          <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-xl border border-slate-200/80 text-xs text-slate-700 self-start sm:self-auto">
+            <User className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-slate-400">เจ้าหน้าที่สโตร์:</span>
+            <span className="font-semibold text-slate-900">{userName || 'เจ้าหน้าที่'}</span>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-medium text-slate-700">
-            <User className="w-3.5 h-3.5 text-slate-500" />
-            <span>เจ้าหน้าที่: <span className="font-semibold text-slate-900">{userName || 'เจ้าหน้าที่สโตร์'}</span></span>
+        {/* Main Header Row: Title (Left) & 5 Action Buttons (Right) */}
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-md shadow-blue-500/20 flex items-center justify-center shrink-0">
+              <Package className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                รายการเบิกและยืมวัสดุอุปกรณ์
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                ตรวจสอบคำขอเบิกที่อนุมัติแล้ว จัดเตรียมสิ่งของ ส่งมอบ และบันทึกรับคืนอุปกรณ์เข้าคลัง
+              </p>
+            </div>
           </div>
 
-          <Link
-            href="/store/dashboard"
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-300 shadow-sm transition-all"
-          >
-            <Warehouse className="w-4 h-4 text-slate-500" />
-            <span>ภาพรวมสโตร์</span>
-          </Link>
-
-          <Link
-            href="/store/receive"
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-300 shadow-sm transition-all"
-          >
-            <PackageCheck className="w-4 h-4 text-slate-500" />
-            <span>รับสินค้าเข้าสโตร์</span>
-          </Link>
-
-          <button
-            onClick={() => router.refresh()}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 shadow-sm transition-all"
-            title="รีเฟรชข้อมูล"
-          >
-            <RotateCcw className="w-4 h-4 text-slate-500" />
-            <span>รีเฟรช</span>
-          </button>
-
-          <button
-            onClick={() => setShowReportModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-semibold border border-indigo-200 shadow-sm transition-all hover:scale-[1.02]"
-            title="ดูรายงานสรุปสถิติการเบิกและยืมวัสดุอุปกรณ์"
-          >
-            <BarChart3 className="w-4 h-4 text-indigo-600" />
-            <span>รายงานสรุป</span>
-          </button>
-
-          <div className="relative">
-            <button
-              onClick={() => setShowExportDropdown(!showExportDropdown)}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all hover:scale-[1.02]"
-              title="ส่งออกรายงานเป็นไฟล์ Excel (.xlsx)"
+          {/* Action Buttons Toolbar - All 5 buttons in one clean aligned row */}
+          <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+            <Link
+              href="/store/dashboard"
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 shadow-sm transition-all hover:border-slate-300"
             >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span>ส่งออก Excel</span>
-              <ChevronDown className="w-3.5 h-3.5 ml-0.5 opacity-80" />
+              <Warehouse className="w-3.5 h-3.5 text-slate-500" />
+              <span>ภาพรวมสโตร์</span>
+            </Link>
+
+            <Link
+              href="/store/receive"
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 shadow-sm transition-all hover:border-slate-300"
+            >
+              <PackageCheck className="w-3.5 h-3.5 text-slate-500" />
+              <span>รับสินค้าเข้าสโตร์</span>
+            </Link>
+
+            <button
+              onClick={() => router.refresh()}
+              className="h-9 inline-flex items-center gap-1.5 px-3 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 shadow-sm transition-all hover:border-slate-300"
+              title="รีเฟรชข้อมูล"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+              <span>รีเฟรช</span>
             </button>
 
-            {showExportDropdown && (
-              <>
-                <div
-                  className="fixed inset-0 z-20"
-                  onClick={() => setShowExportDropdown(false)}
-                />
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-30 animate-in fade-in-50 duration-150">
-                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    เลือกรูปแบบการส่งออก Excel
-                  </div>
-                  <button
-                    onClick={() => {
-                      setShowExportDropdown(false);
-                      handleExportExcel('FILTERED', 'FULL_REPORT');
-                    }}
-                    className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 rounded-xl flex items-center justify-between text-xs text-slate-700 hover:text-emerald-900 transition-colors"
-                  >
-                    <div>
-                      <div className="font-semibold">รายงานรวมทุกชีต (ตามตัวกรอง)</div>
-                      <div className="text-[10px] text-slate-400">รวมชีตสรุปใบยืม XS + ช่องลงนาม ({filteredRequisitions.length} ใบเบิก)</div>
-                    </div>
-                    <Download className="w-4 h-4 text-emerald-600" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowExportDropdown(false);
-                      handleExportExcel('ALL', 'FULL_REPORT');
-                    }}
-                    className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 rounded-xl flex items-center justify-between text-xs text-slate-700 hover:text-emerald-900 transition-colors mt-0.5"
-                  >
-                    <div>
-                      <div className="font-semibold">รายงานรวมทุกชีต (ทั้งหมดในระบบ)</div>
-                      <div className="text-[10px] text-slate-400">รวมชีตสรุปใบยืม XS + ช่องลงนาม ({requisitions.length} ใบเบิก)</div>
-                    </div>
-                    <Download className="w-4 h-4 text-emerald-600" />
-                  </button>
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-semibold border border-indigo-200 shadow-sm transition-all"
+              title="ดูรายงานสรุปสถิติการเบิกและยืมวัสดุอุปกรณ์"
+            >
+              <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />
+              <span>รายงานสรุป</span>
+            </button>
 
-                  <div className="my-1.5 border-t border-slate-100" />
+            {/* Excel Export Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowExportDropdown(!showExportDropdown)}
+                className="h-9 inline-flex items-center gap-1.5 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
+                title="ส่งออกรายงานเป็นไฟล์ Excel (.xlsx)"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5" />
+                <span>ส่งออก Excel</span>
+                <ChevronDown className="w-3 h-3 ml-0.5 opacity-80" />
+              </button>
 
-                  <button
-                    onClick={() => {
-                      setShowExportDropdown(false);
-                      handleExportExcel(reportScope, 'BORROW_SUMMARY_ONLY');
-                    }}
-                    className="w-full text-left px-3 py-2.5 bg-emerald-50/60 hover:bg-emerald-100/70 rounded-xl flex items-center justify-between text-xs text-emerald-950 transition-colors"
-                  >
-                    <div>
-                      <div className="font-bold flex items-center gap-1.5 text-emerald-800">
-                        <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>สรุปใบยืม XS ประจำเดือน</span>
+              {showExportDropdown && (
+                <>
+                  <div
+                    className="fixed inset-0 z-20"
+                    onClick={() => setShowExportDropdown(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-30 animate-in fade-in-50 duration-150">
+                    <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      เลือกรูปแบบการส่งออก Excel
+                    </div>
+                    <button
+                      onClick={() => {
+                        setShowExportDropdown(false);
+                        handleExportExcel('FILTERED', 'FULL_REPORT');
+                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 rounded-xl flex items-center justify-between text-xs text-slate-700 hover:text-emerald-900 transition-colors"
+                    >
+                      <div>
+                        <div className="font-semibold">รายงานรวมทุกชีต (ตามตัวกรอง)</div>
+                        <div className="text-[10px] text-slate-400">รวมชีตสรุปใบยืม XS + ช่องลงนาม ({filteredRequisitions.length} ใบเบิก)</div>
                       </div>
-                      <div className="text-[10px] text-emerald-700/80">แบบฟอร์มสรุปการยืม-คืน พร้อมช่องลงนามผู้ยืมและผู้รับคืน</div>
-                    </div>
-                    <Download className="w-4 h-4 text-emerald-600" />
-                  </button>
-                </div>
-              </>
-            )}
+                      <Download className="w-4 h-4 text-emerald-600" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowExportDropdown(false);
+                        handleExportExcel('ALL', 'FULL_REPORT');
+                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 rounded-xl flex items-center justify-between text-xs text-slate-700 hover:text-emerald-900 transition-colors mt-0.5"
+                    >
+                      <div>
+                        <div className="font-semibold">รายงานรวมทุกชีต (ทั้งหมดในระบบ)</div>
+                        <div className="text-[10px] text-slate-400">รวมชีตสรุปใบยืม XS + ช่องลงนาม ({requisitions.length} ใบเบิก)</div>
+                      </div>
+                      <Download className="w-4 h-4 text-emerald-600" />
+                    </button>
+
+                    <div className="my-1.5 border-t border-slate-100" />
+
+                    <button
+                      onClick={() => {
+                        setShowExportDropdown(false);
+                        handleExportExcel(reportScope, 'BORROW_SUMMARY_ONLY');
+                      }}
+                      className="w-full text-left px-3 py-2.5 bg-emerald-50/60 hover:bg-emerald-100/70 rounded-xl flex items-center justify-between text-xs text-emerald-950 transition-colors"
+                    >
+                      <div>
+                        <div className="font-bold flex items-center gap-1.5 text-emerald-800">
+                          <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>สรุปใบยืม XS ประจำเดือน</span>
+                        </div>
+                        <div className="text-[10px] text-emerald-700/80">แบบฟอร์มสรุปการยืม-คืน พร้อมช่องลงนามผู้ยืมและผู้รับคืน</div>
+                      </div>
+                      <Download className="w-4 h-4 text-emerald-600" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 2. Top KPI Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+      {/* 2. Top KPI Metric Cards (5 Cards in 5-Col Grid with Proper Padding p-5) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
         {/* Card 1: Approved - Waiting for Dispatch */}
         <div
           onClick={() => handleTabChange('APPROVED')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
             activeTab === 'APPROVED'
-              ? 'border-amber-400 ring-2 ring-amber-100'
+              ? 'border-amber-400 ring-2 ring-amber-100 shadow-sm'
               : 'border-slate-200/80 hover:border-amber-300'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-700">รอจัดของ / รอส่งมอบ</span>
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-amber-700">รอจัดของ / ส่งมอบ</span>
+            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl font-extrabold text-amber-600 tracking-tight">
-              {metrics.approvedCount.toLocaleString()} <span className="text-sm font-normal text-amber-400">รายการ</span>
+          <div className="my-2.5">
+            <div className="text-3xl font-black text-amber-600 tracking-tight flex items-baseline gap-1.5">
+              <span>{metrics.approvedCount.toLocaleString()}</span>
+              <span className="text-xs font-semibold text-amber-400">รายการ</span>
             </div>
-            <div className="text-xs text-amber-700/80 mt-1 font-medium">
-              อนุมัติแล้ว รอคลังจัดของและส่งมอบ
-            </div>
+          </div>
+          <div className="text-[11px] text-amber-800/80 font-medium min-h-[28px] flex items-center">
+            อนุมัติแล้ว รอคลังจัดของและส่งมอบ
           </div>
         </div>
 
         {/* Card 2: Completed / Awaiting Return */}
         <div
           onClick={() => handleTabChange('COMPLETED')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
             activeTab === 'COMPLETED'
-              ? 'border-emerald-400 ring-2 ring-emerald-100'
+              ? 'border-emerald-400 ring-2 ring-emerald-100 shadow-sm'
               : 'border-slate-200/80 hover:border-emerald-300'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-700">ส่งมอบแล้ว / รอคืน</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-emerald-700">ส่งมอบแล้ว / รอคืน</span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl font-extrabold text-emerald-600 tracking-tight">
-              {metrics.completedCount.toLocaleString()} <span className="text-sm font-normal text-emerald-400">รายการ</span>
+          <div className="my-2.5">
+            <div className="text-3xl font-black text-emerald-600 tracking-tight flex items-baseline gap-1.5">
+              <span>{metrics.completedCount.toLocaleString()}</span>
+              <span className="text-xs font-semibold text-emerald-400">รายการ</span>
             </div>
-            <div className="text-xs text-emerald-700/80 mt-1 font-medium">
-              ส่งมอบของแล้ว / อยู่ระหว่างใช้งาน
-            </div>
+          </div>
+          <div className="text-[11px] text-emerald-800/80 font-medium min-h-[28px] flex items-center">
+            ส่งมอบของแล้ว / อยู่ระหว่างใช้งาน
           </div>
         </div>
 
         {/* Card 3: Returned */}
         <div
           onClick={() => handleTabChange('RETURNED')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
             activeTab === 'RETURNED'
-              ? 'border-teal-400 ring-2 ring-teal-100'
+              ? 'border-teal-400 ring-2 ring-teal-100 shadow-sm'
               : 'border-slate-200/80 hover:border-teal-300'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-teal-700">รับคืนของแล้ว</span>
-            <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
-              <RotateCcw className="w-4 h-4" />
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-teal-700">รับคืนของแล้ว</span>
+            <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+              <RotateCcw className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl font-extrabold text-teal-600 tracking-tight">
-              {metrics.returnedCount.toLocaleString()} <span className="text-sm font-normal text-teal-400">รายการ</span>
+          <div className="my-2.5">
+            <div className="text-3xl font-black text-teal-600 tracking-tight flex items-baseline gap-1.5">
+              <span>{metrics.returnedCount.toLocaleString()}</span>
+              <span className="text-xs font-semibold text-teal-400">รายการ</span>
             </div>
-            <div className="text-xs text-teal-700/80 mt-1 font-medium">
-              รับอุปกรณ์คืนเข้าสโตร์เรียบร้อย
-            </div>
+          </div>
+          <div className="text-[11px] text-teal-800/80 font-medium min-h-[28px] flex items-center">
+            รับอุปกรณ์คืนเข้าสโตร์เรียบร้อย
           </div>
         </div>
 
         {/* Card 4: Pending Approval */}
         <div
           onClick={() => handleTabChange('PENDING_APPROVAL')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
             activeTab === 'PENDING_APPROVAL'
-              ? 'border-purple-400 ring-2 ring-purple-100'
+              ? 'border-purple-400 ring-2 ring-purple-100 shadow-sm'
               : 'border-slate-200/80 hover:border-purple-300'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-purple-700">รอหัวหน้าอนุมัติ</span>
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <AlertCircle className="w-4 h-4" />
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-purple-700">รอหัวหน้าอนุมัติ</span>
+            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <AlertCircle className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl font-extrabold text-purple-600 tracking-tight">
-              {metrics.pendingApprovalCount.toLocaleString()} <span className="text-sm font-normal text-purple-400">รายการ</span>
+          <div className="my-2.5">
+            <div className="text-3xl font-black text-purple-600 tracking-tight flex items-baseline gap-1.5">
+              <span>{metrics.pendingApprovalCount.toLocaleString()}</span>
+              <span className="text-xs font-semibold text-purple-400">รายการ</span>
             </div>
-            <div className="text-xs text-purple-700/80 mt-1 font-medium">
-              คำขอเบิกที่อยู่ระหว่างรออนุมัติ
-            </div>
+          </div>
+          <div className="text-[11px] text-purple-800/80 font-medium min-h-[28px] flex items-center">
+            คำขอเบิกที่อยู่ระหว่างรออนุมัติ
           </div>
         </div>
 
-        {/* Card 5: Total Items */}
+        {/* Card 5: Total Items (Spans 2 cols on mobile for balanced layout) */}
         <div
           onClick={() => handleTabChange('ALL')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
+          className={`col-span-2 sm:col-span-1 cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
             activeTab === 'ALL'
-              ? 'border-blue-400 ring-2 ring-blue-100'
+              ? 'border-blue-400 ring-2 ring-blue-100 shadow-sm'
               : 'border-slate-200/80 hover:border-blue-300'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-700">รายการสิ่งของรวม</span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Layers className="w-4 h-4" />
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-blue-700">รายการสิ่งของรวม</span>
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <Layers className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl font-extrabold text-blue-600 tracking-tight">
-              {metrics.totalItemsCount.toLocaleString()} <span className="text-sm font-normal text-blue-400">ชิ้น</span>
+          <div className="my-2.5">
+            <div className="text-3xl font-black text-blue-600 tracking-tight flex items-baseline gap-1.5">
+              <span>{metrics.totalItemsCount.toLocaleString()}</span>
+              <span className="text-xs font-semibold text-blue-400">ชิ้น</span>
             </div>
-            <div className="text-xs text-blue-700/80 mt-1 font-medium">
-              จากใบเบิกทั้งหมด {metrics.total} ฉบับ
-            </div>
+          </div>
+          <div className="text-[11px] text-blue-800/80 font-medium min-h-[28px] flex items-center">
+            จากใบเบิกทั้งหมด {metrics.total} ฉบับ
           </div>
         </div>
       </div>
 
-      {/* 3. Filter Toolbar & Company Selector */}
+      {/* 3. Filter Toolbar & Classification */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
-        {/* Row 1: Company Selector & Status Tabs */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">บริษัท:</span>
-            <div className="flex flex-wrap items-center gap-1.5">
+        {/* Tier A: Workflow Status Tabs (Balanced Equal-Width Grid) */}
+        <div className={`grid gap-2 p-1.5 bg-slate-100/80 rounded-2xl ${
+          tabCounts.RETURN_PENDING > 0 ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'
+        }`}>
+          {/* APPROVED */}
+          <button
+            onClick={() => handleTabChange('APPROVED')}
+            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+              activeTab === 'APPROVED'
+                ? 'bg-white text-amber-700 shadow-sm border border-amber-200/60'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span>รอจัดของ</span>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'APPROVED' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'
+            }`}>
+              {tabCounts.APPROVED}
+            </span>
+          </button>
+
+          {/* RETURN_PENDING */}
+          {tabCounts.RETURN_PENDING > 0 && (
+            <button
+              onClick={() => handleTabChange('RETURN_PENDING' as any)}
+              className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+                activeTab === 'RETURN_PENDING'
+                  ? 'bg-amber-500 text-white shadow-sm'
+                  : 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 animate-pulse'
+              }`}
+            >
+              <Bell className="w-3.5 h-3.5 shrink-0" />
+              <span>รอตรวจรับคืน</span>
+              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                activeTab === 'RETURN_PENDING' ? 'bg-white text-amber-900' : 'bg-amber-200 text-amber-900'
+              }`}>
+                {tabCounts.RETURN_PENDING}
+              </span>
+            </button>
+          )}
+
+          {/* COMPLETED */}
+          <button
+            onClick={() => handleTabChange('COMPLETED')}
+            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+              activeTab === 'COMPLETED'
+                ? 'bg-white text-emerald-700 shadow-sm border border-emerald-200/60'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <span>ส่งมอบแล้ว / รอคืน</span>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+            }`}>
+              {tabCounts.COMPLETED}
+            </span>
+          </button>
+
+          {/* RETURNED */}
+          <button
+            onClick={() => handleTabChange('RETURNED')}
+            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+              activeTab === 'RETURNED'
+                ? 'bg-white text-teal-700 shadow-sm border border-teal-200/60'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+            <span>คืนของแล้ว</span>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'RETURNED' ? 'bg-teal-100 text-teal-800' : 'bg-slate-200 text-slate-600'
+            }`}>
+              {tabCounts.RETURNED}
+            </span>
+          </button>
+
+          {/* ALL */}
+          <button
+            onClick={() => handleTabChange('ALL')}
+            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+              activeTab === 'ALL'
+                ? 'bg-white text-blue-700 shadow-sm border border-blue-200/60'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span>ทั้งหมด</span>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'ALL' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-600'
+            }`}>
+              {tabCounts.ALL}
+            </span>
+          </button>
+        </div>
+
+        {/* Tier B: Symmetrical 2-Column Classification Split (Type vs Company) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+          {/* Left: Requisition Type Segmented Control */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 bg-slate-50/90 p-2.5 rounded-xl border border-slate-200/70">
+            <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0 px-1">
+              <Layers className="w-3.5 h-3.5 text-slate-500" />
+              <span>ประเภทใบเบิก:</span>
+            </span>
+            <div className="grid grid-cols-3 gap-1.5 flex-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('ALL');
+                  setCurrentPage(1);
+                }}
+                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                  typeFilter === 'ALL'
+                    ? 'bg-slate-900 text-white shadow-sm font-bold'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/80 hover:bg-slate-100'
+                }`}
+              >
+                <span>ทุกประเภท</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
+                  typeFilter === 'ALL' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
+                }`}>
+                  {typeCounts.ALL}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('PROJECT');
+                  setCurrentPage(1);
+                }}
+                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                  typeFilter === 'PROJECT'
+                    ? 'bg-blue-600 text-white shadow-sm font-bold'
+                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-slate-200/80'
+                }`}
+              >
+                <Building2 className="w-3 h-3" />
+                <span>งานโปรเจค</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
+                  typeFilter === 'PROJECT' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'
+                }`}>
+                  {typeCounts.PROJECT}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('BORROW_EQUIPMENT');
+                  setCurrentPage(1);
+                }}
+                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                  typeFilter === 'BORROW_EQUIPMENT'
+                    ? 'bg-amber-600 text-white shadow-sm font-bold'
+                    : 'bg-white text-amber-800 hover:bg-amber-50 border border-slate-200/80'
+                }`}
+              >
+                <Wrench className="w-3 h-3" />
+                <span>เบิกยืมสโตร์</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
+                  typeFilter === 'BORROW_EQUIPMENT' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-800'
+                }`}>
+                  {typeCounts.BORROW_EQUIPMENT}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Company Filter Segmented Control */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 bg-slate-50/90 p-2.5 rounded-xl border border-slate-200/70">
+            <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0 px-1">
+              <Building2 className="w-3.5 h-3.5 text-slate-500" />
+              <span>บริษัทในเครือ:</span>
+            </span>
+            <div className="grid grid-cols-4 gap-1.5 flex-1">
               {(['ALL', 'TE', 'TP', 'TG'] as const).map(comp => {
                 const count = companyCounts[comp];
                 const isSelected = companyFilter === comp;
@@ -2104,16 +2291,16 @@ export default function StoreRequisitionsClient({
                       setCompanyFilter(comp);
                       setCurrentPage(1);
                     }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                       isSelected
-                        ? 'bg-slate-900 text-white shadow-sm'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                        ? 'bg-slate-900 text-white shadow-sm font-bold'
+                        : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/80 hover:bg-slate-100'
                     }`}
                   >
                     <span>{comp === 'ALL' ? 'ทุกบริษัท' : comp}</span>
                     <span
-                      className={`px-1.5 py-0.5 rounded-md text-[10px] ${
-                        isSelected ? 'bg-slate-800 text-slate-200' : 'bg-slate-200 text-slate-700'
+                      className={`px-1.5 py-0.5 rounded text-[10px] ${
+                        isSelected ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       {count}
@@ -2123,205 +2310,87 @@ export default function StoreRequisitionsClient({
               })}
             </div>
           </div>
-
-          {/* Status Tabs */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl flex-wrap">
-            <button
-              onClick={() => handleTabChange('APPROVED')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'APPROVED'
-                  ? 'bg-white text-amber-700 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>รอจัดของ ({tabCounts.APPROVED})</span>
-            </button>
-            {tabCounts.RETURN_PENDING > 0 && (
-              <button
-                onClick={() => handleTabChange('RETURN_PENDING' as any)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === 'RETURN_PENDING'
-                    ? 'bg-amber-500 text-white shadow-sm'
-                    : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 animate-pulse'
-                }`}
-              >
-                <Bell className="w-3.5 h-3.5" />
-                <span>รอตรวจรับคืน ({tabCounts.RETURN_PENDING})</span>
-              </button>
-            )}
-            <button
-              onClick={() => handleTabChange('COMPLETED')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'COMPLETED'
-                  ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>ส่งมอบแล้ว / รอคืน ({tabCounts.COMPLETED})</span>
-            </button>
-            <button
-              onClick={() => handleTabChange('RETURNED')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'RETURNED'
-                  ? 'bg-white text-teal-700 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>คืนของแล้ว ({tabCounts.RETURNED})</span>
-            </button>
-            <button
-              onClick={() => handleTabChange('ALL')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'ALL'
-                  ? 'bg-white text-blue-700 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>ทั้งหมด ({tabCounts.ALL})</span>
-            </button>
-          </div>
         </div>
 
-        {/* Row 1.5: Requisition Type & Specific Project Filter */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/60">
-          {/* Left: Requisition Type Segmented Control */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0">
-              <Layers className="w-3.5 h-3.5 text-slate-500" />
-              <span>ประเภทใบเบิก:</span>
-            </span>
-            <div className="inline-flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-xs gap-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setTypeFilter('ALL');
-                  setCurrentPage(1);
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  typeFilter === 'ALL'
-                    ? 'bg-slate-900 text-white shadow-xs font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                <span>ทุกประเภท ({typeCounts.ALL})</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setTypeFilter('PROJECT');
-                  setCurrentPage(1);
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  typeFilter === 'PROJECT'
-                    ? 'bg-blue-600 text-white shadow-xs font-bold'
-                    : 'text-blue-700 hover:bg-blue-50'
-                }`}
-              >
-                <Building2 className="w-3.5 h-3.5" />
-                <span>งานโปรเจค / โครงการ ({typeCounts.PROJECT})</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setTypeFilter('BORROW_EQUIPMENT');
-                  setCurrentPage(1);
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  typeFilter === 'BORROW_EQUIPMENT'
-                    ? 'bg-amber-600 text-white shadow-xs font-bold'
-                    : 'text-amber-800 hover:bg-amber-50'
-                }`}
-              >
-                <Wrench className="w-3.5 h-3.5" />
-                <span>เบิกยืมสโตร์ ({typeCounts.BORROW_EQUIPMENT})</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Right: Specific Project / Job Dropdown */}
-          <div className="flex items-center gap-2 flex-1 lg:justify-end">
-            <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0">
-              <Briefcase className="w-3.5 h-3.5 text-blue-600" />
-              <span>งานโปรเจค:</span>
-            </span>
-            <div className="relative flex-1 max-w-md">
-              <select
-                value={projectFilter}
-                onChange={e => {
-                  setProjectFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className={`w-full pl-3 pr-8 py-2 bg-white border rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${
-                  projectFilter !== 'ALL'
-                    ? 'border-blue-500 text-blue-900 bg-blue-50/40 ring-1 ring-blue-500/20 font-bold'
-                    : 'border-slate-300 text-slate-700 hover:border-slate-400'
-                }`}
-                title="เลือกโครงการเพื่อกรองเฉพาะงานโปรเจคนั้นๆ"
-              >
-                <option value="ALL">
-                  ทุกโครงการ / ทุกชื่องาน ({projectOptions.length} โครงการ)
-                </option>
-                {projectOptions.map(p => (
-                  <option key={p.name} value={p.name}>
-                    {p.name} ({p.count} รายการ)
-                  </option>
-                ))}
-              </select>
-              {projectFilter !== 'ALL' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProjectFilter('ALL');
-                    setCurrentPage(1);
-                  }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full"
-                  title="ล้างการเลือกโครงการ"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Row 2: Search & Advanced Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
-          {/* Search Box */}
-          <div className="md:col-span-5 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        {/* Tier C: Symmetrical 5-Column Input Grid (Vertically Aligned 1:1 with the 5 KPI Cards) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+          {/* Col 1 (Search Box - Aligned with Card 1) */}
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              placeholder="ค้นหาเลขที่, โครงการ, สาขา, ผู้ขอ/รับของ..."
+              placeholder="ค้นหาเลขที่, ชื่องาน, ผู้ขอ/รับของ..."
               value={searchQuery}
               onChange={e => {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-9 pr-8 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full h-10 pl-10 pr-8 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full"
+                title="ล้างข้อความค้นหา"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Branch Filter */}
-          <div className="md:col-span-3">
+          {/* Col 2 (Project / Work - Aligned with Card 2) */}
+          <div className="relative">
+            <Briefcase className="w-4 h-4 text-blue-600 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={projectFilter}
+              onChange={e => {
+                setProjectFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className={`w-full h-10 pl-9 pr-8 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${
+                projectFilter !== 'ALL'
+                  ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
+                  : 'border-slate-200 text-slate-700 hover:border-slate-300'
+              }`}
+              title="กรองตามโครงการ / ชื่องาน"
+            >
+              <option value="ALL">ทุกโครงการ ({projectOptions.length})</option>
+              {projectOptions.map(p => (
+                <option key={p.name} value={p.name}>
+                  {p.name} ({p.count})
+                </option>
+              ))}
+            </select>
+            {projectFilter !== 'ALL' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setProjectFilter('ALL');
+                  setCurrentPage(1);
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full"
+                title="ล้างการเลือกโครงการ"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Col 3 (Branch - Aligned with Card 3) */}
+          <div className="relative">
+            <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={branchFilter}
               onChange={e => {
                 setBranchFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className={`w-full h-10 pl-9 pr-6 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${
+                branchFilter !== 'ALL'
+                  ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
+                  : 'border-slate-200 text-slate-700 hover:border-slate-300'
+              }`}
+              title="กรองตามสาขา"
             >
               {BRANCH_OPTIONS.map(b => (
                 <option key={b.code} value={b.code}>
@@ -2331,15 +2400,20 @@ export default function StoreRequisitionsClient({
             </select>
           </div>
 
-          {/* Month Filter */}
-          <div className="md:col-span-2">
+          {/* Col 4 (Month & Year Combined - Aligned with Card 4) */}
+          <div className="flex items-center gap-1.5">
             <select
               value={monthFilter}
               onChange={e => {
                 setMonthFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className={`flex-1 min-w-0 h-10 px-2.5 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${
+                monthFilter !== 'ALL'
+                  ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
+                  : 'border-slate-200 text-slate-700 hover:border-slate-300'
+              }`}
+              title="เลือกเดือน"
             >
               <option value="ALL">ทุกเดือน</option>
               {thaiMonthOptions.map(m => (
@@ -2348,17 +2422,19 @@ export default function StoreRequisitionsClient({
                 </option>
               ))}
             </select>
-          </div>
 
-          {/* Year Filter */}
-          <div className="md:col-span-1">
             <select
               value={yearFilter}
               onChange={e => {
                 setYearFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className={`w-20 shrink-0 h-10 px-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
+                yearFilter !== 'ALL'
+                  ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
+                  : 'border-slate-200 text-slate-700 hover:border-slate-300'
+              }`}
+              title="เลือกปี พ.ศ."
             >
               <option value="ALL">ทุกปี</option>
               {uniqueYears.map(y => (
@@ -2369,8 +2445,8 @@ export default function StoreRequisitionsClient({
             </select>
           </div>
 
-          {/* Exact Date Filter */}
-          <div className="md:col-span-1">
+          {/* Col 5 (Exact Date Filter - Aligned with Card 5) */}
+          <div className="relative">
             <input
               type="date"
               value={dateFilter}
@@ -2378,29 +2454,53 @@ export default function StoreRequisitionsClient({
                 setDateFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className={`w-full h-10 px-3 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
+                dateFilter
+                  ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
+                  : 'border-slate-200 text-slate-700 hover:border-slate-300'
+              }`}
               title="เลือกวันที่เจาะจง"
             />
+            {dateFilter && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDateFilter('');
+                  setCurrentPage(1);
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full bg-slate-100"
+                title="ล้างวันที่เจาะจง"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Active Filter Indicators & Reset */}
+        {/* Tier D: Active Filter Indicators & Reset */}
         {hasActiveFilters && (
-          <div className="flex items-center justify-between pt-2 text-xs text-slate-500 border-t border-slate-100">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-semibold text-slate-700">กำลังกรองข้อมูล:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-3 border-t border-slate-100 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="font-semibold text-slate-700 mr-1 flex items-center gap-1">
+                <Filter className="w-3.5 h-3.5 text-slate-400" />
+                <span>ตัวกรองที่ใช้งาน:</span>
+              </span>
+
               {searchQuery && (
-                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200">
-                  ค้นหา: &quot;{searchQuery}&quot;
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-200 text-[11px] font-medium">
+                  <span>ค้นหา: &quot;{searchQuery}&quot;</span>
+                  <button onClick={() => { setSearchQuery(''); setCurrentPage(1); }} className="hover:text-blue-900">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
+
               {typeFilter !== 'ALL' && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md border border-indigo-200 font-semibold">
-                  ประเภท:{' '}
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200 text-[11px] font-semibold">
                   {typeFilter === 'PROJECT' ? (
                     <>
                       <Building2 className="w-3 h-3" />
-                      <span>งานโปรเจค / โครงการ</span>
+                      <span>งานโปรเจค</span>
                     </>
                   ) : (
                     <>
@@ -2408,50 +2508,73 @@ export default function StoreRequisitionsClient({
                       <span>เบิกยืมสโตร์</span>
                     </>
                   )}
-                </span>
-              )}
-              {projectFilter !== 'ALL' && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200 font-semibold">
-                  <Briefcase className="w-3 h-3 text-blue-600" />
-                  <span>โปรเจค: {projectFilter}</span>
-                  <button
-                    onClick={() => { setProjectFilter('ALL'); setCurrentPage(1); }}
-                    className="hover:text-blue-900 ml-0.5"
-                    title="ล้างตัวกรองโปรเจค"
-                  >
+                  <button onClick={() => { setTypeFilter('ALL'); setCurrentPage(1); }} className="hover:text-indigo-900">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
+
+              {projectFilter !== 'ALL' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-200 text-[11px] font-semibold">
+                  <Briefcase className="w-3 h-3 text-blue-600" />
+                  <span className="max-w-[150px] truncate">{projectFilter}</span>
+                  <button onClick={() => { setProjectFilter('ALL'); setCurrentPage(1); }} className="hover:text-blue-900">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
               {branchFilter !== 'ALL' && (
-                <span className="px-2 py-0.5 bg-sky-50 text-sky-700 rounded-md border border-sky-200 font-semibold">
-                  สาขา: {BRANCH_OPTIONS.find(b => b.code === branchFilter)?.name || branchFilter}
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-50 text-sky-700 rounded-lg border border-sky-200 text-[11px] font-semibold">
+                  <MapPin className="w-3 h-3 text-sky-600" />
+                  <span>สาขา: {BRANCH_OPTIONS.find(b => b.code === branchFilter)?.name || branchFilter}</span>
+                  <button onClick={() => { setBranchFilter('ALL'); setCurrentPage(1); }} className="hover:text-sky-900">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
+
               {companyFilter !== 'ALL' && (
-                <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md border border-purple-200">
-                  บริษัท: {companyFilter}
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg border border-purple-200 text-[11px] font-semibold">
+                  <span>บริษัท: {companyFilter}</span>
+                  <button onClick={() => { setCompanyFilter('ALL'); setCurrentPage(1); }} className="hover:text-purple-900">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
+
               {monthFilter !== 'ALL' && (
-                <span className="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-md border border-amber-200">
-                  เดือน: {thaiMonthOptions.find(m => m.value === monthFilter)?.label}
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg border border-amber-200 text-[11px] font-semibold">
+                  <span>เดือน: {thaiMonthOptions.find(m => m.value === monthFilter)?.label}</span>
+                  <button onClick={() => { setMonthFilter('ALL'); setCurrentPage(1); }} className="hover:text-amber-900">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
+
               {yearFilter !== 'ALL' && (
-                <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md border border-slate-300">
-                  ปี: {parseInt(yearFilter, 10) + 543}
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-300 text-[11px] font-semibold">
+                  <span>ปี: {parseInt(yearFilter, 10) + 543}</span>
+                  <button onClick={() => { setYearFilter('ALL'); setCurrentPage(1); }} className="hover:text-slate-900">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
+
               {dateFilter && (
-                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200">
-                  วันที่: {formatThaiDate(dateFilter)}
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-200 text-[11px] font-semibold">
+                  <Calendar className="w-3 h-3" />
+                  <span>วันที่: {formatThaiDate(dateFilter)}</span>
+                  <button onClick={() => { setDateFilter(''); setCurrentPage(1); }} className="hover:text-blue-900">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
             </div>
+
             <button
               onClick={handleResetFilters}
-              className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-rose-600 hover:text-rose-700 font-semibold bg-rose-50 hover:bg-rose-100/70 border border-rose-200 rounded-xl transition-all self-end sm:self-auto shrink-0"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>ล้างตัวกรองทั้งหมด</span>

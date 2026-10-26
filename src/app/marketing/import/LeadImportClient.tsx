@@ -37,7 +37,8 @@ import {
   Calendar,
   X,
   ChevronDown,
-  BarChart3
+  BarChart3,
+  Briefcase
 } from 'lucide-react'
 import {
   generateExcelTemplate,
@@ -51,6 +52,13 @@ import {
   ActiveSalesRep,
   ImportHistoryItem,
 } from '@/app/actions/marketing-import'
+import {
+  PRODUCT_GROUPS,
+  PRODUCT_OCCUPATIONS,
+  normalizeProductGroup,
+  getOccupationsForProductGroup,
+  getAllOccupations,
+} from '@/app/marketing/constants/productOccupations'
 
 // ==========================================
 // Searchable Sales Rep Dropdown Component
@@ -562,11 +570,48 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
     }
   }
 
+  // Product Group & Occupation Filters
+  const [productGroupFilter, setProductGroupFilter] = useState<string>('ALL')
+  const [occupationFilter, setOccupationFilter] = useState<string>('ALL')
+
+  const handleRowProductGroupChange = (index: number, newGroup: string) => {
+    setRows(prev => prev.map(r => {
+      if (r.index === index) {
+        const validOccs = getOccupationsForProductGroup(newGroup)
+        const nextOcc = (r.occupation && validOccs.includes(r.occupation)) ? r.occupation : ''
+        return {
+          ...r,
+          productGroup: newGroup,
+          productType: newGroup,
+          occupation: nextOcc,
+        }
+      }
+      return r
+    }))
+  }
+
+  const handleRowOccupationChange = (index: number, newOcc: string) => {
+    setRows(prev => prev.map(r => {
+      if (r.index === index) {
+        return { ...r, occupation: newOcc }
+      }
+      return r
+    }))
+  }
+
   // Filtered rows for table
   const filteredRows = useMemo(() => {
     return rows.filter(row => {
       // Status Filter
       if (statusFilter !== 'ALL' && row.status !== statusFilter) {
+        return false
+      }
+      // Product Group Filter
+      if (productGroupFilter !== 'ALL' && (row.productGroup || row.productType) !== productGroupFilter) {
+        return false
+      }
+      // Occupation Filter
+      if (occupationFilter !== 'ALL' && row.occupation !== occupationFilter) {
         return false
       }
       // Search Query
@@ -578,13 +623,15 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
         const matchProv = row.province?.toLowerCase().includes(q)
         const matchSource = row.leadSource?.toLowerCase().includes(q)
         const matchProd = row.productOfInterest?.toLowerCase().includes(q)
-        if (!matchName && !matchPhone && !matchComp && !matchProv && !matchSource && !matchProd) {
+        const matchGroup = row.productGroup?.toLowerCase().includes(q) || row.productType?.toLowerCase().includes(q)
+        const matchOcc = row.occupation?.toLowerCase().includes(q)
+        if (!matchName && !matchPhone && !matchComp && !matchProv && !matchSource && !matchProd && !matchGroup && !matchOcc) {
           return false
         }
       }
       return true
     })
-  }, [rows, statusFilter, searchQuery])
+  }, [rows, statusFilter, productGroupFilter, occupationFilter, searchQuery])
 
   const selectedCount = rows.filter(r => r.action === 'CREATE').length
 
@@ -794,6 +841,49 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                       <span>เทียบความซ้ำกับทั้งตาราง <b>ลูกค้าเดิม</b> และ <b>Marketing Leads</b> ในระบบ CRM ทันที</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>รองรับช่อง <b>กลุ่มสินค้า (Pump, Solar Rooftop, AC Drive)</b> และ <b>อาชีพ</b> ตามเงื่อนไขของแต่ละกลุ่มสินค้า</span>
+                    </div>
+                  </div>
+
+                  {/* Product Groups & Occupations Reference Guide */}
+                  <div className="mt-4 p-3.5 bg-gradient-to-br from-slate-50 to-indigo-50/30 border border-slate-200 rounded-xl space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
+                      <span className="flex items-center gap-1.5">
+                        <Layers size={13} className="text-brand-red" />
+                        <span>กลุ่มสินค้าและอาชีพที่รองรับ (Product Groups & Occupations):</span>
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
+                      <div className="p-2.5 bg-white rounded-lg border border-amber-200 shadow-2xs">
+                        <div className="font-bold text-amber-800 flex items-center gap-1 mb-1">
+                          <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                          <span>Pump</span>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed">
+                          เกษตรกร, ช่างไฟฟ้า, ร้านค้าทั่วไป, ตัวแทนจำหน่าย, ผู้รับเจาะน้ำบาดาล, อื่นๆ
+                        </p>
+                      </div>
+                      <div className="p-2.5 bg-white rounded-lg border border-emerald-200 shadow-2xs">
+                        <div className="font-bold text-emerald-800 flex items-center gap-1 mb-1">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          <span>Solar Rooftop</span>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed">
+                          ผู้ใช้งาน(บ้าน), ผู้ใช้งาน (อุตสาหกรรม), วิศวกร, ช่างไฟฟ้า, ผู้รับเหมา, เจ้าของกิจการ, ตัวแทนเจ้าของกิจการ, อื่นๆ
+                        </p>
+                      </div>
+                      <div className="p-2.5 bg-white rounded-lg border border-indigo-200 shadow-2xs">
+                        <div className="font-bold text-indigo-800 flex items-center gap-1 mb-1">
+                          <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                          <span>AC Drive</span>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed">
+                          จป., วิศวกร, ช่างประจำโรงงาน, ช่างไฟฟ้า, ผู้รับเหมา, เจ้าของกิจการ, ตัวแทนเจ้าของกิจการ, อื่นๆ
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1156,24 +1246,55 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                     </button>
                   </div>
 
-                  {/* Right: Search box */}
-                  <div className="relative min-w-[260px]">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="ค้นหาชื่อ, เบอร์โทร, บริษัท..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
-                    />
-                    {searchQuery && (
-                      <button
-                        onClick={() => setSearchQuery('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded"
+                  {/* Right: Filters & Search box */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <select
+                        value={productGroupFilter}
+                        onChange={(e) => {
+                          setProductGroupFilter(e.target.value);
+                          setOccupationFilter('ALL');
+                        }}
+                        className="px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red shadow-xs"
                       >
-                        <X size={13} />
-                      </button>
-                    )}
+                        <option value="ALL">กลุ่มสินค้าทั้งหมด</option>
+                        {PRODUCT_GROUPS.map((pg) => (
+                          <option key={pg} value={pg}>{pg}</option>
+                        ))}
+                      </select>
+
+                      {productGroupFilter !== 'ALL' && (
+                        <select
+                          value={occupationFilter}
+                          onChange={(e) => setOccupationFilter(e.target.value)}
+                          className="px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red shadow-xs max-w-[170px]"
+                        >
+                          <option value="ALL">อาชีพทั้งหมด</option>
+                          {getOccupationsForProductGroup(productGroupFilter).map((occ) => (
+                            <option key={occ} value={occ}>{occ}</option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+
+                    <div className="relative min-w-[220px]">
+                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="ค้นหาชื่อ, เบอร์โทร, บริษัท..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red shadow-xs"
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded"
+                        >
+                          <X size={13} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1237,22 +1358,23 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
 
                   {/* Responsive Table */}
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm min-w-[1250px]">
+                    <table className="w-full text-left text-sm min-w-[1300px]">
                       <thead className="bg-slate-50 text-[11px] font-black uppercase text-slate-500 tracking-wider border-b border-slate-200">
                         <tr>
                           <th className="px-4 py-3.5 w-12 text-center">#</th>
-                          <th className="px-4 py-3.5 w-60">ลูกค้า / ผู้ติดต่อ</th>
-                          <th className="px-4 py-3.5 w-44">บริษัท / องค์กร</th>
-                          <th className="px-4 py-3.5 w-32">จังหวัด</th>
-                          <th className="px-4 py-3.5 w-44">แหล่งที่มา / สินค้า</th>
-                          <th className="px-4 py-3.5 w-64">สถานะ & ผลการเทียบระบบ CRM</th>
-                          <th className="px-4 py-3.5 w-44 text-center">การดำเนินการ</th>
+                          <th className="px-4 py-3.5 w-56">ลูกค้า / ผู้ติดต่อ</th>
+                          <th className="px-4 py-3.5 w-40">บริษัท / องค์กร</th>
+                          <th className="px-4 py-3.5 w-28">จังหวัด</th>
+                          <th className="px-4 py-3.5 w-56">กลุ่มสินค้า & อาชีพ</th>
+                          <th className="px-4 py-3.5 w-36">แหล่งที่มา</th>
+                          <th className="px-4 py-3.5 w-60">สถานะ & ผลการเทียบระบบ CRM</th>
+                          <th className="px-4 py-3.5 w-40 text-center">การดำเนินการ</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {filteredRows.length === 0 ? (
                           <tr>
-                            <td colSpan={7} className="text-center py-12 text-slate-400 font-medium">
+                            <td colSpan={8} className="text-center py-12 text-slate-400 font-medium">
                               ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
                             </td>
                           </tr>
@@ -1311,7 +1433,40 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                                 {row.district && <div className="text-[11px] text-slate-400">{row.district}</div>}
                               </td>
 
-                              {/* Lead Source & Product */}
+                              {/* Product Group & Occupation */}
+                              <td className="px-4 py-3">
+                                <div className="space-y-1.5 min-w-[170px]">
+                                  <div>
+                                    <label className="text-[10px] font-bold text-slate-400 block mb-0.5">กลุ่มสินค้า</label>
+                                    <select
+                                      value={row.productGroup || ''}
+                                      onChange={(e) => handleRowProductGroupChange(row.index, e.target.value)}
+                                      className="w-full text-xs font-semibold px-2 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 focus:ring-1 focus:ring-brand-red focus:border-brand-red"
+                                    >
+                                      <option value="">-- ไม่ระบุ --</option>
+                                      {PRODUCT_GROUPS.map((pg) => (
+                                        <option key={pg} value={pg}>{pg}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="text-[10px] font-bold text-slate-400 block mb-0.5">อาชีพ</label>
+                                    <select
+                                      value={row.occupation || ''}
+                                      onChange={(e) => handleRowOccupationChange(row.index, e.target.value)}
+                                      disabled={!row.productGroup}
+                                      className="w-full text-xs font-medium px-2 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 focus:ring-1 focus:ring-brand-red focus:border-brand-red disabled:bg-slate-50 disabled:text-slate-400"
+                                    >
+                                      <option value="">{row.productGroup ? '-- เลือกอาชีพ --' : 'กรุณาเลือกกลุ่มก่อน'}</option>
+                                      {row.productGroup && getOccupationsForProductGroup(row.productGroup).map((occ) => (
+                                        <option key={occ} value={occ}>{occ}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              </td>
+
+                              {/* Lead Source */}
                               <td className="px-4 py-3">
                                 {row.leadSource ? (
                                   <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-md border border-slate-200">
@@ -1321,7 +1476,7 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                                   <span className="text-xs text-slate-400">-</span>
                                 )}
                                 {row.productOfInterest && (
-                                  <div className="text-xs text-slate-700 font-medium mt-1 truncate max-w-[180px]" title={row.productOfInterest}>
+                                  <div className="text-xs text-slate-500 font-medium mt-1 truncate max-w-[140px]" title={row.productOfInterest}>
                                     {row.productOfInterest}
                                   </div>
                                 )}
@@ -1614,6 +1769,16 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                     <div>
                       <span className="text-slate-400">สินค้าที่สนใจ:</span>
                       <div className="text-slate-700">{inspectRow.productOfInterest || '-'}</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200">
+                      <div>
+                        <span className="text-slate-400">กลุ่มสินค้า:</span>
+                        <div className="font-semibold text-slate-800">{inspectRow.productGroup || '-'}</div>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">อาชีพ:</span>
+                        <div className="font-semibold text-brand-red">{inspectRow.occupation || '-'}</div>
+                      </div>
                     </div>
                   </div>
                 </div>

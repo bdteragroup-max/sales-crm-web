@@ -30,7 +30,8 @@ import {
   ChevronRight,
   TrendingUp,
   UserCheck,
-  XCircle
+  XCircle,
+  Briefcase
 } from 'lucide-react'
 import { parseLeadAttribution, getChannelBadgeStyle } from '../components/LeadSourceBadge'
 
@@ -450,12 +451,24 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any; sales
 
               <div className="bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
-                  ประเภทสินค้า / โซลูชัน
+                  กลุ่มสินค้า
                 </span>
                 <p className="text-sm font-bold text-gray-900">
                   {lead.productType || '-'}
                 </p>
               </div>
+
+              {(lead.occupation || lead.businessType) && (
+                <div className="sm:col-span-2 bg-red-50/50 p-3.5 rounded-2xl border border-red-100">
+                  <span className="text-[10px] font-bold text-brand-red uppercase tracking-wider block mb-1 flex items-center gap-1.5">
+                    <Briefcase size={12} />
+                    <span>อาชีพ (Occupation)</span>
+                  </span>
+                  <p className="text-sm font-bold text-gray-900">
+                    {lead.occupation || lead.businessType}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Conversation Content Quote Box */}
