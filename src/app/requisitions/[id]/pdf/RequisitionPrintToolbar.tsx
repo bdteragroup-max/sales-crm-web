@@ -12,6 +12,8 @@ interface RequisitionPrintToolbarProps {
   orientation: "portrait" | "landscape"
   onOrientationChange: (orientation: "portrait" | "landscape") => void
   isBorrow?: boolean
+  totalPages?: number
+  itemsCount?: number
 }
 
 export default function RequisitionPrintToolbar({
@@ -22,6 +24,8 @@ export default function RequisitionPrintToolbar({
   orientation,
   onOrientationChange,
   isBorrow = false,
+  totalPages,
+  itemsCount,
 }: RequisitionPrintToolbarProps) {
   return (
     <div className="print:hidden w-full bg-slate-900 text-white shadow-xl sticky top-0 z-50 border-b border-slate-800">
@@ -44,6 +48,11 @@ export default function RequisitionPrintToolbar({
             <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${statusColorClass}`}>
               {statusText}
             </span>
+            {totalPages && totalPages > 1 && (
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                รวม {totalPages} หน้า ({itemsCount || 0} รายการ)
+              </span>
+            )}
           </div>
         </div>
 
