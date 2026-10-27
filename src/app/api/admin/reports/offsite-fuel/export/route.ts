@@ -90,7 +90,7 @@ export async function GET(request: Request) {
     // 2. Fetch Data (Checkins, Fleetcard, Flags, Manual Expenses)
     const checkins = await prisma.checkins.findMany({
       where: { emp_id: { in: employeeIds }, date_key: { gte: startOfMonth, lte: endOfMonth } },
-      select: { emp_id: true, timestamp: true, date_key: true, distance: true, branch_name: true, type: true, customer_id: true, project_name: true, is_trip: true, lat: true, lon: true },
+      select: { emp_id: true, timestamp: true, date_key: true, distance: true, branch_name: true, type: true, customer_id: true, project_name: true, is_trip: true, lat: true, lon: true, remark: true },
       orderBy: { timestamp: 'asc' }
     });
 
@@ -133,23 +133,52 @@ export async function GET(request: Request) {
 
     checkins.forEach(c => {
       const typeLower = c.type?.toLowerCase() || '';
-      if (typeLower.includes('out') || typeLower.includes('ออก')) return;
+
       const isOffsite = typeLower === 'นอกสถานที่' || typeLower.includes('offsite') || typeLower.includes('off_site') || c.customer_id != null || c.branch_name?.includes('นอกสถานที่');
       const isProject = c.project_name != null && c.project_name.trim() !== '';
       const isTrip = c.is_trip === true;
       if (!isOffsite && !isProject && !isTrip) return;
 
+      // Exclude explicit pairing exit punches
+      if (typeLower === 'offsite-out' || typeLower === 'project-out') return;
+
+      // Exclude check-outs unless explicitly outside office (e.g. branch_name is นอกสถานที่ or HumanSoft punch)
+      if ((typeLower.includes('out') || typeLower.includes('ออก')) && !c.branch_name?.includes('นอกสถานที่') && !c.remark?.includes('[HumanSoft')) return;
+
       const dateStr = c.date_key.toISOString().split('T')[0];
       const empData = reportData[c.emp_id].dailyStats;
       if (!empData[dateStr]) empData[dateStr] = { distance: 0, fuelAmount: 0, fuelLiters: 0, flags: [], manualExpenseAmount: 0, checkinsList: [] };
 
+      const lat = c.lat ? Number(c.lat) : null;
+      const lon = c.lon ? Number(c.lon) : null;
+
+      // Deduplicate rapid repeat scans at the same spot (within 10 min and < 250m)
+      const list = empData[dateStr].checkinsList;
+      const lastCheckin = list[list.length - 1];
+      if (lastCheckin && lastCheckin.lat && lastCheckin.lon && lat && lon) {
+        const timeDiffMs = Math.abs(new Date(c.timestamp).getTime() - new Date(lastCheckin.time).getTime());
+        const distToLast = getDistanceFromLatLonInKm(lastCheckin.lat, lastCheckin.lon, lat, lon);
+        if (timeDiffMs <= 60000 && distToLast < 0.05) {
+          return;
+        }
+        if (timeDiffMs <= 10 * 60 * 1000 && distToLast < 0.25) {
+          if (typeLower.includes('in') && !lastCheckin.type?.toLowerCase().includes('in')) {
+            lastCheckin.type = c.type;
+            if (c.project_name) lastCheckin.project_name = c.project_name;
+            if (c.remark) lastCheckin.remark = c.remark;
+          }
+          return;
+        }
+      }
+
       empData[dateStr].checkinsList.push({
         time: c.timestamp.toISOString(),
-        lat: c.lat ? Number(c.lat) : null,
-        lon: c.lon ? Number(c.lon) : null,
+        lat,
+        lon,
         type: c.type,
         branch_name: c.branch_name,
         project_name: c.project_name,
+        remark: c.remark,
         isOffsite, isProject, isTrip,
         distance: c.distance || 0
       });

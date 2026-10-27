@@ -103,15 +103,20 @@ export async function getManagerCheckins(dateStart?: Date, dateEnd?: Date, filte
   const checkins = rawCheckins
     .filter(c => {
       const typeLower = c.type?.toLowerCase() || '';
-      // Exclude check-outs
-      if (typeLower.includes('out') || typeLower.includes('ออก')) return false;
 
-      // Only include offsite, project, and trip
       const isOffsite = typeLower === 'นอกสถานที่' || typeLower.includes('offsite') || typeLower.includes('off_site') || c.customer_id != null || c.branch_name?.includes('นอกสถานที่');
       const isProject = c.project_name != null && c.project_name.trim() !== '';
       const isTrip = c.is_trip === true;
 
-      return isOffsite || isProject || isTrip;
+      if (!isOffsite && !isProject && !isTrip) return false;
+
+      // Exclude explicit pairing exit punches
+      if (typeLower === 'offsite-out' || typeLower === 'project-out') return false;
+
+      // Exclude check-outs unless explicitly outside office (e.g. branch_name is นอกสถานที่ or HumanSoft punch)
+      if ((typeLower.includes('out') || typeLower.includes('ออก')) && !c.branch_name?.includes('นอกสถานที่') && !c.remark?.includes('[HumanSoft')) return false;
+
+      return true;
     })
     .map(c => ({
       ...c,

@@ -180,11 +180,13 @@ export default function FuelReportClient() {
                 }
               }
               const coordStr = (chk.lat && chk.lon) ? `${chk.lat.toFixed(4)}, ${chk.lon.toFixed(4)}` : "-";
+              const cleanRemark = chk.remark ? chk.remark.replace(/\[HumanSoft\s*-\s*Facial\]/i, '').trim() : '';
+              const stopTitle = cleanRemark ? `${chk.type} (${cleanRemark})` : chk.type;
               if (distanceToPrev > 0) {
-                routeDetails += `\n↓ ${distanceToPrev.toFixed(2)} km\n${idx + 1}. ${chk.type}`;
+                routeDetails += `\n↓ ${distanceToPrev.toFixed(2)} km\n${idx + 1}. ${stopTitle}`;
                 gpsCoordinates += `\n\n${coordStr}`;
               } else {
-                routeDetails += `\n${idx + 1}. ${chk.type}`;
+                routeDetails += `\n${idx + 1}. ${stopTitle}`;
                 gpsCoordinates += `\n${coordStr}`;
               }
             });
@@ -420,6 +422,11 @@ export default function FuelReportClient() {
                                             <span className={`px-1.5 py-0.5 rounded font-medium whitespace-nowrap ${chk.isOffsite || chk.isProject || chk.isTrip ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
                                               {chk.type}
                                             </span>
+                                            {chk.remark && (
+                                              <span className="text-[10px] text-gray-600 max-w-[240px] truncate font-medium" title={chk.remark}>
+                                                {chk.remark.replace(/\[HumanSoft\s*-\s*Facial\]/i, '').trim()}
+                                              </span>
+                                            )}
                                             {chk.distance > 0 && <span className="text-xs text-gray-500 font-semibold text-right flex-1 sm:ml-auto whitespace-nowrap">{chk.distance} km</span>}
                                           </div>
                                         </React.Fragment>
