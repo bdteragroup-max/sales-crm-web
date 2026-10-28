@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -149,6 +149,7 @@ const storeNav = [
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
   { icon: Package, label: 'รายการเบิก/ยืมวัสดุอุปกรณ์', href: '/store/requisitions' },
+  { icon: RotateCcw, label: 'ใบส่งคืนสินค้า (Return Note)', href: '/store/returns' },
 ];
 
 const storeAndPurchasingNav = [
@@ -157,6 +158,7 @@ const storeAndPurchasingNav = [
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
   { icon: Package, label: 'รายการเบิก/ยืมวัสดุอุปกรณ์', href: '/store/requisitions' },
+  { icon: RotateCcw, label: 'ใบส่งคืนสินค้า (Return Note)', href: '/store/returns' },
   { icon: LayoutDashboard, label: 'แดชบอร์ดจัดซื้อ', href: '/admin/procurement/dashboard' },
   { icon: FileText, label: 'รายการ PR', href: '/admin/procurement/pr' },
   { icon: ClipboardList, label: 'รายการ PO', href: '/admin/procurement/po' },

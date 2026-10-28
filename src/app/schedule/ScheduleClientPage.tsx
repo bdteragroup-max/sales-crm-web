@@ -1,13 +1,34 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { CalendarDays, Plus, Search, Edit2, Calendar, CheckCircle2, Clock, XCircle, LayoutList, FileSignature, Trash2 } from 'lucide-react'
+import {
+  CalendarDays,
+  Plus,
+  Search,
+  Edit2,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  FileSignature,
+  Trash2,
+  Building2,
+  Download,
+  X,
+  Layers,
+  LayoutGrid,
+  ListFilter,
+  AlertTriangle,
+  ArrowLeft
+} from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { deleteSchedule } from '@/app/actions/schedule'
 import NewScheduleForm from './components/NewScheduleForm'
 import UpdateScheduleForm from './components/UpdateScheduleForm'
-import ScheduleCalendar from './components/ScheduleCalendar'
+import ScheduleCalendar, { getRepColor, initRepColors } from './components/ScheduleCalendar'
+import StaffMultiSelect from './components/StaffMultiSelect'
 import * as XLSX from 'xlsx'
 
 interface ScheduleClientPageProps {
@@ -19,51 +40,257 @@ interface ScheduleClientPageProps {
 }
 
 function statusBadge(status: string) {
-  if (!status) return <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-red/10 text-brand-red border border-red-100">วางแผน</span>
-  if (status === 'Completed' || status === 'เสร็จสิ้น')
-    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white"><CheckCircle2 size={10} /> เสร็จสิ้น</span>
-  if (status === 'Cancelled' || status === 'ยกเลิก')
-    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-100 text-gray-400"><XCircle size={10} /> ยกเลิก</span>
-  return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-white"><Clock size={10} /> {status}</span>
+  if (!status || status === 'Planned' || status === 'รอทำ') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+        <Clock size={11} className="text-blue-600" /> รอทำ (Planned)
+      </span>
+    )
+  }
+  if (status === 'Completed' || status === 'เสร็จสิ้น') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <CheckCircle2 size={11} className="text-emerald-600" /> เสร็จสิ้น
+      </span>
+    )
+  }
+  if (status === 'Cancelled' || status === 'ยกเลิก') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-500 border border-gray-200">
+        <XCircle size={11} className="text-gray-400" /> ยกเลิก
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+      <Clock size={11} className="text-amber-500" /> {status}
+    </span>
+  )
 }
 
-export default function ScheduleClientPage({ initialSchedules, staffList, userRole, currentUserId, businessTypes = [] }: ScheduleClientPageProps) {
+export default function ScheduleClientPage({
+  initialSchedules,
+  staffList,
+  userRole,
+  currentUserId,
+  businessTypes = []
+}: ScheduleClientPageProps) {
   const searchParams = useSearchParams()
-  const [activeTab, setActiveTab] = useState<'new' | 'list' | 'calendar'>(
-    (searchParams.get('tab') as 'new' | 'list' | 'calendar') || 'calendar'
+
+  const [activeTab, setActiveTab] = useState<'calendar' | 'list' | 'new'>(
+    (searchParams.get('tab') as 'calendar' | 'list' | 'new') || 'calendar'
   )
-  const [schedules, setSchedules] = useState(initialSchedules)
+  const [listViewMode, setListViewMode] = useState<'table' | 'cards'>('cards')
+
+  const [schedules, setSchedules] = useState<any[]>(initialSchedules)
   const [selectedSchedule, setSelectedSchedule] = useState<any | null>(null)
+  const [newSchedulePreselectedDate, setNewSchedulePreselectedDate] = useState<string>('')
+
+  // Filter States
   const [searchTerm, setSearchTerm] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [staffFilter, setStaffFilter] = useState('')
+  const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([])
+  const [datePreset, setDatePreset] = useState<'all' | 'today' | 'this_week' | 'this_month'>('all')
 
-  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
+  const roleLower = (userRole || '').toLowerCase().trim()
+  const isManager =
+    ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'super_admin', 'super admin', 'admin'].includes(roleLower) ||
+    roleLower.includes('manager') ||
+    roleLower.includes('ผู้จัดการ') ||
+    roleLower.includes('marketing') ||
+    roleLower.includes('การตลาด')
+
+  const isMarketingMgr =
+    roleLower.includes('marketing manager') ||
+    roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
+    roleLower.includes('ผู้จัดการการตลาด') ||
+    roleLower.includes('ผู้การจัดการตลาด')
+
+  // Current time reference in Bangkok timezone
+  const now = useMemo(() => new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })), [])
+
+  // Pre-seed unique colors for all staff members to guarantee zero repetition
+  useMemo(() => {
+    const names = [
+      ...staffList.map((s: any) => s.fullName),
+      ...schedules.map((s: any) => s.user?.fullName)
+    ].filter(Boolean) as string[]
+    initRepColors(names)
+  }, [staffList, schedules])
+
+  // Base schedules scoped by selected staff (if staff filter is active)
+  const staffScopedSchedules = useMemo(() => {
+    if (selectedStaffIds.length === 0) return schedules
+    return schedules.filter(
+      (s) => selectedStaffIds.includes(s.userId) || selectedStaffIds.includes(s.user?.id)
+    )
+  }, [schedules, selectedStaffIds])
 
   // Calculate overdue visits (planned date has passed, status not Completed/Cancelled, no visit report)
-  const now = new Date(
-    new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })
+  const overdueVisits = useMemo(() => {
+    return staffScopedSchedules.filter((s) => {
+      const isPast = new Date(s.date) < now
+      const isPending =
+        !s.status ||
+        (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')
+      const noReport = !s.visitReport?.trim()
+      return isPast && isPending && noReport
+    })
+  }, [staffScopedSchedules, now])
+
+  // KPIs
+  const completedCount = useMemo(
+    () => staffScopedSchedules.filter((s) => s.status === 'Completed' || s.status === 'เสร็จสิ้น').length,
+    [staffScopedSchedules]
   )
-  const overdueVisits = schedules.filter(s => {
-    const isPast = new Date(s.date) < now
-    const isPending = !s.status || (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')
-    const noReport = !s.visitReport?.trim()
-    return isPast && isPending && noReport
-  })
+  const pendingCount = useMemo(
+    () =>
+      staffScopedSchedules.filter(
+        (s) =>
+          !s.status ||
+          (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')
+      ).length,
+    [staffScopedSchedules]
+  )
+  const overdueCount = overdueVisits.length
+
+  // Quick Date presets
+  const applyDatePreset = (preset: 'all' | 'today' | 'this_week' | 'this_month') => {
+    setDatePreset(preset)
+    const today = new Date()
+    const y = today.getFullYear()
+    const m = String(today.getMonth() + 1).padStart(2, '0')
+    const d = String(today.getDate()).padStart(2, '0')
+    const todayStr = `${y}-${m}-${d}`
+
+    if (preset === 'all') {
+      setStartDate('')
+      setEndDate('')
+    } else if (preset === 'today') {
+      setStartDate(todayStr)
+      setEndDate(todayStr)
+    } else if (preset === 'this_week') {
+      const dayOfWeek = today.getDay() // 0 = Sun
+      const monday = new Date(today)
+      monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
+      const sunday = new Date(monday)
+      sunday.setDate(monday.getDate() + 6)
+
+      const startStr = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`
+      const endStr = `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}`
+      setStartDate(startStr)
+      setEndDate(endStr)
+    } else if (preset === 'this_month') {
+      const firstDay = `${y}-${m}-01`
+      const lastDayObj = new Date(y, today.getMonth() + 1, 0)
+      const lastDay = `${y}-${m}-${String(lastDayObj.getDate()).padStart(2, '0')}`
+      setStartDate(firstDay)
+      setEndDate(lastDay)
+    }
+  }
+
+  // Filter Logic
+  const filteredSchedules = useMemo(() => {
+    return schedules.filter((s) => {
+      // Search
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase().trim()
+        const matchesTitle = s.title?.toLowerCase().includes(q)
+        const matchesSales = s.user?.fullName?.toLowerCase().includes(q)
+        const matchesDesc = s.description?.toLowerCase().includes(q)
+        const matchesCompany = s.company?.companyName?.toLowerCase().includes(q)
+        const matchesNotes = s.notes?.toLowerCase().includes(q)
+        const matchesDoc =
+          s.quotationNumber?.toLowerCase().includes(q) ||
+          s.poNumber?.toLowerCase().includes(q) ||
+          s.invoiceNumber?.toLowerCase().includes(q)
+
+        if (!matchesTitle && !matchesSales && !matchesDesc && !matchesCompany && !matchesNotes && !matchesDoc) {
+          return false
+        }
+      }
+
+      // Date Range
+      if (startDate || endDate) {
+        const sDate = new Date(s.date)
+        sDate.setHours(0, 0, 0, 0)
+        if (startDate) {
+          const start = new Date(startDate)
+          start.setHours(0, 0, 0, 0)
+          if (sDate < start) return false
+        }
+        if (endDate) {
+          const end = new Date(endDate)
+          end.setHours(0, 0, 0, 0)
+          if (sDate > end) return false
+        }
+      }
+
+      // Status
+      if (statusFilter) {
+        if (statusFilter === 'Pending') {
+          const isPending =
+            !s.status ||
+            (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')
+          if (!isPending) return false
+        } else if (statusFilter === 'Completed') {
+          const isCompleted = s.status === 'Completed' || s.status === 'เสร็จสิ้น'
+          if (!isCompleted) return false
+        } else if (statusFilter === 'Cancelled') {
+          const isCancelled = s.status === 'Cancelled' || s.status === 'ยกเลิก'
+          if (!isCancelled) return false
+        } else if (statusFilter === 'Overdue') {
+          const now = new Date()
+          const isPast = new Date(s.date) < now
+          const isPending =
+            !s.status ||
+            (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')
+          const noReport = !s.visitReport?.trim()
+          if (!(isPast && isPending && noReport)) return false
+        }
+      }
+
+      // Staff filter (multi-select)
+      if (selectedStaffIds.length > 0) {
+        const matches = selectedStaffIds.includes(s.userId) || selectedStaffIds.includes(s.user?.id)
+        if (!matches) return false
+      }
+
+      return true
+    })
+  }, [schedules, searchTerm, startDate, endDate, statusFilter, selectedStaffIds])
+
+  const hasActiveFilters = Boolean(
+    searchTerm || startDate || endDate || statusFilter || selectedStaffIds.length > 0
+  )
+
+  const clearAllFilters = () => {
+    setSearchTerm('')
+    setStartDate('')
+    setEndDate('')
+    setStatusFilter('')
+    setSelectedStaffIds([])
+    setDatePreset('all')
+  }
 
   const handleSuccess = (newSchedule: any) => {
-    setSchedules([...schedules, newSchedule].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()))
-    setActiveTab('list')
+    setSchedules((prev) =>
+      [...prev, newSchedule].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    )
+    setActiveTab('calendar')
   }
 
   const handleUpdateSuccess = (updated: any) => {
-    setSchedules(prev => prev.map(s => s.id === updated.id ? { ...s, ...updated, user: s.user } : s))
+    setSchedules((prev) =>
+      prev.map((s) => (s.id === updated.id ? { ...s, ...updated, user: s.user } : s))
+    )
   }
 
   const handleDeleteSuccess = (id: string) => {
-    setSchedules(prev => prev.filter(s => s.id !== id))
+    setSchedules((prev) => prev.filter((s) => s.id !== id))
+    if (selectedSchedule?.id === id) setSelectedSchedule(null)
   }
 
   const handleDeleteListItem = async (id: string) => {
@@ -76,56 +303,19 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
     }
   }
 
-  const filteredSchedules = schedules.filter(s => {
-    const matchesSearch = s.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          s.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          s.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          s.company?.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
-                          
-    let matchesDate = true
-    if (startDate || endDate) {
-      const sDate = new Date(s.date)
-      sDate.setHours(0,0,0,0)
-      if (startDate) {
-        const start = new Date(startDate)
-        start.setHours(0,0,0,0)
-        if (sDate < start) matchesDate = false
-      }
-      if (endDate) {
-        const end = new Date(endDate)
-        end.setHours(0,0,0,0)
-        if (sDate > end) matchesDate = false
-      }
-    }
-
-    let matchesStatus = true
-    if (statusFilter) {
-       if (statusFilter === 'Pending') {
-           matchesStatus = !s.status || (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')
-       } else if (statusFilter === 'Completed') {
-           matchesStatus = s.status === 'Completed' || s.status === 'เสร็จสิ้น'
-       } else if (statusFilter === 'Cancelled') {
-           matchesStatus = s.status === 'Cancelled' || s.status === 'ยกเลิก'
-       }
-    }
-
-    let matchesStaff = true
-    if (staffFilter) {
-       matchesStaff = s.userId === staffFilter || s.user?.id === staffFilter
-    }
-
-    return matchesSearch && matchesDate && matchesStatus && matchesStaff
-  })
-
   const handleExportExcel = () => {
     if (filteredSchedules.length === 0) {
-      alert('ไม่มีข้อมูลให้ส่งออก');
-      return;
+      alert('ไม่มีข้อมูลสำหรับส่งออก')
+      return
     }
 
     const dataToExport = filteredSchedules.map((s, index) => ({
       'ลำดับ (No.)': index + 1,
-      'วันที่ (Date)': new Date(s.date).toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+      'วันที่ (Date)': new Date(s.date).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }),
       'เวลา (Time)': new Date(s.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
       'พนักงาน (Sales)': s.user?.fullName || '-',
       'ชื่อบริษัท (Company)': s.company?.companyName || '-',
@@ -135,22 +325,17 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
       'รายงานผล (Visit Report)': s.visitReport || '-',
       'สถานะ (Status)': s.status || 'รอทำ (Planned)',
       'หมายเหตุ (Notes)': s.notes || '-'
-    }));
+    }))
 
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(dataToExport);
-    XLSX.utils.book_append_sheet(wb, ws, "Schedules");
-    XLSX.writeFile(wb, `Schedules_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(dataToExport)
+    XLSX.utils.book_append_sheet(wb, ws, 'Schedules')
+    XLSX.writeFile(wb, `Schedules_Export_${new Date().toISOString().split('T')[0]}.xlsx`)
   }
 
-  const completedCount = schedules.filter(s => s.status === 'Completed' || s.status === 'เสร็จสิ้น').length
-  const pendingCount = schedules.filter(s => !s.status || (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')).length
-  const cancelledCount = schedules.filter(s => s.status === 'Cancelled' || s.status === 'ยกเลิก').length
-
   return (
-    <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-
-      {/* Update modal */}
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Update Modal */}
       {selectedSchedule && (
         <UpdateScheduleForm
           schedule={selectedSchedule}
@@ -161,308 +346,672 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
         />
       )}
 
-      {/* ── Header Bar ── */}
-      <header className="shrink-0 h-auto py-4 md:py-0 md:h-20 border-b border-gray-100 px-4 md:px-8 flex items-center justify-between bg-white">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-lg shadow-red-200">
-            <CalendarDays size={20} className="text-white" />
+      {/* ── Top Header Card ── */}
+      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/90 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-full bg-gradient-to-l from-red-500/5 to-transparent pointer-events-none" />
+        <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-[#ff2301] via-red-500 to-gray-900" />
+
+        <div className="flex items-start sm:items-center gap-4 relative z-10 min-w-0 flex-1">
+          <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center text-[#ff2301] shadow-sm shrink-0 border border-red-100">
+            <CalendarDays className="w-7 h-7" />
           </div>
-          <div>
-            <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase">
-              {isManager ? 'ตารางงานทีม' : 'ตารางงานของฉัน'}
-            </h1>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              {isManager ? 'Team Schedule Management' : 'My Schedule'}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                {isMarketingMgr
+                  ? 'ตารางงานเซลล์ทุกคน (Marketing Overview)'
+                  : isManager
+                    ? 'ตารางงานทีมเซลล์ (Team Schedule)'
+                    : 'ตารางงานของฉัน (My Schedule)'}
+              </h1>
+              {isMarketingMgr && (
+                <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-red-50 text-[#ff2301] border border-red-200 shrink-0">
+                  ผู้จัดการการตลาด
+                </span>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1 font-medium">
+              {isMarketingMgr
+                ? 'ติดตามตารางนัดหมาย เข้าพบลูกค้า และรายงานผลของทีมเซลล์ทุกคนในบริษัท'
+                : isManager
+                  ? 'ติดตามตารางงาน การเข้าพบลูกค้า และความคืบหน้าของทีมงาน'
+                  : 'บันทึกนัดหมาย วางแผนงาน และรายงานผลการเข้าพบลูกค้าของคุณ'}
             </p>
           </div>
         </div>
-      </header>
 
-      {/* ── KPI Strip (list view) ── */}
-      {activeTab === 'list' && (
-        <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 border-b border-gray-100 divide-x divide-y md:divide-y-0 divide-gray-100">
-          {[
-            { label: 'ทั้งหมด',     value: schedules.length,  icon: <LayoutList size={14} />,    color: 'text-gray-400',    bg: 'bg-gray-50' },
-            { label: 'เสร็จสิ้น',  value: completedCount,    icon: <CheckCircle2 size={14} />,  color: 'text-emerald-600', bg: 'bg-emerald-50' },
-            { label: 'รอดำเนินการ', value: pendingCount,     icon: <Clock size={14} />,         color: 'text-amber-500',   bg: 'bg-amber-50' },
-            { label: 'ยกเลิก',     value: cancelledCount,    icon: <XCircle size={14} />,       color: 'text-gray-400',    bg: 'bg-gray-50' },
-          ].map(k => (
-            <div key={k.label} className={`flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 ${k.bg}`}>
-              <span className={k.color}>{k.icon}</span>
-              <div>
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{k.label}</p>
-                <p className={`text-lg font-black ${k.color}`}>{k.value}</p>
-              </div>
+        {/* View Switcher & Action (Symmetrical side-by-side alignment) */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 relative z-10 shrink-0">
+          {/* Segmented View Mode */}
+          <div className="inline-flex items-center p-1 bg-gray-100 rounded-2xl border border-gray-200/80 h-11 shrink-0">
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-full rounded-xl text-xs font-bold transition-all ${activeTab === 'calendar'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900'
+                }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>ปฏิทิน</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('list')}
+              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-full rounded-xl text-xs font-bold transition-all ${activeTab === 'list'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900'
+                }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>รายการ ({filteredSchedules.length})</span>
+            </button>
+          </div>
+
+          {/* Primary Action Button */}
+          {activeTab === 'new' ? (
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className="inline-flex items-center justify-center gap-2 px-5 h-11 rounded-2xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-all shadow-sm shrink-0"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>กลับไปที่ปฏิทิน</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setNewSchedulePreselectedDate('')
+                setActiveTab('new')
+              }}
+              className="inline-flex items-center justify-center gap-2 px-5 h-11 rounded-2xl bg-[#ff2301] hover:bg-[#e01f01] text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all active:scale-95 shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>บันทึกนัดหมายใหม่</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Interactive KPI Stat Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Total */}
+        <div
+          onClick={() => setStatusFilter('')}
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${statusFilter === ''
+              ? 'border-gray-900 ring-2 ring-gray-900/10 shadow-sm'
+              : 'border-gray-200 hover:border-gray-300'
+            }`}
+        >
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+            <span className="font-semibold">นัดหมายทั้งหมด</span>
+            <CalendarDays className="w-4 h-4 text-gray-400" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-gray-900">{schedules.length}</div>
+          <div className="text-[11px] text-gray-400 mt-1">ตารางงานทั้งหมดในระบบ</div>
+        </div>
+
+        {/* Card 2: Planned / Pending */}
+        <div
+          onClick={() => setStatusFilter('Pending')}
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${statusFilter === 'Pending'
+              ? 'border-blue-500 ring-2 ring-blue-500/10 shadow-sm bg-blue-50/20'
+              : 'border-gray-200 hover:border-blue-300'
+            }`}
+        >
+          <div className="flex items-center justify-between text-xs text-blue-700 mb-2">
+            <span className="font-bold">รอทำ (Planned)</span>
+            <Clock className="w-4 h-4 text-blue-600" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-blue-900">{pendingCount}</div>
+          <div className="text-[11px] text-blue-600/80 mt-1">รอดำเนินการเข้าพบ</div>
+        </div>
+
+        {/* Card 3: Completed */}
+        <div
+          onClick={() => setStatusFilter('Completed')}
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${statusFilter === 'Completed'
+              ? 'border-emerald-500 ring-2 ring-emerald-500/10 shadow-sm bg-emerald-50/20'
+              : 'border-gray-200 hover:border-emerald-300'
+            }`}
+        >
+          <div className="flex items-center justify-between text-xs text-emerald-700 mb-2">
+            <span className="font-bold">เสร็จสิ้น (Completed)</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-emerald-900">{completedCount}</div>
+          <div className="text-[11px] text-emerald-600 mt-1">เข้าพบลูกค้าเรียบร้อย</div>
+        </div>
+
+        {/* Card 4: Overdue Missing Report */}
+        <div
+          onClick={() => setStatusFilter('Overdue')}
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${statusFilter === 'Overdue'
+              ? 'border-amber-500 ring-2 ring-amber-500/10 shadow-sm bg-amber-50/20'
+              : 'border-gray-200 hover:border-amber-300'
+            }`}
+        >
+          <div className="flex items-center justify-between text-xs text-amber-700 mb-2">
+            <span className="font-bold flex items-center gap-1">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> ค้างรายงานผล
+            </span>
+            {overdueCount > 0 && (
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+            )}
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-amber-900">{overdueCount}</div>
+          <div className="text-[11px] text-amber-600 mt-1">เลยกำหนด / ยังไม่เขียนรายงาน</div>
+        </div>
+      </div>
+
+      {/* ── Overdue Warning Strip (Compact & Clean) ── */}
+      {overdueVisits.length > 0 && statusFilter !== 'Overdue' && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4" />
             </div>
-          ))}
+            <div>
+              <span className="font-bold text-amber-900">
+                พบแผนงานเข้าพบเลยกำหนดที่ยังไม่มีรายงานผล {overdueVisits.length} รายการ
+              </span>
+              <p className="text-[11px] text-amber-700 mt-0.5">
+                กรุณาบันทึกผลการเข้าพบ (Visit Report) เพื่อให้การติดตามงานของทีมสมบูรณ์
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setStatusFilter('Overdue')}
+              className="px-3 py-1.5 rounded-xl bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold transition-colors"
+            >
+              ดูเฉพาะรายการที่ค้าง
+            </button>
+            {overdueVisits[0] && (
+              <Link
+                href={`/schedule/report/${overdueVisits[0].id}`}
+                className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold transition-colors"
+              >
+                เขียนรายงานล่าสุด &rarr;
+              </Link>
+            )}
+          </div>
         </div>
       )}
 
-      {/* ── Tab Navigation ── */}
-      <div className="shrink-0 flex items-center gap-1 px-4 md:px-8 pt-4 border-b border-gray-100 bg-white overflow-x-auto custom-scrollbar flex-nowrap">
-        {[
-          { id: 'new'      as const, label: 'บันทึกใหม่',                                                           icon: <Plus size={14} /> },
-          { id: 'list'     as const, label: `รายการทั้งหมด (${schedules.length})`,                                  icon: <Search size={14} /> },
-          { id: 'calendar' as const, label: 'มุมมองปฏิทิน',                                                          icon: <Calendar size={14} /> },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'text-brand-red border-brand-red bg-red-50/50'
-                : 'text-gray-400 border-transparent hover:text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Overdue Visits Warning Alert ── */}
-      {overdueVisits.length > 0 && (
-        <div className="shrink-0 mx-4 md:mx-8 mt-4 md:mt-6 p-4 md:p-5 bg-amber-50 border border-amber-200 rounded-[24px] flex items-start gap-4 shadow-sm animate-in slide-in-from-top-4 duration-500">
-          <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-md shrink-0">
-            <Clock size={18} className="animate-pulse" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-black text-amber-900 tracking-tight flex items-center gap-2 flex-wrap">
-              <span>พบแผนงานเข้าพบเลยกำหนดแต่ยังไม่มีรายงานผล {overdueVisits.length} รายการ</span>
-              <span className="text-[9px] bg-amber-200/80 text-amber-800 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">Overdue Warning</span>
-            </h4>
-            <p className="text-[11px] text-amber-700/80 font-bold mt-1">
-              กรุณาคลิกบันทึกผลการเข้าพบ (Visit Report) และเปลี่ยนสถานะงานเป็นเสร็จสิ้น (Completed)
-            </p>
-            <div className="mt-3.5 flex flex-wrap gap-2">
-              {overdueVisits.slice(0, 3).map(s => (
-                <Link
-                  key={s.id}
-                  href={`/schedule/report/${s.id}`}
-                  className="flex items-center gap-2 bg-white hover:bg-amber-100/50 text-amber-900 border border-amber-200/70 px-3.5 py-2 rounded-xl text-[11px] font-bold shadow-sm transition-all text-left"
+      {/* ── Unified Filter Toolbar (Visible in Calendar & List) ── */}
+      {activeTab !== 'new' && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-4 space-y-3.5 shadow-sm">
+          {/* Row 1: Search, Staff Filter, Status, and Export */}
+          <div className="flex flex-col lg:flex-row items-center gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1 w-full">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="ค้นหาลูกค้า, หัวข้อนัดหมาย, ชื่อเซลล์, หรือเลขที่ QT/PO/IV..."
+                className="w-full pl-10 pr-9 py-2 rounded-xl border border-gray-200 text-xs font-medium focus:ring-2 focus:ring-[#ff2301] focus:border-transparent outline-none bg-gray-50 focus:bg-white transition-all"
+              />
+              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-2.5" />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                  <span className="font-bold truncate max-w-[120px]">{s.company?.companyName || s.title}</span>
-                  <span className="text-[9px] text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100 shrink-0">
-                    {new Date(s.date).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })}
-                  </span>
-                  {isManager && s.user?.fullName && (
-                    <span className="text-[9px] text-gray-400 font-bold shrink-0">({s.user.fullName})</span>
-                  )}
-                  <span className="ml-1 text-[9px] font-black text-brand-red bg-red-50 px-1.5 py-0.5 rounded border border-red-100 shrink-0 uppercase tracking-widest">
-                    เขียนรายงาน
-                  </span>
-                </Link>
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Staff Multi-Select Filter with Search & Branch Filtering (For Managers & Marketing Manager) */}
+            {isManager && staffList && staffList.length > 0 && (
+              <StaffMultiSelect
+                staffList={staffList}
+                selectedStaffIds={selectedStaffIds}
+                onChangeSelectedStaffIds={setSelectedStaffIds}
+              />
+            )}
+
+            {/* Status Filter Dropdown */}
+            <div className="w-full lg:w-44 shrink-0">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-800 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#ff2301] outline-none transition-all"
+              >
+                <option value="">ทุกสถานะ</option>
+                <option value="Pending">รอทำ (Planned)</option>
+                <option value="Completed">เสร็จสิ้น (Completed)</option>
+                <option value="Overdue">ค้างรายงานผล (Overdue)</option>
+                <option value="Cancelled">ยกเลิก (Cancelled)</option>
+              </select>
+            </div>
+
+            {/* Export Excel Button */}
+            <button
+              onClick={handleExportExcel}
+              className="w-full lg:w-auto flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition-all shrink-0"
+              title="ส่งออกตารางงานที่แสดงเป็น Excel"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-600" />
+              <span>ส่งออก Excel</span>
+            </button>
+          </div>
+
+          {/* Row 2: Date Presets & Custom Date Range */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-100">
+            {/* Quick Date Presets */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+              <span className="text-[11px] font-bold text-gray-400 mr-1 shrink-0">ช่วงเวลา:</span>
+              {[
+                { id: 'all' as const, label: 'ทั้งหมด' },
+                { id: 'today' as const, label: 'วันนี้' },
+                { id: 'this_week' as const, label: 'สัปดาห์นี้' },
+                { id: 'this_month' as const, label: 'เดือนนี้' }
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => applyDatePreset(p.id)}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 ${datePreset === p.id
+                      ? 'bg-gray-900 text-white shadow-sm'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                    }`}
+                >
+                  {p.label}
+                </button>
               ))}
-              {overdueVisits.length > 3 && (
-                <div className="flex items-center text-[10px] font-bold text-amber-600 px-2">
-                  และอีก {overdueVisits.length - 3} รายการ...
-                </div>
+            </div>
+
+            {/* Custom Date Pickers */}
+            <div className="flex items-center gap-2 self-end sm:self-auto text-xs">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value)
+                  setDatePreset('all')
+                }}
+                className="px-2.5 py-1 rounded-xl border border-gray-200 text-xs font-medium bg-gray-50 focus:bg-white outline-none"
+              />
+              <span className="text-gray-400">-</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value)
+                  setDatePreset('all')
+                }}
+                className="px-2.5 py-1 rounded-xl border border-gray-200 text-xs font-medium bg-gray-50 focus:bg-white outline-none"
+              />
+
+              {hasActiveFilters && (
+                <button
+                  onClick={clearAllFilters}
+                  className="px-2 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-1"
+                  title="ล้างตัวกรองทั้งหมด"
+                >
+                  ล้างตัวกรอง
+                </button>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {activeTab === 'new' ? (
-          <div className="p-4 md:p-8">
-            <NewScheduleForm
-              staffList={staffList}
-              onSuccess={handleSuccess}
-              isManager={isManager}
-              currentUserId={currentUserId}
-              businessTypes={businessTypes}
-              initialCompanyName={searchParams.get('customerName') || ''}
-            />
+      {/* ── Content Area ── */}
+      {activeTab === 'new' ? (
+        /* ── New Schedule Form ── */
+        <div className="space-y-4">
+          <div className="flex items-center justify-between bg-white rounded-2xl p-4 border border-gray-200">
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className="flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-[#ff2301] transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>ย้อนกลับไปที่ปฏิทิน</span>
+            </button>
+            <span className="text-xs font-bold text-gray-400">
+              สร้างนัดหมาย / วางแผนการเข้าพบลูกค้า
+            </span>
           </div>
 
-        ) : activeTab === 'calendar' ? (
-          <div className="p-4 md:p-6 h-full">
-            <ScheduleCalendar
-              schedules={schedules}
-              onSelectSchedule={setSelectedSchedule}
-            />
-          </div>
+          <NewScheduleForm
+            staffList={staffList}
+            onSuccess={handleSuccess}
+            isManager={isManager}
+            currentUserId={currentUserId}
+            businessTypes={businessTypes}
+            initialCompanyName={searchParams.get('customerName') || ''}
+            initialDate={newSchedulePreselectedDate}
+          />
+        </div>
+      ) : activeTab === 'calendar' ? (
+        /* ── Calendar View ── */
+        <ScheduleCalendar
+          schedules={filteredSchedules}
+          onSelectSchedule={setSelectedSchedule}
+          onNewScheduleForDate={(dateStr) => {
+            setNewSchedulePreselectedDate(dateStr)
+            setActiveTab('new')
+          }}
+        />
+      ) : (
+        /* ── List View ── */
+        <div className="space-y-4">
+          {/* List View Sub-Header */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-gray-500">
+              แสดง {filteredSchedules.length} จากทั้งหมด {schedules.length} รายการ
+            </span>
 
-        ) : (
-          <div className="p-4 md:p-8 space-y-4 md:space-y-6">
-            {/* Filters and Search */}
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="relative w-full sm:w-64 shrink-0">
-                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="ค้นหาหัวข้อ, ลูกค้า, พนักงาน..."
-                    className="w-full pl-9 pr-4 py-2 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <input type="date" className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white" 
-                    value={startDate} 
-                    onChange={(e) => setStartDate(e.target.value)} 
-                  />
-                  <span className="text-gray-400">-</span>
-                  <input type="date" className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white" 
-                    value={endDate} 
-                    onChange={(e) => setEndDate(e.target.value)} 
-                  />
-                </div>
-
-                <select className="w-full sm:w-auto px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="">ทุกสถานะ</option>
-                  <option value="Pending">รอทำ (Planned)</option>
-                  <option value="Completed">เสร็จสิ้น (Completed)</option>
-                  <option value="Cancelled">ยกเลิก (Cancelled)</option>
-                </select>
-
-                {isManager && staffList && (
-                  <select className="w-full sm:w-auto px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
-                    value={staffFilter}
-                    onChange={(e) => setStaffFilter(e.target.value)}
-                  >
-                    <option value="">พนักงานทุกคน</option>
-                    {staffList.map(rep => (
-                      <option key={rep.id} value={rep.id}>{rep.fullName}</option>
-                    ))}
-                  </select>
-                )}
-
-                <button
-                  onClick={handleExportExcel}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-all ml-auto"
-                  title="ส่งออกเป็นไฟล์ Excel"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                  ส่งออก Excel
-                </button>
-              </div>
+            {/* List Display Toggle: Cards or Table */}
+            <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl">
+              <button
+                onClick={() => setListViewMode('cards')}
+                className={`p-1.5 rounded-lg transition-all ${listViewMode === 'cards'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                title="มุมมองการ์ด"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setListViewMode('table')}
+                className={`p-1.5 rounded-lg transition-all ${listViewMode === 'table'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                title="มุมมองตาราง"
+              >
+                <ListFilter className="w-4 h-4" />
+              </button>
             </div>
+          </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left text-sm min-w-[900px]">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่ / เวลา</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">พนักงาน</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest w-2/5">หัวข้อ / งาน</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">สถานะ</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">จัดการ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {filteredSchedules.length > 0 ? (
-                    filteredSchedules.map(schedule => (
-                      <tr key={schedule.id} className="group hover:bg-gray-50/60 transition-colors">
-                        {/* Date / Time */}
-                        <td className="py-4 px-5 whitespace-nowrap">
-                          <p className="text-xs font-black text-gray-800">
-                            {new Date(schedule.date).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' })}
-                          </p>
-                          <p className="text-[10px] font-bold text-gray-400 mt-0.5">
-                            {new Date(schedule.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
-                          </p>
-                        </td>
-                        {/* Staff */}
-                        <td className="py-4 px-5">
-                          <p className="text-xs font-bold text-gray-900">{schedule.user?.fullName || '—'}</p>
-                        </td>
-                        {/* Title + Details */}
-                        <td className="py-4 px-5">
-                          <p className="text-xs font-black text-gray-900">{schedule.title}</p>
-                          {schedule.company?.companyName && (
-                            <p className="text-[10px] text-brand-red font-bold mt-0.5">@ {schedule.company.companyName}</p>
-                          )}
-                          {schedule.description && (
-                            <p className="text-[10px] text-gray-400 font-medium mt-0.5 line-clamp-1">{schedule.description}</p>
-                          )}
-                          {schedule.presentationStatus && (
-                            <p className="flex items-center gap-1.5 text-[10px] font-bold text-brand-red mt-1"><span className="w-1.5 h-1.5 rounded-full bg-brand-red shrink-0 inline-block" /> {schedule.presentationStatus}</p>
-                          )}
-                          {(schedule.quotationNumber || schedule.poNumber || schedule.invoiceNumber) && (
-                            <div className="flex flex-wrap gap-1.5 mt-1.5">
-                              {schedule.quotationNumber && <span className="text-[10px] bg-red-50 text-brand-red px-2 py-0.5 rounded-lg border border-red-100 font-black">QT: {schedule.quotationNumber}</span>}
-                              {schedule.poNumber && <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-lg border border-gray-200 font-black">PO: {schedule.poNumber}</span>}
-                              {schedule.invoiceNumber && <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-lg border border-emerald-100 font-black">IV: {schedule.invoiceNumber}</span>}
-                            </div>
-                          )}
-                          {schedule.visitReport && (
-                            <div className="mt-2 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100/50 animate-in fade-in duration-300">
-                              <p className="text-[8px] font-black text-emerald-700 uppercase tracking-widest mb-0.5">รายงานผลการเข้าพบ (Visit Report):</p>
-                              <p className="text-[10px] text-emerald-800 font-medium leading-relaxed whitespace-pre-wrap">{schedule.visitReport}</p>
-                            </div>
-                          )}
-                          {schedule.notes && (
-                            <p className="mt-1.5 text-[10px] text-gray-400 italic line-clamp-1 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
-                              "{schedule.notes}"
-                            </p>
-                          )}
-                        </td>
-                        {/* Status */}
-                        <td className="py-4 px-5">{statusBadge(schedule.status)}</td>
-                        {/* Action */}
-                        <td className="py-4 px-5 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            {!schedule.visitReport && schedule.status !== 'Cancelled' && schedule.status !== 'ยกเลิก' && (
-                              <Link
-                                href={`/schedule/report/${schedule.id}`}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-brand-red/10 text-brand-red border border-brand-red/20 hover:bg-brand-red hover:text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap"
-                                title="เขียนรายงานผลการเข้าพบ"
-                              >
-                                <FileSignature size={12} />
-                                <span>เขียนรายงาน</span>
-                              </Link>
-                            )}
-                            <button
-                              onClick={() => setSelectedSchedule(schedule)}
-                              className="p-2 text-gray-300 hover:text-brand-red hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
-                              title="แก้ไข / บันทึกผล"
-                            >
-                              <Edit2 size={15} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteListItem(schedule.id)}
-                              className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
-                              title="ลบ"
-                            >
-                              <Trash2 size={15} />
-                            </button>
+          {filteredSchedules.length === 0 ? (
+            <div className="bg-white rounded-3xl p-12 text-center border border-gray-200 shadow-sm space-y-3">
+              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 mx-auto">
+                <CalendarDays className="w-8 h-8" />
+              </div>
+              <h3 className="text-base font-bold text-gray-800">ไม่พบนัดหมายในเงื่อนไขนี้</h3>
+              <p className="text-xs text-gray-400 max-w-md mx-auto">
+                {hasActiveFilters
+                  ? 'ลองปรับเปลี่ยนเงื่อนไขการค้นหา หรือคลิกล้างตัวกรองเพื่อดูตารางงานทั้งหมด'
+                  : 'ยังไม่มีตารางงานนัดหมายในระบบ คลิกเพื่อเริ่มต้นสร้างนัดหมายฉบับแรก'}
+              </p>
+              {hasActiveFilters ? (
+                <button
+                  onClick={clearAllFilters}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-all"
+                >
+                  ล้างตัวกรองทั้งหมด
+                </button>
+              ) : (
+                <button
+                  onClick={() => setActiveTab('new')}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#ff2301] text-white text-xs font-bold shadow-md hover:bg-[#e01f01] transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>บันทึกนัดหมายใหม่</span>
+                </button>
+              )}
+            </div>
+          ) : listViewMode === 'cards' ? (
+            /* ── Cards View ── */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredSchedules.map((schedule) => {
+                const color = getRepColor(schedule.user?.fullName)
+                const isCompleted = schedule.status === 'Completed' || schedule.status === 'เสร็จสิ้น'
+                const isCancelled = schedule.status === 'Cancelled' || schedule.status === 'ยกเลิก'
+                const hasReport = !!schedule.visitReport?.trim()
+                const isPast = new Date(schedule.date) < now
+                const isOverdue = isPast && !isCompleted && !isCancelled && !hasReport
+
+                return (
+                  <div
+                    key={schedule.id}
+                    className={`bg-white rounded-2xl p-5 border transition-all hover:border-red-300 hover:shadow-md flex flex-col justify-between group relative overflow-hidden ${isOverdue ? 'border-amber-300 ring-1 ring-amber-300/40' : 'border-gray-200'
+                      }`}
+                  >
+                    <div className="space-y-3">
+                      {/* Top Bar: Date, Time & Status */}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-lg">
+                          <Clock className="w-3 h-3 text-gray-400" />
+                          {new Date(schedule.date).toLocaleDateString('th-TH', {
+                            day: 'numeric',
+                            month: 'short'
+                          })}{' '}
+                          {new Date(schedule.date).toLocaleTimeString('th-TH', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}{' '}
+                          น.
+                        </span>
+                        {statusBadge(schedule.status)}
+                      </div>
+
+                      {/* Title & Customer */}
+                      <div>
+                        <h4 className="text-sm font-black text-gray-900 group-hover:text-[#ff2301] transition-colors leading-snug">
+                          {schedule.title}
+                        </h4>
+                        {schedule.company?.companyName && (
+                          <div className="flex items-center gap-1.5 text-xs text-[#ff2301] font-bold mt-1">
+                            <Building2 className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                            <span className="truncate">{schedule.company.companyName}</span>
                           </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="py-20 text-center">
-                        <div className="flex flex-col items-center gap-3 text-gray-300">
-                          <CalendarDays size={36} strokeWidth={1} />
-                          <p className="text-xs font-bold uppercase tracking-widest">
-                            {searchTerm ? 'ไม่พบข้อมูลที่ค้นหา' : 'ยังไม่มีตารางงาน'}
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      {schedule.description && (
+                        <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                          {schedule.description}
+                        </p>
+                      )}
+
+                      {/* Tags QT/PO/IV */}
+                      {(schedule.quotationNumber || schedule.poNumber || schedule.invoiceNumber) && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {schedule.quotationNumber && (
+                            <span className="text-[10px] bg-red-50 text-[#ff2301] px-2 py-0.5 rounded-lg border border-red-100 font-bold">
+                              QT: {schedule.quotationNumber}
+                            </span>
+                          )}
+                          {schedule.poNumber && (
+                            <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-lg border border-gray-200 font-bold">
+                              PO: {schedule.poNumber}
+                            </span>
+                          )}
+                          {schedule.invoiceNumber && (
+                            <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-lg border border-emerald-100 font-bold">
+                              IV: {schedule.invoiceNumber}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Visit Report Alert or Preview */}
+                      {hasReport ? (
+                        <div className="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-xs text-emerald-800">
+                          <span className="font-bold flex items-center gap-1 text-emerald-700 text-[11px]">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> รายงานผลการเข้าพบ:
+                          </span>
+                          <p className="line-clamp-2 mt-0.5 text-[11px] font-medium leading-relaxed">
+                            {schedule.visitReport}
                           </p>
                         </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                      ) : isOverdue ? (
+                        <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
+                          <span className="font-bold flex items-center gap-1 text-[11px]">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                            ค้างส่งรายงานผล
+                          </span>
+                          <Link
+                            href={`/schedule/report/${schedule.id}`}
+                            className="text-[11px] font-black text-[#ff2301] hover:underline flex items-center gap-0.5"
+                          >
+                            <FileSignature className="w-3.5 h-3.5" />
+                            เขียนรายงาน
+                          </Link>
+                        </div>
+                      ) : null}
+                    </div>
 
-            {filteredSchedules.length > 0 && (
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">
-                แสดง {filteredSchedules.length} รายการ จาก {schedules.length} รายการทั้งหมด
-              </p>
-            )}
-          </div>
-        )}
-      </div>
+                    {/* Footer: Salesperson & Actions */}
+                    <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${color.dot}`} style={color.dotStyle} />
+                        <span className="font-bold text-gray-800 text-[11px]">
+                          {schedule.user?.fullName || 'ไม่ระบุ'}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        {!hasReport && !isCancelled && (
+                          <Link
+                            href={`/schedule/report/${schedule.id}`}
+                            className="p-1.5 text-gray-500 hover:text-[#ff2301] hover:bg-red-50 rounded-lg transition-colors"
+                            title="เขียนรายงานผลการเข้าพบ"
+                          >
+                            <FileSignature className="w-4 h-4" />
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => setSelectedSchedule(schedule)}
+                          className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="แก้ไข / ดูข้อมูล"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteListItem(schedule.id)}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="ลบ"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            /* ── Table View ── */
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead className="bg-gray-50 border-b border-gray-200 text-gray-700 font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3 px-4">วันที่ / เวลา</th>
+                      <th className="py-3 px-4">พนักงาน (Sales)</th>
+                      <th className="py-3 px-4">ลูกค้า / บริษัท</th>
+                      <th className="py-3 px-4">หัวข้อนัดหมาย</th>
+                      <th className="py-3 px-4">สถานะ</th>
+                      <th className="py-3 px-4">รายงานผล</th>
+                      <th className="py-3 px-4 text-right">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredSchedules.map((schedule) => {
+                      const color = getRepColor(schedule.user?.fullName)
+                      const isCompleted = schedule.status === 'Completed' || schedule.status === 'เสร็จสิ้น'
+                      const isCancelled = schedule.status === 'Cancelled' || schedule.status === 'ยกเลิก'
+                      const hasReport = !!schedule.visitReport?.trim()
+                      const isPast = new Date(schedule.date) < now
+                      const isOverdue = isPast && !isCompleted && !isCancelled && !hasReport
+
+                      return (
+                        <tr key={schedule.id} className="hover:bg-gray-50/80 transition-colors">
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            <div className="font-bold text-gray-900">
+                              {new Date(schedule.date).toLocaleDateString('th-TH', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: '2-digit'
+                              })}
+                            </div>
+                            <div className="text-[10px] text-gray-400">
+                              {new Date(schedule.date).toLocaleTimeString('th-TH', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}{' '}
+                              น.
+                            </div>
+                          </td>
+
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5 font-bold text-gray-800">
+                              <span className={`w-2 h-2 rounded-full ${color.dot}`} style={color.dotStyle} />
+                              <span>{schedule.user?.fullName || '—'}</span>
+                            </div>
+                          </td>
+
+                          <td className="py-3 px-4">
+                            <div className="font-bold text-gray-900 max-w-[200px] truncate">
+                              {schedule.company?.companyName || '—'}
+                            </div>
+                          </td>
+
+                          <td className="py-3 px-4 max-w-[220px]">
+                            <div className="font-bold text-gray-900 truncate">{schedule.title}</div>
+                            {schedule.description && (
+                              <div className="text-[10px] text-gray-400 truncate">
+                                {schedule.description}
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            {statusBadge(schedule.status)}
+                          </td>
+
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            {hasReport ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                <CheckCircle2 size={10} /> บันทึกแล้ว
+                              </span>
+                            ) : isOverdue ? (
+                              <Link
+                                href={`/schedule/report/${schedule.id}`}
+                                className="inline-flex items-center gap-1 text-[10px] font-black text-[#ff2301] bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full border border-red-200"
+                              >
+                                <FileSignature size={10} /> เขียนรายงาน
+                              </Link>
+                            ) : (
+                              <span className="text-gray-400 text-[10px]">—</span>
+                            )}
+                          </td>
+
+                          <td className="py-3 px-4 text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => setSelectedSchedule(schedule)}
+                                className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="แก้ไข"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteListItem(schedule.id)}
+                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="ลบ"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

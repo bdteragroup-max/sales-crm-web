@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Save, Calendar, Building2, Search, MapPin } from 'lucide-react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { Save, Calendar, Building2, Search, MapPin, X, ChevronDown } from 'lucide-react'
 import { createSchedule } from '@/app/actions/schedule'
 import { searchCompanies, getPostalInfo } from '@/app/actions/sales'
+import { getRepColor } from './ScheduleCalendar'
 
 interface NewScheduleFormProps {
   staffList: any[]
@@ -12,13 +14,59 @@ interface NewScheduleFormProps {
   currentUserId?: string
   businessTypes?: string[]
   initialCompanyName?: string
+  initialDate?: string
 }
 
-export default function NewScheduleForm({ staffList, onSuccess, isManager, currentUserId, businessTypes = [], initialCompanyName = '' }: NewScheduleFormProps) {
+export default function NewScheduleForm({
+  staffList,
+  onSuccess,
+  isManager,
+  currentUserId,
+  businessTypes = [],
+  initialCompanyName = '',
+  initialDate = ''
+}: NewScheduleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Salesperson Searchable State
+  const defaultUser = useMemo(() => {
+    if (!isManager && currentUserId) {
+      return staffList.find((s) => s.id === currentUserId) || null
+    }
+    return null
+  }, [isManager, currentUserId, staffList])
+
+  const [selectedStaff, setSelectedStaff] = useState<any>(defaultUser)
+  const [staffSearchQuery, setStaffSearchQuery] = useState('')
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false)
+  const staffDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (staffDropdownRef.current && !staffDropdownRef.current.contains(event.target as Node)) {
+        setShowStaffDropdown(false)
+      }
+    }
+    if (showStaffDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showStaffDropdown])
+
+  const filteredStaffList = useMemo(() => {
+    const q = staffSearchQuery.trim().toLowerCase()
+    if (!q) return staffList
+    return staffList.filter((s) => {
+      const nameMatch = (s.fullName || '').toLowerCase().includes(q)
+      const empIdMatch = (s.employeeId || '').toLowerCase().includes(q)
+      const branchMatch = (s.branchName || s.branchCode || '').toLowerCase().includes(q)
+      return nameMatch || empIdMatch || branchMatch
+    })
+  }, [staffList, staffSearchQuery])
   
   // Company Search & Info States
-  const [companySearch, setCompanySearch] = useState('')
   const [companySuggestions, setCompanySuggestions] = useState<any[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [postalResults, setPostalResults] = useState<any[]>([])
@@ -38,6 +86,33 @@ export default function NewScheduleForm({ staffList, onSuccess, isManager, curre
     province: '',
     postalCode: '',
   })
+
+  // Business Type Searchable Dropdown States
+  const [showBusinessTypeDropdown, setShowBusinessTypeDropdown] = useState(false)
+  const businessTypeDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        businessTypeDropdownRef.current &&
+        !businessTypeDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowBusinessTypeDropdown(false)
+      }
+    }
+    if (showBusinessTypeDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showBusinessTypeDropdown])
+
+  const filteredBusinessTypes = useMemo(() => {
+    const q = (formData.businessType || '').trim().toLowerCase()
+    if (!q) return businessTypes
+    return businessTypes.filter((bt) => bt.toLowerCase().includes(q))
+  }, [businessTypes, formData.businessType])
 
   const handleCompanySearch = async (query: string) => {
     setFormData((prev: any) => ({ ...prev, companyName: query }));
@@ -91,12 +166,18 @@ export default function NewScheduleForm({ staffList, onSuccess, isManager, curre
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    if (isManager && !selectedStaff?.id) {
+      alert('กรุณาเลือกพนักงาน (Sales)')
+      return
+    }
+
     setIsSubmitting(true)
     const fData = new FormData(e.currentTarget)
     
     // Merge manual form data with hidden inputs or local state
     const res = await createSchedule({
-      userId: (fData.get('userId') as string) || currentUserId || '',
+      userId: (fData.get('userId') as string) || selectedStaff?.id || currentUserId || '',
       title: fData.get('title') as string,
       description: fData.get('description') as string,
       date: fData.get('date') as string,
@@ -129,6 +210,8 @@ export default function NewScheduleForm({ staffList, onSuccess, isManager, curre
         province: '',
         postalCode: '',
       })
+      setSelectedStaff(defaultUser)
+      setStaffSearchQuery('')
       ;(e.target as HTMLFormElement).reset()
     } else {
       alert(res.error || 'Failed to create schedule')
@@ -149,21 +232,156 @@ export default function NewScheduleForm({ staffList, onSuccess, isManager, curre
         
         {/* Section 1: Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-gray-700 ml-1">พนักงาน (Sales)</label>
-            <select 
-              name="userId" 
-              required 
-              defaultValue={isManager ? "" : currentUserId}
-              disabled={!isManager}
-              className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none bg-gray-50 transition-all"
-            >
-              <option value="">- เลือกพนักงาน -</option>
-              {staffList.map(staff => (
-                <option key={staff.id} value={staff.id}>{staff.fullName}</option>
-              ))}
-            </select>
-          </div>
+          {/* Salesperson Selector */}
+          {!isManager ? (
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-gray-700 ml-1">
+                พนักงาน (Sales)
+              </label>
+              <div className="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-800">
+                <span
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    getRepColor(selectedStaff?.fullName || '').dot
+                  }`}
+                  style={getRepColor(selectedStaff?.fullName || '').dotStyle}
+                />
+                <span>{selectedStaff?.fullName || 'ผู้ใช้งานปัจจุบัน'}</span>
+                <input type="hidden" name="userId" value={currentUserId || ''} />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2 relative" ref={staffDropdownRef}>
+              <label className="block text-sm font-bold text-gray-700 ml-1">
+                พนักงาน (Sales) <span className="text-brand-red">*</span>
+              </label>
+
+              <input
+                type="hidden"
+                name="userId"
+                value={selectedStaff?.id || ''}
+                required
+              />
+
+              {selectedStaff ? (
+                /* Selected Pill Display with Clear button */
+                <div className="flex items-center justify-between p-2.5 sm:p-3 border border-red-200 bg-red-50/40 rounded-xl text-sm transition-all group">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                        getRepColor(selectedStaff.fullName).dot
+                      }`}
+                      style={getRepColor(selectedStaff.fullName).dotStyle}
+                    />
+                    <div className="min-w-0">
+                      <span className="font-bold text-gray-900 truncate block">
+                        {selectedStaff.fullName}
+                      </span>
+                      {selectedStaff.branchName && (
+                        <span className="text-[11px] text-gray-500 font-medium">
+                          {selectedStaff.branchName}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedStaff(null)
+                      setStaffSearchQuery('')
+                      setShowStaffDropdown(true)
+                    }}
+                    className="text-gray-400 hover:text-red-600 p-1 rounded-lg hover:bg-white transition-colors text-xs font-bold flex items-center gap-1 shrink-0 ml-2"
+                    title="เปลี่ยนพนักงาน"
+                  >
+                    <span className="hidden sm:inline">เปลี่ยน</span>
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                /* Search Input with Autocomplete Dropdown */
+                <div className="relative">
+                  <Search
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                  />
+                  <input
+                    type="text"
+                    value={staffSearchQuery}
+                    onChange={(e) => {
+                      setStaffSearchQuery(e.target.value)
+                      setShowStaffDropdown(true)
+                    }}
+                    onFocus={() => setShowStaffDropdown(true)}
+                    placeholder="พิมพ์ค้นหาชื่อพนักงาน หรือสาขา..."
+                    className="w-full pl-10 pr-9 py-3 border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none bg-white transition-all placeholder:text-gray-400 font-medium"
+                  />
+                  {staffSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setStaffSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Dropdown Suggestions List */}
+              {showStaffDropdown && !selectedStaff && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 max-h-64 overflow-y-auto divide-y divide-gray-50">
+                  <div className="p-2 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between text-[11px] font-bold text-gray-500">
+                    <span>พบ {filteredStaffList.length} คน</span>
+                    <span>คลิกเพื่อเลือก</span>
+                  </div>
+
+                  {filteredStaffList.length > 0 ? (
+                    filteredStaffList.map((staff) => {
+                      const color = getRepColor(staff.fullName)
+                      return (
+                        <button
+                          key={staff.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedStaff(staff)
+                            setShowStaffDropdown(false)
+                            setStaffSearchQuery('')
+                          }}
+                          className="w-full text-left p-3 hover:bg-red-50/60 flex items-center justify-between transition-colors group text-sm cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                            <span
+                              className={`w-2.5 h-2.5 rounded-full shrink-0 ${color.dot}`}
+                              style={color.dotStyle}
+                            />
+                            <div className="min-w-0">
+                              <div className="font-bold text-gray-900 group-hover:text-[#ff2301] truncate transition-colors">
+                                {staff.fullName}
+                              </div>
+                              {staff.role && (
+                                <div className="text-[11px] text-gray-400 truncate">
+                                  {staff.role}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 shrink-0">
+                            {staff.branchName || 'สำนักงานใหญ่'}
+                          </span>
+                        </button>
+                      )
+                    })
+                  ) : (
+                    <div className="p-6 text-center text-xs text-gray-500">
+                      ไม่พบพนักงานตรงกับ &ldquo;{staffSearchQuery}&rdquo;
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -171,6 +389,7 @@ export default function NewScheduleForm({ staffList, onSuccess, isManager, curre
               <input 
                 type="date" 
                 name="date" 
+                defaultValue={initialDate || ''}
                 required 
                 className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none transition-all" 
               />
@@ -271,18 +490,82 @@ export default function NewScheduleForm({ staffList, onSuccess, isManager, curre
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 relative" ref={businessTypeDropdownRef}>
               <label className="block text-sm font-bold text-gray-700 ml-1">ประเภทธุรกิจ</label>
-              <select 
-                value={formData.businessType}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, businessType: e.target.value }))}
-                className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none bg-white transition-all"
-              >
-                <option value="">- เลือกประเภทธุรกิจ -</option>
-                {businessTypes.map(bt => (
-                  <option key={bt} value={bt}>{bt}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={formData.businessType}
+                  onChange={(e) => {
+                    setFormData((prev: any) => ({ ...prev, businessType: e.target.value }))
+                    setShowBusinessTypeDropdown(true)
+                  }}
+                  onFocus={() => setShowBusinessTypeDropdown(true)}
+                  placeholder="พิมพ์ค้นหาหรือเลือกประเภทธุรกิจ..."
+                  className="w-full pl-10 pr-9 py-3 border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none bg-white transition-all font-medium placeholder:text-gray-400"
+                />
+                {formData.businessType ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev: any) => ({ ...prev, businessType: '' }))
+                      setShowBusinessTypeDropdown(true)
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                    title="ล้างค่า"
+                  >
+                    <X size={14} />
+                  </button>
+                ) : (
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                )}
+              </div>
+
+              {/* Business Type Suggestions Dropdown */}
+              {showBusinessTypeDropdown && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 max-h-60 overflow-y-auto divide-y divide-gray-50">
+                  <div className="p-2 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between text-[11px] font-bold text-gray-500">
+                    <span>พบ {filteredBusinessTypes.length} ประเภทธุรกิจ</span>
+                    <span>คลิกเพื่อเลือก</span>
+                  </div>
+
+                  {filteredBusinessTypes.length > 0 ? (
+                    filteredBusinessTypes.map((bt) => {
+                      const isSelected = formData.businessType === bt
+                      return (
+                        <button
+                          key={bt}
+                          type="button"
+                          onClick={() => {
+                            setFormData((prev: any) => ({ ...prev, businessType: bt }))
+                            setShowBusinessTypeDropdown(false)
+                          }}
+                          className={`w-full text-left px-4 py-2.5 hover:bg-red-50/60 flex items-center justify-between text-xs font-bold transition-colors cursor-pointer ${
+                            isSelected ? 'bg-red-50 text-[#ff2301]' : 'text-gray-800'
+                          }`}
+                        >
+                          <span>{bt}</span>
+                          {isSelected && <span className="text-[10px] text-[#ff2301]">เลือกแล้ว</span>}
+                        </button>
+                      )
+                    })
+                  ) : (
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-gray-500">ไม่พบประเภทธุรกิจตรงกับที่พิมพ์</p>
+                      {formData.businessType && (
+                        <button
+                          type="button"
+                          onClick={() => setShowBusinessTypeDropdown(false)}
+                          className="mt-2 text-xs font-bold text-[#ff2301] hover:underline"
+                        >
+                          ใช้ &ldquo;{formData.businessType}&rdquo; เป็นประเภทธุรกิจ
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

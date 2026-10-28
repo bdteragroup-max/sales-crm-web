@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Save, X, Trash2, Calendar, FileText, CheckCircle2, Building2, Search, MapPin } from 'lucide-react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { Save, X, Trash2, Calendar, FileText, CheckCircle2, Building2, Search, MapPin, ChevronDown } from 'lucide-react'
 import { updateSchedule, deleteSchedule } from '@/app/actions/schedule'
 import { searchCompanies, getPostalInfo } from '@/app/actions/sales'
 
@@ -41,6 +42,33 @@ export default function UpdateScheduleForm({ schedule, onClose, onSuccess, onDel
     province: schedule.company?.province || '',
     postalCode: schedule.company?.postalCode || '',
   })
+
+  // Business Type Searchable Dropdown States
+  const [showBusinessTypeDropdown, setShowBusinessTypeDropdown] = useState(false)
+  const businessTypeDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        businessTypeDropdownRef.current &&
+        !businessTypeDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowBusinessTypeDropdown(false)
+      }
+    }
+    if (showBusinessTypeDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showBusinessTypeDropdown])
+
+  const filteredBusinessTypes = useMemo(() => {
+    const q = (formData.businessType || '').trim().toLowerCase()
+    if (!q) return businessTypes
+    return businessTypes.filter((bt) => bt.toLowerCase().includes(q))
+  }, [businessTypes, formData.businessType])
 
   const handleCompanySearch = async (query: string) => {
     setFormData((prev: any) => ({ ...prev, companyName: query }));
@@ -362,18 +390,82 @@ export default function UpdateScheduleForm({ schedule, onClose, onSuccess, onDel
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 relative" ref={businessTypeDropdownRef}>
                   <label className="text-sm font-bold text-gray-700 ml-1">ประเภทธุรกิจ</label>
-                  <select 
-                    value={formData.businessType}
-                    onChange={(e) => setFormData((prev: any) => ({ ...prev, businessType: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none bg-white transition-all"
-                  >
-                    <option value="">- เลือกประเภทธุรกิจ -</option>
-                    {businessTypes.map(bt => (
-                      <option key={bt} value={bt}>{bt}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={formData.businessType}
+                      onChange={(e) => {
+                        setFormData((prev: any) => ({ ...prev, businessType: e.target.value }))
+                        setShowBusinessTypeDropdown(true)
+                      }}
+                      onFocus={() => setShowBusinessTypeDropdown(true)}
+                      placeholder="พิมพ์ค้นหาหรือเลือกประเภทธุรกิจ..."
+                      className="w-full pl-10 pr-9 py-3 border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none bg-white transition-all font-medium placeholder:text-gray-400"
+                    />
+                    {formData.businessType ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev: any) => ({ ...prev, businessType: '' }))
+                          setShowBusinessTypeDropdown(true)
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                        title="ล้างค่า"
+                      >
+                        <X size={14} />
+                      </button>
+                    ) : (
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    )}
+                  </div>
+
+                  {/* Business Type Suggestions Dropdown */}
+                  {showBusinessTypeDropdown && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 max-h-60 overflow-y-auto divide-y divide-gray-50">
+                      <div className="p-2 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between text-[11px] font-bold text-gray-500">
+                        <span>พบ {filteredBusinessTypes.length} ประเภทธุรกิจ</span>
+                        <span>คลิกเพื่อเลือก</span>
+                      </div>
+
+                      {filteredBusinessTypes.length > 0 ? (
+                        filteredBusinessTypes.map((bt) => {
+                          const isSelected = formData.businessType === bt
+                          return (
+                            <button
+                              key={bt}
+                              type="button"
+                              onClick={() => {
+                                setFormData((prev: any) => ({ ...prev, businessType: bt }))
+                                setShowBusinessTypeDropdown(false)
+                              }}
+                              className={`w-full text-left px-4 py-2.5 hover:bg-red-50/60 flex items-center justify-between text-xs font-bold transition-colors cursor-pointer ${
+                                isSelected ? 'bg-red-50 text-[#ff2301]' : 'text-gray-800'
+                              }`}
+                            >
+                              <span>{bt}</span>
+                              {isSelected && <span className="text-[10px] text-[#ff2301]">เลือกแล้ว</span>}
+                            </button>
+                          )
+                        })
+                      ) : (
+                        <div className="p-4 text-center">
+                          <p className="text-xs text-gray-500">ไม่พบประเภทธุรกิจตรงกับที่พิมพ์</p>
+                          {formData.businessType && (
+                            <button
+                              type="button"
+                              onClick={() => setShowBusinessTypeDropdown(false)}
+                              className="mt-2 text-xs font-bold text-[#ff2301] hover:underline"
+                            >
+                              ใช้ &ldquo;{formData.businessType}&rdquo; เป็นประเภทธุรกิจ
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">

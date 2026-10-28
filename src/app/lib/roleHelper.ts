@@ -10,6 +10,22 @@ export function isReadOnlyExecutive(role: string | null | undefined): boolean {
   return ["executive", "ผู้บริหาร"].includes(r);
 }
 
+export function isMarketingManager(role: string | null | undefined): boolean {
+  if (!role) return false;
+  const r = role.toLowerCase().trim();
+  return (
+    r === 'marketing manager' ||
+    r === 'ผู้จัดการฝ่ายการตลาด' ||
+    r === 'ผู้จัดการการตลาด' ||
+    r === 'ผู้การจัดการตลาด' ||
+    r.includes('marketing manager') ||
+    r.includes('ผู้จัดการฝ่ายการตลาด') ||
+    r.includes('ผู้จัดการการตลาด') ||
+    r.includes('ผู้การจัดการตลาด') ||
+    isSuperUser(role)
+  );
+}
+
 export function canViewAll(role: string | null | undefined): boolean {
   return isSuperUser(role) || isReadOnlyExecutive(role);
 }

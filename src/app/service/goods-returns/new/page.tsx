@@ -1,5 +1,5 @@
 import React from "react";
-import NewGoodsReturnClientPage from "./NewGoodsReturnClientPage";
+import GoodsReturnForm from "@/app/store/returns/components/GoodsReturnForm";
 import { getUser } from "@/app/lib/dal";
 import { redirect } from "next/navigation";
 import prisma from "@/app/lib/db";
@@ -32,12 +32,13 @@ export default async function NewGoodsReturnPage() {
 
   return (
     <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50/60 min-h-0 custom-scrollbar">
-      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
-        <NewGoodsReturnClientPage
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+        <GoodsReturnForm
           companies={rawCompanies as any}
           jobs={rawJobs as any}
           quotations={rawQuotations as any}
           currentUser={session}
+          basePath="/service/goods-returns"
         />
       </div>
     </main>

@@ -75,6 +75,7 @@ export async function createGoodsReturn(data: any) {
     }
 
     revalidatePath("/service/goods-returns");
+    revalidatePath("/store/returns");
     return { success: true, goodsReturnId: newDoc.id };
   } catch (error: any) {
     console.error("Failed to create Goods Return:", error);
@@ -97,6 +98,7 @@ export async function updateGoodsReturn(id: string, data: any) {
       },
     });
     revalidatePath("/service/goods-returns");
+    revalidatePath("/store/returns");
     return { success: true };
   } catch (error: any) {
     console.error("Failed to update Goods Return:", error);
@@ -145,6 +147,7 @@ export async function deleteGoodsReturn(id: string) {
       where: { id },
     });
     revalidatePath("/service/goods-returns");
+    revalidatePath("/store/returns");
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete Goods Return:", error);

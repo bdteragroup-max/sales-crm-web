@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 
 import prisma from '@/app/lib/db'
 import { teraDb } from '@/app/lib/teraDb'
 import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
-import { isSuperUser } from '@/app/lib/roleHelper'
+import { isSuperUser, isMarketingManager } from '@/app/lib/roleHelper'
 
 export async function getStaffSchedules(preFetchedUser?: any) {
   const session = (await cookies()).get('session')?.value
@@ -26,9 +27,47 @@ export async function getStaffSchedules(preFetchedUser?: any) {
     let whereClause: any = { userId: user.id }
     const roleLower = (user.role || '').toLowerCase();
     const isSuperAdmin = isSuperUser(user.role);
+    const isMarketingMgr = isMarketingManager(user.role);
+
     if (isSuperAdmin) {
       whereClause = {};
-    } else if (['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
+    } else if (isMarketingMgr) {
+      // ผู้จัดการการตลาด: เห็นของเซลล์ทุกคนในบริษัท และของตนเอง
+      const salesUsers = await prisma.user.findMany({
+        where: {
+          isActive: true,
+          OR: [
+            { employeeSale: { isNot: null } },
+            { role: { in: ['Sales Representative', 'Sales Manager', 'Business Development', 'BD Intern', 'ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'Marketing Manager'] } },
+            { role: { contains: 'sale', mode: 'insensitive' } },
+            { role: { contains: 'ขาย', mode: 'insensitive' } },
+            { role: { contains: 'เซลส์', mode: 'insensitive' } },
+            { role: { contains: 'เซลล์', mode: 'insensitive' } },
+            { schedules: { some: {} } },
+            { id: user.id },
+          ],
+          NOT: {
+            OR: [
+              { role: 'อื่นๆ' },
+              { role: { contains: 'accounting', mode: 'insensitive' } },
+              { role: { contains: 'บัญชี', mode: 'insensitive' } },
+              { role: { contains: 'purchasing', mode: 'insensitive' } },
+              { role: { contains: 'จัดซื้อ', mode: 'insensitive' } },
+              { role: { contains: 'warehouse', mode: 'insensitive' } },
+              { role: { contains: 'คลังสินค้า', mode: 'insensitive' } },
+              { role: { contains: 'service', mode: 'insensitive' } },
+              { role: { contains: 'บริการ', mode: 'insensitive' } },
+            ]
+          }
+        },
+        select: { id: true }
+      });
+      const targetUserIds = salesUsers.map(u => u.id);
+      if (!targetUserIds.includes(user.id)) {
+        targetUserIds.push(user.id);
+      }
+      whereClause = { userId: { in: targetUserIds } };
+    } else if (['ผู้จัดการ', 'manager', 'sales manager'].includes(roleLower) || roleLower.includes('manager')) {
       const subordinates = await teraDb.employees.findMany({
         where: { supervisor_id: user.employeeId, is_active: true },
         select: { emp_id: true }
@@ -98,28 +137,51 @@ export async function createSchedule(data: { userId: string, title: string, desc
     // If user is manager, they can create for themselves or their subordinates.
     const roleLower = (user.role || '').toLowerCase();
     const isSuperAdmin = isSuperUser(user.role);
-    if (!isSuperAdmin && !['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
+    const isMarketingMgr = isMarketingManager(user.role);
+    const isManager = isSuperAdmin || isMarketingMgr || ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) || roleLower.includes('manager') || roleLower.includes('ผู้จัดการ');
+
+    if (!isManager) {
       if (targetUserId !== user.id) {
         return { success: false, error: 'Access Denied. You can only create your own schedule.' }
       }
     } else if (!isSuperAdmin) {
-      // Manager check: is targetUserId a subordinate or self?
+      // Manager check: is targetUserId a subordinate, sales staff, or self?
       if (targetUserId !== user.id) {
-        // Fetch subordinates from TERA_db to verify
-        const subordinates = await teraDb.employees.findMany({
-          where: { supervisor_id: user.employeeId, is_active: true },
-          select: { emp_id: true }
-        });
-        const subEmpIds = subordinates.map(s => s.emp_id);
-        
-        const subordinate = await prisma.user.findFirst({
-          where: {
-            id: targetUserId,
-            employeeId: { in: subEmpIds }
+        if (isMarketingMgr) {
+          // Marketing Manager can assign schedule to any sales member or self
+          const isValidTarget = await prisma.user.findFirst({
+            where: {
+              id: targetUserId,
+              isActive: true,
+              OR: [
+                { employeeSale: { isNot: null } },
+                { role: { in: ['Sales Representative', 'Sales Manager', 'Business Development', 'BD Intern', 'ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'Marketing Manager'] } },
+                { role: { contains: 'sale', mode: 'insensitive' } },
+                { role: { contains: 'ขาย', mode: 'insensitive' } },
+                { id: user.id }
+              ]
+            }
+          });
+          if (!isValidTarget) {
+            return { success: false, error: 'Access Denied. You can only create schedules for sales staff.' }
           }
-        })
-        if (!subordinate) {
-          return { success: false, error: 'Access Denied. You can only create schedules for your subordinates.' }
+        } else {
+          // Fetch subordinates from TERA_db to verify
+          const subordinates = await teraDb.employees.findMany({
+            where: { supervisor_id: user.employeeId, is_active: true },
+            select: { emp_id: true }
+          });
+          const subEmpIds = subordinates.map(s => s.emp_id);
+          
+          const subordinate = await prisma.user.findFirst({
+            where: {
+              id: targetUserId,
+              employeeId: { in: subEmpIds }
+            }
+          })
+          if (!subordinate) {
+            return { success: false, error: 'Access Denied. You can only create schedules for your subordinates.' }
+          }
         }
       }
     }
@@ -214,9 +276,13 @@ export async function updateSchedule(id: string, data: {
       return { success: false, error: 'Schedule not found' }
     }
 
-    // Access check: self or subordinate
+    // Access check: self, manager, or marketing manager
     const roleLower = (user.role || '').toLowerCase();
-    if (!['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) && schedule.userId !== user.id) {
+    const isSuperAdmin = isSuperUser(user.role);
+    const isMarketingMgr = isMarketingManager(user.role);
+    const isManager = isSuperAdmin || isMarketingMgr || ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) || roleLower.includes('manager') || roleLower.includes('ผู้จัดการ');
+
+    if (!isManager && schedule.userId !== user.id) {
       return { success: false, error: 'Access Denied.' }
     }
 
@@ -316,7 +382,11 @@ export async function deleteSchedule(id: string) {
     }
 
     const roleLower = (user.role || '').toLowerCase();
-    if (!['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) && schedule.userId !== user.id) {
+    const isSuperAdmin = isSuperUser(user.role);
+    const isMarketingMgr = isMarketingManager(user.role);
+    const isManager = isSuperAdmin || isMarketingMgr || ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) || roleLower.includes('manager') || roleLower.includes('ผู้จัดการ');
+
+    if (!isManager && schedule.userId !== user.id) {
       return { success: false, error: 'Access Denied.' }
     }
 

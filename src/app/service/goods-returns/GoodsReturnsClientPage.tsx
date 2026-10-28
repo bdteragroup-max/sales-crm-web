@@ -9,6 +9,7 @@ import {
   Plus,
   Search,
   FileText,
+  Printer,
   Download,
   Trash2,
   Pencil,
@@ -95,6 +96,30 @@ export default function GoodsReturnsClientPage({
 
   const getReturnTypeMeta = (type: string) => {
     switch (type) {
+      case "CHANGE_SPEC":
+        return {
+          label: "เปลี่ยนสเปคสินค้า (ซับ)",
+          badgeClass: "bg-blue-50 text-blue-700 border-blue-200 font-bold",
+          dotColor: "bg-blue-600",
+        };
+      case "WRONG_MODEL":
+        return {
+          label: "ผิดรุ่น / ไม่ตรงสเปค",
+          badgeClass: "bg-purple-50 text-purple-700 border-purple-200 font-bold",
+          dotColor: "bg-purple-600",
+        };
+      case "RETURN_TO_WAREHOUSE":
+        return {
+          label: "ส่งคืนคลังสินค้า",
+          badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
+          dotColor: "bg-emerald-600",
+        };
+      case "SURPLUS":
+        return {
+          label: "คืนส่วนเกิน",
+          badgeClass: "bg-cyan-50 text-cyan-700 border-cyan-200 font-semibold",
+          dotColor: "bg-cyan-600",
+        };
       case "DEFECT":
         return {
           label: "คืนของเสีย",
@@ -829,6 +854,15 @@ export default function GoodsReturnsClientPage({
                           <span>ดูรายละเอียด</span>
                         </button>
 
+                        {/* Print FO-EN-03 */}
+                        <Link
+                          href={`/service/goods-returns/${doc.id}/print`}
+                          className="p-2.5 text-xs font-bold rounded-xl bg-white border border-gray-200 text-gray-700 hover:text-[#ff2301] hover:border-red-300 transition-all shadow-sm"
+                          title="พิมพ์เอกสาร FO-EN-03"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </Link>
+
                         {/* Download PDF */}
                         <a
                           href={`/api/service/goods-returns/${doc.id}/pdf`}
@@ -963,6 +997,13 @@ export default function GoodsReturnsClientPage({
                             >
                               <Eye className="w-4 h-4" />
                             </button>
+                            <Link
+                              href={`/service/goods-returns/${doc.id}/print`}
+                              className="p-1.5 text-gray-600 hover:text-[#ff2301] hover:bg-red-50 rounded-lg transition-colors"
+                              title="พิมพ์เอกสาร FO-EN-03"
+                            >
+                              <Printer className="w-4 h-4" />
+                            </Link>
                             <a
                               href={`/api/service/goods-returns/${doc.id}/pdf`}
                               target="_blank"
@@ -1200,6 +1241,15 @@ export default function GoodsReturnsClientPage({
               </button>
 
               <div className="flex items-center gap-2">
+                <Link
+                  href={`/service/goods-returns/${selectedDoc.id}/print`}
+                  target="_blank"
+                  className="px-4 h-10 text-xs font-bold text-white bg-[#ff2301] hover:bg-[#e01f01] rounded-xl shadow-sm transition-all flex items-center gap-1.5 active:scale-95"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>พิมพ์เอกสาร FO-EN-03</span>
+                </Link>
+
                 <a
                   href={`/api/service/goods-returns/${selectedDoc.id}/pdf`}
                   target="_blank"

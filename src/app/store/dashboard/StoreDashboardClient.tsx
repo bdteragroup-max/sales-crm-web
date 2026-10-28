@@ -390,6 +390,14 @@ export default function StoreDashboardClient({
             </Link>
 
             <Link
+              href="/store/returns"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-sm font-semibold shadow-sm transition-colors duration-150"
+            >
+              <RotateCcw className="w-4 h-4 text-rose-600" />
+              <span>ใบส่งคืนสินค้า</span>
+            </Link>
+
+            <Link
               href="/admin/procurement/po"
               className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-sm font-medium transition-colors duration-150"
               title="ดูรายการสั่งซื้อ PO ทั้งหมด"
