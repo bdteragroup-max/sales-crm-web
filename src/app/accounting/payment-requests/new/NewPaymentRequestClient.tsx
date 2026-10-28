@@ -2509,31 +2509,31 @@ export default function NewPaymentRequestClient({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-28 sm:pb-8 space-y-4 sm:space-y-6">
       {/* Symmetrical Top Header: Red, White & Gray */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
         <div>
           <Link
             href={isEditMode && initialData ? `/accounting/payment-requests/${initialData.id}` : "/accounting/payment-requests"}
             className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-600 transition mb-2 font-medium"
           >
-            <ChevronLeft className="w-4 h-4" /> {isEditMode && initialData ? `กลับไปหน้ารายละเอียดคำขอ (${initialData.pay_number})` : 'กลับสู่ทะเบียนขอจ่ายเงิน (Payment Register)'}
+            <ChevronLeft className="w-4 h-4 shrink-0" /> <span className="truncate">{isEditMode && initialData ? `กลับไปหน้ารายละเอียดคำขอ (${initialData.pay_number})` : 'กลับสู่ทะเบียนขอจ่ายเงิน (Payment Register)'}</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 tracking-wide uppercase">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 tracking-wide uppercase">
               TERA GROUP • PAYMENT SYSTEM
             </span>
             {isEditMode && initialData && (
-              <span className={`px-2 py-0.5 rounded text-[11px] font-bold border tracking-wide uppercase ${
+              <span className={`px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold border tracking-wide uppercase ${
                 initialData.status === 'RETURN_DOCUMENT' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-blue-50 text-blue-700 border-blue-200'
               }`}>
                 {initialData.status === 'RETURN_DOCUMENT' ? 'เอกสารถูกส่งคืนให้แก้ไข' : `โหมดแก้ไข: ${initialData.status}`}
               </span>
             )}
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5 mt-1">
-            {isEditMode ? <Edit3 className="w-6 h-6 text-orange-600" /> : <Building2 className="w-6 h-6 text-red-600" />}
-            {isEditMode && initialData ? `แก้ไขคำขอเบิกจ่ายเงิน (${initialData.pay_number})` : 'สร้างใบขออนุมัติจ่ายเงิน (New Payment Request)'}
+          <h1 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2 sm:gap-2.5 mt-1.5">
+            {isEditMode ? <Edit3 className="w-5 h-5 sm:w-6 h-6 text-orange-600 shrink-0" /> : <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 shrink-0" />}
+            <span className="leading-snug">{isEditMode && initialData ? `แก้ไขคำขอเบิกจ่ายเงิน (${initialData.pay_number})` : 'สร้างใบขออนุมัติจ่ายเงิน (New Payment Request)'}</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             {isEditMode && initialData
@@ -2543,7 +2543,7 @@ export default function NewPaymentRequestClient({
         </div>
 
         {/* Right Policy Badge Card */}
-        <div className="bg-gray-50 border border-red-200/80 rounded-xl p-3.5 text-xs text-gray-800 max-w-sm">
+        <div className="bg-gray-50 border border-red-200/80 rounded-xl p-3 sm:p-3.5 text-xs text-gray-800 w-full md:max-w-sm">
           <p className="font-bold flex items-center gap-1.5 text-red-700">
             <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
             {isEditMode ? 'ตรวจสอบความถูกต้องก่อนส่งตรวจใหม่' : 'กฎเหล็ก: No PAY No. = No Payment'}
@@ -2615,19 +2615,19 @@ export default function NewPaymentRequestClient({
 
       {/* Tab Switcher: Create Request vs My Requests Status (Hidden in Edit Mode) */}
       {!isEditMode && (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-gray-200 shadow-2xs">
-          <div className="flex items-center gap-1.5 p-1 bg-gray-100/90 rounded-xl">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white p-2 rounded-2xl border border-gray-200 shadow-2xs">
+          <div className="flex items-center gap-1 p-1 bg-gray-100/90 rounded-xl w-full sm:w-auto">
             <button
               type="button"
               onClick={() => setActiveTab('create')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-[11px] sm:text-xs font-bold transition ${
                 activeTab === 'create'
                   ? 'bg-white text-red-600 shadow-2xs border border-gray-200/80'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <Sparkles className="w-4 h-4" />
-              สร้างคำขอเบิกเงินใหม่
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span>สร้างคำขอใหม่</span>
             </button>
             <button
               type="button"
@@ -2635,17 +2635,17 @@ export default function NewPaymentRequestClient({
                 setActiveTab('my_requests');
                 refreshMyRequests();
               }}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition relative ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-[11px] sm:text-xs font-bold transition relative ${
                 activeTab === 'my_requests'
                   ? 'bg-white text-red-600 shadow-2xs border border-gray-200/80'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <Clock className="w-4 h-4" />
-              ติดตามสถานะคำขอเบิกของฉัน
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="truncate">สถานะคำขอของฉัน</span>
               {myRequests.length > 0 && (
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                     activeTab === 'my_requests'
                       ? 'bg-red-100 text-red-700'
                       : 'bg-gray-200 text-gray-700'
@@ -2663,13 +2663,13 @@ export default function NewPaymentRequestClient({
             </button>
           </div>
 
-          <div className="flex items-center gap-2 px-2">
+          <div className="flex items-center justify-between sm:justify-end gap-2 px-1 sm:px-2">
             {activeTab === 'my_requests' ? (
               <button
                 type="button"
                 onClick={refreshMyRequests}
                 disabled={isLoadingRequests}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition disabled:opacity-50"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition disabled:opacity-50"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isLoadingRequests ? 'animate-spin text-red-600' : ''}`} />
                 รีเฟรชข้อมูล
@@ -2679,7 +2679,7 @@ export default function NewPaymentRequestClient({
                 <button
                   type="button"
                   onClick={() => setActiveTab('my_requests')}
-                  className="text-xs text-gray-500 hover:text-red-600 font-medium inline-flex items-center gap-1.5 transition"
+                  className="text-xs text-gray-500 hover:text-red-600 font-medium inline-flex items-center gap-1.5 transition ml-auto"
                 >
                   <span>คำขอของฉัน ({myRequests.length} รายการ)</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -2841,9 +2841,9 @@ export default function NewPaymentRequestClient({
       <form onSubmit={handleSubmit} className="space-y-6">
 
         {/* Row 1: Two Symmetrical Cards (Card 1: Organization & Channel | Card 2: Requester & Payee) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Card 1: สังกัดบริษัท & ข้อมูลการส่ง */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
                 <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
@@ -3198,7 +3198,7 @@ export default function NewPaymentRequestClient({
           </div>
 
           {/* Card 2: ผู้ขอเบิก & ผู้รับเงิน */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
                 <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
@@ -3719,7 +3719,7 @@ export default function NewPaymentRequestClient({
 
         {/* Multi-Item Requisition Table (Shown when in MULTI_ITEMS mode) */}
         {entryMode === 'MULTI_ITEMS' && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4 animate-in fade-in duration-150">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
               <div className="flex items-center gap-2.5">
                 <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
@@ -3776,7 +3776,7 @@ export default function NewPaymentRequestClient({
                     บวก VAT 7%
                   </button>
                 </div>
-                <span className="text-gray-300">|</span>
+                <span className="text-gray-300 hidden sm:inline">|</span>
                 <div className="flex items-center gap-1">
                   <span className="text-[11px] text-gray-500 font-medium">WHT:</span>
                   <button
@@ -3810,12 +3810,12 @@ export default function NewPaymentRequestClient({
                 </div>
               </div>
               <div className="text-[11px] text-gray-500 font-medium">
-                * แต่ละรายการในตารางสามารถปรับเปลี่ยนแยกต่างหากได้
+                * แต่ละรายการสามารถปรับเปลี่ยนแยกต่างหากได้
               </div>
             </div>
 
-            {/* Interactive Items Table */}
-            <div className="border border-gray-200 rounded-xl overflow-x-auto text-xs shadow-2xs">
+            {/* Interactive Items Table (Desktop / Tablet view >= md) */}
+            <div className="hidden md:block border border-gray-200 rounded-xl overflow-x-auto text-xs shadow-2xs">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-gray-100/80 text-gray-700 font-bold border-b border-gray-200 text-center">
@@ -3847,11 +3847,11 @@ export default function NewPaymentRequestClient({
                     const itemTaxes = calculateItemTaxes(item);
                     // Check if this row is flagged as a duplicate
                     const isDupRow = dupResult?.exactMatches?.some(
-                      (m: any) => m.matchType === 'ITEM_DUPLICATE' && m.matchedItemIndex === idx + 1
+                      (m: { matchType?: string; matchedItemIndex?: number }) => m.matchType === 'ITEM_DUPLICATE' && m.matchedItemIndex === idx + 1
                     );
                     const dupMatch = isDupRow
                       ? dupResult?.exactMatches?.find(
-                          (m: any) => m.matchType === 'ITEM_DUPLICATE' && m.matchedItemIndex === idx + 1
+                          (m: { matchType?: string; matchedItemIndex?: number }) => m.matchType === 'ITEM_DUPLICATE' && m.matchedItemIndex === idx + 1
                         )
                       : null;
 
@@ -4294,13 +4294,446 @@ export default function NewPaymentRequestClient({
               </table>
             </div>
 
+            {/* Mobile Touch-Friendly Item Cards (Mobile phone view < md) */}
+            <div className="block md:hidden space-y-3">
+              {requisitionItems.map((item, idx) => {
+                const itemTaxes = calculateItemTaxes(item);
+                const isDupRow = dupResult?.exactMatches?.some(
+                  (m: { matchType?: string; matchedItemIndex?: number }) => m.matchType === 'ITEM_DUPLICATE' && m.matchedItemIndex === idx + 1
+                );
+                const dupMatch = isDupRow
+                  ? dupResult?.exactMatches?.find(
+                      (m: { matchType?: string; matchedItemIndex?: number }) => m.matchType === 'ITEM_DUPLICATE' && m.matchedItemIndex === idx + 1
+                    )
+                  : null;
+
+                const itemGroupKey = getSubstituteGroupKey(item.supplierName, item.billDate);
+                const groupMatches = itemGroupKey
+                  ? requisitionItems.filter(
+                      (it) => it.isIrregularBill && getSubstituteGroupKey(it.supplierName, it.billDate) === itemGroupKey
+                    )
+                  : [];
+                const groupCount = groupMatches.length;
+                const isMerged =
+                  groupCount > 1 &&
+                  groupMatches.every(
+                    (it) => it.substituteCertificateUrl && it.substituteCertificateUrl === groupMatches[0].substituteCertificateUrl
+                  );
+
+                return (
+                  <div
+                    key={item.id || idx}
+                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all shadow-2xs space-y-3 ${
+                      isDupRow
+                        ? 'bg-red-50/80 border-red-300 ring-2 ring-red-200'
+                        : 'bg-white border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {/* Card Header: Item No, Badges, Net Amount, Delete */}
+                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                          {idx + 1}
+                        </span>
+                        <span className="text-xs font-bold text-gray-900">
+                          รายการที่ {idx + 1}
+                        </span>
+                        {item.paidByCreditCard && (
+                          <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                            บัตรเครดิต
+                          </span>
+                        )}
+                        {item.isIrregularBill && (
+                          <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">
+                            บิลไม่สมบูรณ์
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <span className="text-[10px] text-gray-400 block leading-tight">ยอดสุทธิ</span>
+                          <span className="text-xs font-mono font-extrabold text-red-600">
+                            ฿{itemTaxes.netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        {requisitionItems.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveItem(idx)}
+                            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                            title="ลบรายการนี้"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Duplicate Alert if matched */}
+                    {isDupRow && (
+                      <div className="p-2 bg-red-100/90 text-red-800 rounded-xl border border-red-300 text-xs flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                        <span>รายการนี้ตรงกับคำขอ <b>{dupMatch?.pay_number}</b></span>
+                      </div>
+                    )}
+
+                    {/* Description (รายการสินค้า / บริการ) */}
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-gray-700">
+                        รายการสินค้า / บริการ <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={item.description}
+                        onChange={(e) => handleUpdateItem(idx, 'description', e.target.value)}
+                        placeholder="เช่น ค่าอุปกรณ์สำนักงาน, สายไฟ VAF"
+                        className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:ring-2 focus:ring-red-500 bg-white font-medium"
+                      />
+                      {/* Smart OCR Item Suggestions */}
+                      {!item.description &&
+                        attachments.some(
+                          (a) => (a.extractedLineItems && a.extractedLineItems.length > 0) || a.extractedDescription
+                        ) && (
+                          <div className="flex flex-wrap items-center gap-1 mt-1">
+                            {attachments
+                              .flatMap((a) => {
+                                if (a.extractedLineItems && a.extractedLineItems.length > 0) {
+                                  return a.extractedLineItems;
+                                }
+                                if (a.extractedDescription) {
+                                  return [{ description: a.extractedDescription, amount: a.extractedAmount }];
+                                }
+                                return [];
+                              })
+                              .slice(0, 3)
+                              .map((sug, sIdx) => (
+                                <button
+                                  key={sIdx}
+                                  type="button"
+                                  onClick={() => {
+                                    handleUpdateItem(idx, 'description', sug.description);
+                                    if (sug.amount && (!item.amount || item.amount === 0)) {
+                                      handleUpdateItem(idx, 'amount', sug.amount);
+                                    }
+                                  }}
+                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[10px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition font-medium"
+                                >
+                                  <Sparkles className="w-2.5 h-2.5 text-indigo-500 shrink-0" />
+                                  <span className="truncate max-w-[160px]">{sug.description}</span>
+                                  {sug.amount ? <span className="font-mono text-indigo-600">({Number(sug.amount).toLocaleString()}฿)</span> : null}
+                                </button>
+                              ))}
+                          </div>
+                        )}
+                    </div>
+
+                    {/* Amount & Date in 2 columns */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                          จำนวนเงิน (฿) <span className="text-red-600">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          required
+                          value={item.amount === 0 ? '' : item.amount}
+                          onChange={(e) => handleUpdateItem(idx, 'amount', parseFloat(e.target.value) || 0)}
+                          placeholder="0.00"
+                          className="w-full text-xs font-mono font-bold text-right rounded-xl border border-gray-300 py-2 px-2.5 focus:ring-2 focus:ring-red-500 bg-white text-gray-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                          วันที่บิล <span className="text-red-600">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={item.billDate}
+                          onChange={(e) => handleUpdateItem(idx, 'billDate', e.target.value)}
+                          className="w-full text-xs rounded-xl border border-gray-300 py-2 px-2 focus:ring-2 focus:ring-red-500 bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Supplier & Invoice Number in 2 columns */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[11px] font-bold text-gray-700">
+                            ผู้จำหน่าย / ร้านค้า <span className="text-red-600">*</span>
+                          </label>
+                          {idx > 0 && requisitionItems[idx - 1]?.supplierName && item.supplierName !== requisitionItems[idx - 1].supplierName && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleUpdateItem(idx, 'supplierName', requisitionItems[idx - 1].supplierName);
+                                if (requisitionItems[idx - 1].supplierTaxId) {
+                                  handleUpdateItem(idx, 'supplierTaxId', requisitionItems[idx - 1].supplierTaxId);
+                                }
+                              }}
+                              className="text-[10px] text-red-600 hover:underline"
+                            >
+                              + ใช้ร้านเดิม
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={item.supplierName}
+                          onChange={(e) => handleUpdateItem(idx, 'supplierName', e.target.value)}
+                          placeholder="เช่น บจก. มิสเตอร์.ดี.ไอ.วาย"
+                          className="w-full text-xs rounded-xl border border-gray-300 py-2 px-2.5 focus:ring-2 focus:ring-red-500 bg-white font-medium"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-700 mb-1">
+                          เลขที่บิล (ถ้ามี)
+                        </label>
+                        <input
+                          type="text"
+                          value={item.invoiceNumber || ''}
+                          onChange={(e) => handleUpdateItem(idx, 'invoiceNumber', e.target.value)}
+                          placeholder="INV-XXXX"
+                          className="w-full text-xs font-mono rounded-xl border border-gray-300 py-2 px-2.5 focus:ring-2 focus:ring-red-500 bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    {/* VAT & WHT Selectors Grid */}
+                    <div className="grid grid-cols-2 gap-2 p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-700 mb-1">
+                          ภาษี VAT
+                        </label>
+                        <select
+                          value={item.vatType || 'NO_VAT'}
+                          onChange={(e) => handleUpdateItem(idx, 'vatType', e.target.value)}
+                          className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-1.5 focus:ring-1 focus:ring-red-500 bg-white text-gray-800 font-medium"
+                        >
+                          <option value="NO_VAT">ไม่มี VAT</option>
+                          <option value="INCLUDED_7%">รวม VAT 7%</option>
+                          <option value="7%">บวก VAT 7%</option>
+                        </select>
+                        <div className="mt-1 text-[10px] font-mono font-semibold text-center text-blue-700">
+                          {itemTaxes.vatAmount > 0 ? (
+                            item.vatType === 'INCLUDED_7%'
+                              ? `ในยอด ${itemTaxes.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿`
+                              : `+${itemTaxes.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿`
+                          ) : '0.00 ฿'}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-700 mb-1">
+                          หัก ณ ที่จ่าย WHT
+                        </label>
+                        <select
+                          value={item.whtType || 'NONE'}
+                          onChange={(e) => handleUpdateItem(idx, 'whtType', e.target.value)}
+                          className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-1.5 focus:ring-1 focus:ring-red-500 bg-white text-gray-800 font-medium"
+                        >
+                          <option value="NONE">ไม่หัก (0%)</option>
+                          <option value="1%">1% ขนส่ง</option>
+                          <option value="2%">2% โฆษณา</option>
+                          <option value="3%">3% บริการ</option>
+                          <option value="5%">5% ค่าเช่า</option>
+                        </select>
+                        <div className="mt-1 text-[10px] font-mono font-semibold text-center text-amber-800">
+                          {itemTaxes.whtAmount > 0 ? `-${itemTaxes.whtAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿` : '0.00 ฿'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Toggles: Credit Card & Irregular Bill */}
+                    <div className="space-y-2 pt-0.5">
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <label className="inline-flex items-center gap-1.5 cursor-pointer bg-gray-50 border border-gray-200 px-2.5 py-1.5 rounded-lg text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(item.paidByCreditCard)}
+                            onChange={() => handleToggleCreditCard(idx)}
+                            className="rounded text-red-600 focus:ring-red-500 w-3.5 h-3.5"
+                          />
+                          <span className={item.paidByCreditCard ? 'font-bold text-amber-900 text-[11px]' : 'text-gray-600 text-[11px]'}>
+                            จ่ายบัตรเครดิต
+                          </span>
+                        </label>
+
+                        <label className="inline-flex items-center gap-1.5 cursor-pointer bg-gray-50 border border-gray-200 px-2.5 py-1.5 rounded-lg text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(item.isIrregularBill)}
+                            onChange={() => handleToggleIrregularBill(idx)}
+                            disabled={Boolean(isGeneratingCertMap[idx])}
+                            className="rounded text-red-600 focus:ring-red-500 w-3.5 h-3.5"
+                          />
+                          <span className={item.isIrregularBill ? 'font-bold text-amber-900 text-[11px]' : 'text-gray-600 text-[11px]'}>
+                            ไม่มีใบเสร็จ (บก.111)
+                          </span>
+                        </label>
+                      </div>
+
+                      {/* Irregular Bill PDF Actions on Mobile */}
+                      {item.isIrregularBill && !isGeneratingCertMap[idx] && (
+                        <div className="p-2 bg-amber-50 rounded-xl border border-amber-200 flex flex-wrap items-center gap-1.5">
+                          {groupCount > 1 && !isMerged && (
+                            <button
+                              type="button"
+                              onClick={() => syncGroupSubstituteCertificate(itemGroupKey, requisitionItems)}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold bg-amber-500 hover:bg-amber-600 text-white transition shadow-2xs cursor-pointer animate-pulse"
+                            >
+                              <Sparkles className="w-3 h-3" />
+                              รวม PDF ({groupCount} รายการ)
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSubstituteModal(idx)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-200 hover:bg-amber-300 text-amber-950 transition"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-amber-800" />
+                            <span>{item.substituteCertificateUrl ? (groupCount > 1 ? `ดู/แก้ไข PDF (${groupCount} รายการ)` : 'ดู/แก้ไข PDF') : 'สร้างเอกสารใบรับรอง'}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Attachment Upload for this Bill */}
+                    <div className="space-y-1.5 pt-0.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-bold text-gray-700 flex items-center gap-1">
+                          <Paperclip className="w-3 h-3 text-blue-600" />
+                          <span>เอกสารแนบประจำบิลนี้ ({item.attachments?.length || 0})</span>
+                        </label>
+                      </div>
+
+                      <label className={`flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl border border-dashed text-xs font-bold transition cursor-pointer ${
+                        itemUploadingIdx === idx
+                          ? 'bg-blue-50 border-blue-300 text-blue-500 pointer-events-none'
+                          : 'bg-blue-50/60 hover:bg-blue-100/70 border-blue-300 text-blue-700'
+                      }`}>
+                        {itemUploadingIdx === idx ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                            <span>กำลังอัปโหลด...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Paperclip className="w-3.5 h-3.5 text-blue-600" />
+                            <span>+ แนบไฟล์ / ถ่ายรูปบิลนี้</span>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          multiple
+                          className="hidden"
+                          disabled={itemUploadingIdx === idx}
+                          onChange={(e) => handleItemAttachmentUpload(idx, e)}
+                        />
+                      </label>
+
+                      {item.attachments && item.attachments.length > 0 && (
+                        <div className="space-y-1 mt-1">
+                          {item.attachments.map((att: ItemAttachment, aIdx: number) => (
+                            <div
+                              key={att.id || aIdx}
+                              className="flex items-center justify-between gap-1 p-1.5 px-2 rounded-lg bg-blue-50/90 border border-blue-200 text-[11px] text-blue-900"
+                            >
+                              <a
+                                href={att.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 min-w-0 flex-1 hover:underline text-blue-700 font-semibold truncate"
+                                title={att.fileName}
+                              >
+                                <FileText className="w-3 h-3 shrink-0 text-blue-600" />
+                                <span className="truncate">{att.fileName}</span>
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveItemAttachment(idx, aIdx)}
+                                className="text-gray-400 hover:text-red-600 p-0.5 rounded transition shrink-0 ml-1"
+                                title="ลบไฟล์นี้"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Remarks */}
+                    <div>
+                      <input
+                        type="text"
+                        value={item.remarks || ''}
+                        onChange={(e) => handleUpdateItem(idx, 'remarks', e.target.value)}
+                        placeholder="หมายเหตุเพิ่มเติมของรายการนี้ (ถ้ามี)"
+                        className="w-full text-xs rounded-xl border border-gray-300 py-1.5 px-2.5 focus:ring-1 focus:ring-red-500 bg-white text-gray-700"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Mobile Table Summary Footer Card */}
+              <div className="bg-gray-50 rounded-2xl border border-gray-200 p-3.5 space-y-2 text-xs">
+                <div className="flex justify-between items-center text-gray-600">
+                  <span>ยอดรวมสินค้า/บริการ (Subtotal):</span>
+                  <span className="font-mono font-bold text-gray-900">
+                    {multiItemsSummary.totalRawAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                  </span>
+                </div>
+                {multiItemsSummary.totalVatAmount > 0 && (
+                  <div className="flex justify-between items-center text-blue-800">
+                    <span>รวม VAT 7%:</span>
+                    <span className="font-mono font-bold">
+                      +{multiItemsSummary.totalVatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                    </span>
+                  </div>
+                )}
+                {multiItemsSummary.totalWhtAmount > 0 && (
+                  <div className="flex justify-between items-center text-amber-800">
+                    <span>รวมหัก ณ ที่จ่าย (WHT):</span>
+                    <span className="font-mono font-bold">
+                      -{multiItemsSummary.totalWhtAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                    </span>
+                  </div>
+                )}
+                {effectiveCcDeduction > 0 && (
+                  <div className="flex justify-between items-center text-red-700">
+                    <span>หักยอดจ่ายบัตรเครดิต:</span>
+                    <span className="font-mono font-bold">
+                      -{effectiveCcDeduction.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                    </span>
+                  </div>
+                )}
+                <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
+                  <span className="font-bold text-gray-900">ยอดเบิกจ่ายสุทธิ:</span>
+                  <span className="font-mono font-extrabold text-red-600 text-base">
+                    {multiItemsSummary.netPayable.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                  </span>
+                </div>
+                <p className="text-[10px] text-gray-500 text-right truncate">
+                  ({bahtText})
+                </p>
+              </div>
+            </div>
+
             {/* Quick Add Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-1">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleAddItem(false)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-gray-50 text-gray-800 text-xs font-bold rounded-xl border border-gray-300 shadow-2xs hover:border-gray-400 transition"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-gray-50 text-gray-800 text-xs font-bold rounded-xl border border-gray-300 shadow-2xs hover:border-gray-400 transition"
                 >
                   <Plus className="w-3.5 h-3.5 text-red-600" />
                   <span>+ เพิ่มรายการใหม่ (ร้านค้าใหม่)</span>
@@ -4308,7 +4741,7 @@ export default function NewPaymentRequestClient({
                 <button
                   type="button"
                   onClick={() => handleAddItem(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-xl border border-red-200 shadow-2xs transition"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-xl border border-red-200 shadow-2xs transition"
                 >
                   <ListPlus className="w-3.5 h-3.5 text-red-600" />
                   <span>+ เพิ่มรายการในบิลเดิม (คัดลอกร้านค้าและวันที่)</span>
@@ -4557,7 +4990,7 @@ export default function NewPaymentRequestClient({
         {/* Row 2: Card 3 (Document & Purpose) */}
         <div className="grid grid-cols-1 gap-6">
           {/* Card 3: รายละเอียดเอกสาร & วัตถุประสงค์ */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3 mb-4">
                 <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
@@ -4699,7 +5132,7 @@ export default function NewPaymentRequestClient({
         </div>
 
         {/* Row 3: Card 5 (Full Width Symmetrical Evidence Card) */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
             <div className="flex items-center gap-2.5">
               <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
@@ -5002,37 +5435,37 @@ export default function NewPaymentRequestClient({
         )}
 
         {/* Bottom Symmetrical Action Bar */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs text-gray-500">
             {isEditMode && initialData ? (
               <>
-                <span className={`px-2.5 py-1 rounded-full font-bold border ${
+                <span className={`px-2.5 py-1 rounded-full font-bold border inline-block text-center sm:text-left ${
                   initialData.status === 'RETURN_DOCUMENT'
                     ? 'bg-orange-100 text-orange-900 border-orange-300'
                     : 'bg-gray-100 text-gray-700 border-gray-200'
                 }`}>
                   สถานะ: {initialData.status}
                 </span>
-                <span>
+                <span className="text-center sm:text-left">
                   กำลังแก้ไขเอกสารเลขที่ <b className="font-mono text-gray-900">{initialData.pay_number}</b>
                 </span>
               </>
             ) : (
               <>
-                <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-bold border border-gray-200">
+                <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-bold border border-gray-200 inline-block text-center sm:text-left">
                   สถานะเริ่มต้น: SUBMITTED
                 </span>
-                <span>
+                <span className="text-center sm:text-left">
                   ระบบจะสร้างเลขที่ <b className="font-mono text-gray-900">PAY-{company}-YYMM-XXXXX</b> อัตโนมัติ
                 </span>
               </>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto justify-end">
             <Link
               href={isEditMode && initialData ? `/accounting/payment-requests/${initialData.id}` : "/accounting/payment-requests"}
-              className="px-4 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-center transition"
+              className="w-full sm:w-auto px-4 py-3 sm:py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-center transition"
             >
               ยกเลิก
             </Link>
@@ -5043,7 +5476,7 @@ export default function NewPaymentRequestClient({
                 setPendingShouldResubmit(isEditMode ? true : false);
                 setShowPreSubmitReviewModal(true);
               }}
-              className="px-3.5 py-2.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition flex items-center justify-center gap-1.5"
+              className="w-full sm:w-auto px-3.5 py-3 sm:py-2.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition flex items-center justify-center gap-1.5"
               title="ตรวจสอบเอกสารแนบทั้งหมดก่อนส่ง"
             >
               <Eye className="w-3.5 h-3.5 text-blue-600" />
@@ -5056,7 +5489,7 @@ export default function NewPaymentRequestClient({
                   type="button"
                   onClick={(e) => handleSubmit(e, false)}
                   disabled={isSubmitting || Boolean(dupResult?.isExactDuplicate)}
-                  className="px-4 py-2.5 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  className="w-full sm:w-auto px-4 py-3 sm:py-2.5 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl transition flex items-center justify-center gap-1.5 disabled:opacity-50"
                   title="บันทึกข้อมูลที่แก้ไขไว้ชั่วคราว ยังไม่ส่งฝ่ายบัญชีตรวจ"
                 >
                   {isSubmitting ? (
@@ -5071,7 +5504,7 @@ export default function NewPaymentRequestClient({
                   type="button"
                   onClick={(e) => handleSubmit(e, true)}
                   disabled={isSubmitting || Boolean(dupResult?.isExactDuplicate)}
-                  className={`px-6 py-2.5 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
+                  className={`w-full sm:w-auto px-6 py-3 sm:py-2.5 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
                     dupResult?.isExactDuplicate
                       ? 'bg-gray-400 cursor-not-allowed opacity-75'
                       : 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50'
@@ -5097,7 +5530,7 @@ export default function NewPaymentRequestClient({
               <button
                 type="submit"
                 disabled={isSubmitting || Boolean(dupResult?.isExactDuplicate)}
-                className={`w-full sm:w-auto px-6 py-2.5 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
+                className={`w-full sm:w-auto px-6 py-3 sm:py-2.5 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
                   dupResult?.isExactDuplicate
                     ? 'bg-gray-400 cursor-not-allowed opacity-75'
                     : 'bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50'
@@ -5575,7 +6008,7 @@ export default function NewPaymentRequestClient({
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="p-4 px-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between">
+            <div className="p-4 sm:px-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300">
                   <FileText className="w-5 h-5" />
@@ -5599,9 +6032,9 @@ export default function NewPaymentRequestClient({
             </div>
 
             {/* Modal Body */}
-            <div className="p-5 overflow-y-auto space-y-5 text-xs text-gray-700 flex-1">
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-5 text-xs text-gray-700 flex-1">
               {/* Summary Banner */}
-              <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl flex items-center justify-between text-blue-900">
+              <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-blue-900">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
                   <span className="font-semibold">
@@ -5756,11 +6189,11 @@ export default function NewPaymentRequestClient({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 px-6 bg-gray-50 border-t border-gray-200 flex flex-wrap items-center justify-between gap-3">
+            <div className="p-4 sm:px-6 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => setShowPreSubmitReviewModal(false)}
-                className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 text-center transition cursor-pointer"
               >
                 ย้อนกลับไปแก้ไข
               </button>
@@ -5769,7 +6202,7 @@ export default function NewPaymentRequestClient({
                 type="button"
                 onClick={() => executeActualSubmit(pendingShouldResubmit)}
                 disabled={isSubmitting}
-                className="px-6 py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-xl shadow-sm transition flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3 sm:py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-xl shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

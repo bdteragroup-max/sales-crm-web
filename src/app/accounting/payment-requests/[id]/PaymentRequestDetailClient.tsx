@@ -1373,72 +1373,72 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   }, [request.id, attachmentsList.length]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <div className="w-full max-w-6xl min-w-0 mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 pb-28 sm:pb-8 overflow-x-hidden">
       {/* Top Navigation & Status Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-xs">
-        <div>
+      <div className="w-full min-w-0 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-xs">
+        <div className="min-w-0 flex-1">
           <Link
             href="/accounting/payment-requests"
             className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-600 transition mb-2 font-medium"
           >
-            <ChevronLeft className="w-4 h-4" /> กลับสู่ทะเบียนขอจ่ายเงิน (Payment Register)
+            <ChevronLeft className="w-4 h-4 shrink-0" /> กลับสู่ทะเบียนขอจ่ายเงิน (Payment Register)
           </Link>
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <span
-              className={`px-2 py-0.5 rounded text-xs font-bold border ${companyStyle.bg} ${companyStyle.text} ${companyStyle.border}`}
+              className={`px-2 py-0.5 rounded text-xs font-bold border shrink-0 ${companyStyle.bg} ${companyStyle.text} ${companyStyle.border}`}
             >
               {request.company}
             </span>
-            <h1 className="text-xl sm:text-2xl font-bold font-mono text-gray-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold font-mono text-gray-900 tracking-tight break-all">
               {request.pay_number}
             </h1>
             <button
               onClick={handleCopyNumber}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition shrink-0"
               title="คัดลอกเลขที่ PAY No."
             >
               {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
             </button>
             <span
-              className={`px-3 py-1 rounded-full text-xs font-bold border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
+              className={`px-3 py-1 rounded-full text-xs font-bold border shrink-0 ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
             >
               {statusStyle.label}
             </span>
             {request.urgency === 'EMERGENCY' && (
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-100/70 border border-red-200 px-2 py-0.5 rounded-full animate-pulse">
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-100/70 border border-red-200 px-2 py-0.5 rounded-full animate-pulse shrink-0">
                 <Zap className="w-3 h-3" /> ด่วนที่สุด (EMERGENCY)
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 mt-1.5 break-words">
             สาขา: <b className="text-gray-800">{request.branch}</b> | ฝ่าย:{' '}
             <b className="text-gray-800">{request.requester_department || '-'}</b> | ประเภท:{' '}
-            <b className="text-gray-800">{CLASSIFICATION_LABELS[request.classification] || request.classification}</b> |
-            วันที่เอกสาร: <b className="text-gray-800">{formatDisplayDate(request.document_date)}</b>
+            <b className="text-gray-800">{CLASSIFICATION_LABELS[request.classification] || request.classification}</b> | วันที่เอกสาร:{' '}
+            <b className="text-gray-800">{formatDisplayDate(request.document_date)}</b>
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto shrink-0">
           <button
             onClick={() => setShowVoucherModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow-md transition active:scale-[0.99]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow-md transition active:scale-[0.99]"
           >
             <Printer className="w-4 h-4" />
-            พิมพ์ใบขออนุมัติจ่าย (Voucher)
+            <span>พิมพ์ใบขออนุมัติจ่าย (Voucher)</span>
           </button>
           {request.status === 'RETURN_DOCUMENT' && (isStaff || isOwner) && (
             <Link
               href={`/accounting/payment-requests/${request.id}/edit`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition"
             >
               <Edit3 className="w-3.5 h-3.5" />
-              <span>แก้ไขเอกสาร (เหมือนตอนสร้าง)</span>
+              <span>แก้ไขเอกสาร</span>
             </Link>
           )}
           {['PENDING_SUPERVISOR', 'SUBMITTED', 'DRAFT', 'HOLD_DUPLICATE', 'RETURN_DOCUMENT'].includes(request.status) && (isStaff || isOwner) && (
             <button
               onClick={handleCancel}
-              className="px-3 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs font-semibold rounded-xl transition"
+              className="w-full sm:w-auto px-3 py-2.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs font-semibold rounded-xl transition text-center"
             >
               ยกเลิกคำขอ
             </button>
@@ -1447,7 +1447,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             <button
               onClick={handleDelete}
               title="ลบคำขอนี้ (เฉพาะผู้จัดการฝ่ายบัญชี/Admin)"
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-red-50 text-red-600 hover:text-red-700 border border-gray-200 hover:border-red-300 text-xs font-semibold rounded-xl transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white hover:bg-red-50 text-red-600 hover:text-red-700 border border-gray-200 hover:border-red-300 text-xs font-semibold rounded-xl transition"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>ลบคำขอ</span>
@@ -1522,7 +1522,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       )}
 
       {/* Visual Workflow Stepper */}
-      <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs overflow-x-auto space-y-3">
+      <div className="w-full min-w-0 max-w-full bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-2xs overflow-x-auto space-y-3">
         {isReturned && (
           <div className="flex items-center justify-between pb-1 border-b border-orange-100">
             <span className="text-[11px] font-semibold text-orange-800 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200 inline-flex items-center gap-1.5">
@@ -1610,7 +1610,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         {/* Left Column (2 Cols): Request Details, Financials, Evidence */}
         <div className="lg:col-span-2 space-y-6">
           {/* Supplier & Payee Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
               <DollarSign className="w-4 h-4 text-emerald-600" />
               ข้อมูลผู้รับเงิน / เจ้าหนี้ และการชำระเงิน (Payee & Payment Details)
@@ -1760,7 +1760,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
           {/* Multi-Item Requisition Table Card (รายการเบิกเงิน) */}
           {Array.isArray(request.items) && request.items.length > 0 && (
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+            <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <Layers className="w-4 h-4 text-red-600" />
@@ -1773,7 +1773,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 </span>
               </div>
 
-              <div className="border border-slate-200 rounded-xl overflow-x-auto text-xs">
+              {/* Desktop Table View (Hidden on mobile < md) */}
+              <div className="hidden md:block border border-slate-200 rounded-xl overflow-x-auto text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-center">
@@ -1945,11 +1946,193 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   </tfoot>
                 </table>
               </div>
+
+              {/* Mobile Item Cards View (Visible on screens < md) */}
+              <div className="block md:hidden space-y-3">
+                {request.items.map((item: any, idx: number) => {
+                  const rowTaxes = calculateItemTaxes(item);
+                  const isVatIncluded = item.vatType === 'INCLUDED_7%' || item.vatType === 'INCLUDE';
+                  const isVatExcluded = item.vatType === '7%' || item.vatType === 'EXCLUDE';
+                  const itemAttachments = Array.isArray(item.attachments) ? item.attachments : [];
+
+                  return (
+                    <div
+                      key={idx}
+                      className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200 space-y-2.5 text-xs"
+                    >
+                      {/* Item Header */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-slate-800 text-white flex items-center justify-center text-[10px] font-bold font-mono shrink-0">
+                            {idx + 1}
+                          </span>
+                          <span className="font-bold text-slate-900 text-xs">
+                            {item.description}
+                          </span>
+                        </div>
+                        <span className="font-mono font-black text-slate-900 text-sm shrink-0">
+                          {Number(item.netAmount || rowTaxes.netAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                        </span>
+                      </div>
+
+                      {/* Supplier & Bill info */}
+                      <div className="grid grid-cols-2 gap-2 text-[11px] bg-white p-2.5 rounded-lg border border-slate-100">
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">ผู้จำหน่าย (Supplier):</span>
+                          <span className="font-semibold text-slate-800 truncate block">
+                            {item.supplierName || '-'}
+                          </span>
+                          {item.invoiceNumber && (
+                            <span className="text-[10px] text-slate-500 font-mono block">
+                              บิล: {item.invoiceNumber}
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">วันที่บิล:</span>
+                          <span className="font-mono text-slate-700 block">
+                            {item.billDate || '-'}
+                          </span>
+                          <span className="text-slate-400 block text-[10px] mt-0.5">ยอดก่อนภาษี:</span>
+                          <span className="font-mono font-medium text-slate-800 block">
+                            {Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Taxes Pills */}
+                      <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                        {isVatIncluded ? (
+                          <span className="px-2 py-0.5 rounded font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            VAT 7% รวมใน (+{rowTaxes.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}฿)
+                          </span>
+                        ) : isVatExcluded ? (
+                          <span className="px-2 py-0.5 rounded font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            VAT 7% บวกเพิ่ม (+{rowTaxes.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}฿)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
+                            ไม่มี VAT
+                          </span>
+                        )}
+
+                        {rowTaxes.whtAmount > 0 ? (
+                          <span className="px-2 py-0.5 rounded font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                            หัก {rowTaxes.whtPercent}% (-{rowTaxes.whtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}฿)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
+                            ไม่หัก WHT
+                          </span>
+                        )}
+
+                        {item.paidByCreditCard && (
+                          <span className="px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                            จ่ายด้วยบัตรเครดิต
+                          </span>
+                        )}
+
+                        {item.isIrregularBill && (
+                          item.substituteCertificateUrl ? (
+                            <a
+                              href={item.substituteCertificateUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition"
+                            >
+                              <FileText className="w-3 h-3 text-amber-700" />
+                              <span>ใบรับรองแทนใบเสร็จ (บก.111 / PDF)</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                              <FileText className="w-3 h-3 text-amber-700" />
+                              <span>บิลไม่สมบูรณ์</span>
+                            </span>
+                          )
+                        )}
+                      </div>
+
+                      {/* Attachments for item */}
+                      {itemAttachments.length > 0 && (
+                        <div className="pt-1 space-y-1">
+                          <span className="text-[10px] font-semibold text-blue-800 flex items-center gap-1">
+                            <Paperclip className="w-3 h-3 text-blue-600" />
+                            เอกสารแนบประจำบิลนี้ ({itemAttachments.length} ไฟล์):
+                          </span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            {itemAttachments.map((att: any, aIdx: number) => (
+                              <a
+                                key={att.id || aIdx}
+                                href={att.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 p-1.5 rounded-lg bg-white border border-blue-200 hover:border-blue-400 text-blue-700 text-[11px] truncate shadow-2xs"
+                              >
+                                <FileText className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                <span className="truncate flex-1 font-medium">{att.fileName}</span>
+                                <ExternalLink className="w-3 h-3 text-blue-400 shrink-0" />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Remarks */}
+                      {item.remarks && (
+                        <div className="text-[11px] text-slate-500 italic bg-white/70 px-2.5 py-1 rounded-md border border-slate-100">
+                          หมายเหตุ: {item.remarks}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Mobile Requisition Summary Card */}
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span>จำนวนเงินรวม (Subtotal):</span>
+                    <span className="font-mono font-bold text-slate-900">
+                      {request.items.reduce((sum: number, it: any) => sum + (Number(it.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                    </span>
+                  </div>
+                  {Number(request.vat_amount || 0) > 0 && (
+                    <div className="flex justify-between items-center text-blue-800">
+                      <span>รวม VAT 7%:</span>
+                      <span className="font-mono font-bold">
+                        +{Number(request.vat_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                      </span>
+                    </div>
+                  )}
+                  {Number(request.wht_amount || 0) > 0 && (
+                    <div className="flex justify-between items-center text-amber-800">
+                      <span>รวมหัก ณ ที่จ่าย (WHT):</span>
+                      <span className="font-mono font-bold">
+                        -{Number(request.wht_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                      </span>
+                    </div>
+                  )}
+                  {Number(request.credit_card_deduction || 0) > 0 && (
+                    <div className="flex justify-between items-center text-red-700">
+                      <span>หักยอดจ่ายบัตรเครดิต:</span>
+                      <span className="font-mono font-bold">
+                        -{Number(request.credit_card_deduction).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                      </span>
+                    </div>
+                  )}
+                  <div className="pt-2 border-t border-slate-200 flex justify-between items-center">
+                    <span className="font-bold text-slate-900">ยอดเบิกจ่ายสุทธิ:</span>
+                    <span className="font-mono font-extrabold text-red-600 text-base">
+                      {Number(request.net_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Financial Breakdown Table */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
               <CreditCard className="w-4 h-4 text-indigo-600" />
               แจกแจงยอดเงินและภาษี (Financial Breakdown)
@@ -2021,7 +2204,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           </div>
 
           {/* Supporting Attachments Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
             <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
               <div className="flex items-center gap-2">
                 <Paperclip className="w-4 h-4 text-indigo-600" />
@@ -2212,11 +2395,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         </div>
 
         {/* Right Column (1 Col): Role-based Action Panels & Audit Log */}
-        <div className="space-y-6">
+        <div className="w-full min-w-0 space-y-4 sm:space-y-6">
           {/* Action Panel: Return Document (Resubmission Action) */}
           {request.status === 'RETURN_DOCUMENT' && (
-            <div className="bg-white p-5 rounded-2xl border-2 border-orange-300 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-orange-300 shadow-sm space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-1.5">
                 <div className="flex items-center gap-2 text-orange-950 font-bold text-xs uppercase tracking-wide">
                   <Undo2 className="w-4 h-4 text-orange-600" />
                   ส่งตรวจอีกครั้ง (Resubmit Request)
@@ -2225,7 +2408,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   <AlertCircle className="w-3 h-3 text-orange-600" /> รอแก้ไขข้อมูล
                 </span>
               </div>
-              <p className="text-[11px] text-slate-600">
+              <p className="text-[11px] text-slate-600 leading-relaxed">
                 เมื่อท่านได้แก้ไขข้อมูลหรือแนบเอกสารหลักฐานเพิ่มเติมตามที่เจ้าหน้าที่ระบุเรียบร้อยแล้ว กรุณาระบุคำชี้แจงและกดส่งตรวจอีกครั้ง
               </p>
 
@@ -2244,10 +2427,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Link
                       href={`/accounting/payment-requests/${request.id}/edit`}
-                      className="py-2 px-3 bg-white hover:bg-orange-50 text-orange-900 border border-orange-300 text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
+                      className="py-2.5 sm:py-2 px-3 bg-white hover:bg-orange-50 text-orange-900 border border-orange-300 text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
                     >
                       <Edit3 className="w-3.5 h-3.5 text-orange-600" /> แก้ไขเอกสาร
                     </Link>
@@ -2255,7 +2438,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       type="button"
                       disabled={isProcessing}
                       onClick={handleResubmit}
-                      className="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
+                      className="py-2.5 sm:py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
                     >
                       <Send className="w-3.5 h-3.5" /> ส่งตรวจใหม่
                     </button>
@@ -2272,8 +2455,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           {/* Action Panel: Department Supervisor Approval */}
           {request.status === 'PENDING_SUPERVISOR' && (
             canApproveSupervisor ? (
-              <div className="bg-white p-5 rounded-2xl border-2 border-amber-300 shadow-sm space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-amber-300 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex items-center gap-2 text-amber-950 font-bold text-xs uppercase tracking-wide">
                     <ShieldCheck className="w-4 h-4 text-amber-600" />
                     ส่วนสำหรับหัวหน้างาน (Supervisor Approval)
@@ -2282,7 +2465,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     <ShieldCheck className="w-3 h-3 text-amber-600" /> สิทธิ์: หัวหน้างานฝ่าย {request.requester_department || 'ที่เกี่ยวข้อง'}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-slate-500 leading-relaxed">
                   โปรดตรวจสอบความจำเป็นและความถูกต้องของรายการขอเบิกจ่าย ก่อนส่งให้ฝ่ายบัญชี (AP) ดำเนินการตรวจสอบเอกสาร
                 </p>
 
@@ -2299,7 +2482,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   />
                 </div>
 
-                <div className="pt-2 grid grid-cols-2 gap-2">
+                <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <button
                     type="button"
                     disabled={isProcessing}
@@ -2319,17 +2502,17 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 </div>
               </div>
             ) : (
-              <div className="bg-amber-50/60 p-5 rounded-2xl border border-amber-200 shadow-2xs space-y-2">
+              <div className="bg-amber-50/60 p-4 sm:p-5 rounded-2xl border border-amber-200 shadow-2xs space-y-2">
                 <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wide">
-                  <Clock className="w-4 h-4 text-amber-600" />
-                  อยู่ระหว่างรอหัวหน้างานอนุมัติ: {request.assigned_supervisor_name || `ฝ่าย ${request.requester_department || 'ที่เกี่ยวข้อง'}`}
+                  <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>อยู่ระหว่างรอหัวหน้างานอนุมัติ: {request.assigned_supervisor_name || `ฝ่าย ${request.requester_department || 'ที่เกี่ยวข้อง'}`}</span>
                 </div>
                 <p className="text-xs text-amber-800/90 leading-relaxed">
                   คำขอนี้ส่งถึง {request.assigned_supervisor_name ? `คุณ${request.assigned_supervisor_name}` : 'หัวหน้างาน'} (ฝ่าย {request.requester_department || 'ที่เกี่ยวข้อง'} • สาขา {request.branch || 'สำนักงานใหญ่'}) แล้ว ระบบจะส่งเอกสารให้ฝ่ายบัญชี (AP) โดยอัตโนมัติเมื่อหัวหน้างานดำเนินการอนุมัติเรียบร้อย
                 </p>
                 <div className="text-[11px] text-amber-700 flex items-center gap-1.5 pt-1">
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
-                  {supervisorAuth.reason || `สิทธิ์การอนุมัตินี้สงวนไว้เฉพาะหัวหน้างานฝ่าย ${request.requester_department || ''} สาขา ${request.branch || ''}`}
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>{supervisorAuth.reason || `สิทธิ์การอนุมัตินี้สงวนไว้เฉพาะหัวหน้างานฝ่าย ${request.requester_department || ''} สาขา ${request.branch || ''}`}</span>
                 </div>
               </div>
             )
@@ -2338,8 +2521,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           {/* Action Panel: AP Verification */}
           {['SUBMITTED', 'DUPLICATE_CHECK', 'DOCUMENT_CHECK', 'HOLD_DUPLICATE'].includes(request.status) && (
             isStaff ? (
-              <div className="bg-white p-5 rounded-2xl border-2 border-red-200 shadow-sm space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-red-200 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex items-center gap-2 text-gray-900 font-bold text-xs uppercase tracking-wide">
                     <ShieldCheck className="w-4 h-4 text-red-600" />
                     ส่วนสำหรับฝ่ายบัญชีเจ้าหนี้ (AP Verification)
@@ -2348,12 +2531,12 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     <ShieldCheck className="w-3 h-3 text-red-600" /> สิทธิ์: ฝ่ายบัญชี
                   </span>
                 </div>
-                <p className="text-[11px] text-gray-500">
+                <p className="text-[11px] text-gray-500 leading-relaxed">
                   ตรวจสอบความถูกต้อง: PO/PR, ใบเสร็จ, ความถูกต้องของ VAT/WHT และประวัติการจ่ายซ้ำ
                 </p>
 
-                <div className="bg-orange-50/70 p-2.5 rounded-xl border border-orange-200 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 text-orange-950">
+                <div className="bg-orange-50/70 p-2.5 rounded-xl border border-orange-200 flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5 text-orange-950">
                     <Calendar className="w-3.5 h-3.5 text-orange-600 shrink-0" />
                     <span>วันที่ต้องการให้จ่าย:</span>
                     <b className="font-mono text-slate-900">
@@ -2372,7 +2555,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       setDueDateReason('');
                       setIsEditingDueDate(true);
                     }}
-                    className="text-[10px] text-orange-700 hover:text-orange-900 font-bold hover:underline inline-flex items-center gap-1 bg-white hover:bg-orange-100/70 px-2 py-0.5 rounded-md border border-orange-300 shadow-2xs transition cursor-pointer"
+                    className="text-[10px] text-orange-700 hover:text-orange-900 font-bold hover:underline inline-flex items-center justify-center gap-1 bg-white hover:bg-orange-100/70 px-2.5 py-1 sm:py-0.5 rounded-md border border-orange-300 shadow-2xs transition cursor-pointer self-start sm:self-auto"
                   >
                     <Edit2 className="w-3 h-3 text-orange-600" />
                     <span>แก้ไขวันที่</span>
@@ -2392,12 +2575,12 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                   <button
                     type="button"
                     disabled={isProcessing}
                     onClick={() => handleAPReview('ACCOUNTING_CHECKED')}
-                    className="col-span-2 py-2 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
+                    className="col-span-1 sm:col-span-2 py-2.5 sm:py-2 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
                   >
                     <CheckCircle2 className="w-4 h-4" /> ตรวจสอบผ่าน (ส่งต่อหัวหน้าบัญชี)
                   </button>
@@ -2405,7 +2588,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     type="button"
                     disabled={isProcessing}
                     onClick={() => handleAPReview('HOLD_DUPLICATE')}
-                    className="py-1.5 px-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold rounded-lg transition"
+                    className="py-2.5 sm:py-1.5 px-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold rounded-lg transition"
                   >
                     ระงับ (Hold Duplicate)
                   </button>
@@ -2413,18 +2596,18 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     type="button"
                     disabled={isProcessing}
                     onClick={() => handleAPReview('RETURN_DOCUMENT')}
-                    className="py-1.5 px-2 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-xs font-semibold rounded-lg transition"
+                    className="py-2.5 sm:py-1.5 px-2 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-xs font-semibold rounded-lg transition"
                   >
                     ส่งคืนแก้ไขเอกสาร
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="bg-amber-50/70 p-5 rounded-2xl border border-amber-200 shadow-sm space-y-2.5">
-                <div className="flex items-center justify-between">
+              <div className="bg-amber-50/70 p-4 sm:p-5 rounded-2xl border border-amber-200 shadow-sm space-y-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex items-center gap-2 text-amber-950 font-bold text-xs">
-                    <Clock className="w-4 h-4 text-amber-600" />
-                    สถานะ: อยู่ระหว่างฝ่ายบัญชี (AP) ตรวจสอบเอกสาร
+                    <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>สถานะ: อยู่ระหว่างฝ่ายบัญชี (AP) ตรวจสอบเอกสาร</span>
                   </div>
                   <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded border border-amber-200">
                     กำลังดำเนินการ
@@ -2434,8 +2617,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   คำขอเบิกจ่ายถูกส่งเข้าระบบเรียบร้อยแล้ว ขณะนี้เจ้าหน้าที่ฝ่ายบัญชีเจ้าหนี้ (AP) กำลังตรวจสอบความถูกต้องของบิล ใบกำกับภาษี และตรวจเช็คประวัติการเบิกจ่ายซ้ำซ้อน
                 </p>
                 <div className="text-[10px] text-slate-500 bg-white/70 rounded-lg p-2.5 border border-amber-100 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                  เมื่อฝ่ายบัญชีตรวจสอบผ่าน รายการจะส่งต่อไปยังหัวหน้าฝ่ายบัญชีเพื่อสอบทานและอนุมัติจ่ายต่อไป
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                  <span>เมื่อฝ่ายบัญชีตรวจสอบผ่าน รายการจะส่งต่อไปยังหัวหน้าฝ่ายบัญชีเพื่อสอบทานและอนุมัติจ่ายต่อไป</span>
                 </div>
               </div>
             )
@@ -2444,8 +2627,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           {/* Action Panel: Supervisor Review */}
           {request.status === 'ACCOUNTING_CHECKED' && (
             canSupervisorReview ? (
-              <div className="bg-white p-5 rounded-2xl border-2 border-sky-300 shadow-sm space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-sky-300 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex items-center gap-2 text-sky-950 font-bold text-xs uppercase tracking-wide">
                     <ShieldAlert className="w-4 h-4 text-sky-700" />
                     หัวหน้าฝ่ายบัญชีสอบทาน (Supervisor Review)
@@ -2454,7 +2637,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     <ShieldCheck className="w-3 h-3 text-emerald-600" /> สิทธิ์: ผู้จัดการฝ่ายบัญชี
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-slate-500 leading-relaxed">
                   สอบทานรายการผิดปกติ ตรวจสอบกรณีไม่มีเลขที่บิล หรือความเสี่ยงการจ่ายซ้ำ
                 </p>
 
@@ -2471,12 +2654,12 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   />
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     type="button"
                     disabled={isProcessing}
                     onClick={handleApprove}
-                    className="flex-1 py-2 px-3 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5"
+                    className="w-full sm:flex-1 py-2.5 sm:py-2 px-3 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5"
                   >
                     <CheckCircle2 className="w-4 h-4" /> สอบทานและอนุมัติเข้า Approved List
                   </button>
@@ -2484,15 +2667,15 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     type="button"
                     disabled={isProcessing}
                     onClick={() => handleSupervisorReview('RETURN_DOCUMENT')}
-                    className="py-2 px-3 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-xs font-semibold rounded-lg transition"
+                    className="w-full sm:w-auto py-2.5 sm:py-2 px-3 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-xs font-semibold rounded-lg transition"
                   >
                     ส่งคืน
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="bg-sky-50/70 p-5 rounded-2xl border border-sky-200 shadow-sm space-y-2.5">
-                <div className="flex items-center justify-between">
+              <div className="bg-sky-50/70 p-4 sm:p-5 rounded-2xl border border-sky-200 shadow-sm space-y-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex items-center gap-2 text-sky-950 font-bold text-xs">
                     <ShieldCheck className="w-4 h-4 text-sky-700" />
                     รอหัวหน้าฝ่ายบัญชีสอบทาน (Supervisor Review)
@@ -2505,8 +2688,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   รายการนี้ผ่านการตรวจจากเจ้าหน้าที่ AP แล้ว และกำลังอยู่ในขั้นตอนการสอบทานความถูกต้องและอนุมัติโดย <b>ผู้จัดการฝ่ายบัญชี (Accounting Manager)</b>
                 </p>
                 <div className="text-[10px] text-slate-500 bg-white/70 rounded-lg p-2.5 border border-sky-100 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
-                  เฉพาะผู้ใช้ในตำแหน่ง <b>ผู้จัดการฝ่ายบัญชี</b> หรือ <b>Super Admin</b> เท่านั้นที่จะเห็นปุ่มอนุมัติหรือส่งคืนในขั้นตอนนี้
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse shrink-0"></span>
+                  <span>เฉพาะผู้ใช้ในตำแหน่ง <b>ผู้จัดการฝ่ายบัญชี</b> หรือ <b>Super Admin</b> เท่านั้นที่จะเห็นปุ่มอนุมัติหรือส่งคืนในขั้นตอนนี้</span>
                 </div>
               </div>
             )
@@ -2517,9 +2700,9 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             isStaff ? (
               <form
                 onSubmit={handleFinancePay}
-                className="bg-white p-5 rounded-2xl border-2 border-emerald-300 shadow-sm space-y-3"
+                className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-emerald-300 shadow-sm space-y-3"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex items-center gap-2 text-emerald-950 font-bold text-xs uppercase tracking-wide">
                     <DollarSign className="w-4 h-4 text-emerald-600" />
                     ฝ่ายการเงินบันทึกการจ่ายเงิน (Finance Disbursement)
@@ -2545,7 +2728,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     required
                     value={paidDate}
                     onChange={(e) => setPaidDate(e.target.value)}
-                    className="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs rounded-lg border border-slate-300 py-2 sm:py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
 
@@ -2558,7 +2741,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     required
                     value={paidFromBank}
                     onChange={(e) => setPaidFromBank(e.target.value)}
-                    className="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs rounded-lg border border-slate-300 py-2 sm:py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
 
@@ -2572,7 +2755,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     placeholder="เช่น TRF-20261001-88991"
                     value={bankRefNo}
                     onChange={(e) => setBankRefNo(e.target.value)}
-                    className="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+                    className="w-full text-xs rounded-lg border border-slate-300 py-2 sm:py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
                   />
                 </div>
 
@@ -2583,7 +2766,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     placeholder="เช่น โอนผ่าน K-Biz แล้ว"
                     value={paymentNotes}
                     onChange={(e) => setPaymentNotes(e.target.value)}
-                    className="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs rounded-lg border border-slate-300 py-2 sm:py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
 
@@ -2596,11 +2779,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 </button>
               </form>
             ) : (
-              <div className="bg-emerald-50/70 p-5 rounded-2xl border border-emerald-200 shadow-sm space-y-2.5">
-                <div className="flex items-center justify-between">
+              <div className="bg-emerald-50/70 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-sm space-y-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex items-center gap-2 text-emerald-950 font-bold text-xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    สถานะ: คำขอได้รับอนุมัติแล้ว (Approved) - รอฝ่ายการเงินโอนเงิน
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>สถานะ: คำขอได้รับอนุมัติแล้ว (Approved) - รอฝ่ายการเงินโอนเงิน</span>
                   </div>
                   <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-200">
                     Ready to Pay
@@ -2610,8 +2793,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   รายการนี้ได้รับการอนุมัติอย่างถูกต้องและอยู่ใน <b>Approved Payment List</b> เรียบร้อยแล้ว ฝ่ายการเงินส่วนกลางจะดำเนินการโอนเงินเข้าบัญชีตามรอบจ่ายที่กำหนด
                 </p>
                 <div className="text-[10px] text-slate-500 bg-white/70 rounded-lg p-2.5 border border-emerald-100 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  ยอดโอนสุทธิ: <b className="font-mono text-emerald-700">{Number(request.net_amount).toLocaleString()} บาท</b>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                  <span>ยอดโอนสุทธิ: <b className="font-mono text-emerald-700">{Number(request.net_amount).toLocaleString()} บาท</b></span>
                 </div>
               </div>
             )
@@ -2621,9 +2804,9 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           {isStaff && isStep5Done && (!request.gl_voucher_no || isEditingGL) && (
             <form
               onSubmit={handlePostGL}
-              className="bg-white p-5 rounded-2xl border-2 border-cyan-300 shadow-sm space-y-3"
+              className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-cyan-300 shadow-sm space-y-3"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-1.5">
                 <div className="flex items-center gap-2 text-cyan-950 font-bold text-xs uppercase tracking-wide">
                   <BookOpen className="w-4 h-4 text-cyan-700" />
                   ขั้นตอนที่ 6: บันทึกลงบัญชี Express / Odoo (GL Posting)
@@ -2643,7 +2826,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   </span>
                 </div>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
                 นำรายการที่จ่ายแล้วบันทึกเข้าสู่โปรแกรมบัญชี พร้อมอ้างอิงเลขที่ PAY No.
               </p>
 
@@ -2651,7 +2834,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 <div className="bg-purple-50 border border-purple-200 rounded-xl p-3.5 text-xs text-purple-950 flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <div className="font-bold flex items-center gap-1.5">
+                    <div className="font-bold flex flex-wrap items-center gap-1.5">
                       <span>รายการนี้มีบันทึกรับเอกสารตัวจริงไว้แล้ว ({request.original_stamp_text})</span>
                       <span className="bg-purple-200 text-purple-900 text-[10px] px-1.5 py-0.5 rounded font-bold">รอระบุเลขที่บัญชี</span>
                     </div>
@@ -2672,23 +2855,24 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   placeholder="เช่น PV-6910-0089 หรือ JV-0012"
                   value={glVoucherNo}
                   onChange={(e) => setGlVoucherNo(e.target.value)}
-                  className="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-mono"
+                  className="w-full text-xs rounded-lg border border-slate-300 py-2 sm:py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-mono"
                 />
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="flex-1 py-2 px-3 bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full sm:flex-1 py-2.5 sm:py-2 px-3 bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer text-center"
                 >
-                  <Check className="w-4 h-4" /> {request.original_received_at ? 'บันทึกเลขที่ GL Voucher และปิดรายการสมบูรณ์' : 'บันทึกเลขที่ GL Voucher'}
+                  <Check className="w-4 h-4 shrink-0" />
+                  <span>{request.original_received_at ? 'บันทึกเลขที่ GL Voucher และปิดรายการสมบูรณ์' : 'บันทึกเลขที่ GL Voucher'}</span>
                 </button>
                 {isEditingGL && (
                   <button
                     type="button"
                     onClick={() => setIsEditingGL(false)}
-                    className="py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition cursor-pointer"
+                    className="w-full sm:w-auto py-2.5 sm:py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition cursor-pointer"
                   >
                     ยกเลิก
                   </button>
@@ -2699,8 +2883,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
           {/* Action Panel: Original Document Received Stamp */}
           {(request.status === 'PAID' || request.status === 'POSTED_TO_GL') && !request.original_received_at && isStaff && (
-            <div className="bg-white p-5 rounded-2xl border-2 border-violet-200 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-violet-200 shadow-sm space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-1.5">
                 <div className="flex items-center gap-2 text-violet-950 font-bold text-xs uppercase tracking-wide">
                   <Paperclip className="w-4 h-4 text-violet-700" />
                   รับเอกสารตัวจริง (Original Document Receipt)
@@ -2709,7 +2893,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   <ShieldCheck className="w-3 h-3 text-violet-600" /> สิทธิ์: ฝ่ายบัญชี
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
                 เมื่อได้รับเอกสารตัวจริง ให้ค้นหาเลข PAY No. และประทับตรา "RECEIVED ORIGINAL/PAID"
               </p>
 
@@ -2733,7 +2917,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                       type="text"
                       value={stampText}
                       onChange={(e) => setStampText(e.target.value)}
-                      className="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2.5 font-mono"
+                      className="w-full text-xs rounded-lg border border-slate-300 py-2 sm:py-1.5 px-2.5 font-mono"
                     />
                   </div>
 
@@ -2741,7 +2925,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     type="button"
                     disabled={isProcessing}
                     onClick={handleOriginalReceipt}
-                    className="w-full py-2 px-3 bg-violet-700 hover:bg-violet-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 sm:py-2 px-3 bg-violet-700 hover:bg-violet-800 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <CheckCircle2 className="w-4 h-4" /> บันทึกว่าได้รับเอกสารตัวจริงแล้ว
                   </button>
@@ -2751,18 +2935,18 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           )}
 
           {/* Complete Information Card */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 text-xs">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 text-xs">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
               สรุปข้อมูลการตรวจสอบและการชำระ
             </h3>
             <div className="space-y-2 text-[11px]">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">ผู้ขอเบิก:</span>
-                <span className="font-semibold text-slate-800">{request.requester_name}</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-slate-500 shrink-0">ผู้ขอเบิก:</span>
+                <span className="font-semibold text-slate-800 text-right truncate">{request.requester_name}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">หัวหน้างานอนุมัติ:</span>
-                <span className="text-slate-800 font-medium">
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-slate-500 shrink-0">หัวหน้างานอนุมัติ:</span>
+                <span className="text-slate-800 font-medium text-right truncate">
                   {request.supervisor_checked_by ? (
                     <span className="text-emerald-700 font-semibold inline-flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -2777,13 +2961,13 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   )}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">AP ผู้ตรวจสอบ:</span>
-                <span className="text-slate-800">{request.ap_checked_by || 'ยังไม่ตรวจสอบ'}</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-slate-500 shrink-0">AP ผู้ตรวจสอบ:</span>
+                <span className="text-slate-800 text-right truncate">{request.ap_checked_by || 'ยังไม่ตรวจสอบ'}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">หัวหน้าบัญชีสอบทาน:</span>
-                <span className="text-slate-800 font-medium">
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-slate-500 shrink-0">หัวหน้าบัญชีสอบทาน:</span>
+                <span className="text-slate-800 font-medium text-right truncate">
                   {request.accounting_manager_checked_by ? (
                     <span className="text-emerald-700 font-semibold inline-flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -2799,25 +2983,25 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   )}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">ผู้อนุมัติ:</span>
-                <span className="font-semibold text-emerald-700">{request.approved_by || 'ยังไม่อนุมัติ'}</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-slate-500 shrink-0">ผู้อนุมัติ:</span>
+                <span className="font-semibold text-emerald-700 text-right truncate">{request.approved_by || 'ยังไม่อนุมัติ'}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">การเงินผู้จ่าย:</span>
-                <span className="font-semibold text-slate-800">{request.paid_by || 'ยังไม่จ่าย'}</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-slate-500 shrink-0">การเงินผู้จ่าย:</span>
+                <span className="font-semibold text-slate-800 text-right truncate">{request.paid_by || 'ยังไม่จ่าย'}</span>
               </div>
               {request.bank_reference_no && (
-                <div className="flex justify-between items-center font-mono">
-                  <span className="text-slate-500 font-sans">เลขที่โอน:</span>
-                  <span className="text-indigo-700 font-bold">{request.bank_reference_no}</span>
+                <div className="flex justify-between items-center font-mono gap-2">
+                  <span className="text-slate-500 font-sans shrink-0">เลขที่โอน:</span>
+                  <span className="text-indigo-700 font-bold text-right truncate">{request.bank_reference_no}</span>
                 </div>
               )}
               {request.gl_voucher_no ? (
-                <div className="flex justify-between items-center font-mono">
-                  <span className="text-slate-500 font-sans">เลขที่ GL:</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-cyan-800 font-bold">{request.gl_voucher_no}</span>
+                <div className="flex justify-between items-center font-mono gap-2">
+                  <span className="text-slate-500 font-sans shrink-0">เลขที่ GL:</span>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="text-cyan-800 font-bold truncate">{request.gl_voucher_no}</span>
                     {isStaff && (
                       <button
                         type="button"
@@ -2825,7 +3009,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                           setGlVoucherNo(request.gl_voucher_no || '');
                           setIsEditingGL(true);
                         }}
-                        className="text-[10px] text-cyan-600 hover:text-cyan-800 underline font-sans cursor-pointer"
+                        className="text-[10px] text-cyan-600 hover:text-cyan-800 underline font-sans cursor-pointer shrink-0"
                       >
                         แก้ไข
                       </button>
@@ -2834,17 +3018,17 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 </div>
               ) : (
                 isStep5Done && (
-                  <div className="flex justify-between items-center text-[10px]">
-                    <span className="text-slate-500">เลขที่ GL (Express/Odoo):</span>
-                    <span className="text-red-600 font-semibold">ยังไม่ลงบัญชี</span>
+                  <div className="flex justify-between items-center text-[10px] gap-2">
+                    <span className="text-slate-500 shrink-0">เลขที่ GL (Express/Odoo):</span>
+                    <span className="text-red-600 font-semibold text-right">ยังไม่ลงบัญชี</span>
                   </div>
                 )
               )}
               {request.original_received_at && (
                 <div className="p-2 bg-violet-50 rounded-lg text-violet-900 font-semibold text-[10px] flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 truncate">
                     <CheckCircle2 className="w-3.5 h-3.5 text-violet-600 shrink-0" />
-                    <span>ได้รับเอกสารตัวจริงแล้ว ({request.original_stamp_text})</span>
+                    <span className="truncate">ได้รับเอกสารตัวจริงแล้ว ({request.original_stamp_text})</span>
                   </div>
                   {isStaff && (
                     <button
@@ -2863,7 +3047,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           </div>
 
           {/* Audit Trail Timeline */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
             <h3 className="font-bold text-xs text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
               <Clock className="w-3.5 h-3.5 text-slate-400" />
               ประวัติการดำเนินการ (Audit Trail)
@@ -2873,10 +3057,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               {request.logs?.map((log, idx) => (
                 <div key={idx} className="flex gap-2.5 text-xs">
                   <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="font-bold text-slate-800">{log.performed_by}</span>
-                      <span className="text-slate-400 font-mono">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between text-[10px] gap-2">
+                      <span className="font-bold text-slate-800 truncate">{log.performed_by}</span>
+                      <span className="text-slate-400 font-mono shrink-0">
                         {new Date(log.created_at).toLocaleDateString('th-TH', {
                           day: 'numeric',
                           month: 'short',
@@ -2886,11 +3070,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                         })}
                       </span>
                     </div>
-                    <p className={`text-[11px] mt-0.5 ${log.to_status === 'RETURN_DOCUMENT' ? 'text-orange-900 font-medium bg-orange-50 p-1.5 rounded-lg border border-orange-200' : 'text-slate-600'}`}>
+                    <p className={`text-[11px] mt-0.5 break-words ${log.to_status === 'RETURN_DOCUMENT' ? 'text-orange-900 font-medium bg-orange-50 p-1.5 rounded-lg border border-orange-200' : 'text-slate-600'}`}>
                       {log.notes}
                     </p>
                     {log.to_status && (
-                      <span className={`inline-flex items-center gap-1 mt-1 text-[9px] px-1.5 py-0.5 rounded font-mono ${log.to_status === 'RETURN_DOCUMENT' ? 'bg-orange-100 text-orange-800 font-bold' : 'bg-slate-100 text-slate-600'}`}>
+                      <span className={`inline-flex flex-wrap items-center gap-1 mt-1 text-[9px] px-1.5 py-0.5 rounded font-mono ${log.to_status === 'RETURN_DOCUMENT' ? 'bg-orange-100 text-orange-800 font-bold' : 'bg-slate-100 text-slate-600'}`}>
                         {log.from_status && (
                           <>
                             <span>{log.from_status}</span>
@@ -3031,11 +3215,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setIsEditingBank(false)}
-                className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition text-center"
               >
                 ยกเลิก
               </button>
@@ -3043,7 +3227,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 type="button"
                 disabled={isSavingBank}
                 onClick={handleSaveBankDetails}
-                className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition flex items-center gap-1.5 shadow-sm"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm text-center"
               >
                 {isSavingBank ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
               </button>
@@ -3194,12 +3378,12 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setIsEditingDueDate(false)}
                 disabled={isSavingDueDate}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer text-center"
               >
                 ยกเลิก
               </button>
@@ -3207,7 +3391,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 type="button"
                 onClick={handleSaveDueDate}
                 disabled={isSavingDueDate}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow-sm transition disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow-sm transition disabled:opacity-50 cursor-pointer text-center"
               >
                 {isSavingDueDate ? (
                   <>
@@ -3455,18 +3639,18 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsEditingRequisition(false)}
-                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+                  className="w-full sm:w-auto px-4 py-2.5 sm:py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition text-center"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingRequisition}
-                  className="px-5 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition flex items-center gap-1.5 shadow-sm"
+                  className="w-full sm:w-auto px-5 py-2.5 sm:py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm text-center"
                 >
                   {isSavingRequisition ? 'กำลังบันทึก...' : 'บันทึกการแก้ไขข้อมูล'}
                 </button>
@@ -3609,11 +3793,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 px-6 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+            <div className="p-4 px-5 sm:px-6 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setReturnModalOpen(false)}
-                className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition cursor-pointer text-center"
               >
                 ยกเลิก
               </button>
@@ -3622,7 +3806,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 type="button"
                 onClick={handleConfirmReturn}
                 disabled={isProcessing}
-                className="px-5 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 active:bg-orange-800 rounded-xl shadow-sm transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 active:bg-orange-800 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer text-center"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>ยืนยันส่งคืนเอกสาร</span>

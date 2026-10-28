@@ -35,7 +35,7 @@ export default async function NewPaymentRequestPage() {
         userId={user.id}
         userRole={user.role}
       />
-      <main className="flex-1 flex flex-col overflow-y-auto bg-[#fafbfc]">
+      <main className="flex-1 flex flex-col min-w-0 w-full overflow-y-auto overflow-x-hidden bg-[#fafbfc]">
         <NewPaymentRequestClient
           currentUser={{
             id: user.id,

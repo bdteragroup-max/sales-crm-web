@@ -308,286 +308,290 @@ export default function PaymentRequestsClient({
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto space-y-6">
+    <div className="w-full max-w-[1700px] min-w-0 mx-auto p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 pb-28 sm:pb-8 overflow-x-hidden">
       {/* Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-xs">
-        <div>
+      <div className="w-full min-w-0 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-xs">
+        <div className="min-w-0 flex-1">
           {isAccountingUser ? (
             <>
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider bg-red-50 text-red-700 border border-red-200 uppercase">
                   Central Payment Register
                 </span>
                 <span className="text-xs text-gray-400 font-mono">TG • TE • TP</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
-                <div className="p-2 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-red-600" />
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5 sm:gap-3">
+                <div className="p-2 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center justify-center shrink-0">
+                  <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
                 </div>
-                <span>ทะเบียนคุมการเบิกจ่ายกลาง (Payment Request & Register)</span>
+                <span className="break-words">ทะเบียนคุมการเบิกจ่ายกลาง (Payment Register)</span>
               </h1>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
+              <p className="text-xs sm:text-sm text-gray-500 mt-1.5 break-words">
                 ระบบควบคุมการเบิกจ่าย ตรวจสอบเอกสาร และป้องกันการจ่ายเงินซ้ำซ้อน ทั้งสำนักงานใหญ่และสาขาต่างจังหวัด
               </p>
             </>
           ) : isSupervisor ? (
             <>
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider bg-amber-50 text-amber-800 border border-amber-200 uppercase">
                   Supervisor & Team Portal
                 </span>
                 <span className="text-xs text-gray-400 font-medium">พอร์ทัลหัวหน้างานและทีม</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
-                <div className="p-2 bg-amber-50 text-amber-600 rounded-xl border border-amber-100 flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-amber-600" />
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5 sm:gap-3">
+                <div className="p-2 bg-amber-50 text-amber-600 rounded-xl border border-amber-100 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
                 </div>
-                <span>รายการขอเบิกจ่ายและอนุมัติของทีม (Team & My Requests)</span>
+                <span className="break-words">รายการขอเบิกจ่ายและอนุมัติของทีม</span>
               </h1>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
+              <p className="text-xs sm:text-sm text-gray-500 mt-1.5 break-words">
                 ตรวจสอบและอนุมัติคำขอเบิกจ่ายของทีมงานใต้บังคับบัญชา และติดตามสถานะคำขอเบิกจ่ายส่วนตัวของคุณ
               </p>
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider bg-blue-50 text-blue-700 border border-blue-200 uppercase">
                   My Requests Portal
                 </span>
                 <span className="text-xs text-gray-400 font-medium">คำขอเบิกจ่ายส่วนตัว</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-blue-600" />
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5 sm:gap-3">
+                <div className="p-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                 </div>
-                <span>รายการขอเบิกจ่ายเงินของฉัน (My Payment Requests)</span>
+                <span className="break-words">รายการขอเบิกจ่ายเงินของฉัน</span>
               </h1>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
+              <p className="text-xs sm:text-sm text-gray-500 mt-1.5 break-words">
                 ติดตามสถานะการตรวจสอบเอกสาร การอนุมัติ และความคืบหน้าการโอนเงินของคำขอที่คุณเป็นผู้เบิก
               </p>
             </>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto shrink-0">
           <button
             onClick={handleExportExcel}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-xl shadow-2xs transition"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-xl shadow-2xs transition active:scale-[0.99]"
           >
-            <Download className="w-4 h-4 text-gray-500" />
-            Export Excel
+            <Download className="w-4 h-4 text-gray-500 shrink-0" />
+            <span>Export Excel</span>
           </button>
           <Link
             href="/accounting/payment-requests/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition active:scale-[0.99]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition active:scale-[0.99]"
           >
-            <Plus className="w-4 h-4" />
-            + สร้างใบขอจ่ายเงินใหม่ (New Request)
+            <Plus className="w-4 h-4 shrink-0" />
+            <span>+ สร้างใบขอจ่ายเงินใหม่</span>
           </Link>
         </div>
       </div>
 
       {/* KPI Statistic Cards (Symmetrical 7-column Grid) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 sm:gap-4 w-full min-w-0">
         {/* Total */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-xs transition">
-          <div className="flex items-center justify-between text-gray-400 mb-2">
-            <span className="text-xs font-medium text-gray-600">คำขอทั้งหมด</span>
-            <div className="p-1 bg-gray-50 rounded-lg">
+        <div className="col-span-2 sm:col-span-1 min-w-0 bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-xs transition">
+          <div className="flex items-center justify-between text-gray-400 mb-1.5 sm:mb-2">
+            <span className="text-xs font-semibold text-gray-700 truncate">คำขอทั้งหมด</span>
+            <div className="p-1 bg-gray-50 rounded-lg shrink-0">
               <Layers className="w-4 h-4 text-gray-500" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-gray-900 font-mono">
-            {stats?.total_count || 0}
-          </div>
-          <div className="text-[11px] text-gray-400 mt-1 font-mono truncate">
-            {Number(stats?.total_amount || 0).toLocaleString()} ฿
+          <div className="flex sm:block items-baseline justify-between gap-2">
+            <div className="text-xl sm:text-2xl font-black text-gray-900 font-mono">
+              {stats?.total_count || 0}
+            </div>
+            <div className="text-[11px] text-gray-400 mt-0.5 sm:mt-1 font-mono truncate">
+              {Number(stats?.total_amount || 0).toLocaleString()} ฿
+            </div>
           </div>
         </div>
 
         {/* Pending AP Review */}
-        <div className="bg-white p-4 rounded-2xl border border-red-200 shadow-2xs hover:shadow-xs transition bg-red-50/20">
-          <div className="flex items-center justify-between text-red-600 mb-2">
-            <span className="text-xs font-bold text-gray-800">รอ AP ตรวจสอบ</span>
-            <div className="p-1 bg-red-100 rounded-lg">
+        <div className="min-w-0 bg-white p-3.5 sm:p-4 rounded-2xl border border-red-200 shadow-2xs hover:shadow-xs transition bg-red-50/20">
+          <div className="flex items-center justify-between text-red-600 mb-1.5 sm:mb-2">
+            <span className="text-xs font-bold text-gray-800 truncate">รอ AP ตรวจสอบ</span>
+            <div className="p-1 bg-red-100 rounded-lg shrink-0">
               <Clock className="w-4 h-4 text-red-600" />
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black text-red-700 font-mono">
             {stats?.pending_review_count || 0}
           </div>
-          <div className="text-[11px] text-red-700/80 mt-1 font-mono truncate">
+          <div className="text-[11px] text-red-700/80 mt-0.5 sm:mt-1 font-mono truncate">
             {Number(stats?.pending_review_amount || 0).toLocaleString()} ฿
           </div>
         </div>
 
         {/* Pending Approval */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-xs transition">
-          <div className="flex items-center justify-between text-gray-500 mb-2">
-            <span className="text-xs font-bold text-gray-800">รออนุมัติ</span>
-            <div className="p-1 bg-gray-50 rounded-lg">
+        <div className="min-w-0 bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-xs transition">
+          <div className="flex items-center justify-between text-gray-500 mb-1.5 sm:mb-2">
+            <span className="text-xs font-bold text-gray-800 truncate">รออนุมัติ</span>
+            <div className="p-1 bg-gray-50 rounded-lg shrink-0">
               <CheckCircle2 className="w-4 h-4 text-gray-500" />
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black text-gray-900 font-mono">
             {stats?.pending_approval_count || 0}
           </div>
-          <div className="text-[11px] text-gray-500 mt-1 font-mono truncate">
+          <div className="text-[11px] text-gray-500 mt-0.5 sm:mt-1 font-mono truncate">
             {Number(stats?.pending_approval_amount || 0).toLocaleString()} ฿
           </div>
         </div>
 
         {/* Ready to Pay (Approved List) */}
-        <div className="bg-white p-4 rounded-2xl border border-red-300 shadow-2xs hover:shadow-xs transition bg-red-50/30">
-          <div className="flex items-center justify-between text-red-700 mb-2">
-            <span className="text-xs font-bold text-red-900">Approved (รอจ่าย)</span>
-            <div className="p-1 bg-red-100 rounded-lg">
+        <div className="min-w-0 bg-white p-3.5 sm:p-4 rounded-2xl border border-red-300 shadow-2xs hover:shadow-xs transition bg-red-50/30">
+          <div className="flex items-center justify-between text-red-700 mb-1.5 sm:mb-2">
+            <span className="text-xs font-bold text-red-900 truncate">Approved (รอจ่าย)</span>
+            <div className="p-1 bg-red-100 rounded-lg shrink-0">
               <DollarSign className="w-4 h-4 text-red-600" />
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black text-red-700 font-mono">
             {stats?.ready_to_pay_count || 0}
           </div>
-          <div className="text-[11px] text-red-700 font-mono font-medium truncate">
+          <div className="text-[11px] text-red-700 font-mono font-medium truncate mt-0.5 sm:mt-1">
             {Number(stats?.ready_to_pay_amount || 0).toLocaleString()} ฿
           </div>
         </div>
 
         {/* Paid */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-xs transition">
-          <div className="flex items-center justify-between text-gray-400 mb-2">
-            <span className="text-xs font-medium text-gray-600">จ่ายแล้ว (Paid)</span>
-            <div className="p-1 bg-gray-50 rounded-lg">
+        <div className="min-w-0 bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-xs transition">
+          <div className="flex items-center justify-between text-gray-400 mb-1.5 sm:mb-2">
+            <span className="text-xs font-medium text-gray-600 truncate">จ่ายแล้ว (Paid)</span>
+            <div className="p-1 bg-gray-50 rounded-lg shrink-0">
               <CheckCircle2 className="w-4 h-4 text-gray-400" />
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black text-gray-800 font-mono">
             {stats?.paid_count || 0}
           </div>
-          <div className="text-[11px] text-gray-400 mt-1 font-mono truncate">
+          <div className="text-[11px] text-gray-400 mt-0.5 sm:mt-1 font-mono truncate">
             {Number(stats?.paid_amount || 0).toLocaleString()} ฿
           </div>
         </div>
 
         {/* Duplicate Alerts */}
         <div
-          className={`p-4 rounded-2xl border shadow-2xs transition ${
+          className={`min-w-0 p-3.5 sm:p-4 rounded-2xl border shadow-2xs transition ${
             (stats?.duplicate_alert_count || 0) > 0
               ? 'bg-red-50/80 border-red-300 text-red-900'
               : 'bg-white border-gray-200 text-gray-700'
           }`}
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-red-900">ตรวจพบซ้ำ / ระงับ</span>
-            <div className="p-1 bg-red-100 rounded-lg">
+          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+            <span className="text-xs font-bold text-red-900 truncate">ตรวจพบซ้ำ / ระงับ</span>
+            <div className="p-1 bg-red-100 rounded-lg shrink-0">
               <ShieldAlert className="w-4 h-4 text-red-600" />
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black font-mono text-red-700">
             {stats?.duplicate_alert_count || 0}
           </div>
-          <div className="text-[11px] text-red-600/90 mt-1 font-medium">HOLD-DUPLICATE</div>
+          <div className="text-[11px] text-red-600/90 mt-0.5 sm:mt-1 font-medium truncate">HOLD-DUPLICATE</div>
         </div>
 
         {/* Missing Originals */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-xs transition">
-          <div className="flex items-center justify-between text-gray-500 mb-2">
-            <span className="text-xs font-bold text-gray-700">รอเอกสารตัวจริง</span>
-            <div className="p-1 bg-gray-50 rounded-lg">
+        <div className="min-w-0 bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-xs transition">
+          <div className="flex items-center justify-between text-gray-500 mb-1.5 sm:mb-2">
+            <span className="text-xs font-bold text-gray-700 truncate">รอเอกสารตัวจริง</span>
+            <div className="p-1 bg-gray-50 rounded-lg shrink-0">
               <Paperclip className="w-4 h-4 text-gray-500" />
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black text-gray-800 font-mono">
             {stats?.missing_originals_count || 0}
           </div>
-          <div className="text-[11px] text-gray-400 mt-1">ยังไม่ได้รับเอกสารจริง</div>
+          <div className="text-[11px] text-gray-400 mt-0.5 sm:mt-1 truncate">ยังไม่ได้รับเอกสารจริง</div>
         </div>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-gray-200">
-        {[
-          { key: 'ALL', label: 'ทั้งหมด (All)', count: requests.length },
-          {
-            key: 'PENDING_SUPERVISOR',
-            label: 'รอหัวหน้างานอนุมัติ',
-            count: stats?.pending_supervisor_count || 0,
-            alert: (stats?.pending_supervisor_count || 0) > 0,
-          },
-          {
-            key: 'PENDING_REVIEW',
-            label: 'รอ AP ตรวจสอบ',
-            count: stats?.pending_review_count || 0,
-            alert: (stats?.pending_review_count || 0) > 0,
-          },
-          {
-            key: 'PENDING_APPROVAL',
-            label: 'รออนุมัติ',
-            count: stats?.pending_approval_count || 0,
-          },
-          {
-            key: 'APPROVED_PAYMENT_LIST',
-            label: 'Approved Payment List (การเงินรอจ่าย)',
-            count: stats?.ready_to_pay_count || 0,
-            highlight: true,
-          },
-          {
-            key: 'PAID',
-            label: 'จ่ายแล้ว (Paid)',
-            count: stats?.paid_count || 0,
-          },
-          {
-            key: 'DUPLICATES',
-            label: 'พบความซ้ำซ้อน (Duplicate Alerts)',
-            count: stats?.duplicate_alert_count || 0,
-            isWarning: (stats?.duplicate_alert_count || 0) > 0,
-          },
-          { key: 'CLOSED', label: 'ปิดรายการแล้ว' },
-          { key: 'CANCELLED', label: 'ยกเลิก' },
-        ].map((tab) => {
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl transition shrink-0 whitespace-nowrap ${
-                isActive
-                  ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-xs'
-                  : 'bg-white text-gray-600 hover:text-red-700 hover:bg-red-50/30 border border-gray-200 hover:border-red-200'
-              }`}
-            >
-              <span>{tab.label}</span>
-              {tab.count !== undefined && (
-                <span
-                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                    isActive
-                      ? 'bg-white/25 text-white'
-                      : tab.isWarning
-                      ? 'bg-red-100 text-red-700 font-bold'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
+      <div className="w-full min-w-0 max-w-full overflow-x-auto pb-2 border-b border-gray-200">
+        <div className="flex items-center gap-1.5 sm:gap-2 w-max">
+          {[
+            { key: 'ALL', label: 'ทั้งหมด (All)', count: requests.length },
+            {
+              key: 'PENDING_SUPERVISOR',
+              label: 'รอหัวหน้างานอนุมัติ',
+              count: stats?.pending_supervisor_count || 0,
+              alert: (stats?.pending_supervisor_count || 0) > 0,
+            },
+            {
+              key: 'PENDING_REVIEW',
+              label: 'รอ AP ตรวจสอบ',
+              count: stats?.pending_review_count || 0,
+              alert: (stats?.pending_review_count || 0) > 0,
+            },
+            {
+              key: 'PENDING_APPROVAL',
+              label: 'รออนุมัติ',
+              count: stats?.pending_approval_count || 0,
+            },
+            {
+              key: 'APPROVED_PAYMENT_LIST',
+              label: 'Approved Payment List (การเงินรอจ่าย)',
+              count: stats?.ready_to_pay_count || 0,
+              highlight: true,
+            },
+            {
+              key: 'PAID',
+              label: 'จ่ายแล้ว (Paid)',
+              count: stats?.paid_count || 0,
+            },
+            {
+              key: 'DUPLICATES',
+              label: 'พบความซ้ำซ้อน (Duplicate Alerts)',
+              count: stats?.duplicate_alert_count || 0,
+              isWarning: (stats?.duplicate_alert_count || 0) > 0,
+            },
+            { key: 'CLOSED', label: 'ปิดรายการแล้ว' },
+            { key: 'CANCELLED', label: 'ยกเลิก' },
+          ].map((tab) => {
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold rounded-xl transition shrink-0 whitespace-nowrap ${
+                  isActive
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-xs'
+                    : 'bg-white text-gray-600 hover:text-red-700 hover:bg-red-50/30 border border-gray-200 hover:border-red-200'
+                }`}
+              >
+                <span>{tab.label}</span>
+                {tab.count !== undefined && (
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                      isActive
+                        ? 'bg-white/25 text-white'
+                        : tab.isWarning
+                        ? 'bg-red-100 text-red-700 font-bold'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Filter Toolbar (Symmetrical 2-Row Layout) */}
-      <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="w-full min-w-0 bg-white p-3.5 sm:p-5 rounded-2xl border border-gray-200 shadow-xs space-y-3 sm:space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 w-full min-w-0">
           {/* Company Filter Pills */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-gray-500 mr-1 flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-semibold text-gray-500 mr-1 flex items-center gap-1 shrink-0">
               <Filter className="w-3.5 h-3.5 text-red-500" /> บริษัท:
             </span>
             {['ALL', 'TG', 'TE', 'TP'].map((comp) => (
               <button
                 key={comp}
                 onClick={() => setSelectedCompany(comp)}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition ${
                   selectedCompany === comp
                     ? 'bg-red-600 text-white shadow-2xs'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
@@ -599,8 +603,8 @@ export default function PaymentRequestsClient({
           </div>
 
           {/* Search Box */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+          <div className="relative flex-1 max-w-md w-full min-w-0">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5 shrink-0" />
             <input
               type="text"
               placeholder="ค้นหา PAY No., ผู้ขาย, เลขที่บิล, ผู้ขอ, PO/PR..."
@@ -612,14 +616,14 @@ export default function PaymentRequestsClient({
         </div>
 
         {/* Secondary Filter Row (Symmetrical 3 Columns) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-3 border-t border-gray-100 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 pt-3 border-t border-gray-100 text-xs w-full min-w-0">
           {/* Branch */}
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500 font-medium whitespace-nowrap">สาขา:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
+            <span className="text-gray-500 font-medium whitespace-nowrap text-[11px] sm:text-xs shrink-0">สาขา:</span>
             <select
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 font-medium shadow-2xs transition"
+              className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 font-medium shadow-2xs transition min-w-0 truncate"
             >
               {availableBranches.map((b) => (
                 <option key={b.name} value={b.name}>
@@ -630,12 +634,12 @@ export default function PaymentRequestsClient({
           </div>
 
           {/* Classification */}
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500 font-medium whitespace-nowrap">ประเภท:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
+            <span className="text-gray-500 font-medium whitespace-nowrap text-[11px] sm:text-xs shrink-0">ประเภท:</span>
             <select
               value={selectedClassification}
               onChange={(e) => setSelectedClassification(e.target.value)}
-              className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 font-medium shadow-2xs transition"
+              className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 font-medium shadow-2xs transition min-w-0 truncate"
             >
               <option value="ALL">ทุกประเภท (All Classifications)</option>
               <option value="VENDOR_BILL">ชำระเจ้าหนี้การค้า</option>
@@ -647,12 +651,12 @@ export default function PaymentRequestsClient({
           </div>
 
           {/* Urgency */}
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500 font-medium whitespace-nowrap">ความเร่งด่วน:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
+            <span className="text-gray-500 font-medium whitespace-nowrap text-[11px] sm:text-xs shrink-0">ความเร่งด่วน:</span>
             <select
               value={selectedUrgency}
               onChange={(e) => setSelectedUrgency(e.target.value)}
-              className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 font-medium shadow-2xs transition"
+              className="w-full text-xs rounded-xl border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 font-medium shadow-2xs transition min-w-0 truncate"
             >
               <option value="ALL">ทั้งหมด (All Urgency)</option>
               <option value="NORMAL">ปกติ (Normal)</option>
@@ -662,9 +666,10 @@ export default function PaymentRequestsClient({
         </div>
       </div>
 
-      {/* Requests Table */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
+      {/* Requests Table & Mobile Cards */}
+      <div className="w-full min-w-0 bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        {/* Desktop Table View (hidden on mobile < md) */}
+        <div className="hidden md:block overflow-x-auto w-full">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-gray-50/90 border-b border-gray-200 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
@@ -856,12 +861,200 @@ export default function PaymentRequestsClient({
           </table>
         </div>
 
+        {/* Mobile Card List View (Visible on screens < md) */}
+        <div className="block md:hidden divide-y divide-gray-100 w-full min-w-0">
+          {filteredRequests.length === 0 ? (
+            <div className="py-12 px-4 text-center text-gray-400 space-y-2">
+              <Building2 className="w-10 h-10 mx-auto text-gray-300 mb-2" />
+              <p className="font-bold text-sm text-gray-700">ไม่พบรายการขอเบิกจ่ายที่ตรงกับเงื่อนไข</p>
+              <p className="text-xs text-gray-400">ลองเปลี่ยนคำค้นหา หรือกด "สร้างใบขอจ่ายเงินใหม่"</p>
+            </div>
+          ) : (
+            filteredRequests.map((r) => {
+              const companyStyle = COMPANY_COLORS[r.company] || COMPANY_COLORS.TG;
+              const statusStyle = STATUS_CONFIG[r.status] || STATUS_CONFIG.SUBMITTED;
+
+              return (
+                <div
+                  key={r.id}
+                  className={`p-4 space-y-3 transition ${
+                    r.status === 'HOLD_DUPLICATE'
+                      ? 'bg-red-50/40 border-l-4 border-l-red-600'
+                      : r.urgency === 'EMERGENCY'
+                      ? 'bg-red-50/15'
+                      : 'hover:bg-gray-50/80'
+                  }`}
+                >
+                  {/* Row 1: Badges + PAY No + Status */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${companyStyle.bg} ${companyStyle.text} ${companyStyle.border}`}
+                      >
+                        {r.company}
+                      </span>
+                      <Link
+                        href={`/accounting/payment-requests/${r.id}`}
+                        className="font-mono font-bold text-sm text-gray-900 hover:text-red-600 hover:underline"
+                      >
+                        {r.pay_number}
+                      </Link>
+                      {r.urgency === 'EMERGENCY' && (
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 bg-red-100 border border-red-200 px-1.5 py-0.2 rounded-full">
+                          <Zap className="w-2.5 h-2.5" /> ด่วนที่สุด
+                        </span>
+                      )}
+                    </div>
+
+                    <span
+                      className={`shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
+                    >
+                      {statusStyle.label}
+                    </span>
+                  </div>
+
+                  {/* Row 2: Supplier Name & Net Amount */}
+                  <div className="flex items-start justify-between gap-3 bg-gray-50/90 p-3 rounded-xl border border-gray-100">
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[10px] font-semibold text-gray-400 block uppercase">ผู้รับเงิน / เจ้าหนี้</span>
+                      <p className="font-bold text-gray-900 text-xs sm:text-sm truncate">
+                        {r.supplier_name}
+                      </p>
+                      {r.bank_account_no && (
+                        <div className="flex items-center gap-1 mt-1 text-[10px] text-gray-600 font-mono">
+                          <span className={`text-[9px] px-1 py-0.2 rounded font-bold border ${
+                            r.payment_method === 'PROMPTPAY' || r.bank_name?.includes('พร้อมเพย์')
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-white text-gray-700 border-gray-200'
+                          }`}>
+                            {r.payment_method === 'PROMPTPAY' || r.bank_name?.includes('พร้อมเพย์') ? 'พร้อมเพย์' : 'ธนาคาร'}
+                          </span>
+                          <span className="truncate">{r.bank_account_no}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="text-[10px] font-semibold text-gray-400 block">ยอดชำระสุทธิ</span>
+                      <span className="font-mono font-black text-red-600 text-base">
+                        {Number(r.net_amount).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })} ฿
+                      </span>
+                      <div className="text-[9px] text-gray-400 font-mono">
+                        (ก่อน VAT {Number(r.subtotal_amount).toLocaleString()})
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 3: Purpose & Meta */}
+                  <div className="text-xs text-gray-600 space-y-1">
+                    {r.purpose && (
+                      <p className="text-[11px] text-gray-700 line-clamp-2">
+                        <span className="text-gray-400">วัตถุประสงค์: </span>
+                        {r.purpose}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-gray-500 pt-0.5">
+                      <span className="flex items-center gap-1 font-medium text-gray-700">
+                        <Building2 className="w-3 h-3 text-gray-400" />
+                        {r.branch}
+                      </span>
+                      <span>•</span>
+                      <span>ผู้ขอ: <b>{r.requester_name}</b>{r.requester_department ? ` (${r.requester_department})` : ''}</span>
+                      <span>•</span>
+                      <span className="text-gray-600">
+                        {CLASSIFICATION_LABELS[r.classification] || r.classification}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Row 4: Bill No & Due Date */}
+                  <div className="grid grid-cols-2 gap-2 text-[10px] bg-white p-2.5 rounded-xl border border-gray-100 text-gray-500">
+                    <div>
+                      <span className="text-gray-400 block">เลขที่บิล / วันที่:</span>
+                      <span className="font-mono font-medium text-gray-800 truncate block">
+                        {r.has_no_doc_number ? (
+                          <span className="italic text-gray-400 font-sans">ไม่มีเลขที่บิล</span>
+                        ) : (
+                          r.invoice_number || '-'
+                        )}
+                        {r.document_date ? ` (${formatDisplayDate(r.document_date)})` : ''}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block">ครบกำหนดชำระ:</span>
+                      <span className="font-mono font-medium text-gray-800 block">
+                        {formatDisplayDate(r.requested_payment_date) || '-'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Alerts if any */}
+                  {r.is_possible_duplicate && r.status !== 'HOLD_DUPLICATE' && (
+                    <div className="p-2 bg-red-50 border border-red-200 rounded-xl flex items-center gap-1.5 text-[11px] text-red-700 font-bold">
+                      <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                      <span>ตรวจพบข้อมูลซ้ำซ้อน โปรดตรวจสอบ</span>
+                    </div>
+                  )}
+                  {r.status === 'PAID' && !r.original_received_at && (
+                    <div className="p-1.5 bg-gray-100 border border-gray-200 rounded-xl flex items-center gap-1.5 text-[10px] text-gray-600">
+                      <Paperclip className="w-3 h-3 text-gray-400 shrink-0" />
+                      <span>รอเอกสารตัวจริงส่งถึงฝ่ายบัญชี</span>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 pt-1 border-t border-gray-100">
+                    <Link
+                      href={`/accounting/payment-requests/${r.id}`}
+                      className="flex-1 inline-flex items-center justify-center gap-1 py-2.5 px-3 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white font-bold rounded-xl text-xs transition active:scale-[0.99]"
+                    >
+                      <span>ดูรายการคำขอ</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+
+                    <button
+                      onClick={() => setVoucherModalItem(r)}
+                      title="พิมพ์ใบขออนุมัติจ่าย (Print Voucher)"
+                      className="p-2.5 text-gray-600 hover:text-red-600 hover:bg-red-50 bg-gray-100 rounded-xl transition shrink-0 active:scale-95"
+                    >
+                      <Printer className="w-4 h-4" />
+                    </button>
+
+                    {r.status === 'RETURN_DOCUMENT' && (
+                      <Link
+                        href={`/accounting/payment-requests/${r.id}/edit`}
+                        title="แก้ไขเอกสารและส่งใหม่ (เอกสารถูกส่งคืน)"
+                        className="p-2.5 text-orange-600 hover:text-white hover:bg-orange-500 bg-orange-50 rounded-xl transition shrink-0 active:scale-95"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </Link>
+                    )}
+
+                    {isManager && (
+                      <button
+                        onClick={() => handleDelete(r)}
+                        title="ลบคำขอนี้"
+                        className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 bg-gray-100 rounded-xl transition shrink-0 active:scale-95"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
         {/* Footer info (Symmetrical Summary Bar) */}
-        <div className="p-4 bg-gray-50/80 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-600 gap-2">
+        <div className="p-3.5 sm:p-4 bg-gray-50/80 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-600 gap-2">
           <span>
             แสดงทั้งหมด <b>{filteredRequests.length}</b> จาก <b>{requests.length}</b> รายการ
           </span>
-          <span className="font-mono text-gray-600">
+          <span className="font-mono text-gray-600 text-center sm:text-right">
             ยอดรวมหน้านี้:{' '}
             <b className="text-red-700 font-bold text-sm">
               {filteredRequests
