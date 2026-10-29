@@ -299,17 +299,23 @@ export default function FaultReportPaper({
                 {isEn ? "Status" : "สถานะการรับประกัน"}
               </td>
               <td className="border border-black p-1.5 font-semibold">
-                {report?.warrantyStatus === "IN_WARRANTY"
-                  ? isEn
-                    ? "In warranty"
-                    : "อยู่ในประกัน"
-                  : report?.warrantyStatus === "OUT_OF_WARRANTY"
-                  ? isEn
-                    ? "Out of warranty"
-                    : "นอกประกัน"
-                  : isEn
-                  ? "Pending check"
-                  : "รอตรวจสอบ"}
+                {(() => {
+                  const raw = String(report?.warrantyStatus || "").trim().toUpperCase();
+                  const isValid =
+                    raw === "IN_WARRANTY" ||
+                    raw === "VALID" ||
+                    report?.warrantyStatus === "รับประกัน" ||
+                    report?.warrantyStatus === "อยู่ในประกัน";
+                  const isExpired =
+                    raw === "OUT_OF_WARRANTY" ||
+                    raw === "EXPIRED" ||
+                    report?.warrantyStatus === "หมดประกัน" ||
+                    report?.warrantyStatus === "นอกประกัน";
+
+                  if (isValid) return isEn ? "In warranty" : "อยู่ในประกัน";
+                  if (isExpired) return isEn ? "Out of warranty" : "หมดประกัน";
+                  return isEn ? "Pending check" : "รอตรวจสอบ";
+                })()}
               </td>
             </tr>
             <tr>

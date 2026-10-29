@@ -154,25 +154,30 @@ export default function InverterFaultReportPaper({
         ? "บริษัท เทอรา อิเล็คทริค จำกัด"
         : "บริษัท เทอรา กรุ๊ป จำกัด";
 
+  const rawWarranty = String(report?.warrantyStatus || "").trim().toUpperCase();
+  const isWarrantyValid =
+    rawWarranty === "IN_WARRANTY" ||
+    rawWarranty === "VALID" ||
+    report?.warrantyStatus === "รับประกัน" ||
+    report?.warrantyStatus === "อยู่ในประกัน";
+
+  const isWarrantyExpired =
+    rawWarranty === "OUT_OF_WARRANTY" ||
+    rawWarranty === "EXPIRED" ||
+    report?.warrantyStatus === "หมดประกัน" ||
+    report?.warrantyStatus === "นอกประกัน";
+
   const warrantyText = isEn
-    ? report?.warrantyStatus === "VALID" ||
-      report?.warrantyStatus === "รับประกัน" ||
-      report?.warrantyStatus === "IN_WARRANTY"
+    ? isWarrantyValid
       ? "In Warranty"
-      : report?.warrantyStatus === "EXPIRED" ||
-        report?.warrantyStatus === "หมดประกัน" ||
-        report?.warrantyStatus === "OUT_OF_WARRANTY"
-        ? "Out of Warranty"
-        : report?.warrantyStatus || "In Warranty"
-    : report?.warrantyStatus === "VALID" ||
-      report?.warrantyStatus === "รับประกัน" ||
-      report?.warrantyStatus === "IN_WARRANTY"
-      ? "รับประกัน"
-      : report?.warrantyStatus === "EXPIRED" ||
-        report?.warrantyStatus === "หมดประกัน" ||
-        report?.warrantyStatus === "OUT_OF_WARRANTY"
-        ? "หมดประกัน"
-        : report?.warrantyStatus || "รับประกัน";
+      : isWarrantyExpired
+      ? "Out of Warranty"
+      : report?.warrantyStatus || "In Warranty"
+    : isWarrantyValid
+    ? "รับประกัน"
+    : isWarrantyExpired
+    ? "หมดประกัน"
+    : report?.warrantyStatus || "รับประกัน";
 
   const photos = report?.photos || {};
   const diode = report?.diodeMeasurement || {};

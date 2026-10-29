@@ -230,15 +230,18 @@ export default function CheckReportClaimPaper({
   );
 
   // Warranty status
+  const rawWarranty = String(report?.warrantyStatus || "").trim().toUpperCase();
   const isWarrantyValid =
-    report?.warrantyStatus === "IN_WARRANTY" ||
-    report?.warrantyStatus === "VALID" ||
-    report?.warrantyStatus === "รับประกัน";
+    rawWarranty === "IN_WARRANTY" ||
+    rawWarranty === "VALID" ||
+    report?.warrantyStatus === "รับประกัน" ||
+    report?.warrantyStatus === "อยู่ในประกัน";
 
   const isWarrantyExpired =
-    report?.warrantyStatus === "OUT_OF_WARRANTY" ||
-    report?.warrantyStatus === "EXPIRED" ||
-    report?.warrantyStatus === "หมดประกัน";
+    rawWarranty === "OUT_OF_WARRANTY" ||
+    rawWarranty === "EXPIRED" ||
+    report?.warrantyStatus === "หมดประกัน" ||
+    report?.warrantyStatus === "นอกประกัน";
 
   const isWarrantyPending = !isWarrantyValid && !isWarrantyExpired;
 

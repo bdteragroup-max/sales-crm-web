@@ -390,6 +390,24 @@ function generateUploadSuffix(): string {
   return `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 }
 
+export function normalizeWarrantyStatus(val?: string | null): string {
+  if (!val) return "IN_WARRANTY";
+  const s = String(val).trim().toUpperCase();
+  if (s === "IN_WARRANTY" || s === "VALID" || val === "รับประกัน" || val === "อยู่ในประกัน") {
+    return "IN_WARRANTY";
+  }
+  if (s === "OUT_OF_WARRANTY" || s === "EXPIRED" || val === "หมดประกัน" || val === "นอกประกัน") {
+    return "OUT_OF_WARRANTY";
+  }
+  if (val === "ไม่อยู่ในเงื่อนไข" || s === "NOT_COVERED") {
+    return "NOT_COVERED";
+  }
+  if (s === "PENDING" || val === "รอตรวจสอบ") {
+    return "PENDING";
+  }
+  return val;
+}
+
 interface CheckReportFormProps {
   initialData?: any;
   users?: any[];
@@ -597,8 +615,8 @@ export default function CheckReportForm({
       ? new Date(initialData.faultDate).toISOString().split("T")[0]
       : ""
   );
-  const [warrantyStatus, setWarrantyStatus] = useState(
-    initialData?.warrantyStatus || "EXPIRED"
+  const [warrantyStatus, setWarrantyStatus] = useState<string>(() =>
+    normalizeWarrantyStatus(initialData?.warrantyStatus || "IN_WARRANTY")
   );
 
   // Diagnosis & Symptoms
@@ -2412,15 +2430,14 @@ export default function CheckReportForm({
                   สถานะการรับประกัน (Warranty Status)
                 </label>
                 <select
-                  value={warrantyStatus}
+                  value={normalizeWarrantyStatus(warrantyStatus)}
                   onChange={(e) => setWarrantyStatus(e.target.value)}
                   className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] font-semibold"
                 >
-                  <option value="รับประกัน">รับประกัน (In Warranty)</option>
-                  <option value="หมดประกัน">หมดประกัน (Out of Warranty)</option>
-                  <option value="ไม่อยู่ในเงื่อนไข">ไม่อยู่ในเงื่อนไขการรับประกัน</option>
-                  <option value="IN_WARRANTY">อยู่ในประกัน</option>
-                  <option value="OUT_OF_WARRANTY">นอกประกัน</option>
+                  <option value="IN_WARRANTY">รับประกัน (In Warranty)</option>
+                  <option value="OUT_OF_WARRANTY">หมดประกัน (Out of Warranty)</option>
+                  <option value="PENDING">รอตรวจสอบ (Pending)</option>
+                  <option value="NOT_COVERED">ไม่อยู่ในเงื่อนไขการรับประกัน (Not Covered)</option>
                 </select>
               </div>
             </div>

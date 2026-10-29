@@ -196,23 +196,28 @@ export default function PumpFaultReportPaper({
     });
   }
 
+  const rawWarranty = String(report?.warrantyStatus || "").trim().toUpperCase();
+  const isWarrantyValid =
+    rawWarranty === "IN_WARRANTY" ||
+    rawWarranty === "VALID" ||
+    report?.warrantyStatus === "รับประกัน" ||
+    report?.warrantyStatus === "อยู่ในประกัน";
+
+  const isWarrantyExpired =
+    rawWarranty === "OUT_OF_WARRANTY" ||
+    rawWarranty === "EXPIRED" ||
+    report?.warrantyStatus === "หมดประกัน" ||
+    report?.warrantyStatus === "นอกประกัน";
+
   const warrantyText = isEn
-    ? report?.warrantyStatus === "VALID" ||
-      report?.warrantyStatus === "รับประกัน" ||
-      report?.warrantyStatus === "IN_WARRANTY"
+    ? isWarrantyValid
       ? "In Warranty"
-      : report?.warrantyStatus === "EXPIRED" ||
-        report?.warrantyStatus === "หมดประกัน" ||
-        report?.warrantyStatus === "OUT_OF_WARRANTY"
+      : isWarrantyExpired
       ? "Out of Warranty"
       : report?.warrantyStatus || "In Warranty"
-    : report?.warrantyStatus === "VALID" ||
-      report?.warrantyStatus === "รับประกัน" ||
-      report?.warrantyStatus === "IN_WARRANTY"
+    : isWarrantyValid
     ? "รับประกัน"
-    : report?.warrantyStatus === "EXPIRED" ||
-      report?.warrantyStatus === "หมดประกัน" ||
-      report?.warrantyStatus === "OUT_OF_WARRANTY"
+    : isWarrantyExpired
     ? "หมดประกัน"
     : report?.warrantyStatus || "รับประกัน";
 

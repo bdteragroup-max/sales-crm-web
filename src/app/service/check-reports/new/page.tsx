@@ -95,6 +95,7 @@ export default async function NewCheckReportPage({ searchParams }: NewCheckRepor
         inverterModel: firstItem.model || "",
         serialNumber: firstItem.serial || "",
         motorKw: firstItem.size || "",
+        warrantyStatus: "IN_WARRANTY",
         symptoms: order.symptoms || "",
         powerInputVoltage: pInput,
         powerOutputVoltage: pOutput,
