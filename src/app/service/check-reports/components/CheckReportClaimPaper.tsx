@@ -166,7 +166,7 @@ export default function CheckReportClaimPaper({
     photos.nameplate?.[0] ||
     (Array.isArray(photos) ? photos.find((p: string) => typeof p === "string" && p.includes("nameplate")) : null);
 
-  // Collect candidate defect / condition photos (up to 4 photos)
+  // Collect defect / damage photos ONLY (รูปจุดชำรุดเสียหาย สำหรับส่งลูกค้า)
   const candidateDefectPhotos: string[] = [];
   const addPhoto = (url: any) => {
     if (url && typeof url === "string" && !candidateDefectPhotos.includes(url) && url !== nameplatePhoto) {
@@ -174,52 +174,18 @@ export default function CheckReportClaimPaper({
     }
   };
 
-  // 1. Damage photos (primary defect photos)
+  // Only damage photos (จุดชำรุดเสียหาย)
   if (Array.isArray(photos.damage)) {
     photos.damage.forEach(addPhoto);
   } else if (photos.damage) {
     addPhoto(photos.damage);
   }
 
-  // 2. Inside photos
-  if (Array.isArray(photos.inside)) {
-    photos.inside.forEach(addPhoto);
-  } else if (photos.inside) {
-    addPhoto(photos.inside);
-  }
-
-  // 3. Terminal photos
-  if (Array.isArray(photos.terminal)) {
-    photos.terminal.forEach(addPhoto);
-  } else if (photos.terminal) {
-    addPhoto(photos.terminal);
-  }
-
-  // 4. Diode meter photo
-  if (diode.meterPhotoDiode) {
-    addPhoto(diode.meterPhotoDiode);
-  }
-
-  // 5. Fan photos
-  if (Array.isArray(photos.fan)) {
-    photos.fan.forEach(addPhoto);
-  } else if (photos.fan) {
-    addPhoto(photos.fan);
-  }
-
-  // 6. Other / front / side / top / left / right photos
-  ["other", "front", "side", "left", "right", "top"].forEach((k) => {
-    const val = (photos as any)?.[k];
-    if (Array.isArray(val)) {
-      val.forEach(addPhoto);
-    } else if (val) {
-      addPhoto(val);
-    }
-  });
-
-  // 7. If photos is a flat array
-  if (Array.isArray(photos)) {
-    photos.forEach(addPhoto);
+  // Fallback: If photos is a flat array, extract items related to damage
+  if (candidateDefectPhotos.length === 0 && Array.isArray(photos)) {
+    photos
+      .filter((p: any) => typeof p === "string" && p.toLowerCase().includes("damage"))
+      .forEach(addPhoto);
   }
 
   const defectPhotos = candidateDefectPhotos.slice(0, 4);
@@ -613,8 +579,8 @@ export default function CheckReportClaimPaper({
                 <div className="text-[10px] font-bold text-slate-700 mb-1 flex items-center justify-between px-1">
                   <span>
                     {isEn
-                      ? "[2] Defect Point / Physical Condition Photo"
-                      : "[2] รูปถ่ายจุดชำรุดเสียหาย / สภาพสินค้า (Defect Photo)"}
+                      ? "[2] Defect Photo"
+                      : "[2] รูปถ่ายจุดชำรุดเสียหาย (Defect Photo)"}
                   </span>
                   {candidateDefectPhotos.length > 1 && (
                     <span className="text-[9px] font-normal text-slate-500 font-mono">
@@ -626,7 +592,7 @@ export default function CheckReportClaimPaper({
                 </div>
                 {defectPhotos.length === 0 ? (
                   <div className="h-52 flex items-center justify-center border border-dashed border-slate-300 text-slate-400 text-xs">
-                    {isEn ? "No defect photo attached" : "ไม่มีรูปถ่ายจุดชำรุดเพิ่มเติม"}
+                    {isEn ? "No defect photo attached" : "ไม่มีรูปถ่ายจุดชำรุดเสียหาย"}
                   </div>
                 ) : defectPhotos.length === 1 ? (
                   <div className="h-52 flex items-center justify-center border border-slate-300 bg-white rounded p-1">
