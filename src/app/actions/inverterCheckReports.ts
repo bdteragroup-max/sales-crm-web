@@ -264,8 +264,25 @@ export async function getInverterCheckReports(params?: {
 
     const enrichedReports = reports.map((r) => {
       const diodeMeta = (r.diodeMeasurement as any) || {};
+      const hasInverterInCabinet =
+        r.equipmentType === "CONTROL_CABINET"
+          ? (diodeMeta.hasInverter !== undefined
+              ? Boolean(diodeMeta.hasInverter)
+              : Boolean(
+                  diodeMeta.inverterModel ||
+                  diodeMeta.inverterBrand ||
+                  diodeMeta.pos_to_r_black ||
+                  diodeMeta.neg_to_r_red ||
+                  diodeMeta.igbtStatus ||
+                  diodeMeta.phaseShortCheck ||
+                  r.inverterModel ||
+                  r.inverterBrand
+                ))
+          : false;
+
       return {
         ...r,
+        hasInverterInCabinet,
         approvedByName: diodeMeta.approvedByName || r.reportBy || null,
         approvedDate: diodeMeta.approvedDate || null,
       };
@@ -291,8 +308,25 @@ export async function getInverterCheckReportById(id: string) {
     }
 
     const diodeMeta = (report.diodeMeasurement as any) || {};
+    const hasInverterInCabinet =
+      report.equipmentType === "CONTROL_CABINET"
+        ? (diodeMeta.hasInverter !== undefined
+            ? Boolean(diodeMeta.hasInverter)
+            : Boolean(
+                diodeMeta.inverterModel ||
+                diodeMeta.inverterBrand ||
+                diodeMeta.pos_to_r_black ||
+                diodeMeta.neg_to_r_red ||
+                diodeMeta.igbtStatus ||
+                diodeMeta.phaseShortCheck ||
+                report.inverterModel ||
+                report.inverterBrand
+              ))
+        : false;
+
     const enriched = {
       ...report,
+      hasInverterInCabinet,
       approvedByName: diodeMeta.approvedByName || report.reportBy || null,
       approvedDate: diodeMeta.approvedDate || null,
     };
@@ -371,10 +405,26 @@ export async function createInverterCheckReport(formData: InverterCheckReportFor
     revalidatePath("/service/check-reports");
     revalidatePath("/service/dashboard");
     const createdDiodeMeta = (report.diodeMeasurement as any) || {};
+    const hasInverterInCabinet =
+      report.equipmentType === "CONTROL_CABINET"
+        ? (createdDiodeMeta.hasInverter !== undefined
+            ? Boolean(createdDiodeMeta.hasInverter)
+            : Boolean(
+                createdDiodeMeta.inverterModel ||
+                createdDiodeMeta.inverterBrand ||
+                createdDiodeMeta.pos_to_r_black ||
+                createdDiodeMeta.neg_to_r_red ||
+                createdDiodeMeta.igbtStatus ||
+                createdDiodeMeta.phaseShortCheck ||
+                report.inverterModel ||
+                report.inverterBrand
+              ))
+        : false;
     return {
       success: true,
       data: {
         ...report,
+        hasInverterInCabinet,
         approvedByName: createdDiodeMeta.approvedByName || report.reportBy || null,
         approvedDate: createdDiodeMeta.approvedDate || null,
       },
@@ -453,10 +503,26 @@ export async function updateInverterCheckReport(id: string, formData: InverterCh
     revalidatePath(`/service/check-reports/${id}`);
     revalidatePath("/service/dashboard");
     const updatedDiodeMeta = (updated.diodeMeasurement as any) || {};
+    const hasInverterInCabinet =
+      updated.equipmentType === "CONTROL_CABINET"
+        ? (updatedDiodeMeta.hasInverter !== undefined
+            ? Boolean(updatedDiodeMeta.hasInverter)
+            : Boolean(
+                updatedDiodeMeta.inverterModel ||
+                updatedDiodeMeta.inverterBrand ||
+                updatedDiodeMeta.pos_to_r_black ||
+                updatedDiodeMeta.neg_to_r_red ||
+                updatedDiodeMeta.igbtStatus ||
+                updatedDiodeMeta.phaseShortCheck ||
+                updated.inverterModel ||
+                updated.inverterBrand
+              ))
+        : false;
     return {
       success: true,
       data: {
         ...updated,
+        hasInverterInCabinet,
         approvedByName: updatedDiodeMeta.approvedByName || updated.reportBy || null,
         approvedDate: updatedDiodeMeta.approvedDate || null,
       },

@@ -160,6 +160,20 @@ export default function CheckReportClaimPaper({
   const pInput = report?.powerInputVoltage || {};
   const pOutput = report?.powerOutputVoltage || {};
 
+  // Check whether cabinet has an Inverter / Soft Starter
+  const hasInverterInCabinet = Boolean(
+    report?.hasInverterInCabinet ??
+    diode?.hasInverter ??
+    (diode?.inverterModel ||
+      diode?.inverterBrand ||
+      diode?.pos_to_r_black ||
+      diode?.neg_to_r_red ||
+      diode?.igbtStatus ||
+      diode?.phaseShortCheck ||
+      report?.inverterModel ||
+      report?.inverterBrand)
+  );
+
   // Photos
   const photos = report?.photos || {};
   const nameplatePhoto =
@@ -451,9 +465,9 @@ export default function CheckReportClaimPaper({
               </td>
               <td className="px-2.5 py-1.5 border border-black font-mono font-bold text-[12px] text-slate-900">
                 <div>{report?.inverterModel || diode.inverterModel || "-"}</div>
-                {isCabinet && report?.hasInverterInCabinet && diode?.inverterModel && (
+                {isCabinet && hasInverterInCabinet && (diode?.inverterModel || diode?.inverterBrand) && (
                   <div className="text-[9.5px] text-blue-700 font-normal font-sans mt-0.5">
-                    (Inverter ในตู้: {diode.inverterBrand || "INVT"} {diode.inverterModel})
+                    (Inverter ในตู้: {diode.inverterBrand || "INVT"} {diode.inverterModel || report?.inverterModel})
                   </div>
                 )}
               </td>
@@ -741,26 +755,31 @@ export default function CheckReportClaimPaper({
             {(diode.igbtStatus ||
               diode.pos_to_r_black ||
               motor.windingU1U2 ||
+              pInput.input3PhaseRs ||
               pInput.r_s ||
+              pInput.input1PhaseAc ||
+              pInput.inputDc ||
+              pOutput.output3Phase380Uv ||
+              pOutput.output3Phase220Uv ||
               pOutput.u_v) && (
               <tr>
                 <td className="bg-neutral-100 font-bold px-2.5 py-1.5 border border-black align-top">
                   {isEn ? "Measurement Notes" : "สรุปผลการวัดทางเทคนิค"}
                 </td>
                 <td className="px-2.5 py-1.5 border border-black text-[10.5px]">
-                  {eqType === "INVERTER" && (
-                    <div className="space-y-0.5">
+                  {(isInverter || (isCabinet && hasInverterInCabinet)) && (
+                    <div className="space-y-0.5 mb-1">
                       {diode.igbtStatus && (
                         <div>
                           • <b>IGBT Status:</b>{" "}
                           <span
                             className={
-                              diode.igbtStatus.includes("ปกติ") || diode.igbtStatus.includes("PASS")
+                              diode.igbtStatus.includes("ปกติ") || diode.igbtStatus.includes("PASS") || diode.igbtStatus === "NORMAL"
                                 ? "text-emerald-700 font-bold"
                                 : "text-red-700 font-bold"
                             }
                           >
-                            {diode.igbtStatus}
+                            {diode.igbtStatus === "NORMAL" ? "NORMAL (ปกติ)" : diode.igbtStatus === "ABNORMAL" ? "ABNORMAL (ผิดปกติ/ชำรุด)" : diode.igbtStatus}
                           </span>
                         </div>
                       )}
@@ -768,7 +787,7 @@ export default function CheckReportClaimPaper({
                         <div>
                           • <b>Diode Check:</b> (+)→R: {diode.pos_to_r_black || "-"} V | (+)→S:{" "}
                           {diode.pos_to_s_black || "-"} V | (+)→T: {diode.pos_to_t_black || "-"} V
-                          {diode.phaseShortCheck && ` [${diode.phaseShortCheck}]`}
+                          {diode.phaseShortCheck && ` [${diode.phaseShortCheck === "NORMAL" ? "เฟสปกติ" : "ช็อตข้ามเฟส"}]`}
                         </div>
                       )}
                     </div>
@@ -790,14 +809,30 @@ export default function CheckReportClaimPaper({
 
                   {eqType === "CONTROL_CABINET" && (
                     <div className="space-y-0.5">
-                      <div>
-                        • <b>Power Input:</b> R-S: {pInput.r_s || "-"} V | S-T: {pInput.s_t || "-"} V
-                        | R-T: {pInput.r_t || "-"} V
-                      </div>
-                      <div>
-                        • <b>Power Output:</b> U-V: {pOutput.u_v || "-"} V | V-W:{" "}
-                        {pOutput.v_w || "-"} V | U-W: {pOutput.u_w || "-"} V
-                      </div>
+                      {(pInput.input3PhaseRs || pInput.r_s || pInput.input1PhaseAc || pInput.inputDc) && (
+                        <div>
+                          • <b>Power Input:</b>{" "}
+                          {pInput.input3PhaseRs
+                            ? `RS: ${pInput.input3PhaseRs} V | ST: ${pInput.input3PhaseSt || "-"} V | RT: ${pInput.input3PhaseRt || "-"} V`
+                            : pInput.input1PhaseAc
+                            ? `1-Phase: ${pInput.input1PhaseAc} V`
+                            : pInput.inputDc
+                            ? `DC: ${pInput.inputDc} V`
+                            : `R-S: ${pInput.r_s || "-"} V | S-T: ${pInput.s_t || "-"} V | R-T: ${pInput.r_t || "-"} V`}
+                        </div>
+                      )}
+                      {(pOutput.output3Phase380Uv || pOutput.output3Phase220Uv || pOutput.u_v || pOutput.output1PhaseLn) && (
+                        <div>
+                          • <b>Power Output:</b>{" "}
+                          {pOutput.output3Phase380Uv
+                            ? `380V (UV: ${pOutput.output3Phase380Uv} V | VW: ${pOutput.output3Phase380Vw || "-"} V | UW: ${pOutput.output3Phase380Uw || "-"} V)`
+                            : pOutput.output3Phase220Uv
+                            ? `220V (UV: ${pOutput.output3Phase220Uv} V | VW: ${pOutput.output3Phase220Vw || "-"} V | UW: ${pOutput.output3Phase220Uw || "-"} V)`
+                            : pOutput.output1PhaseLn
+                            ? `1-Phase LN: ${pOutput.output1PhaseLn} V`
+                            : `U-V: ${pOutput.u_v || "-"} V | V-W: ${pOutput.v_w || "-"} V | U-W: ${pOutput.u_w || "-"} V`}
+                        </div>
+                      )}
                     </div>
                   )}
                 </td>

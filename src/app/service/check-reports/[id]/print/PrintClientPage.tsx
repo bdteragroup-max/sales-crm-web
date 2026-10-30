@@ -17,6 +17,7 @@ import CheckListRepairPaper from "../../components/CheckListRepairPaper";
 import PumpFaultReportPaper from "../../components/PumpFaultReportPaper";
 import MotorFaultReportPaper from "../../components/MotorFaultReportPaper";
 import InverterFaultReportPaper from "../../components/InverterFaultReportPaper";
+import CrInspectionPaper from "../../components/CrInspectionPaper";
 import FaultReportPaper from "../../components/FaultReportPaper";
 import PhotosPaper from "../../components/PhotosPaper";
 import { EQUIPMENT_TYPE_CONFIG } from "../../lib/crConstants";
@@ -37,12 +38,26 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
   const isInverter = eqType === "INVERTER";
   const isPump = eqType === "PUMP";
   const isMotor = eqType === "MOTOR";
+  const isCabinet = eqType === "CONTROL_CABINET";
 
   // Check if inverter checklist should be shown:
   // ONLY for INVERTER, or CONTROL_CABINET that has an Inverter inside.
   // PUMP and MOTOR should NEVER show Inverter checklists!
+  const hasInverterInCabinet = Boolean(
+    report?.hasInverterInCabinet ??
+    report?.diodeMeasurement?.hasInverter ??
+    (report?.diodeMeasurement?.inverterModel ||
+      report?.diodeMeasurement?.inverterBrand ||
+      report?.diodeMeasurement?.pos_to_r_black ||
+      report?.diodeMeasurement?.neg_to_r_red ||
+      report?.diodeMeasurement?.igbtStatus ||
+      report?.diodeMeasurement?.phaseShortCheck ||
+      report?.inverterModel ||
+      report?.inverterBrand)
+  );
+
   const shouldShowInverterChecklist =
-    isInverter || (eqType === "CONTROL_CABINET" && Boolean(report?.hasInverterInCabinet));
+    isInverter || (isCabinet && hasInverterInCabinet);
 
   // Determine initial language:
   const isInitiallyEn =
@@ -62,7 +77,8 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
       requestedTab.includes("fault") ||
       requestedTab.includes("pump") ||
       requestedTab.includes("motor") ||
-      requestedTab.includes("inverter")
+      requestedTab.includes("inverter") ||
+      requestedTab.includes("cabinet")
     ) {
       return "fault";
     }
@@ -162,46 +178,116 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
         ─────────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-gray-200 shadow-2xs text-xs font-bold">
           {/* Format / Layout Selector */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] text-gray-500 font-semibold px-1">รูปแบบเอกสาร:</span>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("fault");
-                if (isInverter) setOrientation("landscape");
-                else setOrientation("portrait");
-              }}
-              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
-                activeTab === "fault"
-                  ? "bg-slate-900 text-white shadow-xs font-bold"
-                  : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
-              }`}
-            >
-              <span>
-                {isPump
-                  ? "แบบฟอร์มปั๊มน้ำ (Pump Fault Report)"
-                  : isMotor
-                  ? "แบบฟอร์มมอเตอร์ (Motor Fault Report)"
-                  : isInverter
-                  ? "รายงาน Inverter (Fault Report - แนวนอน)"
-                  : "รายงานตรวจเช็ค (Fault Report)"}
-              </span>
-            </button>
+            {isCabinet ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("claim");
+                    setOrientation("portrait");
+                  }}
+                  className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                    activeTab === "claim"
+                      ? "bg-slate-900 text-white shadow-xs font-bold"
+                      : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  }`}
+                >
+                  <span>แบบใบแจ้งเคลม (Claim Style - A4 แนวตั้ง)</span>
+                </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("claim");
-                setOrientation("portrait");
-              }}
-              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
-                activeTab === "claim"
-                  ? "bg-slate-900 text-white shadow-xs font-bold"
-                  : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
-              }`}
-            >
-              <span>แบบใบแจ้งเคลม (Claim Style - A4 แนวตั้ง)</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("fault");
+                    setOrientation("portrait");
+                  }}
+                  className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                    activeTab === "fault"
+                      ? "bg-slate-900 text-white shadow-xs font-bold"
+                      : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  }`}
+                >
+                  <span>ใบตรวจเช็คตู้ควบคุม (Control Cabinet Inspection)</span>
+                </button>
+
+                {shouldShowInverterChecklist && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("checklist");
+                      setOrientation("portrait");
+                    }}
+                    className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                      activeTab === "checklist"
+                        ? "bg-slate-900 text-white shadow-xs font-bold"
+                        : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                    }`}
+                  >
+                    <span>ตารางวัดไดโอด & ซ่อม (Checklist & Diode)</span>
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("fault");
+                    if (isInverter) setOrientation("landscape");
+                    else setOrientation("portrait");
+                  }}
+                  className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                    activeTab === "fault"
+                      ? "bg-slate-900 text-white shadow-xs font-bold"
+                      : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  }`}
+                >
+                  <span>
+                    {isPump
+                      ? "แบบฟอร์มปั๊มน้ำ (Pump Fault Report)"
+                      : isMotor
+                      ? "แบบฟอร์มมอเตอร์ (Motor Fault Report)"
+                      : isInverter
+                      ? "รายงาน Inverter (Fault Report - แนวนอน)"
+                      : "รายงานตรวจเช็ค (Fault Report)"}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("claim");
+                    setOrientation("portrait");
+                  }}
+                  className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                    activeTab === "claim"
+                      ? "bg-slate-900 text-white shadow-xs font-bold"
+                      : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  }`}
+                >
+                  <span>แบบใบแจ้งเคลม (Claim Style - A4 แนวตั้ง)</span>
+                </button>
+
+                {isInverter && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("checklist");
+                      setOrientation("portrait");
+                    }}
+                    className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                      activeTab === "checklist"
+                        ? "bg-slate-900 text-white shadow-xs font-bold"
+                        : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                    }`}
+                  >
+                    <span>ตารางวัดไดโอด & ซ่อม (Checklist & Diode)</span>
+                  </button>
+                )}
+              </>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -278,7 +364,7 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
       >
         {activeTab === "fault" ? (
           <>
-            {/* Page 1: Fault Report (Landscape Table or Portrait for Pump/Motor) */}
+            {/* Page 1: Fault Report (Landscape Table or Portrait for Pump/Motor/Cabinet) */}
             <div className="w-full print:block">
               {isInverter && (
                 <InverterFaultReportPaper report={report} lang={lang} />
@@ -289,7 +375,10 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
               {isMotor && !isInverter && (
                 <MotorFaultReportPaper report={report} lang={lang} />
               )}
-              {!isInverter && !isPump && !isMotor && (
+              {isCabinet && (
+                <CrInspectionPaper report={report} />
+              )}
+              {!isInverter && !isPump && !isMotor && !isCabinet && (
                 <FaultReportPaper report={report} lang={lang} />
               )}
             </div>
@@ -302,9 +391,11 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
             )}
 
             {/* รูปถ่าย */}
-            <div className="w-full print:block">
-              <PhotosPaper report={report} lang={lang} />
-            </div>
+            {!isCabinet && (
+              <div className="w-full print:block">
+                <PhotosPaper report={report} lang={lang} />
+              </div>
+            )}
           </>
         ) : activeTab === "checklist" ? (
           <>
