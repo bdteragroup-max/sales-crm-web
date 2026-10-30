@@ -114,6 +114,7 @@ export default function FaultReportPaper({
 
   const eqType = report?.equipmentType || "INVERTER";
   const eqConfig = EQUIPMENT_TYPE_CONFIG[eqType] || EQUIPMENT_TYPE_CONFIG.INVERTER;
+  const isCabinet = eqType === "CONTROL_CABINET";
 
   const diode = report?.diodeMeasurement || {};
   const hasInverter = Boolean(
@@ -318,14 +319,16 @@ export default function FaultReportPaper({
                 })()}
               </td>
             </tr>
-            <tr>
-              <td className="border border-black bg-neutral-100 p-1.5 font-bold align-top">
-                {isEn ? "Application & Load" : "ลักษณะการใช้งาน / โหลด"}
-              </td>
-              <td className="border border-black p-1.5" colSpan={3}>
-                {displayAppLoad || "-"}
-              </td>
-            </tr>
+            {!isCabinet && (
+              <tr>
+                <td className="border border-black bg-neutral-100 p-1.5 font-bold align-top">
+                  {isEn ? "Application & Load" : "ลักษณะการใช้งาน / โหลด"}
+                </td>
+                <td className="border border-black p-1.5" colSpan={3}>
+                  {displayAppLoad || "-"}
+                </td>
+              </tr>
+            )}
             <tr>
               <td className="border border-black bg-neutral-100 p-1.5 font-bold align-top">
                 {isEn ? "Fault Description" : "อธิบายสาเหตุการเสีย"}

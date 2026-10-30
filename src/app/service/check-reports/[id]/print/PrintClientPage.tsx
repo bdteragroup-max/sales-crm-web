@@ -86,7 +86,7 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
     if (requestedTab.includes("photos")) return "photos";
     if (requestedTab.includes("all")) return "all";
 
-    if (isPump || isMotor) return "fault";
+    if (isPump || isMotor || isCabinet) return "fault";
     return "claim";
   };
 
@@ -185,21 +185,6 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab("claim");
-                    setOrientation("portrait");
-                  }}
-                  className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
-                    activeTab === "claim"
-                      ? "bg-slate-900 text-white shadow-xs font-bold"
-                      : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
-                  }`}
-                >
-                  <span>แบบใบแจ้งเคลม (Claim Style - A4 แนวตั้ง)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
                     setActiveTab("fault");
                     setOrientation("portrait");
                   }}
@@ -210,6 +195,21 @@ export default function PrintClientPage({ report, initialTab }: PrintClientPageP
                   }`}
                 >
                   <span>ใบตรวจเช็คตู้ควบคุม (Control Cabinet Inspection)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("claim");
+                    setOrientation("portrait");
+                  }}
+                  className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                    activeTab === "claim"
+                      ? "bg-slate-900 text-white shadow-xs font-bold"
+                      : "text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  }`}
+                >
+                  <span>แบบใบแจ้งเคลม (Claim Style - A4 แนวตั้ง)</span>
                 </button>
 
                 {shouldShowInverterChecklist && (

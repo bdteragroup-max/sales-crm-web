@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { translateReportData } from "@/app/actions/translateReport";
 import { Sparkles, Loader2 } from "lucide-react";
-import { EQUIPMENT_TYPE_CONFIG, STATUS_CONFIG } from "../lib/crConstants";
+import { EQUIPMENT_TYPE_CONFIG, STATUS_CONFIG, DEFAULT_PANEL_COMPONENTS } from "../lib/crConstants";
 
 interface CheckReportClaimPaperProps {
   report: any;
@@ -173,6 +173,16 @@ export default function CheckReportClaimPaper({
       report?.inverterModel ||
       report?.inverterBrand)
   );
+
+  // Panel Components Check for CONTROL_CABINET (13 items)
+  const savedPanelItems: any[] = report?.panelComponentsCheck || [];
+  const displayPanelItems = DEFAULT_PANEL_COMPONENTS.map((defItem) => {
+    const found = savedPanelItems.find(
+      (it: any) => it.key === defItem.key || it.name === defItem.name
+    );
+    if (found) return found;
+    return defItem;
+  });
 
   // Photos
   const photos = report?.photos || {};
@@ -465,11 +475,6 @@ export default function CheckReportClaimPaper({
               </td>
               <td className="px-2.5 py-1.5 border border-black font-mono font-bold text-[12px] text-slate-900">
                 <div>{report?.inverterModel || diode.inverterModel || "-"}</div>
-                {isCabinet && hasInverterInCabinet && (diode?.inverterModel || diode?.inverterBrand) && (
-                  <div className="text-[9.5px] text-blue-700 font-normal font-sans mt-0.5">
-                    (Inverter ในตู้: {diode.inverterBrand || "INVT"} {diode.inverterModel || report?.inverterModel})
-                  </div>
-                )}
               </td>
               <td className="bg-neutral-100 font-bold px-2.5 py-1.5 border border-black">
                 {isEn ? "Serial Number (S/N)" : isCabinet ? "Cabinet ID / S/N ตู้" : "Serial Number (S/N)"}
@@ -488,7 +493,10 @@ export default function CheckReportClaimPaper({
                   ? "ขนาดมอเตอร์ (Power)"
                   : "ขนาดกำลัง / พิกัด"}
               </td>
-              <td className="px-2.5 py-1.5 border border-black font-semibold">
+              <td
+                className="px-2.5 py-1.5 border border-black font-semibold"
+                colSpan={isCabinet && !(hasInverterInCabinet && (diode?.inverterModel || diode?.inverterBrand)) ? 3 : 1}
+              >
                 {report?.motorKw
                   ? report.motorKw.toLowerCase().includes("kw") || report.motorKw.toLowerCase().includes("hp")
                     ? report.motorKw
@@ -497,12 +505,28 @@ export default function CheckReportClaimPaper({
                   ? `${diode.inverterKw} kW`
                   : "-"}
               </td>
-              <td className="bg-neutral-100 font-bold px-2.5 py-1.5 border border-black">
-                {isEn ? "Application & Load" : "ลักษณะการใช้งาน / โหลด"}
-              </td>
-              <td className="px-2.5 py-1.5 border border-black">
-                {displayAppLoad}
-              </td>
+              {isCabinet ? (
+                hasInverterInCabinet && (diode?.inverterModel || diode?.inverterBrand) ? (
+                  <>
+                    <td className="bg-neutral-100 font-bold px-2.5 py-1.5 border border-black">
+                      {isEn ? "Internal Inverter" : "Inverter ภายในตู้"}
+                    </td>
+                    <td className="px-2.5 py-1.5 border border-black font-mono font-bold text-blue-900">
+                      {diode.inverterBrand || "INVT"} {diode.inverterModel || report?.inverterModel || "-"}
+                      {diode.inverterSerial ? ` (S/N: ${diode.inverterSerial})` : ""}
+                    </td>
+                  </>
+                ) : null
+              ) : (
+                <>
+                  <td className="bg-neutral-100 font-bold px-2.5 py-1.5 border border-black">
+                    {isEn ? "Application & Load" : "ลักษณะการใช้งาน / โหลด"}
+                  </td>
+                  <td className="px-2.5 py-1.5 border border-black">
+                    {displayAppLoad}
+                  </td>
+                </>
+              )}
             </tr>
           </tbody>
         </table>
@@ -688,12 +712,105 @@ export default function CheckReportClaimPaper({
       </div>
 
       {/* ───────────────────────────────────────────────────────────
-          7. SECTION 5: ผลการตรวจเช็คทางเทคนิคและวิเคราะห์สาเหตุ
+          6.5 SECTION: ตรวจสอบสภาพอุปกรณ์ภายในตู้ควบคุม (13 รายการ) (CONTROL_CABINET ONLY)
+      ─────────────────────────────────────────────────────────── */}
+      {isCabinet && (
+        <div className="mb-3">
+          <div className="bg-slate-800 text-white font-bold text-[11px] px-2.5 py-0.5 uppercase tracking-wide flex items-center justify-between">
+            <span>
+              {isEn
+                ? "5. Control Cabinet Component Inspection (13 Items)"
+                : "5. ตรวจสอบสภาพอุปกรณ์ภายในตู้ควบคุม (13 รายการ) (Control Cabinet Inspection)"}
+            </span>
+            <span className="text-[10px] font-normal opacity-90">
+              {hasInverterInCabinet
+                ? isEn
+                  ? "Contains Inverter / Soft Starter"
+                  : "ตู้ที่มี Inverter / Soft Starter"
+                : isEn
+                ? "Standard Control Cabinet"
+                : "ตู้ควบคุม"}
+            </span>
+          </div>
+          <table className="w-full border-collapse border border-black text-[10.5px]">
+            <tbody>
+              {/* Render 13 items in 2-column rows (7 rows) */}
+              {Array.from({ length: Math.ceil(displayPanelItems.length / 2) }).map((_, rIdx) => {
+                const item1 = displayPanelItems[rIdx * 2];
+                const item2 = displayPanelItems[rIdx * 2 + 1];
+
+                const renderItemCell = (item: any, num: number) => {
+                  if (!item) return <td key={`empty-${num}`} className="p-1 border border-black bg-neutral-50/50 w-1/2"></td>;
+                  const isNormal = item.status === "NORMAL";
+                  const isDamaged = item.status === "DAMAGED";
+                  const isInverterItem = item.key === "inverter" || item.name?.toUpperCase().includes("INVERTER");
+                  const isNA = item.status === "NOT_APPLICABLE" || (!hasInverterInCabinet && isInverterItem);
+
+                  return (
+                    <td
+                      key={item.key || num}
+                      className={`px-2 py-1 border border-black w-1/2 ${
+                        isDamaged ? "bg-red-50/40" : "bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1.5">
+                        <div className="flex items-center gap-1.5 font-semibold text-slate-800 truncate">
+                          <span className="font-mono text-slate-400 text-[10px] w-4 shrink-0">
+                            {num}.
+                          </span>
+                          <span className="truncate">{item.name}</span>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0 ml-1">
+                          {isNA ? (
+                            <span className="text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.2 rounded border border-gray-200">
+                              {isEn ? "N/A" : "ไม่มีในตู้นี้"}
+                            </span>
+                          ) : isDamaged ? (
+                            <div className="flex items-center gap-1">
+                              <span className="text-[9.5px] font-bold text-red-700 bg-red-100 border border-red-300 px-1.5 py-0.2 rounded shrink-0">
+                                {isEn ? "✗ Defect" : "✗ ชำรุด"}
+                              </span>
+                              {item.remark && (
+                                <span className="text-[9.5px] text-red-700 font-bold max-w-[140px] truncate" title={item.remark}>
+                                  : {item.remark}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-300 px-1.5 py-0.2 rounded">
+                              {isEn ? "✓ Normal" : "✓ สภาพปกติ"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  );
+                };
+
+                return (
+                  <tr key={rIdx}>
+                    {renderItemCell(item1, rIdx * 2 + 1)}
+                    {renderItemCell(item2, rIdx * 2 + 2)}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ───────────────────────────────────────────────────────────
+          7. SECTION 5 / 6: ผลการตรวจเช็คทางเทคนิคและวิเคราะห์สาเหตุ
       ─────────────────────────────────────────────────────────── */}
       <div className="mb-3">
         <div className="bg-slate-800 text-white font-bold text-[11px] px-2.5 py-0.5 uppercase tracking-wide flex items-center justify-between">
           <span>
-            {isEn
+            {isCabinet
+              ? isEn
+                ? "6. Technical Findings & Cause Analysis"
+                : "6. ผลการตรวจเช็คทางเทคนิคและวิเคราะห์สาเหตุ (Technical Findings & Assessment)"
+              : isEn
               ? "5. Technical Findings & Cause Analysis"
               : "5. ผลการตรวจเช็คทางเทคนิคและวิเคราะห์สาเหตุ (Technical Findings & Assessment)"}
           </span>

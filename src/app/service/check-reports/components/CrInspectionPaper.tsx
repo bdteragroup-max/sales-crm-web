@@ -24,12 +24,17 @@ export default function CrInspectionPaper({ report, className = "" }: CrInspecti
 
   // Check whether cabinet has an Inverter / Soft Starter
   const hasInverter = Boolean(
+    report?.hasInverterInCabinet ??
     diode?.hasInverter ??
       (diode?.inverterModel ||
+        diode?.inverterBrand ||
         diode?.igbtStatus ||
         diode?.meterPhotoDiode ||
         diode?.pos_to_r_black ||
-        diode?.phaseShortCheck)
+        diode?.neg_to_r_red ||
+        diode?.phaseShortCheck ||
+        report?.inverterModel ||
+        report?.inverterBrand)
   );
 
   // Split CR number into [ 67 ] - [ 10012 ] format matching Excel template
