@@ -50,6 +50,10 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
   const [attachments, setAttachments] = useState<any[]>(card.attachments || []);
 
+  useEffect(() => {
+    setAttachments(card.attachments || []);
+  }, [card.attachments]);
+
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [attachmentToDelete, setAttachmentToDelete] = useState<any>(null);
@@ -1108,7 +1112,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                       ) : (
                         <a href={att.fileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-colors h-full">
                           <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
-                            {att.fileType?.includes('image') ? (
+                            {att.fileType?.includes('image') || att.attachmentType === 'image' || /\.(jpe?g|png|gif|webp|svg|bmp)$/i.test(att.fileName || '') ? (
                               <img src={att.fileUrl} alt={att.fileName} className="w-full h-full object-cover" />
                             ) : (
                               <Paperclip size={20} />

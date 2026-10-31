@@ -47,7 +47,11 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard }: Pro
   }
 
   // Find cover image (first image attachment)
-  const coverImage = card.attachments?.find((att: any) => att.fileType?.startsWith('image/'));
+  const coverImage = card.attachments?.find((att: any) =>
+    att.fileType?.startsWith('image/') ||
+    att.attachmentType === 'image' ||
+    /\.(jpe?g|png|gif|webp|svg|bmp)$/i.test(att.fileName || '')
+  );
 
   const assignedUser = users.find(u => u.id === card.assignedToId);
   const serviceReviewers = (card.engineeringReviewers || []).map(id => users.find(u => u.id === id)).filter(Boolean);

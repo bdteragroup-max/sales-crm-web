@@ -67,6 +67,8 @@ export async function createRepairDelivery(jobId?: string, autoData?: any) {
     let attempts = 0;
     let deliveryNumber = "";
 
+    const { photosBefore, photosAfter, comments, ...corePrefill } = prefill;
+
     while (!newDelivery && attempts < 10) {
       deliveryNumber = `DN${beYear}-${String(nextNumber).padStart(4, "0")}`;
       try {
@@ -83,6 +85,25 @@ export async function createRepairDelivery(jobId?: string, autoData?: any) {
           // Unique constraint failed, try the next number
           nextNumber++;
           attempts++;
+        } else if (error.message?.includes('Unknown argument')) {
+          // Fallback if client cached old schema: create with corePrefill and then update via raw sql
+          newDelivery = await prisma.repairDelivery.create({
+            data: {
+              deliveryNumber,
+              deliveryDate: new Date(),
+              status: "Draft",
+              ...corePrefill,
+            } as any,
+          });
+          if (photosBefore !== undefined || photosAfter !== undefined || comments !== undefined) {
+            await prisma.$executeRawUnsafe(
+              `UPDATE "RepairDelivery" SET "photosBefore" = $1::jsonb, "photosAfter" = $2::jsonb, "comments" = $3 WHERE "id" = $4`,
+              JSON.stringify(photosBefore || []),
+              JSON.stringify(photosAfter || []),
+              comments || '',
+              newDelivery.id
+            );
+          }
         } else {
           throw error;
         }
@@ -103,10 +124,31 @@ export async function createRepairDelivery(jobId?: string, autoData?: any) {
 
 export async function updateRepairDelivery(id: string, data: any) {
   try {
-    await prisma.repairDelivery.update({
-      where: { id },
-      data,
-    });
+    const { photosBefore, photosAfter, comments, ...coreData } = data;
+    try {
+      await prisma.repairDelivery.update({
+        where: { id },
+        data,
+      });
+    } catch (innerError: any) {
+      if (innerError.message?.includes('Unknown argument')) {
+        await prisma.repairDelivery.update({
+          where: { id },
+          data: coreData,
+        });
+        if (photosBefore !== undefined || photosAfter !== undefined || comments !== undefined) {
+          await prisma.$executeRawUnsafe(
+            `UPDATE "RepairDelivery" SET "photosBefore" = $1::jsonb, "photosAfter" = $2::jsonb, "comments" = $3 WHERE "id" = $4`,
+            JSON.stringify(photosBefore || []),
+            JSON.stringify(photosAfter || []),
+            comments ?? '',
+            id
+          );
+        }
+      } else {
+        throw innerError;
+      }
+    }
     revalidatePath("/repair-deliveries");
     return { success: true };
   } catch (error: any) {

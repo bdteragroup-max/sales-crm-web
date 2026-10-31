@@ -28,6 +28,127 @@ function safeRevalidate(path: string) {
   }
 }
 
+/**
+ * Infer MIME type and attachment category ('image' | 'video' | 'general')
+ * from fileName and existing fileType.
+ */
+function inferMarketingAttachmentMeta(
+  fileName: string,
+  providedFileType?: string | null
+): { fileType: string; attachmentType: 'image' | 'video' | 'general' } {
+  const ext = (fileName || '').split('.').pop()?.toLowerCase() || '';
+
+  const isImg =
+    ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext) ||
+    providedFileType?.startsWith('image/');
+  if (isImg) {
+    const mime = providedFileType?.startsWith('image/')
+      ? providedFileType
+      : ext === 'png'
+      ? 'image/png'
+      : ext === 'gif'
+      ? 'image/gif'
+      : ext === 'webp'
+      ? 'image/webp'
+      : ext === 'svg'
+      ? 'image/svg+xml'
+      : ext === 'bmp'
+      ? 'image/bmp'
+      : 'image/jpeg';
+    return { fileType: mime, attachmentType: 'image' };
+  }
+
+  const isVid =
+    ['mp4', 'mov', 'm4v', 'avi', 'wmv', 'flv', 'mkv', 'webm'].includes(ext) ||
+    providedFileType?.startsWith('video/');
+  if (isVid) {
+    const mime = providedFileType?.startsWith('video/')
+      ? providedFileType
+      : ext === 'mp4'
+      ? 'video/mp4'
+      : ext === 'mov'
+      ? 'video/quicktime'
+      : ext === 'webm'
+      ? 'video/webm'
+      : ext === 'm4v'
+      ? 'video/x-m4v'
+      : ext === 'avi'
+      ? 'video/x-msvideo'
+      : 'video/mp4';
+    return { fileType: mime, attachmentType: 'video' };
+  }
+
+  const mime =
+    providedFileType ||
+    (ext === 'pdf'
+      ? 'application/pdf'
+      : ext === 'xlsx'
+      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      : ext === 'xls'
+      ? 'application/vnd.ms-excel'
+      : ext === 'docx'
+      ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      : ext === 'doc'
+      ? 'application/msword'
+      : ext === 'zip'
+      ? 'application/zip'
+      : ext === 'csv'
+      ? 'text/csv'
+      : 'application/octet-stream');
+
+  return { fileType: mime, attachmentType: 'general' };
+}
+
+/**
+ * Synchronize attachments from a MarketingRequest into KanbanAttachment on a KanbanCard.
+ * Ensures images, videos, and general files are visible in the Marketing Board CardModal.
+ */
+async function syncMarketingRequestAttachmentsToCard(
+  db: any,
+  cardId: string,
+  attachments: Array<{
+    fileName: string;
+    fileUrl: string;
+    fileType?: string | null;
+    fileSize?: number | null;
+  }>,
+  uploaderId?: string | null
+) {
+  if (!cardId || !attachments || attachments.length === 0) return;
+
+  try {
+    const existingCardAtts = await db.kanbanAttachment.findMany({
+      where: { cardId },
+      select: { fileUrl: true }
+    });
+    const existingUrlSet = new Set(existingCardAtts.map((a: any) => a.fileUrl));
+
+    const missing = attachments.filter(
+      att => att.fileUrl && !existingUrlSet.has(att.fileUrl)
+    );
+    if (missing.length === 0) return;
+
+    const toCreate = missing.map(att => {
+      const meta = inferMarketingAttachmentMeta(att.fileName, att.fileType);
+      return {
+        cardId,
+        userId: uploaderId || null,
+        fileName: att.fileName,
+        fileUrl: att.fileUrl,
+        fileType: meta.fileType,
+        fileSize: att.fileSize || null,
+        attachmentType: meta.attachmentType
+      };
+    });
+
+    await db.kanbanAttachment.createMany({
+      data: toCreate
+    });
+  } catch (err) {
+    console.warn('Error syncing marketing attachments to Kanban card:', err);
+  }
+}
+
 export interface CreateMarketingRequestInput {
   requesterName: string;
   requesterDepartment: string;
@@ -235,6 +356,16 @@ export async function createMarketingRequest(input: CreateMarketingRequestInput)
             where: { id: newRequest.id },
             data: { kanbanCardId: kanbanCard.id }
           });
+
+          // Sync request attachments directly into Kanban card so images, videos & files show immediately
+          if (input.attachments && input.attachments.length > 0) {
+            await syncMarketingRequestAttachmentsToCard(
+              tx,
+              kanbanCard.id,
+              input.attachments,
+              user.id
+            );
+          }
         }
       } catch (kanbanErr) {
         console.warn('Could not create kanban card on Marketing Board:', kanbanErr);
@@ -470,6 +601,16 @@ export async function getMarketingRequestByIdOrNo(idOrNo: string) {
       return { success: false, error: 'ไม่พบรายการคำขอที่ระบุ', data: null };
     }
 
+    // Auto-sync attachments to Kanban card if missing
+    if (request.kanbanCardId && request.attachments && request.attachments.length > 0) {
+      syncMarketingRequestAttachmentsToCard(
+        prisma,
+        request.kanbanCardId,
+        request.attachments,
+        user.id
+      ).catch(() => {});
+    }
+
     const roleStr = (user.role || '').toUpperCase();
     const isMarketingOrAdmin = [
       'MARKETING',
@@ -642,6 +783,7 @@ export async function updateMarketingRequestStatus(requestId: string, newStatus:
     safeRevalidate(`/marketing/requests/${existing.requestNo}`);
     safeRevalidate(`/marketing/requests/${requestId}`);
     safeRevalidate('/marketing/kanban');
+    safeRevalidate('/marketing-board');
 
     return { success: true, data: updated };
   } catch (error: any) {
@@ -672,14 +814,8 @@ export async function assignMarketingRequest(requestId: string, assigneeId: stri
 
     const existing = await prisma.marketingRequest.findUnique({
       where: { id: requestId },
-      select: {
-        id: true,
-        requestNo: true,
-        title: true,
-        status: true,
-        requiredDate: true,
-        assignedToId: true,
-        kanbanCardId: true
+      include: {
+        attachments: true
       }
     });
 
@@ -719,17 +855,92 @@ export async function assignMarketingRequest(requestId: string, assigneeId: stri
       }
     });
 
-    // Sync kanban card
-    if (existing.kanbanCardId) {
+    // Sync kanban card & its attachments
+    let kanbanCardId = existing.kanbanCardId;
+
+    if (kanbanCardId) {
       try {
         await prisma.kanbanCard.update({
-          where: { id: existing.kanbanCardId },
+          where: { id: kanbanCardId },
           data: {
             assignedToId: assigneeId
           }
         });
+
+        // Sync attachments from request to kanban card
+        if (existing.attachments && existing.attachments.length > 0) {
+          await syncMarketingRequestAttachmentsToCard(
+            prisma,
+            kanbanCardId,
+            existing.attachments,
+            user.id
+          );
+        }
       } catch (kErr) {
-        console.warn('Could not sync kanban card assignee:', kErr);
+        console.warn('Could not sync kanban card assignee/attachments:', kErr);
+      }
+    } else {
+      // If card was not linked/created earlier, create it in Marketing Board > Backlog (Todo)
+      try {
+        const marketingBoard = await prisma.kanbanBoard.findFirst({
+          where: { name: { contains: 'Marketing', mode: 'insensitive' } },
+          include: { lists: { orderBy: { position: 'asc' } } }
+        });
+
+        if (marketingBoard && marketingBoard.lists.length > 0) {
+          const backlogList =
+            marketingBoard.lists.find(
+              l =>
+                l.name.toLowerCase().includes('backlog') ||
+                l.name.toLowerCase().includes('todo')
+            ) || marketingBoard.lists[0];
+
+          const highestCard = await prisma.kanbanCard.findFirst({
+            where: { listId: backlogList.id },
+            orderBy: { position: 'desc' }
+          });
+          const newPos = (highestCard?.position || 0) + 1000;
+
+          const typeConfig = REQUEST_TYPES[existing.requestType as RequestTypeCode];
+          const typeLabel = typeConfig ? typeConfig.title : existing.requestType;
+          const formattedUsageDate = existing.requiredDate
+            ? new Date(existing.requiredDate).toLocaleDateString('th-TH', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+              })
+            : '-';
+
+          const kanbanCard = await prisma.kanbanCard.create({
+            data: {
+              listId: backlogList.id,
+              title: `[${existing.requestNo}] ${existing.title.trim()}`,
+              description: `[${typeLabel}] [${existing.requesterBranch || ''}]\nผู้ขอ: ${existing.requesterName} | ${existing.requesterDepartment}\nวันที่ใช้งาน: ${formattedUsageDate}\n\n${(existing.description || '').trim()}`,
+              dueDate: existing.requiredDate,
+              position: newPos,
+              color: '#3b82f6',
+              assignedToId: assigneeId
+            }
+          });
+
+          kanbanCardId = kanbanCard.id;
+          await prisma.marketingRequest.update({
+            where: { id: requestId },
+            data: { kanbanCardId: kanbanCard.id }
+          });
+
+          // Sync attachments
+          if (existing.attachments && existing.attachments.length > 0) {
+            await syncMarketingRequestAttachmentsToCard(
+              prisma,
+              kanbanCard.id,
+              existing.attachments,
+              user.id
+            );
+          }
+        }
+      } catch (createErr) {
+        console.warn('Could not auto-create kanban card on assign:', createErr);
       }
     }
 
@@ -761,6 +972,7 @@ export async function assignMarketingRequest(requestId: string, assigneeId: stri
     safeRevalidate(`/marketing/requests/${existing.requestNo}`);
     safeRevalidate(`/marketing/requests/${requestId}`);
     safeRevalidate('/marketing/kanban');
+    safeRevalidate('/marketing-board');
 
     return { success: true, data: updated };
   } catch (error: any) {

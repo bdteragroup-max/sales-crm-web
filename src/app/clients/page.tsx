@@ -60,7 +60,22 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   const limit = 10;
   const skip = (page - 1) * limit;
 
+  const roleStr = (user?.role || '').toLowerCase();
+  const isAdmin = roleStr.includes('admin') || roleStr.includes('md') || roleStr.includes('managing director') || roleStr === 'executive' || roleStr === 'ผู้บริหาร';
+  const isManager = roleStr.includes('manager') || roleStr.includes('ผู้จัดการ') || roleStr.includes('หัวหน้า');
+  const isManagerOrAdmin = isAdmin || isManager;
+
   let roleWhere = getCompanyWhereClause(user as any);
+
+  // If a manager or admin explicitly selects a salesperson/handler in the dropdown,
+  // allow viewing that handler's companies without restricting by the manager's branch
+  if (isManagerOrAdmin && handler && handler !== 'unassigned') {
+    roleWhere = {};
+  }
+  // If a manager or admin performs a search, allow finding companies and handlers across branches
+  if (isManagerOrAdmin && search) {
+    roleWhere = {};
+  }
 
   // Build database search filters
   const companySearchFilter: any = {
@@ -74,6 +89,9 @@ export default async function ClientsPage({ searchParams }: PageProps) {
           { taxId: { contains: search, mode: 'insensitive' as const } },
           { businessType: { contains: search, mode: 'insensitive' as const } },
           { province: { contains: search, mode: 'insensitive' as const } },
+          { assignedUser: { fullName: { contains: search, mode: 'insensitive' as const } } },
+          { quotations: { some: { salesperson: { fullName: { contains: search, mode: 'insensitive' as const } } } } },
+          { telesales: { some: { user: { fullName: { contains: search, mode: 'insensitive' as const } } } } },
         ],
       }] : []),
       ...(segment ? [{ segment }] : []),
@@ -103,6 +121,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
           { mobilePhone: { contains: search, mode: 'insensitive' as const } },
           { position: { contains: search, mode: 'insensitive' as const } },
           { company: { companyName: { contains: search, mode: 'insensitive' as const } } },
+          { company: { assignedUser: { fullName: { contains: search, mode: 'insensitive' as const } } } },
         ],
       }
     : {};
@@ -118,10 +137,16 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   let provinces: string[] = [];
   let allCompaniesMinimal: unknown[] = [];
 
-  let salesRepsWhere: any = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'sales manager', 'Sales Manager'] }, isActive: true };
-  if (user?.role === 'ผู้จัดการ' || (user?.role || '').toLowerCase() === 'sales manager') {
-    salesRepsWhere = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'sales manager', 'Sales Manager'] }, isActive: true };
-  } else if (user?.role === 'ตัวแทนฝ่ายขาย') {
+  let salesRepsWhere: any = {
+    OR: [
+      { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'sales manager', 'Sales Manager', 'Sales Representative', 'Business Development'] } },
+      { role: { contains: 'ผู้จัดการ', mode: 'insensitive' as const } },
+      { role: { contains: 'manager', mode: 'insensitive' as const } },
+      { assignedCompanies: { some: {} } },
+    ],
+    isActive: true,
+  };
+  if (!isManagerOrAdmin && user?.role === 'ตัวแทนฝ่ายขาย') {
     salesRepsWhere = { id: user.id, isActive: true };
   }
 
@@ -251,7 +276,8 @@ export default async function ClientsPage({ searchParams }: PageProps) {
       // 5. Active Sales Representatives & Managers for dropdown
       prisma.user.findMany({
         where: salesRepsWhere,
-        select: { id: true, fullName: true, role: true, employeeSale: { select: { position: true } } }
+        select: { id: true, fullName: true, role: true, employeeSale: { select: { position: true } } },
+        orderBy: { fullName: 'asc' }
       }),
       
       // 6. Business Types

@@ -67,13 +67,8 @@ export function getCompanyWhereClause(user: UserContext): Prisma.CompanyWhereInp
 
       return { OR: orConditions };
     } else {
-       // If a manager has no department or branch set, fallback to just seeing their own
-       return {
-        OR: [
-          { assignedUserId: user.id },
-          { assignedUserId: null }
-        ]
-      };
+       // HQ / Central managers without branch/dept restriction see all companies
+       return {};
     }
   }
 

@@ -229,7 +229,11 @@ export default function MarketingRequestFormClient({
   const handleFilesChosen = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip'];
+    const allowedExtensions = [
+      'jpg', 'jpeg', 'png', 'gif', 'webp',
+      'mp4', 'mov', 'm4v', 'webm', 'avi',
+      'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip'
+    ];
     const maxSizeBytes = 50 * 1024 * 1024; // 50MB
 
     const newItems: UploadedFileItem[] = [];
@@ -242,7 +246,7 @@ export default function MarketingRequestFormClient({
         Swal.fire({
           icon: 'warning',
           title: 'ชนิดไฟล์ไม่ถูกต้อง',
-          text: `ไฟล์ ${f.name} ไม่รองรับ กรุณาอัปโหลดเฉพาะไฟล์ JPG, PNG, PDF, DOC, XLS, PPT, ZIP`
+          text: `ไฟล์ ${f.name} ไม่รองรับ กรุณาอัปโหลดเฉพาะไฟล์รูปภาพ (JPG, PNG, GIF), วิดีโอ (MP4, MOV, WEBM) หรือไฟล์เอกสาร (PDF, DOC, XLS, ZIP)`
         });
         continue;
       }
@@ -515,7 +519,8 @@ export default function MarketingRequestFormClient({
       .map(f => ({
         fileName: f.name,
         fileUrl: f.url!,
-        fileSize: f.size
+        fileSize: f.size,
+        fileType: f.file?.type || undefined
       }));
 
     setIsSubmitting(true);
@@ -2112,7 +2117,7 @@ export default function MarketingRequestFormClient({
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip"
+                  accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.mov,.m4v,.webm,.avi,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip"
                   className="hidden"
                   onChange={e => handleFilesChosen(e.target.files)}
                 />
@@ -2124,7 +2129,7 @@ export default function MarketingRequestFormClient({
                   ลากไฟล์มาวางที่นี่ หรือ <span className="text-red-600 hover:underline">คลิกเพื่อเลือกไฟล์</span>
                 </p>
                 <p className="text-xs text-gray-500 mt-1.5">
-                  รองรับไฟล์ JPG, PNG, PDF, DOC, DOCX, XLS, XLSX, PPT, ZIP ขนาดไฟล์ไม่เกิน 50 MB ต่อไฟล์
+                  รองรับไฟล์ภาพ (JPG, PNG, GIF), วิดีโอ (MP4, MOV, WEBM), เอกสาร (PDF, DOCX, XLSX, ZIP) ขนาดไฟล์ไม่เกิน 50 MB ต่อไฟล์
                 </p>
               </div>
 

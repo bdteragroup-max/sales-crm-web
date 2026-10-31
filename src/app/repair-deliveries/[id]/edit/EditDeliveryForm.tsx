@@ -30,6 +30,9 @@ import {
   Eye,
   Calendar,
   AlertCircle,
+  Camera,
+  Upload,
+  Trash2,
 } from "lucide-react";
 import {
   updateRepairDelivery,
@@ -74,6 +77,20 @@ export default function EditDeliveryForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const normalizePhotos = (val: any): string[] => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.map((v: any) => typeof v === 'string' ? v : v?.url || '').filter(Boolean);
+    if (typeof val === 'string') {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) return parsed.map((v: any) => typeof v === 'string' ? v : v?.url || '').filter(Boolean);
+      } catch {
+        return [val];
+      }
+    }
+    return [];
+  };
+
   // Form State
   const [formData, setFormData] = useState({
     internalCompany: initialData.internalCompany || "TG",
@@ -99,7 +116,87 @@ export default function EditDeliveryForm({
     workOther: initialData.workOther || "",
     note: initialData.note || "",
     status: initialData.status || "Draft",
+    photosBefore: normalizePhotos(initialData.photosBefore),
+    photosAfter: normalizePhotos(initialData.photosAfter),
+    comments: initialData.comments || "",
   });
+
+  const [isUploadingBefore, setIsUploadingBefore] = useState(false);
+  const [isUploadingAfter, setIsUploadingAfter] = useState(false);
+
+  const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>, type: 'before' | 'after') => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const currentList = type === 'before' ? formData.photosBefore : formData.photosAfter;
+    if (currentList.length >= 2) {
+      Swal.fire({
+        icon: "warning",
+        title: "ครบจำนวนแล้ว",
+        text: `สามารถแนบรูปภาพ${type === 'before' ? 'ก่อนติดตั้ง' : 'หลังติดตั้ง'}ได้สูงสุด 2 รูป`,
+        confirmButtonColor: "#ff2301",
+      });
+      return;
+    }
+
+    if (type === 'before') setIsUploadingBefore(true);
+    else setIsUploadingAfter(true);
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const uploadData = new FormData();
+        uploadData.append('file', file);
+        uploadData.append('bucket', 'uploadsService');
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadData,
+        });
+        const json = await res.json();
+        if (json.url) {
+          if (type === 'before') {
+            setFormData(prev => ({
+              ...prev,
+              photosBefore: [...prev.photosBefore, json.url].slice(0, 2)
+            }));
+          } else {
+            setFormData(prev => ({
+              ...prev,
+              photosAfter: [...prev.photosAfter, json.url].slice(0, 2)
+            }));
+          }
+        } else {
+          throw new Error(json.error || 'ไม่สามารถอัปโหลดไฟล์ได้');
+        }
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "อัปโหลดรูปภาพล้มเหลว",
+        text: err.message || "เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
+        confirmButtonColor: "#ff2301",
+      });
+    } finally {
+      if (type === 'before') setIsUploadingBefore(false);
+      else setIsUploadingAfter(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemovePhoto = (index: number, type: 'before' | 'after') => {
+    if (type === 'before') {
+      setFormData(prev => ({
+        ...prev,
+        photosBefore: prev.photosBefore.filter((_, i) => i !== index)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        photosAfter: prev.photosAfter.filter((_, i) => i !== index)
+      }));
+    }
+  };
 
   // Salesperson Autocomplete State
   const [senderSearchQuery, setSenderSearchQuery] = useState(
@@ -306,6 +403,9 @@ export default function EditDeliveryForm({
         workOther: initialData.workOther || "",
         note: initialData.note || "",
         status: initialData.status || "Draft",
+        photosBefore: normalizePhotos(initialData.photosBefore),
+        photosAfter: normalizePhotos(initialData.photosAfter),
+        comments: initialData.comments || "",
       });
       setSenderSearchQuery(initialData.sender || "");
       setCompanySearchQuery(initialData.company || "");
@@ -1359,6 +1459,157 @@ export default function EditDeliveryForm({
               className={`${inputClass} resize-none`}
             />
           </div>
+        </div>
+      </div>
+
+      {/* ── Section 4: Before & After Photos & Comments ── */}
+      <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
+        <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100">
+          <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+            <Camera className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-base font-black text-gray-900 tracking-tight">
+              4. รูปภาพก่อน - หลังติดตั้ง และความคิดเห็นเพิ่มเติม (4 รูป)
+            </h2>
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+              Before &amp; After Photos &amp; Comments
+            </p>
+          </div>
+        </div>
+
+        {/* 2 Columns: Before vs After Photos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Before Photos */}
+          <div className="p-4 rounded-2xl border border-red-100 bg-red-50/20 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                <span>รูปถ่ายก่อนติดตั้ง / ก่อนดำเนินงาน (Before - สูงสุด 2 รูป)</span>
+              </label>
+              <span className="text-[11px] font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                {formData.photosBefore.length} / 2 รูป
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[0, 1].map((idx) => {
+                const photoUrl = formData.photosBefore[idx];
+                return (
+                  <div
+                    key={`before-slot-${idx}`}
+                    className="relative aspect-[4/3] min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-red-400 transition-all shadow-sm"
+                  >
+                    {photoUrl ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photoUrl}
+                          alt={`ก่อนติดตั้ง #${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePhoto(idx, 'before')}
+                          className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md opacity-90 hover:opacity-100"
+                          title="ลบรูปนี้"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-red-50/50 transition-colors">
+                        <Upload className="w-5 h-5 text-gray-400 mb-1 group-hover:text-red-500 transition-colors" />
+                        <span className="text-[10px] font-bold text-gray-500 group-hover:text-red-600 text-center">
+                          {isUploadingBefore ? 'กำลังอัปโหลด...' : `+ รูปก่อนติดตั้ง #${idx + 1}`}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={isUploadingBefore}
+                          onChange={(e) => handleUploadPhoto(e, 'before')}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* After Photos */}
+          <div className="p-4 rounded-2xl border border-green-100 bg-green-50/20 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                <span>รูปถ่ายหลังติดตั้ง / ผลงานแล้วเสร็จ (After - สูงสุด 2 รูป)</span>
+              </label>
+              <span className="text-[11px] font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                {formData.photosAfter.length} / 2 รูป
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[0, 1].map((idx) => {
+                const photoUrl = formData.photosAfter[idx];
+                return (
+                  <div
+                    key={`after-slot-${idx}`}
+                    className="relative aspect-[4/3] min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-green-400 transition-all shadow-sm"
+                  >
+                    {photoUrl ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photoUrl}
+                          alt={`หลังติดตั้ง #${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePhoto(idx, 'after')}
+                          className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md opacity-90 hover:opacity-100"
+                          title="ลบรูปนี้"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-green-50/50 transition-colors">
+                        <Upload className="w-5 h-5 text-gray-400 mb-1 group-hover:text-green-600 transition-colors" />
+                        <span className="text-[10px] font-bold text-gray-500 group-hover:text-green-700 text-center">
+                          {isUploadingAfter ? 'กำลังอัปโหลด...' : `+ รูปหลังติดตั้ง #${idx + 1}`}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={isUploadingAfter}
+                          onChange={(e) => handleUploadPhoto(e, 'after')}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Comments Textarea */}
+        <div className="pt-2">
+          <label className={labelClass}>
+            ความคิดเห็น / ข้อเสนอแนะการส่งมอบงาน (Comments / Suggestions)
+          </label>
+          <textarea
+            name="comments"
+            value={formData.comments}
+            onChange={handleChange}
+            rows={3}
+            placeholder="ระบุความคิดเห็นของช่าง ข้อเสนอแนะการใช้งาน หรือคอมเมนต์เพิ่มเติมสำหรับการส่งมอบงาน..."
+            className={`${inputClass} resize-none`}
+          />
         </div>
       </div>
 

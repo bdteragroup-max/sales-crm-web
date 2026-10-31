@@ -712,6 +712,9 @@ model RepairDelivery {
   workRepairDetails   String?
   workTrainingDetails String?
   internalCompany     String?
+  photosBefore        Json?
+  photosAfter         Json?
+  comments            String?
   job                 Job?      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 

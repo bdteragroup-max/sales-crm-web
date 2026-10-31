@@ -698,7 +698,7 @@ export default function ClientsClientPage({
     </div>
     <input
       type="text"
-      placeholder="ค้นหาตามชื่อบริษัท, เลขภาษี, จังหวัด..."
+      placeholder="ค้นหาตามชื่อบริษัท, ผู้ดูแล, เลขภาษี, จังหวัด..."
       className="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 transition-all"
       value={localSearch}
       onChange={(e) => setLocalSearch(e.target.value)}
@@ -722,9 +722,14 @@ export default function ClientsClientPage({
     >
       <option value="">-- ผู้ดูแลทั้งหมด --</option>
       <option value="unassigned">-- ยังไม่มีผู้ดูแล --</option>
-      {salesReps.map(rep => (
-        <option key={rep.id} value={rep.id}>{rep.fullName}</option>
-      ))}
+      {salesReps.map(rep => {
+        const isMe = currentUser && rep.id === currentUser.id;
+        return (
+          <option key={rep.id} value={rep.id}>
+            {rep.fullName}{isMe ? ' (ของฉัน)' : ''}
+          </option>
+        );
+      })}
     </select>
   )}
 
@@ -858,6 +863,10 @@ export default function ClientsClientPage({
                     {company.businessType && (
                       <span className="text-xs text-gray-500">{company.businessType}</span>
                     )}
+                    <span className="sm:hidden text-[11px] text-slate-600 font-medium flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full">
+                      <Users size={11} className="text-red-500" />
+                      {company.assignedUser?.fullName || activeHandler?.fullName || 'ยังไม่มีผู้ดูแล'}
+                    </span>
                   </div>
                 </div>
 
