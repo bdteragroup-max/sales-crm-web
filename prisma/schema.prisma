@@ -3834,3 +3834,167 @@ model payment_requests {
   @@index([status], map: "idx_payment_requests_status")
   @@index([supplier_name], map: "idx_payment_requests_supplier")
 }
+
+model DamageReport {
+  id                         String    @id @default(cuid())
+  caseNumber                 String    @unique
+  status                     String    @default("REPORTED")
+
+  // 1. บริษัทและสินค้า
+  company                    String
+  otherOwner                 String?
+  itemType                   String    @default("PRODUCT")
+  itemName                   String
+  itemCode                   String?
+  itemModel                  String?
+  serialOrLot                String?
+  quantity                   Int       @default(1)
+  unit                       String    @default("ชิ้น")
+  estimatedCost              Float?
+  actualCost                 Float?
+
+  // 2. สถานที่และเวลา
+  incidentDate               DateTime? @db.Timestamptz(6)
+  discoveredDate             DateTime  @default(now()) @db.Timestamptz(6)
+  branch                     String?
+  warehouse                  String?
+  siteLocation               String?
+  currentLocation            String?
+
+  // 3. ลักษณะความเสียหาย
+  damageType                 String
+  damagePosition             String?
+  damagedQuantity            Int       @default(1)
+
+  // 4. บุคคล
+  reporterId                 String?
+  reporterName               String
+  reporterDepartment         String?
+  operatorName               String?
+  operatorType               String?   @default("EMPLOYEE")
+  contractorName             String?
+  discovererName             String?
+  witnesses                  String?
+  assignerName               String?
+  supervisorName             String?
+  supervisorId               String?
+
+  // 5. การดูแลเบื้องต้น
+  initialStorage             String?
+  custodian                  String?
+  isQuarantined              Boolean   @default(true)
+  reportedToSupervisorAt     DateTime? @db.Timestamptz(6)
+
+  // 6. เล่าเหตุการณ์ 3 คำถาม
+  beforeIncident             String?   @db.Text
+  duringIncident             String?   @db.Text
+  afterIncident              String?   @db.Text
+  suspectedCause             String?   @db.Text
+
+  // 7. เอกสารและรูป
+  photosFull                 Json?
+  photosDamage               Json?
+  photosSerial               Json?
+  photosScene                Json?
+  photosToolPackaging        Json?
+  attachedDocs               Json?
+
+  // 8. การสืบสวนของหัวหน้างาน
+  investigatedBy             String?
+  investigatedAt             DateTime? @db.Timestamptz(6)
+  investigationStatus        String    @default("PENDING")
+  statements                 Json?
+  provenFacts                String?   @db.Text
+  rootCause                  String?   @db.Text
+  unresolvedIssues           String?   @db.Text
+  involvedPartiesAssessment  String?   @db.Text
+  preventiveAction           String?   @db.Text
+  preventiveOwner            String?
+  preventiveFollowUpDate     DateTime? @db.Timestamptz(6)
+  investigationEvidence      Json?
+
+  // 9. การอนุมัติของผู้มีอำนาจ
+  approvedBy                 String?
+  approvedAt                 DateTime? @db.Timestamptz(6)
+  approvalDecision           String?
+  productResolution          String?
+  personnelResolution        String?
+  approvalComments           String?   @db.Text
+  sentToWarehouse            Boolean   @default(false)
+  sentToWarehouseAt          DateTime? @db.Timestamptz(6)
+  sentToHr                   Boolean   @default(false)
+  sentToHrAt                 DateTime? @db.Timestamptz(6)
+
+  // 10. งานคลังและสต็อก
+  warehouseStatus            String    @default("NOT_STARTED")
+  stockActionType            String?
+  stockActionDate            DateTime? @db.Timestamptz(6)
+  stockQuantity              Int?
+  stockRecordedBy            String?
+  stockSystemUsed            String?
+  stockDocNumber             String?
+  stockEvidence              Json?
+  stockDestination           String?
+  stockSenderName            String?
+  stockReceiverName          String?
+  stockHandoverDate          DateTime? @db.Timestamptz(6)
+  stockNotes                 String?   @db.Text
+
+  // 11. งาน HR และการชดใช้
+  hrStatus                   String    @default("NOT_STARTED")
+  hrApprovedAmount           Float?
+  hrCompensationMethod       String?
+  hrInstallments             Int       @default(1)
+  hrDueDate                  DateTime? @db.Timestamptz(6)
+  hrSigneeName               String?
+  hrAckDocUrl                String?
+  hrConsentDocUrl            String?
+  hrActualPaidTotal          Float     @default(0)
+  hrPaymentHistory           Json?
+  hrWaiveReason              String?   @db.Text
+  hrNotes                    String?   @db.Text
+
+  // 12. งานบัญชีและการเงิน
+  accountingStatus           String    @default("PENDING")
+  accountingCostVerified     Boolean   @default(false)
+  accountingCostVerifiedAt   DateTime? @db.Timestamptz(6)
+  accountingExpressDocNo     String?
+  accountingInvoiceNo        String?
+  accountingCertifiedBy      String?
+  accountingCertifiedAt      DateTime? @db.Timestamptz(6)
+  accountingNotes            String?   @db.Text
+  pendingTaskDescription     String?
+  pendingTaskAssignee        String?
+  pendingTaskDueDate         DateTime? @db.Timestamptz(6)
+  lastFollowUpDate           DateTime? @db.Timestamptz(6)
+  delayReason                String?   @db.Text
+
+  // 13. หลักเกณฑ์ปิดเคส
+  checkReportAndPhotos       Boolean   @default(false)
+  checkInvestigationApproved Boolean   @default(false)
+  checkHandoverEvidence      Boolean   @default(false)
+  checkStockResult           Boolean   @default(false)
+  checkAccountingResult      Boolean   @default(false)
+  checkHrResult              Boolean   @default(false)
+  checkPreventiveMeasure     Boolean   @default(false)
+  checkFinalApproval         Boolean   @default(false)
+  closedBy                   String?
+  closedAt                   DateTime? @db.Timestamptz(6)
+  closeReason                String?   @db.Text
+
+  // 14. Activity / Audit Timeline
+  timeline                   Json?     @default("[]")
+
+  createdAt                  DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt                  DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@index([caseNumber])
+  @@index([company])
+  @@index([status])
+  @@index([reporterId])
+  @@index([supervisorId])
+  @@index([warehouseStatus])
+  @@index([hrStatus])
+  @@index([accountingStatus])
+  @@index([createdAt])
+}

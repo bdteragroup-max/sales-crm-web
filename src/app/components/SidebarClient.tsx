@@ -40,6 +40,7 @@ const executiveNav = [
   // ── 2. Operations & Engineering ──
   { icon: Briefcase, label: 'ติดตามงานทั้งหมด (Master Jobs Tracker)', href: '/jobs' },
   { icon: ShieldAlert, label: 'ระบบแจ้งเคลม (Service Claims)', href: '/service/claims' },
+  { icon: ShieldAlert, label: 'ติดตามสินค้าชำรุด (Damage Tracking)', href: '/damage-reports/accounting' },
   { icon: FolderOpen, label: 'ภาพรวมโครงการ (Projects Dashboard)', href: '/projects/dashboard' },
   { icon: Boxes, label: 'ภาพรวมฝ่ายผลิต (Production Dashboard)', href: '/production/dashboard' },
   { icon: Wrench, label: 'ภาพรวมงานบริการ (Service Overview)', href: '/executive/service' },
@@ -146,6 +147,7 @@ const purchasingNav = [
 const storeNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
   { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (Service Claim)', href: '/service/claims' },
+  { icon: ShieldAlert, label: 'แจ้งสินค้าชำรุดเสียหาย (Damage Report)', href: '/damage-reports' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
   { icon: Package, label: 'รายการเบิก/ยืมวัสดุอุปกรณ์', href: '/store/requisitions' },
@@ -209,6 +211,7 @@ const productionNav = [
 
 const accountingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี/การเงิน', href: '/accounting/dashboard' },
+  { icon: ShieldAlert, label: 'ติดตามสินค้าชำรุด (Damage Tracking)', href: '/damage-reports/accounting' },
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
   { icon: FileCheck, label: 'ทะเบียนขอจ่ายเงิน (Payment Requests)', href: '/accounting/payment-requests' },
   { icon: ShieldCheck, label: 'ตั้งค่าเครดิตลูกค้า (Credit Settings)', href: '/accounting/credit-settings' },
@@ -235,6 +238,7 @@ const bdNav = [
 
 const commonNav = [
   { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (Service Claim)', href: '/service/claims' },
+  { icon: ShieldAlert, label: 'แจ้งสินค้าชำรุดเสียหาย (Damage Report)', href: '/damage-reports' },
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests/new' },
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
