@@ -357,6 +357,7 @@ export default function SidebarClient(props: SidebarProps) {
 
   const superAdminContexts = isSuperAdmin ? {
     'All (Default)': superAdminNav,
+    'Store & Warehouse': appendCommon(storeNav),
     'Executive': appendCommon(executiveNav),
     'Sales & Marketing': appendCommon([...managerNav, ...repNav, ...marketingNav, ...marketingManagerNav]),
     'Service & Technician': appendCommon([...serviceNav, ...serviceMgrNav, ...technicianNav]),

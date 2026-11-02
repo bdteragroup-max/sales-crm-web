@@ -2,6 +2,7 @@ import React from 'react';
 import ApproveForm from './ApproveForm';
 import { getUser } from '@/app/lib/dal';
 import { getRequisitionById } from '@/app/actions/requisitions';
+import { isSuperUser } from '@/app/lib/roleHelper';
 import { Package, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -22,13 +23,14 @@ export default async function ApproveRequisitionPage({ params }: { params: Promi
     return <div className="p-8 text-center text-gray-500">ไม่พบคำขอใบเบิก/ยืมของ หรือคุณไม่มีสิทธิ์เข้าถึง</div>;
   }
 
-  // Ensure only the designated approver can access
-  if (requisition.approverId !== session.id) {
+  // Ensure only the designated approver or Super Admin can access
+  const isSuper = isSuperUser(session.role);
+  if (!isSuper && requisition.approverId !== session.id) {
     return (
       <div className="p-8 text-center">
         <ShieldAlert className="mx-auto h-12 w-12 text-red-500 mb-4" />
         <h2 className="text-xl font-bold text-gray-900 mb-2">ไม่มีสิทธิ์เข้าถึง</h2>
-        <p className="text-gray-600 mb-6">เฉพาะผู้อนุมัติที่ถูกระบุไว้เท่านั้นที่สามารถดำเนินการได้</p>
+        <p className="text-gray-600 mb-6">เฉพาะผู้อนุมัติที่ถูกระบุไว้ หรือผู้ดูแลระบบ (Super Admin) เท่านั้นที่สามารถดำเนินการได้</p>
         <Link href="/requisitions" className="text-red-600 font-semibold hover:underline">กลับไปหน้ารายการของฉัน</Link>
       </div>
     );

@@ -783,6 +783,16 @@ export default function StoreFulfillForm({
           <span>บันทึกตรวจรับของหน้างาน (เซ็นรับ + รูปถ่าย)</span>
         </button>
 
+        {requisition.status === 'PENDING_APPROVAL' && (
+          <Link
+            href={`/requisitions/${requisition.id}/approve`}
+            className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-colors shadow-sm text-sm"
+          >
+            <CheckCircle2 size={18} />
+            <span>อนุมัติใบเบิก (Approve)</span>
+          </Link>
+        )}
+
         {requisition.status === 'APPROVED' && (
           <button
             type="button"

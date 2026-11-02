@@ -3,6 +3,7 @@ import RequisitionEditForm from '../../RequisitionEditForm';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
 import { getRequisitionById } from '@/app/actions/requisitions';
+import { isSuperUser } from '@/app/lib/roleHelper';
 import { Edit } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -31,8 +32,9 @@ export default async function EditRequisitionPage({ params }: { params: Promise<
     return <div className="p-8 text-center text-gray-500">ไม่พบคำขอใบเบิก/ยืมของ</div>;
   }
 
-  // Security checks
-  if (requisition.requesterId !== session.id) {
+  // Security checks: requester or Super Admin
+  const isSuper = isSuperUser(session.role);
+  if (!isSuper && requisition.requesterId !== session.id) {
     return <div className="p-8 text-center text-red-500">คุณไม่มีสิทธิ์แก้ไขคำขอนี้</div>;
   }
 

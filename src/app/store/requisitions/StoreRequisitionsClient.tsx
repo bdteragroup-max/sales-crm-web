@@ -41,11 +41,13 @@ import {
   Briefcase,
   Wrench,
   Bell,
-  AlertTriangle
+  AlertTriangle,
+  Trash2,
+  ShieldCheck
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
-import { updateRequisitionStatus, returnMaterialRequisition } from '@/app/actions/requisitions';
+import { updateRequisitionStatus, returnMaterialRequisition, deleteMaterialRequisition } from '@/app/actions/requisitions';
 
 export interface RequisitionItem {
   detail: string;
@@ -97,11 +99,15 @@ export interface Requisition {
 interface StoreRequisitionsClientProps {
   initialRequisitions: Requisition[];
   userName: string;
+  userRole?: string;
+  isSuperAdmin?: boolean;
 }
 
 export default function StoreRequisitionsClient({
   initialRequisitions,
-  userName
+  userName,
+  userRole,
+  isSuperAdmin = false,
 }: StoreRequisitionsClientProps) {
   const router = useRouter();
 
@@ -1649,6 +1655,62 @@ export default function StoreRequisitionsClient({
     }
   };
 
+  // Action: Delete Requisition (Super Admin)
+  const handleDeleteRequisition = async (req: Requisition) => {
+    const result = await Swal.fire({
+      title: 'ยืนยันการลบใบเบิก',
+      html: `
+        <div class="text-left text-sm space-y-2 mt-2">
+          <p>คุณต้องการลบใบเบิกหมายเลข <b>${req.requisitionNumber}</b> ใช่หรือไม่?</p>
+          <div class="p-3 bg-rose-50 text-rose-800 rounded-xl border border-rose-200 text-xs font-semibold">
+            คำเตือน: การลบนี้มีผลถาวร (สิทธิ์ Super Admin)
+          </div>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'ยืนยันลบ',
+      cancelButtonText: 'ยกเลิก',
+    });
+
+    if (!result.isConfirmed) return;
+
+    setLoadingMap(prev => ({ ...prev, [req.id]: true }));
+    try {
+      const res = await deleteMaterialRequisition(req.id);
+      if (res.success) {
+        setRequisitions(prev => prev.filter(r => r.id !== req.id));
+        if (detailReq?.id === req.id) setDetailReq(null);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: `ลบใบเบิก ${req.requisitionNumber} สำเร็จ`,
+          showConfirmButton: false,
+          timer: 2000,
+        });
+        router.refresh();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถลบได้',
+          text: res.error || 'เกิดข้อผิดพลาดในการลบใบเบิก',
+        });
+      }
+    } catch (e: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
+      });
+    } finally {
+      setLoadingMap(prev => ({ ...prev, [req.id]: false }));
+    }
+  };
+
+
   // Action: Open Return Modal
   const openReturnModal = (req: Requisition) => {
     setReturnModalReq(req);
@@ -2829,13 +2891,25 @@ export default function StoreRequisitionsClient({
                               </button>
                             </>
                           ) : (
-                            <button
-                              onClick={() => setDetailReq(req)}
-                              className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all"
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                              <span>ดูรายละเอียด</span>
-                            </button>
+                            <>
+                              {isSuperAdmin && req.status === 'PENDING_APPROVAL' && (
+                                <Link
+                                  href={`/requisitions/${req.id}/approve`}
+                                  className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold transition-all"
+                                  title="อนุมัติใบเบิก (Super Admin)"
+                                >
+                                  <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                                  <span>อนุมัติ</span>
+                                </Link>
+                              )}
+                              <button
+                                onClick={() => setDetailReq(req)}
+                                className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>ดูรายละเอียด</span>
+                              </button>
+                            </>
                           )}
 
                           <Link
@@ -2846,6 +2920,17 @@ export default function StoreRequisitionsClient({
                           >
                             <Printer className="w-4 h-4" />
                           </Link>
+
+                          {isSuperAdmin && (
+                            <button
+                              onClick={() => handleDeleteRequisition(req)}
+                              disabled={!!loadingMap[req.id]}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              title="ลบใบเบิก (สิทธิ์ Super Admin)"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -3039,12 +3124,33 @@ export default function StoreRequisitionsClient({
                         </button>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => setDetailReq(req)}
-                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        {isSuperAdmin && req.status === 'PENDING_APPROVAL' && (
+                          <Link
+                            href={`/requisitions/${req.id}/approve`}
+                            className="flex items-center gap-1 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-xs transition-all"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            <span>อนุมัติ</span>
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => setDetailReq(req)}
+                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        {isSuperAdmin && (
+                          <button
+                            onClick={() => handleDeleteRequisition(req)}
+                            disabled={!!loadingMap[req.id]}
+                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                            title="ลบใบเบิก (Super Admin)"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -3336,6 +3442,28 @@ export default function StoreRequisitionsClient({
                   <Printer className="w-4 h-4 text-slate-500" />
                   <span>พิมพ์ใบเบิก PDF</span>
                 </Link>
+
+                {detailReq.status === 'PENDING_APPROVAL' && (
+                  <Link
+                    href={`/requisitions/${detailReq.id}/approve`}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow transition-all"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>ไปหน้าอนุมัติใบเบิก{isSuperAdmin ? ' (สิทธิ์ Super Admin)' : ''}</span>
+                  </Link>
+                )}
+
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => handleDeleteRequisition(detailReq)}
+                    disabled={!!loadingMap[detailReq.id]}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition-all"
+                    title="ลบใบเบิกนี้ (สิทธิ์ Super Admin)"
+                  >
+                    <Trash2 className="w-4 h-4 text-rose-500" />
+                    <span>ลบใบเบิก</span>
+                  </button>
+                )}
 
                 {detailReq.status === 'APPROVED' && (
                   <button

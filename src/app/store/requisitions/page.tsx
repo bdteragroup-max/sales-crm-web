@@ -2,6 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
+import { isSuperUser, canViewAll } from '@/app/lib/roleHelper';
 import StoreRequisitionsClient from './StoreRequisitionsClient';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +16,8 @@ export default async function StoreRequisitionsPage() {
   if (!user) redirect('/');
 
   const userRoleStr = (user.role || '').toLowerCase();
-  const isStore = ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin'].some((r) => userRoleStr.includes(r));
+  const isSuper = isSuperUser(user.role);
+  const isStore = isSuper || canViewAll(user.role) || ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin', 'ซุปเปอร์แอดมิน'].some((r) => userRoleStr.includes(r));
   
   if (!isStore) {
     redirect('/dashboard');
@@ -54,6 +56,8 @@ export default async function StoreRequisitionsPage() {
       <StoreRequisitionsClient
         initialRequisitions={serializedRequisitions}
         userName={user.fullName || 'เจ้าหน้าที่สโตร์'}
+        userRole={user.role}
+        isSuperAdmin={isSuper}
       />
     </div>
   );

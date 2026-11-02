@@ -1,6 +1,7 @@
 import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import { getRequisitionById } from '@/app/actions/requisitions';
+import { isSuperUser, canViewAll } from '@/app/lib/roleHelper';
 import { Package, Clock, Image as ImageIcon, Wrench, Building2, CheckCircle2, RotateCcw, Truck, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import RequisitionDetailActions from './RequisitionDetailActions';
@@ -21,8 +22,12 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
     return <div className="p-8 text-center text-gray-500">ไม่พบคำขอใบเบิก/ยืมของ</div>;
   }
 
-  // Authorization: Only Requester or Approver can view their own, or maybe we just allow it since it's a known URL.
-  if (requisition.requesterId !== session.id && requisition.approverId !== session.id) {
+  // Authorization: Requester, Approver, Super Admin, Executive, or Store staff
+  const userRoleStr = (session.role || '').toLowerCase();
+  const isSuper = isSuperUser(session.role) || canViewAll(session.role);
+  const isStore = ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin', 'ซุปเปอร์แอดมิน'].some((r) => userRoleStr.includes(r));
+
+  if (!isSuper && !isStore && requisition.requesterId !== session.id && requisition.approverId !== session.id) {
     return <div className="p-8 text-center text-red-500">คุณไม่มีสิทธิ์เข้าถึงหน้านี้</div>;
   }
 

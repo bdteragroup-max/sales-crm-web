@@ -1,6 +1,7 @@
 import { getUser } from '@/app/lib/dal';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/db';
+import { isSuperUser, canViewAll } from '@/app/lib/roleHelper';
 import StoreReceiveClient from './StoreReceiveClient';
 import { getRetroactiveReceivedBy } from '@/app/lib/poHelper';
 export const dynamic = 'force-dynamic';
@@ -10,7 +11,7 @@ export default async function StoreReceivePage() {
   if (!user) redirect('/');
 
   const userRoleStr = (user.role || '').toLowerCase();
-  const isStore = ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin', 'purchasing', 'จัดซื้อ', 'manager', 'director'].some((r) => userRoleStr.includes(r));
+  const isStore = isSuperUser(user.role) || canViewAll(user.role) || ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin', 'purchasing', 'จัดซื้อ', 'manager', 'director', 'ซุปเปอร์แอดมิน'].some((r) => userRoleStr.includes(r));
 
   if (!isStore) {
     redirect('/dashboard');

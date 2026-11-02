@@ -73,52 +73,121 @@ const companyInfoMap: Record<
  *   (around 60-65% of items) so it NEVER leaves a large blank white space.
  * - Continuation pages carry the remaining items + summary total + terms + signatures.
  */
+/**
+ * Calculates visual vertical weight of an item based on text length in each column.
+ * 1.0 represents a single-line item row (~24-26px).
+ * Items with long descriptions or multi-line text get proportionally higher weight.
+ */
+function getItemWeight(item: RequisitionItem): number {
+  const detailLen = (item.detail || "").length
+  const jobLen = (item.job || "").length
+  const remarkLen = (item.remark || "").length
+
+  // In portrait, column widths approx: detail ~45 chars/line, job ~28 chars/line, remark ~22 chars/line
+  const detailLines = Math.ceil(detailLen / 45)
+  const jobLines = Math.ceil(jobLen / 28)
+  const remarkLines = Math.ceil(remarkLen / 22)
+
+  const maxLines = Math.max(1, detailLines, jobLines, remarkLines)
+  if (maxLines === 1) return 1.0
+  if (maxLines === 2) return 1.35
+  if (maxLines === 3) return 1.70
+  if (maxLines === 4) return 2.05
+  return Math.min(2.6, 1.0 + (maxLines - 1) * 0.35)
+}
+
 function chunkRequisitionItems(
   items: RequisitionItem[],
   isPortrait: boolean
 ): RequisitionItem[][] {
   if (items.length === 0) return [[]]
 
-  const maxSingle = isPortrait ? 14 : 6
-  if (items.length <= maxSingle) {
+  // PDF Page Capacity Standard for A4:
+  // - Single Page: Header + Options + Info + Table + Total + Terms + 4 Signatures + Footer
+  //   Available for rows: ~700px in Portrait (up to 28 single-line items) / ~410px in Landscape
+  // - Page 1 (Multi-page): Header + Options + Info + Table + Continuation Notice + Footer
+  //   Available for rows: ~830px in Portrait (up to 33 single-line items or 13 multi-line items)
+  // - Last Page: Continuation Header + Info + Table + Total + Terms + 4 Signatures + Footer
+  //   Available for rows: ~784px in Portrait (up to 30 single-line items or 12 multi-line items)
+  // - Middle Page: Continuation Header + Table + Continuation Notice + Footer
+  //   Available for rows: ~940px in Portrait (up to 38 single-line items)
+  const maxSingleWeight = isPortrait ? 28.0 : 13.5
+  const maxSingleItems = isPortrait ? 28 : 11
+  const maxPage1Weight = isPortrait ? 32.0 : 17.0
+  const maxLastPageWeight = isPortrait ? 30.0 : 15.5
+  const maxMiddleWeight = isPortrait ? 38.0 : 22.0
+
+  const weights = items.map(getItemWeight)
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0)
+
+  // Standard Rule 1: SINGLE PAGE PRIORITY
+  // If all items fit on 1 single page with terms and signatures, keep it on 1 page!
+  if (totalWeight <= maxSingleWeight && items.length <= maxSingleItems) {
     return [items]
   }
 
-  const maxPage1 = isPortrait ? 16 : 8
-  const maxLastPage = isPortrait ? 10 : 5
-  const maxMiddle = isPortrait ? 18 : 9
+  // Standard Rule 2: GREEDY 2-PAGE DISTRIBUTION
+  // Fill Page 1 with as many items as it can hold up to maxPage1Weight so it NEVER leaves
+  // an empty blank canyon on Page 1, leaving at least 2-3 items for Page 2 with Terms & Signatures.
+  if (totalWeight <= maxPage1Weight + maxLastPageWeight) {
+    let p1Weight = 0
+    let splitIdx = 0
+    const minLastPageItems = Math.min(3, Math.max(1, Math.floor(items.length * 0.1)))
+    const maxP1Items = items.length - minLastPageItems
 
-  // If fits in 2 pages:
-  if (items.length <= maxPage1 + maxLastPage) {
-    const page1Count = Math.min(
-      maxPage1,
-      Math.max(Math.ceil(items.length * 0.62), items.length - maxLastPage)
-    )
-    return [items.slice(0, page1Count), items.slice(page1Count)]
-  }
-
-  // 3 or more pages: Fill each page nicely
-  const chunks: RequisitionItem[][] = []
-  chunks.push(items.slice(0, maxPage1))
-  let remaining = items.slice(maxPage1)
-
-  while (remaining.length > maxLastPage) {
-    if (remaining.length <= maxMiddle + maxLastPage) {
-      const nextPageCount = Math.min(
-        maxMiddle,
-        Math.max(Math.ceil(remaining.length * 0.6), remaining.length - maxLastPage)
-      )
-      chunks.push(remaining.slice(0, nextPageCount))
-      remaining = remaining.slice(nextPageCount)
-      break
-    } else {
-      chunks.push(remaining.slice(0, maxMiddle))
-      remaining = remaining.slice(maxMiddle)
+    for (let i = 0; i < maxP1Items; i++) {
+      const nextWeight = p1Weight + weights[i]
+      const remainingWeight = totalWeight - nextWeight
+      if (nextWeight <= maxPage1Weight && remainingWeight <= maxLastPageWeight) {
+        p1Weight = nextWeight
+        splitIdx = i + 1
+      } else if (remainingWeight > maxLastPageWeight) {
+        p1Weight = nextWeight
+        splitIdx = i + 1
+      } else {
+        break
+      }
     }
+    splitIdx = Math.max(1, Math.min(splitIdx, items.length - 1))
+    return [items.slice(0, splitIdx), items.slice(splitIdx)]
   }
 
-  if (remaining.length > 0) {
-    chunks.push(remaining)
+  // 3. Multi-page (3 or more pages): Pack dynamically by weight
+  const chunks: RequisitionItem[][] = []
+  const remainingItems = [...items]
+  const remainingWeights = [...weights]
+
+  while (remainingItems.length > 0) {
+    const isFirstPage = chunks.length === 0
+    const remWeight = remainingWeights.reduce((a, b) => a + b, 0)
+
+    // If remaining fits comfortably on the last page
+    if (remWeight <= maxLastPageWeight) {
+      chunks.push(remainingItems)
+      break
+    }
+
+    const currentCap = isFirstPage ? maxPage1Weight : maxMiddleWeight
+    const chunkItems: RequisitionItem[] = []
+    let chunkWeight = 0
+
+    while (remainingItems.length > 0) {
+      const w = remainingWeights[0]
+      if (chunkWeight + w <= currentCap && (remainingItems.length > 1 || chunkItems.length === 0)) {
+        chunkItems.push(remainingItems.shift()!)
+        remainingWeights.shift()
+        chunkWeight += w
+      } else {
+        break
+      }
+    }
+
+    if (chunkItems.length === 0 && remainingItems.length > 0) {
+      chunkItems.push(remainingItems.shift()!)
+      remainingWeights.shift()
+    }
+
+    chunks.push(chunkItems)
   }
 
   return chunks
@@ -311,9 +380,12 @@ export default function RequisitionPDFClient({
           <img
             src={currentCompany.logoUrl}
             alt={currentCompany.en}
+            className="page1-logo-img"
             style={{
               maxHeight: isPortrait ? "42px" : "46px",
               maxWidth: isPortrait ? "80px" : "90px",
+              width: "auto",
+              height: "auto",
               objectFit: "contain",
             }}
           />
@@ -840,16 +912,30 @@ export default function RequisitionPDFClient({
       >
         {/* Left: Logo & Company Name */}
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={currentCompany.logoUrl}
-            alt={currentCompany.en}
+          <div
             style={{
-              maxHeight: isPortrait ? "30px" : "28px",
-              maxWidth: "55px",
-              objectFit: "contain",
+              width: "48px",
+              height: isPortrait ? "30px" : "28px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              flexShrink: 0,
             }}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={currentCompany.logoUrl}
+              alt={currentCompany.en}
+              className="continuation-logo-img"
+              style={{
+                maxHeight: isPortrait ? "30px" : "28px",
+                maxWidth: "48px",
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          </div>
           <div>
             <div style={{ fontSize: isPortrait ? "12px" : "13px", fontWeight: "bold", color: "#000000", lineHeight: 1.15 }}>
               {currentCompany.th}
@@ -916,12 +1002,13 @@ export default function RequisitionPDFClient({
     </div>
   )
 
-  // 5. ITEMS TABLE (Supports compact padding so 13-14 items fit smoothly on 1 page)
+  // 5. ITEMS TABLE (Displays strictly according to actual items)
   const renderItemsTable = (
     chunkItems: RequisitionItem[],
     startIndex: number,
     isLastItemPage: boolean
-  ) => (
+  ) => {
+    return (
     <div style={{ margin: "2px 0 3px" }}>
       <table
         className="official-table"
@@ -983,15 +1070,24 @@ export default function RequisitionPDFClient({
                   key={startIndex + index}
                   style={{
                     backgroundColor: "#ffffff",
+                    minHeight: isPortrait ? "24px" : "20px",
                   }}
                 >
                   {/* No. */}
-                  <td style={{ textAlign: "center", color: "#000000", fontWeight: 600, padding: "2.5px 2px" }}>
+                  <td style={{ textAlign: "center", color: "#000000", fontWeight: 600, padding: "2px 2px" }}>
                     {rowNum}
                   </td>
 
                   {/* Detail */}
-                  <td style={{ padding: "2.5px 5px", textAlign: "left", wordBreak: "break-word" }}>
+                  <td
+                    style={{
+                      padding: "2px 5px",
+                      textAlign: "left",
+                      wordBreak: "break-word",
+                      fontSize: (item?.detail?.length || 0) > 60 ? "8px" : isPortrait ? "9px" : "9.5px",
+                      lineHeight: (item?.detail?.length || 0) > 60 ? 1.15 : 1.25,
+                    }}
+                  >
                     <span style={{ fontWeight: "bold", color: "#000000" }}>{item?.detail || "-"}</span>
                   </td>
 
@@ -1002,19 +1098,28 @@ export default function RequisitionPDFClient({
                       fontWeight: "bold",
                       color: "#000000",
                       fontSize: isPortrait ? "9.5px" : "10px",
-                      padding: "2.5px 2px",
+                      padding: "2px 2px",
                     }}
                   >
                     {item?.quantity ?? "-"}
                   </td>
 
                   {/* Unit */}
-                  <td style={{ textAlign: "center", color: "#000000", padding: "2.5px 2px" }}>
+                  <td style={{ textAlign: "center", color: "#000000", padding: "2px 2px" }}>
                     {item?.unit || "-"}
                   </td>
 
                   {/* Job / Purpose */}
-                  <td style={{ padding: "2.5px 4px", textAlign: "left", color: "#000000", wordBreak: "break-word" }}>
+                  <td
+                    style={{
+                      padding: "2px 4px",
+                      textAlign: "left",
+                      color: "#000000",
+                      wordBreak: "break-word",
+                      fontSize: (item?.job?.length || 0) > 40 ? "8px" : isPortrait ? "9px" : "9.5px",
+                      lineHeight: (item?.job?.length || 0) > 40 ? 1.15 : 1.25,
+                    }}
+                  >
                     {item?.job || "-"}
                   </td>
 
@@ -1083,7 +1188,8 @@ export default function RequisitionPDFClient({
         </tbody>
       </table>
     </div>
-  )
+    )
+  }
 
   // 6. FORMAL TERMS & CONDITIONS BANNER
   const renderTermsAndConditions = () => (
@@ -1166,7 +1272,8 @@ export default function RequisitionPDFClient({
                 <img
                   src={requisition.requesterSignatureUrl}
                   alt="Borrower Signature"
-                  style={{ maxHeight: isPortrait ? "34px" : "40px", maxWidth: "120px", objectFit: "contain" }}
+                  className="signature-img"
+                  style={{ maxHeight: isPortrait ? "34px" : "40px", maxWidth: "120px", width: "auto", height: "auto", objectFit: "contain" }}
                 />
               ) : (
                 <div style={{ height: "16px" }}></div>
@@ -1226,7 +1333,8 @@ export default function RequisitionPDFClient({
                 <img
                   src={requisition.approverSignatureUrl}
                   alt="Approver Signature"
-                  style={{ maxHeight: isPortrait ? "34px" : "40px", maxWidth: "120px", objectFit: "contain" }}
+                  className="signature-img"
+                  style={{ maxHeight: isPortrait ? "34px" : "40px", maxWidth: "120px", width: "auto", height: "auto", objectFit: "contain" }}
                 />
               ) : (
                 <div style={{ height: "16px" }}></div>
@@ -1298,7 +1406,8 @@ export default function RequisitionPDFClient({
               <img
                 src={requisition.requesterSignatureUrl}
                 alt="Requester Signature"
-                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", objectFit: "contain" }}
+                className="signature-img"
+                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", width: "auto", height: "auto", objectFit: "contain" }}
               />
             ) : (
               <div style={{ height: "14px" }}></div>
@@ -1358,7 +1467,8 @@ export default function RequisitionPDFClient({
               <img
                 src={requisition.approverSignatureUrl}
                 alt="Approver Signature"
-                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", objectFit: "contain" }}
+                className="signature-img"
+                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", width: "auto", height: "auto", objectFit: "contain" }}
               />
             ) : (
               <div style={{ height: "14px" }}></div>
@@ -1418,7 +1528,8 @@ export default function RequisitionPDFClient({
               <img
                 src={requisition.storeStaffSignatureUrl}
                 alt="Store Staff Signature"
-                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", objectFit: "contain" }}
+                className="signature-img"
+                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", width: "auto", height: "auto", objectFit: "contain" }}
               />
             ) : (
               <div style={{ height: "14px" }}></div>
@@ -1478,7 +1589,8 @@ export default function RequisitionPDFClient({
               <img
                 src={requisition.receiverSignatureUrl}
                 alt="Site Receiver Signature"
-                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", objectFit: "contain" }}
+                className="signature-img"
+                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", width: "auto", height: "auto", objectFit: "contain" }}
               />
             ) : (
               <div style={{ height: "14px" }}></div>
@@ -1536,12 +1648,19 @@ export default function RequisitionPDFClient({
             html, body {
               width: ${sheetWidth} !important;
               height: auto !important;
+              min-height: 100% !important;
               margin: 0 !important;
               padding: 0 !important;
               background: #ffffff !important;
               color: #000000 !important;
+              overflow: visible !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+            }
+
+            /* Unconstrain all container wrappers so multi-page printing works seamlessly across all browsers */
+            div, main, section {
+              overflow: visible !important;
             }
 
             .requisition-pdf-root {
@@ -1549,11 +1668,15 @@ export default function RequisitionPDFClient({
               padding: 0 !important;
               margin: 0 !important;
               min-height: auto !important;
+              height: auto !important;
+              overflow: visible !important;
+              display: block !important;
             }
 
             .requisition-sheet {
               width: ${sheetWidth} !important;
               height: ${sheetHeight} !important;
+              min-height: ${sheetHeight} !important;
               max-height: ${sheetHeight} !important;
               margin: 0 !important;
               padding: ${isPortrait ? "5mm 7mm" : "5mm 8mm"} !important;
@@ -1562,6 +1685,8 @@ export default function RequisitionPDFClient({
               box-sizing: border-box !important;
               page-break-after: always !important;
               break-after: page !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
               display: flex !important;
               flex-direction: column !important;
               justify-content: space-between !important;
@@ -1571,6 +1696,30 @@ export default function RequisitionPDFClient({
             .requisition-sheet:last-of-type {
               page-break-after: auto !important;
               break-after: auto !important;
+            }
+
+            .continuation-logo-img {
+              max-width: 48px !important;
+              max-height: 30px !important;
+              width: auto !important;
+              height: auto !important;
+              object-fit: contain !important;
+            }
+
+            .page1-logo-img {
+              max-width: 80px !important;
+              max-height: 44px !important;
+              width: auto !important;
+              height: auto !important;
+              object-fit: contain !important;
+            }
+
+            .signature-img {
+              max-height: 38px !important;
+              max-width: 120px !important;
+              width: auto !important;
+              height: auto !important;
+              object-fit: contain !important;
             }
 
             .no-print {
@@ -1643,10 +1792,12 @@ export default function RequisitionPDFClient({
                   border: "1.5px solid #000000",
                   padding: isPortrait ? "6px 8px" : "8px 10px",
                   height: "100%",
+                  maxHeight: "100%",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
                   boxSizing: "border-box",
+                  overflow: "hidden",
                 }}
               >
                 {/* 1. TOP & TABLE SECTION */}
@@ -1663,7 +1814,20 @@ export default function RequisitionPDFClient({
 
                   {/* Table for this chunk */}
                   {renderItemsTable(chunk, startIndex, isLastItemPage)}
+                </div>
 
+                {/* Spacer */}
+                <div style={{ flex: 1, minHeight: "2px" }}></div>
+
+                {/* 2. BOTTOM SECTION: Terms & Signatures (Only on final item page) & Page Footer */}
+                <div>
+                  {/* On last item page, render Terms & Conditions and Signatures at the bottom above footer */}
+                  {isLastItemPage && (
+                    <div style={{ marginBottom: "3px" }}>
+                      {renderTermsAndConditions()}
+                      {renderSignatures()}
+                    </div>
+                  )}
                   {/* Continuation notice if there are more item pages */}
                   {!isLastItemPage && (
                     <div
@@ -1671,10 +1835,10 @@ export default function RequisitionPDFClient({
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        padding: "3px 6px",
+                        padding: "3.5px 8px",
                         backgroundColor: "#f8fafc",
                         border: "1px dashed #64748b",
-                        marginTop: "2px",
+                        marginBottom: "3px",
                         fontSize: isPortrait ? "8.5px" : "9px",
                         color: "#334155",
                       }}
@@ -1685,19 +1849,7 @@ export default function RequisitionPDFClient({
                       </span>
                     </div>
                   )}
-                </div>
 
-                {/* Spacer */}
-                <div style={{ flex: 1, minHeight: "2px" }}></div>
-
-                {/* 2. BOTTOM SECTION: Terms & Signatures (Only on final item page) */}
-                <div>
-                  {isLastItemPage && (
-                    <>
-                      {renderTermsAndConditions()}
-                      {renderSignatures()}
-                    </>
-                  )}
                   {renderPageFooter(pageNumber, totalPages)}
                 </div>
               </div>
@@ -1727,10 +1879,12 @@ export default function RequisitionPDFClient({
                 border: "1.5px solid #000000",
                 padding: isPortrait ? "6px 8px" : "8px 10px",
                 height: "100%",
+                maxHeight: "100%",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
                 boxSizing: "border-box",
+                overflow: "hidden",
               }}
             >
               {/* Photo Page Header */}
@@ -1746,8 +1900,10 @@ export default function RequisitionPDFClient({
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={currentCompany.logoUrl} alt={currentCompany.en} style={{ height: "28px", objectFit: "contain" }} />
+                    <div style={{ width: "48px", height: "28px", display: "flex", alignItems: "center", flexShrink: 0 }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={currentCompany.logoUrl} alt={currentCompany.en} className="continuation-logo-img" style={{ maxHeight: "28px", maxWidth: "48px", width: "auto", height: "auto", objectFit: "contain" }} />
+                    </div>
                     <div>
                       <div style={{ fontSize: isPortrait ? "12.5px" : "13.5px", fontWeight: "bold", color: "#000000" }}>
                         {isBorrow

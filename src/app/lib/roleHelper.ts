@@ -1,7 +1,16 @@
 export function isSuperUser(role: string | null | undefined): boolean {
   if (!role) return false;
-  const r = role.toLowerCase();
-  return ["super_admin", "super admin"].includes(r);
+  const r = role.toLowerCase().trim();
+  return (
+    r === "super_admin" ||
+    r === "super admin" ||
+    r === "superadmin" ||
+    r === "super-admin" ||
+    r === "ซุปเปอร์แอดมิน" ||
+    r === "ผู้ดูแลระบบ" ||
+    r === "ผู้ดูแลระบบสูงสุด" ||
+    ["super_admin", "super admin", "superadmin", "super-admin", "ซุปเปอร์แอดมิน", "ผู้ดูแลระบบ"].some(kw => r.includes(kw))
+  );
 }
 
 export function isReadOnlyExecutive(role: string | null | undefined): boolean {

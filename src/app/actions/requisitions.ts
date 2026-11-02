@@ -4,6 +4,7 @@ import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 import { sendPushToUser } from "@/app/lib/pushNotification";
+import { isSuperUser } from "@/app/lib/roleHelper";
 
 export async function createMaterialRequisition(data: any) {
   try {
@@ -89,8 +90,9 @@ export async function updateMaterialRequisition(id: string, data: any) {
     });
 
     if (!existingReq) return { success: false, error: "Requisition not found" };
-    if (existingReq.requesterId !== session.id) return { success: false, error: "Forbidden" };
-    if (existingReq.status !== "PENDING_APPROVAL") return { success: false, error: "Cannot edit approved/completed requisition" };
+    const isSuper = isSuperUser(session.role);
+    if (!isSuper && existingReq.requesterId !== session.id) return { success: false, error: "Forbidden" };
+    if (!isSuper && existingReq.status !== "PENDING_APPROVAL") return { success: false, error: "Cannot edit approved/completed requisition" };
 
     const updated = await prisma.materialRequisition.update({
       where: { id },
@@ -153,8 +155,9 @@ export async function deleteMaterialRequisition(id: string) {
     });
 
     if (!existingReq) return { success: false, error: "Requisition not found" };
-    if (existingReq.requesterId !== session.id) return { success: false, error: "Forbidden" };
-    if (existingReq.status !== "PENDING_APPROVAL") return { success: false, error: "Cannot delete approved/completed requisition" };
+    const isSuper = isSuperUser(session.role);
+    if (!isSuper && existingReq.requesterId !== session.id) return { success: false, error: "Forbidden" };
+    if (!isSuper && existingReq.status !== "PENDING_APPROVAL") return { success: false, error: "Cannot delete approved/completed requisition" };
 
     // Clean up notifications to the approver
     if (existingReq.approverId) {
