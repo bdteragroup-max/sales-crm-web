@@ -12,25 +12,25 @@ export default function ClaimPrintPaper({ claim, className = "" }: ClaimPrintPap
 
   const claimDateStr = claim?.claimDate
     ? new Date(claim.claimDate).toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
     : "-";
 
   const claimTimeStr = claim?.claimDate
     ? new Date(claim.claimDate).toLocaleTimeString("th-TH", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+      hour: "2-digit",
+      minute: "2-digit",
+    })
     : "";
 
   const handledDateStr = claim?.handledAt
     ? new Date(claim.handledAt).toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
     : "";
 
   const EQUIPMENT_TYPE_MAP: Record<string, string> = {
@@ -74,7 +74,7 @@ export default function ClaimPrintPaper({ claim, className = "" }: ClaimPrintPap
           <img src="/7.png" alt="Tera Power" className="h-10 object-contain" />
           <div className="border-l-2 border-slate-300 pl-3 ml-1">
             <div className="text-[13px] font-bold text-black tracking-tight leading-tight">
-              บริษัท เทอรา กรุ๊ป จำกัด
+              บริษัท เทอรา กรุ้ป จำกัด
             </div>
             <div className="text-[10px] text-slate-600 font-semibold tracking-tight">
               Tera Group Co.,Ltd.

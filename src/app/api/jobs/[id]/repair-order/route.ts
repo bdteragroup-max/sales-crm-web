@@ -7,12 +7,21 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const repairOrder = await prisma.repairOrder.findUnique({
+    let repairOrder = await prisma.repairOrder.findUnique({
       where: { jobId: id },
       include: {
         job: true
       }
     });
+
+    if (!repairOrder) {
+      repairOrder = await prisma.repairOrder.findUnique({
+        where: { id: id },
+        include: {
+          job: true
+        }
+      });
+    }
 
     if (!repairOrder) {
       // If no repair order exists yet, we can return null and handle it on frontend

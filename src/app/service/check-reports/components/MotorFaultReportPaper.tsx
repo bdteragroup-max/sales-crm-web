@@ -83,10 +83,10 @@ export default function MotorFaultReportPaper({
   const displayCustomer =
     isEn
       ? translatedData?.customerCompany ||
-        translatedData?.customerName ||
-        report?.customerCompany ||
-        report?.customerName ||
-        "-"
+      translatedData?.customerName ||
+      report?.customerCompany ||
+      report?.customerName ||
+      "-"
       : report?.customerCompany || report?.customerName || "-";
 
   const displayReporter =
@@ -124,20 +124,20 @@ export default function MotorFaultReportPaper({
     compCode === "TE"
       ? "/6.png"
       : compCode === "TP"
-      ? "/7.png"
-      : "/4.png";
+        ? "/7.png"
+        : "/4.png";
 
   const companyTitle = isEn
     ? compCode === "TP"
       ? "TERA POWER CO., LTD."
       : compCode === "TE"
-      ? "TERA ELECTRIC CO., LTD."
-      : "TERA GROUP CO., LTD."
+        ? "TERA ELECTRIC CO., LTD."
+        : "TERA GROUP CO., LTD."
     : compCode === "TP"
-    ? "บริษัท เทอรา พาวเวอร์ จำกัด"
-    : compCode === "TE"
-    ? "บริษัท เทอรา อิเล็คทริค จำกัด"
-    : "บริษัท เทอรา กรุ๊ป จำกัด";
+      ? "บริษัท เทอรา พาวเวอร์ จำกัด"
+      : compCode === "TE"
+        ? "บริษัท เทอรา อิเล็คทริค จำกัด"
+        : "บริษัท เทอรา กรุ้ป จำกัด";
 
   const photos = report?.photos || {};
   const nameplatePhoto = photos.nameplate?.[0];
@@ -156,22 +156,22 @@ export default function MotorFaultReportPaper({
     mm.windingBrownBlack !== undefined && mm.windingBrownBlack !== ""
       ? mm.windingBrownBlack
       : mm.windingU1U2 !== undefined && mm.windingU1U2 !== ""
-      ? mm.windingU1U2
-      : "0";
+        ? mm.windingU1U2
+        : "0";
 
   const valBlackGrey =
     mm.windingBlackGrey !== undefined && mm.windingBlackGrey !== ""
       ? mm.windingBlackGrey
       : mm.windingV1V2 !== undefined && mm.windingV1V2 !== ""
-      ? mm.windingV1V2
-      : "0";
+        ? mm.windingV1V2
+        : "0";
 
   const valBrownGrey =
     mm.windingBrownGrey !== undefined && mm.windingBrownGrey !== ""
       ? mm.windingBrownGrey
       : mm.windingW1W2 !== undefined && mm.windingW1W2 !== ""
-      ? mm.windingW1W2
-      : "0";
+        ? mm.windingW1W2
+        : "0";
 
   const rawWarranty = String(report?.warrantyStatus || "").trim().toUpperCase();
   const isWarrantyValid =
@@ -190,13 +190,13 @@ export default function MotorFaultReportPaper({
     ? isWarrantyValid
       ? "In Warranty"
       : isWarrantyExpired
-      ? "Out of Warranty"
-      : report?.warrantyStatus || "In Warranty"
+        ? "Out of Warranty"
+        : report?.warrantyStatus || "In Warranty"
     : isWarrantyValid
-    ? "รับประกัน"
-    : isWarrantyExpired
-    ? "หมดประกัน"
-    : report?.warrantyStatus || "รับประกัน";
+      ? "รับประกัน"
+      : isWarrantyExpired
+        ? "หมดประกัน"
+        : report?.warrantyStatus || "รับประกัน";
 
   // Insulation Megger values if recorded
   const hasInsulation =
@@ -531,47 +531,47 @@ export default function MotorFaultReportPaper({
           {(hasInsulation ||
             displayRecommendations ||
             (Array.isArray(displayRequireParts) && displayRequireParts.length > 0)) && (
-            <div className="border border-black p-2.5 mb-3 text-[10.5px] space-y-1.5 bg-neutral-50/50">
-              {hasInsulation && (
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-800">
-                  <span className="font-bold">
-                    {isEn
-                      ? "Insulation Resistance (Megger to Frame):"
-                      : "การตรวจวัดค่าฉนวนขดลวดลงโครง (Megger):"}
-                  </span>
-                  <span>
-                    U-Frame: <b className="font-mono text-cyan-800">{mm.insulationUGround || "-"} MΩ</b>
-                  </span>
-                  <span>
-                    V-Frame: <b className="font-mono text-cyan-800">{mm.insulationVGround || "-"} MΩ</b>
-                  </span>
-                  <span>
-                    W-Frame: <b className="font-mono text-cyan-800">{mm.insulationWGround || "-"} MΩ</b>
-                  </span>
-                </div>
-              )}
-              {displayRecommendations && (
-                <div>
-                  <span className="font-bold text-slate-900">
-                    {isEn ? "Repair Recommendations: " : "ข้อเสนอแนะในการซ่อมแซม: "}
-                  </span>
-                  <span>{displayRecommendations}</span>
-                </div>
-              )}
-              {Array.isArray(displayRequireParts) && displayRequireParts.length > 0 && (
-                <div>
-                  <span className="font-bold text-slate-900">
-                    {isEn ? "Required Spare Parts: " : "อะไหล่ที่ต้องเปลี่ยน: "}
-                  </span>
-                  <span>
-                    {displayRequireParts
-                      .map((p: any) => `${p.partName || "-"} (${p.qty || 1} ${isEn ? "pcs" : "ชิ้น"})`)
-                      .join(", ")}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+              <div className="border border-black p-2.5 mb-3 text-[10.5px] space-y-1.5 bg-neutral-50/50">
+                {hasInsulation && (
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-800">
+                    <span className="font-bold">
+                      {isEn
+                        ? "Insulation Resistance (Megger to Frame):"
+                        : "การตรวจวัดค่าฉนวนขดลวดลงโครง (Megger):"}
+                    </span>
+                    <span>
+                      U-Frame: <b className="font-mono text-cyan-800">{mm.insulationUGround || "-"} MΩ</b>
+                    </span>
+                    <span>
+                      V-Frame: <b className="font-mono text-cyan-800">{mm.insulationVGround || "-"} MΩ</b>
+                    </span>
+                    <span>
+                      W-Frame: <b className="font-mono text-cyan-800">{mm.insulationWGround || "-"} MΩ</b>
+                    </span>
+                  </div>
+                )}
+                {displayRecommendations && (
+                  <div>
+                    <span className="font-bold text-slate-900">
+                      {isEn ? "Repair Recommendations: " : "ข้อเสนอแนะในการซ่อมแซม: "}
+                    </span>
+                    <span>{displayRecommendations}</span>
+                  </div>
+                )}
+                {Array.isArray(displayRequireParts) && displayRequireParts.length > 0 && (
+                  <div>
+                    <span className="font-bold text-slate-900">
+                      {isEn ? "Required Spare Parts: " : "อะไหล่ที่ต้องเปลี่ยน: "}
+                    </span>
+                    <span>
+                      {displayRequireParts
+                        .map((p: any) => `${p.partName || "-"} (${p.qty || 1} ${isEn ? "pcs" : "ชิ้น"})`)
+                        .join(", ")}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
         </div>
 
         {/* Footer info (No signature box as requested) */}

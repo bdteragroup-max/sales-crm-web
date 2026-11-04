@@ -39,7 +39,7 @@ export const INTERNAL_COMPANIES: InternalCompany[] = [
     code: "TG",
     label: "TG",
     name: "Tera Group",
-    fullName: "บริษัท เทอรา กรุ๊ป จำกัด",
+    fullName: "บริษัท เทอรา กรุ้ป จำกัด",
     address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250",
     phone: "+66(0) 2328-0801-3, +66(0) 81-3152660",
     fax: "+66(0) 2328-0804",
@@ -205,8 +205,8 @@ export function parseGoodsReturnData(doc: any): {
     list = Array.isArray(parsed.list)
       ? parsed.list
       : Array.isArray(parsed.items)
-      ? parsed.items
-      : [];
+        ? parsed.items
+        : [];
     reason = parsed.reason || parsed.symptoms || "";
     settings = parsed.settings || "";
     phoneNumber = parsed.phoneNumber || parsed.phone || "";

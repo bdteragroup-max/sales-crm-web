@@ -482,7 +482,7 @@ export default function ReceiveReportModal({
           ['บริษัท', 'มูลค่าสินค้าค้างรับ (บาท)', 'มูลค่าสินค้าที่รับแล้ว (บาท)'],
           ['TE - บริษัท เทอรา อิเล็คทริค จำกัด', summaryMetrics.compPending.TE, summaryMetrics.compReceived.TE],
           ['TP - บริษัท เทอรา พาวเวอร์ จำกัด', summaryMetrics.compPending.TP, summaryMetrics.compReceived.TP],
-          ['TG - บริษัท เทอรา กรุ๊ป จำกัด', summaryMetrics.compPending.TG, summaryMetrics.compReceived.TG],
+          ['TG - บริษัท เทอรา กรุ้ป จำกัด', summaryMetrics.compPending.TG, summaryMetrics.compReceived.TG],
           ['ทั่วไป / อื่นๆ', summaryMetrics.compPending.OTHER, summaryMetrics.compReceived.OTHER],
         ];
 
@@ -684,10 +684,10 @@ export default function ReceiveReportModal({
         exportMode === 'ALL_SHEETS'
           ? `รายงานสรุปการตรวจรับพัสดุและสินค้าค้างรับ_${nowStr}.xlsx`
           : activeTab === 'received'
-          ? `รายงาน_PO_ที่รับสินค้าแล้ว_${nowStr}.xlsx`
-          : activeTab === 'pending'
-          ? `รายงาน_PO_สินค้าค้างรับ_${nowStr}.xlsx`
-          : `รายงานสรุปภาพรวมการตรวจรับ_${nowStr}.xlsx`;
+            ? `รายงาน_PO_ที่รับสินค้าแล้ว_${nowStr}.xlsx`
+            : activeTab === 'pending'
+              ? `รายงาน_PO_สินค้าค้างรับ_${nowStr}.xlsx`
+              : `รายงานสรุปภาพรวมการตรวจรับ_${nowStr}.xlsx`;
 
       XLSX.writeFile(wb, filename);
 
@@ -725,7 +725,7 @@ export default function ReceiveReportModal({
 
       {/* Modal Dialog Container */}
       <div className="bg-white w-[96vw] max-w-7xl h-[92vh] max-h-[92vh] rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/80 flex flex-col overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150">
-        
+
         {/* ================= HEADER SECTION ================= */}
         <div className="px-4 sm:px-6 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-700/60 shrink-0">
           <div className="min-w-0 flex-1">
@@ -748,22 +748,20 @@ export default function ReceiveReportModal({
             <div className="flex items-center bg-slate-800 p-0.5 sm:p-1 rounded-xl border border-slate-700 text-xs font-semibold">
               <button
                 onClick={() => setDataScope('screen')}
-                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs transition-all ${
-                  dataScope === 'screen'
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs transition-all ${dataScope === 'screen'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'text-slate-300 hover:text-white'
-                }`}
+                  }`}
                 title="ใช้ข้อมูลตามรายการที่โหลดอยู่ในหน้าจอ"
               >
                 ตามหน้าจอ
               </button>
               <button
                 onClick={() => setDataScope('server')}
-                className={`flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs transition-all ${
-                  dataScope === 'server'
+                className={`flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs transition-all ${dataScope === 'server'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'text-slate-300 hover:text-white'
-                }`}
+                  }`}
                 title="ดึงข้อมูลประวัติทั้งหมดจากฐานข้อมูลเซิร์ฟเวอร์"
               >
                 {isLoadingServer ? <RefreshCw className="w-3 h-3 animate-spin" /> : null}
@@ -819,11 +817,10 @@ export default function ReceiveReportModal({
           {/* Card 1: PO สินค้าที่ค้างรับ */}
           <div
             onClick={() => handleTabChange('pending')}
-            className={`cursor-pointer p-2.5 sm:p-3 rounded-xl border transition-all ${
-              activeTab === 'pending'
+            className={`cursor-pointer p-2.5 sm:p-3 rounded-xl border transition-all ${activeTab === 'pending'
                 ? 'bg-blue-50/90 border-blue-400 ring-2 ring-blue-100 shadow-xs'
                 : 'bg-white border-slate-200 hover:border-slate-300'
-            }`}
+              }`}
           >
             <div className="flex items-center justify-between text-[11px] font-semibold text-blue-700">
               <span>PO สินค้าที่ค้างรับ</span>
@@ -889,11 +886,10 @@ export default function ReceiveReportModal({
           {/* Card 4: PO ที่รับสินค้าแล้ว */}
           <div
             onClick={() => handleTabChange('received')}
-            className={`cursor-pointer p-2.5 sm:p-3 rounded-xl border transition-all ${
-              activeTab === 'received'
+            className={`cursor-pointer p-2.5 sm:p-3 rounded-xl border transition-all ${activeTab === 'received'
                 ? 'bg-emerald-50/90 border-emerald-400 ring-2 ring-emerald-100 shadow-xs'
                 : 'bg-white border-slate-200 hover:border-slate-300'
-            }`}
+              }`}
           >
             <div className="flex items-center justify-between text-[11px] font-semibold text-emerald-700">
               <span>PO ที่รับสินค้าแล้ว</span>
@@ -918,11 +914,10 @@ export default function ReceiveReportModal({
             <div className="flex items-center gap-1 bg-slate-100 p-0.5 sm:p-1 rounded-xl shrink-0">
               <button
                 onClick={() => handleTabChange('received')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === 'received'
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'received'
                     ? 'bg-white text-emerald-700 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <PackageCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>1. PO ที่รับสินค้าแล้ว ({filteredReceived.length.toLocaleString()})</span>
@@ -930,11 +925,10 @@ export default function ReceiveReportModal({
 
               <button
                 onClick={() => handleTabChange('pending')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === 'pending'
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'pending'
                     ? 'bg-white text-blue-700 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                 <span>2. PO สินค้าที่ค้างรับ ({filteredPending.length.toLocaleString()})</span>
@@ -942,11 +936,10 @@ export default function ReceiveReportModal({
 
               <button
                 onClick={() => handleTabChange('overview')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === 'overview'
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'overview'
                     ? 'bg-white text-indigo-700 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <TrendingUp className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                 <span>3. สรุปวิเคราะห์ภาพรวม</span>
@@ -964,11 +957,10 @@ export default function ReceiveReportModal({
                       setCompanyFilter(comp);
                       setPage(1);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                      companyFilter === comp
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${companyFilter === comp
                         ? 'bg-slate-900 text-white'
                         : 'text-slate-600 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     {comp === 'ALL' ? 'ทุกบริษัท' : comp}
                   </button>
@@ -1091,7 +1083,7 @@ export default function ReceiveReportModal({
 
         {/* ================= CONTENT TABLE / OVERVIEW SECTION ================= */}
         <div className="flex-1 overflow-y-auto overflow-x-auto min-h-0 px-4 sm:px-6 py-3 print:p-0 print:overflow-visible">
-          
+
           {/* Printable Header (Visible only when printing) */}
           <div className="hidden print:block mb-6 border-b pb-4">
             <div className="flex justify-between items-start">
@@ -1101,8 +1093,8 @@ export default function ReceiveReportModal({
                   {activeTab === 'received'
                     ? 'รายงาน PO ที่รับสินค้าแล้ว (Goods Received Report)'
                     : activeTab === 'pending'
-                    ? 'รายงาน PO สินค้าที่ค้างรับ (Goods Backorder & Pending Report)'
-                    : 'รายงานสรุปภาพรวมการตรวจรับพัสดุและสินค้าคงค้าง'}
+                      ? 'รายงาน PO สินค้าที่ค้างรับ (Goods Backorder & Pending Report)'
+                      : 'รายงานสรุปภาพรวมการตรวจรับพัสดุและสินค้าคงค้าง'}
                 </h2>
                 <div className="text-xs text-slate-500 mt-1">
                   บริษัท: {companyFilter === 'ALL' ? 'ทุกบริษัท (TE / TP / TG)' : companyFilter} | ขอบเขตข้อมูล: {dataScope === 'server' ? 'ฐานข้อมูลระบบทั้งหมด' : 'ตามหน้าจอ'}
@@ -1175,13 +1167,12 @@ export default function ReceiveReportModal({
                               {po.prNumber || '-'}
                             </td>
                             <td className="py-3 px-2 text-center">
-                              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-                                comp === 'TE'
+                              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${comp === 'TE'
                                   ? 'bg-blue-100 text-blue-800'
                                   : comp === 'TP'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-purple-100 text-purple-800'
-                              }`}>
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-purple-100 text-purple-800'
+                                }`}>
                                 {comp}
                               </span>
                             </td>
@@ -1312,13 +1303,12 @@ export default function ReceiveReportModal({
                               {po.prNumber || '-'}
                             </td>
                             <td className="py-3 px-2 text-center">
-                              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-                                comp === 'TE'
+                              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${comp === 'TE'
                                   ? 'bg-blue-100 text-blue-800'
                                   : comp === 'TP'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-purple-100 text-purple-800'
-                              }`}>
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-purple-100 text-purple-800'
+                                }`}>
                                 {comp}
                               </span>
                             </td>
@@ -1482,7 +1472,7 @@ export default function ReceiveReportModal({
                         <td className="py-2.5 px-4 text-right font-bold text-slate-900">{formatCurrency(summaryMetrics.compPending.TP + summaryMetrics.compReceived.TP)}</td>
                       </tr>
                       <tr>
-                        <td className="py-2.5 px-4 font-semibold text-purple-700">TG (บริษัท เทอรา กรุ๊ป จำกัด)</td>
+                        <td className="py-2.5 px-4 font-semibold text-purple-700">TG (บริษัท เทอรา กรุ้ป จำกัด)</td>
                         <td className="py-2.5 px-4 text-right text-slate-800">{formatCurrency(summaryMetrics.compPending.TG)}</td>
                         <td className="py-2.5 px-4 text-right text-emerald-700 font-semibold">{formatCurrency(summaryMetrics.compReceived.TG)}</td>
                         <td className="py-2.5 px-4 text-right font-bold text-slate-900">{formatCurrency(summaryMetrics.compPending.TG + summaryMetrics.compReceived.TG)}</td>

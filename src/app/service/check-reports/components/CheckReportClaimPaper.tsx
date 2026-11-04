@@ -102,20 +102,20 @@ export default function CheckReportClaimPaper({
     ? compCode === "TP"
       ? "TERA POWER CO., LTD."
       : compCode === "TE"
-      ? "TERA ELECTRIC CO., LTD."
-      : "TERA GROUP CO., LTD."
+        ? "TERA ELECTRIC CO., LTD."
+        : "TERA GROUP CO., LTD."
     : compCode === "TP"
-    ? "บริษัท เทอรา พาวเวอร์ จำกัด"
-    : compCode === "TE"
-    ? "บริษัท เทอรา อิเล็คทริค จำกัด"
-    : "บริษัท เทอรา กรุ๊ป จำกัด";
+      ? "บริษัท เทอรา พาวเวอร์ จำกัด"
+      : compCode === "TE"
+        ? "บริษัท เทอรา อิเล็คทริค จำกัด"
+        : "บริษัท เทอรา กรุ้ป จำกัด";
 
   const checkDateStr = report?.checkDate
     ? new Date(report.checkDate).toLocaleDateString(isEn ? "en-GB" : "th-TH", {
-        year: "numeric",
-        month: isEn ? "short" : "long",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: isEn ? "short" : "long",
+      day: "numeric",
+    })
     : "-";
 
   const displayCustomerCompany = isEn
@@ -263,13 +263,13 @@ export default function CheckReportClaimPaper({
                 ? isPump
                   ? "Water Pump Inspection & Service Division"
                   : isMotor
-                  ? "Electric Motor Inspection & Service Division"
-                  : "Customer Service & Technical Support Division"
+                    ? "Electric Motor Inspection & Service Division"
+                    : "Customer Service & Technical Support Division"
                 : isPump
-                ? "ฝ่ายบริการและตรวจเช็คปั๊มน้ำ (Water Pump Service Division)"
-                : isMotor
-                ? "ฝ่ายบริการและตรวจเช็คมอเตอร์ไฟฟ้า (Motor Service Division)"
-                : "ฝ่ายบริการและซ่อมบำรุง (Customer Service & Technical Support)"}
+                  ? "ฝ่ายบริการและตรวจเช็คปั๊มน้ำ (Water Pump Service Division)"
+                  : isMotor
+                    ? "ฝ่ายบริการและตรวจเช็คมอเตอร์ไฟฟ้า (Motor Service Division)"
+                    : "ฝ่ายบริการและซ่อมบำรุง (Customer Service & Technical Support)"}
             </div>
           </div>
         </div>
@@ -374,8 +374,8 @@ export default function CheckReportClaimPaper({
                 {displayCustomerCompany !== "-"
                   ? displayCustomerCompany
                   : displayCustomerName !== "-"
-                  ? displayCustomerName
-                  : "-"}
+                    ? displayCustomerName
+                    : "-"}
               </td>
               <td className="bg-neutral-100 font-bold px-2.5 py-1.5 border border-black w-[18%]">
                 {isEn ? "Warranty Status" : "สถานะการรับประกัน"}
@@ -488,10 +488,10 @@ export default function CheckReportClaimPaper({
                 {isEn
                   ? "Capacity / Rating"
                   : isPump
-                  ? "ขนาดของปั๊ม (Capacity)"
-                  : isMotor
-                  ? "ขนาดมอเตอร์ (Power)"
-                  : "ขนาดกำลัง / พิกัด"}
+                    ? "ขนาดของปั๊ม (Capacity)"
+                    : isMotor
+                      ? "ขนาดมอเตอร์ (Power)"
+                      : "ขนาดกำลัง / พิกัด"}
               </td>
               <td
                 className="px-2.5 py-1.5 border border-black font-semibold"
@@ -502,8 +502,8 @@ export default function CheckReportClaimPaper({
                     ? report.motorKw
                     : `${report.motorKw} ${eqConfig.powerUnitLabel || "kW"}`
                   : diode.inverterKw
-                  ? `${diode.inverterKw} kW`
-                  : "-"}
+                    ? `${diode.inverterKw} kW`
+                    : "-"}
               </td>
               {isCabinet ? (
                 hasInverterInCabinet && (diode?.inverterModel || diode?.inverterBrand) ? (
@@ -663,9 +663,8 @@ export default function CheckReportClaimPaper({
                     {defectPhotos.map((url, idx) => (
                       <div
                         key={idx}
-                        className={`relative h-full w-full flex items-center justify-center bg-slate-50 border border-slate-200 rounded overflow-hidden p-0.5 ${
-                          idx === 2 ? "col-span-2" : ""
-                        }`}
+                        className={`relative h-full w-full flex items-center justify-center bg-slate-50 border border-slate-200 rounded overflow-hidden p-0.5 ${idx === 2 ? "col-span-2" : ""
+                          }`}
                       >
                         <img
                           src={url}
@@ -728,8 +727,8 @@ export default function CheckReportClaimPaper({
                   ? "Contains Inverter / Soft Starter"
                   : "ตู้ที่มี Inverter / Soft Starter"
                 : isEn
-                ? "Standard Control Cabinet"
-                : "ตู้ควบคุม"}
+                  ? "Standard Control Cabinet"
+                  : "ตู้ควบคุม"}
             </span>
           </div>
           <table className="w-full border-collapse border border-black text-[10.5px]">
@@ -749,9 +748,8 @@ export default function CheckReportClaimPaper({
                   return (
                     <td
                       key={item.key || num}
-                      className={`px-2 py-1 border border-black w-1/2 ${
-                        isDamaged ? "bg-red-50/40" : "bg-white"
-                      }`}
+                      className={`px-2 py-1 border border-black w-1/2 ${isDamaged ? "bg-red-50/40" : "bg-white"
+                        }`}
                     >
                       <div className="flex items-center justify-between gap-1.5">
                         <div className="flex items-center gap-1.5 font-semibold text-slate-800 truncate">
@@ -811,8 +809,8 @@ export default function CheckReportClaimPaper({
                 ? "6. Technical Findings & Cause Analysis"
                 : "6. ผลการตรวจเช็คทางเทคนิคและวิเคราะห์สาเหตุ (Technical Findings & Assessment)"
               : isEn
-              ? "5. Technical Findings & Cause Analysis"
-              : "5. ผลการตรวจเช็คทางเทคนิคและวิเคราะห์สาเหตุ (Technical Findings & Assessment)"}
+                ? "5. Technical Findings & Cause Analysis"
+                : "5. ผลการตรวจเช็คทางเทคนิคและวิเคราะห์สาเหตุ (Technical Findings & Assessment)"}
           </span>
           <span className="text-[10px] font-normal opacity-90">
             {isEn ? "Inspection Results" : "ผลการตรวจเช็ค"}
@@ -879,82 +877,82 @@ export default function CheckReportClaimPaper({
               pOutput.output3Phase380Uv ||
               pOutput.output3Phase220Uv ||
               pOutput.u_v) && (
-              <tr>
-                <td className="bg-neutral-100 font-bold px-2.5 py-1.5 border border-black align-top">
-                  {isEn ? "Measurement Notes" : "สรุปผลการวัดทางเทคนิค"}
-                </td>
-                <td className="px-2.5 py-1.5 border border-black text-[10.5px]">
-                  {(isInverter || (isCabinet && hasInverterInCabinet)) && (
-                    <div className="space-y-0.5 mb-1">
-                      {diode.igbtStatus && (
-                        <div>
-                          • <b>IGBT Status:</b>{" "}
-                          <span
-                            className={
-                              diode.igbtStatus.includes("ปกติ") || diode.igbtStatus.includes("PASS") || diode.igbtStatus === "NORMAL"
-                                ? "text-emerald-700 font-bold"
-                                : "text-red-700 font-bold"
-                            }
-                          >
-                            {diode.igbtStatus === "NORMAL" ? "NORMAL (ปกติ)" : diode.igbtStatus === "ABNORMAL" ? "ABNORMAL (ผิดปกติ/ชำรุด)" : diode.igbtStatus}
-                          </span>
-                        </div>
-                      )}
-                      {(diode.pos_to_r_black || diode.phaseShortCheck) && (
-                        <div>
-                          • <b>Diode Check:</b> (+)→R: {diode.pos_to_r_black || "-"} V | (+)→S:{" "}
-                          {diode.pos_to_s_black || "-"} V | (+)→T: {diode.pos_to_t_black || "-"} V
-                          {diode.phaseShortCheck && ` [${diode.phaseShortCheck === "NORMAL" ? "เฟสปกติ" : "ช็อตข้ามเฟส"}]`}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {eqType === "MOTOR" && (
-                    <div className="space-y-0.5">
-                      <div>
-                        • <b>ขดลวด (Resistance):</b> U1-U2: {motor.windingU1U2 || "-"} Ω | V1-V2:{" "}
-                        {motor.windingV1V2 || "-"} Ω | W1-W2: {motor.windingW1W2 || "-"} Ω
+                <tr>
+                  <td className="bg-neutral-100 font-bold px-2.5 py-1.5 border border-black align-top">
+                    {isEn ? "Measurement Notes" : "สรุปผลการวัดทางเทคนิค"}
+                  </td>
+                  <td className="px-2.5 py-1.5 border border-black text-[10.5px]">
+                    {(isInverter || (isCabinet && hasInverterInCabinet)) && (
+                      <div className="space-y-0.5 mb-1">
+                        {diode.igbtStatus && (
+                          <div>
+                            • <b>IGBT Status:</b>{" "}
+                            <span
+                              className={
+                                diode.igbtStatus.includes("ปกติ") || diode.igbtStatus.includes("PASS") || diode.igbtStatus === "NORMAL"
+                                  ? "text-emerald-700 font-bold"
+                                  : "text-red-700 font-bold"
+                              }
+                            >
+                              {diode.igbtStatus === "NORMAL" ? "NORMAL (ปกติ)" : diode.igbtStatus === "ABNORMAL" ? "ABNORMAL (ผิดปกติ/ชำรุด)" : diode.igbtStatus}
+                            </span>
+                          </div>
+                        )}
+                        {(diode.pos_to_r_black || diode.phaseShortCheck) && (
+                          <div>
+                            • <b>Diode Check:</b> (+)→R: {diode.pos_to_r_black || "-"} V | (+)→S:{" "}
+                            {diode.pos_to_s_black || "-"} V | (+)→T: {diode.pos_to_t_black || "-"} V
+                            {diode.phaseShortCheck && ` [${diode.phaseShortCheck === "NORMAL" ? "เฟสปกติ" : "ช็อตข้ามเฟส"}]`}
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        • <b>ฉนวน (Insulation Megger):</b> U-G: {motor.insulationUGround || "-"} MΩ |
-                        V-G: {motor.insulationVGround || "-"} MΩ | W-G:{" "}
-                        {motor.insulationWGround || "-"} MΩ
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {eqType === "CONTROL_CABINET" && (
-                    <div className="space-y-0.5">
-                      {(pInput.input3PhaseRs || pInput.r_s || pInput.input1PhaseAc || pInput.inputDc) && (
+                    {eqType === "MOTOR" && (
+                      <div className="space-y-0.5">
                         <div>
-                          • <b>Power Input:</b>{" "}
-                          {pInput.input3PhaseRs
-                            ? `RS: ${pInput.input3PhaseRs} V | ST: ${pInput.input3PhaseSt || "-"} V | RT: ${pInput.input3PhaseRt || "-"} V`
-                            : pInput.input1PhaseAc
-                            ? `1-Phase: ${pInput.input1PhaseAc} V`
-                            : pInput.inputDc
-                            ? `DC: ${pInput.inputDc} V`
-                            : `R-S: ${pInput.r_s || "-"} V | S-T: ${pInput.s_t || "-"} V | R-T: ${pInput.r_t || "-"} V`}
+                          • <b>ขดลวด (Resistance):</b> U1-U2: {motor.windingU1U2 || "-"} Ω | V1-V2:{" "}
+                          {motor.windingV1V2 || "-"} Ω | W1-W2: {motor.windingW1W2 || "-"} Ω
                         </div>
-                      )}
-                      {(pOutput.output3Phase380Uv || pOutput.output3Phase220Uv || pOutput.u_v || pOutput.output1PhaseLn) && (
                         <div>
-                          • <b>Power Output:</b>{" "}
-                          {pOutput.output3Phase380Uv
-                            ? `380V (UV: ${pOutput.output3Phase380Uv} V | VW: ${pOutput.output3Phase380Vw || "-"} V | UW: ${pOutput.output3Phase380Uw || "-"} V)`
-                            : pOutput.output3Phase220Uv
-                            ? `220V (UV: ${pOutput.output3Phase220Uv} V | VW: ${pOutput.output3Phase220Vw || "-"} V | UW: ${pOutput.output3Phase220Uw || "-"} V)`
-                            : pOutput.output1PhaseLn
-                            ? `1-Phase LN: ${pOutput.output1PhaseLn} V`
-                            : `U-V: ${pOutput.u_v || "-"} V | V-W: ${pOutput.v_w || "-"} V | U-W: ${pOutput.u_w || "-"} V`}
+                          • <b>ฉนวน (Insulation Megger):</b> U-G: {motor.insulationUGround || "-"} MΩ |
+                          V-G: {motor.insulationVGround || "-"} MΩ | W-G:{" "}
+                          {motor.insulationWGround || "-"} MΩ
                         </div>
-                      )}
-                    </div>
-                  )}
-                </td>
-              </tr>
-            )}
+                      </div>
+                    )}
+
+                    {eqType === "CONTROL_CABINET" && (
+                      <div className="space-y-0.5">
+                        {(pInput.input3PhaseRs || pInput.r_s || pInput.input1PhaseAc || pInput.inputDc) && (
+                          <div>
+                            • <b>Power Input:</b>{" "}
+                            {pInput.input3PhaseRs
+                              ? `RS: ${pInput.input3PhaseRs} V | ST: ${pInput.input3PhaseSt || "-"} V | RT: ${pInput.input3PhaseRt || "-"} V`
+                              : pInput.input1PhaseAc
+                                ? `1-Phase: ${pInput.input1PhaseAc} V`
+                                : pInput.inputDc
+                                  ? `DC: ${pInput.inputDc} V`
+                                  : `R-S: ${pInput.r_s || "-"} V | S-T: ${pInput.s_t || "-"} V | R-T: ${pInput.r_t || "-"} V`}
+                          </div>
+                        )}
+                        {(pOutput.output3Phase380Uv || pOutput.output3Phase220Uv || pOutput.u_v || pOutput.output1PhaseLn) && (
+                          <div>
+                            • <b>Power Output:</b>{" "}
+                            {pOutput.output3Phase380Uv
+                              ? `380V (UV: ${pOutput.output3Phase380Uv} V | VW: ${pOutput.output3Phase380Vw || "-"} V | UW: ${pOutput.output3Phase380Uw || "-"} V)`
+                              : pOutput.output3Phase220Uv
+                                ? `220V (UV: ${pOutput.output3Phase220Uv} V | VW: ${pOutput.output3Phase220Vw || "-"} V | UW: ${pOutput.output3Phase220Uw || "-"} V)`
+                                : pOutput.output1PhaseLn
+                                  ? `1-Phase LN: ${pOutput.output1PhaseLn} V`
+                                  : `U-V: ${pOutput.u_v || "-"} V | V-W: ${pOutput.v_w || "-"} V | U-W: ${pOutput.u_w || "-"} V`}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              )}
 
             {/* Action / Next Step Options */}
             <tr>

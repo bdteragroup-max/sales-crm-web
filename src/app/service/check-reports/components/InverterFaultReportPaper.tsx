@@ -152,7 +152,7 @@ export default function InverterFaultReportPaper({
       ? "บริษัท เทอรา พาวเวอร์ จำกัด"
       : compCode === "TE"
         ? "บริษัท เทอรา อิเล็คทริค จำกัด"
-        : "บริษัท เทอรา กรุ๊ป จำกัด";
+        : "บริษัท เทอรา กรุ้ป จำกัด";
 
   const rawWarranty = String(report?.warrantyStatus || "").trim().toUpperCase();
   const isWarrantyValid =
@@ -171,13 +171,13 @@ export default function InverterFaultReportPaper({
     ? isWarrantyValid
       ? "In Warranty"
       : isWarrantyExpired
-      ? "Out of Warranty"
-      : report?.warrantyStatus || "In Warranty"
+        ? "Out of Warranty"
+        : report?.warrantyStatus || "In Warranty"
     : isWarrantyValid
-    ? "รับประกัน"
-    : isWarrantyExpired
-    ? "หมดประกัน"
-    : report?.warrantyStatus || "รับประกัน";
+      ? "รับประกัน"
+      : isWarrantyExpired
+        ? "หมดประกัน"
+        : report?.warrantyStatus || "รับประกัน";
 
   const photos = report?.photos || {};
   const diode = report?.diodeMeasurement || {};

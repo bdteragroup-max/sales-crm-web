@@ -20,33 +20,33 @@ export default function PhotosPaper({ report, lang = "TH", className = "" }: Pho
     ? isPump
       ? "Water Pump Inspection Division — Product & Fault Photos"
       : isMotor
-      ? "Electric Motor Inspection Division — Product & Fault Photos"
-      : isCabinet
-      ? "Control Cabinet Inspection Division — Product & Fault Photos"
-      : "Inverter & Drive System Division — Product & Fault Photos"
+        ? "Electric Motor Inspection Division — Product & Fault Photos"
+        : isCabinet
+          ? "Control Cabinet Inspection Division — Product & Fault Photos"
+          : "Inverter & Drive System Division — Product & Fault Photos"
     : isPump
-    ? "ฝ่ายบริการและตรวจเช็คปั๊มน้ำ — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
-    : isMotor
-    ? "ฝ่ายบริการและตรวจเช็คมอเตอร์ไฟฟ้า — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
-    : isCabinet
-    ? "ฝ่ายบริการและตรวจเช็คตู้คอนโทรล — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
-    : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)";
+      ? "ฝ่ายบริการและตรวจเช็คปั๊มน้ำ — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
+      : isMotor
+        ? "ฝ่ายบริการและตรวจเช็คมอเตอร์ไฟฟ้า — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
+        : isCabinet
+          ? "ฝ่ายบริการและตรวจเช็คตู้คอนโทรล — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)"
+          : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปถ่ายสินค้าและความเสียหาย (Fault Photos)";
 
   const divisionSubtitleSheet2 = isEn
     ? isPump
       ? "Water Pump Inspection Division — Additional & Fault Photos"
       : isMotor
-      ? "Electric Motor Inspection Division — Additional & Fault Photos"
-      : isCabinet
-      ? "Control Cabinet Inspection Division — Additional & Fault Photos"
-      : "Inverter & Drive System Division — Additional & Fault Photos"
+        ? "Electric Motor Inspection Division — Additional & Fault Photos"
+        : isCabinet
+          ? "Control Cabinet Inspection Division — Additional & Fault Photos"
+          : "Inverter & Drive System Division — Additional & Fault Photos"
     : isPump
-    ? "ฝ่ายบริการและตรวจเช็คปั๊มน้ำ — รูปภาพแนบเพิ่มเติม"
-    : isMotor
-    ? "ฝ่ายบริการและตรวจเช็คมอเตอร์ไฟฟ้า — รูปภาพแนบเพิ่มเติม"
-    : isCabinet
-    ? "ฝ่ายบริการและตรวจเช็คตู้คอนโทรล — รูปภาพแนบเพิ่มเติม"
-    : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปภาพแนบเพิ่มเติม";
+      ? "ฝ่ายบริการและตรวจเช็คปั๊มน้ำ — รูปภาพแนบเพิ่มเติม"
+      : isMotor
+        ? "ฝ่ายบริการและตรวจเช็คมอเตอร์ไฟฟ้า — รูปภาพแนบเพิ่มเติม"
+        : isCabinet
+          ? "ฝ่ายบริการและตรวจเช็คตู้คอนโทรล — รูปภาพแนบเพิ่มเติม"
+          : "ฝ่ายบริการและตรวจเช็คอินเวอร์เตอร์ — รูปภาพแนบเพิ่มเติม";
   const photoSlots = [
     { key: "front", label: isEn ? "Front View" : "ด้านหน้า", url: photos.front?.[0] },
     { key: "left", label: isEn ? "Left Side View" : "ด้านซ้าย", url: photos.left?.[0] || photos.side?.[0] },
@@ -116,20 +116,20 @@ export default function PhotosPaper({ report, lang = "TH", className = "" }: Pho
     compCode === "TE"
       ? "/6.png"
       : compCode === "TP"
-      ? "/7.png"
-      : "/4.png";
+        ? "/7.png"
+        : "/4.png";
 
   const companyTitle = isEn
     ? compCode === "TP"
       ? "TERA POWER CO., LTD."
       : compCode === "TE"
-      ? "TERA ELECTRIC CO., LTD."
-      : "TERA GROUP CO., LTD."
+        ? "TERA ELECTRIC CO., LTD."
+        : "TERA GROUP CO., LTD."
     : compCode === "TP"
       ? "บริษัท เทอรา พาวเวอร์ จำกัด"
       : compCode === "TE"
-      ? "บริษัท เทอรา อิเล็คทริค จำกัด"
-      : "บริษัท เทอรา กรุ๊ป จำกัด";
+        ? "บริษัท เทอรา อิเล็คทริค จำกัด"
+        : "บริษัท เทอรา กรุ้ป จำกัด";
 
   return (
     <div
@@ -140,80 +140,80 @@ export default function PhotosPaper({ report, lang = "TH", className = "" }: Pho
       <div className="photos-sheet-1 print-page-sheet bg-white border-2 border-black p-6 flex flex-col justify-between box-border min-h-[960px] shadow-sm print:border-none print:p-0 print:shadow-none print:min-h-0 print:h-auto print:block">
         <div>
           {/* Header Row: Company Title & Document Number (Identical across all forms) */}
-        <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-24 flex items-center justify-start shrink-0">
-              <img
-                src={logoSrc}
-                alt={compCode}
-                className="max-h-10 max-w-full object-contain"
-              />
-            </div>
-            <div>
-              <div className="font-bold text-[13px]">{companyTitle}</div>
-              <div className="text-[10px] text-gray-600">
-                {divisionSubtitle}
+          <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-24 flex items-center justify-start shrink-0">
+                <img
+                  src={logoSrc}
+                  alt={compCode}
+                  className="max-h-10 max-w-full object-contain"
+                />
               </div>
+              <div>
+                <div className="font-bold text-[13px]">{companyTitle}</div>
+                <div className="text-[10px] text-gray-600">
+                  {divisionSubtitle}
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-mono font-bold text-[12px] text-black">
+                CR: {report?.crNumber || "-"}
+              </div>
+              {report?.convertedJobNumber && (
+                <div className="text-[10px] font-bold text-gray-700 font-mono">
+                  Ref RO: {report.convertedJobNumber}
+                </div>
+              )}
             </div>
           </div>
-          <div className="text-right">
-            <div className="font-mono font-bold text-[12px] text-black">
-              CR: {report?.crNumber || "-"}
-            </div>
-            {report?.convertedJobNumber && (
-              <div className="text-[10px] font-bold text-gray-700 font-mono">
-                Ref RO: {report.convertedJobNumber}
-              </div>
-            )}
+
+          {/* Section Header matching Image 2 */}
+          <div className="font-bold text-[12px] bg-[#d9e1f2] border border-black text-center py-1 mb-3 print:mb-2">
+            {isEn ? "PRODUCT PHOTOS (8 SIDES)" : "รูปสินค้า (8 ด้าน)"}
           </div>
-        </div>
 
-        {/* Section Header matching Image 2 */}
-        <div className="font-bold text-[12px] bg-[#d9e1f2] border border-black text-center py-1 mb-3 print:mb-2">
-          {isEn ? "PRODUCT PHOTOS (8 SIDES)" : "รูปสินค้า (8 ด้าน)"}
-        </div>
-
-        {/* 4-Column x 2-Row 8-photo grid in Landscape */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 print:grid-cols-4 gap-3 print:gap-2">
-          {photoSlots.map((slot) => (
-            <div key={slot.key} className="flex flex-col items-center print:break-inside-avoid">
-              <div
-                className="product-photo-frame w-full border border-black bg-white flex items-center justify-center p-1 overflow-hidden"
-                style={{ height: "120px", maxHeight: "120px" }}
-              >
-                {slot.url ? (
-                  <img
-                    src={slot.url}
-                    alt={slot.label}
-                    className="max-h-full max-w-full object-contain"
-                    style={{ maxHeight: "114px", maxWidth: "100%", width: "auto", height: "auto" }}
-                  />
-                ) : (
-                  <span className="text-[9.5px] text-gray-400 font-mono text-center p-1">
-                    {isEn ? "(No photo)" : "(ไม่มีรูปภาพ)"}
-                  </span>
-                )}
+          {/* 4-Column x 2-Row 8-photo grid in Landscape */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 print:grid-cols-4 gap-3 print:gap-2">
+            {photoSlots.map((slot) => (
+              <div key={slot.key} className="flex flex-col items-center print:break-inside-avoid">
+                <div
+                  className="product-photo-frame w-full border border-black bg-white flex items-center justify-center p-1 overflow-hidden"
+                  style={{ height: "120px", maxHeight: "120px" }}
+                >
+                  {slot.url ? (
+                    <img
+                      src={slot.url}
+                      alt={slot.label}
+                      className="max-h-full max-w-full object-contain"
+                      style={{ maxHeight: "114px", maxWidth: "100%", width: "auto", height: "auto" }}
+                    />
+                  ) : (
+                    <span className="text-[9.5px] text-gray-400 font-mono text-center p-1">
+                      {isEn ? "(No photo)" : "(ไม่มีรูปภาพ)"}
+                    </span>
+                  )}
+                </div>
+                {/* Boxed label matching template */}
+                <div className="border border-black text-center py-0.5 px-2 font-bold text-[10px] print:text-[9px] bg-white mt-1 w-full truncate">
+                  {slot.label}
+                </div>
               </div>
-              {/* Boxed label matching template */}
-              <div className="border border-black text-center py-0.5 px-2 font-bold text-[10px] print:text-[9px] bg-white mt-1 w-full truncate">
-                {slot.label}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* Footer for Sheet 1 of Photos */}
-        <div className="border-t border-gray-300 pt-1 text-[9px] print:text-[8px] text-gray-500 flex justify-between items-center mt-3">
-          <span>{companyTitle} — Service & Quality Control</span>
-          <span>
-            {isEn
-              ? "Product 8-Side Photos"
-              : "เอกสารรูปถ่ายสินค้า 8 ด้าน"}
-          </span>
+          {/* Footer for Sheet 1 of Photos */}
+          <div className="border-t border-gray-300 pt-1 text-[9px] print:text-[8px] text-gray-500 flex justify-between items-center mt-3">
+            <span>{companyTitle} — Service & Quality Control</span>
+            <span>
+              {isEn
+                ? "Product 8-Side Photos"
+                : "เอกสารรูปถ่ายสินค้า 8 ด้าน"}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-    {/* End of Sheet 1 */}
+      {/* End of Sheet 1 */}
 
       {/* Attached Additional Photos (Sheet 2) */}
       {additionalPhotos.length > 0 && (

@@ -3,6 +3,15 @@
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { Printer, ArrowLeft } from "lucide-react";
+import { Sarabun } from "next/font/google";
+import { getCompanyPrintInfo } from "@/app/repair-orders/lib/companyHelpers";
+
+const sarabun = Sarabun({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin", "thai"],
+  display: "swap",
+});
+
 
 export default function RepairOrderPrintPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -105,27 +114,41 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
   }
 
   // ── Render one A4 sheet ──
-  const renderA4Page = (copyLabel: string) => (
-    <div className="ro-sheet">
-      {/* Header */}
-      <div className="ro-header">
-        <div className="ro-brand-left">
-          <div className="ro-brand-logos">
-            <img src="/17f3de5f-9a16-4fdd-8682-6157042b8cfd.png" alt="Logo" className="ro-logo-img" />
+  const renderA4Page = (copyLabel: string) => {
+    const currentCompany = getCompanyPrintInfo(data?.company || data?.job?.companyCode);
+
+    return (
+      <div className="ro-sheet">
+        {/* Header */}
+        <div className="ro-header">
+          <div className="ro-brand-left">
+            <div className="ro-brand-header-flex">
+              <div className="ro-logo-box">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={currentCompany.logo}
+                  alt={currentCompany.en}
+                  className="ro-logo-img"
+                />
+              </div>
+              <div className="ro-brand-info">
+                <div className="ro-brand-name-th">{currentCompany.th}</div>
+                <div className="ro-brand-name-en">{currentCompany.en}</div>
+                <div className="ro-brand-sub">
+                  {currentCompany.address}<br />
+                  {currentCompany.telFax}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="ro-brand-sub">
-            39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250<br/>
-            โทร: +66(0) 2328-0801-3 , +66(0)81-3152660 แฟกซ์: +66(0) 2328-0804
+          <div className="ro-right-top">
+            <div className="ro-copy-box">{copyLabel}</div>
+            <div className="ro-right-meta">
+              <div><span className="ro-lbl">วันที่: </span>{toThaiDate(repairReceivedDate)}</div>
+              <div><span className="ro-lbl">บริษัท: </span>{currentCompany.short}</div>
+            </div>
           </div>
         </div>
-        <div className="ro-right-top">
-          <div className="ro-copy-box">{copyLabel}</div>
-          <div className="ro-right-meta">
-            <span className="ro-lbl">วันที่: </span>{toThaiDate(repairReceivedDate)}<br/>
-            <span className="ro-lbl">บริษัท: </span>{data?.company || 'TERA GROUP'}
-          </div>
-        </div>
-      </div>
 
       {/* Title */}
       <div className="ro-title">ใบรับซ่อม</div>
@@ -301,29 +324,54 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
       </div>
     </div>
   );
+};
 
   return (
-    <div className="ro-print-wrapper">
+    <div className={`ro-print-wrapper ${sarabun.className} w-full h-full overflow-y-auto print:overflow-visible print:h-auto`}>
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 400;
+          font-display: swap;
+          src: local('TH Sarabun New'),
+               local('THSarabunNew'),
+               url('/THSarabunNew.woff2') format('woff2'),
+               url('/Sarabun-Regular.woff2') format('woff2'),
+               url('/Sarabun-Regular.ttf') format('truetype');
+        }
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 700;
+          font-display: swap;
+          src: local('TH Sarabun New Bold'),
+               local('THSarabunNew-Bold'),
+               url('/THSarabunNew-Bold.woff2') format('woff2'),
+               url('/Sarabun-Bold.woff2') format('woff2'),
+               url('/Sarabun-Bold.ttf') format('truetype');
+        }
 
         /* ── Page setup ── */
         @page {
-          size: A4;
-          margin: 6mm 10mm 6mm 10mm;
+          size: A4 portrait;
+          margin: 0mm;
         }
 
-        /* ── Reset (scoped to print wrapper) ── */
+        /* ── Reset (scoped to print wrapper) & Force Thai Sarabun ── */
+        .ro-print-wrapper,
         .ro-print-wrapper * {
           box-sizing: border-box;
           margin: 0;
           padding: 0;
+          font-family: 'TH Sarabun New', 'Sarabun', 'THSarabunNew', Tahoma, sans-serif !important;
         }
 
         .ro-print-wrapper {
-          font-family: 'Sarabun', sans-serif;
           color: #111;
-          font-size: 14px;
+          font-size: 14.5px;
           line-height: 1.35;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
@@ -333,9 +381,9 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         /* ── Sheet (one A4 page) ── */
         .ro-sheet {
           width: 210mm;
-          height: 297mm;
+          min-height: 297mm;
           margin: 8mm auto;
-          padding: 6mm 12mm 6mm 12mm;
+          padding: 8mm 12mm 8mm 12mm;
           background: #fff;
           box-shadow: 0 2px 16px rgba(0,0,0,.18);
           overflow: hidden;
@@ -343,17 +391,33 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
           display: flex;
           flex-direction: column;
           page-break-after: always;
+          break-after: page;
+        }
+
+        .ro-sheet:last-child {
+          page-break-after: auto;
+          break-after: auto;
         }
 
         /* ── Print overrides ── */
         @media print {
-          .ro-print-wrapper { background: #fff; }
+          .ro-print-wrapper,
+          .ro-print-wrapper * {
+            font-family: 'TH Sarabun New', 'Sarabun', 'THSarabunNew', Tahoma, sans-serif !important;
+          }
+          .ro-print-wrapper { background: #fff !important; padding: 0 !important; }
           .ro-sheet {
-            width: 100%;
-            height: auto;
-            margin: 0;
-            padding: 0;
-            box-shadow: none;
+            width: 210mm !important;
+            min-height: 297mm !important;
+            margin: 0 !important;
+            padding: 8mm 12mm !important;
+            box-shadow: none !important;
+            page-break-after: always !important;
+            break-after: page !important;
+          }
+          .ro-sheet:last-child {
+            page-break-after: auto !important;
+            break-after: auto !important;
           }
           .ro-fab { display: none !important; }
         }
@@ -362,30 +426,92 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         .ro-header {
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
+          align-items: center;
           gap: 4mm;
-          margin-bottom: 1.5mm;
+          margin-bottom: 2mm;
+          padding-bottom: 2mm;
+          border-bottom: 1.5px solid #111;
           flex-shrink: 0;
         }
 
         .ro-brand-left { flex: 1 1 auto; min-width: 0; }
 
-        .ro-brand-logos {
+        .ro-brand-header-flex {
           display: flex;
           align-items: center;
-          gap: 2mm;
-          margin-bottom: 1mm;
+          gap: 3.5mm;
+        }
+
+        .ro-logo-box {
+          height: 48px;
+          min-width: 50px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          flex-shrink: 0;
         }
 
         .ro-logo-img {
-          height: 28px;
+          max-height: 46px;
+          max-width: 65px;
+          width: auto;
+          height: auto;
           object-fit: contain;
         }
 
+        .ro-brand-info {
+          line-height: 1.2;
+        }
+
+        .ro-brand-name-th {
+          font-size: 15.5px;
+          font-weight: 700;
+          color: #000;
+          letter-spacing: -0.2px;
+        }
+
+        .ro-brand-name-en {
+          font-size: 10px;
+          font-weight: 600;
+          color: #444;
+          margin-bottom: 1px;
+        }
+
         .ro-brand-sub {
+          font-size: 9.5px;
+          line-height: 1.25;
+          color: #444;
+        }
+
+        .ro-right-top {
+          width: 58mm;
+          flex: 0 0 58mm;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+        }
+
+        .ro-copy-box {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 32mm;
+          min-height: 7mm;
+          padding: 0 3mm;
+          border: 0.35mm solid #888;
+          background: #ead3d6;
+          font-size: 11.5px;
+          font-weight: 700;
+          margin-bottom: 1.5mm;
+        }
+
+        .ro-right-meta {
           font-size: 12px;
+          text-align: right;
           line-height: 1.4;
-          color: #333;
+        }
+
+        .ro-lbl { font-weight: 700; }
         }
 
         .ro-right-top {

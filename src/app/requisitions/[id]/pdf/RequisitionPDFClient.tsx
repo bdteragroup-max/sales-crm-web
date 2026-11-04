@@ -34,9 +34,9 @@ const companyInfoMap: Record<
   }
 > = {
   TG: {
-    th: "บริษัท เทอรา กรุ๊ป จำกัด",
+    th: "บริษัท เทอรา กรุ้ป จำกัด",
     en: "TERA GROUP CO., LTD.",
-    short: "เทอรา กรุ๊ป (TG)",
+    short: "เทอรา กรุ้ป (TG)",
     taxId: "0105552112716",
     address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250",
     telFax: "โทรศัพท์: 02-328-0801-3  โทรสาร: 02-328-0804",
@@ -611,7 +611,7 @@ export default function RequisitionPDFClient({
           >
             {isGroup ? "✓" : ""}
           </span>
-          <span style={{ fontWeight: isGroup ? "bold" : "normal" }}>เทอรา กรุ๊ป (TG)</span>
+          <span style={{ fontWeight: isGroup ? "bold" : "normal" }}>เทอรา กรุ้ป (TG)</span>
         </div>
         {/* TE */}
         <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
@@ -1009,185 +1009,185 @@ export default function RequisitionPDFClient({
     isLastItemPage: boolean
   ) => {
     return (
-    <div style={{ margin: "2px 0 3px" }}>
-      <table
-        className="official-table"
-        style={{
-          fontSize: isPortrait ? "9px" : "9.5px",
-        }}
-      >
-        <thead>
-          <tr style={{ textAlign: "center", lineHeight: 1.15 }}>
-            <th style={{ width: "5%", padding: "3px 2px" }}>
-              ลำดับ<br />
-              <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>ITEM</span>
-            </th>
-            <th style={{ width: isPortrait ? "38%" : "37%", padding: "3px 5px", textAlign: "left" }}>
-              {isBorrow ? "รายการเครื่องมือและอุปกรณ์ / รายละเอียดสเปก" : "รายการเบิกวัสดุอุปกรณ์ / รายละเอียดสเปก"}<br />
-              <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>
-                {isBorrow ? "EQUIPMENT DESCRIPTION & SPECIFICATION" : "MATERIAL DESCRIPTION & SPECIFICATION"}
-              </span>
-            </th>
-            <th style={{ width: "8%", padding: "3px 2px" }}>
-              จำนวน<br />
-              <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>QTY</span>
-            </th>
-            <th style={{ width: "7%", padding: "3px 2px" }}>
-              หน่วย<br />
-              <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>UNIT</span>
-            </th>
-            <th style={{ width: isPortrait ? "17%" : "18%", padding: "3px 4px", textAlign: "left" }}>
-              {isBorrow ? "วัตถุประสงค์การนำไปใช้" : "งานที่นำไปใช้ / โครงการ"}<br />
-              <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>
-                {isBorrow ? "PURPOSE / USAGE" : "JOB / PURPOSE"}
-              </span>
-            </th>
-            <th style={{ width: isPortrait ? "10%" : "10%", padding: "3px 2px" }}>
-              สถานะการคืน<br />
-              <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>RETURN</span>
-            </th>
-            <th style={{ width: isPortrait ? "15%" : "16%", padding: "3px 4px", textAlign: "left" }}>
-              หมายเหตุ<br />
-              <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>REMARK</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {chunkItems.length === 0 ? (
-            <tr>
-              <td colSpan={7} style={{ textAlign: "center", padding: "12px", color: "#666666" }}>
-                {isBorrow ? "- ไม่มีรายการขอยืมอุปกรณ์ -" : "- ไม่มีรายการเบิกวัสดุ -"}
-              </td>
+      <div style={{ margin: "2px 0 3px" }}>
+        <table
+          className="official-table"
+          style={{
+            fontSize: isPortrait ? "9px" : "9.5px",
+          }}
+        >
+          <thead>
+            <tr style={{ textAlign: "center", lineHeight: 1.15 }}>
+              <th style={{ width: "5%", padding: "3px 2px" }}>
+                ลำดับ<br />
+                <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>ITEM</span>
+              </th>
+              <th style={{ width: isPortrait ? "38%" : "37%", padding: "3px 5px", textAlign: "left" }}>
+                {isBorrow ? "รายการเครื่องมือและอุปกรณ์ / รายละเอียดสเปก" : "รายการเบิกวัสดุอุปกรณ์ / รายละเอียดสเปก"}<br />
+                <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>
+                  {isBorrow ? "EQUIPMENT DESCRIPTION & SPECIFICATION" : "MATERIAL DESCRIPTION & SPECIFICATION"}
+                </span>
+              </th>
+              <th style={{ width: "8%", padding: "3px 2px" }}>
+                จำนวน<br />
+                <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>QTY</span>
+              </th>
+              <th style={{ width: "7%", padding: "3px 2px" }}>
+                หน่วย<br />
+                <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>UNIT</span>
+              </th>
+              <th style={{ width: isPortrait ? "17%" : "18%", padding: "3px 4px", textAlign: "left" }}>
+                {isBorrow ? "วัตถุประสงค์การนำไปใช้" : "งานที่นำไปใช้ / โครงการ"}<br />
+                <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>
+                  {isBorrow ? "PURPOSE / USAGE" : "JOB / PURPOSE"}
+                </span>
+              </th>
+              <th style={{ width: isPortrait ? "10%" : "10%", padding: "3px 2px" }}>
+                สถานะการคืน<br />
+                <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>RETURN</span>
+              </th>
+              <th style={{ width: isPortrait ? "15%" : "16%", padding: "3px 4px", textAlign: "left" }}>
+                หมายเหตุ<br />
+                <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>REMARK</span>
+              </th>
             </tr>
-          ) : (
-            chunkItems.map((item, index) => {
-              const rowNum = startIndex + index + 1
-              const returnedQty = Number(item.returnedQuantity) || 0
-              const itemQty = Number(item.quantity) || 0
+          </thead>
+          <tbody>
+            {chunkItems.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ textAlign: "center", padding: "12px", color: "#666666" }}>
+                  {isBorrow ? "- ไม่มีรายการขอยืมอุปกรณ์ -" : "- ไม่มีรายการเบิกวัสดุ -"}
+                </td>
+              </tr>
+            ) : (
+              chunkItems.map((item, index) => {
+                const rowNum = startIndex + index + 1
+                const returnedQty = Number(item.returnedQuantity) || 0
+                const itemQty = Number(item.quantity) || 0
 
-              return (
-                <tr
-                  key={startIndex + index}
-                  style={{
-                    backgroundColor: "#ffffff",
-                    minHeight: isPortrait ? "24px" : "20px",
-                  }}
-                >
-                  {/* No. */}
-                  <td style={{ textAlign: "center", color: "#000000", fontWeight: 600, padding: "2px 2px" }}>
-                    {rowNum}
-                  </td>
-
-                  {/* Detail */}
-                  <td
+                return (
+                  <tr
+                    key={startIndex + index}
                     style={{
-                      padding: "2px 5px",
-                      textAlign: "left",
-                      wordBreak: "break-word",
-                      fontSize: (item?.detail?.length || 0) > 60 ? "8px" : isPortrait ? "9px" : "9.5px",
-                      lineHeight: (item?.detail?.length || 0) > 60 ? 1.15 : 1.25,
+                      backgroundColor: "#ffffff",
+                      minHeight: isPortrait ? "24px" : "20px",
                     }}
                   >
-                    <span style={{ fontWeight: "bold", color: "#000000" }}>{item?.detail || "-"}</span>
-                  </td>
+                    {/* No. */}
+                    <td style={{ textAlign: "center", color: "#000000", fontWeight: 600, padding: "2px 2px" }}>
+                      {rowNum}
+                    </td>
 
-                  {/* Quantity */}
-                  <td
-                    style={{
-                      textAlign: "center",
-                      fontWeight: "bold",
-                      color: "#000000",
-                      fontSize: isPortrait ? "9.5px" : "10px",
-                      padding: "2px 2px",
-                    }}
-                  >
-                    {item?.quantity ?? "-"}
-                  </td>
+                    {/* Detail */}
+                    <td
+                      style={{
+                        padding: "2px 5px",
+                        textAlign: "left",
+                        wordBreak: "break-word",
+                        fontSize: (item?.detail?.length || 0) > 60 ? "8px" : isPortrait ? "9px" : "9.5px",
+                        lineHeight: (item?.detail?.length || 0) > 60 ? 1.15 : 1.25,
+                      }}
+                    >
+                      <span style={{ fontWeight: "bold", color: "#000000" }}>{item?.detail || "-"}</span>
+                    </td>
 
-                  {/* Unit */}
-                  <td style={{ textAlign: "center", color: "#000000", padding: "2px 2px" }}>
-                    {item?.unit || "-"}
-                  </td>
+                    {/* Quantity */}
+                    <td
+                      style={{
+                        textAlign: "center",
+                        fontWeight: "bold",
+                        color: "#000000",
+                        fontSize: isPortrait ? "9.5px" : "10px",
+                        padding: "2px 2px",
+                      }}
+                    >
+                      {item?.quantity ?? "-"}
+                    </td>
 
-                  {/* Job / Purpose */}
-                  <td
-                    style={{
-                      padding: "2px 4px",
-                      textAlign: "left",
-                      color: "#000000",
-                      wordBreak: "break-word",
-                      fontSize: (item?.job?.length || 0) > 40 ? "8px" : isPortrait ? "9px" : "9.5px",
-                      lineHeight: (item?.job?.length || 0) > 40 ? 1.15 : 1.25,
-                    }}
-                  >
-                    {item?.job || "-"}
-                  </td>
+                    {/* Unit */}
+                    <td style={{ textAlign: "center", color: "#000000", padding: "2px 2px" }}>
+                      {item?.unit || "-"}
+                    </td>
 
-                  {/* Return Status */}
-                  <td style={{ textAlign: "center", fontSize: "8.5px", padding: "2.5px 2px", color: "#000000" }}>
-                    {isReqFullyReturned || (returnedQty > 0 && returnedQty >= itemQty) ? (
-                      <span style={{ fontWeight: "bold" }}>
-                        คืนครบแล้ว ({itemQty}/{itemQty})
-                      </span>
-                    ) : returnedQty > 0 ? (
-                      <span style={{ fontWeight: "bold" }}>
-                        คืนแล้ว ({returnedQty}/{itemQty})
-                      </span>
-                    ) : isBorrow ? (
-                      <span style={{ color: "#333333" }}>ยังไม่คืน</span>
-                    ) : (
-                      <span style={{ color: "#777777" }}>-</span>
-                    )}
-                  </td>
+                    {/* Job / Purpose */}
+                    <td
+                      style={{
+                        padding: "2px 4px",
+                        textAlign: "left",
+                        color: "#000000",
+                        wordBreak: "break-word",
+                        fontSize: (item?.job?.length || 0) > 40 ? "8px" : isPortrait ? "9px" : "9.5px",
+                        lineHeight: (item?.job?.length || 0) > 40 ? 1.15 : 1.25,
+                      }}
+                    >
+                      {item?.job || "-"}
+                    </td>
 
-                  {/* Remark */}
-                  <td style={{ padding: "2.5px 4px", textAlign: "left", color: "#333333", wordBreak: "break-word" }}>
-                    {item?.remark || "-"}
-                  </td>
-                </tr>
-              )
-            })
-          )}
+                    {/* Return Status */}
+                    <td style={{ textAlign: "center", fontSize: "8.5px", padding: "2.5px 2px", color: "#000000" }}>
+                      {isReqFullyReturned || (returnedQty > 0 && returnedQty >= itemQty) ? (
+                        <span style={{ fontWeight: "bold" }}>
+                          คืนครบแล้ว ({itemQty}/{itemQty})
+                        </span>
+                      ) : returnedQty > 0 ? (
+                        <span style={{ fontWeight: "bold" }}>
+                          คืนแล้ว ({returnedQty}/{itemQty})
+                        </span>
+                      ) : isBorrow ? (
+                        <span style={{ color: "#333333" }}>ยังไม่คืน</span>
+                      ) : (
+                        <span style={{ color: "#777777" }}>-</span>
+                      )}
+                    </td>
 
-          {/* Formal Grand Summary Row: Shown only on the LAST item page */}
-          {isLastItemPage && (
-            <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold", borderTop: "1.5px solid #000000" }}>
-              <td colSpan={2} style={{ padding: "3px 5px", textAlign: "right", color: "#000000" }}>
-                รวมทั้งสิ้น (TOTAL): {items.length} รายการ
-              </td>
-              <td style={{ textAlign: "center", color: "#000000", fontSize: "10px" }}>
-                {totalQuantity}
-              </td>
-              <td style={{ textAlign: "center", color: "#000000", fontSize: "8.5px" }}>
-                หน่วย
-              </td>
-              <td colSpan={3} style={{ padding: "3px 5px", textAlign: "left", fontSize: "8.5px", color: "#333333" }}>
-                {isReqFullyReturned ? (
-                  <span style={{ fontWeight: "bold" }}>
-                    ส่งคืนคลังครบถ้วนแล้ว: {totalQuantity} หน่วย
-                  </span>
-                ) : hasReturnedItems ? (
-                  <span>
-                    ส่งคืนแล้ว: <strong>{totalReturned}</strong> หน่วย
-                    {totalQuantity - totalReturned > 0 && (
-                      <span style={{ marginLeft: "6px" }}>
-                        (ค้างคืน: <strong>{totalQuantity - totalReturned}</strong> หน่วย)
-                      </span>
-                    )}
-                  </span>
-                ) : (
-                  <span>
-                    {isBorrow
-                      ? "ตรวจนับจำนวน ตรวจสภาพเครื่องมือและความพร้อมใช้งานให้เรียบร้อยก่อนรับมอบ"
-                      : "ตรวจนับจำนวนและสภาพวัสดุอุปกรณ์ให้เรียบร้อยก่อนลงนามรับมอบ"}
-                  </span>
-                )}
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+                    {/* Remark */}
+                    <td style={{ padding: "2.5px 4px", textAlign: "left", color: "#333333", wordBreak: "break-word" }}>
+                      {item?.remark || "-"}
+                    </td>
+                  </tr>
+                )
+              })
+            )}
+
+            {/* Formal Grand Summary Row: Shown only on the LAST item page */}
+            {isLastItemPage && (
+              <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold", borderTop: "1.5px solid #000000" }}>
+                <td colSpan={2} style={{ padding: "3px 5px", textAlign: "right", color: "#000000" }}>
+                  รวมทั้งสิ้น (TOTAL): {items.length} รายการ
+                </td>
+                <td style={{ textAlign: "center", color: "#000000", fontSize: "10px" }}>
+                  {totalQuantity}
+                </td>
+                <td style={{ textAlign: "center", color: "#000000", fontSize: "8.5px" }}>
+                  หน่วย
+                </td>
+                <td colSpan={3} style={{ padding: "3px 5px", textAlign: "left", fontSize: "8.5px", color: "#333333" }}>
+                  {isReqFullyReturned ? (
+                    <span style={{ fontWeight: "bold" }}>
+                      ส่งคืนคลังครบถ้วนแล้ว: {totalQuantity} หน่วย
+                    </span>
+                  ) : hasReturnedItems ? (
+                    <span>
+                      ส่งคืนแล้ว: <strong>{totalReturned}</strong> หน่วย
+                      {totalQuantity - totalReturned > 0 && (
+                        <span style={{ marginLeft: "6px" }}>
+                          (ค้างคืน: <strong>{totalQuantity - totalReturned}</strong> หน่วย)
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <span>
+                      {isBorrow
+                        ? "ตรวจนับจำนวน ตรวจสภาพเครื่องมือและความพร้อมใช้งานให้เรียบร้อยก่อนรับมอบ"
+                        : "ตรวจนับจำนวนและสภาพวัสดุอุปกรณ์ให้เรียบร้อยก่อนลงนามรับมอบ"}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     )
   }
 
@@ -1206,16 +1206,16 @@ export default function RequisitionPDFClient({
     >
       {isBorrow ? (
         <>
-          <strong style={{ color: "#000000" }}>ระเบียบและข้อกำหนดการยืมเครื่องมือและอุปกรณ์:</strong> 
-          &nbsp;1. ผู้ขอยืมต้องตรวจนับจำนวน ตรวจสอบสภาพและความพร้อมใช้งานของเครื่องมือ ณ วันที่รับมอบจากคลังสินค้า 
-          &nbsp;2. ผู้ยืมมีหน้าที่ดูแลรักษาเครื่องมือให้อยู่ในสภาพสมบูรณ์ และส่งคืนคลังสินค้าทันทีเมื่อเสร็จสิ้นภารกิจ 
+          <strong style={{ color: "#000000" }}>ระเบียบและข้อกำหนดการยืมเครื่องมือและอุปกรณ์:</strong>
+          &nbsp;1. ผู้ขอยืมต้องตรวจนับจำนวน ตรวจสอบสภาพและความพร้อมใช้งานของเครื่องมือ ณ วันที่รับมอบจากคลังสินค้า
+          &nbsp;2. ผู้ยืมมีหน้าที่ดูแลรักษาเครื่องมือให้อยู่ในสภาพสมบูรณ์ และส่งคืนคลังสินค้าทันทีเมื่อเสร็จสิ้นภารกิจ
           &nbsp;3. หากเครื่องมือสูญหาย ชำรุด หรือเสียหายจากการใช้งานผิดประเภท ผู้ยืมต้องรับผิดชอบชดใช้ตามระเบียบของบริษัทฯ
         </>
       ) : (
         <>
-          <strong style={{ color: "#000000" }}>ระเบียบและข้อกำหนดการเบิกวัสดุอุปกรณ์โครงการ:</strong> 
-          &nbsp;1. ผู้ขอเบิกต้องตรวจสอบความถูกต้องและสภาพวัสดุอุปกรณ์ ณ วันที่รับมอบจากคลังสินค้า 
-          &nbsp;2. นำวัสดุอุปกรณ์ไปใช้งานตามวัตถุประสงค์ของโครงการที่ระบุไว้ในใบเบิกนี้เท่านั้น 
+          <strong style={{ color: "#000000" }}>ระเบียบและข้อกำหนดการเบิกวัสดุอุปกรณ์โครงการ:</strong>
+          &nbsp;1. ผู้ขอเบิกต้องตรวจสอบความถูกต้องและสภาพวัสดุอุปกรณ์ ณ วันที่รับมอบจากคลังสินค้า
+          &nbsp;2. นำวัสดุอุปกรณ์ไปใช้งานตามวัตถุประสงค์ของโครงการที่ระบุไว้ในใบเบิกนี้เท่านั้น
           &nbsp;3. กรณีมีวัสดุเหลือใช้ ให้ประสานงานส่งคืนคลังสินค้าเพื่อบันทึกตัดยอดตามระเบียบของบริษัทฯ
         </>
       )}

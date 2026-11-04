@@ -262,11 +262,10 @@ export default function StoreReturnsClient({
         {/* Card 1: Total */}
         <div
           onClick={() => setActiveTab("ALL")}
-          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${
-            activeTab === "ALL"
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${activeTab === "ALL"
               ? "border-[#ff2301] ring-2 ring-red-500/10 shadow-sm"
               : "border-gray-200 hover:border-gray-300"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
             <span className="font-semibold">ทั้งหมด</span>
@@ -279,11 +278,10 @@ export default function StoreReturnsClient({
         {/* Card 2: Change Spec (Featured for Subcontractors) */}
         <div
           onClick={() => setActiveTab("CHANGE_SPEC")}
-          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${
-            activeTab === "CHANGE_SPEC"
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${activeTab === "CHANGE_SPEC"
               ? "border-blue-500 ring-2 ring-blue-500/10 shadow-sm bg-blue-50/20"
               : "border-gray-200 hover:border-blue-300"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between text-xs text-blue-700 mb-2">
             <span className="font-bold flex items-center gap-1">
@@ -298,11 +296,10 @@ export default function StoreReturnsClient({
         {/* Card 3: Return to Warehouse */}
         <div
           onClick={() => setActiveTab("RETURN_TO_WAREHOUSE")}
-          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${
-            activeTab === "RETURN_TO_WAREHOUSE"
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${activeTab === "RETURN_TO_WAREHOUSE"
               ? "border-emerald-500 ring-2 ring-emerald-500/10 shadow-sm"
               : "border-gray-200 hover:border-emerald-300"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between text-xs text-emerald-700 mb-2">
             <span className="font-bold">ส่งคืนคลังสินค้า</span>
@@ -315,11 +312,10 @@ export default function StoreReturnsClient({
         {/* Card 4: Drafts */}
         <div
           onClick={() => setActiveTab("DRAFT")}
-          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${
-            activeTab === "DRAFT"
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${activeTab === "DRAFT"
               ? "border-amber-500 ring-2 ring-amber-500/10 shadow-sm"
               : "border-gray-200 hover:border-amber-300"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between text-xs text-amber-700 mb-2">
             <span className="font-bold">แบบร่าง / รอรับคืน</span>
@@ -332,11 +328,10 @@ export default function StoreReturnsClient({
         {/* Card 5: Completed */}
         <div
           onClick={() => setActiveTab("COMPLETED")}
-          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${
-            activeTab === "COMPLETED"
+          className={`bg-white rounded-2xl p-4 sm:p-5 border cursor-pointer transition-all ${activeTab === "COMPLETED"
               ? "border-emerald-500 ring-2 ring-emerald-500/10 shadow-sm"
               : "border-gray-200 hover:border-emerald-300"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between text-xs text-emerald-700 mb-2">
             <span className="font-bold">เสร็จสมบูรณ์</span>
@@ -353,72 +348,65 @@ export default function StoreReturnsClient({
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold border-b border-gray-100">
           <button
             onClick={() => setActiveTab("ALL")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
-              activeTab === "ALL"
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === "ALL"
                 ? "bg-gray-900 text-white shadow-sm"
                 : "text-gray-600 hover:bg-gray-100"
-            }`}
+              }`}
           >
             ทั้งหมด ({kpis.total})
           </button>
           <button
             onClick={() => setActiveTab("CHANGE_SPEC")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 ${
-              activeTab === "CHANGE_SPEC"
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 ${activeTab === "CHANGE_SPEC"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-blue-700 hover:bg-blue-50"
-            }`}
+              }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>เปลี่ยนสเปคสินค้า ({kpis.changeSpec})</span>
           </button>
           <button
             onClick={() => setActiveTab("RETURN_TO_WAREHOUSE")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
-              activeTab === "RETURN_TO_WAREHOUSE"
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === "RETURN_TO_WAREHOUSE"
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "text-gray-600 hover:bg-gray-100"
-            }`}
+              }`}
           >
             ส่งคืนคลัง ({kpis.toWarehouse})
           </button>
           <button
             onClick={() => setActiveTab("WRONG_MODEL")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
-              activeTab === "WRONG_MODEL"
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === "WRONG_MODEL"
                 ? "bg-purple-600 text-white shadow-sm"
                 : "text-gray-600 hover:bg-gray-100"
-            }`}
+              }`}
           >
             ผิดรุ่น / ไม่ตรงสเปค
           </button>
           <button
             onClick={() => setActiveTab("DEFECT_REPAIR")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
-              activeTab === "DEFECT_REPAIR"
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === "DEFECT_REPAIR"
                 ? "bg-red-600 text-white shadow-sm"
                 : "text-gray-600 hover:bg-gray-100"
-            }`}
+              }`}
           >
             ของเสีย / ส่งซ่อม
           </button>
           <button
             onClick={() => setActiveTab("DRAFT")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
-              activeTab === "DRAFT"
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === "DRAFT"
                 ? "bg-amber-600 text-white shadow-sm"
                 : "text-gray-600 hover:bg-gray-100"
-            }`}
+              }`}
           >
             แบบร่าง ({kpis.draft})
           </button>
           <button
             onClick={() => setActiveTab("COMPLETED")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
-              activeTab === "COMPLETED"
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === "COMPLETED"
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "text-gray-600 hover:bg-gray-100"
-            }`}
+              }`}
           >
             รับคืนแล้ว ({kpis.completed})
           </button>
@@ -489,18 +477,16 @@ export default function StoreReturnsClient({
           <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl shrink-0 self-end md:self-auto">
             <button
               onClick={() => setViewMode("cards")}
-              className={`p-1.5 rounded-lg transition-all ${
-                viewMode === "cards" ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`p-1.5 rounded-lg transition-all ${viewMode === "cards" ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"
+                }`}
               title="มุมมองการ์ด"
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`p-1.5 rounded-lg transition-all ${
-                viewMode === "table" ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`p-1.5 rounded-lg transition-all ${viewMode === "table" ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"
+                }`}
               title="มุมมองตาราง"
             >
               <ListFilter className="w-4 h-4" />
@@ -552,13 +538,12 @@ export default function StoreReturnsClient({
                         {doc.documentNo}
                       </span>
                       <span
-                        className={`text-[10px] font-black px-1.5 py-0.5 rounded-md border ${
-                          internalCompany === "TP"
+                        className={`text-[10px] font-black px-1.5 py-0.5 rounded-md border ${internalCompany === "TP"
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                             : internalCompany === "TE"
-                            ? "bg-blue-50 text-blue-700 border-blue-200"
-                            : "bg-red-50 text-[#ff2301] border-red-200"
-                        }`}
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : "bg-red-50 text-[#ff2301] border-red-200"
+                          }`}
                         title={compMeta.fullName}
                       >
                         {internalCompany}
@@ -708,13 +693,12 @@ export default function StoreReturnsClient({
                         <div className="flex items-center gap-1.5">
                           <span>{doc.documentNo}</span>
                           <span
-                            className={`text-[10px] font-black px-1.5 py-0.5 rounded-md border ${
-                              internalCompany === "TP"
+                            className={`text-[10px] font-black px-1.5 py-0.5 rounded-md border ${internalCompany === "TP"
                                 ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                 : internalCompany === "TE"
-                                ? "bg-blue-50 text-blue-700 border-blue-200"
-                                : "bg-red-50 text-[#ff2301] border-red-200"
-                            }`}
+                                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                                  : "bg-red-50 text-[#ff2301] border-red-200"
+                              }`}
                             title={compMeta.fullName}
                           >
                             {internalCompany}
@@ -822,17 +806,15 @@ export default function StoreReturnsClient({
                 <div className="hidden sm:flex items-center gap-1 p-1 bg-white border border-gray-200 rounded-xl text-xs font-bold">
                   <button
                     onClick={() => setPreviewMode("half")}
-                    className={`px-2.5 py-1 rounded-lg transition-all ${
-                      previewMode === "half" ? "bg-red-50 text-[#ff2301]" : "text-gray-500 hover:text-gray-900"
-                    }`}
+                    className={`px-2.5 py-1 rounded-lg transition-all ${previewMode === "half" ? "bg-red-50 text-[#ff2301]" : "text-gray-500 hover:text-gray-900"
+                      }`}
                   >
                     2 ส่วนใน 1 หน้า (ตามรูป)
                   </button>
                   <button
                     onClick={() => setPreviewMode("full")}
-                    className={`px-2.5 py-1 rounded-lg transition-all ${
-                      previewMode === "full" ? "bg-red-50 text-[#ff2301]" : "text-gray-500 hover:text-gray-900"
-                    }`}
+                    className={`px-2.5 py-1 rounded-lg transition-all ${previewMode === "full" ? "bg-red-50 text-[#ff2301]" : "text-gray-500 hover:text-gray-900"
+                      }`}
                   >
                     2 หน้าเต็ม
                   </button>
@@ -863,7 +845,7 @@ export default function StoreReturnsClient({
 
             {/* Modal Footer */}
             <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-gray-500">
-              <span>จัดทำโดยระบบ CRM เทอรา กรุ๊ป</span>
+              <span>จัดทำโดยระบบ CRM เทอรา กรุ้ป</span>
               <button
                 onClick={() => setSelectedDoc(null)}
                 className="px-4 py-1.5 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold transition-colors"

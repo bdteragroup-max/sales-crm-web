@@ -45,7 +45,7 @@ export default async function AcknowledgementDocPage({
 
   const companyMap: Record<string, CompanyProfile> = {
     TG: {
-      thName: "บริษัท เทอรา กรุ๊ป จำกัด",
+      thName: "บริษัท เทอรา กรุ้ป จำกัด",
       enName: "TERA GROUP CO., LTD.",
       logo: "/logos/tg.png",
       address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250",
@@ -550,8 +550,8 @@ export default async function AcknowledgementDocPage({
                       {idx === 0
                         ? "ภาพที่ ๑: จุดชำรุดเสียหาย"
                         : idx === 1
-                        ? "ภาพที่ ๒: ภาพรวมสินค้า/Serial"
-                        : `ภาพที่ ${idx + 1}: หลักฐานประกอบ`}
+                          ? "ภาพที่ ๒: ภาพรวมสินค้า/Serial"
+                          : `ภาพที่ ${idx + 1}: หลักฐานประกอบ`}
                     </div>
                   </div>
                 ))}

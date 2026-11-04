@@ -11,10 +11,10 @@ interface CrInspectionPaperProps {
 export default function CrInspectionPaper({ report, className = "" }: CrInspectionPaperProps) {
   const checkDateStr = report?.checkDate
     ? new Date(report.checkDate).toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
     : "-";
 
   const eqType = report?.equipmentType || "CONTROL_CABINET";
@@ -26,15 +26,15 @@ export default function CrInspectionPaper({ report, className = "" }: CrInspecti
   const hasInverter = Boolean(
     report?.hasInverterInCabinet ??
     diode?.hasInverter ??
-      (diode?.inverterModel ||
-        diode?.inverterBrand ||
-        diode?.igbtStatus ||
-        diode?.meterPhotoDiode ||
-        diode?.pos_to_r_black ||
-        diode?.neg_to_r_red ||
-        diode?.phaseShortCheck ||
-        report?.inverterModel ||
-        report?.inverterBrand)
+    (diode?.inverterModel ||
+      diode?.inverterBrand ||
+      diode?.igbtStatus ||
+      diode?.meterPhotoDiode ||
+      diode?.pos_to_r_black ||
+      diode?.neg_to_r_red ||
+      diode?.phaseShortCheck ||
+      report?.inverterModel ||
+      report?.inverterBrand)
   );
 
   // Split CR number into [ 67 ] - [ 10012 ] format matching Excel template
@@ -84,8 +84,8 @@ export default function CrInspectionPaper({ report, className = "" }: CrInspecti
               {report?.companyCode === "TP"
                 ? "บริษัท เทอรา พาวเวอร์ จำกัด"
                 : report?.companyCode === "TE"
-                ? "บริษัท เทอรา อิเล็คทริค จำกัด"
-                : "บริษัท เทอรา กรุ๊ป จำกัด"}
+                  ? "บริษัท เทอรา อิเล็คทริค จำกัด"
+                  : "บริษัท เทอรา กรุ้ป จำกัด"}
             </div>
             <div className="text-[10px] text-gray-600">
               ระบบบริหารจัดการงานบริการและตรวจเช็คตู้ควบคุมระบบไฟฟ้า

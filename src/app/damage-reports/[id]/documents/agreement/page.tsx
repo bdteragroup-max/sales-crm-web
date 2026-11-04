@@ -45,7 +45,7 @@ export default async function CompensationAgreementDocPage({
 
   const companyMap: Record<string, CompanyProfile> = {
     TG: {
-      thName: "บริษัท เทอรา กรุ๊ป จำกัด",
+      thName: "บริษัท เทอรา กรุ้ป จำกัด",
       enName: "TERA GROUP CO., LTD.",
       logo: "/logos/tg.png",
       address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250",
@@ -286,11 +286,10 @@ export default async function CompensationAgreementDocPage({
             </div>
             <div className="space-y-1.5 ml-2 mt-1">
               <div
-                className={`p-1.5 border ${
-                  report.hrCompensationMethod === "SALARY_DEDUCTION"
+                className={`p-1.5 border ${report.hrCompensationMethod === "SALARY_DEDUCTION"
                     ? "border-blue-600 bg-blue-50/40"
                     : "border-slate-200 bg-slate-50/30"
-                }`}
+                  }`}
               >
                 <div className="font-bold text-slate-900">
                   [ {report.hrCompensationMethod === "SALARY_DEDUCTION" ? "✔" : "  "} ] ๓.๑ การหักจากค่าจ้าง / เงินเดือน (Salary Deduction):
@@ -308,11 +307,10 @@ export default async function CompensationAgreementDocPage({
               </div>
 
               <div
-                className={`p-1.5 border ${
-                  report.hrCompensationMethod === "CASH_TRANSFER"
+                className={`p-1.5 border ${report.hrCompensationMethod === "CASH_TRANSFER"
                     ? "border-blue-600 bg-blue-50/40"
                     : "border-slate-200 bg-slate-50/30"
-                }`}
+                  }`}
               >
                 <div className="font-bold text-slate-900">
                   [ {report.hrCompensationMethod === "CASH_TRANSFER" ? "✔" : "  "} ] ๓.๒ การชำระด้วยเงินสดหรือเงินโอนเข้าบัญชีบริษัท (Direct Transfer):
@@ -324,11 +322,10 @@ export default async function CompensationAgreementDocPage({
               </div>
 
               <div
-                className={`p-1.5 border ${
-                  report.hrCompensationMethod === "CONTRACTOR_INVOICE"
+                className={`p-1.5 border ${report.hrCompensationMethod === "CONTRACTOR_INVOICE"
                     ? "border-blue-600 bg-blue-50/40"
                     : "border-slate-200 bg-slate-50/30"
-                }`}
+                  }`}
               >
                 <div className="font-bold text-slate-900">
                   [ {report.hrCompensationMethod === "CONTRACTOR_INVOICE" ? "✔" : "  "} ] ๓.๓ การหักจากค่าจ้างตามบิลผู้รับเหมา (Contractor Billing Deduction):

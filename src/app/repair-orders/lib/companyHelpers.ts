@@ -48,6 +48,43 @@ export const REPAIR_COMPANIES: RepairCompanyOption[] = [
   },
 ];
 
+export const COMPANY_PRINT_MAP: Record<
+  "TG" | "TE" | "TP",
+  {
+    th: string;
+    en: string;
+    short: string;
+    logo: string;
+    address: string;
+    telFax: string;
+  }
+> = {
+  TG: {
+    th: "บริษัท เทอรา กรุ้ป จำกัด",
+    en: "TERA GROUP CO., LTD.",
+    short: "เทอรา กรุ้ป (TG)",
+    logo: "/4.png",
+    address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250",
+    telFax: "โทรศัพท์: 02-328-0801-3  โทรสาร: 02-328-0804",
+  },
+  TE: {
+    th: "บริษัท เทอรา อิเล็คทริค จำกัด",
+    en: "TERA ELECTRIC CO., LTD.",
+    short: "เทอรา อิเล็คทริค (TE)",
+    logo: "/6.png",
+    address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250",
+    telFax: "โทรศัพท์: 02-328-0801-3  โทรสาร: 02-328-0804",
+  },
+  TP: {
+    th: "บริษัท เทอรา เพาเวอร์ จำกัด",
+    en: "TERA POWER CO., LTD.",
+    short: "เทอรา เพาเวอร์ (TP)",
+    logo: "/7.png",
+    address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250",
+    telFax: "โทรศัพท์: 02-328-0801-3  โทรสาร: 02-328-0804",
+  },
+};
+
 /**
  * Resolves any company string (code, db name, Thai full name) into a unified RepairCompanyOption.
  * Default fallback is TG (Tera Group).
@@ -56,11 +93,27 @@ export function getRepairCompany(val?: string | null): RepairCompanyOption {
   if (!val) return REPAIR_COMPANIES[1]; // default TG
   const clean = val.trim().toUpperCase();
 
-  if (clean === "TP" || clean.includes("POWER") || clean.includes("พาวเวอร์")) {
+  // 1. Check Power (TP)
+  if (
+    clean === "TP" ||
+    clean.startsWith("TP ") ||
+    clean.startsWith("TP-") ||
+    clean.startsWith("TP(") ||
+    clean.includes("POWER") ||
+    clean.includes("เพาเวอร์") ||
+    clean.includes("พาวเวอร์")
+  ) {
     return REPAIR_COMPANIES[0];
   }
+
+  // 2. Check Electric (TE)
+  // CRITICAL: NEVER use clean.includes("TE") because "TERA" starts with "TE"!
   if (
     clean === "TE" ||
+    clean.startsWith("TE ") ||
+    clean.startsWith("TE-") ||
+    clean.startsWith("TE(") ||
+    clean.startsWith("TE (") ||
     clean.includes("ELECTRIC") ||
     clean.includes("อิเล็คทริค") ||
     clean.includes("อิเลคทริค") ||
@@ -68,7 +121,18 @@ export function getRepairCompany(val?: string | null): RepairCompanyOption {
   ) {
     return REPAIR_COMPANIES[2];
   }
-  if (clean === "TG" || clean.includes("GROUP") || clean.includes("กรุ้ป") || clean.includes("กรุ๊ป")) {
+
+  // 3. Check Group (TG)
+  if (
+    clean === "TG" ||
+    clean.startsWith("TG ") ||
+    clean.startsWith("TG-") ||
+    clean.startsWith("TG(") ||
+    clean.startsWith("TG (") ||
+    clean.includes("GROUP") ||
+    clean.includes("กรุ้ป") ||
+    clean.includes("กรุ๊ป")
+  ) {
     return REPAIR_COMPANIES[1];
   }
 
@@ -87,4 +151,12 @@ export function normalizeDbCompany(val?: string | null): string {
  */
 export function normalizeCompanyCode(val?: string | null): "TP" | "TG" | "TE" {
   return getRepairCompany(val).code;
+}
+
+/**
+ * Returns complete print-ready company metadata (Logo, Thai & English names, address, tel/fax)
+ */
+export function getCompanyPrintInfo(val?: string | null) {
+  const comp = getRepairCompany(val);
+  return COMPANY_PRINT_MAP[comp.code] || COMPANY_PRINT_MAP.TG;
 }

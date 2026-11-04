@@ -83,10 +83,10 @@ export default function PumpFaultReportPaper({
   const displayCustomer =
     isEn
       ? translatedData?.customerCompany ||
-        translatedData?.customerName ||
-        report?.customerCompany ||
-        report?.customerName ||
-        "-"
+      translatedData?.customerName ||
+      report?.customerCompany ||
+      report?.customerName ||
+      "-"
       : report?.customerCompany || report?.customerName || "-";
 
   const displayReporter =
@@ -124,20 +124,20 @@ export default function PumpFaultReportPaper({
     compCode === "TE"
       ? "/6.png"
       : compCode === "TP"
-      ? "/7.png"
-      : "/4.png";
+        ? "/7.png"
+        : "/4.png";
 
   const companyTitle = isEn
     ? compCode === "TP"
       ? "TERA POWER CO., LTD."
       : compCode === "TE"
-      ? "TERA ELECTRIC CO., LTD."
-      : "TERA GROUP CO., LTD."
+        ? "TERA ELECTRIC CO., LTD."
+        : "TERA GROUP CO., LTD."
     : compCode === "TP"
-    ? "บริษัท เทอรา พาวเวอร์ จำกัด"
-    : compCode === "TE"
-    ? "บริษัท เทอรา อิเล็คทริค จำกัด"
-    : "บริษัท เทอรา กรุ๊ป จำกัด";
+      ? "บริษัท เทอรา พาวเวอร์ จำกัด"
+      : compCode === "TE"
+        ? "บริษัท เทอรา อิเล็คทริค จำกัด"
+        : "บริษัท เทอรา กรุ้ป จำกัด";
 
   const photos = report?.photos || {};
   const nameplatePhoto = photos.nameplate?.[0];
@@ -213,13 +213,13 @@ export default function PumpFaultReportPaper({
     ? isWarrantyValid
       ? "In Warranty"
       : isWarrantyExpired
-      ? "Out of Warranty"
-      : report?.warrantyStatus || "In Warranty"
+        ? "Out of Warranty"
+        : report?.warrantyStatus || "In Warranty"
     : isWarrantyValid
-    ? "รับประกัน"
-    : isWarrantyExpired
-    ? "หมดประกัน"
-    : report?.warrantyStatus || "รับประกัน";
+      ? "รับประกัน"
+      : isWarrantyExpired
+        ? "หมดประกัน"
+        : report?.warrantyStatus || "รับประกัน";
 
   const isMotor = report?.equipmentType === "MOTOR";
   const mainTitle = isMotor ? "MOTOR FAULTY REPORT" : "PUMP FAULTY REPORT";
@@ -513,8 +513,8 @@ export default function PumpFaultReportPaper({
                         ? damagedPartPhotos[0].enTitle
                         : damagedPartPhotos[0].title
                       : isEn
-                      ? "1. Diffuser / Stage Bowl"
-                      : "1. เสื้อปั๊ม / เบ้าใบพัด"}
+                        ? "1. Diffuser / Stage Bowl"
+                        : "1. เสื้อปั๊ม / เบ้าใบพัด"}
                   </div>
                 </div>
 
@@ -542,8 +542,8 @@ export default function PumpFaultReportPaper({
                         ? damagedPartPhotos[1].enTitle
                         : damagedPartPhotos[1].title
                       : isEn
-                      ? "2. Pump Impeller"
-                      : "2. ใบพัดปั๊มน้ำ (Impeller)"}
+                        ? "2. Pump Impeller"
+                        : "2. ใบพัดปั๊มน้ำ (Impeller)"}
                   </div>
                 </div>
 
@@ -571,8 +571,8 @@ export default function PumpFaultReportPaper({
                         ? damagedPartPhotos[2].enTitle
                         : damagedPartPhotos[2].title
                       : isEn
-                      ? "3. Bushing / Sleeve / Seal"
-                      : "3. บูช / ปลอกเพลา / ซีล"}
+                        ? "3. Bushing / Sleeve / Seal"
+                        : "3. บูช / ปลอกเพลา / ซีล"}
                   </div>
                 </div>
 
@@ -600,8 +600,8 @@ export default function PumpFaultReportPaper({
                         ? damagedPartPhotos[3].enTitle
                         : damagedPartPhotos[3].title
                       : isEn
-                      ? "4. Broken Fragments"
-                      : "4. เศษชิ้นส่วนที่แตกหัก"}
+                        ? "4. Broken Fragments"
+                        : "4. เศษชิ้นส่วนที่แตกหัก"}
                   </div>
                 </div>
               </div>
@@ -611,29 +611,29 @@ export default function PumpFaultReportPaper({
           {/* Recommendations & Required Spare Parts */}
           {(displayRecommendations ||
             (Array.isArray(displayRequireParts) && displayRequireParts.length > 0)) && (
-            <div className="border border-black p-2.5 mb-4 text-[11px] space-y-1 bg-neutral-50/50">
-              {displayRecommendations && (
-                <div>
-                  <span className="font-bold text-slate-900">
-                    {isEn ? "Repair Recommendations: " : "ข้อเสนอแนะในการซ่อมแซม: "}
-                  </span>
-                  <span>{displayRecommendations}</span>
-                </div>
-              )}
-              {Array.isArray(displayRequireParts) && displayRequireParts.length > 0 && (
-                <div>
-                  <span className="font-bold text-slate-900">
-                    {isEn ? "Required Spare Parts: " : "อะไหล่ที่ต้องเปลี่ยน: "}
-                  </span>
-                  <span>
-                    {displayRequireParts
-                      .map((p: any) => `${p.partName || "-"} (${p.qty || 1} ${isEn ? "pcs" : "ชิ้น"})`)
-                      .join(", ")}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+              <div className="border border-black p-2.5 mb-4 text-[11px] space-y-1 bg-neutral-50/50">
+                {displayRecommendations && (
+                  <div>
+                    <span className="font-bold text-slate-900">
+                      {isEn ? "Repair Recommendations: " : "ข้อเสนอแนะในการซ่อมแซม: "}
+                    </span>
+                    <span>{displayRecommendations}</span>
+                  </div>
+                )}
+                {Array.isArray(displayRequireParts) && displayRequireParts.length > 0 && (
+                  <div>
+                    <span className="font-bold text-slate-900">
+                      {isEn ? "Required Spare Parts: " : "อะไหล่ที่ต้องเปลี่ยน: "}
+                    </span>
+                    <span>
+                      {displayRequireParts
+                        .map((p: any) => `${p.partName || "-"} (${p.qty || 1} ${isEn ? "pcs" : "ชิ้น"})`)
+                        .join(", ")}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
         </div>
       </div>
 

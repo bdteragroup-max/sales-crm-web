@@ -179,9 +179,9 @@ export default function StoreRequisitionsClient({
   // Helper: Normalize Company
   const normalizeCompany = (comp: string = ''): 'TE' | 'TP' | 'TG' | 'OTHER' => {
     const upper = comp.toUpperCase();
-    if (upper.includes('TE') || upper.includes('ELECTRIC') || upper.includes('อิเลคทริค')) return 'TE';
-    if (upper.includes('TP') || upper.includes('POWER') || upper.includes('เพาเวอร์') || upper.includes('พาวเวอร์')) return 'TP';
-    if (upper.includes('TG') || upper.includes('GROUP') || upper.includes('กรุ้ป') || upper.includes('กรุ๊ป')) return 'TG';
+    if (upper === 'TG' || upper.startsWith('TG ') || upper.startsWith('TG-') || upper.startsWith('TG(') || upper.includes('GROUP') || upper.includes('กรุ้ป') || upper.includes('กรุ๊ป')) return 'TG';
+    if (upper === 'TP' || upper.startsWith('TP ') || upper.startsWith('TP-') || upper.startsWith('TP(') || upper.includes('POWER') || upper.includes('เพาเวอร์') || upper.includes('พาวเวอร์')) return 'TP';
+    if (upper === 'TE' || upper.startsWith('TE ') || upper.startsWith('TE-') || upper.startsWith('TE(') || upper.includes('ELECTRIC') || upper.includes('อิเล็คทริค') || upper.includes('อิเลคทริค')) return 'TE';
     return 'OTHER';
   };
 

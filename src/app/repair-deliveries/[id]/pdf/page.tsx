@@ -65,7 +65,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
 
   const companyInfoMap: Record<string, { thName: string, name: string, address: string, phone: string, logo: string, fallbackLogo: string }> = {
     TG: {
-      thName: "บริษัท เทอรา กรุ๊ป จำกัด",
+      thName: "บริษัท เทอรา กรุ้ป จำกัด",
       name: "TERA GROUP CO., LTD.",
       address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250",
       phone: "+66(0) 2328-0801-3",
@@ -116,10 +116,10 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
   const beforePhotos = normalizePhotos(delivery.photosBefore).slice(0, 2);
   const afterPhotos = normalizePhotos(delivery.photosAfter).slice(0, 2);
 
-  const deliveryDateFormatted = delivery.deliveryDate 
-    ? new Date(delivery.deliveryDate).toLocaleDateString('th-TH') 
-    : delivery.createdAt 
-      ? new Date(delivery.createdAt).toLocaleDateString('th-TH') 
+  const deliveryDateFormatted = delivery.deliveryDate
+    ? new Date(delivery.deliveryDate).toLocaleDateString('th-TH')
+    : delivery.createdAt
+      ? new Date(delivery.createdAt).toLocaleDateString('th-TH')
       : '';
 
   return (
@@ -188,16 +188,16 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           }
         `}
       </style>
-      
+
       <div className="flex justify-end mb-3 print:hidden max-w-[210mm] mx-auto pt-3 px-2">
         <PrintButton />
       </div>
 
-      <div 
-        className="delivery-pdf-container bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden" 
-        style={{ 
-          width: '210mm', 
-          minHeight: '297mm', 
+      <div
+        className="delivery-pdf-container bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden"
+        style={{
+          width: '210mm',
+          minHeight: '297mm',
           maxHeight: '297mm',
           padding: '8mm 13mm 6mm 13mm',
           fontSize: '11pt',
@@ -214,10 +214,10 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1.5px solid #000', paddingBottom: '2mm', marginBottom: '2mm' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '3.5mm' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={currentCompany.logo} 
-                alt={currentCompany.name} 
-                style={{ height: '14mm', width: 'auto', objectFit: 'contain' }} 
+              <img
+                src={currentCompany.logo}
+                alt={currentCompany.name}
+                style={{ height: '14mm', width: 'auto', objectFit: 'contain' }}
               />
               <div>
                 <div style={{ fontSize: '13pt', fontWeight: 'bold', lineHeight: 1.15, color: '#000' }}>
@@ -264,8 +264,8 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
             <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
               <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ลูกค้า :</span>
               <span style={{ flex: 1 }}>
-                {delivery.company && !['TG', 'TE', 'TP'].includes(delivery.company) 
-                  ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}` 
+                {delivery.company && !['TG', 'TE', 'TP'].includes(delivery.company)
+                  ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}`
                   : (delivery.customer || '-')}
               </span>
               <span style={{ fontWeight: 'bold', marginLeft: '4mm', marginRight: '2mm', flexShrink: 0 }}>เลขที่ใบเสนอราคา / PO :</span>
