@@ -91,7 +91,15 @@ type Job = {
   } | null;
 };
 
-const COMPANY_CODES = ["TP", "TG", "TE"];
+const COMPANY_CODES = ["TP", "TG", "TE"] as const;
+
+export function normalizeCompanyCode(code?: string | null): "TP" | "TG" | "TE" {
+  if (!code) return "TG";
+  const clean = code.trim().toUpperCase();
+  if (clean === "TP" || clean.startsWith("TP") || clean.includes("POWER") || clean.includes("เพาเวอร์")) return "TP";
+  if (clean === "TE" || clean.startsWith("TE ") || clean.startsWith("TE-") || clean.includes("ELECTRIC") || clean.includes("อิเล็คทริค") || clean.includes("อิเล็กทริค")) return "TE";
+  return "TG";
+}
 
 const MONTH_NAMES = [
   "", "Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.",
@@ -105,14 +113,15 @@ function formatDate(d: Date | string) {
 
 // ── Badge colors per type/company ──────────────────────────
 function CompanyBadge({ code }: { code: string }) {
+  const norm = normalizeCompanyCode(code);
   const styles: Record<string, string> = {
     TP: "bg-blue-50 text-blue-800 border-blue-200",
     TG: "bg-green-50 text-green-800 border-green-200",
     TE: "bg-amber-50 text-amber-800 border-amber-200",
   };
   return (
-    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${styles[code] ?? "bg-gray-100 text-gray-700"}`}>
-      {code}
+    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${styles[norm] ?? "bg-green-50 text-green-800 border-green-200"}`}>
+      {norm}
     </span>
   );
 }
@@ -469,10 +478,21 @@ function ExpandedRow({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
           {/* Row 1 */}
           <EditableField label="ชื่อลูกค้า" value={job.customerName} onSave={save("customerName")} />
-          <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
+          <EditableField label="บริษัท" value={normalizeCompanyCode(job.companyCode)} type="select" options={COMPANY_CODES as unknown as string[]} onSave={save("companyCode")} />
           <div>
-            <p className="text-xs text-gray-400 mb-0.5">พนักงานขาย</p>
-            <p className="text-sm text-gray-800">{job.sellerName || job.project?.contractSignatory || job.project?.manager?.fullName || <span className="text-gray-400 italic">—</span>}</p>
+            <p className="text-xs text-gray-400 mb-0.5">
+              {job.jobType === "งานซ่อม" || job.repairOrder ? "ผู้รับผิดชอบ / ผู้ดูแล" : "พนักงานขาย"}
+            </p>
+            <p className="text-sm text-gray-800">
+              {job.sellerName ||
+                job.repairOrder?.salesPerson ||
+                job.repairOrder?.receiverName ||
+                job.repairOrder?.technicianName ||
+                job.project?.contractSignatory ||
+                job.project?.manager?.fullName || (
+                  <span className="text-gray-400 italic">—</span>
+                )}
+            </p>
           </div>
           <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} />
 
@@ -486,13 +506,37 @@ function ExpandedRow({
             <p className="text-sm text-gray-800">{job.poNumber || <span className="text-gray-400 italic">—</span>}</p>
           </div>
           <EditableField label="วันที่ปิดการขาย" value={formatDateForInput(job.dateClosed)} type="date" onSave={save("dateClosed")} />
-          <EditableField label="วันที่ต้องการจัดส่ง" value={formatDateForInput(job.deliveryDate || job.project?.endDate || job.project?.deliveryDate)} type="date" onSave={save("deliveryDate")} />
+          <EditableField
+            label="วันที่ต้องการจัดส่ง"
+            value={formatDateForInput(
+              job.deliveryDate ||
+                job.repairOrder?.sentDate ||
+                job.repairOrder?.receivedDate ||
+                job.project?.endDate ||
+                job.project?.deliveryDate
+            )}
+            type="date"
+            onSave={save("deliveryDate")}
+          />
 
           {/* Row 3 */}
           <div className="sm:col-span-2">
             <EditableField label="รายการสินค้า" value={job.item ?? ""} onSave={save("item")} />
           </div>
-          <EditableField label="รูปแบบการชำระเงิน" value={job.paymentMethod || (job.project?.installment1 || job.project?.installment2 || job.project?.installment3 || job.project?.installment4 ? "แบ่งชำระ" : "")} onSave={save("paymentMethod")} />
+          <EditableField
+            label="รูปแบบการชำระเงิน"
+            value={
+              job.paymentMethod ||
+              job.repairOrder?.deliveryMethod ||
+              (job.project?.installment1 ||
+              job.project?.installment2 ||
+              job.project?.installment3 ||
+              job.project?.installment4
+                ? "แบ่งชำระ"
+                : "")
+            }
+            onSave={save("paymentMethod")}
+          />
           <EditableField label="วันที่ชำระเงิน" value={formatDateForInput(job.paymentDate || job.project?.contractSigningDate || job.project?.paymentDate)} type="date" onSave={save("paymentDate")} />
         </div>
       </div>
@@ -614,12 +658,11 @@ export default function JobsClientPage({
     const roleLower = String(userRole || "").toLowerCase().trim();
     return (
       userRole === "SUPER_ADMIN" ||
-      roleLower === "super_admin" ||
-      roleLower === "super admin" ||
       roleLower.includes("super_admin") ||
       roleLower.includes("superadmin") ||
-      roleLower === "admin" ||
-      roleLower === "administrator" ||
+      roleLower.includes("super admin") ||
+      roleLower.includes("admin") ||
+      roleLower.includes("administrator") ||
       roleLower.includes("ผู้ดูแลระบบ") ||
       roleLower === "executive" ||
       roleLower === "ผู้บริหาร"
@@ -1144,7 +1187,7 @@ export default function JobsClientPage({
           return false;
       }
 
-      if (filterCo && j.companyCode !== filterCo) return false;
+      if (filterCo && normalizeCompanyCode(j.companyCode) !== filterCo) return false;
       if (filterType && j.jobType !== filterType) return false;
       if (filterEmployee) {
         const jobSeller = (j.sellerName || "").trim().replace(/\s+/g, " ");
@@ -1685,7 +1728,7 @@ export default function JobsClientPage({
               ทั้งหมด ({jobs.length})
             </button>
             {COMPANY_CODES.map((code) => {
-              const count = jobs.filter((j) => j.companyCode === code).length;
+              const count = jobs.filter((j) => normalizeCompanyCode(j.companyCode) === code).length;
               return (
                 <button
                   key={code}
@@ -1847,6 +1890,9 @@ export default function JobsClientPage({
             const isOpen = expanded === job.id;
             const derivedSellerName =
               job.sellerName ||
+              job.repairOrder?.salesPerson ||
+              job.repairOrder?.receiverName ||
+              job.repairOrder?.technicianName ||
               job.project?.contractSignatory ||
               job.project?.manager?.fullName ||
               "—";
@@ -1891,6 +1937,21 @@ export default function JobsClientPage({
                         const incVatVal = job.project?.projectValue 
                           ? Number(job.project.projectValue) 
                           : (beforeVatVal > 0 ? beforeVatVal * 1.07 : 0);
+
+                        if (beforeVatVal <= 0 && incVatVal <= 0) {
+                          if (job.repairOrder || job.jobNumber?.startsWith("RO") || job.jobType === "งานซ่อม") {
+                            return (
+                              <div className="text-right">
+                                <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 block">
+                                  งานซ่อม (รอประเมิน)
+                                </span>
+                              </div>
+                            );
+                          }
+                          return (
+                            <span className="text-xs text-slate-300 font-mono">—</span>
+                          );
+                        }
 
                         return (
                           <div className="text-right">
@@ -2033,11 +2094,16 @@ export default function JobsClientPage({
                   const isOpen = expanded === job.id;
                   const derivedSellerName =
                     job.sellerName ||
+                    job.repairOrder?.salesPerson ||
+                    job.repairOrder?.receiverName ||
+                    job.repairOrder?.technicianName ||
                     job.project?.contractSignatory ||
                     job.project?.manager?.fullName ||
                     "—";
                   const derivedDeliveryDate =
                     job.deliveryDate ||
+                    job.repairOrder?.sentDate ||
+                    job.repairOrder?.receivedDate ||
                     job.project?.endDate ||
                     job.project?.deliveryDate;
                   const hasInstallments =
@@ -2047,6 +2113,7 @@ export default function JobsClientPage({
                     job.project?.installment4;
                   const derivedPaymentMethod =
                     job.paymentMethod ||
+                    job.repairOrder?.deliveryMethod ||
                     (hasInstallments ? "แบ่งชำระ" : null);
                   const val =
                     Number(job.quotation?.actualClosingAmount) ||
@@ -2170,6 +2237,13 @@ export default function JobsClientPage({
                               : (beforeVatVal > 0 ? beforeVatVal * 1.07 : 0);
 
                             if (beforeVatVal <= 0 && incVatVal <= 0) {
+                              if (job.repairOrder || job.jobNumber?.startsWith("RO") || job.jobType === "งานซ่อม") {
+                                return (
+                                  <span className="text-[10px] font-medium text-slate-500 bg-slate-100/90 border border-slate-200/70 px-2 py-0.5 rounded whitespace-nowrap">
+                                    งานซ่อม (รอประเมิน)
+                                  </span>
+                                );
+                              }
                               return <span className="text-slate-300 font-mono">—</span>;
                             }
 
@@ -2208,7 +2282,8 @@ export default function JobsClientPage({
                             )}
                             {derivedDeliveryDate && (
                               <span className="text-[10px] font-medium text-slate-500">
-                                ส่ง: {formatDate(derivedDeliveryDate)}
+                                {job.repairOrder && !job.deliveryDate && !job.repairOrder.sentDate && job.repairOrder.receivedDate ? "รับเข้า: " : "ส่ง: "}
+                                {formatDate(derivedDeliveryDate)}
                               </span>
                             )}
                           </div>
@@ -2219,10 +2294,17 @@ export default function JobsClientPage({
                           <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/60 px-2 py-1 rounded-lg w-fit">
                             <User2 size={11} className="text-slate-400 shrink-0" />
                             <span
-                              className="text-[11px] font-semibold text-slate-700 truncate max-w-[85px]"
+                              className="text-[11px] font-semibold text-slate-700 truncate max-w-[110px]"
                               title={derivedSellerName}
                             >
-                              {derivedSellerName.split(" ")[0]}
+                              {(() => {
+                                if (derivedSellerName === "—") return "—";
+                                const parts = derivedSellerName.trim().split(/\s+/);
+                                if ((parts[0] === "นาย" || parts[0] === "นาง" || parts[0] === "นางสาว") && parts[1]) {
+                                  return `${parts[0]}${parts[1]}`;
+                                }
+                                return parts[0];
+                              })()}
                             </span>
                           </div>
                         </td>

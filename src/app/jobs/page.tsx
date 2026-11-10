@@ -35,8 +35,9 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     roleStr === 'super admin' || 
     roleStr.includes('super_admin') || 
     roleStr.includes('superadmin') ||
-    roleStr === 'admin' ||
-    roleStr === 'administrator' ||
+    roleStr.includes('super admin') ||
+    roleStr.includes('admin') ||
+    roleStr.includes('administrator') ||
     roleStr.includes('ผู้ดูแลระบบ');
   const isExecutive = roleStr === 'ผู้บริหาร' || roleStr === 'executive';
   const isMarketingManager = roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด');

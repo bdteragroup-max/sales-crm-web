@@ -25,7 +25,16 @@ export default async function DepartmentPage() {
     redirect('/')
   }
 
-  const isManager = user.role === 'ผู้จัดการ'; 
+  const roleLower = (user.role || '').toLowerCase();
+  const isSuperAdmin = 
+    user.role === 'SUPER_ADMIN' || 
+    roleLower.includes('super_admin') || 
+    roleLower.includes('superadmin') || 
+    roleLower.includes('super admin') || 
+    roleLower.includes('admin') || 
+    roleLower.includes('ผู้ดูแลระบบ');
+  const isExecutive = user.role === 'ผู้บริหาร' || roleLower === 'executive';
+  const isManager = isSuperAdmin || isExecutive || user.role === 'ผู้จัดการ' || roleLower.includes('manager'); 
   
   let teraEmployee = null;
   try {
@@ -40,11 +49,13 @@ export default async function DepartmentPage() {
   const resolvedDept = user.employeeSale?.department || teraEmployee?.departments?.name || "sales";
   const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย');
   const isSalesRole = user.role.toLowerCase().includes('sale') || user.role.toLowerCase().includes('ขาย');
-  const isSales = isSalesDept || isSalesRole;
+  const isSales = !isSuperAdmin && !isExecutive && (isSalesDept || isSalesRole);
 
   let whereClause: any = {}; // Default to all jobs for non-sales (like Store, Accounting)
   
-  if (isManager) {
+  if (isSuperAdmin || isExecutive) {
+    whereClause = {};
+  } else if (isManager) {
     let subEmpIds: string[] = [];
     try {
       const subordinates = await teraDb.employees.findMany({
