@@ -20,12 +20,18 @@ import {
   ShoppingBag,
   Trash2,
   Printer,
-  Paperclip
+  Paperclip,
+  Link2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
-import { updatePurchaseRequest, deletePurchaseRequest } from '@/app/actions/procurement';
+import { 
+  updatePurchaseRequest, 
+  deletePurchaseRequest,
+  linkPurchaseOrdersToPR,
+  searchPurchaseOrdersForPR
+} from '@/app/actions/procurement';
 import SearchableProjectSelect, { ProjectOption } from '../components/SearchableProjectSelect';
 import PrintablePurchaseRequisitionModal from './components/PrintablePurchaseRequisitionModal';
 
@@ -90,15 +96,18 @@ export default function PRListClient({
   initialPrs, 
   pendingPrOrders = [],
   initialSearch = '',
-  initialStatus = 'ALL'
+  initialStatus = 'ALL',
+  initialAvailablePos = []
 }: { 
   initialPrs: any[]; 
   pendingPrOrders?: any[];
   initialSearch?: string;
   initialStatus?: string;
+  initialAvailablePos?: any[];
 }) {
   const router = useRouter();
   const [prsList, setPrsList] = useState(initialPrs);
+  const [availablePos, setAvailablePos] = useState<any[]>(initialAvailablePos);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'WITHOUT_PO' | 'WITH_PO' | 'PENDING_ORDERS'>(
     (initialStatus as any) || 'ALL'
@@ -127,10 +136,21 @@ export default function PRListClient({
     itemList: '',
     requestedBy: '',
     recordedAt: '',
-    note: ''
+    note: '',
+    poNumbers: [] as string[],
+    newPoInput: ''
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [printingPr, setPrintingPr] = useState<any | null>(null);
+
+  // Link PO Modal State
+  const [linkingPr, setLinkingPr] = useState<any | null>(null);
+  const [linkedPoNumbers, setLinkedPoNumbers] = useState<string[]>([]);
+  const [newPoInput, setNewPoInput] = useState('');
+  const [poSearchQuery, setPoSearchQuery] = useState('');
+  const [isSearchingPos, setIsSearchingPos] = useState(false);
+  const [isSavingPoLink, setIsSavingPoLink] = useState(false);
+  const [queriedPos, setQueriedPos] = useState<any[]>([]);
 
   const thaiMonths = [
     { value: '1', label: 'มกราคม' },
@@ -347,6 +367,117 @@ export default function PRListClient({
     setCurrentPage(1);
   };
 
+  const displayedPos = useMemo(() => {
+    if (queriedPos && queriedPos.length > 0) {
+      return queriedPos;
+    }
+    if (!poSearchQuery.trim()) {
+      if (!linkingPr) return availablePos.slice(0, 10);
+      const prProj = normalizeProjectName(linkingPr.projectName).toLowerCase();
+      const matched = availablePos.filter(po => {
+        if (!po.jobName) return false;
+        const poProj = normalizeProjectName(po.jobName).toLowerCase();
+        return prProj && poProj && (poProj.includes(prProj) || prProj.includes(poProj));
+      });
+      return matched.length > 0 ? matched.slice(0, 10) : availablePos.slice(0, 10);
+    }
+    const q = poSearchQuery.trim().toLowerCase();
+    return availablePos.filter(po => 
+      po.poNumber?.toLowerCase().includes(q) ||
+      po.vendorName?.toLowerCase().includes(q) ||
+      po.jobName?.toLowerCase().includes(q) ||
+      po.itemList?.toLowerCase().includes(q)
+    ).slice(0, 20);
+  }, [queriedPos, availablePos, poSearchQuery, linkingPr]);
+
+  const openLinkPoModal = (pr: any) => {
+    setLinkingPr(pr);
+    const currentPoNumbers = pr.purchaseOrders?.map((po: any) => po.poNumber) || [];
+    setLinkedPoNumbers(currentPoNumbers);
+    setNewPoInput('');
+    setPoSearchQuery('');
+    setQueriedPos([]);
+  };
+
+  const handleAddPoNumber = (poNum: string) => {
+    const clean = poNum.trim().toUpperCase();
+    if (!clean) return;
+    if (!linkedPoNumbers.includes(clean)) {
+      setLinkedPoNumbers(prev => [...prev, clean]);
+    }
+    setNewPoInput('');
+  };
+
+  const handleRemovePoNumber = (poNum: string) => {
+    setLinkedPoNumbers(prev => prev.filter(p => p !== poNum));
+  };
+
+  const handleSearchPos = async (query: string) => {
+    setPoSearchQuery(query);
+    if (!query || query.trim().length < 2) {
+      setQueriedPos([]);
+      return;
+    }
+    setIsSearchingPos(true);
+    try {
+      const res = await searchPurchaseOrdersForPR(query.trim());
+      if (res.success && res.data) {
+        setQueriedPos(res.data);
+      }
+    } catch (err) {
+      console.error('Error searching POs:', err);
+    } finally {
+      setIsSearchingPos(false);
+    }
+  };
+
+  const handleSavePoLink = async () => {
+    if (!linkingPr) return;
+    setIsSavingPoLink(true);
+    try {
+      let toSave = [...linkedPoNumbers];
+      if (newPoInput.trim()) {
+        const clean = newPoInput.trim().toUpperCase();
+        if (!toSave.includes(clean)) {
+          toSave.push(clean);
+        }
+      }
+
+      const res = await linkPurchaseOrdersToPR({
+        prNumber: linkingPr.prNumber,
+        poNumbers: toSave
+      });
+
+      if (res.success && res.data) {
+        setPrsList(prev => prev.map(p => p.id === linkingPr.id ? { ...p, ...res.data } : p));
+        setLinkingPr(null);
+        Swal.fire({
+          icon: 'success',
+          title: 'เชื่อมโยง PO สำเร็จ',
+          text: res.message || `เชื่อมโยง PO กับ PR ${linkingPr.prNumber} เรียบร้อยแล้ว`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+        router.refresh();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: res.error || 'ไม่สามารถเชื่อมโยง PO ได้'
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'
+      });
+    } finally {
+      setIsSavingPoLink(false);
+    }
+  };
+
   const openEditModal = (pr: any) => {
     setEditingPR(pr);
     let dateStr = '';
@@ -358,13 +489,16 @@ export default function PRListClient({
         }
       } catch (e) {}
     }
+    const currentPoNums = pr.purchaseOrders?.map((po: any) => po.poNumber) || [];
     setEditForm({
       prNumber: pr.prNumber || '',
       projectName: pr.projectName || '',
       itemList: pr.itemList || '',
       requestedBy: pr.requestedBy || '',
       recordedAt: dateStr,
-      note: pr.note || ''
+      note: pr.note || '',
+      poNumbers: currentPoNums,
+      newPoInput: ''
     });
   };
 
@@ -385,7 +519,8 @@ export default function PRListClient({
         itemList: editForm.itemList.trim(),
         requestedBy: editForm.requestedBy.trim(),
         recordedAt: editForm.recordedAt ? editForm.recordedAt : null,
-        note: editForm.note.trim()
+        note: editForm.note.trim(),
+        poNumbers: editForm.poNumbers
       };
 
       const res = await updatePurchaseRequest(editingPR.id, payload);
@@ -1049,9 +1184,9 @@ export default function PRListClient({
                         </td>
 
                         {/* Linked POs */}
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
                           {hasPo ? (
-                            <div className="flex flex-wrap gap-1 items-center" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex flex-wrap gap-1.5 items-center">
                               {pr.purchaseOrders.map((po: any) => {
                                 const isCancelled = po.receiveStatus === 'Cancelled';
                                 const isReceived = po.receiveStatus === 'Received';
@@ -1075,17 +1210,44 @@ export default function PRListClient({
                                   </Link>
                                 );
                               })}
+                              <button
+                                type="button"
+                                onClick={() => openLinkPoModal(pr)}
+                                className="inline-flex items-center gap-1 text-[10px] text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded transition-colors font-medium"
+                                title="ผูก / ดึง PO เพิ่มเติม"
+                              >
+                                <Plus size={10} /> ผูกเพิ่ม
+                              </button>
                             </div>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-medium">
-                              <Clock size={11} /> รอดำเนินการ
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="inline-flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-medium">
+                                <Clock size={11} /> รอดำเนินการ
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => openLinkPoModal(pr)}
+                                className="inline-flex items-center gap-1 text-[11px] text-indigo-700 hover:text-white bg-indigo-50 hover:bg-indigo-600 border border-indigo-200 hover:border-indigo-600 px-2 py-0.5 rounded-md font-semibold transition-all shadow-2xs"
+                                title="ดึงหรือใส่เลขที่ PO ที่เปิดตามหลัง"
+                              >
+                                <Link2 size={11} /> ดึง PO
+                              </button>
+                            </div>
                           )}
                         </td>
 
                         {/* Action Buttons */}
                         <td className="px-4 py-3.5 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => openLinkPoModal(pr)}
+                              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 text-indigo-700 hover:text-white bg-indigo-50 hover:bg-indigo-600 border border-indigo-200 hover:border-indigo-600 rounded-lg transition-all font-medium shadow-2xs"
+                              title="ดึง / เชื่อมโยงใบสั่งซื้อ (PO)"
+                            >
+                              <Link2 size={13} />
+                              ดึง PO
+                            </button>
                             <button
                               type="button"
                               onClick={() => setPrintingPr(pr)}
@@ -1136,9 +1298,18 @@ export default function PRListClient({
 
                               {/* Center: Linked POs Details */}
                               <div className="md:col-span-4 space-y-1.5 border-b md:border-b-0 md:border-r border-gray-100 pb-3 md:pb-0 md:pr-4">
-                                <div className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
-                                  <ShoppingBag size={14} className="text-emerald-600" />
-                                  ใบสั่งซื้อ (PO) ที่ออกสำหรับ PR นี้:
+                                <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                                  <div className="flex items-center gap-1.5">
+                                    <ShoppingBag size={14} className="text-emerald-600" />
+                                    ใบสั่งซื้อ (PO) ที่ออกสำหรับ PR นี้:
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => openLinkPoModal(pr)}
+                                    className="inline-flex items-center gap-1 text-[11px] text-indigo-700 hover:text-white bg-indigo-50 hover:bg-indigo-600 border border-indigo-200 px-2 py-0.5 rounded-md font-medium transition-all shadow-2xs"
+                                  >
+                                    <Link2 size={11} /> ดึง / แก้ไข PO
+                                  </button>
                                 </div>
                                 {hasPo ? (
                                   <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -1179,12 +1350,19 @@ export default function PRListClient({
                                 ) : (
                                   <div className="text-xs text-amber-800 bg-amber-50/80 p-3 rounded-lg border border-amber-200/60 flex items-start gap-2">
                                     <Clock size={15} className="shrink-0 mt-0.5 text-amber-600" />
-                                    <div>
+                                    <div className="flex-1">
                                       ยังไม่มีการออกใบสั่งซื้อ (PO) ให้กับ PR รายการนี้
-                                      <div className="mt-1">
+                                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => openLinkPoModal(pr)}
+                                          className="inline-flex items-center gap-1 text-[11px] bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-lg font-medium transition-colors shadow-2xs"
+                                        >
+                                          <Link2 size={12} /> ดึง PO มาผูกที่นี่
+                                        </button>
                                         <Link
                                           href={`/admin/procurement/po?search=${encodeURIComponent(pr.prNumber)}`}
-                                          className="text-amber-900 font-semibold underline hover:text-amber-950"
+                                          className="text-amber-900 font-semibold underline hover:text-amber-950 text-[11px]"
                                         >
                                           ตรวจสอบหน้า PO →
                                         </Link>
@@ -1307,6 +1485,14 @@ export default function PRListClient({
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
+                        onClick={() => openLinkPoModal(pr)}
+                        className="text-xs px-2 py-1 text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg font-medium inline-flex items-center gap-1"
+                        title="ดึง PO"
+                      >
+                        <Link2 size={12} /> ดึง PO
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => openEditModal(pr)}
                         className="text-xs px-2.5 py-1 text-blue-700 bg-blue-50 border border-blue-200 rounded-lg font-medium inline-flex items-center gap-1"
                       >
@@ -1330,24 +1516,33 @@ export default function PRListClient({
                   </div>
 
                   {/* PO Status Badge */}
-                  <div className="pt-1">
-                    {hasPo ? (
-                      <div className="flex flex-wrap gap-1">
-                        {pr.purchaseOrders.map((po: any) => (
-                          <Link
-                            key={po.poNumber}
-                            href={`/admin/procurement/po?search=${encodeURIComponent(po.poNumber)}`}
-                            className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200"
-                          >
-                            {po.poNumber} <ExternalLink size={9} />
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-medium inline-flex items-center gap-1">
-                        <Clock size={11} /> รอดำเนินการเปิด PO
-                      </span>
-                    )}
+                  <div className="pt-1 flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      {hasPo ? (
+                        <div className="flex flex-wrap gap-1">
+                          {pr.purchaseOrders.map((po: any) => (
+                            <Link
+                              key={po.poNumber}
+                              href={`/admin/procurement/po?search=${encodeURIComponent(po.poNumber)}`}
+                              className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200"
+                            >
+                              {po.poNumber} <ExternalLink size={9} />
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-medium inline-flex items-center gap-1">
+                          <Clock size={11} /> รอดำเนินการเปิด PO
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => openLinkPoModal(pr)}
+                      className="shrink-0 text-xs px-2 py-1 text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg font-medium inline-flex items-center gap-1 hover:bg-indigo-100"
+                    >
+                      <Link2 size={12} /> ดึง PO
+                    </button>
                   </div>
                 </div>
               );
@@ -1515,6 +1710,76 @@ export default function PRListClient({
                 />
               </div>
 
+              {/* Linked POs in Edit Modal */}
+              <div className="pt-2 border-t border-gray-100">
+                <label className="block font-semibold text-gray-700 mb-1">
+                  ใบสั่งซื้อ (PO) ที่เชื่อมโยง ({editForm.poNumbers?.length || 0} ฉบับ)
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={editForm.newPoInput || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, newPoInput: e.target.value }))}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const val = editForm.newPoInput?.trim().toUpperCase();
+                        if (val && !editForm.poNumbers.includes(val)) {
+                          setEditForm(prev => ({
+                            ...prev,
+                            poNumbers: [...prev.poNumbers, val],
+                            newPoInput: ''
+                          }));
+                        }
+                      }
+                    }}
+                    placeholder="พิมพ์เลขที่ PO เช่น PO69-0123 แล้วกดเพิ่ม"
+                    className="flex-1 px-3 py-2 border rounded-xl font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const val = editForm.newPoInput?.trim().toUpperCase();
+                      if (val && !editForm.poNumbers.includes(val)) {
+                        setEditForm(prev => ({
+                          ...prev,
+                          poNumbers: [...prev.poNumbers, val],
+                          newPoInput: ''
+                        }));
+                      }
+                    }}
+                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shrink-0 text-xs"
+                  >
+                    + เพิ่ม PO
+                  </button>
+                </div>
+                {editForm.poNumbers && editForm.poNumbers.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+                    {editForm.poNumbers.map((poNum: string) => (
+                      <span
+                        key={poNum}
+                        className="inline-flex items-center gap-1 bg-white border border-blue-200 text-blue-900 font-mono px-2 py-0.5 rounded-md text-[11px] font-semibold shadow-2xs"
+                      >
+                        {poNum}
+                        <button
+                          type="button"
+                          onClick={() => setEditForm(prev => ({
+                            ...prev,
+                            poNumbers: prev.poNumbers.filter(p => p !== poNum)
+                          }))}
+                          className="text-gray-400 hover:text-red-500 ml-1"
+                          title="ลบ PO นี้"
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-gray-400 italic">ยังไม่มี PO ผูกอยู่ (สถานะจะแสดงเป็น "รอดำเนินการ")</p>
+                )}
+              </div>
+
               <div className="bg-amber-50 border border-amber-200/80 rounded-xl p-3 text-amber-800 flex items-start gap-2 text-[11px]">
                 <AlertCircle size={15} className="shrink-0 mt-0.5 text-amber-600" />
                 <span>
@@ -1548,6 +1813,230 @@ export default function PRListClient({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Link PO Modal */}
+      {linkingPr && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto flex flex-col border border-gray-200/80">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b flex justify-between items-center bg-gradient-to-r from-blue-50 via-indigo-50 to-white sticky top-0 z-10">
+              <div>
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <Link2 className="text-indigo-600" size={18} />
+                  <span>ดึง / เชื่อมโยงใบสั่งซื้อ (PO)</span>
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  เชื่อมโยง PO ที่เปิดตามหลัง เข้ากับ PR <span className="font-mono font-bold text-blue-700">{linkingPr.prNumber}</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLinkingPr(null)}
+                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5 text-xs">
+              {/* PR Info Summary */}
+              <div className="bg-gray-50 rounded-xl p-3 border border-gray-200/70 space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">เลขที่ PR:</span>
+                  <span className="font-mono font-bold text-gray-900">{linkingPr.prNumber}</span>
+                </div>
+                {linkingPr.projectName && (
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="text-gray-500 shrink-0">โครงการ:</span>
+                    <span className="font-medium text-gray-800 text-right truncate max-w-[260px]">{linkingPr.projectName}</span>
+                  </div>
+                )}
+                {linkingPr.itemList && (
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="text-gray-500 shrink-0">รายการ:</span>
+                    <span className="text-gray-600 text-right truncate max-w-[260px]">{linkingPr.itemList}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 1. Direct PO Number Input */}
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1.5">
+                  1. พิมพ์ระบุเลขที่ PO ที่ต้องการผูก
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newPoInput}
+                    onChange={(e) => setNewPoInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddPoNumber(newPoInput);
+                      }
+                    }}
+                    placeholder="เช่น PO69-0123 หรือ PO69-E001"
+                    className="flex-1 px-3 py-2 border rounded-xl font-mono text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleAddPoNumber(newPoInput)}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shrink-0 inline-flex items-center gap-1"
+                  >
+                    <Plus size={14} /> เพิ่ม PO
+                  </button>
+                </div>
+                <p className="text-[11px] text-gray-400 mt-1">
+                  * หากเปิด PO ใน Express แล้ว สามารถพิมพ์เลข PO แล้วกดเพิ่มได้ทันที แม้ระบบยังไม่ได้ซิงค์
+                </p>
+              </div>
+
+              {/* 2. Currently Linked PO Chips */}
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1.5">
+                  รายการ PO ที่ผูกกับ PR นี้ ({linkedPoNumbers.length} ฉบับ)
+                </label>
+                {linkedPoNumbers.length === 0 ? (
+                  <div className="p-3 text-center text-amber-700 bg-amber-50 rounded-xl border border-amber-200/80">
+                    <Clock size={16} className="mx-auto mb-1 opacity-70" />
+                    <p className="font-medium">ยังไม่มี PO ผูกอยู่ (สถานะจะแสดงเป็น "รอดำเนินการ / ค้างรับ")</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2 p-3 bg-blue-50/50 rounded-xl border border-blue-200/70">
+                    {linkedPoNumbers.map(poNum => (
+                      <span
+                        key={poNum}
+                        className="inline-flex items-center gap-1.5 bg-white border border-blue-300 text-blue-900 font-mono font-bold px-2.5 py-1 rounded-lg text-xs shadow-2xs"
+                      >
+                        <FileText size={12} className="text-blue-600" />
+                        {poNum}
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePoNumber(poNum)}
+                          className="text-gray-400 hover:text-red-600 p-0.5 rounded transition-colors"
+                          title="ลบการผูก PO นี้"
+                        >
+                          <X size={13} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Search & Pick from Existing POs */}
+              <div className="space-y-2 border-t pt-4">
+                <label className="block font-semibold text-gray-800">
+                  2. หรือค้นหาและเลือกจากใบสั่งซื้อในระบบ
+                </label>
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={poSearchQuery}
+                    onChange={(e) => handleSearchPos(e.target.value)}
+                    placeholder="ค้นหาเลขที่ PO, ชื่อผู้ขาย, ชื่อโครงการ..."
+                    className="w-full pl-9 pr-3 py-2 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  {isSearchingPos && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                  )}
+                </div>
+
+                {/* Suggestions List */}
+                <div className="max-h-48 overflow-y-auto space-y-1.5 border rounded-xl p-2 bg-gray-50/50 divide-y divide-gray-100">
+                  {displayedPos.length === 0 ? (
+                    <div className="text-center py-4 text-gray-400 text-[11px]">
+                      {poSearchQuery ? 'ไม่พบใบสั่งซื้อที่ตรงกับคำค้นหา' : 'ไม่มีรายการ PO แนะนำ'}
+                    </div>
+                  ) : (
+                    displayedPos.map((po: any) => {
+                      const isAlreadyLinked = linkedPoNumbers.includes(po.poNumber);
+                      return (
+                        <div
+                          key={po.id || po.poNumber}
+                          className="pt-1.5 first:pt-0 flex items-center justify-between gap-2 hover:bg-white p-1.5 rounded-lg transition-colors"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono font-bold text-blue-700 text-xs">{po.poNumber}</span>
+                              {po.receiveStatus && (
+                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-semibold ${
+                                  po.receiveStatus === 'Received' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'
+                                }`}>
+                                  {po.receiveStatus === 'Received' ? 'รับแล้ว' : po.receiveStatus}
+                                </span>
+                              )}
+                              {po.prNumber && po.prNumber !== linkingPr.prNumber && (
+                                <span className="text-[9px] text-gray-400 font-mono">
+                                  (ผูกอยู่กับ {po.prNumber})
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-gray-600 truncate">
+                              {po.vendorName ? `ผู้ขาย: ${po.vendorName}` : ''}
+                              {po.jobName ? ` • ${po.jobName}` : ''}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={isAlreadyLinked}
+                            onClick={() => handleAddPoNumber(po.poNumber)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors shrink-0 ${
+                              isAlreadyLinked
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white border border-indigo-200'
+                            }`}
+                          >
+                            {isAlreadyLinked ? 'เลือกแล้ว' : '+ เลือก'}
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Help tip */}
+              <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-xl p-3 text-indigo-900 text-[11px] flex items-start gap-2">
+                <AlertCircle size={15} className="shrink-0 mt-0.5 text-indigo-600" />
+                <span>
+                  เมื่อผูก PO เรียบร้อยแล้ว รายการ PR นี้จะไม่ขึ้นเป็น "ค้างรับ" อีกต่อไป และจะซิงค์สถานะการรับของไปยังหน้ารายการจัดซื้อและออเดอร์โครงการโดยอัตโนมัติ
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-3.5 border-t bg-gray-50 flex justify-end gap-2 sticky bottom-0 z-10">
+              <button
+                type="button"
+                onClick={() => setLinkingPr(null)}
+                disabled={isSavingPoLink}
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors disabled:opacity-50"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                onClick={handleSavePoLink}
+                disabled={isSavingPoLink}
+                className="px-5 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold shadow-sm transition-all inline-flex items-center gap-2 disabled:opacity-50"
+              >
+                {isSavingPoLink ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    กำลังบันทึก...
+                  </>
+                ) : (
+                  'บันทึกการผูก PO'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

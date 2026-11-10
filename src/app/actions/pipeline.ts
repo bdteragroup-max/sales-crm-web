@@ -167,6 +167,23 @@ export async function updateQuotationStatus(
       });
     }
 
+    // If this Quotation is linked to a ServiceCallLog, keep RepairDelivery synced (including quotationNo, jobId, photos & signatures)
+    try {
+      const { ensureServiceCallExtendedSchema, syncRepairDeliveryFromServiceCall } = await import(
+        "@/app/actions/service-calls"
+      );
+      await ensureServiceCallExtendedSchema();
+      const linkedRows: any[] = await prisma.$queryRawUnsafe(
+        `SELECT "id" FROM "ServiceCallLog" WHERE "linkedQuotationId" = $1 LIMIT 1`,
+        quotation.id
+      );
+      if (linkedRows?.[0]?.id) {
+        await syncRepairDeliveryFromServiceCall(linkedRows[0].id, quotation.id);
+      }
+    } catch (scSyncErr) {
+      console.warn("[updateQuotationStatus] Failed to sync RepairDelivery from ServiceCallLog:", scSyncErr);
+    }
+
     // Revalidate affected pages to refresh cache
     revalidatePath("/pipeline");
     revalidatePath("/schedule");

@@ -53,6 +53,21 @@ export default async function PRListPage(props: { searchParams?: Promise<any> | 
     orderBy: { updatedAt: 'desc' }
   });
 
+  const availablePos = await prisma.purchaseOrder.findMany({
+    select: {
+      id: true,
+      poNumber: true,
+      prNumber: true,
+      vendorName: true,
+      totalAmount: true,
+      receiveStatus: true,
+      jobName: true,
+      recordedAt: true
+    },
+    orderBy: { recordedAt: 'desc' },
+    take: 300
+  });
+
   const serializedPrs = prs.map(pr => ({
     ...pr,
     purchaseOrders: pr.purchaseOrders?.map((po: any) => ({
@@ -66,6 +81,11 @@ export default async function PRListPage(props: { searchParams?: Promise<any> | 
     orderTotal: (order as any).orderTotal ? Number((order as any).orderTotal) : null
   }));
 
+  const serializedPos = availablePos.map(po => ({
+    ...po,
+    totalAmount: po.totalAmount ? Number(po.totalAmount) : null
+  }));
+
   return (
     <div className="p-4 md:p-6 lg:p-8 bg-gray-50/50 min-h-screen">
       <PRListClient 
@@ -73,6 +93,7 @@ export default async function PRListPage(props: { searchParams?: Promise<any> | 
         pendingPrOrders={serializedPendingOrders}
         initialSearch={initialSearch}
         initialStatus={initialStatus}
+        initialAvailablePos={serializedPos}
       />
     </div>
   );

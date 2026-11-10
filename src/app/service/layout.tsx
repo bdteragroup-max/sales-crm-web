@@ -11,7 +11,7 @@ export default async function ServiceLayout({
   return (
     <div className="flex h-screen print:h-auto bg-slate-50 text-gray-900 font-sans overflow-hidden print:overflow-visible print:block">
       <Sidebar activeRoute="/service/installation" userFullName={user?.fullName} userId={user?.id} userRole={user?.role} />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto print:overflow-visible">
         {children}
       </div>
     </div>

@@ -35,6 +35,16 @@ export function isMarketingManager(role: string | null | undefined): boolean {
   );
 }
 
+export function isMarketingStaff(role: string | null | undefined): boolean {
+  if (!role) return false;
+  const r = role.toLowerCase().trim();
+  return (
+    r.includes('marketing') ||
+    r.includes('การตลาด') ||
+    isMarketingManager(role)
+  );
+}
+
 export function canViewAll(role: string | null | undefined): boolean {
   return isSuperUser(role) || isReadOnlyExecutive(role);
 }
@@ -119,7 +129,8 @@ export function matchBranch(branch1?: string | null, branch2?: string | null): b
     'cmi01': ['cmi01', 'เชียงใหม่', 'chiangmai', 'chiang mai'],
     'kk01': ['kk01', 'ขอนแก่น', 'khonkaen', 'khon kaen'],
     'kri01': ['kri01', 'กาญจนบุรี', 'kanchanaburi'],
-    'nrt': ['nrt', 'นครศรีธรรมราช', 'nakhonsithammarat'],
+    'nma01': ['nma01', 'korat01', 'นครราชสีมา', 'โคราช', 'nakhonratchasima', 'korat'],
+    'nrt': ['nrt', 'nrt01', 'นครศรีธรรมราช', 'nakhonsithammarat'],
     'psnl01': ['psnl01', 'พิษณุโลก', 'phitsanulok'],
     'roi01': ['roi01', 'ร้อยเอ็ด', 'roiet'],
     'smk': ['smk', 'สมุทรสาคร', 'samutsakhon'],

@@ -6,6 +6,7 @@ import { teraDb } from '@/app/lib/teraDb';
 import { redirect } from 'next/navigation';
 import { isSuperUser } from '@/app/lib/roleHelper';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
+import { getServiceCallLogById, getPendingServiceCallsForSales } from '@/app/actions/service-calls';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +17,7 @@ interface PageProps {
     contactId?: string;
     editId?: string;
     reqId?: string;
+    serviceCallId?: string;
   }>;
 }
 
@@ -199,6 +201,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
       }
 
       prefillData = {
+        isPrefilled: true,
         requirementNumber: requirement.requirementNumber,
         requirementDate: requirement.date,
         productType: inferredProductType,
@@ -209,7 +212,84 @@ export default async function SalesPage({ searchParams }: PageProps) {
     }
   }
 
-  const [quotations, currentUserWithSale, businessTypesData, teraEmployee] = await Promise.all([
+  // ── Handle serviceCallId: load ServiceCallLog for a fresh quotation linked to RepairDelivery ──
+  if (!editingData && params.serviceCallId) {
+    try {
+      const sc: any = await getServiceCallLogById(params.serviceCallId);
+      if (sc) {
+        const company = sc.companyName
+          ? await prisma.company.findFirst({
+              where: { companyName: { equals: sc.companyName, mode: 'insensitive' } },
+              include: { contacts: true },
+            })
+          : null;
+
+        const matchedContact =
+          company?.contacts?.find(
+            (c) => c.contactName?.toLowerCase() === (sc.contactName || '').toLowerCase()
+          ) ||
+          company?.contacts?.[0] ||
+          null;
+
+        const partsArr = Array.isArray(sc.partsUsed) ? sc.partsUsed : [];
+        const partsStr =
+          partsArr.length > 0
+            ? partsArr.map((p: any) => `${p.name} (${p.qty} ${p.unit || 'ชิ้น'})`).join(', ')
+            : '';
+
+        const interestLines = [
+          `งานบริการ/ซ่อม Inverter รุ่น ${sc.inverterModel || '-'}${
+            sc.serialNumber ? ` (S/N: ${sc.serialNumber})` : ''
+          } [อ้างอิงเคส ${sc.caseNumber}]`,
+        ];
+        if (sc.reportedIssue) interestLines.push(`อาการ: ${sc.reportedIssue}`);
+        if (sc.recommendedSolution) interestLines.push(`การแก้ไข: ${sc.recommendedSolution}`);
+        if (partsStr) interestLines.push(`อะไหล่ที่ใช้: ${partsStr}`);
+
+        const photosBeforeCount = Array.isArray(sc.photosBefore) ? sc.photosBefore.length : 0;
+        const photosAfterCount = Array.isArray(sc.photosAfter) ? sc.photosAfter.length : 0;
+
+        prefillData = {
+          isPrefilled: true,
+          serviceCallId: sc.id,
+          serviceCallCaseNumber: sc.caseNumber,
+          companyCode: sc.internalCompany || 'TG',
+          productType: 'Inverter Veichi',
+          productInterest: interestLines.join('\n'),
+          remarks: `อ้างอิงใบแจ้งปัญหาเซอร์วิส: ${sc.caseNumber}${
+            sc.onsiteResultNote ? ` • ${sc.onsiteResultNote}` : ''
+          }`,
+          company: company
+            ? JSON.parse(JSON.stringify(company))
+            : {
+                companyName: sc.companyName || '',
+                address: sc.siteAddress || '',
+              },
+          contact: matchedContact
+            ? JSON.parse(JSON.stringify(matchedContact))
+            : {
+                contactName: sc.contactName || '',
+                mobilePhone: sc.contactPhone || '',
+                position: sc.customerPosition || '',
+              },
+          serviceCallSummary: {
+            id: sc.id,
+            caseNumber: sc.caseNumber,
+            inverterModel: sc.inverterModel,
+            serialNumber: sc.serialNumber || '',
+            technicianName:
+              sc.nameTechnician || sc.responsible?.fullName || sc.responsibleName || '-',
+            photosCount: photosBeforeCount + photosAfterCount,
+            hasSignatures: Boolean(sc.sigTechnicianUrl || sc.sigCustomerUrl),
+          },
+        };
+      }
+    } catch (scErr) {
+      console.warn('Failed to prefill from serviceCallId:', scErr);
+    }
+  }
+
+  const [quotations, currentUserWithSale, businessTypesData, teraEmployee, pendingServiceCalls] = await Promise.all([
     prisma.quotation.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
@@ -229,6 +309,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
       where: { emp_id: user.employeeId },
       include: { supervisor: true },
     }) : Promise.resolve(null),
+    getPendingServiceCallsForSales(user.id, isSuperAdmin || isManager),
   ]);
 
   const businessTypes = businessTypesData.map(bt => bt.name);
@@ -270,6 +351,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
         }}
         prefillData={prefillData}
         editingQuotation={editingData}
+        pendingServiceCalls={JSON.parse(JSON.stringify(pendingServiceCalls || []))}
       />
     </main>
   );

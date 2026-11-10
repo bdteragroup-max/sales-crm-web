@@ -475,7 +475,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
               ผู้ส่งมอบงาน
             </div>
             <div style={{ fontSize: '9.5pt', color: '#555', marginTop: '0.5mm' }}>
-              วันที่ ............ / ............ / ............
+              วันที่ {delivery.sigSenderUrl && deliveryDateFormatted ? deliveryDateFormatted : '............ / ............ / ............'}
             </div>
           </div>
 
@@ -496,7 +496,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
               ผู้รับมอบงาน
             </div>
             <div style={{ fontSize: '9.5pt', color: '#555', marginTop: '0.5mm' }}>
-              วันที่ ............ / ............ / ............
+              วันที่ {delivery.sigReceiverUrl && deliveryDateFormatted ? deliveryDateFormatted : '............ / ............ / ............'}
             </div>
           </div>
         </div>

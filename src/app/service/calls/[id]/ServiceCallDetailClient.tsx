@@ -28,14 +28,30 @@ import {
   ChevronRight,
   Sparkles,
   Lock,
+  Plus,
+  Trash2,
+  Upload,
+  Camera,
+  FileSignature,
+  MapPin,
+  Package,
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { updateServiceCallLog } from "@/app/actions/service-calls";
+import {
+  updateServiceCallLog,
+  syncRepairDeliveryFromServiceCall,
+} from "@/app/actions/service-calls";
+import { SignaturePadBox } from "@/app/repair-deliveries/SignaturePadModal";
+import {
+  ONSITE_RESULT_OPTIONS,
+  SearchableSalesSelect,
+} from "../ServiceCallSignatureModal";
 
 interface UserOption {
   id: string;
   fullName: string;
   role: string;
+  nickname?: string | null;
 }
 
 interface ServiceCallDetailClientProps {
@@ -125,6 +141,52 @@ export default function ServiceCallDetailClient({
     ? new Date(initialData.followUpDate).toISOString().split("T")[0]
     : "";
 
+  const initialOnsiteDate = initialData.onsiteDate
+    ? new Date(initialData.onsiteDate).toISOString().split("T")[0]
+    : new Date().toISOString().split("T")[0];
+
+  const normalizePhotos = (val: any): string[] => {
+    if (!val) return [];
+    if (Array.isArray(val))
+      return val
+        .map((v: any) => (typeof v === "string" ? v : v?.url || ""))
+        .filter(Boolean);
+    if (typeof val === "string") {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed))
+          return parsed
+            .map((v: any) => (typeof v === "string" ? v : v?.url || ""))
+            .filter(Boolean);
+      } catch {
+        return [val];
+      }
+    }
+    return [];
+  };
+
+  const normalizeParts = (
+    val: any
+  ): Array<{ name: string; qty: string; unit: string; note: string }> => {
+    if (!val) return [];
+    let arr: any[] = [];
+    if (Array.isArray(val)) arr = val;
+    else if (typeof val === "string") {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) arr = parsed;
+      } catch {
+        arr = [];
+      }
+    }
+    return arr.map((p) => ({
+      name: String(p?.name || ""),
+      qty: String(p?.qty ?? "1"),
+      unit: String(p?.unit || "ชิ้น"),
+      note: String(p?.note || ""),
+    }));
+  };
+
   const [formData, setFormData] = useState({
     status: initialData.status || "Received notification",
     analyzedCause: initialData.analyzedCause || "",
@@ -132,33 +194,183 @@ export default function ServiceCallDetailClient({
     followUpDate: initialFollowUp,
     responsibleId: initialData.responsibleId || "",
     notes: initialData.notes || "",
+    internalCompany: initialData.internalCompany || "TG",
+    siteAddress: initialData.siteAddress || "",
+    serialNumber: initialData.serialNumber || "",
+    onsiteDate: initialOnsiteDate,
+    onsiteResult: initialData.onsiteResult || "",
+    onsiteResultNote: initialData.onsiteResultNote || "",
+    partsUsed: normalizeParts(initialData.partsUsed),
+    photosBefore: normalizePhotos(initialData.photosBefore),
+    photosAfter: normalizePhotos(initialData.photosAfter),
+    sigTechnicianUrl: initialData.sigTechnicianUrl || (null as string | null),
+    nameTechnician:
+      initialData.nameTechnician ||
+      initialData.responsible?.fullName ||
+      initialData.responsibleName ||
+      "",
+    technicianPhone:
+      initialData.technicianPhone ||
+      initialData.responsible?.phoneNumber ||
+      "",
+    sigCustomerUrl: initialData.sigCustomerUrl || (null as string | null),
+    nameCustomer: initialData.nameCustomer || initialData.contactName || "",
+    customerPosition: initialData.customerPosition || "",
+    assignedSalesId: initialData.assignedSalesId || "",
   });
 
-  // Check if current user has edit permission
+  const salesAndAllUsers = useMemo(() => {
+    const isSalesRole = (r?: string) => {
+      const rl = (r || "").toLowerCase();
+      return (
+        rl.includes("sale") ||
+        rl.includes("ขาย") ||
+        rl.includes("เซล") ||
+        rl.includes("ผู้จัดการ") ||
+        rl.includes("manager")
+      );
+    };
+    const sales = users.filter((u) => isSalesRole(u.role));
+    const others = users.filter((u) => !isSalesRole(u.role));
+    return { sales, others };
+  }, [users]);
+
+  const [isUploadingBefore, setIsUploadingBefore] = useState(false);
+  const [isUploadingAfter, setIsUploadingAfter] = useState(false);
+
+  const handleUploadPhoto = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "before" | "after"
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const currentList =
+      type === "before" ? formData.photosBefore : formData.photosAfter;
+    if (currentList.length >= 2) {
+      Swal.fire({
+        icon: "warning",
+        title: "ครบจำนวนแล้ว",
+        text: `สามารถแนบรูปภาพ${
+          type === "before" ? "ก่อนแก้ไข" : "หลังแก้ไข"
+        }ได้สูงสุด 2 รูป`,
+        confirmButtonColor: "#ff2301",
+      });
+      return;
+    }
+
+    if (type === "before") setIsUploadingBefore(true);
+    else setIsUploadingAfter(true);
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("bucket", "uploadsService");
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadData,
+        });
+        const json = await res.json();
+        if (json.url) {
+          if (type === "before") {
+            setFormData((prev) => ({
+              ...prev,
+              photosBefore: [...prev.photosBefore, json.url].slice(0, 2),
+            }));
+          } else {
+            setFormData((prev) => ({
+              ...prev,
+              photosAfter: [...prev.photosAfter, json.url].slice(0, 2),
+            }));
+          }
+        } else {
+          throw new Error(json.error || "ไม่สามารถอัปโหลดไฟล์ได้");
+        }
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "อัปโหลดรูปภาพล้มเหลว",
+        text: err.message || "เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
+        confirmButtonColor: "#ff2301",
+      });
+    } finally {
+      if (type === "before") setIsUploadingBefore(false);
+      else setIsUploadingAfter(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleRemovePhoto = (index: number, type: "before" | "after") => {
+    if (type === "before") {
+      setFormData((prev) => ({
+        ...prev,
+        photosBefore: prev.photosBefore.filter((_, i) => i !== index),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        photosAfter: prev.photosAfter.filter((_, i) => i !== index),
+      }));
+    }
+  };
+
+  const handleAddPart = () => {
+    setFormData((prev) => ({
+      ...prev,
+      partsUsed: [
+        ...prev.partsUsed,
+        { name: "", qty: "1", unit: "ชิ้น", note: "" },
+      ],
+    }));
+  };
+
+  const handleUpdatePart = (
+    idx: number,
+    field: "name" | "qty" | "unit" | "note",
+    val: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      partsUsed: prev.partsUsed.map((item, i) =>
+        i === idx ? { ...item, [field]: val } : item
+      ),
+    }));
+  };
+
+  const handleRemovePart = (idx: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      partsUsed: prev.partsUsed.filter((_, i) => i !== idx),
+    }));
+  };
+
+  // Check if current user has edit permission (Service, Sales, Managers, Technicians, Admins)
+  const roleLower = (currentUser?.role || "").toLowerCase();
   const isManagerOrAdmin =
     currentUser?.role === "Service Engineer MGR" ||
     currentUser?.role === "Service Engineer MGR." ||
     currentUser?.role === "SUPER_ADMIN" ||
     currentUser?.role === "ADMIN" ||
     currentUser?.role === "Admin" ||
-    currentUser?.role === "Executive";
+    currentUser?.role === "Executive" ||
+    roleLower.includes("manager") ||
+    roleLower.includes("ผู้จัดการ") ||
+    roleLower.includes("service") ||
+    roleLower.includes("บริการ") ||
+    roleLower.includes("ซ่อม") ||
+    roleLower.includes("ช่าง");
 
   const isResponsible = initialData.responsibleId === currentUser?.id;
   const isCreator = initialData.createdBy === currentUser?.id;
-  const canEdit = isManagerOrAdmin || isResponsible || isCreator;
-  const canReassign = isManagerOrAdmin || isCreator;
+  const canEdit = Boolean(currentUser);
+  const canReassign = isManagerOrAdmin || isCreator || Boolean(currentUser);
 
   // Track if changes have been made
-  const isDirty = useMemo(() => {
-    return (
-      formData.status !== (initialData.status || "Received notification") ||
-      formData.analyzedCause !== (initialData.analyzedCause || "") ||
-      formData.recommendedSolution !== (initialData.recommendedSolution || "") ||
-      formData.followUpDate !== initialFollowUp ||
-      formData.responsibleId !== (initialData.responsibleId || "") ||
-      formData.notes !== (initialData.notes || "")
-    );
-  }, [formData, initialData, initialFollowUp]);
+  const isDirty = true;
 
   // Current status metadata
   const currentStatusMeta = useMemo(() => {
@@ -245,17 +457,39 @@ export default function ServiceCallDetailClient({
       followUpDate: initialFollowUp,
       responsibleId: initialData.responsibleId || "",
       notes: initialData.notes || "",
+      internalCompany: initialData.internalCompany || "TG",
+      siteAddress: initialData.siteAddress || "",
+      serialNumber: initialData.serialNumber || "",
+      onsiteDate: initialOnsiteDate,
+      onsiteResult: initialData.onsiteResult || "",
+      onsiteResultNote: initialData.onsiteResultNote || "",
+      partsUsed: normalizeParts(initialData.partsUsed),
+      photosBefore: normalizePhotos(initialData.photosBefore),
+      photosAfter: normalizePhotos(initialData.photosAfter),
+      sigTechnicianUrl: initialData.sigTechnicianUrl || null,
+      nameTechnician:
+        initialData.nameTechnician ||
+        initialData.responsible?.fullName ||
+        initialData.responsibleName ||
+        "",
+      technicianPhone:
+        initialData.technicianPhone ||
+        initialData.responsible?.phoneNumber ||
+        "",
+      sigCustomerUrl: initialData.sigCustomerUrl || null,
+      nameCustomer: initialData.nameCustomer || initialData.contactName || "",
+      customerPosition: initialData.customerPosition || "",
+      assignedSalesId: initialData.assignedSalesId || "",
     });
   };
 
   // Submit form
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveData = async (openPdfAfter = false, overrideStatus?: string) => {
     if (!canEdit) {
       Swal.fire({
         icon: "error",
         title: "ไม่มีสิทธิ์ดำเนินการ",
-        text: "คุณสามารถแก้ไขได้เฉพาะรายการที่คุณรับผิดชอบหรือสร้างเองเท่านั้น",
+        text: "กรุณาเข้าสู่ระบบก่อนดำเนินการ",
         confirmButtonColor: "#ff2301",
       });
       return;
@@ -263,28 +497,61 @@ export default function ServiceCallDetailClient({
 
     setLoading(true);
     try {
+      const selectedSalesUser = users.find(
+        (u) => u.id === formData.assignedSalesId
+      );
+
       const payload: any = {
-        status: formData.status,
+        status: overrideStatus || formData.status,
         analyzedCause: formData.analyzedCause || null,
         recommendedSolution: formData.recommendedSolution || null,
         followUpDate: formData.followUpDate || null,
         notes: formData.notes || null,
+        internalCompany: formData.internalCompany || "TG",
+        siteAddress: formData.siteAddress || null,
+        serialNumber: formData.serialNumber || null,
+        onsiteDate: formData.onsiteDate || null,
+        onsiteResult: formData.onsiteResult || null,
+        onsiteResultNote: formData.onsiteResultNote || null,
+        partsUsed: formData.partsUsed.filter((p) => p.name.trim() !== ""),
+        photosBefore: formData.photosBefore,
+        photosAfter: formData.photosAfter,
+        sigTechnicianUrl: formData.sigTechnicianUrl,
+        nameTechnician: formData.nameTechnician || null,
+        technicianPhone: formData.technicianPhone || null,
+        sigCustomerUrl: formData.sigCustomerUrl,
+        nameCustomer: formData.nameCustomer || null,
+        customerPosition: formData.customerPosition || null,
+        assignedSalesId: formData.assignedSalesId || null,
+        assignedSalesName: selectedSalesUser?.fullName || null,
       };
 
       if (canReassign) {
         payload.responsibleId = formData.responsibleId || null;
       }
 
+      if (overrideStatus) {
+        setFormData((prev) => ({ ...prev, status: overrideStatus }));
+      }
+
       await updateServiceCallLog(initialData.id, payload);
 
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
-        title: "บันทึกข้อมูลเรียบร้อย",
-        text: "อัปเดตข้อมูลบันทึกแจ้งปัญหาลูกค้าสำเร็จ",
+        title: overrideStatus
+          ? "ปิดงานและส่งต่อเซลล์เรียบร้อย"
+          : "บันทึกข้อมูลเรียบร้อย",
+        text:
+          overrideStatus && selectedSalesUser
+            ? `ปิดเคสและส่งแจ้งเตือนให้ ${selectedSalesUser.fullName} เพื่อเปิดใบเสนอราคาแล้ว`
+            : "อัปเดตข้อมูลเคสและรายงานการเข้าหน้างานสำเร็จ",
         timer: 1600,
         showConfirmButton: false,
       });
 
+      if (openPdfAfter) {
+        window.open(`/service/calls/${initialData.id}/pdf`, "_blank");
+      }
       router.refresh();
     } catch (error: any) {
       Swal.fire({
@@ -298,9 +565,55 @@ export default function ServiceCallDetailClient({
     }
   };
 
-  // Print Handler
+  const handleCloseAndSendToSales = async () => {
+    if (!formData.assignedSalesId) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาเลือกเซลล์ผู้รับเรื่อง",
+        text: "กรุณาเลือกชื่อเซลล์ที่ต้องการให้รับเรื่องไปเปิดใบเสนอราคาก่อนกดปุ่มนี้",
+        confirmButtonColor: "#ff2301",
+      });
+      return;
+    }
+    await handleSaveData(false, "System running smoothly");
+  };
+
+  const handleManualSyncDelivery = async () => {
+    setLoading(true);
+    try {
+      await handleSaveData(false);
+      const res = await syncRepairDeliveryFromServiceCall(initialData.id);
+      if (res.success && res.repairDeliveryId) {
+        await Swal.fire({
+          icon: "success",
+          title: "ส่งข้อมูลไปใบส่งมอบงานสำเร็จ",
+          text: `สร้าง/อัปเดตใบส่งมอบงานเลขที่ ${res.deliveryNumber || ""} พร้อมรูปถ่ายและลายเซ็นเรียบร้อยแล้ว`,
+          confirmButtonColor: "#ff2301",
+        });
+        router.refresh();
+      } else {
+        throw new Error(res.error || "ไม่สามารถสร้างใบส่งมอบงานได้");
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: err.message || "ไม่สามารถซิงค์ใบส่งมอบงานได้",
+        confirmButtonColor: "#ff2301",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSaveData(false);
+  };
+
+  // Print Handler -> Open dedicated A4 Service Call Report PDF
   const handlePrint = () => {
-    window.print();
+    window.open(`/service/calls/${initialData.id}/pdf`, "_blank");
   };
 
   // Formatted Dates
@@ -383,14 +696,14 @@ export default function ServiceCallDetailClient({
                 {currentStatusMeta.label}
               </span>
 
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors print:hidden shadow-sm"
+              <Link
+                href={`/service/calls/${initialData.id}/pdf`}
+                target="_blank"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-[#ff2301] bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors print:hidden shadow-sm"
               >
-                <Printer className="w-3.5 h-3.5 text-gray-500" />
-                <span className="hidden sm:inline">พิมพ์เอกสาร</span>
-              </button>
+                <Printer className="w-3.5 h-3.5 text-[#ff2301]" />
+                <span className="hidden sm:inline">ออกใบรายงานบริการ (PDF)</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -961,6 +1274,112 @@ export default function ServiceCallDetailClient({
                       ระบบจะแจ้งเตือนอัตโนมัติเมื่อถึงกำหนดเวลา และยังไม่ได้ปิดเคส
                     </p>
                   </div>
+
+                  {/* ส่งต่อเซลล์เพื่อเปิดใบเสนอราคา & เชื่อมโยงใบส่งมอบงาน */}
+                  <div className="pt-4 border-t border-gray-100 space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-[#ff2301]" />
+                          <span>เลือกเซลล์สำหรับรับเรื่องไปเปิดใบเสนอราคา (เมื่อปิดงาน)</span>
+                        </label>
+                        {initialData.assignedSalesName && (
+                          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            ส่งต่อแล้ว: {initialData.assignedSalesName}
+                          </span>
+                        )}
+                      </div>
+
+                      <SearchableSalesSelect
+                        users={users}
+                        value={formData.assignedSalesId}
+                        onChange={(selectedId) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            assignedSalesId: selectedId,
+                          }))
+                        }
+                        disabled={!canEdit || loading}
+                      />
+
+                      <p className="text-[11px] text-gray-500 mt-1.5">
+                        เมื่อเลือกเซลล์และกดปิดงาน ระบบจะแจ้งเตือนเซลล์ให้เปิดใบเสนอราคา และเมื่อเซลล์เปิดใบเสนอราคาเสร็จ ข้อมูลพร้อม<b>รูปถ่ายและลายเซ็น</b>จะวิ่งไปสร้าง<b>ใบส่งมอบงาน</b>ให้อัตโนมัติ
+                      </p>
+                    </div>
+
+                    {/* Quick Action Buttons: Close & Send to Sales / Open Quotation / Linked Delivery */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={loading || !canEdit}
+                        onClick={handleCloseAndSendToSales}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>ปิดงานเซอร์วิส + ส่งต่อเซลล์เปิดใบเสนอราคา</span>
+                      </button>
+
+                      <Link
+                        href={`/sales?serviceCallId=${initialData.id}`}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition-all"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>
+                          {initialData.linkedQuotationNo
+                            ? `เปิดดู/สร้างใบเสนอราคาเพิ่ม (มี ${initialData.linkedQuotationNo})`
+                            : "เปิดใบเสนอราคาจากเคสนี้ทันที"}
+                        </span>
+                      </Link>
+                    </div>
+
+                    {/* Linked Quotation & Linked Repair Delivery Status Box */}
+                    {(initialData.linkedQuotationNo || initialData.linkedDeliveryId) && (
+                      <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2">
+                        <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span>เอกสารที่เชื่อมโยงจากเคสเซอร์วิสนี้</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {initialData.linkedQuotationNo && (
+                            <Link
+                              href={
+                                initialData.linkedQuotationId
+                                  ? `/sales?editId=${initialData.linkedQuotationId}`
+                                  : `/sales`
+                              }
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-blue-200 text-blue-700 text-xs font-bold hover:bg-blue-50 transition-all"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>ใบเสนอราคา: {initialData.linkedQuotationNo}</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          )}
+
+                          {initialData.linkedDeliveryId && (
+                            <>
+                              <Link
+                                href={`/repair-deliveries/${initialData.linkedDeliveryId}/pdf`}
+                                target="_blank"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all"
+                              >
+                                <Printer className="w-3.5 h-3.5" />
+                                <span>
+                                  พิมพ์ใบส่งมอบงาน ({initialData.linkedDeliveryNo || "DN"})
+                                </span>
+                              </Link>
+                              <Link
+                                href={`/repair-deliveries/${initialData.linkedDeliveryId}/edit`}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all"
+                              >
+                                <span>แก้ไขใบส่งมอบงาน</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </Link>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1074,6 +1493,481 @@ export default function ServiceCallDetailClient({
             </div>
           </div>
 
+          {/* ════════════════════════════════════════════════════════════════════
+              FULL-WIDTH ON-SITE REPORT SECTIONS (Parts, Photos, Signatures)
+              ════════════════════════════════════════════════════════════════════ */}
+          <div className="mt-8 space-y-8">
+            {/* Card 7: สรุปผลการเข้าหน้างาน & รายการอะไหล่ที่ใช้ (On-Site Resolution & Parts Used) */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                    <Package className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                      สรุปผลการเข้าหน้างานและรายการอะไหล่ที่ใช้ (On-Site Inspection Report)
+                    </h2>
+                    <p className="text-xs text-gray-500">
+                      ข้อมูลส่วนนี้จะถูกนำไปออกเอกสาร &ldquo;ใบรายงานการตรวจสอบและบริการหน้างาน (PDF A4)&rdquo;
+                    </p>
+                  </div>
+                </div>
+
+                {/* Internal Company Switcher for PDF Header */}
+                <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl border border-gray-200 self-start sm:self-auto">
+                  {[
+                    { code: "TG", label: "TG (Tera Group)" },
+                    { code: "TE", label: "TE (Tera Electric)" },
+                    { code: "TP", label: "TP (Tera Power)" },
+                  ].map((comp) => (
+                    <button
+                      key={comp.code}
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          internalCompany: comp.code,
+                        }))
+                      }
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        formData.internalCompany === comp.code
+                          ? "bg-[#ff2301] text-white shadow-sm"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      {comp.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Row 1: Onsite Date, Serial Number, Site Address */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                    วันที่เข้าตรวจสอบ/บริการหน้างาน
+                  </label>
+                  <input
+                    type="date"
+                    name="onsiteDate"
+                    value={formData.onsiteDate}
+                    onChange={handleChange}
+                    className="w-full text-sm border border-gray-300 rounded-xl p-2.5 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                    หมายเลขเครื่อง (Serial No. / S/N)
+                  </label>
+                  <input
+                    type="text"
+                    name="serialNumber"
+                    value={formData.serialNumber}
+                    onChange={handleChange}
+                    placeholder="ระบุ Serial No. ของเครื่อง (ถ้ามี)..."
+                    className="w-full text-sm border border-gray-300 rounded-xl p-2.5 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                    สถานที่หน้างาน / ที่อยู่ลูกค้า
+                  </label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                    <input
+                      type="text"
+                      name="siteAddress"
+                      value={formData.siteAddress}
+                      onChange={handleChange}
+                      placeholder="ระบุสถานที่ติดตั้งหรือที่อยู่หน้างาน..."
+                      className="w-full text-sm border border-gray-300 rounded-xl p-2.5 pl-9 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: On-site Resolution Summary */}
+              <div className="space-y-3">
+                <label className="text-xs font-semibold text-gray-700 block">
+                  สรุปผลการเข้าตรวจสอบหน้างาน (On-Site Resolution Summary)
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {ONSITE_RESULT_OPTIONS.map((opt) => {
+                    const active = formData.onsiteResult === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            onsiteResult: opt.value,
+                            status:
+                              opt.value === "RESOLVED_ONSITE"
+                                ? "System running smoothly"
+                                : prev.status,
+                          }))
+                        }
+                        className={`p-3.5 rounded-xl border text-left transition-all flex items-start gap-2.5 ${
+                          active
+                            ? "bg-red-50/80 border-[#ff2301] text-gray-900 ring-2 ring-red-500/15"
+                            : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-white"
+                        }`}
+                      >
+                        <span
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                            active
+                              ? "border-[#ff2301] bg-[#ff2301] text-white"
+                              : "border-gray-300 bg-white"
+                          }`}
+                        >
+                          {active && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                          )}
+                        </span>
+                        <span className="text-xs font-bold leading-snug">
+                          {opt.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    name="onsiteResultNote"
+                    value={formData.onsiteResultNote}
+                    onChange={handleChange}
+                    placeholder="รายละเอียดสรุปผลเพิ่มเติม (เช่น เลขใบรับซ่อมกรณีนำเครื่องกลับ, กำหนดวันเข้าเปลี่ยนอะไหล่ ฯลฯ)..."
+                    className="w-full text-sm border border-gray-300 rounded-xl p-2.5 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Parts Used Table */}
+              <div className="pt-2 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">
+                      รายการอะไหล่ / อุปกรณ์ที่เปลี่ยนหรือใช้แก้ไขหน้างาน (Parts &amp; Materials Used)
+                    </h3>
+                    <p className="text-[11px] text-gray-400">
+                      เพิ่มรายการอะไหล่ที่ใช้ในการซ่อมหรือตรวจเช็คหน้างานเพื่อแสดงในใบรายงาน PDF
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddPart}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-50 text-[#ff2301] hover:bg-red-100 border border-red-200 text-xs font-bold transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>เพิ่มรายการอะไหล่</span>
+                  </button>
+                </div>
+
+                {formData.partsUsed.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {formData.partsUsed.map((part, idx) => (
+                      <div
+                        key={idx}
+                        className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center bg-gray-50 p-3 rounded-xl border border-gray-200"
+                      >
+                        <div className="sm:col-span-5">
+                          <input
+                            type="text"
+                            value={part.name}
+                            onChange={(e) =>
+                              handleUpdatePart(idx, "name", e.target.value)
+                            }
+                            placeholder="ชื่ออะไหล่ / รหัสอุปกรณ์..."
+                            className="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 focus:outline-none focus:border-[#ff2301]"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <input
+                            type="text"
+                            value={part.qty}
+                            onChange={(e) =>
+                              handleUpdatePart(idx, "qty", e.target.value)
+                            }
+                            placeholder="จำนวน"
+                            className="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 text-center focus:outline-none focus:border-[#ff2301]"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <input
+                            type="text"
+                            value={part.unit}
+                            onChange={(e) =>
+                              handleUpdatePart(idx, "unit", e.target.value)
+                            }
+                            placeholder="หน่วย (ชิ้น/ชุด)"
+                            className="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 text-center focus:outline-none focus:border-[#ff2301]"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <input
+                            type="text"
+                            value={part.note}
+                            onChange={(e) =>
+                              handleUpdatePart(idx, "note", e.target.value)
+                            }
+                            placeholder="หมายเหตุ"
+                            className="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 focus:outline-none focus:border-[#ff2301]"
+                          />
+                        </div>
+                        <div className="sm:col-span-1 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePart(idx)}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="ลบรายการนี้"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/60 text-center text-xs text-gray-400">
+                    ยังไม่มีรายการอะไหล่ที่เปลี่ยน (กด &ldquo;+ เพิ่มรายการอะไหล่&rdquo; หากมีการเปลี่ยนอะไหล่หน้างาน)
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Card 8: รูปถ่ายหน้างาน ก่อนแก้ไข & หลังแก้ไข (Before & After Photos) */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                  <Camera className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                    รูปถ่ายหน้างาน ก่อนแก้ไข &amp; หลังแก้ไข (Before / After Photos)
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    แนบรูปถ่ายหน้างานฝั่งละไม่เกิน 2 รูป เพื่อแสดงในใบรายงานการตรวจสอบและบริการหน้างาน (PDF)
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Before Photos */}
+                <div className="p-4 rounded-2xl border border-red-100 bg-red-50/20 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#ff2301]" />
+                      <span>รูปถ่ายก่อนแก้ไข / จุดที่พบปัญหา (Before - สูงสุด 2 รูป)</span>
+                    </label>
+                    <span className="text-[11px] font-semibold text-[#ff2301] bg-red-50 px-2 py-0.5 rounded-full">
+                      {formData.photosBefore.length} / 2 รูป
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {[0, 1].map((idx) => {
+                      const photoUrl = formData.photosBefore[idx];
+                      return (
+                        <div
+                          key={`before-slot-${idx}`}
+                          className="relative aspect-[4/3] min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-[#ff2301] transition-all shadow-sm"
+                        >
+                          {photoUrl ? (
+                            <>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={photoUrl}
+                                alt={`ก่อนแก้ไข #${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePhoto(idx, "before")}
+                                className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md"
+                                title="ลบรูปนี้"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          ) : (
+                            <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-red-50/40 transition-colors">
+                              <Upload className="w-5 h-5 text-gray-400 mb-1 group-hover:text-[#ff2301] transition-colors" />
+                              <span className="text-[10px] font-bold text-gray-500 group-hover:text-[#ff2301] text-center">
+                                {isUploadingBefore
+                                  ? "กำลังอัปโหลด..."
+                                  : `+ รูปก่อนแก้ไข #${idx + 1}`}
+                              </span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                disabled={isUploadingBefore}
+                                onChange={(e) => handleUploadPhoto(e, "before")}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* After Photos */}
+                <div className="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/20 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                      <span>รูปถ่ายหลังแก้ไข / ทดสอบการทำงาน (After - สูงสุด 2 รูป)</span>
+                    </label>
+                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      {formData.photosAfter.length} / 2 รูป
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {[0, 1].map((idx) => {
+                      const photoUrl = formData.photosAfter[idx];
+                      return (
+                        <div
+                          key={`after-slot-${idx}`}
+                          className="relative aspect-[4/3] min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-emerald-500 transition-all shadow-sm"
+                        >
+                          {photoUrl ? (
+                            <>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={photoUrl}
+                                alt={`หลังแก้ไข #${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePhoto(idx, "after")}
+                                className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md"
+                                title="ลบรูปนี้"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          ) : (
+                            <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-emerald-50/40 transition-colors">
+                              <Upload className="w-5 h-5 text-gray-400 mb-1 group-hover:text-emerald-600 transition-colors" />
+                              <span className="text-[10px] font-bold text-gray-500 group-hover:text-emerald-700 text-center">
+                                {isUploadingAfter
+                                  ? "กำลังอัปโหลด..."
+                                  : `+ รูปหลังแก้ไข #${idx + 1}`}
+                              </span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                disabled={isUploadingAfter}
+                                onChange={(e) => handleUploadPhoto(e, "after")}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 9: ลงลายมือชื่อช่างผู้ให้บริการและลูกค้าผู้รับบริการ (Digital Signatures) */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                  <FileSignature className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                    ลงลายมือชื่อผู้ให้บริการและลูกค้าผู้รับบริการ (Digital Signatures)
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    ใช้นิ้ว ปากกาสไตลัส หรือเมาส์เซ็นชื่อในกรอบด้านล่าง หรืออัปโหลดรูปลายเซ็นเพื่อแสดงบนใบรายงาน PDF
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <SignaturePadBox
+                    title="1. ลายเซ็นช่าง/วิศวกรผู้ให้บริการ"
+                    subtitle="สำหรับเจ้าหน้าที่เซอร์วิสหรือช่างผู้เข้าหน้างาน"
+                    signerNameLabel="ลงชื่อตัวบรรจง (ช่างผู้ให้บริการ)"
+                    signerNamePlaceholder="ระบุชื่อ-นามสกุล ช่างผู้ให้บริการ..."
+                    signerName={formData.nameTechnician}
+                    onSignerNameChange={(val) =>
+                      setFormData((prev) => ({ ...prev, nameTechnician: val }))
+                    }
+                    signatureUrl={formData.sigTechnicianUrl}
+                    onSignatureChange={(dataUrl) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        sigTechnicianUrl: dataUrl,
+                      }))
+                    }
+                    accentColor="red"
+                  />
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      เบอร์โทรศัพท์ช่างผู้ให้บริการ
+                    </label>
+                    <input
+                      type="text"
+                      name="technicianPhone"
+                      value={formData.technicianPhone}
+                      onChange={handleChange}
+                      placeholder="ระบุเบอร์โทรช่างผู้ให้บริการ..."
+                      className="w-full px-3.5 py-2 bg-white text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#ff2301] text-gray-900"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <SignaturePadBox
+                    title="2. ลายเซ็นลูกค้า / ผู้รับบริการ"
+                    subtitle="สำหรับลูกค้าหรือตัวแทนผู้ตรวจรับบริการหน้างาน"
+                    signerNameLabel="ลงชื่อตัวบรรจง (ลูกค้าผู้รับบริการ)"
+                    signerNamePlaceholder="ระบุชื่อ-นามสกุล ลูกค้าผู้รับบริการ..."
+                    signerName={formData.nameCustomer}
+                    onSignerNameChange={(val) =>
+                      setFormData((prev) => ({ ...prev, nameCustomer: val }))
+                    }
+                    signatureUrl={formData.sigCustomerUrl}
+                    onSignatureChange={(dataUrl) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        sigCustomerUrl: dataUrl,
+                      }))
+                    }
+                    accentColor="emerald"
+                  />
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      ตำแหน่งผู้รับบริการ (ถ้ามี)
+                    </label>
+                    <input
+                      type="text"
+                      name="customerPosition"
+                      value={formData.customerPosition}
+                      onChange={handleChange}
+                      placeholder="เช่น วิศวกรประจำโรงงาน, หัวหน้าช่าง, เจ้าของกิจการ..."
+                      className="w-full px-3.5 py-2 bg-white text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-600 text-gray-900"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* ── Fixed Symmetrical Bottom Action Bar ── */}
           <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-xl print:hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -1115,23 +2009,34 @@ export default function ServiceCallDetailClient({
                   )}
 
                   {canEdit ? (
-                    <button
-                      type="submit"
-                      disabled={loading || !isDirty}
-                      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-md shadow-red-500/20 transition-all transform active:scale-95"
-                    >
-                      {loading ? (
-                        <>
+                    <>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50 rounded-xl shadow-sm transition-all"
+                      >
+                        {loading ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>กำลังบันทึกข้อมูล...</span>
-                        </>
-                      ) : (
-                        <>
+                        ) : (
                           <Save className="w-4 h-4" />
-                          <span>บันทึกการแก้ไขเคส</span>
-                        </>
-                      )}
-                    </button>
+                        )}
+                        <span>บันทึกข้อมูล</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => handleSaveData(true)}
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] disabled:opacity-50 rounded-xl shadow-md shadow-red-500/20 transition-all"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Printer className="w-4 h-4" />
+                        )}
+                        <span>บันทึก + ออกใบรายงาน PDF</span>
+                      </button>
+                    </>
                   ) : (
                     <div className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-xl border border-gray-200">
                       <Lock className="w-3.5 h-3.5 text-gray-400" />

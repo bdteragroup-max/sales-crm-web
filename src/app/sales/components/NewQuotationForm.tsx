@@ -360,6 +360,8 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           remarks: initialData.remarks || '',
           salesOrderDate: formatDateForInput(new Date()),
           paymentDate: '',
+          companyCode: initialData.companyCode || 'TP',
+          serviceCallId: initialData.serviceCallId || '',
         });
         setCreditDocsUrl('');
       } else {
@@ -464,11 +466,16 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
   const [showCoinModal, setShowCoinModal] = useState(false);
   const [coinModalData, setCoinModalData] = useState({ gold: 0, message: '' });
+  const [linkedDeliveryResult, setLinkedDeliveryResult] = useState<{
+    id: string;
+    deliveryNumber?: string;
+  } | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage('');
+    setLinkedDeliveryResult(null);
 
     const formDataObj = new FormData(e.currentTarget);
     if (creditDocsUrl) {
@@ -476,6 +483,10 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
     }
     if (billingDocsUrl) {
       formDataObj.append('billingDocsUrl', billingDocsUrl);
+    }
+    const activeServiceCallId = formData.serviceCallId || initialData?.serviceCallId || '';
+    if (activeServiceCallId && !formDataObj.get('serviceCallId')) {
+      formDataObj.append('serviceCallId', activeServiceCallId);
     }
 
     const isCabinetSelected = formData.jobType === "งานตู้" || formData.jobType === "งานตู้ + ติดตั้ง" || formData.jobType === "Cabinet Job" || formData.jobType === "Cabinet Job + Installation";
@@ -492,7 +503,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
       formDataObj.append('jobDocuments', JSON.stringify(jobDocuments));
     }
 
-    let res;
+    let res: any;
     if (isEditing) {
       formDataObj.append('id', initialData.id);
       res = await updateSalesData(initialData.id, formDataObj);
@@ -501,7 +512,17 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
     }
 
     if (res.success) {
-      setMessage(isEditing ? 'แก้ไขข้อมูลเรียบร้อยแล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว');
+      if (res.repairDeliveryId) {
+        setLinkedDeliveryResult({
+          id: res.repairDeliveryId,
+          deliveryNumber: res.deliveryNumber,
+        });
+        setMessage(
+          `${isEditing ? 'แก้ไข' : 'บันทึก'}ใบเสนอราคาเรียบร้อยแล้ว และส่งข้อมูลพร้อมรูปถ่าย/ลายเซ็นไปสร้างใบส่งมอบงาน (${res.deliveryNumber || 'DN'}) อัตโนมัติแล้ว!`
+        );
+      } else {
+        setMessage(isEditing ? 'แก้ไขข้อมูลเรียบร้อยแล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว');
+      }
       if (!isEditing) {
         (e.target as HTMLFormElement).reset();
         setSalesBeforeVat(0);
@@ -551,6 +572,40 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <input type="hidden" name="creditDocsUrl" value={creditDocsUrl} />
+        <input
+          type="hidden"
+          name="serviceCallId"
+          value={formData.serviceCallId || initialData?.serviceCallId || ''}
+        />
+
+        {/* ── Service Call Linked Banner ── */}
+        {(initialData?.serviceCallSummary || formData.serviceCallId) && (
+          <div className="bg-red-50/80 border border-red-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-red-600 text-white text-xs font-mono font-bold">
+                  {initialData?.serviceCallSummary?.caseNumber || initialData?.serviceCallCaseNumber || 'Service Call'}
+                </span>
+                <span className="text-xs font-black text-slate-900">
+                  รับข้อมูลต่อจากทีมเซอร์วิส (พร้อมส่งต่อเข้าใบส่งมอบงานอัตโนมัติ)
+                </span>
+              </div>
+              <p className="text-xs text-slate-600">
+                ช่างผู้ตรวจสอบ: <b>{initialData?.serviceCallSummary?.technicianName || '-'}</b> • รูปถ่ายหน้างาน:{' '}
+                <b>{initialData?.serviceCallSummary?.photosCount ?? 0} รูป</b> • ลายเซ็นหน้างาน:{' '}
+                <b>{initialData?.serviceCallSummary?.hasSignatures ? 'มีลายเซ็นแล้ว' : 'รอเซ็นชื่อ'}</b> — เมื่อกดบันทึกใบเสนอราคา ระบบจะสร้าง<b>ใบส่งมอบงาน (Repair Delivery)</b> พร้อมดึงรูปและลายเซ็นไปใส่ให้อัตโนมัติทันที
+              </p>
+            </div>
+            <a
+              href={`/service/calls/${formData.serviceCallId || initialData?.serviceCallId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold transition-all"
+            >
+              <span>ดูเคสเซอร์วิสต้นทาง</span>
+            </a>
+          </div>
+        )}
 
         {/* ── Symmetrical Command Header & Action Bar ── */}
         <div className="bg-white rounded-2xl border border-slate-200/90 p-4 md:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -604,13 +659,33 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
         </div>
 
         {message && (
-          <div className={`p-4 rounded-xl text-xs font-bold flex items-center gap-2 border animate-in fade-in ${
+          <div className={`p-4 rounded-xl text-xs font-bold flex flex-wrap items-center justify-between gap-3 border animate-in fade-in ${
             message.includes('เรียบร้อย')
               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
               : 'bg-red-50 text-red-800 border-red-200'
           }`}>
-            <CheckCircle2 size={16} className={message.includes('เรียบร้อย') ? 'text-emerald-600' : 'text-red-600'} />
-            <span>{message}</span>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className={message.includes('เรียบร้อย') ? 'text-emerald-600' : 'text-red-600'} />
+              <span>{message}</span>
+            </div>
+            {linkedDeliveryResult?.id && (
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/repair-deliveries/${linkedDeliveryResult.id}/pdf`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all"
+                >
+                  <span>พิมพ์ใบส่งมอบงาน ({linkedDeliveryResult.deliveryNumber || 'PDF'})</span>
+                </a>
+                <a
+                  href={`/repair-deliveries/${linkedDeliveryResult.id}/edit`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition-all"
+                >
+                  <span>เปิดแก้ไขใบส่งมอบงาน</span>
+                </a>
+              </div>
+            )}
           </div>
         )}
 

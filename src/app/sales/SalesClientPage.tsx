@@ -17,7 +17,8 @@ import {
   Building2,
   User,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Wrench
 } from 'lucide-react';
 import NewQuotationForm from './components/NewQuotationForm';
 import BulkUploadModal from './components/BulkUploadModal';
@@ -53,6 +54,12 @@ interface SalesClientPageProps {
   businessTypes?: string[];
   currentUserSale?: any;
   prefillData?: {
+    isPrefilled?: boolean;
+    serviceCallId?: string;
+    serviceCallCaseNumber?: string;
+    companyCode?: string;
+    remarks?: string;
+    serviceCallSummary?: any;
     company: any;
     contact: any;
     requirementNumber?: string;
@@ -61,6 +68,7 @@ interface SalesClientPageProps {
     productInterest?: string;
   } | null;
   editingQuotation?: any | null;
+  pendingServiceCalls?: any[];
 }
 
 const STATUS_MAP: Record<string, { label: string; badgeCls: string; dotCls: string }> = {
@@ -103,7 +111,8 @@ export default function SalesClientPage({
   businessTypes = [], 
   currentUserSale, 
   prefillData, 
-  editingQuotation 
+  editingQuotation,
+  pendingServiceCalls = [],
 }: SalesClientPageProps) {
   const router = useRouter();
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
@@ -306,6 +315,56 @@ export default function SalesClientPage({
         </div>
       </header>
 
+      {/* ── Pending Service Calls Handover Queue Banner ── */}
+      {pendingServiceCalls.length > 0 && (
+        <div className="shrink-0 px-4 md:px-8 py-3 bg-amber-50/90 border-b border-amber-200/90 flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-amber-900">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              <span>
+                งานจากทีมเซอร์วิสที่ปิดงานแล้ว ส่งต่อให้เปิดใบเสนอราคา ({pendingServiceCalls.length} รายการ)
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/sales/service-handovers"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold transition-all shadow-2xs"
+              >
+                <Wrench size={12} />
+                <span>เปิดหน้างานส่งต่อจากเซอร์วิส (ดูรูป/อะไหล่/ลายเซ็น)</span>
+                <ChevronRight size={12} />
+              </Link>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {pendingServiceCalls.map((sc: any) => {
+              const isSelected = editingData?.serviceCallId === sc.id;
+              return (
+                <Link
+                  key={sc.id}
+                  href={`/sales/service-handovers?caseId=${sc.id}`}
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
+                    isSelected
+                      ? 'bg-red-600 text-white border-red-600 shadow-sm'
+                      : 'bg-white hover:bg-amber-100/70 text-slate-800 border-amber-300 shadow-2xs'
+                  }`}
+                >
+                  <span className="font-mono font-black">{sc.caseNumber}</span>
+                  <span>• {sc.companyName}</span>
+                  <span className="opacity-75">({sc.inverterModel})</span>
+                  {sc.assignedSalesName && (
+                    <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px]">
+                      เซลล์: {sc.assignedSalesName}
+                    </span>
+                  )}
+                  <ChevronRight size={13} />
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* ── Symmetrical 4-Card KPI Strip (Visible in List & Expired Views) ── */}
       {activeTab !== 'new' && (
         <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 p-4 md:px-8 md:py-5 bg-slate-50/70 border-b border-slate-200/80">
@@ -415,6 +474,27 @@ export default function SalesClientPage({
               {expiredCount}
             </span>
           </button>
+
+          <Link
+            href="/sales/service-handovers"
+            className="flex items-center gap-2 px-4 py-2.5 text-xs font-black rounded-xl text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all"
+            title="เปิดหน้างานที่ส่งต่อมาจากทีมเซอร์วิสเพื่อเปิดใบเสนอราคา"
+          >
+            <Wrench size={15} strokeWidth={2.5} className="text-amber-600" />
+            <span>งานส่งต่อจากเซอร์วิส</span>
+            <span className="ml-0.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-200/80 text-amber-900">
+              {pendingServiceCalls.length}
+            </span>
+          </Link>
+
+          <Link
+            href="/sales/delivery-acknowledgements"
+            className="flex items-center gap-2 px-4 py-2.5 text-xs font-black rounded-xl text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all"
+            title="เปิดหน้าใบส่งมอบงานที่เซอร์วิสและลูกค้าเซ็นเสร็จแล้วเพื่อให้เซลล์รับทราบ"
+          >
+            <CheckCircle2 size={15} strokeWidth={2.5} className="text-emerald-600" />
+            <span>ใบส่งมอบงานที่เซ็นแล้ว</span>
+          </Link>
         </div>
 
         {/* Back-to-pipeline button if editing */}

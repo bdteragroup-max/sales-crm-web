@@ -37,8 +37,9 @@ import {
 import {
   updateRepairDelivery,
   searchSalespeople,
+  searchCompaniesForDelivery,
 } from "@/app/actions/repairDeliveries";
-import { searchCompanies } from "@/app/actions/sales";
+import { SignaturePadBox } from "@/app/repair-deliveries/SignaturePadModal";
 
 interface SalespersonResult {
   id: string;
@@ -119,6 +120,14 @@ export default function EditDeliveryForm({
     photosBefore: normalizePhotos(initialData.photosBefore),
     photosAfter: normalizePhotos(initialData.photosAfter),
     comments: initialData.comments || "",
+    sigSenderUrl: initialData.sigSenderUrl || null,
+    nameSender:
+      initialData.nameSender ||
+      initialData.technician ||
+      initialData.sender ||
+      "",
+    sigReceiverUrl: initialData.sigReceiverUrl || null,
+    nameReceiver: initialData.nameReceiver || initialData.customer || "",
   });
 
   const [isUploadingBefore, setIsUploadingBefore] = useState(false);
@@ -256,7 +265,7 @@ export default function EditDeliveryForm({
     const timer = setTimeout(async () => {
       setIsCompanySearching(true);
       try {
-        const results = await searchCompanies(companySearchQuery.trim());
+        const results = await searchCompaniesForDelivery(companySearchQuery.trim());
         if (results && Array.isArray(results)) {
           setCompanyResults(results as CompanyResult[]);
           setShowCompanyDropdown(true);
@@ -406,6 +415,14 @@ export default function EditDeliveryForm({
         photosBefore: normalizePhotos(initialData.photosBefore),
         photosAfter: normalizePhotos(initialData.photosAfter),
         comments: initialData.comments || "",
+        sigSenderUrl: initialData.sigSenderUrl || null,
+        nameSender:
+          initialData.nameSender ||
+          initialData.technician ||
+          initialData.sender ||
+          "",
+        sigReceiverUrl: initialData.sigReceiverUrl || null,
+        nameReceiver: initialData.nameReceiver || initialData.customer || "",
       });
       setSenderSearchQuery(initialData.sender || "");
       setCompanySearchQuery(initialData.company || "");
@@ -1609,6 +1626,57 @@ export default function EditDeliveryForm({
             rows={3}
             placeholder="ระบุความคิดเห็นของช่าง ข้อเสนอแนะการใช้งาน หรือคอมเมนต์เพิ่มเติมสำหรับการส่งมอบงาน..."
             className={`${inputClass} resize-none`}
+          />
+        </div>
+      </div>
+
+      {/* ── Section 5: Digital Signatures (ผู้ส่งมอบงาน & ผู้รับมอบงาน) ── */}
+      <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
+        <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100">
+          <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0">
+            <FileSignature className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-base font-black text-gray-900 tracking-tight">
+              5. ลงลายมือชื่อผู้ส่งมอบงานและผู้รับมอบงาน (Signatures)
+            </h2>
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+              Handover &amp; Customer Acceptance Signatures
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <SignaturePadBox
+            title="1. ลายเซ็นผู้ส่งมอบงาน (เจ้าหน้าที่ / ช่าง)"
+            subtitle="สำหรับช่างผู้ปฏิบัติงานหรือตัวแทนบริษัท"
+            signerNameLabel="ลงชื่อตัวบรรจง (ผู้ส่งมอบงาน)"
+            signerNamePlaceholder="ระบุชื่อ-นามสกุล ผู้ส่งมอบงาน..."
+            signerName={formData.nameSender}
+            onSignerNameChange={(val) =>
+              setFormData((prev) => ({ ...prev, nameSender: val }))
+            }
+            signatureUrl={formData.sigSenderUrl}
+            onSignatureChange={(dataUrl) =>
+              setFormData((prev) => ({ ...prev, sigSenderUrl: dataUrl }))
+            }
+            accentColor="red"
+          />
+
+          <SignaturePadBox
+            title="2. ลายเซ็นผู้รับมอบงาน (ลูกค้า)"
+            subtitle="สำหรับลูกค้าหรือผู้ตรวจรับมอบงาน"
+            signerNameLabel="ลงชื่อตัวบรรจง (ผู้รับมอบงาน)"
+            signerNamePlaceholder="ระบุชื่อ-นามสกุล ลูกค้าผู้รับมอบงาน..."
+            signerName={formData.nameReceiver}
+            onSignerNameChange={(val) =>
+              setFormData((prev) => ({ ...prev, nameReceiver: val }))
+            }
+            signatureUrl={formData.sigReceiverUrl}
+            onSignatureChange={(dataUrl) =>
+              setFormData((prev) => ({ ...prev, sigReceiverUrl: dataUrl }))
+            }
+            accentColor="emerald"
           />
         </div>
       </div>

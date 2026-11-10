@@ -32,10 +32,13 @@ import {
   Wrench,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Printer,
+  FileSignature
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
+import ServiceCallSignatureModal from "./ServiceCallSignatureModal";
 
 interface ServiceCallsClientPageProps {
   initialLogs?: any[];
@@ -178,6 +181,7 @@ export default function ServiceCallsClientPage({
   const [copiedCaseNo, setCopiedCaseNo] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedCall, setSelectedCall] = useState<any | null>(null);
+  const [signingCall, setSigningCall] = useState<any | null>(null);
 
   // Sync props
   useEffect(() => {
@@ -982,12 +986,39 @@ export default function ServiceCallsClientPage({
 
                         {/* 6. Status */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusMeta.badge}`}
-                          >
-                            <span className={`w-1.5 h-1.5 rounded-full ${statusMeta.dot}`} />
-                            <span>{statusMeta.label}</span>
-                          </span>
+                          <div className="flex flex-col items-start gap-1">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusMeta.badge}`}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full ${statusMeta.dot}`} />
+                              <span>{statusMeta.label}</span>
+                            </span>
+                            {(log.sigTechnicianUrl || log.sigCustomerUrl) && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                                <FileSignature size={10} />
+                                มีลายเซ็นหน้างานแล้ว
+                              </span>
+                            )}
+                            {log.assignedSalesName && !log.linkedQuotationNo && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
+                                ส่งต่อเซลล์: {log.assignedSalesName}
+                              </span>
+                            )}
+                            {log.linkedQuotationNo && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold">
+                                QT: {log.linkedQuotationNo}
+                              </span>
+                            )}
+                            {log.linkedDeliveryNo && (
+                              <Link
+                                href={`/repair-deliveries/${log.linkedDeliveryId}/pdf`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold hover:bg-purple-100"
+                              >
+                                ใบส่งมอบ: {log.linkedDeliveryNo}
+                              </Link>
+                            )}
+                          </div>
                         </td>
 
                         {/* 7. Responsible Tech */}
@@ -1020,6 +1051,24 @@ export default function ServiceCallsClientPage({
                             >
                               <Eye size={15} />
                             </button>
+
+                            {/* Sign On-site Report Button */}
+                            <button
+                              onClick={() => setSigningCall(log)}
+                              className="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
+                              title="สรุปผลหน้างานและลงลายมือชื่อดิจิทัล"
+                            >
+                              <FileSignature size={15} />
+                            </button>
+
+                            {/* Print / PDF Report Link */}
+                            <Link
+                              href={`/service/calls/${log.id}/pdf`}
+                              className="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors"
+                              title="พิมพ์ใบรายงานการตรวจสอบและบริการหน้างาน (PDF)"
+                            >
+                              <Printer size={15} />
+                            </Link>
 
                             {/* Open Document Link */}
                             <Link
@@ -1248,19 +1297,39 @@ export default function ServiceCallsClientPage({
                     className="pt-3 border-t border-gray-100 flex items-center justify-between gap-1"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button
-                      onClick={() => setSelectedCall(log)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold transition-all"
-                    >
-                      <Eye size={13} />
-                      <span>ดูฉบับย่อ</span>
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setSelectedCall(log)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold transition-all"
+                      >
+                        <Eye size={13} />
+                        <span>ดูย่อ</span>
+                      </button>
+
+                      <button
+                        onClick={() => setSigningCall(log)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all"
+                        title="สรุปผลหน้างานและลงลายเซ็น"
+                      >
+                        <FileSignature size={13} />
+                        <span>เซ็นชื่อ</span>
+                      </button>
+
+                      <Link
+                        href={`/service/calls/${log.id}/pdf`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition-all"
+                        title="พิมพ์ใบรายงานหน้างาน PDF"
+                      >
+                        <Printer size={13} />
+                        <span>PDF</span>
+                      </Link>
+                    </div>
 
                     <Link
                       href={`/service/calls/${log.id}`}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#ff2301] hover:bg-[#e01f01] text-white text-xs font-bold shadow-sm shadow-red-500/20 transition-all"
                     >
-                      <span>เปิดเอกสาร</span>
+                      <span>เปิดเคส</span>
                       <ExternalLink size={12} />
                     </Link>
                   </div>
@@ -1499,7 +1568,7 @@ export default function ServiceCallsClientPage({
             </div>
 
             {/* Drawer Footer Actions */}
-            <div className="p-4 sm:p-5 border-t border-gray-200 bg-gray-50/80 flex items-center justify-between gap-3">
+            <div className="p-4 sm:p-5 border-t border-gray-200 bg-gray-50/80 flex flex-wrap items-center justify-between gap-2">
               <button
                 onClick={() => setSelectedCall(null)}
                 className="px-4 py-2 rounded-xl bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold transition-all"
@@ -1507,16 +1576,53 @@ export default function ServiceCallsClientPage({
                 ปิด
               </button>
 
-              <Link
-                href={`/service/calls/${selectedCall.id}`}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#ff2301] hover:bg-[#e01f01] text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all"
-              >
-                <span>เปิดเอกสารแบบเต็ม</span>
-                <ExternalLink size={13} />
-              </Link>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => {
+                    const target = selectedCall;
+                    setSelectedCall(null);
+                    setSigningCall(target);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-bold transition-all"
+                >
+                  <FileSignature size={14} />
+                  <span>เซ็นชื่อหน้างาน</span>
+                </button>
+
+                <Link
+                  href={`/service/calls/${selectedCall.id}/pdf`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all"
+                >
+                  <Printer size={14} />
+                  <span>พิมพ์ใบรายงาน PDF</span>
+                </Link>
+
+                <Link
+                  href={`/service/calls/${selectedCall.id}`}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#ff2301] hover:bg-[#e01f01] text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all"
+                >
+                  <span>เปิดเอกสารแบบเต็ม</span>
+                  <ExternalLink size={13} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* ───────────────────────────────────────────────────────────
+          6. ON-SITE SIGNATURE & SUMMARY MODAL
+      ─────────────────────────────────────────────────────────── */}
+      {signingCall && (
+        <ServiceCallSignatureModal
+          callLog={signingCall}
+          users={users}
+          onClose={() => setSigningCall(null)}
+          onSaved={() => {
+            setSigningCall(null);
+            router.refresh();
+          }}
+        />
       )}
     </div>
   );

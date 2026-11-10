@@ -715,6 +715,20 @@ model RepairDelivery {
   photosBefore        Json?
   photosAfter         Json?
   comments            String?
+  salespersonId       String?
+  signedCompletedAt   DateTime? @db.Timestamptz(6)
+  salesAckStatus      String?   @default("PENDING") // PENDING | ACKNOWLEDGED
+  salesAckAt          DateTime? @db.Timestamptz(6)
+  salesAckById        String?
+  salesAckByName      String?
+  salesAckNote        String?
+  accountingSentAt    DateTime? @db.Timestamptz(6)
+  accountingStatus    String?   @default("PENDING") // PENDING | BILLED
+  accountingAckAt     DateTime? @db.Timestamptz(6)
+  accountingAckById   String?
+  accountingAckByName String?
+  accountingInvoiceNo String?
+  accountingNote      String?
   job                 Job?      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 
@@ -3005,6 +3019,28 @@ model ServiceCallLog {
   responsibleId       String?
   responsibleName     String?
   notes               String?
+  internalCompany     String?   @default("TG")
+  siteAddress         String?
+  serialNumber        String?
+  onsiteDate          DateTime? @db.Date
+  onsiteResult        String?
+  onsiteResultNote    String?
+  partsUsed           Json?     @default("[]")
+  photosBefore        Json?     @default("[]")
+  photosAfter         Json?     @default("[]")
+  sigTechnicianUrl    String?
+  nameTechnician      String?
+  technicianPhone     String?
+  sigCustomerUrl      String?
+  nameCustomer        String?
+  customerPosition    String?
+  assignedSalesId     String?
+  assignedSalesName   String?
+  assignedSalesAt     DateTime? @db.Timestamptz(6)
+  linkedQuotationId   String?
+  linkedQuotationNo   String?
+  linkedDeliveryId    String?
+  linkedDeliveryNo    String?
   createdBy           String
   createdAt           DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt           DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
@@ -3997,4 +4033,116 @@ model DamageReport {
   @@index([hrStatus])
   @@index([accountingStatus])
   @@index([createdAt])
+}
+
+model BranchContent {
+  id                 String                 @id @default(cuid())
+  contentNo          String                 @unique @map("content_no") @db.VarChar(50)
+  title              String                 @db.VarChar(255)
+  branchId           String                 @map("branch_id") @db.VarChar(30)
+  branchName         String                 @map("branch_name") @db.VarChar(150)
+  createdById        String                 @map("created_by_id")
+  createdByName      String                 @map("created_by_name") @db.VarChar(150)
+  assigneeId         String?                @map("assignee_id")
+  assigneeName       String?                @map("assignee_name") @db.VarChar(150)
+  contentType        String                 @default("SINGLE_IMAGE") @map("content_type") @db.VarChar(50)
+  productGroup       String                 @default("General") @map("product_group") @db.VarChar(100)
+  objective          String?                @db.VarChar(100)
+  targetChannels     Json?                  @default("[]") @map("target_channels")
+  mediaFormat        String?                @map("media_format") @db.VarChar(50)
+  caption            String?                @db.Text
+  description        String?                @db.Text
+  callToAction       String?                @map("call_to_action") @db.VarChar(255)
+  referenceUrl       String?                @map("reference_url")
+  submissionDueDate  DateTime?              @map("submission_due_date") @db.Timestamptz(6)
+  plannedPublishDate DateTime?              @map("planned_publish_date") @db.Timestamptz(6)
+  status             String                 @default("BACKLOG") @db.VarChar(30)
+  reviewSubStatus    String?                @map("review_sub_status") @db.VarChar(30)
+  currentVersion     Int                    @default(1) @map("current_version")
+  revisionCount      Int                    @default(0) @map("revision_count")
+  submittedAt        DateTime?              @map("submitted_at") @db.Timestamptz(6)
+  reviewerId         String?                @map("reviewer_id")
+  reviewerName       String?                @map("reviewer_name") @db.VarChar(150)
+  reviewedAt         DateTime?              @map("reviewed_at") @db.Timestamptz(6)
+  reviewFeedback     String?                @map("review_feedback") @db.Text
+  approvedById       String?                @map("approved_by_id")
+  approvedByName     String?                @map("approved_by_name") @db.VarChar(150)
+  approvedAt         DateTime?              @map("approved_at") @db.Timestamptz(6)
+  approvalNote       String?                @map("approval_note") @db.Text
+  actualChannel      String?                @map("actual_channel") @db.VarChar(100)
+  actualPublishDate  DateTime?              @map("actual_publish_date") @db.Timestamptz(6)
+  publishedUrl       String?                @map("published_url")
+  publishedByName    String?                @map("published_by_name") @db.VarChar(150)
+  cancelReason       String?                @map("cancel_reason") @db.Text
+  cancelledByName    String?                @map("cancelled_by_name") @db.VarChar(150)
+  cancelledAt        DateTime?              @map("cancelled_at") @db.Timestamptz(6)
+  createdAt          DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  media              BranchContentMedia[]
+  comments           BranchContentComment[]
+  logs               BranchContentLog[]
+
+  @@index([branchId], map: "idx_branch_contents_branch_id")
+  @@index([branchName], map: "idx_branch_contents_branch_name")
+  @@index([status], map: "idx_branch_contents_status")
+  @@index([productGroup], map: "idx_branch_contents_product_group")
+  @@index([plannedPublishDate], map: "idx_branch_contents_planned_date")
+  @@index([submissionDueDate], map: "idx_branch_contents_due_date")
+  @@index([createdById], map: "idx_branch_contents_creator")
+  @@index([assigneeId], map: "idx_branch_contents_assignee")
+  @@map("branch_contents")
+}
+
+model BranchContentMedia {
+  id             String        @id @default(cuid())
+  contentId      String        @map("content_id")
+  version        Int           @default(1)
+  fileType       String        @default("IMAGE") @map("file_type") @db.VarChar(30)
+  fileName       String        @map("file_name") @db.VarChar(255)
+  fileUrl        String        @map("file_url")
+  thumbnailUrl   String?       @map("thumbnail_url")
+  fileSize       Int           @default(0) @map("file_size")
+  mimeType       String?       @map("mime_type") @db.VarChar(100)
+  uploadedById   String?       @map("uploaded_by_id")
+  uploadedByName String?       @map("uploaded_by_name") @db.VarChar(150)
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  content        BranchContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId], map: "idx_branch_content_media_cid")
+  @@index([version], map: "idx_branch_content_media_ver")
+  @@map("branch_content_media")
+}
+
+model BranchContentComment {
+  id          String        @id @default(cuid())
+  contentId   String        @map("content_id")
+  userId      String        @map("user_id")
+  userName    String        @map("user_name") @db.VarChar(150)
+  userRole    String?       @map("user_role") @db.VarChar(100)
+  version     Int           @default(1)
+  commentType String        @default("GENERAL") @map("comment_type") @db.VarChar(40)
+  message     String        @db.Text
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  content     BranchContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId], map: "idx_branch_content_comments_cid")
+  @@map("branch_content_comments")
+}
+
+model BranchContentLog {
+  id         String        @id @default(cuid())
+  contentId  String        @map("content_id")
+  userId     String?       @map("user_id")
+  userName   String?       @map("user_name") @db.VarChar(150)
+  userRole   String?       @map("user_role") @db.VarChar(100)
+  action     String        @db.VarChar(50)
+  fromStatus String?       @map("from_status") @db.VarChar(30)
+  toStatus   String?       @map("to_status") @db.VarChar(30)
+  version    Int           @default(1)
+  details    String?       @db.Text
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  content    BranchContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId], map: "idx_branch_content_logs_cid")
+  @@map("branch_content_logs")
 }

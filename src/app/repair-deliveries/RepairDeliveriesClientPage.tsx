@@ -36,6 +36,7 @@ import {
   FileSignature,
 } from "lucide-react";
 import { deleteRepairDelivery } from "@/app/actions/repairDeliveries";
+import SignaturePadModal from "./SignaturePadModal";
 
 interface RepairDeliveryItem {
   id: string;
@@ -72,6 +73,14 @@ interface RepairDeliveryItem {
   workRepairDetails?: string | null;
   workTrainingDetails?: string | null;
   internalCompany?: string | null;
+  salesAckStatus?: string | null;
+  salesAckAt?: string | Date | null;
+  salesAckByName?: string | null;
+  accountingStatus?: string | null;
+  accountingAckAt?: string | Date | null;
+  accountingAckByName?: string | null;
+  accountingInvoiceNo?: string | null;
+  accountingNote?: string | null;
   job?: {
     id: string;
     jobNumber?: string | null;
@@ -112,6 +121,9 @@ export default function RepairDeliveriesClientPage({
 
   // Drawer (Quick View)
   const [drawerItem, setDrawerItem] = useState<RepairDeliveryItem | null>(null);
+
+  // Signature Pad Modal
+  const [signingItem, setSigningItem] = useState<RepairDeliveryItem | null>(null);
 
   // Copy to clipboard indicator
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -436,6 +448,16 @@ export default function RepairDeliveriesClientPage({
                 <LayoutGrid className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Link to Sales Delivery Acknowledgement Page */}
+            <Link
+              href="/sales/delivery-acknowledgements"
+              className="inline-flex items-center gap-2 px-4 h-10 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-800 transition-all shadow-sm shrink-0 whitespace-nowrap"
+              title="เปิดหน้าใบส่งมอบงานที่เซ็นแล้วสำหรับเซลล์รับทราบ"
+            >
+              <FileSignature className="w-4 h-4 text-emerald-600" />
+              <span className="hidden sm:inline">หน้าเซลล์รับทราบใบส่งมอบ</span>
+            </Link>
 
             {/* Primary CTA Button */}
             <Link
@@ -889,34 +911,60 @@ export default function RepairDeliveriesClientPage({
                               {item.customerPosition}
                             </div>
                           )}
+                          {(item.sigReceiverUrl || item.sigSenderUrl) && (
+                            <div className="pl-5 mt-1">
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                                <Check className="w-2.5 h-2.5" /> มีลายเซ็นแล้ว
+                              </span>
+                            </div>
+                          )}
                         </td>
 
                         {/* สถานะ */}
                         <td className="px-4 py-4 text-center align-middle whitespace-nowrap min-w-[130px]">
-                          <span
-                            className={`inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-xs whitespace-nowrap shrink-0 ${
-                              item.status === "Completed"
-                                ? "bg-gray-900 text-white border-gray-900"
-                                : "bg-red-50 text-[#ff2301] border-red-200"
-                            }`}
-                          >
+                          <div className="flex flex-col items-center gap-1">
                             <span
-                              className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                              className={`inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-xs whitespace-nowrap shrink-0 ${
                                 item.status === "Completed"
-                                  ? "bg-white"
-                                  : "bg-[#ff2301] animate-pulse"
+                                  ? "bg-gray-900 text-white border-gray-900"
+                                  : "bg-red-50 text-[#ff2301] border-red-200"
                               }`}
-                            />
-                            <span>
-                              {item.status === "Completed"
-                                ? "ส่งมอบแล้ว"
-                                : "ร่าง / รอส่งมอบ"}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                  item.status === "Completed"
+                                    ? "bg-white"
+                                    : "bg-[#ff2301] animate-pulse"
+                                }`}
+                              />
+                              <span>
+                                {item.status === "Completed"
+                                  ? "ส่งมอบแล้ว"
+                                  : "ร่าง / รอส่งมอบ"}
+                              </span>
                             </span>
-                          </span>
+
+                            {item.salesAckStatus === "ACKNOWLEDGED" && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <Check className="w-2.5 h-2.5" />
+                                เซลล์รับทราบแล้ว
+                              </span>
+                            )}
+
+                            {item.accountingStatus === "BILLED" && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                <CheckCircle2 className="w-2.5 h-2.5" />
+                                บัญชีวางบิลแล้ว
+                                {item.accountingInvoiceNo
+                                  ? `: ${item.accountingInvoiceNo}`
+                                  : ""}
+                              </span>
+                            )}
+                          </div>
                         </td>
 
                         {/* จัดการ */}
-                        <td className="px-4 py-4 text-center align-middle whitespace-nowrap min-w-[150px]">
+                        <td className="px-4 py-4 text-center align-middle whitespace-nowrap min-w-[180px]">
                           <div className="flex items-center justify-center gap-1">
                             {/* Quick View Drawer */}
                             <button
@@ -926,6 +974,20 @@ export default function RepairDeliveriesClientPage({
                               title="ดูรายละเอียดฉบับย่อ"
                             >
                               <Eye className="w-4 h-4" />
+                            </button>
+
+                            {/* Sign Delivery Note */}
+                            <button
+                              type="button"
+                              onClick={() => setSigningItem(item)}
+                              className={`p-2 rounded-xl transition-colors ${
+                                item.sigReceiverUrl && item.sigSenderUrl
+                                  ? "text-emerald-600 hover:bg-emerald-50"
+                                  : "text-[#ff2301] bg-red-50/70 hover:bg-red-100"
+                              }`}
+                              title="เซ็นลายมือชื่อส่งมอบงาน"
+                            >
+                              <FileSignature className="w-4 h-4" />
                             </button>
 
                             {/* Print PDF */}
@@ -1148,6 +1210,19 @@ export default function RepairDeliveriesClientPage({
                     </button>
 
                     <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setSigningItem(item)}
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          item.sigReceiverUrl && item.sigSenderUrl
+                            ? "text-emerald-600 hover:bg-emerald-50"
+                            : "text-[#ff2301] bg-red-50/70 hover:bg-red-100"
+                        }`}
+                        title="เซ็นลายมือชื่อส่งมอบงาน"
+                      >
+                        <FileSignature className="w-4 h-4" />
+                      </button>
+
                       <Link
                         href={`/repair-deliveries/${item.id}/pdf`}
                         target="_blank"
@@ -1392,12 +1467,30 @@ export default function RepairDeliveriesClientPage({
                 <div>
                   <span className="text-gray-400 block font-semibold">ผู้ส่งมอบ / ช่าง</span>
                   <span className="font-bold text-gray-900 mt-0.5 block">
-                    {drawerItem.technician || drawerItem.nameSender || drawerItem.sender || "—"}
+                    {drawerItem.nameSender || drawerItem.technician || drawerItem.sender || "—"}
                   </span>
                   {drawerItem.technicianPhone && (
                     <span className="text-gray-500 text-[11px] block mt-0.5">
                       โทร: {drawerItem.technicianPhone}
                     </span>
+                  )}
+                  {drawerItem.sigSenderUrl ? (
+                    <div className="mt-2 p-2 bg-white rounded-xl border border-gray-200 flex items-center justify-center h-16">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={drawerItem.sigSenderUrl}
+                        alt="ลายเซ็นผู้ส่งมอบ"
+                        className="max-h-12 max-w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setSigningItem(drawerItem)}
+                      className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:underline"
+                    >
+                      <FileSignature className="w-3.5 h-3.5" /> + เซ็นผู้ส่งมอบ
+                    </button>
                   )}
                 </div>
 
@@ -1410,6 +1503,24 @@ export default function RepairDeliveriesClientPage({
                     <span className="text-gray-500 text-[11px] block mt-0.5">
                       ตำแหน่ง: {drawerItem.customerPosition}
                     </span>
+                  )}
+                  {drawerItem.sigReceiverUrl ? (
+                    <div className="mt-2 p-2 bg-white rounded-xl border border-gray-200 flex items-center justify-center h-16">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={drawerItem.sigReceiverUrl}
+                        alt="ลายเซ็นผู้รับมอบ"
+                        className="max-h-12 max-w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setSigningItem(drawerItem)}
+                      className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:underline"
+                    >
+                      <FileSignature className="w-3.5 h-3.5" /> + เซ็นผู้รับมอบ
+                    </button>
                   )}
                 </div>
               </div>
@@ -1436,15 +1547,26 @@ export default function RepairDeliveriesClientPage({
             </div>
 
             {/* Drawer Footer Actions */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-3">
-              <Link
-                href={`/repair-deliveries/${drawerItem.id}/pdf`}
-                target="_blank"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 text-xs font-bold text-gray-700 transition-colors shadow-sm"
-              >
-                <Printer className="w-4 h-4" />
-                <span>พิมพ์ PDF</span>
-              </Link>
+            <div className="p-4 border-t border-gray-200 bg-gray-50 flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSigningItem(drawerItem)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-xs font-bold text-[#ff2301] transition-colors shadow-2xs"
+                >
+                  <FileSignature className="w-4 h-4" />
+                  <span>เซ็นลายเซ็น</span>
+                </button>
+
+                <Link
+                  href={`/repair-deliveries/${drawerItem.id}/pdf`}
+                  target="_blank"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 text-xs font-bold text-gray-700 transition-colors shadow-sm"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>พิมพ์ PDF</span>
+                </Link>
+              </div>
 
               <Link
                 href={`/repair-deliveries/${drawerItem.id}/edit`}
@@ -1457,6 +1579,46 @@ export default function RepairDeliveriesClientPage({
           </div>
         </div>
       )}
+
+      {/* ── Signature Pad Modal ── */}
+      <SignaturePadModal
+        isOpen={!!signingItem}
+        item={signingItem}
+        onClose={() => setSigningItem(null)}
+        onSaved={(updated) => {
+          setDeliveries((prev) =>
+            prev.map((d) =>
+              d.id === updated.id
+                ? {
+                    ...d,
+                    sigSenderUrl: updated.sigSenderUrl,
+                    nameSender: updated.nameSender,
+                    sigReceiverUrl: updated.sigReceiverUrl,
+                    nameReceiver: updated.nameReceiver,
+                    customerPosition: updated.customerPosition,
+                    status: updated.status,
+                  }
+                : d
+            )
+          );
+          if (drawerItem?.id === updated.id) {
+            setDrawerItem((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    sigSenderUrl: updated.sigSenderUrl,
+                    nameSender: updated.nameSender,
+                    sigReceiverUrl: updated.sigReceiverUrl,
+                    nameReceiver: updated.nameReceiver,
+                    customerPosition: updated.customerPosition,
+                    status: updated.status,
+                  }
+                : null
+            );
+          }
+          router.refresh();
+        }}
+      />
     </div>
   );
 }

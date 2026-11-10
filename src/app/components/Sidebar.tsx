@@ -11,7 +11,7 @@ type SidebarProps = {
 
 export default function Sidebar(props: SidebarProps) {
   return (
-    <Suspense fallback={<div className="w-[76px] h-screen bg-white border-r border-gray-100 hidden md:block shrink-0" />}>
+    <Suspense fallback={<div className="w-[264px] h-screen bg-white border-r border-gray-100 hidden md:block shrink-0" />}>
       <SidebarClient {...props} />
     </Suspense>
   );

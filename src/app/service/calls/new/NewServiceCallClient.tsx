@@ -65,10 +65,13 @@ export default function NewServiceCallClient({
 
   const initialFormState = {
     receivedDate: new Date().toISOString().split("T")[0],
+    internalCompany: "TG",
     companyName: "",
     contactName: "",
     contactPhone: "",
+    siteAddress: "",
     inverterModel: "",
+    serialNumber: "",
     reportedIssue: "",
     responsibleId: "",
     notes: "",
@@ -133,10 +136,13 @@ export default function NewServiceCallClient({
     try {
       const payload: any = {
         receivedDate: formData.receivedDate,
+        internalCompany: formData.internalCompany || "TG",
         companyName: formData.companyName.trim(),
         contactName: formData.contactName.trim(),
         contactPhone: formData.contactPhone.trim() || null,
+        siteAddress: formData.siteAddress.trim() || null,
         inverterModel: formData.inverterModel.trim(),
+        serialNumber: formData.serialNumber.trim() || null,
         reportedIssue: formData.reportedIssue.trim(),
         responsibleId: formData.responsibleId || null,
         notes: formData.notes.trim() || null,
@@ -146,9 +152,9 @@ export default function NewServiceCallClient({
 
       Swal.fire({
         icon: "success",
-        title: "บันทึกสำเร็จ",
-        text: "เปิดเคสบันทึกแจ้งปัญหาลูกค้าเรียบร้อยแล้ว",
-        timer: 1600,
+        title: "บันทึกและส่งต่อทีมเซอร์วิสสำเร็จ",
+        text: "เปิดเคสแจ้งปัญหาลูกค้าและส่งแจ้งเตือนไปยังทีมเซอร์วิสเพื่อตรวจสอบเรียบร้อยแล้ว",
+        timer: 1800,
         showConfirmButton: false,
       });
 
@@ -292,21 +298,39 @@ export default function NewServiceCallClient({
                 </div>
 
                 <div className="space-y-4">
-                  {/* วันที่รับแจ้ง */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-700 block mb-1.5">
-                      วันที่รับแจ้ง <span className="text-[#ff2301]">*</span>
-                    </label>
-                    <div className="relative">
-                      <Calendar className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-400" />
-                      <input
-                        type="date"
-                        name="receivedDate"
-                        required
-                        value={formData.receivedDate}
+                  {/* วันที่รับแจ้ง & บริษัทภายใน (สำหรับหัวกระดาษใบรายงาน) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                        วันที่รับแจ้ง <span className="text-[#ff2301]">*</span>
+                      </label>
+                      <div className="relative">
+                        <Calendar className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-400" />
+                        <input
+                          type="date"
+                          name="receivedDate"
+                          required
+                          value={formData.receivedDate}
+                          onChange={handleChange}
+                          className="w-full text-sm border border-gray-300 rounded-xl p-3 pl-10 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                        บริษัทในเครือ (หัวกระดาษใบรายงาน)
+                      </label>
+                      <select
+                        name="internalCompany"
+                        value={formData.internalCompany}
                         onChange={handleChange}
-                        className="w-full text-sm border border-gray-300 rounded-xl p-3 pl-10 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all"
-                      />
+                        className="w-full text-sm font-medium border border-gray-300 rounded-xl p-3 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all"
+                      >
+                        <option value="TG">TG — บจก. เทอร่า กรุ๊ป</option>
+                        <option value="TE">TE — บจก. เทอร่า อิเล็คทริค</option>
+                        <option value="TP">TP — บจก. เทอร่า พาวเวอร์</option>
+                      </select>
                     </div>
                   </div>
 
@@ -366,6 +390,21 @@ export default function NewServiceCallClient({
                       </div>
                     </div>
                   </div>
+
+                  {/* สถานที่เข้าหน้างาน / ที่อยู่ */}
+                  <div>
+                    <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                      สถานที่ตั้งเครื่อง / ที่อยู่หน้างาน (ถ้ามี)
+                    </label>
+                    <input
+                      type="text"
+                      name="siteAddress"
+                      placeholder="เช่น อ.เมือง จ.ขอนแก่น หรือพิกัด/สถานที่ติดตั้งเครื่อง"
+                      value={formData.siteAddress}
+                      onChange={handleChange}
+                      className="w-full text-sm border border-gray-300 rounded-xl p-3 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -389,21 +428,37 @@ export default function NewServiceCallClient({
                 </div>
 
                 <div className="space-y-4">
-                  {/* โมเดล Inverter */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-700 block mb-1.5">
-                      โมเดล / รุ่น Inverter <span className="text-[#ff2301]">*</span>
-                    </label>
-                    <div className="relative">
-                      <Cpu className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-400" />
+                  {/* โมเดล Inverter & S/N */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                        โมเดล / รุ่น Inverter <span className="text-[#ff2301]">*</span>
+                      </label>
+                      <div className="relative">
+                        <Cpu className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          name="inverterModel"
+                          required
+                          placeholder="เช่น VT-400 หรือเลือกรุ่นด้านล่าง"
+                          value={formData.inverterModel}
+                          onChange={handleChange}
+                          className="w-full text-sm font-mono border border-gray-300 rounded-xl p-3 pl-10 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                        Serial Number (S/N) (ถ้าทราบ)
+                      </label>
                       <input
                         type="text"
-                        name="inverterModel"
-                        required
-                        placeholder="เช่น VT-400 หรือเลือกรุ่นด้านล่าง"
-                        value={formData.inverterModel}
+                        name="serialNumber"
+                        placeholder="หมายเลขเครื่อง S/N"
+                        value={formData.serialNumber}
                         onChange={handleChange}
-                        className="w-full text-sm font-mono border border-gray-300 rounded-xl p-3 pl-10 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all"
+                        className="w-full text-sm font-mono border border-gray-300 rounded-xl p-3 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all"
                       />
                     </div>
                   </div>

@@ -310,6 +310,7 @@ export async function updatePurchaseRequest(
     recordedAt?: string | null;
     note?: string;
     attachments?: any;
+    poNumbers?: string[];
   }
 ) {
   const user = await getUser();
@@ -364,6 +365,9 @@ export async function updatePurchaseRequest(
         changes.push(`วันที่: ${oldDateStr} -> ${newDateStr}`);
       }
     }
+    if (data.poNumbers !== undefined) {
+      changes.push(`ผูก PO: ${data.poNumbers.join(', ') || 'ไม่มี'}`);
+    }
 
     const editLog = changes.length > 0 
       ? `[แก้ไขโดย ${user.fullName || user.email} ณ ${new Date().toLocaleString('th-TH')}: ${changes.join(', ')}]`
@@ -377,7 +381,7 @@ export async function updatePurchaseRequest(
       ? (data.recordedAt ? new Date(data.recordedAt) : null)
       : existing.recordedAt;
 
-    const updated = await prisma.purchaseRequest.update({
+    await prisma.purchaseRequest.update({
       where: { id: prId },
       data: {
         prNumber: cleanNewPrNumber,
@@ -387,10 +391,65 @@ export async function updatePurchaseRequest(
         recordedAt: parsedRecordedAt,
         note: finalNote,
         attachments: data.attachments !== undefined ? data.attachments : (existing as any).attachments,
-      },
+      }
+    });
+
+    // If poNumbers is provided, synchronize linked POs
+    if (data.poNumbers !== undefined) {
+      const cleanPoNumbers = Array.from(
+        new Set(
+          data.poNumbers
+            .map(p => p.trim().toUpperCase())
+            .filter(p => p.length > 0)
+        )
+      );
+
+      // Unlink POs that were linked to this PR but not in cleanPoNumbers
+      await prisma.purchaseOrder.updateMany({
+        where: {
+          prNumber: cleanNewPrNumber,
+          poNumber: { notIn: cleanPoNumbers }
+        },
+        data: { prNumber: null }
+      });
+
+      // Link each PO in cleanPoNumbers
+      for (const poNum of cleanPoNumbers) {
+        const existingPo = await prisma.purchaseOrder.findUnique({
+          where: { poNumber: poNum }
+        });
+        if (existingPo) {
+          await prisma.purchaseOrder.update({
+            where: { poNumber: poNum },
+            data: { prNumber: cleanNewPrNumber }
+          });
+        } else {
+          await prisma.purchaseOrder.create({
+            data: {
+              poNumber: poNum,
+              prNumber: cleanNewPrNumber,
+              jobName: data.projectName || existing.projectName || null,
+              itemList: data.itemList || existing.itemList || null,
+              reportedBy: user.fullName || user.email || 'CRM User',
+              note: `[ผูกจากหน้า PR ${cleanNewPrNumber} โดย ${user.fullName || user.email} ณ ${new Date().toLocaleString('th-TH')}]`
+            }
+          });
+        }
+      }
+    }
+
+    const updated = await prisma.purchaseRequest.findUnique({
+      where: { id: prId },
       include: {
         purchaseOrders: {
-          select: { poNumber: true, receiveStatus: true }
+          select: {
+            id: true,
+            poNumber: true,
+            vendorName: true,
+            totalAmount: true,
+            receiveStatus: true,
+            recordedAt: true
+          }
         }
       }
     });
@@ -399,14 +458,209 @@ export async function updatePurchaseRequest(
     revalidatePath("/admin/procurement/dashboard");
     revalidatePath("/admin/procurement/po");
     revalidatePath("/orders");
+    revalidatePath("/projects");
+    revalidatePath("/jobs");
 
     return { 
       success: true, 
-      data: updated
+      data: {
+        ...updated,
+        purchaseOrders: updated?.purchaseOrders?.map(po => ({
+          ...po,
+          totalAmount: po.totalAmount ? Number(po.totalAmount) : null
+        }))
+      }
     };
   } catch (error: any) {
     console.error("Error updating PR:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการแก้ไขข้อมูล PR" };
+  }
+}
+
+/**
+ * Link or unlink Purchase Orders (POs) directly to a Purchase Request (PR)
+ * Allows entering PO numbers on the PR page so it won't remain as pending / unfulfilled.
+ */
+export async function linkPurchaseOrdersToPR(data: {
+  prNumber: string;
+  poNumbers: string[];
+}) {
+  const user = await getUser();
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการ" };
+
+  const userRoleStr = (user.role || '').toLowerCase();
+  const isAuthorized = isSuperUser(user.role) || [
+    'admin',
+    'project',
+    'purchasing',
+    'จัดซื้อ',
+    'ผู้จัดการ',
+    'manager',
+    'director',
+    'superadmin',
+    'store',
+    'สโตร์',
+    'คลังสินค้า'
+  ].some(r => userRoleStr.includes(r));
+
+  if (!isAuthorized) {
+    return { success: false, error: "คุณไม่มีสิทธิ์เชื่อมโยง PO กับ PR" };
+  }
+
+  try {
+    const cleanPrNumber = data.prNumber.trim().toUpperCase();
+    const pr = await prisma.purchaseRequest.findUnique({
+      where: { prNumber: cleanPrNumber },
+      include: { purchaseOrders: true }
+    });
+
+    if (!pr) {
+      return { success: false, error: `ไม่พบใบขอซื้อเลขที่ ${cleanPrNumber}` };
+    }
+
+    const cleanPoNumbers = Array.from(
+      new Set(
+        data.poNumbers
+          .map(p => p.trim().toUpperCase())
+          .filter(p => p.length > 0)
+      )
+    );
+
+    // 1. POs currently linked to this PR that should be unlinked
+    const currentLinkedPos = pr.purchaseOrders.map(p => p.poNumber);
+    const toUnlink = currentLinkedPos.filter(p => !cleanPoNumbers.includes(p));
+
+    if (toUnlink.length > 0) {
+      await prisma.purchaseOrder.updateMany({
+        where: { poNumber: { in: toUnlink } },
+        data: { prNumber: null }
+      });
+    }
+
+    // 2. Link each PO in cleanPoNumbers
+    const linkedPoRecords: any[] = [];
+    for (const poNum of cleanPoNumbers) {
+      const existingPo = await prisma.purchaseOrder.findUnique({
+        where: { poNumber: poNum }
+      });
+
+      if (existingPo) {
+        const updated = await prisma.purchaseOrder.update({
+          where: { poNumber: poNum },
+          data: { prNumber: cleanPrNumber }
+        });
+        linkedPoRecords.push(updated);
+      } else {
+        // If PO doesn't exist yet, create a placeholder PO record linked to this PR
+        const created = await prisma.purchaseOrder.create({
+          data: {
+            poNumber: poNum,
+            prNumber: cleanPrNumber,
+            jobName: pr.projectName || null,
+            itemList: pr.itemList || null,
+            reportedBy: user.fullName || user.email || 'CRM User',
+            note: `[ผูกจากหน้า PR ${cleanPrNumber} โดย ${user.fullName || user.email} ณ ${new Date().toLocaleString('th-TH')}]`
+          }
+        });
+        linkedPoRecords.push(created);
+      }
+    }
+
+    // Audit log on PR note
+    const logText = `[เชื่อมโยง PO: ${cleanPoNumbers.length > 0 ? cleanPoNumbers.join(', ') : 'ยกเลิกการผูกทั้งหมด'} โดย ${user.fullName || user.email} ณ ${new Date().toLocaleString('th-TH')}]`;
+    await prisma.purchaseRequest.update({
+      where: { id: pr.id },
+      data: {
+        note: pr.note ? `${pr.note}\n${logText}` : logText
+      }
+    });
+
+    revalidatePath("/admin/procurement/pr");
+    revalidatePath("/admin/procurement/po");
+    revalidatePath("/admin/procurement/dashboard");
+    revalidatePath("/orders");
+    revalidatePath("/projects");
+    revalidatePath("/jobs");
+
+    // Fetch updated PR with its purchaseOrders
+    const updatedPr = await prisma.purchaseRequest.findUnique({
+      where: { id: pr.id },
+      include: {
+        purchaseOrders: {
+          select: {
+            id: true,
+            poNumber: true,
+            vendorName: true,
+            totalAmount: true,
+            receiveStatus: true,
+            recordedAt: true
+          }
+        }
+      }
+    });
+
+    return {
+      success: true,
+      data: {
+        ...updatedPr,
+        purchaseOrders: updatedPr?.purchaseOrders?.map(po => ({
+          ...po,
+          totalAmount: po.totalAmount ? Number(po.totalAmount) : null
+        }))
+      },
+      message: `เชื่อมโยง PO (${cleanPoNumbers.join(', ') || 'ไม่มี'}) กับ PR ${cleanPrNumber} เรียบร้อยแล้ว`
+    };
+  } catch (error: any) {
+    console.error("Error linking PO to PR:", error);
+    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการเชื่อมโยง PO กับ PR" };
+  }
+}
+
+/**
+ * Search available Purchase Orders for autocomplete / quick-pick when linking to PR
+ */
+export async function searchPurchaseOrdersForPR(query: string = '') {
+  const user = await getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const q = query.trim().toUpperCase();
+    const where: any = q
+      ? {
+          OR: [
+            { poNumber: { contains: q, mode: 'insensitive' } },
+            { vendorName: { contains: q, mode: 'insensitive' } },
+            { jobName: { contains: q, mode: 'insensitive' } },
+            { itemList: { contains: q, mode: 'insensitive' } },
+          ]
+        }
+      : {};
+
+    const pos = await prisma.purchaseOrder.findMany({
+      where,
+      select: {
+        id: true,
+        poNumber: true,
+        prNumber: true,
+        vendorName: true,
+        totalAmount: true,
+        receiveStatus: true,
+        jobName: true,
+        recordedAt: true
+      },
+      orderBy: { recordedAt: 'desc' },
+      take: 50
+    });
+
+    return {
+      success: true,
+      data: pos.map(p => ({
+        ...p,
+        totalAmount: p.totalAmount ? Number(p.totalAmount) : null
+      }))
+    };
+  } catch (err: any) {
+    return { success: false, error: err.message };
   }
 }
 

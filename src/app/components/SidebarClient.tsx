@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw, Sparkles, PanelLeftClose, PanelLeftOpen, Search
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -13,11 +13,13 @@ import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
 import { getPendingRepairOrderCount } from '@/app/actions/repairOrders';
 import { getPendingOutsourceRepairCount } from '@/app/actions/outsourceRepairs';
-import { getPendingRepairDeliveryCount } from '@/app/actions/repairDeliveries';
+import { getPendingRepairDeliveryCount, getPendingSalesDeliveryAckCount, getPendingAccountingDeliveryCount } from '@/app/actions/repairDeliveries';
 import { getPendingEstimationCount } from '@/app/actions/estimations';
 import { getPendingMarketingRequestCount } from '@/app/actions/marketingRequests';
 import { getUnreadMarketingBoardCount } from '@/app/actions/marketingBoard';
+import { getBranchContentSidebarAccess } from '@/app/actions/branchContent';
 import { getPendingServiceClaimCount } from '@/app/actions/serviceClaims';
+import { getOpenServiceCallCount, getPendingServiceHandoverCount } from '@/app/actions/service-calls';
 import CoinMiniWidget from './CoinMiniWidget';
 import NotificationBell from './NotificationBell'; // HMR flush
 
@@ -39,6 +41,8 @@ const executiveNav = [
 
   // ── 2. Operations & Engineering ──
   { icon: Briefcase, label: 'ติดตามงานทั้งหมด (Master Jobs Tracker)', href: '/jobs' },
+  { icon: PhoneCall, label: 'Service Desk (แจ้งปัญหาลูกค้า)', href: '/service/calls' },
+  { icon: FileSignature, label: 'ใบส่งมอบงาน (Repair Deliveries)', href: '/repair-deliveries' },
   { icon: ShieldAlert, label: 'ระบบแจ้งเคลม (Service Claims)', href: '/service/claims' },
   { icon: ShieldAlert, label: 'ติดตามสินค้าชำรุด (Damage Tracking)', href: '/damage-reports/accounting' },
   { icon: FolderOpen, label: 'ภาพรวมโครงการ (Projects Dashboard)', href: '/projects/dashboard' },
@@ -48,11 +52,13 @@ const executiveNav = [
 
   // ── 3. Marketing & Commercial ──
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
+  { icon: Sparkles, label: 'บอร์ดคอนเทนต์สาขา (Branch Content Board)', href: '/marketing-board/branch-content' },
   { icon: Tv, label: 'แดชบอร์ดการตลาดและโฆษณา (Marketing & Ads)', href: '/marketing/dashboard' },
   { icon: Users, label: 'ทะเบียนลูกค้า (Client 360)', href: '/clients' },
 
   // ── 4. Finance, Procurement & Rewards ──
   { icon: DollarSign, label: 'แดชบอร์ดการเงิน/บัญชี (Finance & Accounting)', href: '/accounting/dashboard' },
+  { icon: FileSignature, label: 'รับใบส่งมอบงานจากเซลล์ (วางบิล/บัญชี)', href: '/accounting/delivery-handovers' },
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
   { icon: FileCheck, label: 'ทะเบียนขอจ่ายเงิน (Payment Requests)', href: '/accounting/payment-requests' },
   { icon: Package, label: 'เจ้าหนี้การค้า (AP Payables)', href: '/accounting/payables' },
@@ -70,10 +76,13 @@ const managerNav = [
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: GitCommit, label: 'ท่อดีลฝ่ายขาย', href: '/pipeline' },
   { icon: Bell, label: 'Leads จาก Marketing', href: '/sales/leads' },
+  { icon: Wrench, label: 'งานส่งต่อจากเซอร์วิส (เปิดใบเสนอราคา)', href: '/sales/service-handovers' },
+  { icon: FileSignature, label: 'ใบส่งมอบงานที่เซ็นแล้ว (เซลล์รับทราบ)', href: '/sales/delivery-acknowledgements' },
   { icon: TrendingUp, label: 'จัดการใบเสนอราคา', href: '/sales' },
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
   { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
+  { icon: PhoneCall, label: 'Service Desk (แจ้งปัญหาลูกค้า)', href: '/service/calls' },
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: LayoutDashboard, label: 'Marketing', href: '/marketing' },
   { icon: Users, label: 'จัดการทีม', href: '/team' },
@@ -90,10 +99,13 @@ const repNav = [
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: GitCommit, label: 'ท่อดีลของฉัน', href: '/pipeline' },
   { icon: Bell, label: 'Leads จาก Marketing', href: '/sales/leads' },
+  { icon: Wrench, label: 'งานส่งต่อจากเซอร์วิส (เปิดใบเสนอราคา)', href: '/sales/service-handovers' },
+  { icon: FileSignature, label: 'ใบส่งมอบงานที่เซ็นแล้ว (เซลล์รับทราบ)', href: '/sales/delivery-acknowledgements' },
   { icon: TrendingUp, label: 'บันทึกใบเสนอราคา', href: '/sales' },
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
   { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
+  { icon: PhoneCall, label: 'Service Desk (แจ้งปัญหาลูกค้า)', href: '/service/calls' },
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: CalendarDays, label: 'ตารางงานของฉัน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
@@ -125,8 +137,10 @@ const serviceMgrNav = [
 
 const technicianNav = [
   { icon: Wrench, label: 'งานผลิตของฉัน (Cabinet)', href: '/technician/production' },
+  { icon: PhoneCall, label: 'Service Desk (แจ้งปัญหาลูกค้า)', href: '/service/calls' },
   { icon: ShieldAlert, label: 'รายการแจ้งเคลม (Claims)', href: '/service/claims' },
   { icon: ClipboardCheck, label: 'ตรวจเช็ค & Fault Report (CR)', href: '/service/check-reports' },
+  { icon: FileSignature, label: 'ใบส่งมอบงาน', href: '/repair-deliveries' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: Building2, label: 'งานซ่อมสถานที่ (Facility Repairs)', href: '/technician/facility-repairs' },
   { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
@@ -177,6 +191,7 @@ const projectNav = [
 const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
+  { icon: Sparkles, label: 'บอร์ดคอนเทนต์สาขา (Branch Content Board)', href: '/marketing-board/branch-content' },
   { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests' },
   { icon: Tv, label: 'แดชบอร์ดโฆษณา (Ads Dashboard)', href: '/marketing/ads/dashboard' },
   { icon: FolderOpen, label: 'แคมเปญโฆษณา (Ads Campaigns)', href: '/marketing/ads/campaigns' },
@@ -211,6 +226,7 @@ const productionNav = [
 
 const accountingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี/การเงิน', href: '/accounting/dashboard' },
+  { icon: FileSignature, label: 'รับใบส่งมอบงานจากเซลล์ (วางบิล/บัญชี)', href: '/accounting/delivery-handovers' },
   { icon: ShieldAlert, label: 'ติดตามสินค้าชำรุด (Damage Tracking)', href: '/damage-reports/accounting' },
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
   { icon: FileCheck, label: 'ทะเบียนขอจ่ายเงิน (Payment Requests)', href: '/accounting/payment-requests' },
@@ -237,6 +253,7 @@ const bdNav = [
 ];
 
 const commonNav = [
+  { icon: FileSignature, label: 'ใบส่งมอบงาน (Repair Deliveries)', href: '/repair-deliveries' },
   { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (Service Claim)', href: '/service/claims' },
   { icon: ShieldAlert, label: 'แจ้งสินค้าชำรุดเสียหาย (Damage Report)', href: '/damage-reports' },
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
@@ -325,6 +342,15 @@ export default function SidebarClient(props: SidebarProps) {
 
   const finalNav = Array.from(new Map([...nav, ...navToAppend].map(item => [item.href, item])).values());
 
+  // Guarantee that /repair-deliveries is ALWAYS visible to all roles
+  if (!finalNav.some(item => item.href === '/repair-deliveries')) {
+    finalNav.push({
+      icon: FileSignature,
+      label: 'ใบส่งมอบงาน (Repair Deliveries)',
+      href: '/repair-deliveries',
+    });
+  }
+
   // Guarantee that /requisitions is ALWAYS visible to all employees & provincial branches
   if (!finalNav.some(item => item.href === '/requisitions')) {
     finalNav.push({
@@ -394,11 +420,45 @@ function ResponsiveSidebar({
   const [pendingEstimationCount, setPendingEstimationCount] = useState(0);
   const [pendingMarketingRequestCount, setPendingMarketingRequestCount] = useState(0);
   const [unreadMarketingBoardCount, setUnreadMarketingBoardCount] = useState(0);
+  const [pendingBranchContentCount, setPendingBranchContentCount] = useState(0);
+  const [canAccessBranchContent, setCanAccessBranchContent] = useState<boolean>(false);
   const [pendingClaimCount, setPendingClaimCount] = useState(0);
+  const [openServiceCallCount, setOpenServiceCallCount] = useState(0);
+  const [pendingServiceHandoverCount, setPendingServiceHandoverCount] = useState(0);
+  const [pendingSalesDeliveryAckCount, setPendingSalesDeliveryAckCount] = useState(0);
+  const [pendingAccountingDeliveryCount, setPendingAccountingDeliveryCount] = useState(0);
 
   const [selectedContext, setSelectedContext] = useState<string>('All (Default)');
   const [isContextSwitcherOpen, setIsContextSwitcherOpen] = useState(false);
   const contextSwitcherRef = useRef<HTMLDivElement>(null);
+
+  // Desktop Expanded / Collapsed State (Default: Expanded so all roles see icon + menu name)
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [menuSearch, setMenuSearch] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedExpanded = localStorage.getItem('sidebarExpanded_v1');
+      if (savedExpanded === 'false') {
+        setIsExpanded(false);
+      } else if (savedExpanded === 'true') {
+        setIsExpanded(true);
+      }
+    }
+  }, []);
+
+  const toggleSidebarExpanded = useCallback(() => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarExpanded_v1', String(next));
+      }
+      if (next) {
+        setTooltip(null);
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     if (isSuperAdmin) {
@@ -408,6 +468,14 @@ function ResponsiveSidebar({
       }
     }
   }, [isSuperAdmin, superAdminContexts]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && userId) {
+      const cached = sessionStorage.getItem(`branchContentAccess_${userId}`);
+      if (cached === 'true') setCanAccessBranchContent(true);
+      else if (cached === 'false') setCanAccessBranchContent(false);
+    }
+  }, [userId]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -421,7 +489,28 @@ function ResponsiveSidebar({
     };
   }, []);
 
-  const nav = isSuperAdmin && superAdminContexts && superAdminContexts[selectedContext] ? superAdminContexts[selectedContext] : defaultNav;
+  const baseNav = isSuperAdmin && superAdminContexts && superAdminContexts[selectedContext] ? superAdminContexts[selectedContext] : defaultNav;
+  const nav = React.useMemo(() => {
+    if (canAccessBranchContent) {
+      if (baseNav.some(item => item.href === '/marketing-board/branch-content')) {
+        return baseNav;
+      }
+      const next = [...baseNav];
+      const mktIdx = next.findIndex(item => item.href === '/marketing-board');
+      const branchContentItem: NavItem = {
+        icon: Sparkles,
+        label: 'บอร์ดคอนเทนต์สาขา (Branch Content Board)',
+        href: '/marketing-board/branch-content',
+      };
+      if (mktIdx !== -1) {
+        next.splice(mktIdx + 1, 0, branchContentItem);
+      } else {
+        next.push(branchContentItem);
+      }
+      return next;
+    }
+    return baseNav.filter(item => item.href !== '/marketing-board/branch-content');
+  }, [baseNav, canAccessBranchContent]);
 
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -445,14 +534,27 @@ function ResponsiveSidebar({
       getPendingInstallationCount().then(setPendingInstallationCount).catch(() => { });
       getPendingRepairOrderCount().then(setPendingRepairCount).catch(() => { });
       getPendingOutsourceRepairCount().then(setPendingOutsourceCount).catch(() => { });
-      getPendingRepairDeliveryCount().then(setPendingDeliveryCount).catch(() => { });
       getPendingEstimationCount().then(setPendingEstimationCount).catch(() => { });
     }
 
+    getPendingRepairDeliveryCount().then(setPendingDeliveryCount).catch(() => { });
     getPendingMarketingRequestCount().then(setPendingMarketingRequestCount).catch(() => { });
     getUnreadMarketingBoardCount().then(setUnreadMarketingBoardCount).catch(() => { });
+    getBranchContentSidebarAccess()
+      .then((res) => {
+        setCanAccessBranchContent(res.canAccess);
+        setPendingBranchContentCount(res.pendingCount);
+        if (typeof window !== 'undefined' && userId) {
+          sessionStorage.setItem(`branchContentAccess_${userId}`, String(res.canAccess));
+        }
+      })
+      .catch(() => { });
     getPendingServiceClaimCount().then(setPendingClaimCount).catch(() => { });
-  }, [router, nav, userRole]);
+    getOpenServiceCallCount().then(setOpenServiceCallCount).catch(() => { });
+    getPendingServiceHandoverCount().then(setPendingServiceHandoverCount).catch(() => { });
+    getPendingSalesDeliveryAckCount().then(setPendingSalesDeliveryAckCount).catch(() => { });
+    getPendingAccountingDeliveryCount().then(setPendingAccountingDeliveryCount).catch(() => { });
+  }, [router, baseNav, userRole, userId]);
 
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (pathname !== prevPathname) {
@@ -499,55 +601,233 @@ function ResponsiveSidebar({
   };
   const colors = getThemeColors();
 
+  const getBadgeForHref = (href: string): { count: number; color: string; pulse?: boolean } | null => {
+    if (href === '/accounting' && unpaidCount > 0) {
+      return { count: unpaidCount, color: 'bg-red-500 text-white' };
+    }
+    if (href === '/service/installation' && pendingInstallationCount > 0) {
+      return { count: pendingInstallationCount, color: 'bg-red-500 text-white' };
+    }
+    if (href === '/repair-orders' && pendingRepairCount > 0) {
+      return { count: pendingRepairCount, color: 'bg-red-500 text-white' };
+    }
+    if (href === '/outsource-repairs' && pendingOutsourceCount > 0) {
+      return { count: pendingOutsourceCount, color: 'bg-red-500 text-white' };
+    }
+    if (href === '/repair-deliveries' && pendingDeliveryCount > 0) {
+      return { count: pendingDeliveryCount, color: 'bg-red-500 text-white' };
+    }
+    if (href === '/service/estimations' && pendingEstimationCount > 0) {
+      return { count: pendingEstimationCount, color: 'bg-red-500 text-white' };
+    }
+    if ((href === '/marketing/requests' || href === '/marketing/requests/new') && pendingMarketingRequestCount > 0) {
+      return { count: pendingMarketingRequestCount, color: 'bg-red-500 text-white' };
+    }
+    if (href === '/marketing-board' && unreadMarketingBoardCount > 0) {
+      return { count: unreadMarketingBoardCount, color: 'bg-[#ff2301] text-white', pulse: true };
+    }
+    if (href === '/marketing-board/branch-content' && pendingBranchContentCount > 0) {
+      return { count: pendingBranchContentCount, color: 'bg-purple-600 text-white', pulse: true };
+    }
+    if (href === '/service/claims' && pendingClaimCount > 0) {
+      return { count: pendingClaimCount, color: 'bg-amber-500 text-white', pulse: true };
+    }
+    if (href === '/service/calls' && openServiceCallCount > 0) {
+      return { count: openServiceCallCount, color: 'bg-[#ff2301] text-white' };
+    }
+    if (href === '/sales/service-handovers' && pendingServiceHandoverCount > 0) {
+      return { count: pendingServiceHandoverCount, color: 'bg-[#ff2301] text-white', pulse: true };
+    }
+    if (href === '/sales/delivery-acknowledgements' && pendingSalesDeliveryAckCount > 0) {
+      return { count: pendingSalesDeliveryAckCount, color: 'bg-[#ff2301] text-white', pulse: true };
+    }
+    if (href === '/accounting/delivery-handovers' && pendingAccountingDeliveryCount > 0) {
+      return { count: pendingAccountingDeliveryCount, color: 'bg-[#ff2301] text-white', pulse: true };
+    }
+    return null;
+  };
+
+  const filteredDesktopNav = React.useMemo(() => {
+    const q = menuSearch.trim().toLowerCase();
+    if (!q) return nav;
+    return nav.filter(item =>
+      item.label.toLowerCase().includes(q) || item.href.toLowerCase().includes(q)
+    );
+  }, [nav, menuSearch]);
+
+  const homeHref = isReadOnlyExecutive(userRole)
+    ? '/executive/kpi'
+    : userRole === 'อื่นๆ'
+    ? '/department'
+    : (userRole || '').toLowerCase().includes('project')
+    ? '/jobs'
+    : '/dashboard';
+
   if (pathname === '/bd/tickets/tv') return null;
 
   return (
     <>
-      {/* ─── DESKTOP SIDEBAR (Inline, in-flow) ─── */}
+      {/* ─── DESKTOP SIDEBAR (Expandable / Collapsible for All Roles) ─── */}
       <aside
-        className="hidden md:flex w-[76px] h-screen bg-white flex-col items-center py-6 shrink-0 justify-between border-r border-gray-100 relative z-40 select-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] print:hidden"
+        className={`hidden md:flex ${
+          isExpanded ? 'w-[264px]' : 'w-[76px]'
+        } h-screen bg-white flex-col shrink-0 justify-between border-r border-slate-200/80 relative z-40 select-none transition-all duration-300 ease-in-out print:hidden`}
       >
-        {/* Top brand logo and navigation */}
-        <div className="flex flex-col items-center w-full shrink-0">
-          {/* Logo mark */}
-          <Link href={isReadOnlyExecutive(userRole) ? '/executive/kpi' : userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} className={`w-12 h-12 ${colors.bg} rounded-2xl flex items-center justify-center shadow-lg ${colors.shadow} hover:scale-105 transition-all duration-300`}>
-            <TrendingUp size={22} className="text-white" strokeWidth={2.5} />
-          </Link>
-
-          {/* Divider */}
-          <div className="w-8 h-px bg-gray-100 my-5 shrink-0" />
-
-          {isSuperAdmin && superAdminContexts && (
-            <div className="relative mb-5" ref={contextSwitcherRef}>
-              <button
-                onClick={() => setIsContextSwitcherOpen(!isContextSwitcherOpen)}
-                onMouseEnter={(e) => !isContextSwitcherOpen && showTooltip(`View Context: ${selectedContext}`, e)}
-                onMouseLeave={hideTooltip}
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${isContextSwitcherOpen
-                  ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
-                  : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+        {/* Top Fixed Brand Header + Search + Context Switcher */}
+        <div className="flex flex-col w-full shrink-0 pt-5 px-3">
+          {isExpanded ? (
+            <div className="flex items-center justify-between gap-2 px-1">
+              <Link
+                href={homeHref}
+                className="flex items-center gap-2.5 min-w-0 group"
               >
-                <Layers size={20} strokeWidth={isContextSwitcherOpen ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
+                <div
+                  className={`w-10 h-10 ${colors.bg} rounded-xl flex items-center justify-center shadow-md ${colors.shadow} group-hover:scale-105 transition-all duration-200 shrink-0`}
+                >
+                  <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
+                </div>
+                <div className="min-w-0">
+                  <span className="font-sans font-black text-base text-slate-900 tracking-tight block truncate">
+                    TeraSales
+                  </span>
+                  <span className="text-[10px] font-sans font-bold text-[#ff2301] tracking-wider block -mt-0.5 uppercase truncate">
+                    CRM &amp; ERP System
+                  </span>
+                </div>
+              </Link>
+
+              <div className="flex items-center gap-1 shrink-0">
+                {userRole !== 'อื่นๆ' && (
+                  <NotificationBell userId={userId} isExpanded={true} />
+                )}
+                <button
+                  type="button"
+                  onClick={toggleSidebarExpanded}
+                  title="ย่อแถบเมนู (แสดงเฉพาะไอคอน)"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                >
+                  <PanelLeftClose size={18} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2.5">
+              <Link
+                href={homeHref}
+                className={`w-11 h-11 ${colors.bg} rounded-2xl flex items-center justify-center shadow-lg ${colors.shadow} hover:scale-105 transition-all duration-300`}
+              >
+                <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
+              </Link>
+              <button
+                type="button"
+                onClick={toggleSidebarExpanded}
+                onMouseEnter={(e) => showTooltip('ขยายแถบเมนู (แสดงชื่อเมนู)', e)}
+                onMouseLeave={hideTooltip}
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              >
+                <PanelLeftOpen size={18} />
               </button>
+            </div>
+          )}
+
+          {/* Quick Search Input when Expanded */}
+          {isExpanded && (
+            <div className="relative mt-3.5">
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+              />
+              <input
+                type="text"
+                value={menuSearch}
+                onChange={(e) => setMenuSearch(e.target.value)}
+                placeholder="ค้นหาเมนู..."
+                className="w-full pl-8 pr-7 py-2 text-xs font-medium bg-slate-50 border border-slate-200/80 rounded-xl focus:outline-none focus:bg-white focus:border-[#ff2301] focus:ring-2 focus:ring-red-500/10 text-slate-800 placeholder:text-slate-400 transition-all"
+              />
+              {menuSearch && (
+                <button
+                  type="button"
+                  onClick={() => setMenuSearch('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* SuperAdmin Context Switcher */}
+          {isSuperAdmin && superAdminContexts && (
+            <div className="relative mt-3" ref={contextSwitcherRef}>
+              {isExpanded ? (
+                <button
+                  type="button"
+                  onClick={() => setIsContextSwitcherOpen(!isContextSwitcherOpen)}
+                  className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-xs font-bold border transition-all ${
+                    isContextSwitcherOpen
+                      ? `${colors.lightBg} ${colors.text} ${colors.border}`
+                      : 'bg-slate-50/80 text-slate-700 border-slate-200/80 hover:bg-slate-100'
+                  }`}
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <Layers size={15} className="text-[#ff2301] shrink-0" />
+                    <span className="truncate">มุมมอง: {selectedContext}</span>
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-500">
+                    สลับ
+                  </span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsContextSwitcherOpen(!isContextSwitcherOpen)}
+                  onMouseEnter={(e) =>
+                    !isContextSwitcherOpen &&
+                    showTooltip(`View Context: ${selectedContext}`, e)
+                  }
+                  onMouseLeave={hideTooltip}
+                  className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
+                    isContextSwitcherOpen
+                      ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
+                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <Layers
+                    size={19}
+                    strokeWidth={isContextSwitcherOpen ? 2.5 : 2}
+                    className="transition-transform duration-200 group-hover:scale-105"
+                  />
+                </button>
+              )}
 
               {isContextSwitcherOpen && (
-                <div className="absolute left-[70px] top-0 w-56 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 z-50 animate-in fade-in slide-in-from-left-2">
-                  <div className="px-4 py-2 border-b border-gray-100 mb-2">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Select View</span>
+                <div
+                  className={`absolute ${
+                    isExpanded ? 'left-0 right-0 top-full mt-1.5' : 'left-[68px] top-0 w-56'
+                  } bg-white border border-slate-200 shadow-xl rounded-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1`}
+                >
+                  <div className="px-3.5 py-1.5 border-b border-slate-100 mb-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      เลือกชุดเมนูตามแผนก
+                    </span>
                   </div>
-                  {Object.keys(superAdminContexts).map(ctx => (
+                  {Object.keys(superAdminContexts).map((ctx) => (
                     <button
                       key={ctx}
+                      type="button"
                       onClick={() => {
                         setSelectedContext(ctx);
                         localStorage.setItem('superAdminViewContext', ctx);
                         setIsContextSwitcherOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold transition-colors ${selectedContext === ctx ? `${colors.text} ${colors.lightBg}` : 'text-gray-600 hover:bg-gray-50'}`}
+                      className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-bold transition-colors ${
+                        selectedContext === ctx
+                          ? `${colors.text} ${colors.lightBg}`
+                          : 'text-slate-600 hover:bg-slate-50'
+                      }`}
                     >
-                      {ctx}
-                      {selectedContext === ctx && <Check size={16} strokeWidth={2.5} />}
+                      <span className="truncate">{ctx}</span>
+                      {selectedContext === ctx && <Check size={14} strokeWidth={2.5} />}
                     </button>
                   ))}
                 </div>
@@ -555,11 +835,69 @@ function ResponsiveSidebar({
             </div>
           )}
 
-          {/* Nav items */}
-          <nav className="flex flex-col gap-4 w-full px-2">
-            {nav.map(({ icon: Icon, label, href }) => {
+          <div className="w-full h-px bg-slate-100 mt-3.5 shrink-0" />
+        </div>
+
+        {/* Scrollable Navigation Menu List */}
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+          {filteredDesktopNav.length === 0 ? (
+            <div className="py-8 text-center text-xs text-slate-400">
+              ไม่พบเมนูที่ค้นหา
+            </div>
+          ) : (
+            filteredDesktopNav.map(({ icon: Icon, label, href }) => {
               const isActive = href === bestMatchHref;
               const isLoading = loadingHref === href;
+              const badge = getBadgeForHref(href);
+
+              if (isExpanded) {
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    prefetch={true}
+                    onClick={() => {
+                      if (!isActive) {
+                        setLoadingHref(href);
+                      }
+                    }}
+                    className={`w-full min-h-[42px] py-2 px-3 rounded-xl flex items-center gap-3 transition-all duration-150 relative group border ${
+                      isActive
+                        ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold shadow-2xs`
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50/90 border-transparent font-semibold'
+                    }`}
+                  >
+                    <div className="shrink-0 relative flex items-center justify-center w-5 h-5">
+                      {isLoading ? (
+                        <Loader2 size={18} className={`animate-spin ${colors.text}`} />
+                      ) : (
+                        <Icon
+                          size={18}
+                          strokeWidth={isActive ? 2.5 : 2}
+                          className={`transition-transform duration-150 group-hover:scale-105 ${
+                            isActive ? colors.text : 'text-slate-400 group-hover:text-slate-700'
+                          }`}
+                        />
+                      )}
+                    </div>
+
+                    <span className="text-[13px] leading-snug flex-1 line-clamp-1">
+                      {label}
+                    </span>
+
+                    {badge && (
+                      <span
+                        className={`min-w-[20px] h-5 px-1.5 ${badge.color} text-[10px] font-black rounded-full flex items-center justify-center shadow-2xs shrink-0 ${
+                          badge.pulse ? 'animate-pulse' : ''
+                        }`}
+                      >
+                        {badge.count > 99 ? '99+' : badge.count}
+                      </span>
+                    )}
+                  </Link>
+                );
+              }
+
               return (
                 <Link
                   key={href}
@@ -572,152 +910,219 @@ function ResponsiveSidebar({
                       setLoadingHref(href);
                     }
                   }}
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${isActive
-                    ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
-                    : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
+                  className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
+                    isActive
+                      ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
+                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
                 >
                   {isLoading ? (
-                    <Loader2 size={20} className={`animate-spin ${colors.text}`} />
+                    <Loader2 size={19} className={`animate-spin ${colors.text}`} />
                   ) : (
-                    <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
+                    <Icon
+                      size={19}
+                      strokeWidth={isActive ? 2.5 : 2}
+                      className="transition-transform duration-200 group-hover:scale-105"
+                    />
                   )}
                   {isActive && !isLoading && (
                     <span
                       className={`absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full ${colors.bg} border border-white animate-pulse`}
                     />
                   )}
-                  {href === '/accounting' && unpaidCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
-                      {unpaidCount > 99 ? '99+' : unpaidCount}
-                    </span>
-                  )}
-                  {href === '/service/installation' && pendingInstallationCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
-                      {pendingInstallationCount > 99 ? '99+' : pendingInstallationCount}
-                    </span>
-                  )}
-                  {href === '/repair-orders' && pendingRepairCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
-                      {pendingRepairCount > 99 ? '99+' : pendingRepairCount}
-                    </span>
-                  )}
-                  {href === '/outsource-repairs' && pendingOutsourceCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
-                      {pendingOutsourceCount > 99 ? '99+' : pendingOutsourceCount}
-                    </span>
-                  )}
-                  {href === '/repair-deliveries' && pendingDeliveryCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
-                      {pendingDeliveryCount > 99 ? '99+' : pendingDeliveryCount}
-                    </span>
-                  )}
-                  {href === '/service/estimations' && pendingEstimationCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
-                      {pendingEstimationCount > 99 ? '99+' : pendingEstimationCount}
-                    </span>
-                  )}
-                  {(href === '/marketing/requests' || href === '/marketing/requests/new') && pendingMarketingRequestCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
-                      {pendingMarketingRequestCount > 99 ? '99+' : pendingMarketingRequestCount}
-                    </span>
-                  )}
-                  {href === '/marketing-board' && unreadMarketingBoardCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-[#ff2301] text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10 animate-pulse">
-                      {unreadMarketingBoardCount > 99 ? '99+' : unreadMarketingBoardCount}
-                    </span>
-                  )}
-                  {href === '/service/claims' && pendingClaimCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-amber-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10 animate-pulse">
-                      {pendingClaimCount > 99 ? '99+' : pendingClaimCount}
+                  {badge && (
+                    <span
+                      className={`absolute -top-1 -right-1 min-w-[18px] h-4.5 px-1 ${badge.color} text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10 ${
+                        badge.pulse ? 'animate-pulse' : ''
+                      }`}
+                    >
+                      {badge.count > 99 ? '99+' : badge.count}
                     </span>
                   )}
                 </Link>
               );
-            })}
-          </nav>
+            })
+          )}
         </div>
 
-        {/* Bottom items */}
-        <div className="flex flex-col items-center gap-3 w-full px-2 shrink-0">
+        {/* Bottom Fixed Footer Section */}
+        <div className="flex flex-col gap-2 w-full px-3 pb-4 pt-2 border-t border-slate-100 shrink-0">
           <CoinMiniWidget
             isMobile={false}
+            isExpanded={isExpanded}
             activeRoute={activeRoute}
-            onMouseEnter={(e) => showTooltip('Gold Coin', e)}
+            onMouseEnter={(e) => !isExpanded && showTooltip('Gold Coin', e)}
             onMouseLeave={hideTooltip}
           />
 
-          <div className="w-8 h-px bg-gray-100 my-1 shrink-0" />
-
-
-
-          <Link
-            href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
-            prefetch={true}
-            onMouseEnter={(e) => showTooltip(userRole === 'อื่นๆ' ? 'ระบบจัดการคิวงาน (Department)' : 'ระบบลงทะเบียนงาน (Jobs)', e)}
-            onMouseLeave={hideTooltip}
-            onClick={() => {
-              const target = userRole === 'อื่นๆ' ? '/department' : '/jobs';
-              if (activeRoute !== target) {
-                setLoadingHref(target);
-              }
-            }}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative group ${(activeRoute === '/jobs' || activeRoute === '/department')
-              ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
-              : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+          {/* Quick Link to Jobs / Department */}
+          {isExpanded ? (
+            <Link
+              href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
+              prefetch={true}
+              onClick={() => {
+                const target = userRole === 'อื่นๆ' ? '/department' : '/jobs';
+                if (activeRoute !== target) {
+                  setLoadingHref(target);
+                }
+              }}
+              className={`w-full py-2 px-3 rounded-xl flex items-center gap-3 transition-all duration-150 border ${
+                activeRoute === '/jobs' || activeRoute === '/department'
+                  ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-transparent font-semibold'
               }`}
-          >
-            {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
-              <Loader2 size={20} className={`animate-spin ${colors.text}`} />
-            ) : (
-              <Briefcase size={20} strokeWidth={(activeRoute === '/jobs' || activeRoute === '/department') ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
-            )}
-            {(activeRoute === '/jobs' || activeRoute === '/department') && loadingHref !== (userRole === 'อื่นๆ' ? '/department' : '/jobs') && (
-              <span className={`absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full ${colors.bg} border border-white animate-pulse`} />
-            )}
-          </Link>
+            >
+              <div className="shrink-0 w-5 h-5 flex items-center justify-center">
+                {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
+                  <Loader2 size={17} className={`animate-spin ${colors.text}`} />
+                ) : (
+                  <Briefcase
+                    size={17}
+                    strokeWidth={activeRoute === '/jobs' || activeRoute === '/department' ? 2.5 : 2}
+                    className="text-slate-400"
+                  />
+                )}
+              </div>
+              <span className="text-xs truncate">
+                {userRole === 'อื่นๆ' ? 'ระบบจัดการคิวงาน (Department)' : 'ระบบลงทะเบียนงาน (Jobs)'}
+              </span>
+            </Link>
+          ) : (
+            <>
+              <Link
+                href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
+                prefetch={true}
+                onMouseEnter={(e) =>
+                  showTooltip(
+                    userRole === 'อื่นๆ'
+                      ? 'ระบบจัดการคิวงาน (Department)'
+                      : 'ระบบลงทะเบียนงาน (Jobs)',
+                    e
+                  )
+                }
+                onMouseLeave={hideTooltip}
+                onClick={() => {
+                  const target = userRole === 'อื่นๆ' ? '/department' : '/jobs';
+                  if (activeRoute !== target) {
+                    setLoadingHref(target);
+                  }
+                }}
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
+                  activeRoute === '/jobs' || activeRoute === '/department'
+                    ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
+                    : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
+                  <Loader2 size={19} className={`animate-spin ${colors.text}`} />
+                ) : (
+                  <Briefcase
+                    size={19}
+                    strokeWidth={activeRoute === '/jobs' || activeRoute === '/department' ? 2.5 : 2}
+                    className="transition-transform duration-200 group-hover:scale-105"
+                  />
+                )}
+              </Link>
 
-          {userRole !== 'อื่นๆ' && (
-            <NotificationBell userId={userId} />
+              {userRole !== 'อื่นๆ' && (
+                <div className="mx-auto">
+                  <NotificationBell userId={userId} isExpanded={false} />
+                </div>
+              )}
+            </>
           )}
 
-          <Link
-            href="/settings"
-            prefetch={true}
-            onMouseEnter={(e) => showTooltip(`${userFullName} (${userRole})`, e)}
-            onMouseLeave={hideTooltip}
-            onClick={() => {
-              if (activeRoute !== '/settings') {
-                setIsSettingsLoading(true);
-              }
-            }}
-            className={`w-10 h-10 rounded-2xl ${colors.lightBg} ${colors.text} border ${colors.border} font-black text-xs flex items-center justify-center transition-all duration-200 hover:scale-105 uppercase`}
-          >
-            {isSettingsLoading ? (
-              <Loader2 size={16} className={`animate-spin ${colors.text}`} />
-            ) : (
-              userFullName.charAt(0)
-            )}
-          </Link>
+          {/* Profile & Logout Row */}
+          {isExpanded ? (
+            <div className="flex items-center gap-1.5 pt-1">
+              <Link
+                href="/settings"
+                prefetch={true}
+                onClick={() => {
+                  if (activeRoute !== '/settings') {
+                    setIsSettingsLoading(true);
+                  }
+                }}
+                className={`flex-1 min-w-0 p-2 rounded-xl flex items-center gap-2.5 transition-all duration-200 border ${
+                  activeRoute === '/settings'
+                    ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
+                    : 'bg-slate-50/70 hover:bg-slate-100 text-slate-700 border-slate-200/70'
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-lg ${colors.lightBg} ${colors.text} border ${colors.border} font-black text-xs flex items-center justify-center uppercase shrink-0`}
+                >
+                  {isSettingsLoading ? (
+                    <Loader2 size={14} className={`animate-spin ${colors.text}`} />
+                  ) : (
+                    userFullName.charAt(0)
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-bold text-slate-900 truncate leading-tight">
+                    {userFullName}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400 truncate leading-tight">
+                    {userRole}
+                  </span>
+                </div>
+              </Link>
 
-          <form action={logout} onSubmit={() => setIsLogoutLoading(true)} className="w-full flex justify-center">
-            <button
-              type="submit"
-              onMouseEnter={(e) => showTooltip('ออกจากระบบ', e)}
-              onMouseLeave={hideTooltip}
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:${colors.text} ${colors.hoverBg} transition-all duration-200 group`}
-            >
-              {isLogoutLoading ? (
-                <Loader2 size={18} className={`animate-spin ${colors.text}`} />
-              ) : (
-                <LogOut
-                  size={18}
-                  strokeWidth={2}
-                  className="transition-transform duration-200 group-hover:translate-x-0.5"
-                />
-              )}
-            </button>
-          </form>
+              <form action={logout} onSubmit={() => setIsLogoutLoading(true)}>
+                <button
+                  type="submit"
+                  title="ออกจากระบบ"
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:${colors.text} ${colors.hoverBg} border border-slate-200/70 transition-all duration-200 shrink-0`}
+                >
+                  {isLogoutLoading ? (
+                    <Loader2 size={16} className={`animate-spin ${colors.text}`} />
+                  ) : (
+                    <LogOut size={16} strokeWidth={2} />
+                  )}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <Link
+                href="/settings"
+                prefetch={true}
+                onMouseEnter={(e) => showTooltip(`${userFullName} (${userRole})`, e)}
+                onMouseLeave={hideTooltip}
+                onClick={() => {
+                  if (activeRoute !== '/settings') {
+                    setIsSettingsLoading(true);
+                  }
+                }}
+                className={`w-10 h-10 rounded-2xl ${colors.lightBg} ${colors.text} border ${colors.border} font-black text-xs flex items-center justify-center transition-all duration-200 hover:scale-105 uppercase`}
+              >
+                {isSettingsLoading ? (
+                  <Loader2 size={16} className={`animate-spin ${colors.text}`} />
+                ) : (
+                  userFullName.charAt(0)
+                )}
+              </Link>
+
+              <form action={logout} onSubmit={() => setIsLogoutLoading(true)} className="w-full flex justify-center">
+                <button
+                  type="submit"
+                  onMouseEnter={(e) => showTooltip('ออกจากระบบ', e)}
+                  onMouseLeave={hideTooltip}
+                  className={`w-11 h-11 rounded-2xl flex items-center justify-center text-gray-400 hover:${colors.text} ${colors.hoverBg} transition-all duration-200 group`}
+                >
+                  {isLogoutLoading ? (
+                    <Loader2 size={18} className={`animate-spin ${colors.text}`} />
+                  ) : (
+                    <LogOut
+                      size={18}
+                      strokeWidth={2}
+                      className="transition-transform duration-200 group-hover:translate-x-0.5"
+                    />
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -851,9 +1256,34 @@ function ResponsiveSidebar({
                         {unreadMarketingBoardCount > 99 ? '99+' : unreadMarketingBoardCount}
                       </span>
                     )}
+                    {href === '/marketing-board/branch-content' && pendingBranchContentCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-purple-600 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingBranchContentCount > 99 ? '99+' : pendingBranchContentCount}
+                      </span>
+                    )}
                     {href === '/service/claims' && pendingClaimCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-amber-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
                         {pendingClaimCount > 99 ? '99+' : pendingClaimCount}
+                      </span>
+                    )}
+                    {href === '/service/calls' && openServiceCallCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {openServiceCallCount > 99 ? '99+' : openServiceCallCount}
+                      </span>
+                    )}
+                    {href === '/sales/service-handovers' && pendingServiceHandoverCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingServiceHandoverCount > 99 ? '99+' : pendingServiceHandoverCount}
+                      </span>
+                    )}
+                    {href === '/sales/delivery-acknowledgements' && pendingSalesDeliveryAckCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingSalesDeliveryAckCount > 99 ? '99+' : pendingSalesDeliveryAckCount}
+                      </span>
+                    )}
+                    {href === '/accounting/delivery-handovers' && pendingAccountingDeliveryCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingAccountingDeliveryCount > 99 ? '99+' : pendingAccountingDeliveryCount}
                       </span>
                     )}
                   </div>
@@ -948,8 +1378,8 @@ function ResponsiveSidebar({
         </div>
       </aside>
 
-      {/* ─── DESKTOP TOOLTIP ─── */}
-      {tooltip && (
+      {/* ─── DESKTOP TOOLTIP (Only when Collapsed) ─── */}
+      {tooltip && !isExpanded && (
         <div
           className="fixed z-[60] pointer-events-none animate-in fade-in slide-in-from-left-1 duration-150"
           style={{ left: 88, top: tooltip.y, transform: 'translateY(-50%)' }}

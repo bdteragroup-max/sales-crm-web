@@ -3,7 +3,7 @@
 import React, { useState, useTransition, useCallback } from 'react';
 import { 
   Bell, Plus, Search, Filter, Sparkles, Layers, Archive, 
-  FileText, CheckCircle2, ChevronDown, Clock, ShieldCheck, RefreshCw 
+  FileText, CheckCircle2, ChevronDown, Clock, ShieldCheck, RefreshCw, Building2 
 } from 'lucide-react';
 import PromotionsKanbanView from './PromotionsKanbanView';
 import SalesMaterialsTab from './SalesMaterialsTab';
@@ -11,6 +11,7 @@ import ArchiveTab from './ArchiveTab';
 import AnnouncementDetailModal from './AnnouncementDetailModal';
 import CreateAnnouncementModal from './CreateAnnouncementModal';
 import NotificationsModal from './NotificationsModal';
+import BranchContentBoardTab from './branch-content/BranchContentBoardTab';
 import { getMarketingBoardData, getSalesMaterials, getArchiveAnnouncements } from '@/app/actions/marketingBoard';
 import type { BoardFilters } from '@/app/lib/marketingBoardTypes';
 import { AnnouncementItem } from './AnnouncementCard';
@@ -19,6 +20,8 @@ interface MarketingBoardClientProps {
   initialBoardData: any;
   initialSalesMaterials: any[];
   initialArchiveData: any[];
+  initialBranchContentData?: any;
+  initialTab?: 'kanban' | 'branch_content' | 'materials' | 'archive';
   currentUser: any;
 }
 
@@ -26,10 +29,12 @@ export default function MarketingBoardClient({
   initialBoardData,
   initialSalesMaterials,
   initialArchiveData,
+  initialBranchContentData,
+  initialTab = 'kanban',
   currentUser
 }: MarketingBoardClientProps) {
   // Navigation Tabs
-  const [activeTab, setActiveTab] = useState<'kanban' | 'materials' | 'archive'>('kanban');
+  const [activeTab, setActiveTab] = useState<'kanban' | 'branch_content' | 'materials' | 'archive'>(initialTab);
 
   // Board Data state
   const [boardData, setBoardData] = useState(initialBoardData);
@@ -180,7 +185,7 @@ export default function MarketingBoardClient({
             </div>
           </div>
 
-          {/* Symmetrical 3 Navigation Tabs */}
+          {/* Symmetrical 4 Navigation Tabs */}
           <div className="flex items-center gap-6 mt-4 pt-2 border-t border-slate-100 overflow-x-auto text-xs md:text-sm font-bold">
             <button
               onClick={() => setActiveTab('kanban')}
@@ -193,6 +198,26 @@ export default function MarketingBoardClient({
               <Layers size={16} className={activeTab === 'kanban' ? 'text-red-600' : 'text-slate-400'} />
               <span>โปรโมชั่นและข่าวสาร (Promotions & Updates)</span>
             </button>
+
+            {(Boolean(initialBranchContentData?.permissions?.userBranchId) ||
+              Boolean(initialBranchContentData?.permissions?.canViewAllBranches)) && (
+              <button
+                onClick={() => setActiveTab('branch_content')}
+                className={`pb-3 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+                  activeTab === 'branch_content'
+                    ? 'border-red-600 text-red-600 font-black'
+                    : 'border-transparent text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <Building2 size={16} className={activeTab === 'branch_content' ? 'text-red-600' : 'text-slate-400'} />
+                <span>บอร์ดคอนเทนต์สาขา (Branch Content Board)</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-50 text-red-700 border border-red-200 font-extrabold">
+                  {initialBranchContentData?.permissions?.canViewAllBranches
+                    ? '11 สาขา'
+                    : `สาขา${initialBranchContentData?.permissions?.userBranchName || ''}`}
+                </span>
+              </button>
+            )}
 
             <button
               onClick={() => setActiveTab('materials')}
@@ -234,8 +259,9 @@ export default function MarketingBoardClient({
       {/* Main Body */}
       <main className="flex-1 max-w-[1720px] w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col min-h-0 space-y-6">
         
-        {/* Symmetrical 4-Card Summary Metrics Bar */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
+        {/* Symmetrical 4-Card Summary Metrics Bar (Only for Promotions / Materials / Archive tabs) */}
+        {activeTab !== 'branch_content' && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
           {/* Card 1: Active */}
           <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex items-center justify-between hover:border-slate-300 transition-all">
             <div>
@@ -311,7 +337,22 @@ export default function MarketingBoardClient({
               <Bell size={22} />
             </div>
           </div>
-        </div>
+          </div>
+        )}
+
+        {/* Tab: Branch Content Board (11 Branches) */}
+        {activeTab === 'branch_content' && (
+          <BranchContentBoardTab
+            initialData={
+              initialBranchContentData || {
+                contents: [],
+                branches: [],
+                staffOptions: [],
+                permissions: null,
+              }
+            }
+          />
+        )}
 
         {/* Tab 1: Promotions & Updates (with Filter Bar) */}
         {activeTab === 'kanban' && (

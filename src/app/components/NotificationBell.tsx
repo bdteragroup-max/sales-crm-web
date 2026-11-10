@@ -5,7 +5,7 @@ import { Bell, CheckCircle, Clock } from 'lucide-react';
 import { getUnreadNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/app/actions/notifications';
 import { useRouter } from 'next/navigation';
 
-export default function NotificationBell({ userId, isMobile = false }: { userId?: string, isMobile?: boolean }) {
+export default function NotificationBell({ userId, isMobile = false, isExpanded = false }: { userId?: string, isMobile?: boolean, isExpanded?: boolean }) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [showPushBanner, setShowPushBanner] = useState(false);
@@ -170,6 +170,8 @@ export default function NotificationBell({ userId, isMobile = false }: { userId?
       {isOpen && (
         <div className={`fixed z-50 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all ${isMobile
           ? 'left-4 right-4 bottom-20 origin-bottom'
+          : isExpanded
+          ? 'left-[274px] top-16 w-80 transform origin-top-left'
           : 'left-[84px] bottom-6 w-80 transform origin-bottom-left'
           }`}>
           <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">

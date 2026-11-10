@@ -614,9 +614,26 @@ export async function saveSalesData(formData: FormData) {
       });
     }
 
+    // If this Quotation was opened from a ServiceCallLog, automatically create/update RepairDelivery (ใบส่งมอบงาน) with photos & signatures
+    let repairDeliveryId: string | undefined = undefined;
+    let deliveryNumber: string | undefined = undefined;
+    const serviceCallIdRaw = (formData.get("serviceCallId") as string)?.trim() || "";
+    if (serviceCallIdRaw) {
+      try {
+        const { syncRepairDeliveryFromServiceCall } = await import("@/app/actions/service-calls");
+        const syncRes = await syncRepairDeliveryFromServiceCall(serviceCallIdRaw, newQuotation.id);
+        if (syncRes.success) {
+          repairDeliveryId = syncRes.repairDeliveryId;
+          deliveryNumber = syncRes.deliveryNumber;
+        }
+      } catch (scSyncErr) {
+        console.warn("[saveSalesData] Failed to sync RepairDelivery from ServiceCallLog:", scSyncErr);
+      }
+    }
+
     revalidatePath("/sales");
     revalidatePath("/dashboard");
-    return { success: true, awardedGold, awardMessage };
+    return { success: true, awardedGold, awardMessage, repairDeliveryId, deliveryNumber };
 
   } catch (error) {
     console.error("Error saving sales data:", error);
@@ -898,9 +915,41 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       });
     }
 
+    // If this Quotation is linked to a ServiceCallLog, automatically create/update RepairDelivery (ใบส่งมอบงาน) with photos & signatures
+    let repairDeliveryId: string | undefined = undefined;
+    let deliveryNumber: string | undefined = undefined;
+    try {
+      const { ensureServiceCallExtendedSchema, syncRepairDeliveryFromServiceCall } = await import(
+        "@/app/actions/service-calls"
+      );
+      await ensureServiceCallExtendedSchema();
+      let targetServiceCallId = (formData.get("serviceCallId") as string)?.trim() || "";
+      if (!targetServiceCallId) {
+        const linkedRows: any[] = await prisma.$queryRawUnsafe(
+          `SELECT "id" FROM "ServiceCallLog" WHERE "linkedQuotationId" = $1 LIMIT 1`,
+          updatedQuotation.id
+        );
+        if (linkedRows?.[0]?.id) {
+          targetServiceCallId = linkedRows[0].id;
+        }
+      }
+      if (targetServiceCallId) {
+        const syncRes = await syncRepairDeliveryFromServiceCall(
+          targetServiceCallId,
+          updatedQuotation.id
+        );
+        if (syncRes.success) {
+          repairDeliveryId = syncRes.repairDeliveryId;
+          deliveryNumber = syncRes.deliveryNumber;
+        }
+      }
+    } catch (scSyncErr) {
+      console.warn("[updateSalesData] Failed to sync RepairDelivery from ServiceCallLog:", scSyncErr);
+    }
+
     revalidatePath("/sales");
     revalidatePath("/dashboard");
-    return { success: true, id: updatedQuotation.id, awardedGold, awardMessage };
+    return { success: true, id: updatedQuotation.id, awardedGold, awardMessage, repairDeliveryId, deliveryNumber };
 
   } catch (error) {
     console.error("Error updating sales data:", error);

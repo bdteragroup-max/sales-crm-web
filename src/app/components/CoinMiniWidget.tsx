@@ -7,6 +7,7 @@ import { getUserCoins } from '@/app/actions/coins';
 
 type CoinMiniWidgetProps = {
   isMobile?: boolean;
+  isExpanded?: boolean;
   activeRoute?: string;
   onMouseEnter?: (e: React.MouseEvent) => void;
   onMouseLeave?: () => void;
@@ -22,6 +23,7 @@ function formatShortNumber(num: number) {
 
 export default function CoinMiniWidget({ 
   isMobile = false, 
+  isExpanded = false,
   activeRoute,
   onMouseEnter,
   onMouseLeave,
@@ -57,29 +59,29 @@ export default function CoinMiniWidget({
 
   const isActive = activeRoute === '/coins';
 
-  if (isMobile) {
+  if (isMobile || isExpanded) {
     return (
       <Link
         href="/coins"
         prefetch={true}
         onClick={onClick}
-        className={`w-full p-3 rounded-xl flex items-center justify-between transition-all duration-200 border ${
+        className={`w-full p-2.5 rounded-xl flex items-center justify-between transition-all duration-200 border ${
           isActive
             ? 'bg-yellow-50 text-yellow-700 border-yellow-200 font-bold'
             : 'bg-gradient-to-r from-yellow-50/50 to-white hover:from-yellow-50 hover:to-yellow-50/20 border-yellow-100 text-yellow-700'
         }`}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-300 to-yellow-500 text-white shadow-inner flex items-center justify-center shrink-0">
-            {loading ? <Loader2 size={18} className="animate-spin" /> : <Coins size={20} strokeWidth={2.5} />}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-yellow-300 to-yellow-500 text-white shadow-inner flex items-center justify-center shrink-0">
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <Coins size={18} strokeWidth={2.5} />}
           </div>
-          <div className="flex flex-col">
-            <span className="text-[13px] font-sans font-bold text-gray-900 leading-tight">Gold Coin</span>
-            <span className="text-[11px] font-sans font-semibold text-yellow-600 mt-0.5">คลิกเพื่อดูรายละเอียด</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs font-sans font-bold text-gray-900 leading-tight truncate">Gold Coin</span>
+            <span className="text-[10px] font-sans font-semibold text-yellow-600 mt-0.5 truncate">เหรียญสะสมของฉัน</span>
           </div>
         </div>
-        <div className="text-right">
-          <span className="text-lg font-black text-yellow-600 font-sans tracking-tight">
+        <div className="text-right shrink-0 pl-2">
+          <span className="text-base font-black text-yellow-600 font-sans tracking-tight">
             {loading ? '...' : (goldBalance?.toLocaleString() || '0')}
           </span>
         </div>
