@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { getServiceCallLogs, getServiceCallDashboardStats, getServiceUsers } from '@/app/actions/service-calls';
 import { getUser } from '@/app/lib/dal';
+import { canViewAllServiceCalls } from '@/app/lib/roleHelper';
 import ServiceMgrCallsClient from './ServiceMgrCallsClient';
 import { redirect } from 'next/navigation';
 
@@ -15,6 +16,9 @@ export default async function ServiceMgrCallsPage() {
   const user = await getUser();
   if (!user) {
     redirect('/login');
+  }
+  if (!canViewAllServiceCalls(user.role)) {
+    redirect('/service/calls/new');
   }
 
   const [statsData, logsData, usersData] = await Promise.all([

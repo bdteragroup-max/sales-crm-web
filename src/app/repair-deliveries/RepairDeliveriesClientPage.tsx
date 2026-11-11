@@ -34,14 +34,21 @@ import {
   MapPin,
   Phone,
   FileSignature,
+  SlidersHorizontal,
+  ChevronDown,
+  Camera,
 } from "lucide-react";
 import { deleteRepairDelivery } from "@/app/actions/repairDeliveries";
 import SignaturePadModal from "./SignaturePadModal";
+import MobileSafeSelect from "@/app/components/MobileSafeSelect";
 
 interface RepairDeliveryItem {
   id: string;
   deliveryNumber: string;
   note?: string | null;
+  comments?: string | null;
+  photosBefore?: any;
+  photosAfter?: any;
   createdAt: string | Date;
   updatedAt: string | Date;
   address?: string | null;
@@ -127,6 +134,31 @@ export default function RepairDeliveriesClientPage({
 
   // Copy to clipboard indicator
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Mobile collapsible filter state
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  const normalizePhotos = (val: any): string[] => {
+    if (!val) return [];
+    if (Array.isArray(val)) {
+      return val
+        .map((v: any) => (typeof v === "string" ? v : v?.url || ""))
+        .filter(Boolean);
+    }
+    if (typeof val === "string") {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .map((v: any) => (typeof v === "string" ? v : v?.url || ""))
+            .filter(Boolean);
+        }
+      } catch {
+        return [val];
+      }
+    }
+    return [];
+  };
 
   // Unique list of internal companies for filter
   const uniqueCompanies = useMemo(() => {
@@ -363,136 +395,139 @@ export default function RepairDeliveriesClientPage({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       {/* ── Top Header Card (Symmetrical & Modern Red/White/Gray) ── */}
-      <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm transition-all relative overflow-hidden">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6">
+      <div className="bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm transition-all relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 sm:gap-6">
           {/* Left: Red Squircle Badge + Title + Subtitle */}
-          <div className="flex items-center gap-4 sm:gap-5">
+          <div className="flex items-center gap-3.5 sm:gap-5">
             <div className="relative group shrink-0">
-              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] flex items-center justify-center text-white shadow-lg shadow-red-500/25 transition-transform duration-300 group-hover:scale-105">
-                <FileCheck2 className="w-6 h-6 sm:w-7 sm:h-7" />
+              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] flex items-center justify-center text-white shadow-lg shadow-red-500/25 transition-transform duration-300 group-hover:scale-105">
+                <FileCheck2 className="w-5 h-5 sm:w-7 sm:h-7" />
               </div>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center border-2 border-white shadow-sm">
+              <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white flex items-center justify-center border-2 border-white shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-[#ff2301] animate-ping" />
               </span>
             </div>
 
-            <div>
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <h1 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">
                   ใบส่งมอบงาน
                 </h1>
-                <span className="inline-flex items-center px-2.5 py-0.5 bg-red-50 text-[#ff2301] border border-red-200/80 rounded-full text-xs font-bold tracking-wide">
+                <span className="inline-flex items-center px-2.5 py-0.5 bg-red-50 text-[#ff2301] border border-red-200/80 rounded-full text-[11px] sm:text-xs font-bold tracking-wide">
                   {totalCount} รายการ
                 </span>
               </div>
 
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1 flex flex-wrap items-center gap-2">
-                <span>REPAIR DELIVERIES & SERVICE REPORTS</span>
-                <span className="text-gray-300">•</span>
-                <span className="text-gray-400 font-normal">
+              <p className="text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span className="hidden sm:inline">REPAIR DELIVERIES & SERVICE REPORTS</span>
+                <span className="text-gray-300 hidden sm:inline">•</span>
+                <span className="text-gray-500 sm:text-gray-400 font-normal normal-case">
                   ระบบบันทึกและติดตามการส่งมอบงานบริการ
                 </span>
               </p>
             </div>
           </div>
 
-          {/* Right: Symmetrical Action Button Cluster (Single Row, Unified h-10 Heights) */}
-          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-nowrap w-full md:w-auto justify-start md:justify-end overflow-x-auto pb-1 md:pb-0">
-            {/* Refresh Button */}
-            <button
-              type="button"
-              onClick={() => router.refresh()}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0"
-              title="รีเฟรชข้อมูลล่าสุด"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-
-            {/* Export to Excel */}
-            <button
-              type="button"
-              onClick={handleExportExcel}
-              className="inline-flex items-center gap-2 px-4 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0 whitespace-nowrap"
-              title="ส่งออก Excel"
-            >
-              <Download className="w-4 h-4 text-gray-500" />
-              <span className="hidden sm:inline">ส่งออก Excel</span>
-            </button>
-
-            {/* View Mode Toggle */}
-            <div className="inline-flex items-center p-1 h-10 bg-gray-100 rounded-xl border border-gray-200/80 shrink-0">
-              <button
-                type="button"
-                onClick={() => setViewMode("table")}
-                className={`p-1.5 rounded-lg transition-all ${
-                  viewMode === "table"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-900"
-                }`}
-                title="มุมมองตาราง"
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg transition-all ${
-                  viewMode === "grid"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-900"
-                }`}
-                title="มุมมองการ์ด"
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Link to Sales Delivery Acknowledgement Page */}
-            <Link
-              href="/sales/delivery-acknowledgements"
-              className="inline-flex items-center gap-2 px-4 h-10 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-800 transition-all shadow-sm shrink-0 whitespace-nowrap"
-              title="เปิดหน้าใบส่งมอบงานที่เซ็นแล้วสำหรับเซลล์รับทราบ"
-            >
-              <FileSignature className="w-4 h-4 text-emerald-600" />
-              <span className="hidden sm:inline">หน้าเซลล์รับทราบใบส่งมอบ</span>
-            </Link>
-
-            {/* Primary CTA Button */}
+          {/* Right: Mobile-First & Desktop Action Cluster */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 shrink-0 w-full md:w-auto justify-end">
+            {/* Primary CTA Button (First & Full-width on Mobile, Last on Desktop) */}
             <Link
               href="/repair-deliveries/new"
-              className="inline-flex items-center gap-2 px-5 h-10 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all active:scale-95 shrink-0 whitespace-nowrap"
+              className="sm:order-last inline-flex items-center justify-center gap-2 px-5 h-11 sm:h-10 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white font-bold text-sm tracking-wide shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all active:scale-95 shrink-0 whitespace-nowrap"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
-              <span className="hidden sm:inline">สร้างใบส่งมอบงาน</span>
-              <span className="sm:hidden">ส่งมอบใหม่</span>
+              <span>สร้างใบส่งมอบงาน</span>
             </Link>
+
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              {/* Refresh Button */}
+              <button
+                type="button"
+                onClick={() => router.refresh()}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0"
+                title="รีเฟรชข้อมูลล่าสุด"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+
+              {/* Export to Excel */}
+              <button
+                type="button"
+                onClick={handleExportExcel}
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0 whitespace-nowrap"
+                title="ส่งออก Excel"
+              >
+                <Download className="w-4 h-4 text-gray-500" />
+                <span className="hidden sm:inline">ส่งออก Excel</span>
+                <span className="sm:hidden">Excel</span>
+              </button>
+
+              {/* View Mode Toggle (Desktop/Tablet Only - Mobile uses dedicated Card View) */}
+              <div className="hidden md:inline-flex items-center p-1 h-10 bg-gray-100 rounded-xl border border-gray-200/80 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("table")}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === "table"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-500 hover:text-gray-900"
+                  }`}
+                  title="มุมมองตาราง"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === "grid"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-500 hover:text-gray-900"
+                  }`}
+                  title="มุมมองการ์ด"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Link to Sales Delivery Acknowledgement Page */}
+              <Link
+                href="/sales/delivery-acknowledgements"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 h-10 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-800 transition-all shadow-sm whitespace-nowrap min-w-0"
+                title="เปิดหน้าใบส่งมอบงานที่เซ็นแล้วสำหรับเซลล์รับทราบ"
+              >
+                <FileSignature className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="hidden sm:inline">หน้าเซลล์รับทราบใบส่งมอบ</span>
+                <span className="sm:hidden truncate">รายการที่เซ็นแล้ว</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
       {/* ── KPI Summary Strip (4 Symmetrical Interactive Cards) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
         {/* Card 1: Total Deliveries */}
         <div
           onClick={() => setStatusTab("ALL")}
-          className={`cursor-pointer rounded-2xl p-5 border transition-all duration-200 shadow-sm hover:shadow-md ${
+          className={`cursor-pointer rounded-2xl p-3.5 sm:p-5 border transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] ${
             statusTab === "ALL"
               ? "bg-gray-900 text-white border-gray-900 ring-2 ring-gray-900/20"
               : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
           }`}
         >
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <span
-              className={`text-xs font-bold uppercase tracking-wider ${
+              className={`text-[11px] sm:text-xs font-bold uppercase tracking-wider ${
                 statusTab === "ALL" ? "text-gray-300" : "text-gray-500"
               }`}
             >
               เอกสารทั้งหมด
             </span>
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 ${
                 statusTab === "ALL"
                   ? "bg-gray-800 text-white"
                   : "bg-gray-100 text-gray-700"
@@ -501,17 +536,17 @@ export default function RepairDeliveriesClientPage({
               <FileText className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black tracking-tight">
+          <div className="text-xl sm:text-3xl font-black tracking-tight">
             {totalCount}
           </div>
           <div
-            className={`text-xs mt-1.5 font-medium ${
+            className={`text-[11px] sm:text-xs mt-1 sm:mt-1.5 font-medium line-clamp-1 ${
               statusTab === "ALL" ? "text-gray-400" : "text-gray-400"
             }`}
           >
             รายการส่งมอบงานทั้งหมดในระบบ
           </div>
-          <div className="w-full bg-gray-200/50 h-1.5 rounded-full mt-3 overflow-hidden">
+          <div className="w-full bg-gray-200/50 h-1.5 rounded-full mt-2 sm:mt-3 overflow-hidden">
             <div className="bg-[#ff2301] h-full w-full rounded-full" />
           </div>
         </div>
@@ -519,27 +554,27 @@ export default function RepairDeliveriesClientPage({
         {/* Card 2: Draft / Pending Deliveries */}
         <div
           onClick={() => setStatusTab("Draft")}
-          className={`cursor-pointer rounded-2xl p-5 border transition-all duration-200 shadow-sm hover:shadow-md ${
+          className={`cursor-pointer rounded-2xl p-3.5 sm:p-5 border transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] ${
             statusTab === "Draft"
               ? "bg-red-50 text-red-950 border-red-300 ring-2 ring-red-500/20"
               : "bg-white text-gray-800 border-gray-200 hover:border-red-200"
           }`}
         >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-red-700">
               ร่าง / รอส่งมอบ
             </span>
-            <div className="w-9 h-9 rounded-xl bg-red-100 text-[#ff2301] flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-red-100 text-[#ff2301] flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black tracking-tight text-[#ff2301]">
+          <div className="text-xl sm:text-3xl font-black tracking-tight text-[#ff2301]">
             {draftCount}
           </div>
-          <div className="text-xs mt-1.5 font-medium text-red-600/80">
+          <div className="text-[11px] sm:text-xs mt-1 sm:mt-1.5 font-medium text-red-600/80 line-clamp-1">
             {totalCount > 0 ? Math.round((draftCount / totalCount) * 100) : 0}% ของรายการทั้งหมด
           </div>
-          <div className="w-full bg-red-100 h-1.5 rounded-full mt-3 overflow-hidden">
+          <div className="w-full bg-red-100 h-1.5 rounded-full mt-2 sm:mt-3 overflow-hidden">
             <div
               className="bg-[#ff2301] h-full rounded-full transition-all duration-300"
               style={{
@@ -552,27 +587,27 @@ export default function RepairDeliveriesClientPage({
         {/* Card 3: Completed Deliveries */}
         <div
           onClick={() => setStatusTab("Completed")}
-          className={`cursor-pointer rounded-2xl p-5 border transition-all duration-200 shadow-sm hover:shadow-md ${
+          className={`cursor-pointer rounded-2xl p-3.5 sm:p-5 border transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] ${
             statusTab === "Completed"
               ? "bg-gray-100 text-gray-900 border-gray-400 ring-2 ring-gray-900/10"
               : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
           }`}
         >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-600">
               ส่งมอบเรียบร้อย
             </span>
-            <div className="w-9 h-9 rounded-xl bg-gray-100 text-gray-800 flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gray-100 text-gray-800 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900">
+          <div className="text-xl sm:text-3xl font-black tracking-tight text-gray-900">
             {completedCount}
           </div>
-          <div className="text-xs mt-1.5 font-medium text-gray-500">
+          <div className="text-[11px] sm:text-xs mt-1 sm:mt-1.5 font-medium text-gray-500 line-clamp-1">
             {totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0}% ปิดงานส่งมอบแล้ว
           </div>
-          <div className="w-full bg-gray-200 h-1.5 rounded-full mt-3 overflow-hidden">
+          <div className="w-full bg-gray-200 h-1.5 rounded-full mt-2 sm:mt-3 overflow-hidden">
             <div
               className="bg-gray-800 h-full rounded-full transition-all duration-300"
               style={{
@@ -585,28 +620,28 @@ export default function RepairDeliveriesClientPage({
         {/* Card 4: Delivered This Month */}
         <div
           onClick={() => setDatePeriod(datePeriod === "THIS_MONTH" ? "ALL" : "THIS_MONTH")}
-          className={`cursor-pointer rounded-2xl p-5 border transition-all duration-200 shadow-sm hover:shadow-md ${
+          className={`cursor-pointer rounded-2xl p-3.5 sm:p-5 border transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] ${
             datePeriod === "THIS_MONTH"
               ? "bg-red-50 text-red-950 border-red-300 ring-2 ring-red-500/20"
               : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
           }`}
         >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-500">
               ส่งมอบเดือนนี้
             </span>
-            <div className="w-9 h-9 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center shrink-0">
               <Calendar className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900">
+          <div className="text-xl sm:text-3xl font-black tracking-tight text-gray-900">
             {thisMonthCount}{" "}
-            <span className="text-sm font-semibold text-gray-400">ใบ</span>
+            <span className="text-xs sm:text-sm font-semibold text-gray-400">ใบ</span>
           </div>
-          <div className="text-xs mt-1.5 font-medium text-gray-400">
+          <div className="text-[11px] sm:text-xs mt-1 sm:mt-1.5 font-medium text-gray-400 line-clamp-1">
             งานที่ส่งมอบในเดือนปัจจุบัน
           </div>
-          <div className="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
+          <div className="w-full bg-gray-100 h-1.5 rounded-full mt-2 sm:mt-3 overflow-hidden">
             <div
               className="bg-gray-800 h-full rounded-full transition-all duration-300"
               style={{
@@ -618,10 +653,10 @@ export default function RepairDeliveriesClientPage({
       </div>
 
       {/* ── Symmetrical Toolbar (Status Tabs + Filter Dropdowns + Search) ── */}
-      <div className="bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+      <div className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
         {/* Row 1: Status Tabs & Quick Counters */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-100">
+          <div className="flex items-center gap-2 overflow-x-auto flex-nowrap pb-1 sm:pb-0 [&::-webkit-scrollbar]:hidden">
             {[
               { id: "ALL", label: "ทั้งหมด", count: totalCount },
               {
@@ -641,7 +676,7 @@ export default function RepairDeliveriesClientPage({
                 key={tab.id}
                 type="button"
                 onClick={() => setStatusTab(tab.id as any)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold border transition-all shrink-0 whitespace-nowrap ${
                   statusTab === tab.id
                     ? "bg-gray-900 text-white border-gray-900 shadow-sm"
                     : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-900"
@@ -675,79 +710,375 @@ export default function RepairDeliveriesClientPage({
         </div>
 
         {/* Row 2: Search Input & Multi-Drop Filters (12 Columns Grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
-          {/* Universal Search (md:col-span-5) */}
-          <div className="md:col-span-5 relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="ค้นหาเลขที่ส่งมอบ, ลูกค้า, ชื่องาน, ผู้รับมอบ..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-9 py-2.5 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-900 placeholder:text-gray-400"
-            />
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={() => setSearchTerm("")}
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-3.5">
+          {/* Universal Search + Mobile Filter Toggle (md:col-span-5) */}
+          <div className="md:col-span-5 flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="ค้นหาเลขที่ส่งมอบ, ลูกค้า, ชื่องาน..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full text-base sm:text-sm bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-9 py-2.5 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-900 placeholder:text-gray-400"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Mobile Filter Drawer Toggle */}
+            <button
+              type="button"
+              onClick={() => setShowMobileFilters((prev) => !prev)}
+              className={`md:hidden inline-flex items-center justify-center gap-1.5 px-3 h-11 rounded-xl border text-xs font-bold transition-all shrink-0 ${
+                showMobileFilters || companyFilter !== "ALL" || datePeriod !== "ALL"
+                  ? "bg-red-50 text-[#ff2301] border-red-200"
+                  : "bg-gray-50 text-gray-700 border-gray-200"
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              <span>ตัวกรอง</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform ${
+                  showMobileFilters ? "rotate-180" : ""
+                }`}
+              />
+            </button>
           </div>
 
           {/* Internal Company Filter (md:col-span-3) */}
-          <div className="md:col-span-3">
-            <select
+          <div className={`${showMobileFilters ? "block" : "hidden"} md:block md:col-span-3`}>
+            <MobileSafeSelect
+              size="sm"
               value={companyFilter}
-              onChange={(e) => setCompanyFilter(e.target.value)}
-              className="w-full text-xs font-semibold bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-700"
-            >
-              <option value="ALL">สังกัดบริษัททั้งหมด ({uniqueCompanies.length} บริษัท)</option>
-              {uniqueCompanies.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setCompanyFilter(val)}
+              options={[
+                {
+                  value: "ALL",
+                  label: `สังกัดบริษัททั้งหมด (${uniqueCompanies.length} บริษัท)`,
+                },
+                ...uniqueCompanies.map((c) => ({
+                  value: c,
+                  label: c,
+                })),
+              ]}
+            />
           </div>
 
           {/* Date Period Filter (md:col-span-2) */}
-          <div className="md:col-span-2">
-            <select
+          <div className={`${showMobileFilters ? "block" : "hidden"} md:block md:col-span-2`}>
+            <MobileSafeSelect
+              size="sm"
               value={datePeriod}
-              onChange={(e) => setDatePeriod(e.target.value)}
-              className="w-full text-xs font-semibold bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-700"
-            >
-              <option value="ALL">ช่วงเวลาทั้งหมด</option>
-              <option value="THIS_MONTH">ส่งมอบเดือนนี้</option>
-              <option value="LAST_MONTH">ส่งมอบเดือนก่อน</option>
-              <option value="THIS_YEAR">ส่งมอบปีนี้</option>
-            </select>
+              onChange={(val) => setDatePeriod(val)}
+              options={[
+                { value: "ALL", label: "ช่วงเวลาทั้งหมด" },
+                { value: "THIS_MONTH", label: "ส่งมอบเดือนนี้" },
+                { value: "LAST_MONTH", label: "ส่งมอบเดือนก่อน" },
+                { value: "THIS_YEAR", label: "ส่งมอบปีนี้" },
+              ]}
+            />
           </div>
 
           {/* Sort By (md:col-span-2) */}
-          <div className="md:col-span-2">
-            <select
+          <div className={`${showMobileFilters ? "block" : "hidden"} md:block md:col-span-2`}>
+            <MobileSafeSelect
+              size="sm"
               value={`${sortField}-${sortDirection}`}
-              onChange={(e) => {
-                const [f, d] = e.target.value.split("-") as any;
+              onChange={(val) => {
+                const [f, d] = val.split("-") as any;
                 setSortField(f);
                 setSortDirection(d);
               }}
-              className="w-full text-xs font-semibold bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-700"
-            >
-              <option value="deliveryDate-desc">วันที่ล่าสุดก่อน</option>
-              <option value="deliveryDate-asc">วันที่เก่าสุดก่อน</option>
-              <option value="deliveryNumber-asc">เลขที่เอกสาร A-Z</option>
-              <option value="customer-asc">ลูกค้า A-Z</option>
-            </select>
+              options={[
+                { value: "deliveryDate-desc", label: "วันที่ล่าสุดก่อน" },
+                { value: "deliveryDate-asc", label: "วันที่เก่าสุดก่อน" },
+                { value: "deliveryNumber-asc", label: "เลขที่เอกสาร A-Z" },
+                { value: "customer-asc", label: "ลูกค้า A-Z" },
+              ]}
+            />
           </div>
         </div>
       </div>
 
-      {/* ── Content View (Table or Grid) ── */}
+      {/* ── Dedicated Mobile Card List (< md) ── */}
+      <div className="md:hidden space-y-3">
+        {sortedData.length > 0 ? (
+          <>
+            {sortedData.map((item) => {
+              const workBadges = [
+                item.workInspect
+                  ? { label: "ตรวจเช็ค", color: "bg-blue-50 text-blue-700 border-blue-200" }
+                  : null,
+                item.workInstall
+                  ? { label: "ติดตั้ง", color: "bg-emerald-50 text-emerald-700 border-emerald-200" }
+                  : null,
+                item.workRepair
+                  ? { label: "งานซ่อม", color: "bg-red-50 text-[#ff2301] border-red-200" }
+                  : null,
+                item.workTraining
+                  ? { label: "อบรม", color: "bg-purple-50 text-purple-700 border-purple-200" }
+                  : null,
+                item.workOther
+                  ? { label: "อื่นๆ", color: "bg-gray-100 text-gray-700 border-gray-200" }
+                  : null,
+              ].filter(Boolean);
+
+              const bothSigned = Boolean(item.sigReceiverUrl && item.sigSenderUrl);
+              const anySigned = Boolean(item.sigReceiverUrl || item.sigSenderUrl);
+
+              return (
+                <div
+                  key={`mobile-${item.id}`}
+                  className="bg-white border border-gray-200/90 rounded-2xl p-4 shadow-sm space-y-3"
+                >
+                  {/* Row 1: Delivery Number + Date + Primary Status */}
+                  <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-gray-100">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(item.deliveryNumber, item.id)}
+                          className="font-mono font-black text-gray-900 active:text-[#ff2301] text-sm inline-flex items-center gap-1"
+                        >
+                          <span>{item.deliveryNumber}</span>
+                          {copiedId === item.id ? (
+                            <Check className="w-3.5 h-3.5 text-[#ff2301]" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5 text-gray-400" />
+                          )}
+                        </button>
+
+                        {item.internalCompany && (
+                          <span className="px-2 py-0.5 bg-red-50 text-[#ff2301] text-[10px] font-bold rounded-md border border-red-200/80">
+                            {item.internalCompany}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-1 flex-wrap text-[11px] text-gray-500">
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-gray-400" />
+                          <span>
+                            {item.deliveryDate
+                              ? new Date(item.deliveryDate).toLocaleDateString("th-TH")
+                              : item.createdAt
+                              ? new Date(item.createdAt).toLocaleDateString("th-TH")
+                              : "-"}
+                          </span>
+                        </span>
+
+                        {item.job?.jobNumber ? (
+                          <span className="font-mono px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200 font-semibold">
+                            Job: {item.job.jobNumber}
+                          </span>
+                        ) : item.quotationNo ? (
+                          <span className="font-mono px-1.5 py-0.5 rounded bg-gray-50 text-gray-600 border border-gray-200">
+                            QT: {item.quotationNo}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0 ${
+                        item.status === "Completed"
+                          ? "bg-gray-900 text-white border-gray-900"
+                          : "bg-red-50 text-[#ff2301] border-red-200"
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          item.status === "Completed"
+                            ? "bg-white"
+                            : "bg-[#ff2301] animate-pulse"
+                        }`}
+                      />
+                      <span>
+                        {item.status === "Completed" ? "ส่งมอบแล้ว" : "รอส่งมอบ"}
+                      </span>
+                    </span>
+                  </div>
+
+                  {/* Workflow Badges Row (if signed / sales ack / accounting billed) */}
+                  {(anySigned ||
+                    item.salesAckStatus === "ACKNOWLEDGED" ||
+                    item.accountingStatus === "BILLED") && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {anySigned && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                          <Check className="w-2.5 h-2.5" />
+                          {bothSigned ? "เซ็นครบทั้ง 2 ฝ่าย" : "มีลายเซ็นบางส่วน"}
+                        </span>
+                      )}
+                      {item.salesAckStatus === "ACKNOWLEDGED" && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <Check className="w-2.5 h-2.5" />
+                          เซลล์รับทราบแล้ว
+                        </span>
+                      )}
+                      {item.accountingStatus === "BILLED" && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                          <CheckCircle2 className="w-2.5 h-2.5" />
+                          บัญชีวางบิลแล้ว
+                          {item.accountingInvoiceNo
+                            ? `: ${item.accountingInvoiceNo}`
+                            : ""}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Customer & Job Details */}
+                  <div
+                    onClick={() => setDrawerItem(item)}
+                    className="p-3 bg-gray-50/80 rounded-xl border border-gray-100 space-y-1.5 active:bg-gray-100 transition-colors cursor-pointer"
+                  >
+                    <div className="font-bold text-gray-900 text-sm flex items-start gap-1.5">
+                      <Building2 className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                      <span className="leading-snug">
+                        {item.customer || item.company || "-"}
+                      </span>
+                    </div>
+                    {item.company &&
+                      item.customer &&
+                      item.company !== item.customer && (
+                        <div className="text-xs text-gray-500 pl-5.5">
+                          {item.company}
+                        </div>
+                      )}
+
+                    {item.jobName && (
+                      <div className="text-xs font-semibold text-gray-700 pt-1 border-t border-gray-200/60 line-clamp-2">
+                        งาน: {item.jobName}
+                      </div>
+                    )}
+
+                    {workBadges.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                        {workBadges.map((w: any, idx) => (
+                          <span
+                            key={idx}
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${w.color}`}
+                          >
+                            {w.label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between gap-2 pt-1.5 text-[11px] text-gray-500">
+                      <span className="inline-flex items-center gap-1 truncate">
+                        <User className="w-3 h-3 text-gray-400 shrink-0" />
+                        <span className="truncate">
+                          ผู้รับ: <strong className="text-gray-800">{item.nameReceiver || "—"}</strong>
+                        </span>
+                      </span>
+                      {(item.technician || item.sender) && (
+                        <span className="truncate text-right">
+                          ช่าง: <strong className="text-gray-700">{item.technician || item.sender}</strong>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Touch-Friendly Action Buttons Row */}
+                  <div className="pt-1 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSigningItem(item)}
+                      className={`flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                        bothSigned
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                          : "bg-gradient-to-r from-[#ff2301] to-[#e01f01] text-white shadow-sm shadow-red-500/20"
+                      }`}
+                    >
+                      <FileSignature className="w-4 h-4 shrink-0" />
+                      <span>{bothSigned ? "ดู/แก้ลายเซ็น" : "เซ็นส่งมอบ"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setDrawerItem(item)}
+                      className="inline-flex items-center justify-center gap-1 h-10 px-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 active:scale-95 transition-all"
+                      title="ดูรายละเอียด"
+                    >
+                      <Eye className="w-4 h-4 text-gray-500" />
+                      <span>ดู</span>
+                    </button>
+
+                    <Link
+                      href={`/repair-deliveries/${item.id}/pdf`}
+                      className="inline-flex items-center justify-center gap-1 h-10 px-3 rounded-xl border border-gray-200 bg-white hover:bg-red-50 text-xs font-bold text-gray-700 hover:text-[#ff2301] active:scale-95 transition-all"
+                      title="เปิดใบส่งมอบ PDF"
+                    >
+                      <Printer className="w-4 h-4 text-gray-500" />
+                      <span>PDF</span>
+                    </Link>
+
+                    <Link
+                      href={`/repair-deliveries/${item.id}/edit`}
+                      className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 active:scale-95 transition-all shrink-0"
+                      title="แก้ไขเอกสาร"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item.id, item.deliveryNumber)}
+                      className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-red-50 text-gray-400 hover:text-red-600 active:scale-95 transition-all shrink-0"
+                      title="ลบเอกสาร"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            <div className="py-3 px-4 bg-white border border-gray-200/80 rounded-2xl flex items-center justify-between text-xs text-gray-500">
+              <span>
+                แสดง <strong className="text-gray-900">{sortedData.length}</strong> จาก{" "}
+                {totalCount} รายการ
+              </span>
+              <span className="text-[11px] text-gray-400">
+                แตะการ์ดเพื่อดูรายละเอียด
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="py-14 px-4 text-center bg-white border border-gray-200 rounded-2xl space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 mx-auto">
+              <FileText className="w-6 h-6" />
+            </div>
+            <p className="text-sm font-bold text-gray-600">
+              {hasActiveFilters
+                ? "ไม่พบข้อมูลที่ตรงกับตัวกรอง"
+                : "ยังไม่มีรายการใบส่งมอบงานในระบบ"}
+            </p>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="text-xs font-semibold text-[#ff2301] hover:underline"
+              >
+                ล้างตัวกรองทั้งหมด
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Desktop Content View (Table or Grid, >= md) ── */}
+      <div className="hidden md:block">
       {viewMode === "table" ? (
         /* ──── Symmetrical Table View ──── */
         <div className="bg-white border border-gray-200/90 rounded-3xl shadow-sm overflow-hidden">
@@ -1263,6 +1594,7 @@ export default function RepairDeliveriesClientPage({
           )}
         </div>
       )}
+      </div>
 
       {/* ── Slide-Over Quick Detail Drawer ── */}
       {drawerItem && (
@@ -1274,20 +1606,20 @@ export default function RepairDeliveriesClientPage({
           />
 
           {/* Drawer Container */}
-          <div className="relative w-full max-w-xl bg-white h-full shadow-2xl z-10 flex flex-col overflow-hidden">
+          <div className="relative w-full max-w-xl bg-white h-[100dvh] shadow-2xl z-10 flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="p-6 border-b border-gray-200 bg-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center border border-red-200">
+            <div className="px-4 py-3.5 sm:p-6 border-b border-gray-200 bg-white flex items-center justify-between gap-2">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center border border-red-200 shrink-0">
                   <FileCheck2 className="w-5 h-5" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base font-bold text-gray-900 font-mono">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-sm sm:text-base font-bold text-gray-900 font-mono truncate">
                       {drawerItem.deliveryNumber}
                     </h2>
                     <span
-                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${
                         drawerItem.status === "Completed"
                           ? "bg-gray-900 text-white border-gray-900"
                           : "bg-red-50 text-[#ff2301] border-red-200"
@@ -1305,14 +1637,39 @@ export default function RepairDeliveriesClientPage({
               <button
                 type="button"
                 onClick={() => setDrawerItem(null)}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Scrollable Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+              {/* Sales Ack & Accounting Billing Status Banner (if applicable) */}
+              {(drawerItem.salesAckStatus === "ACKNOWLEDGED" ||
+                drawerItem.accountingStatus === "BILLED") && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {drawerItem.salesAckStatus === "ACKNOWLEDGED" && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <Check className="w-3.5 h-3.5" />
+                      เซลล์รับทราบแล้ว
+                      {drawerItem.salesAckByName
+                        ? ` (${drawerItem.salesAckByName})`
+                        : ""}
+                    </span>
+                  )}
+                  {drawerItem.accountingStatus === "BILLED" && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      ฝ่ายบัญชีวางบิลแล้ว
+                      {drawerItem.accountingInvoiceNo
+                        ? ` • เลขบิล: ${drawerItem.accountingInvoiceNo}`
+                        : ""}
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* Job Reference */}
               {drawerItem.job?.jobNumber && (
                 <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-between">
@@ -1462,17 +1819,72 @@ export default function RepairDeliveriesClientPage({
                 </div>
               )}
 
+              {/* Before / After Photos Preview (if uploaded) */}
+              {(normalizePhotos(drawerItem.photosBefore).length > 0 ||
+                normalizePhotos(drawerItem.photosAfter).length > 0) && (
+                <div className="space-y-2.5">
+                  <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5 text-[#ff2301]" />
+                    <span>รูปภาพก่อน - หลังดำเนินงาน</span>
+                  </span>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {normalizePhotos(drawerItem.photosBefore).map((url, idx) => (
+                      <a
+                        key={`drawer-before-${idx}`}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative aspect-[4/3] rounded-xl overflow-hidden border border-gray-200 bg-gray-50 block"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`Before ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-bold">
+                          ก่อนทำ #{idx + 1}
+                        </span>
+                      </a>
+                    ))}
+                    {normalizePhotos(drawerItem.photosAfter).map((url, idx) => (
+                      <a
+                        key={`drawer-after-${idx}`}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative aspect-[4/3] rounded-xl overflow-hidden border border-gray-200 bg-gray-50 block"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`After ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-emerald-700/85 text-white text-[10px] font-bold">
+                          หลังทำ #{idx + 1}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Responsible Personnel & Signatures */}
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 grid grid-cols-2 gap-4 text-xs">
+              <div className="p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div>
                   <span className="text-gray-400 block font-semibold">ผู้ส่งมอบ / ช่าง</span>
                   <span className="font-bold text-gray-900 mt-0.5 block">
                     {drawerItem.nameSender || drawerItem.technician || drawerItem.sender || "—"}
                   </span>
                   {drawerItem.technicianPhone && (
-                    <span className="text-gray-500 text-[11px] block mt-0.5">
-                      โทร: {drawerItem.technicianPhone}
-                    </span>
+                    <a
+                      href={`tel:${drawerItem.technicianPhone}`}
+                      className="text-[#ff2301] sm:text-gray-500 text-[11px] inline-flex items-center gap-1 mt-0.5 font-medium"
+                    >
+                      <Phone className="w-3 h-3" />
+                      <span>{drawerItem.technicianPhone}</span>
+                    </a>
                   )}
                   {drawerItem.sigSenderUrl ? (
                     <div className="mt-2 p-2 bg-white rounded-xl border border-gray-200 flex items-center justify-center h-16">
@@ -1487,14 +1899,14 @@ export default function RepairDeliveriesClientPage({
                     <button
                       type="button"
                       onClick={() => setSigningItem(drawerItem)}
-                      className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:underline"
+                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-[11px] font-bold text-[#ff2301] hover:bg-red-100"
                     >
                       <FileSignature className="w-3.5 h-3.5" /> + เซ็นผู้ส่งมอบ
                     </button>
                   )}
                 </div>
 
-                <div>
+                <div className="pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-200/80">
                   <span className="text-gray-400 block font-semibold">ผู้รับมอบ (ลูกค้า)</span>
                   <span className="font-bold text-gray-900 mt-0.5 block">
                     {drawerItem.nameReceiver || "—"}
@@ -1517,7 +1929,7 @@ export default function RepairDeliveriesClientPage({
                     <button
                       type="button"
                       onClick={() => setSigningItem(drawerItem)}
-                      className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:underline"
+                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-[11px] font-bold text-[#ff2301] hover:bg-red-100"
                     >
                       <FileSignature className="w-3.5 h-3.5" /> + เซ็นผู้รับมอบ
                     </button>
@@ -1526,7 +1938,7 @@ export default function RepairDeliveriesClientPage({
               </div>
 
               {/* Dates */}
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-gray-200 grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <span className="text-gray-400 block font-semibold">วันที่ส่งมอบ</span>
                   <span className="font-bold text-gray-900 mt-0.5 block">
@@ -1547,33 +1959,30 @@ export default function RepairDeliveriesClientPage({
             </div>
 
             {/* Drawer Footer Actions */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50 flex flex-wrap items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSigningItem(drawerItem)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-xs font-bold text-[#ff2301] transition-colors shadow-2xs"
-                >
-                  <FileSignature className="w-4 h-4" />
-                  <span>เซ็นลายเซ็น</span>
-                </button>
+            <div className="px-4 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom))] sm:p-4 border-t border-gray-200 bg-gray-50 grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setSigningItem(drawerItem)}
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 h-11 sm:h-auto sm:py-2.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-xs font-bold text-[#ff2301] transition-colors shadow-2xs"
+              >
+                <FileSignature className="w-4 h-4 shrink-0" />
+                <span>เซ็นชื่อ</span>
+              </button>
 
-                <Link
-                  href={`/repair-deliveries/${drawerItem.id}/pdf`}
-                  target="_blank"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 text-xs font-bold text-gray-700 transition-colors shadow-sm"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>พิมพ์ PDF</span>
-                </Link>
-              </div>
+              <Link
+                href={`/repair-deliveries/${drawerItem.id}/pdf`}
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 h-11 sm:h-auto sm:py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 text-xs font-bold text-gray-700 transition-colors shadow-sm"
+              >
+                <Printer className="w-4 h-4 shrink-0" />
+                <span>ดู PDF</span>
+              </Link>
 
               <Link
                 href={`/repair-deliveries/${drawerItem.id}/edit`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-5 h-11 sm:h-auto sm:py-2.5 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all"
               >
-                <Edit2 className="w-4 h-4" />
-                <span>แก้ไขเอกสาร</span>
+                <Edit2 className="w-4 h-4 shrink-0" />
+                <span>แก้ไข</span>
               </Link>
             </div>
           </div>

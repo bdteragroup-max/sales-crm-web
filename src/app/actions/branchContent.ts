@@ -1405,7 +1405,7 @@ export async function branchReviewContent(
         reviewFeedback: isRevise
           ? `[ผจก.สาขา ส่งแก้ไข] ${feedback?.trim()}`
           : feedback?.trim()
-          ? `[ผจก.สาขา ตรวจผ่าน -> Approve - 1] ${feedback.trim()}`
+          ? `[ผจก.สาขา ส่งต่อการตลาด] ${feedback.trim()}`
           : existing.reviewFeedback,
         comments: {
           create: {
@@ -1416,7 +1416,7 @@ export async function branchReviewContent(
             commentType: isRevise ? 'REVISION_REQUEST' : 'BRANCH_APPROVAL',
             message: isRevise
               ? `[ผจก.สาขา ส่งกลับแก้ไข] ${feedback?.trim()}`
-              : `[ผจก.สาขา ตรวจผ่านแล้ว -> ย้ายไปที่ Approve - 1 เพื่อให้การตลาดตรวจ] ${
+              : `[ผจก.สาขา ส่งต่อการตลาด] ${
                   feedback?.trim() || 'ตรวจสอบเนื้อหาภายในสาขาเรียบร้อยแล้ว ไม่มีแก้ไขเพิ่มเติม ส่งต่อให้ทีมการตลาดตรวจสอบ'
                 }`,
           },
@@ -1432,7 +1432,7 @@ export async function branchReviewContent(
             version: existing.currentVersion,
             details: isRevise
               ? `ผู้จัดการสาขาส่งกลับให้แก้ไข (รอบที่ ${existing.revisionCount + 1}): ${feedback?.trim()}`
-              : `ผู้จัดการสาขาตรวจผ่านแล้ว ย้ายงานไปที่ Approve - 1 เพื่อให้ฝ่ายการตลาดตรวจสอบ${
+              : `ผู้จัดการสาขาตรวจผ่านแล้ว ส่งต่อการตลาดเพื่อตรวจสอบ${
                   feedback?.trim() ? ` (${feedback.trim()})` : ''
                 }`,
           },

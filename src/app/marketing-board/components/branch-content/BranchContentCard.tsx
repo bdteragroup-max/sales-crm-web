@@ -170,7 +170,7 @@ export default function BranchContentCard({ item, onClick }: BranchContentCardPr
               {item.status === 'APPROVE_1' &&
                 item.reviewSubStatus !== 'ENDORSED_FOR_MARKETING_MANAGER' && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-800 border border-purple-200">
-                    <Sparkles size={10} /> Approve - 1 • รอการตลาดตรวจ
+                    <Sparkles size={10} /> ส่งต่อการตลาด • รอตรวจ
                   </span>
                 )}
               {item.status === 'APPROVE_1' &&
@@ -294,7 +294,7 @@ export default function BranchContentCard({ item, onClick }: BranchContentCardPr
               </span>
             ) : item.status === 'APPROVE_1' ? (
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700">
-                <Sparkles size={11} /> Approve - 1
+                <Sparkles size={11} /> ส่งต่อการตลาด
               </span>
             ) : item.status === 'PENDING_REVIEW' ? (
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700">

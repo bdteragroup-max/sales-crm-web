@@ -147,7 +147,7 @@ export default async function ServiceCallReportPDF({
 
   return (
     <div
-      className={`${sarabun.className} bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-10 print:bg-white print:p-0 print:m-0`}
+      className={`${sarabun.className} bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-28 sm:pb-10 print:bg-white print:p-0 print:m-0`}
     >
       <style type="text/css">
         {`
@@ -156,6 +156,27 @@ export default async function ServiceCallReportPDF({
           .service-call-pdf-container,
           .service-call-pdf-container * {
             font-family: 'TH Sarabun New', 'TH SarabunPSK', ${sarabun.style.fontFamily}, 'Sarabun', sans-serif !important;
+          }
+
+          @media screen {
+            .pdf-scale-outer {
+              width: 100%;
+              overflow-x: auto;
+              padding: 0 8px;
+              box-sizing: border-box;
+            }
+            .pdf-scale-outer.is-scaled {
+              height: var(--pdf-scaled-height, auto);
+              overflow: hidden;
+              display: flex;
+              justify-content: center;
+            }
+            .pdf-scale-stage.is-scaled {
+              transform: scale(var(--pdf-scale, 1));
+              transform-origin: top center;
+              width: 210mm;
+              flex-shrink: 0;
+            }
           }
 
           @media print {
@@ -171,6 +192,16 @@ export default async function ServiceCallReportPDF({
               overflow: hidden !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+            }
+            .pdf-scale-outer,
+            .pdf-scale-stage {
+              width: 100% !important;
+              height: auto !important;
+              transform: none !important;
+              overflow: visible !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              display: block !important;
             }
             .service-call-pdf-container {
               width: 100% !important;
@@ -189,12 +220,9 @@ export default async function ServiceCallReportPDF({
         `}
       </style>
 
-      <div className="flex justify-end mb-3 print:hidden max-w-[210mm] mx-auto pt-3 px-2">
-        <PrintButton backHref={`/service/calls/${callLog.id}`} />
-      </div>
-
-      <div
-        className="service-call-pdf-container bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden"
+      <PrintButton backHref={`/service/calls/${callLog.id}`}>
+        <div
+          className="service-call-pdf-container bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden"
         style={{
           width: "210mm",
           minHeight: "297mm",
@@ -1101,6 +1129,7 @@ export default async function ServiceCallReportPDF({
           </div>
         </div>
       </div>
+      </PrintButton>
     </div>
   );
 }

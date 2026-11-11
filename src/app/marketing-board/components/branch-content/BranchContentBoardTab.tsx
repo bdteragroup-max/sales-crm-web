@@ -291,7 +291,7 @@ export default function BranchContentBoardTab({
               <span>Marketing Review Board</span>
               {quickCounts.approve1WaitingMarketing + quickCounts.endorsedForManager > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-black">
-                  Approve-1 ({quickCounts.approve1WaitingMarketing + quickCounts.endorsedForManager})
+                  ส่งต่อการตลาด ({quickCounts.approve1WaitingMarketing + quickCounts.endorsedForManager})
                 </span>
               )}
             </button>
@@ -415,7 +415,7 @@ export default function BranchContentBoardTab({
             }`}
           >
             <Sparkles size={13} />
-            2. Approve - 1: ผจก.สาขาผ่านแล้ว • รอการตลาดตรวจ (
+            2. ส่งต่อการตลาด • รอการตลาดตรวจ (
             {quickCounts.approve1WaitingMarketing})
           </button>
 

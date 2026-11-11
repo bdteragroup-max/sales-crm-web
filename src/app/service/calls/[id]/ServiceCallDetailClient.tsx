@@ -35,17 +35,20 @@ import {
   FileSignature,
   MapPin,
   Package,
+  Hash,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import {
   updateServiceCallLog,
   syncRepairDeliveryFromServiceCall,
+  deleteServiceCallLog,
 } from "@/app/actions/service-calls";
 import { SignaturePadBox } from "@/app/repair-deliveries/SignaturePadModal";
 import {
   ONSITE_RESULT_OPTIONS,
   SearchableSalesSelect,
 } from "../ServiceCallSignatureModal";
+import MobileSafeSelect from "@/app/components/MobileSafeSelect";
 
 interface UserOption {
   id: string;
@@ -616,6 +619,64 @@ export default function ServiceCallDetailClient({
     window.open(`/service/calls/${initialData.id}/pdf`, "_blank");
   };
 
+  // Delete Case Handler
+  const handleDeleteCase = async () => {
+    if (loading) return;
+
+    const linkedInfo: string[] = [];
+    if (initialData.linkedQuotationNo)
+      linkedInfo.push(`ใบเสนอราคา ${initialData.linkedQuotationNo}`);
+    if (initialData.linkedDeliveryNo)
+      linkedInfo.push(`ใบส่งมอบ ${initialData.linkedDeliveryNo}`);
+
+    const confirm = await Swal.fire({
+      title: "ยืนยันการลบเคสแจ้งปัญหา?",
+      html: `<div style="font-size:14px;color:#374151;line-height:1.6">ต้องการลบเคสเลขที่ <b style="color:#ff2301">${
+        initialData.caseNumber || "-"
+      }</b><br/>ลูกค้า: <b>${initialData.companyName || "-"}</b> ใช่หรือไม่?${
+        linkedInfo.length > 0
+          ? `<br/><span style="font-size:12px;color:#6b7280">(หมายเหตุ: เอกสารที่สร้างไปแล้ว ได้แก่ ${linkedInfo.join(
+              ", "
+            )} จะยังคงอยู่ในระบบ)</span>`
+          : ""
+      }<br/><span style="font-size:12px;color:#dc2626">การลบนี้ไม่สามารถย้อนกลับได้</span></div>`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ff2301",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "ลบข้อมูล",
+      cancelButtonText: "ยกเลิก",
+      reverseButtons: true,
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    setLoading(true);
+    try {
+      const res = await deleteServiceCallLog(initialData.id);
+      if (res?.success) {
+        await Swal.fire({
+          icon: "success",
+          title: "ลบข้อมูลสำเร็จ",
+          text: `ลบเคส ${initialData.caseNumber || ""} เรียบร้อยแล้ว`,
+          timer: 1400,
+          showConfirmButton: false,
+        });
+        router.push("/service/calls");
+        router.refresh();
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "ไม่สามารถลบข้อมูลได้",
+        text: err?.message || "เกิดข้อผิดพลาดในการลบเคส กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#ff2301",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Formatted Dates
   const receivedDateFormatted = useMemo(() => {
     if (!initialData.receivedDate) return "-";
@@ -649,21 +710,21 @@ export default function ServiceCallDetailClient({
   }, [initialData.updatedAt]);
 
   return (
-    <div className="min-h-screen bg-gray-50/60 pb-28 print:bg-white print:pb-0">
+    <div className="min-h-screen bg-gray-50/60 pb-28 sm:pb-16 print:bg-white print:pb-0">
       {/* ── Top Navigation & Breadcrumb Bar ── */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-20 print:static print:border-b-2">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-16 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="min-h-14 sm:h-16 py-2 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
             {/* Left: Back Link & Breadcrumb */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <Link
                 href="/service/calls"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-[#ff2301] transition-colors p-2 rounded-lg hover:bg-gray-100"
+                className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#ff2301] transition-colors px-2.5 py-2 rounded-lg hover:bg-gray-100"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>กลับหน้ารายการ</span>
+                <ArrowLeft className="w-4 h-4 shrink-0" />
+                <span>กลับ<span className="hidden sm:inline">หน้ารายการ</span></span>
               </Link>
-              <div className="hidden sm:flex items-center text-xs text-gray-400 gap-1.5 font-medium">
+              <div className="hidden md:flex items-center text-xs text-gray-400 gap-1.5 font-medium">
                 <ChevronRight className="w-3.5 h-3.5" />
                 <span className="text-gray-500">งานบริการ</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -674,11 +735,11 @@ export default function ServiceCallDetailClient({
             </div>
 
             {/* Right: Quick Case Badge & Actions */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
               <button
                 type="button"
                 onClick={() => handleCopy(initialData.caseNumber, "caseNumber")}
-                className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-mono font-semibold transition-colors border border-gray-200"
+                className="hidden lg:inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-mono font-semibold transition-colors border border-gray-200"
                 title="คลิกเพื่อคัดลอกเลขเคส"
               >
                 <span>{initialData.caseNumber}</span>
@@ -690,39 +751,53 @@ export default function ServiceCallDetailClient({
               </button>
 
               <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm ${currentStatusMeta.badge}`}
+                className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold border shadow-sm max-w-[145px] sm:max-w-none ${currentStatusMeta.badge}`}
               >
-                <span className={`w-2 h-2 rounded-full ${currentStatusMeta.dot}`} />
-                {currentStatusMeta.label}
+                <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${currentStatusMeta.dot}`} />
+                <span className="truncate">{currentStatusMeta.label}</span>
               </span>
 
               <Link
                 href={`/service/calls/${initialData.id}/pdf`}
                 target="_blank"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-[#ff2301] bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors print:hidden shadow-sm"
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-[#ff2301] bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors print:hidden shadow-sm shrink-0"
               >
                 <Printer className="w-3.5 h-3.5 text-[#ff2301]" />
+                <span className="sm:hidden">PDF</span>
                 <span className="hidden sm:inline">ออกใบรายงานบริการ (PDF)</span>
               </Link>
+
+              {canEdit && (
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={handleDeleteCase}
+                  title="ลบข้อมูลเคสนี้"
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-red-600 bg-white hover:bg-red-50 border border-red-200 rounded-lg transition-colors print:hidden shadow-sm shrink-0 disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">ลบเคส</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8">
         {/* ── Main Hero Card (Symmetrical Header) ── */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm mb-8 relative overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-8 shadow-sm mb-5 sm:mb-8 relative overflow-hidden">
           {/* Subtle Top Red Accent Stripe */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff2301] via-red-500 to-gray-800" />
 
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
             {/* Left Header Info */}
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center shrink-0 shadow-inner">
-                <Wrench className="w-7 h-7 text-[#ff2301]" />
+            <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center shrink-0 shadow-inner">
+                <Wrench className="w-5 h-5 sm:w-7 sm:h-7 text-[#ff2301]" />
               </div>
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
+              <div className="space-y-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-gray-900 text-white">
                     {initialData.caseNumber}
                   </span>
@@ -736,10 +811,10 @@ export default function ServiceCallDetailClient({
                     รับแจ้ง: {receivedDateFormatted}
                   </span>
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight leading-snug">
                   {initialData.companyName}
                 </h1>
-                <p className="text-sm text-gray-500 flex items-center gap-2">
+                <p className="text-xs sm:text-sm text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span>ผู้ติดต่อ: {initialData.contactName}</span>
                   <span className="text-gray-300">|</span>
                   <span className="font-mono text-gray-700 bg-gray-100 px-2 py-0.5 rounded border border-gray-200 text-xs">
@@ -750,8 +825,8 @@ export default function ServiceCallDetailClient({
             </div>
 
             {/* Right Meta Info & Mode Chips */}
-            <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-2.5 border-t lg:border-t-0 pt-4 lg:pt-0 border-gray-100">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap sm:flex-row lg:flex-col items-start lg:items-end gap-2 sm:gap-2.5 border-t lg:border-t-0 pt-3.5 lg:pt-0 border-gray-100">
+              <div className="flex flex-wrap items-center gap-2">
                 {canEdit ? (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-[#ff2301] text-xs font-medium rounded-full border border-red-200">
                     <ShieldCheck className="w-3.5 h-3.5" />
@@ -781,24 +856,24 @@ export default function ServiceCallDetailClient({
             </div>
           </div>
 
-          {/* ── Lifecycle Milestone Stepper (4 Symmetrical Steps) ── */}
-          <div className="mt-8 pt-8 border-t border-gray-100">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
+          {/* ── Lifecycle Milestone Stepper (2x2 on Mobile, 4 Columns on Desktop) ── */}
+          <div className="mt-5 pt-5 sm:mt-8 sm:pt-8 border-t border-gray-100">
+            <div className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 sm:mb-4">
               ขั้นตอนการดำเนินงาน (Case Lifecycle Progression)
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
               {/* Step 1 */}
               <div
-                className={`relative rounded-xl p-4 border transition-all ${
+                className={`relative rounded-xl p-3 sm:p-4 border transition-all ${
                   currentLifecycleStep >= 1
                     ? "bg-white border-red-200 shadow-sm"
                     : "bg-gray-50 border-gray-200 opacity-60"
                 }`}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
                       currentLifecycleStep > 1
                         ? "bg-gray-900 text-white"
                         : currentLifecycleStep === 1
@@ -806,16 +881,16 @@ export default function ServiceCallDetailClient({
                         : "bg-gray-200 text-gray-500"
                     }`}
                   >
-                    {currentLifecycleStep > 1 ? <Check className="w-4 h-4" /> : "1"}
+                    {currentLifecycleStep > 1 ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : "1"}
                   </div>
-                  <span className="text-[10px] font-mono font-medium text-gray-400 uppercase">
+                  <span className="text-[9px] sm:text-[10px] font-mono font-medium text-gray-400 uppercase">
                     Stage 01
                   </span>
                 </div>
-                <div className="font-bold text-gray-900 text-sm">รับแจ้งเปิดเคส</div>
-                <div className="text-xs text-gray-500 mt-0.5">บันทึกข้อมูลและอาการที่พบ</div>
+                <div className="font-bold text-gray-900 text-xs sm:text-sm">รับแจ้งเปิดเคส</div>
+                <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5 line-clamp-1">บันทึกอาการที่พบ</div>
                 {currentLifecycleStep === 1 && (
-                  <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-[#ff2301]">
+                  <div className="mt-2 sm:mt-3 flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-[#ff2301]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#ff2301] animate-pulse" />
                     สถานะปัจจุบัน
                   </div>
@@ -824,15 +899,15 @@ export default function ServiceCallDetailClient({
 
               {/* Step 2 */}
               <div
-                className={`relative rounded-xl p-4 border transition-all ${
+                className={`relative rounded-xl p-3 sm:p-4 border transition-all ${
                   currentLifecycleStep >= 2
                     ? "bg-white border-red-200 shadow-sm"
                     : "bg-gray-50 border-gray-200 opacity-60"
                 }`}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
                       currentLifecycleStep > 2
                         ? "bg-gray-900 text-white"
                         : currentLifecycleStep === 2
@@ -840,16 +915,16 @@ export default function ServiceCallDetailClient({
                         : "bg-gray-200 text-gray-500"
                     }`}
                   >
-                    {currentLifecycleStep > 2 ? <Check className="w-4 h-4" /> : "2"}
+                    {currentLifecycleStep > 2 ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : "2"}
                   </div>
-                  <span className="text-[10px] font-mono font-medium text-gray-400 uppercase">
+                  <span className="text-[9px] sm:text-[10px] font-mono font-medium text-gray-400 uppercase">
                     Stage 02
                   </span>
                 </div>
-                <div className="font-bold text-gray-900 text-sm">นัดหมายเข้าตรวจ</div>
-                <div className="text-xs text-gray-500 mt-0.5">กำหนดการเข้าตรวจหน้างาน</div>
+                <div className="font-bold text-gray-900 text-xs sm:text-sm">นัดหมายเข้าตรวจ</div>
+                <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5 line-clamp-1">กำหนดเข้าหน้างาน</div>
                 {currentLifecycleStep === 2 && (
-                  <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-[#ff2301]">
+                  <div className="mt-2 sm:mt-3 flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-[#ff2301]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#ff2301] animate-pulse" />
                     สถานะปัจจุบัน
                   </div>
@@ -858,15 +933,15 @@ export default function ServiceCallDetailClient({
 
               {/* Step 3 */}
               <div
-                className={`relative rounded-xl p-4 border transition-all ${
+                className={`relative rounded-xl p-3 sm:p-4 border transition-all ${
                   currentLifecycleStep >= 3
                     ? "bg-white border-red-200 shadow-sm"
                     : "bg-gray-50 border-gray-200 opacity-60"
                 }`}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
                       currentLifecycleStep > 3
                         ? "bg-gray-900 text-white"
                         : currentLifecycleStep === 3
@@ -874,16 +949,16 @@ export default function ServiceCallDetailClient({
                         : "bg-gray-200 text-gray-500"
                     }`}
                   >
-                    {currentLifecycleStep > 3 ? <Check className="w-4 h-4" /> : "3"}
+                    {currentLifecycleStep > 3 ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : "3"}
                   </div>
-                  <span className="text-[10px] font-mono font-medium text-gray-400 uppercase">
+                  <span className="text-[9px] sm:text-[10px] font-mono font-medium text-gray-400 uppercase">
                     Stage 03
                   </span>
                 </div>
-                <div className="font-bold text-gray-900 text-sm">วิเคราะห์ & แก้ไข</div>
-                <div className="text-xs text-gray-500 mt-0.5">ส่งซ่อม/เปลี่ยน/รอติดตาม</div>
+                <div className="font-bold text-gray-900 text-xs sm:text-sm">วิเคราะห์ & แก้ไข</div>
+                <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5 line-clamp-1">ส่งซ่อม/เปลี่ยน/รอติดตาม</div>
                 {currentLifecycleStep === 3 && (
-                  <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-[#ff2301]">
+                  <div className="mt-2 sm:mt-3 flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-[#ff2301]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#ff2301] animate-pulse" />
                     สถานะปัจจุบัน
                   </div>
@@ -892,30 +967,30 @@ export default function ServiceCallDetailClient({
 
               {/* Step 4 */}
               <div
-                className={`relative rounded-xl p-4 border transition-all ${
+                className={`relative rounded-xl p-3 sm:p-4 border transition-all ${
                   currentLifecycleStep === 4
                     ? "bg-white border-gray-900 shadow-sm"
                     : "bg-gray-50 border-gray-200 opacity-60"
                 }`}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
                       currentLifecycleStep === 4
                         ? "bg-gray-900 text-white shadow-md shadow-gray-900/20"
                         : "bg-gray-200 text-gray-500"
                     }`}
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
-                  <span className="text-[10px] font-mono font-medium text-gray-400 uppercase">
+                  <span className="text-[9px] sm:text-[10px] font-mono font-medium text-gray-400 uppercase">
                     Stage 04
                   </span>
                 </div>
-                <div className="font-bold text-gray-900 text-sm">ปิดเคสสมบูรณ์</div>
-                <div className="text-xs text-gray-500 mt-0.5">ระบบทำงานได้ตามปกติ</div>
+                <div className="font-bold text-gray-900 text-xs sm:text-sm">ปิดเคสสมบูรณ์</div>
+                <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5 line-clamp-1">ระบบทำงานได้ตามปกติ</div>
                 {currentLifecycleStep === 4 && (
-                  <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-gray-900">
+                  <div className="mt-2 sm:mt-3 flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-gray-900">
                     <span className="w-1.5 h-1.5 rounded-full bg-gray-900" />
                     ปิดงานเรียบร้อย
                   </div>
@@ -925,567 +1000,646 @@ export default function ServiceCallDetailClient({
           </div>
         </div>
 
-        {/* ── Main Content Form / Symmetrical 2-Column Layout ── */}
+        {/* ── Main Content Form / True 3x2 Symmetrical Grid ── */}
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-7 items-stretch">
             {/* ════════════════════════════════════════════════
-                COLUMN 1 (LEFT): ข้อมูลลูกค้า อุปกรณ์ และบุคลากร
+                ROW 1 - LEFT (Mobile #1, Desktop #1): ข้อมูลลูกค้าและผู้ติดต่อ
                 ════════════════════════════════════════════════ */}
-            <div className="space-y-8">
-              {/* Card 1: ข้อมูลลูกค้าและผู้ติดต่อ */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
-                      <Building2 className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-gray-900">
-                        ข้อมูลลูกค้าและผู้ติดต่อ
-                      </h2>
-                      <p className="text-xs text-gray-500">Customer & Contact Information</p>
-                    </div>
+            <div className="order-1 lg:order-1 h-full flex flex-col bg-white border border-gray-200 rounded-2xl p-4 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between pb-3.5 sm:pb-4 mb-4 sm:mb-5 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
+                    <Building2 className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200">
-                    ข้อมูลต้นเรื่อง
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  {/* บริษัท / ลูกค้า */}
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 block mb-1">
-                      ชื่อบริษัท / ลูกค้า
-                    </label>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200">
-                      <span className="font-semibold text-gray-900 text-sm">
-                        {initialData.companyName}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(initialData.companyName, "companyName")}
-                        className="text-gray-400 hover:text-gray-600 p-1 rounded"
-                        title="คัดลอกชื่อบริษัท"
-                      >
-                        {copiedField === "companyName" ? (
-                          <Check className="w-4 h-4 text-[#ff2301]" />
-                        ) : (
-                          <Copy className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* ชื่อผู้ติดต่อ & เบอร์โทร */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-semibold text-gray-500 block mb-1">
-                        ชื่อผู้ติดต่อ
-                      </label>
-                      <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-2">
-                        <User className="w-4 h-4 text-gray-400 shrink-0" />
-                        <span className="text-sm font-medium text-gray-800">
-                          {initialData.contactName}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-gray-500 block mb-1">
-                        เบอร์โทรศัพท์ / LINE
-                      </label>
-                      <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
-                        <div className="flex items-center gap-2 truncate">
-                          <Phone className="w-4 h-4 text-[#ff2301] shrink-0" />
-                          {initialData.contactPhone ? (
-                            <a
-                              href={`tel:${initialData.contactPhone}`}
-                              className="text-sm font-semibold text-gray-900 hover:text-[#ff2301] hover:underline truncate"
-                            >
-                              {initialData.contactPhone}
-                            </a>
-                          ) : (
-                            <span className="text-xs text-gray-400">ไม่ได้ระบุเบอร์โทร</span>
-                          )}
-                        </div>
-                        {initialData.contactPhone && (
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(initialData.contactPhone, "phone")}
-                            className="text-gray-400 hover:text-gray-600 p-1 rounded"
-                            title="คัดลอกเบอร์โทร"
-                          >
-                            {copiedField === "phone" ? (
-                              <Check className="w-4 h-4 text-[#ff2301]" />
-                            ) : (
-                              <Copy className="w-4 h-4" />
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* วันที่รับแจ้ง */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-500 block mb-1">
-                      วันที่และเวลาที่รับแจ้ง
-                    </label>
-                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-2 text-sm text-gray-700">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span>{receivedDateFormatted}</span>
-                    </div>
+                    <h2 className="text-sm sm:text-base font-bold text-gray-900">
+                      ข้อมูลลูกค้าและผู้ติดต่อ
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-gray-500">
+                      Customer & Contact Information
+                    </p>
                   </div>
                 </div>
+                <span className="text-[11px] sm:text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200 shrink-0">
+                  ข้อมูลต้นเรื่อง
+                </span>
               </div>
 
-              {/* Card 2: ข้อมูลอุปกรณ์และอาการที่พบ */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
-                      <Cpu className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-gray-900">
-                        ข้อมูลอุปกรณ์และอาการที่พบ
-                      </h2>
-                      <p className="text-xs text-gray-500">Hardware & Reported Problem</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200">
-                    ข้อมูลปัญหา
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  {/* รุ่นอินเวอร์เตอร์ */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-500 block mb-1">
-                      โมเดล / รุ่น Inverter
-                    </label>
-                    <div className="p-3 bg-red-50/50 rounded-xl border border-red-200/80 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Cpu className="w-4 h-4 text-[#ff2301]" />
-                        <span className="font-mono font-bold text-gray-900 text-sm">
-                          {initialData.inverterModel}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-semibold text-[#ff2301] uppercase tracking-wide">
-                        Inverter Model
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* อาการที่พบ (ลูกค้าแจ้ง) */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-500 block mb-1">
-                      อาการที่พบ (ข้อมูลจากลูกค้าแจ้ง)
-                    </label>
-                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 relative">
-                      <div className="flex items-start gap-2.5">
-                        <AlertCircle className="w-4 h-4 text-[#ff2301] mt-0.5 shrink-0" />
-                        <div className="text-sm text-gray-800 font-medium whitespace-pre-wrap leading-relaxed">
-                          {initialData.reportedIssue}
-                        </div>
-                      </div>
-                    </div>
+              <div className="flex-1 flex flex-col justify-between gap-4">
+                {/* บริษัท / ลูกค้า */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                    ชื่อบริษัท / ลูกค้า
+                  </label>
+                  <div className="h-12 px-3.5 flex items-center justify-between bg-gray-50 rounded-xl border border-gray-200">
+                    <span className="font-semibold text-gray-900 text-sm truncate pr-2">
+                      {initialData.companyName}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(initialData.companyName, "companyName")}
+                      className="text-gray-400 hover:text-gray-600 p-1 rounded shrink-0"
+                      title="คัดลอกชื่อบริษัท"
+                    >
+                      {copiedField === "companyName" ? (
+                        <Check className="w-4 h-4 text-[#ff2301]" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              {/* Card 3: บุคลากรผู้รับเรื่องและผู้รับผิดชอบ */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
-                      <UserCheck className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-gray-900">
-                        เจ้าหน้าที่ผู้รับเรื่องและผู้รับผิดชอบ
-                      </h2>
-                      <p className="text-xs text-gray-500">Staff Assignment & Responsibility</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200">
-                    บุคลากร
-                  </span>
-                </div>
-
-                <div className="space-y-5">
-                  {/* ผู้รับเรื่อง / เปิดเคส */}
+                {/* ชื่อผู้ติดต่อ & เบอร์โทร */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-semibold text-gray-500 block mb-1.5">
-                      ผู้รับเรื่อง (สร้างเอกสารเปิดเคส)
+                      ชื่อผู้ติดต่อ
                     </label>
-                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700">
-                          {initialData.creator?.fullName?.charAt(0) || "U"}
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-gray-900">
-                            {initialData.creator?.fullName || "ไม่ทราบผู้สร้าง"}
-                          </div>
-                          <div className="text-[11px] text-gray-400">เจ้าหน้าที่รับแจ้งเรื่อง</div>
-                        </div>
-                      </div>
-                      <span className="text-xs font-medium text-gray-500 px-2.5 py-1 bg-white rounded-md border border-gray-200">
-                        ผู้เปิดเคส
+                    <div className="h-12 px-3.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-2 min-w-0">
+                      <User className="w-4 h-4 text-gray-400 shrink-0" />
+                      <span className="text-sm font-medium text-gray-800 truncate">
+                        {initialData.contactName}
                       </span>
                     </div>
                   </div>
 
-                  {/* ช่างผู้รับผิดชอบงานซ่อม/ตรวจเช็ค */}
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-semibold text-gray-700">
-                        ช่างผู้รับผิดชอบงานซ่อม / ตรวจเช็ค
-                      </label>
-                      {canReassign && (
-                        <span className="text-[11px] font-semibold text-[#ff2301]">
-                          สามารถเปลี่ยนผู้รับผิดชอบได้
-                        </span>
+                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                      เบอร์โทรศัพท์ / LINE
+                    </label>
+                    <div className="h-12 px-3.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between min-w-0">
+                      <div className="flex items-center gap-2 truncate">
+                        <Phone className="w-4 h-4 text-[#ff2301] shrink-0" />
+                        {initialData.contactPhone ? (
+                          <a
+                            href={`tel:${initialData.contactPhone}`}
+                            className="text-sm font-semibold text-gray-900 hover:text-[#ff2301] hover:underline truncate"
+                          >
+                            {initialData.contactPhone}
+                          </a>
+                        ) : (
+                          <span className="text-xs text-gray-400">ไม่ได้ระบุเบอร์โทร</span>
+                        )}
+                      </div>
+                      {initialData.contactPhone && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(initialData.contactPhone, "phone")}
+                          className="text-gray-400 hover:text-gray-600 p-1 rounded shrink-0"
+                          title="คัดลอกเบอร์โทร"
+                        >
+                          {copiedField === "phone" ? (
+                            <Check className="w-4 h-4 text-[#ff2301]" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </button>
                       )}
                     </div>
+                  </div>
+                </div>
 
-                    {canReassign && users.length > 0 ? (
-                      <select
-                        name="responsibleId"
-                        value={formData.responsibleId}
-                        onChange={handleChange}
-                        disabled={loading}
-                        className="w-full text-sm font-medium border border-gray-300 rounded-xl p-3 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all"
-                      >
-                        <option value="">-- ยังไม่ระบุผู้รับผิดชอบ --</option>
-                        {users.map((u) => (
-                          <option key={u.id} value={u.id}>
-                            {u.fullName} ({u.role})
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-xs font-bold text-[#ff2301]">
-                            {initialData.responsible?.fullName?.charAt(0) || "S"}
-                          </div>
-                          <div>
-                            <div className="text-sm font-semibold text-[#ff2301]">
-                              {initialData.responsible?.fullName ||
-                                initialData.responsibleName ||
-                                "ยังไม่ได้ระบุช่างผู้รับผิดชอบ"}
-                            </div>
-                            <div className="text-[11px] text-gray-400">ช่างเทคนิคประจำเคส</div>
-                          </div>
-                        </div>
-                        <span className="text-xs font-medium text-red-700 px-2.5 py-1 bg-red-50 rounded-md border border-red-200">
-                          ผู้รับผิดชอบ
-                        </span>
-                      </div>
-                    )}
+                {/* วันที่รับแจ้ง & บริษัทในเครือ */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                      วันที่และเวลาที่รับแจ้ง
+                    </label>
+                    <div className="h-12 px-3.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-2 text-sm text-gray-700 min-w-0">
+                      <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+                      <span className="truncate">{receivedDateFormatted}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                      บริษัทในเครือ (หัวกระดาษ)
+                    </label>
+                    <div className="h-12 px-3.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-2 text-sm text-gray-800 min-w-0">
+                      <span className="px-1.5 py-0.5 rounded-md bg-red-50 text-[#ff2301] border border-red-200 text-[11px] font-black shrink-0">
+                        {formData.internalCompany || "TG"}
+                      </span>
+                      <span className="font-medium truncate">
+                        {formData.internalCompany === "TE"
+                          ? "บจก. เทอรา อิเล็คทริค"
+                          : formData.internalCompany === "TP"
+                          ? "บจก. เทอรา พาวเวอร์"
+                          : "บจก. เทอรา กรุ้ป"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* สถานที่หน้างาน / ที่อยู่ลูกค้า */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                    สถานที่ตั้งเครื่อง / ที่อยู่หน้างาน
+                  </label>
+                  <div className="min-h-[48px] px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-2 text-sm">
+                    <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span
+                      className={
+                        formData.siteAddress || initialData.siteAddress
+                          ? "text-gray-800 font-medium break-words"
+                          : "text-xs text-gray-400"
+                      }
+                    >
+                      {formData.siteAddress ||
+                        initialData.siteAddress ||
+                        "ยังไม่ได้ระบุสถานที่หน้างาน (สามารถระบุในส่วนสรุปหน้างานด้านล่าง)"}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* ════════════════════════════════════════════════
-                COLUMN 2 (RIGHT): อัปเดตสถานะ การวิเคราะห์ และวิธีแก้ไข
+                ROW 1 - RIGHT (Mobile #4, Desktop #2): สถานะงานและกำหนดการติดตาม
                 ════════════════════════════════════════════════ */}
-            <div className="space-y-8">
-              {/* Card 4: สถานะปัจจุบันและกำหนดการติดตาม */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
-                      <Clock className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-gray-900">
-                        สถานะงานและกำหนดการติดตาม
-                      </h2>
-                      <p className="text-xs text-gray-500">Workflow Status & Follow-up Schedule</p>
-                    </div>
+            <div className="order-4 lg:order-2 h-full flex flex-col bg-white border border-gray-200 rounded-2xl p-4 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between pb-3.5 sm:pb-4 mb-4 sm:mb-5 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
+                    <Clock className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 bg-red-50 text-[#ff2301] rounded-lg border border-red-200">
-                    ส่วนการอัปเดต
-                  </span>
-                </div>
-
-                <div className="space-y-5">
-                  {/* สถานะเคสปัจจุบัน */}
                   <div>
-                    <label className="text-xs font-semibold text-gray-700 block mb-1.5">
-                      สถานะเคสปัจจุบัน <span className="text-[#ff2301]">*</span>
-                    </label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      disabled={!canEdit || loading}
-                      className="w-full text-sm font-semibold border border-gray-300 rounded-xl p-3 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500"
-                    >
-                      {CALL_STATUS_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                      {!CALL_STATUS_OPTIONS.some((o) => o.value === formData.status) && (
-                        <option value={formData.status}>
-                          {formData.status} (ข้อมูลเดิมจากระบบ)
-                        </option>
-                      )}
-                    </select>
-
-                    {/* Status Description pill */}
-                    <div className="mt-2 text-xs text-gray-500 bg-gray-50 p-2.5 rounded-lg border border-gray-200 flex items-start gap-2">
-                      <span className={`w-2 h-2 rounded-full mt-1 shrink-0 ${currentStatusMeta.dot}`} />
-                      <span>{currentStatusMeta.desc}</span>
-                    </div>
-                  </div>
-
-                  {/* วันที่ต้องการติดตามผล (Follow-up Date) */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-semibold text-gray-700">
-                        วันที่ต้องการติดตามผล (Follow-up Date)
-                      </label>
-                      {followUpMeta && (
-                        <span
-                          className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${followUpMeta.badge}`}
-                        >
-                          {followUpMeta.text}
-                        </span>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Calendar className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-400" />
-                      <input
-                        type="date"
-                        name="followUpDate"
-                        value={formData.followUpDate}
-                        onChange={handleChange}
-                        disabled={!canEdit || loading}
-                        className="w-full text-sm border border-gray-300 rounded-xl p-3 pl-10 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500"
-                      />
-                    </div>
-                    <p className="text-[11px] text-gray-400 mt-1">
-                      ระบบจะแจ้งเตือนอัตโนมัติเมื่อถึงกำหนดเวลา และยังไม่ได้ปิดเคส
+                    <h2 className="text-sm sm:text-base font-bold text-gray-900">
+                      สถานะงานและกำหนดการติดตาม
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-gray-500">
+                      Workflow Status & Follow-up Schedule
                     </p>
                   </div>
+                </div>
+                <span className="text-[11px] sm:text-xs font-semibold px-2.5 py-1 bg-red-50 text-[#ff2301] rounded-lg border border-red-200 shrink-0">
+                  ส่วนการอัปเดต
+                </span>
+              </div>
 
-                  {/* ส่งต่อเซลล์เพื่อเปิดใบเสนอราคา & เชื่อมโยงใบส่งมอบงาน */}
-                  <div className="pt-4 border-t border-gray-100 space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-[#ff2301]" />
-                          <span>เลือกเซลล์สำหรับรับเรื่องไปเปิดใบเสนอราคา (เมื่อปิดงาน)</span>
-                        </label>
-                        {initialData.assignedSalesName && (
-                          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                            ส่งต่อแล้ว: {initialData.assignedSalesName}
-                          </span>
-                        )}
-                      </div>
+              <div className="flex-1 flex flex-col justify-between gap-4">
+                {/* สถานะเคสปัจจุบัน */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                    สถานะเคสปัจจุบัน <span className="text-[#ff2301]">*</span>
+                  </label>
+                  <MobileSafeSelect
+                    value={formData.status}
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, status: val }))
+                    }
+                    disabled={!canEdit || loading}
+                    options={[
+                      ...CALL_STATUS_OPTIONS.map((opt) => ({
+                        value: opt.value,
+                        label: opt.label,
+                        subLabel: opt.desc,
+                        dotClass: opt.dot === "bg-white" ? "bg-gray-900" : opt.dot,
+                      })),
+                      ...(!CALL_STATUS_OPTIONS.some(
+                        (o) => o.value === formData.status
+                      )
+                        ? [
+                            {
+                              value: formData.status,
+                              label: `${formData.status} (ข้อมูลเดิมจากระบบ)`,
+                              dotClass: "bg-gray-500",
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
 
-                      <SearchableSalesSelect
-                        users={users}
-                        value={formData.assignedSalesId}
-                        onChange={(selectedId) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            assignedSalesId: selectedId,
-                          }))
-                        }
-                        disabled={!canEdit || loading}
-                      />
+                  {/* Status Description pill */}
+                  <div className="mt-2 text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex items-start gap-2">
+                    <span
+                      className={`w-2 h-2 rounded-full mt-1 shrink-0 ${currentStatusMeta.dot}`}
+                    />
+                    <span>{currentStatusMeta.desc}</span>
+                  </div>
+                </div>
 
-                      <p className="text-[11px] text-gray-500 mt-1.5">
-                        เมื่อเลือกเซลล์และกดปิดงาน ระบบจะแจ้งเตือนเซลล์ให้เปิดใบเสนอราคา และเมื่อเซลล์เปิดใบเสนอราคาเสร็จ ข้อมูลพร้อม<b>รูปถ่ายและลายเซ็น</b>จะวิ่งไปสร้าง<b>ใบส่งมอบงาน</b>ให้อัตโนมัติ
-                      </p>
-                    </div>
-
-                    {/* Quick Action Buttons: Close & Send to Sales / Open Quotation / Linked Delivery */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        disabled={loading || !canEdit}
-                        onClick={handleCloseAndSendToSales}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50"
+                {/* วันที่ต้องการติดตามผล (Follow-up Date) */}
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
+                    <label className="text-xs font-semibold text-gray-700">
+                      วันที่ต้องการติดตามผล (Follow-up Date)
+                    </label>
+                    {followUpMeta && (
+                      <span
+                        className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${followUpMeta.badge}`}
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>ปิดงานเซอร์วิส + ส่งต่อเซลล์เปิดใบเสนอราคา</span>
-                      </button>
-
-                      <Link
-                        href={`/sales?serviceCallId=${initialData.id}`}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition-all"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>
-                          {initialData.linkedQuotationNo
-                            ? `เปิดดู/สร้างใบเสนอราคาเพิ่ม (มี ${initialData.linkedQuotationNo})`
-                            : "เปิดใบเสนอราคาจากเคสนี้ทันที"}
-                        </span>
-                      </Link>
-                    </div>
-
-                    {/* Linked Quotation & Linked Repair Delivery Status Box */}
-                    {(initialData.linkedQuotationNo || initialData.linkedDeliveryId) && (
-                      <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2">
-                        <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <span>เอกสารที่เชื่อมโยงจากเคสเซอร์วิสนี้</span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          {initialData.linkedQuotationNo && (
-                            <Link
-                              href={
-                                initialData.linkedQuotationId
-                                  ? `/sales?editId=${initialData.linkedQuotationId}`
-                                  : `/sales`
-                              }
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-blue-200 text-blue-700 text-xs font-bold hover:bg-blue-50 transition-all"
-                            >
-                              <FileText className="w-3.5 h-3.5" />
-                              <span>ใบเสนอราคา: {initialData.linkedQuotationNo}</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </Link>
-                          )}
-
-                          {initialData.linkedDeliveryId && (
-                            <>
-                              <Link
-                                href={`/repair-deliveries/${initialData.linkedDeliveryId}/pdf`}
-                                target="_blank"
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all"
-                              >
-                                <Printer className="w-3.5 h-3.5" />
-                                <span>
-                                  พิมพ์ใบส่งมอบงาน ({initialData.linkedDeliveryNo || "DN"})
-                                </span>
-                              </Link>
-                              <Link
-                                href={`/repair-deliveries/${initialData.linkedDeliveryId}/edit`}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all"
-                              >
-                                <span>แก้ไขใบส่งมอบงาน</span>
-                                <ExternalLink className="w-3 h-3" />
-                              </Link>
-                            </>
-                          )}
-                        </div>
-                      </div>
+                        {followUpMeta.text}
+                      </span>
                     )}
                   </div>
-                </div>
-              </div>
-
-              {/* Card 5: ผลการวิเคราะห์และวิธีแก้ไข */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
-                      <Wrench className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-gray-900">
-                        ผลการตรวจสอบและวิธีแก้ไข
-                      </h2>
-                      <p className="text-xs text-gray-500">Technical Analysis & Solution</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 bg-red-50 text-[#ff2301] rounded-lg border border-red-200">
-                    ฝ่ายช่าง
-                  </span>
-                </div>
-
-                <div className="space-y-5">
-                  {/* สาเหตุที่วิเคราะห์พบ */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-700 block mb-1.5">
-                      สาเหตุที่วิเคราะห์พบ (Analyzed Cause)
-                    </label>
-                    <textarea
-                      name="analyzedCause"
-                      rows={3}
-                      value={formData.analyzedCause}
+                  <div className="relative">
+                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <input
+                      type="date"
+                      name="followUpDate"
+                      value={formData.followUpDate}
                       onChange={handleChange}
                       disabled={!canEdit || loading}
-                      placeholder="ระบุสาเหตุของปัญหาจากการตรวจเช็คหรือวิเคราะห์ทางเทคนิค..."
-                      className="w-full text-sm border border-gray-300 rounded-xl p-3 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500 resize-y"
-                    />
-                  </div>
-
-                  {/* วิธีแก้ไข / ข้อเสนอแนะให้ลูกค้า */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-700 block mb-1.5">
-                      วิธีแก้ไข / คำแนะนำให้ลูกค้า (Recommended Solution)
-                    </label>
-                    <textarea
-                      name="recommendedSolution"
-                      rows={3}
-                      value={formData.recommendedSolution}
-                      onChange={handleChange}
-                      disabled={!canEdit || loading}
-                      placeholder="ระบุแนวทางการแก้ไขที่ได้ทำ หรือสิ่งที่แนะนำให้ลูกค้าดำเนินการ..."
-                      className="w-full text-sm border border-gray-300 rounded-xl p-3 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500 resize-y"
+                      className="w-full h-12 text-base sm:text-sm border border-gray-300 rounded-xl px-3.5 pl-10 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500"
                     />
                   </div>
                 </div>
-              </div>
 
-              {/* Card 6: หมายเหตุภายในและประวัติระบบ */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
-                      <FileText className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-gray-900">
-                        หมายเหตุภายในและข้อมูลระบบ
-                      </h2>
-                      <p className="text-xs text-gray-500">Internal Notes & System History</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200">
-                    ประวัติ
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  {/* หมายเหตุภายใน */}
+                {/* ส่งต่อเซลล์เพื่อเปิดใบเสนอราคา & เชื่อมโยงใบส่งมอบงาน */}
+                <div className="pt-3.5 border-t border-gray-100 space-y-3">
                   <div>
-                    <label className="text-xs font-semibold text-gray-700 block mb-1.5">
-                      หมายเหตุภายใน (Internal Notes)
-                    </label>
-                    <textarea
-                      name="notes"
-                      rows={2}
-                      value={formData.notes}
-                      onChange={handleChange}
+                    <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
+                      <label className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#ff2301] shrink-0" />
+                        <span>เลือกเซลล์สำหรับรับเรื่องไปเปิดใบเสนอราคา (เมื่อปิดงาน)</span>
+                      </label>
+                      {initialData.assignedSalesName && (
+                        <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          ส่งต่อแล้ว: {initialData.assignedSalesName}
+                        </span>
+                      )}
+                    </div>
+
+                    <SearchableSalesSelect
+                      users={users}
+                      value={formData.assignedSalesId}
+                      onChange={(selectedId) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          assignedSalesId: selectedId,
+                        }))
+                      }
                       disabled={!canEdit || loading}
-                      placeholder="บันทึกข้อความภายใน เช่น เบอร์ติดต่อสำรอง, นัดหมายพิเศษ..."
-                      className="w-full text-sm border border-gray-300 rounded-xl p-3 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500 resize-y"
                     />
                   </div>
 
-                  {/* System Audit Timestamps */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
-                      <div className="text-[11px] font-semibold text-gray-400">สร้างเอกสารเมื่อ</div>
-                      <div className="text-xs font-semibold text-gray-800 mt-0.5">
-                        {createdAtFormatted}
+                  {/* Quick Action Buttons: Symmetrical 2-Column Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      disabled={loading || !canEdit}
+                      onClick={handleCloseAndSendToSales}
+                      className="h-10 px-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">ปิดงาน + ส่งต่อเซลล์</span>
+                    </button>
+
+                    <Link
+                      href={`/sales?serviceCallId=${initialData.id}`}
+                      className="h-10 px-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition-all"
+                    >
+                      <FileText className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">
+                        {initialData.linkedQuotationNo
+                          ? `ใบเสนอราคา (${initialData.linkedQuotationNo})`
+                          : "เปิดใบเสนอราคาทันที"}
+                      </span>
+                    </Link>
+                  </div>
+
+                  {/* Linked Quotation & Linked Repair Delivery Status Box */}
+                  {(initialData.linkedQuotationNo || initialData.linkedDeliveryId) && (
+                    <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2">
+                      <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>เอกสารที่เชื่อมโยงจากเคสเซอร์วิสนี้</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {initialData.linkedQuotationNo && (
+                          <Link
+                            href={
+                              initialData.linkedQuotationId
+                                ? `/sales?editId=${initialData.linkedQuotationId}`
+                                : `/sales`
+                            }
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-blue-200 text-blue-700 text-xs font-bold hover:bg-blue-50 transition-all"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>ใบเสนอราคา: {initialData.linkedQuotationNo}</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        )}
+
+                        {initialData.linkedDeliveryId && (
+                          <>
+                            <Link
+                              href={`/repair-deliveries/${initialData.linkedDeliveryId}/pdf`}
+                              target="_blank"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all"
+                            >
+                              <Printer className="w-3.5 h-3.5" />
+                              <span>
+                                พิมพ์ใบส่งมอบงาน ({initialData.linkedDeliveryNo || "DN"})
+                              </span>
+                            </Link>
+                            <Link
+                              href={`/repair-deliveries/${initialData.linkedDeliveryId}/edit`}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all"
+                            >
+                              <span>แก้ไขใบส่งมอบงาน</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          </>
+                        )}
                       </div>
                     </div>
-                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
-                      <div className="text-[11px] font-semibold text-gray-400">อัปเดตล่าสุดเมื่อ</div>
-                      <div className="text-xs font-semibold text-gray-800 mt-0.5">
-                        {updatedAtFormatted}
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* ════════════════════════════════════════════════
+                ROW 2 - LEFT (Mobile #2, Desktop #3): ข้อมูลอุปกรณ์และอาการที่พบ
+                ════════════════════════════════════════════════ */}
+            <div className="order-2 lg:order-3 h-full flex flex-col bg-white border border-gray-200 rounded-2xl p-4 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between pb-3.5 sm:pb-4 mb-4 sm:mb-5 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
+                    <Cpu className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-bold text-gray-900">
+                      ข้อมูลอุปกรณ์และอาการที่พบ
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-gray-500">
+                      Hardware & Reported Problem
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] sm:text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200 shrink-0">
+                  ข้อมูลปัญหา
+                </span>
+              </div>
+
+              <div className="flex-1 flex flex-col gap-4">
+                {/* รุ่นอินเวอร์เตอร์ & S/N */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                      โมเดล / รุ่น Inverter
+                    </label>
+                    <div className="h-12 px-3.5 bg-red-50/50 rounded-xl border border-red-200/80 flex items-center gap-2 min-w-0">
+                      <Cpu className="w-4 h-4 text-[#ff2301] shrink-0" />
+                      <span className="font-mono font-bold text-gray-900 text-sm truncate">
+                        {initialData.inverterModel}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                      Serial Number (S/N)
+                    </label>
+                    <div className="h-12 px-3.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-2 min-w-0">
+                      <Hash className="w-4 h-4 text-gray-400 shrink-0" />
+                      <span
+                        className={`font-mono text-sm truncate ${
+                          formData.serialNumber || initialData.serialNumber
+                            ? "font-semibold text-gray-900"
+                            : "text-xs font-sans text-gray-400"
+                        }`}
+                      >
+                        {formData.serialNumber ||
+                          initialData.serialNumber ||
+                          "ไม่ได้ระบุ S/N"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* อาการที่พบ (ลูกค้าแจ้ง) — ยืดเต็มพื้นที่เพื่อสมมาตรกับ Card ขวา */}
+                <div className="flex-1 flex flex-col">
+                  <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                    อาการที่พบ (ข้อมูลจากลูกค้าแจ้ง)
+                  </label>
+                  <div className="flex-1 min-h-[140px] p-4 bg-gray-50 rounded-xl border border-gray-200 relative">
+                    <div className="flex items-start gap-2.5">
+                      <AlertCircle className="w-4 h-4 text-[#ff2301] mt-0.5 shrink-0" />
+                      <div className="text-sm text-gray-800 font-medium whitespace-pre-wrap leading-relaxed">
+                        {initialData.reportedIssue}
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ════════════════════════════════════════════════
+                ROW 2 - RIGHT (Mobile #5, Desktop #4): ผลการตรวจสอบและวิธีแก้ไข
+                ════════════════════════════════════════════════ */}
+            <div className="order-5 lg:order-4 h-full flex flex-col bg-white border border-gray-200 rounded-2xl p-4 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between pb-3.5 sm:pb-4 mb-4 sm:mb-5 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
+                    <Wrench className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-bold text-gray-900">
+                      ผลการตรวจสอบและวิธีแก้ไข
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-gray-500">
+                      Technical Analysis & Solution
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] sm:text-xs font-semibold px-2.5 py-1 bg-red-50 text-[#ff2301] rounded-lg border border-red-200 shrink-0">
+                  ฝ่ายช่าง
+                </span>
+              </div>
+
+              <div className="flex-1 flex flex-col gap-4">
+                {/* สาเหตุที่วิเคราะห์พบ */}
+                <div className="flex-1 flex flex-col">
+                  <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                    สาเหตุที่วิเคราะห์พบ (Analyzed Cause)
+                  </label>
+                  <textarea
+                    name="analyzedCause"
+                    rows={3}
+                    value={formData.analyzedCause}
+                    onChange={handleChange}
+                    disabled={!canEdit || loading}
+                    placeholder="ระบุสาเหตุของปัญหาจากการตรวจเช็คหรือวิเคราะห์ทางเทคนิค..."
+                    className="w-full flex-1 min-h-[96px] text-base sm:text-sm border border-gray-300 rounded-xl p-3 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500 resize-y"
+                  />
+                </div>
+
+                {/* วิธีแก้ไข / ข้อเสนอแนะให้ลูกค้า */}
+                <div className="flex-1 flex flex-col">
+                  <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                    วิธีแก้ไข / คำแนะนำให้ลูกค้า (Recommended Solution)
+                  </label>
+                  <textarea
+                    name="recommendedSolution"
+                    rows={3}
+                    value={formData.recommendedSolution}
+                    onChange={handleChange}
+                    disabled={!canEdit || loading}
+                    placeholder="ระบุแนวทางการแก้ไขที่ได้ทำ หรือสิ่งที่แนะนำให้ลูกค้าดำเนินการ..."
+                    className="w-full flex-1 min-h-[96px] text-base sm:text-sm border border-gray-300 rounded-xl p-3 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500 resize-y"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ════════════════════════════════════════════════
+                ROW 3 - LEFT (Mobile #3, Desktop #5): เจ้าหน้าที่ผู้รับเรื่องและผู้รับผิดชอบ
+                ════════════════════════════════════════════════ */}
+            <div className="order-3 lg:order-5 h-full flex flex-col bg-white border border-gray-200 rounded-2xl p-4 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between pb-3.5 sm:pb-4 mb-4 sm:mb-5 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
+                    <UserCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-bold text-gray-900">
+                      เจ้าหน้าที่ผู้รับเรื่องและผู้รับผิดชอบ
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-gray-500">
+                      Staff Assignment & Responsibility
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] sm:text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200 shrink-0">
+                  บุคลากร
+                </span>
+              </div>
+
+              <div className="flex-1 flex flex-col justify-between gap-4">
+                {/* ผู้รับเรื่อง / เปิดเคส */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 block mb-1.5">
+                    ผู้รับเรื่อง (สร้างเอกสารเปิดเคส)
+                  </label>
+                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 shrink-0">
+                        {initialData.creator?.fullName?.charAt(0) || "U"}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-gray-900 truncate">
+                          {initialData.creator?.fullName || "ไม่ทราบผู้สร้าง"}
+                        </div>
+                        <div className="text-[11px] text-gray-400">เจ้าหน้าที่รับแจ้งเรื่อง</div>
+                      </div>
+                    </div>
+                    <span className="text-xs font-medium text-gray-500 px-2.5 py-1 bg-white rounded-md border border-gray-200 shrink-0">
+                      ผู้เปิดเคส
+                    </span>
+                  </div>
+                </div>
+
+                {/* ช่างผู้รับผิดชอบงานซ่อม/ตรวจเช็ค */}
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
+                    <label className="text-xs font-semibold text-gray-700">
+                      ช่างผู้รับผิดชอบงานซ่อม / ตรวจเช็ค
+                    </label>
+                    {canReassign && (
+                      <span className="text-[11px] font-semibold text-[#ff2301]">
+                        สามารถเปลี่ยนผู้รับผิดชอบได้
+                      </span>
+                    )}
+                  </div>
+
+                  {canReassign && users.length > 0 ? (
+                    <MobileSafeSelect
+                      value={formData.responsibleId}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, responsibleId: val }))
+                      }
+                      disabled={loading}
+                      searchable={users.length > 5}
+                      searchPlaceholder="พิมพ์ค้นหาชื่อช่าง / ตำแหน่ง..."
+                      placeholder="-- ยังไม่ระบุผู้รับผิดชอบ --"
+                      options={[
+                        { value: "", label: "-- ยังไม่ระบุผู้รับผิดชอบ --" },
+                        ...users.map((u) => ({
+                          value: u.id,
+                          label: u.fullName,
+                          subLabel: u.role,
+                        })),
+                      ]}
+                    />
+                  ) : (
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-xs font-bold text-[#ff2301] shrink-0">
+                          {initialData.responsible?.fullName?.charAt(0) || "S"}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-[#ff2301] truncate">
+                            {initialData.responsible?.fullName ||
+                              initialData.responsibleName ||
+                              "ยังไม่ได้ระบุช่างผู้รับผิดชอบ"}
+                          </div>
+                          <div className="text-[11px] text-gray-400">ช่างเทคนิคประจำเคส</div>
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-red-700 px-2.5 py-1 bg-red-50 rounded-md border border-red-200 shrink-0">
+                        ผู้รับผิดชอบ
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* ════════════════════════════════════════════════
+                ROW 3 - RIGHT (Mobile #6, Desktop #6): หมายเหตุภายในและข้อมูลระบบ
+                ════════════════════════════════════════════════ */}
+            <div className="order-6 lg:order-6 h-full flex flex-col bg-white border border-gray-200 rounded-2xl p-4 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between pb-3.5 sm:pb-4 mb-4 sm:mb-5 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-bold text-gray-900">
+                      หมายเหตุภายในและข้อมูลระบบ
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-gray-500">
+                      Internal Notes & System History
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] sm:text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200 shrink-0">
+                  ประวัติ
+                </span>
+              </div>
+
+              <div className="flex-1 flex flex-col justify-between gap-4">
+                {/* หมายเหตุภายใน */}
+                <div className="flex-1 flex flex-col">
+                  <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                    หมายเหตุภายใน (Internal Notes)
+                  </label>
+                  <textarea
+                    name="notes"
+                    rows={2}
+                    value={formData.notes}
+                    onChange={handleChange}
+                    disabled={!canEdit || loading}
+                    placeholder="บันทึกข้อความภายใน เช่น เบอร์ติดต่อสำรอง, นัดหมายพิเศษ..."
+                    className="w-full flex-1 min-h-[76px] text-base sm:text-sm border border-gray-300 rounded-xl p-3 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all disabled:bg-gray-100 disabled:text-gray-500 resize-y"
+                  />
+                </div>
+
+                {/* System Audit Timestamps */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="text-[11px] font-semibold text-gray-400">สร้างเอกสารเมื่อ</div>
+                    <div className="text-xs font-semibold text-gray-800 mt-0.5">
+                      {createdAtFormatted}
+                    </div>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="text-[11px] font-semibold text-gray-400">อัปเดตล่าสุดเมื่อ</div>
+                    <div className="text-xs font-semibold text-gray-800 mt-0.5">
+                      {updatedAtFormatted}
                     </div>
                   </div>
                 </div>
@@ -1496,30 +1650,30 @@ export default function ServiceCallDetailClient({
           {/* ════════════════════════════════════════════════════════════════════
               FULL-WIDTH ON-SITE REPORT SECTIONS (Parts, Photos, Signatures)
               ════════════════════════════════════════════════════════════════════ */}
-          <div className="mt-8 space-y-8">
+          <div className="mt-5 sm:mt-8 space-y-5 sm:space-y-8">
             {/* Card 7: สรุปผลการเข้าหน้างาน & รายการอะไหล่ที่ใช้ (On-Site Resolution & Parts Used) */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-8 shadow-sm space-y-5 sm:space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
                     <Package className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                    <h2 className="text-sm sm:text-lg font-bold text-gray-900">
                       สรุปผลการเข้าหน้างานและรายการอะไหล่ที่ใช้ (On-Site Inspection Report)
                     </h2>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-[11px] sm:text-xs text-gray-500">
                       ข้อมูลส่วนนี้จะถูกนำไปออกเอกสาร &ldquo;ใบรายงานการตรวจสอบและบริการหน้างาน (PDF A4)&rdquo;
                     </p>
                   </div>
                 </div>
 
                 {/* Internal Company Switcher for PDF Header */}
-                <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl border border-gray-200 self-start sm:self-auto">
+                <div className="grid grid-cols-3 sm:flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl border border-gray-200 w-full sm:w-auto">
                   {[
-                    { code: "TG", label: "TG (Tera Group)" },
-                    { code: "TE", label: "TE (Tera Electric)" },
-                    { code: "TP", label: "TP (Tera Power)" },
+                    { code: "TG", short: "TG", label: "TG (Tera Group)" },
+                    { code: "TE", short: "TE", label: "TE (Tera Electric)" },
+                    { code: "TP", short: "TP", label: "TP (Tera Power)" },
                   ].map((comp) => (
                     <button
                       key={comp.code}
@@ -1530,45 +1684,52 @@ export default function ServiceCallDetailClient({
                           internalCompany: comp.code,
                         }))
                       }
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-center ${
                         formData.internalCompany === comp.code
                           ? "bg-[#ff2301] text-white shadow-sm"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      {comp.label}
+                      <span className="sm:hidden">{comp.short}</span>
+                      <span className="hidden sm:inline">{comp.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Row 1: Onsite Date, Serial Number, Site Address */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
                 <div>
                   <label className="text-xs font-semibold text-gray-700 block mb-1.5">
                     วันที่เข้าตรวจสอบ/บริการหน้างาน
                   </label>
-                  <input
-                    type="date"
-                    name="onsiteDate"
-                    value={formData.onsiteDate}
-                    onChange={handleChange}
-                    className="w-full text-sm border border-gray-300 rounded-xl p-2.5 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
-                  />
+                  <div className="relative">
+                    <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="date"
+                      name="onsiteDate"
+                      value={formData.onsiteDate}
+                      onChange={handleChange}
+                      className="w-full h-12 text-base sm:text-sm border border-gray-300 rounded-xl px-3.5 pl-10 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold text-gray-700 block mb-1.5">
                     หมายเลขเครื่อง (Serial No. / S/N)
                   </label>
-                  <input
-                    type="text"
-                    name="serialNumber"
-                    value={formData.serialNumber}
-                    onChange={handleChange}
-                    placeholder="ระบุ Serial No. ของเครื่อง (ถ้ามี)..."
-                    className="w-full text-sm border border-gray-300 rounded-xl p-2.5 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
-                  />
+                  <div className="relative">
+                    <Hash className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      name="serialNumber"
+                      value={formData.serialNumber}
+                      onChange={handleChange}
+                      placeholder="ระบุ Serial No. ของเครื่อง (ถ้ามี)..."
+                      className="w-full h-12 text-base sm:text-sm font-mono border border-gray-300 rounded-xl px-3.5 pl-10 bg-white text-gray-900 placeholder:font-sans placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -1576,14 +1737,14 @@ export default function ServiceCallDetailClient({
                     สถานที่หน้างาน / ที่อยู่ลูกค้า
                   </label>
                   <div className="relative">
-                    <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                    <MapPin className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="text"
                       name="siteAddress"
                       value={formData.siteAddress}
                       onChange={handleChange}
                       placeholder="ระบุสถานที่ติดตั้งหรือที่อยู่หน้างาน..."
-                      className="w-full text-sm border border-gray-300 rounded-xl p-2.5 pl-9 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
+                      className="w-full h-12 text-base sm:text-sm border border-gray-300 rounded-xl px-3.5 pl-10 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
                     />
                   </div>
                 </div>
@@ -1594,7 +1755,7 @@ export default function ServiceCallDetailClient({
                 <label className="text-xs font-semibold text-gray-700 block">
                   สรุปผลการเข้าตรวจสอบหน้างาน (On-Site Resolution Summary)
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
                   {ONSITE_RESULT_OPTIONS.map((opt) => {
                     const active = formData.onsiteResult === opt.value;
                     return (
@@ -1643,14 +1804,14 @@ export default function ServiceCallDetailClient({
                     value={formData.onsiteResultNote}
                     onChange={handleChange}
                     placeholder="รายละเอียดสรุปผลเพิ่มเติม (เช่น เลขใบรับซ่อมกรณีนำเครื่องกลับ, กำหนดวันเข้าเปลี่ยนอะไหล่ ฯลฯ)..."
-                    className="w-full text-sm border border-gray-300 rounded-xl p-2.5 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
+                    className="w-full text-base sm:text-sm border border-gray-300 rounded-xl p-2.5 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301]"
                   />
                 </div>
               </div>
 
               {/* Row 3: Parts Used Table */}
               <div className="pt-2 space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div>
                     <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">
                       รายการอะไหล่ / อุปกรณ์ที่เปลี่ยนหรือใช้แก้ไขหน้างาน (Parts &amp; Materials Used)
@@ -1662,7 +1823,7 @@ export default function ServiceCallDetailClient({
                   <button
                     type="button"
                     onClick={handleAddPart}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-50 text-[#ff2301] hover:bg-red-100 border border-red-200 text-xs font-bold transition-colors"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-red-50 text-[#ff2301] hover:bg-red-100 border border-red-200 text-xs font-bold transition-colors self-start sm:self-auto"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>เพิ่มรายการอะไหล่</span>
@@ -1674,9 +1835,9 @@ export default function ServiceCallDetailClient({
                     {formData.partsUsed.map((part, idx) => (
                       <div
                         key={idx}
-                        className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center bg-gray-50 p-3 rounded-xl border border-gray-200"
+                        className="grid grid-cols-12 gap-2 sm:gap-2.5 items-center bg-gray-50 p-3 rounded-xl border border-gray-200"
                       >
-                        <div className="sm:col-span-5">
+                        <div className="col-span-12 sm:col-span-5">
                           <input
                             type="text"
                             value={part.name}
@@ -1684,32 +1845,33 @@ export default function ServiceCallDetailClient({
                               handleUpdatePart(idx, "name", e.target.value)
                             }
                             placeholder="ชื่ออะไหล่ / รหัสอุปกรณ์..."
-                            className="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 focus:outline-none focus:border-[#ff2301]"
+                            className="w-full text-base sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 focus:outline-none focus:border-[#ff2301]"
                           />
                         </div>
-                        <div className="sm:col-span-2">
+                        <div className="col-span-3 sm:col-span-2">
                           <input
                             type="text"
+                            inputMode="numeric"
                             value={part.qty}
                             onChange={(e) =>
                               handleUpdatePart(idx, "qty", e.target.value)
                             }
                             placeholder="จำนวน"
-                            className="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 text-center focus:outline-none focus:border-[#ff2301]"
+                            className="w-full text-base sm:text-sm border border-gray-300 rounded-lg px-2 sm:px-3 py-2 bg-white text-gray-900 text-center focus:outline-none focus:border-[#ff2301]"
                           />
                         </div>
-                        <div className="sm:col-span-2">
+                        <div className="col-span-3 sm:col-span-2">
                           <input
                             type="text"
                             value={part.unit}
                             onChange={(e) =>
                               handleUpdatePart(idx, "unit", e.target.value)
                             }
-                            placeholder="หน่วย (ชิ้น/ชุด)"
-                            className="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 text-center focus:outline-none focus:border-[#ff2301]"
+                            placeholder="หน่วย"
+                            className="w-full text-base sm:text-sm border border-gray-300 rounded-lg px-2 sm:px-3 py-2 bg-white text-gray-900 text-center focus:outline-none focus:border-[#ff2301]"
                           />
                         </div>
-                        <div className="sm:col-span-2">
+                        <div className="col-span-4 sm:col-span-2">
                           <input
                             type="text"
                             value={part.note}
@@ -1717,14 +1879,14 @@ export default function ServiceCallDetailClient({
                               handleUpdatePart(idx, "note", e.target.value)
                             }
                             placeholder="หมายเหตุ"
-                            className="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 focus:outline-none focus:border-[#ff2301]"
+                            className="w-full text-base sm:text-sm border border-gray-300 rounded-lg px-2.5 sm:px-3 py-2 bg-white text-gray-900 focus:outline-none focus:border-[#ff2301]"
                           />
                         </div>
-                        <div className="sm:col-span-1 flex justify-end">
+                        <div className="col-span-2 sm:col-span-1 flex justify-end">
                           <button
                             type="button"
                             onClick={() => handleRemovePart(idx)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="ลบรายการนี้"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1742,41 +1904,41 @@ export default function ServiceCallDetailClient({
             </div>
 
             {/* Card 8: รูปถ่ายหน้างาน ก่อนแก้ไข & หลังแก้ไข (Before & After Photos) */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-8 shadow-sm space-y-5 sm:space-y-6">
               <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-                <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
                   <Camera className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                  <h2 className="text-sm sm:text-lg font-bold text-gray-900">
                     รูปถ่ายหน้างาน ก่อนแก้ไข &amp; หลังแก้ไข (Before / After Photos)
                   </h2>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-[11px] sm:text-xs text-gray-500">
                     แนบรูปถ่ายหน้างานฝั่งละไม่เกิน 2 รูป เพื่อแสดงในใบรายงานการตรวจสอบและบริการหน้างาน (PDF)
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Before Photos */}
-                <div className="p-4 rounded-2xl border border-red-100 bg-red-50/20 space-y-3">
-                  <div className="flex items-center justify-between">
+                <div className="p-3.5 sm:p-4 rounded-2xl border border-red-100 bg-red-50/20 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
                     <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#ff2301]" />
-                      <span>รูปถ่ายก่อนแก้ไข / จุดที่พบปัญหา (Before - สูงสุด 2 รูป)</span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#ff2301] shrink-0" />
+                      <span>รูปถ่ายก่อนแก้ไข / จุดที่พบปัญหา</span>
                     </label>
-                    <span className="text-[11px] font-semibold text-[#ff2301] bg-red-50 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-semibold text-[#ff2301] bg-red-50 px-2 py-0.5 rounded-full shrink-0">
                       {formData.photosBefore.length} / 2 รูป
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                     {[0, 1].map((idx) => {
                       const photoUrl = formData.photosBefore[idx];
                       return (
                         <div
                           key={`before-slot-${idx}`}
-                          className="relative aspect-[4/3] min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-[#ff2301] transition-all shadow-sm"
+                          className="relative aspect-[4/3] min-h-[125px] sm:min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-[#ff2301] transition-all shadow-sm"
                         >
                           {photoUrl ? (
                             <>
@@ -1789,16 +1951,16 @@ export default function ServiceCallDetailClient({
                               <button
                                 type="button"
                                 onClick={() => handleRemovePhoto(idx, "before")}
-                                className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md"
+                                className="absolute top-1.5 right-1.5 p-2 sm:p-1.5 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md"
                                 title="ลบรูปนี้"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                               </button>
                             </>
                           ) : (
                             <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-red-50/40 transition-colors">
                               <Upload className="w-5 h-5 text-gray-400 mb-1 group-hover:text-[#ff2301] transition-colors" />
-                              <span className="text-[10px] font-bold text-gray-500 group-hover:text-[#ff2301] text-center">
+                              <span className="text-[11px] sm:text-[10px] font-bold text-gray-500 group-hover:text-[#ff2301] text-center">
                                 {isUploadingBefore
                                   ? "กำลังอัปโหลด..."
                                   : `+ รูปก่อนแก้ไข #${idx + 1}`}
@@ -1819,24 +1981,24 @@ export default function ServiceCallDetailClient({
                 </div>
 
                 {/* After Photos */}
-                <div className="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/20 space-y-3">
-                  <div className="flex items-center justify-between">
+                <div className="p-3.5 sm:p-4 rounded-2xl border border-emerald-100 bg-emerald-50/20 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
                     <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                      <span>รูปถ่ายหลังแก้ไข / ทดสอบการทำงาน (After - สูงสุด 2 รูป)</span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                      <span>รูปถ่ายหลังแก้ไข / ทดสอบการทำงาน</span>
                     </label>
-                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">
                       {formData.photosAfter.length} / 2 รูป
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                     {[0, 1].map((idx) => {
                       const photoUrl = formData.photosAfter[idx];
                       return (
                         <div
                           key={`after-slot-${idx}`}
-                          className="relative aspect-[4/3] min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-emerald-500 transition-all shadow-sm"
+                          className="relative aspect-[4/3] min-h-[125px] sm:min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-emerald-500 transition-all shadow-sm"
                         >
                           {photoUrl ? (
                             <>
@@ -1849,16 +2011,16 @@ export default function ServiceCallDetailClient({
                               <button
                                 type="button"
                                 onClick={() => handleRemovePhoto(idx, "after")}
-                                className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md"
+                                className="absolute top-1.5 right-1.5 p-2 sm:p-1.5 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md"
                                 title="ลบรูปนี้"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                               </button>
                             </>
                           ) : (
                             <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-emerald-50/40 transition-colors">
                               <Upload className="w-5 h-5 text-gray-400 mb-1 group-hover:text-emerald-600 transition-colors" />
-                              <span className="text-[10px] font-bold text-gray-500 group-hover:text-emerald-700 text-center">
+                              <span className="text-[11px] sm:text-[10px] font-bold text-gray-500 group-hover:text-emerald-700 text-center">
                                 {isUploadingAfter
                                   ? "กำลังอัปโหลด..."
                                   : `+ รูปหลังแก้ไข #${idx + 1}`}
@@ -1881,22 +2043,22 @@ export default function ServiceCallDetailClient({
             </div>
 
             {/* Card 9: ลงลายมือชื่อช่างผู้ให้บริการและลูกค้าผู้รับบริการ (Digital Signatures) */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-8 shadow-sm space-y-5 sm:space-y-6">
               <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-                <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301]">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-[#ff2301] shrink-0">
                   <FileSignature className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                  <h2 className="text-sm sm:text-lg font-bold text-gray-900">
                     ลงลายมือชื่อผู้ให้บริการและลูกค้าผู้รับบริการ (Digital Signatures)
                   </h2>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-[11px] sm:text-xs text-gray-500">
                     ใช้นิ้ว ปากกาสไตลัส หรือเมาส์เซ็นชื่อในกรอบด้านล่าง หรืออัปโหลดรูปลายเซ็นเพื่อแสดงบนใบรายงาน PDF
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                 <div className="space-y-3">
                   <SignaturePadBox
                     title="1. ลายเซ็นช่าง/วิศวกรผู้ให้บริการ"
@@ -1916,17 +2078,18 @@ export default function ServiceCallDetailClient({
                     }
                     accentColor="red"
                   />
-                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 sm:p-4">
                     <label className="block text-xs font-bold text-gray-700 mb-1.5">
                       เบอร์โทรศัพท์ช่างผู้ให้บริการ
                     </label>
                     <input
-                      type="text"
+                      type="tel"
+                      inputMode="tel"
                       name="technicianPhone"
                       value={formData.technicianPhone}
                       onChange={handleChange}
                       placeholder="ระบุเบอร์โทรช่างผู้ให้บริการ..."
-                      className="w-full px-3.5 py-2 bg-white text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#ff2301] text-gray-900"
+                      className="w-full px-3.5 py-2.5 bg-white text-base sm:text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#ff2301] text-gray-900"
                     />
                   </div>
                 </div>
@@ -1950,7 +2113,7 @@ export default function ServiceCallDetailClient({
                     }
                     accentColor="emerald"
                   />
-                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 sm:p-4">
                     <label className="block text-xs font-bold text-gray-700 mb-1.5">
                       ตำแหน่งผู้รับบริการ (ถ้ามี)
                     </label>
@@ -1960,7 +2123,7 @@ export default function ServiceCallDetailClient({
                       value={formData.customerPosition}
                       onChange={handleChange}
                       placeholder="เช่น วิศวกรประจำโรงงาน, หัวหน้าช่าง, เจ้าของกิจการ..."
-                      className="w-full px-3.5 py-2 bg-white text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-600 text-gray-900"
+                      className="w-full px-3.5 py-2.5 bg-white text-base sm:text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-600 text-gray-900"
                     />
                   </div>
                 </div>
@@ -1968,82 +2131,82 @@ export default function ServiceCallDetailClient({
             </div>
           </div>
 
-          {/* ── Fixed Symmetrical Bottom Action Bar ── */}
-          <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-xl print:hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                {/* Left Side: Status / Dirty status */}
-                <div className="flex items-center gap-3 text-xs text-gray-600">
-                  <Link
-                    href="/service/calls"
-                    className="inline-flex items-center gap-1.5 font-semibold text-gray-600 hover:text-[#ff2301] transition-colors"
+          {/* ── Sticky Symmetrical Bottom Action Bar (Non-colliding with Mobile Menu Button & Desktop Sidebar) ── */}
+          <div className="fixed bottom-0 left-0 right-0 z-30 md:sticky md:bottom-4 md:mt-8 bg-white/95 backdrop-blur-md border-t md:border border-gray-200/90 md:rounded-2xl shadow-2xl min-h-[84px] md:min-h-0 flex items-center pl-[80px] pr-4 pt-3.5 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-6 md:py-3.5 print:hidden">
+            <div className="w-full flex items-center justify-between gap-2 md:gap-4">
+              {/* Left Side: Status / Dirty status (Desktop) */}
+              <div className="hidden lg:flex items-center gap-3 text-xs text-gray-600">
+                <Link
+                  href="/service/calls"
+                  className="inline-flex items-center gap-1.5 font-semibold text-gray-600 hover:text-[#ff2301] transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>กลับหน้ารายการเคส</span>
+                </Link>
+
+                <span className="text-gray-300">|</span>
+
+                {isDirty ? (
+                  <span className="inline-flex items-center gap-1.5 text-amber-600 font-semibold">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    มีการแก้ไขข้อมูลที่ยังไม่ได้บันทึก
+                  </span>
+                ) : (
+                  <span className="text-gray-400">ข้อมูลเป็นปัจจุบันแล้ว</span>
+                )}
+              </div>
+
+              {/* Right Side: Action Buttons */}
+              <div className="flex items-center gap-2 md:gap-3 w-full lg:w-auto justify-end">
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    disabled={!isDirty || loading}
+                    title="คืนค่าเดิม"
+                    className="inline-flex items-center justify-center gap-1.5 px-2.5 md:px-4 h-11 md:h-10 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:hover:bg-gray-100 rounded-xl transition-all shrink-0"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>กลับหน้ารายการเคส</span>
-                  </Link>
+                    <RotateCcw className="w-4 h-4 md:w-3.5 md:h-3.5" />
+                    <span className="hidden sm:inline">คืนค่าเดิม</span>
+                  </button>
+                )}
 
-                  <span className="text-gray-300">|</span>
+                {canEdit ? (
+                  <>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-5 h-11 md:h-10 text-xs sm:text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50 rounded-xl shadow-sm transition-all"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Save className="w-4 h-4 shrink-0" />
+                      )}
+                      <span>บันทึก<span className="hidden sm:inline">ข้อมูล</span></span>
+                    </button>
 
-                  {isDirty ? (
-                    <span className="inline-flex items-center gap-1.5 text-amber-600 font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                      มีการแก้ไขข้อมูลที่ยังไม่ได้บันทึก
-                    </span>
-                  ) : (
-                    <span className="text-gray-400">ข้อมูลเป็นปัจจุบันแล้ว</span>
-                  )}
-                </div>
-
-                {/* Right Side: Action Buttons */}
-                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                  {canEdit && (
                     <button
                       type="button"
-                      onClick={handleReset}
-                      disabled={!isDirty || loading}
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:hover:bg-gray-100 rounded-xl transition-all"
+                      disabled={loading}
+                      onClick={() => handleSaveData(true)}
+                      className="flex-[1.3] sm:flex-none inline-flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-5 h-11 md:h-10 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] disabled:opacity-50 rounded-xl shadow-md shadow-red-500/20 transition-all"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      คืนค่าเดิม
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Printer className="w-4 h-4 shrink-0" />
+                      )}
+                      <span className="sm:hidden">บันทึก + PDF</span>
+                      <span className="hidden sm:inline">บันทึก + ออกใบรายงาน PDF</span>
                     </button>
-                  )}
-
-                  {canEdit ? (
-                    <>
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50 rounded-xl shadow-sm transition-all"
-                      >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Save className="w-4 h-4" />
-                        )}
-                        <span>บันทึกข้อมูล</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        disabled={loading}
-                        onClick={() => handleSaveData(true)}
-                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] disabled:opacity-50 rounded-xl shadow-md shadow-red-500/20 transition-all"
-                      >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Printer className="w-4 h-4" />
-                        )}
-                        <span>บันทึก + ออกใบรายงาน PDF</span>
-                      </button>
-                    </>
-                  ) : (
-                    <div className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-xl border border-gray-200">
-                      <Lock className="w-3.5 h-3.5 text-gray-400" />
-                      <span>โหมดอ่านอย่างเดียว (ไม่มีสิทธิ์แก้ไข)</span>
-                    </div>
-                  )}
-                </div>
+                  </>
+                ) : (
+                  <div className="inline-flex items-center gap-1.5 px-3 sm:px-4 h-11 md:h-10 text-xs font-medium text-gray-500 bg-gray-100 rounded-xl border border-gray-200">
+                    <Lock className="w-3.5 h-3.5 text-gray-400" />
+                    <span>โหมดอ่านอย่างเดียว</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

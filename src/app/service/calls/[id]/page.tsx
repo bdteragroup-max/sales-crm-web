@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
 import { getServiceCallLogById } from '@/app/actions/service-calls';
 import { getUser } from '@/app/lib/dal';
+import { canViewAllServiceCalls } from '@/app/lib/roleHelper';
 import prisma from '@/app/lib/db';
 import ServiceCallDetailClient from './ServiceCallDetailClient';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 export const metadata = {
   title: 'รายละเอียดบันทึกแจ้งปัญหาลูกค้า (Service Call Details)',
@@ -21,8 +22,13 @@ export default async function ServiceCallDetailPage({ params }: { params: Promis
     );
   }
 
+  const { id } = await params;
+
+  if (!canViewAllServiceCalls(currentUser.role)) {
+    redirect(`/service/calls/new?tab=my-cases&caseId=${id}`);
+  }
+
   try {
-    const { id } = await params;
     const [logData, rawUsers] = await Promise.all([
       getServiceCallLogById(id),
       prisma.user.findMany({

@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
   LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw, Sparkles, PanelLeftClose, PanelLeftOpen, Search
 } from 'lucide-react';
-import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests, canViewAllServiceCalls } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
@@ -378,8 +378,43 @@ export default function SidebarClient(props: SidebarProps) {
     });
   }
 
-  const appendCommon = (items: NavItem[]) =>
-    Array.from(new Map([...items, ...commonNav].map(item => [item.href, item])).values());
+  // Guarantee that every role can submit customer issues to Sales & Service,
+  // while only Sales, Service/Technicians, and their Managers see the full /service/calls desk
+  const canViewAllCalls = canViewAllServiceCalls(props.userRole);
+  if (!canViewAllCalls) {
+    const existingIdx = finalNav.findIndex(item => item.href === '/service/calls');
+    if (existingIdx !== -1) {
+      finalNav[existingIdx] = {
+        icon: PhoneCall,
+        label: 'แจ้งปัญหาลูกค้า (ส่งเซลล์/เซอร์วิส)',
+        href: '/service/calls/new',
+      };
+    } else if (!finalNav.some(item => item.href === '/service/calls/new')) {
+      finalNav.push({
+        icon: PhoneCall,
+        label: 'แจ้งปัญหาลูกค้า (ส่งเซลล์/เซอร์วิส)',
+        href: '/service/calls/new',
+      });
+    }
+  } else if (!finalNav.some(item => item.href === '/service/calls')) {
+    finalNav.push({
+      icon: PhoneCall,
+      label: 'Service Desk (แจ้งปัญหาลูกค้า)',
+      href: '/service/calls',
+    });
+  }
+
+  const appendCommon = (items: NavItem[]) => {
+    const merged = Array.from(new Map([...items, ...commonNav].map(item => [item.href, item])).values());
+    if (!merged.some(item => item.href === '/service/calls' || item.href === '/service/calls/new')) {
+      merged.push({
+        icon: PhoneCall,
+        label: 'แจ้งปัญหาลูกค้า (ส่งเซลล์/เซอร์วิส)',
+        href: '/service/calls/new',
+      });
+    }
+    return merged;
+  };
 
   const superAdminContexts = isSuperAdmin ? {
     'All (Default)': superAdminNav,
@@ -550,7 +585,9 @@ function ResponsiveSidebar({
       })
       .catch(() => { });
     getPendingServiceClaimCount().then(setPendingClaimCount).catch(() => { });
-    getOpenServiceCallCount().then(setOpenServiceCallCount).catch(() => { });
+    if (canViewAllServiceCalls(userRole)) {
+      getOpenServiceCallCount().then(setOpenServiceCallCount).catch(() => { });
+    }
     getPendingServiceHandoverCount().then(setPendingServiceHandoverCount).catch(() => { });
     getPendingSalesDeliveryAckCount().then(setPendingSalesDeliveryAckCount).catch(() => { });
     getPendingAccountingDeliveryCount().then(setPendingAccountingDeliveryCount).catch(() => { });

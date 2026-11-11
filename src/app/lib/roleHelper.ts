@@ -257,3 +257,73 @@ export function canSupervisorApproveRequest({
   };
 }
 
+/**
+ * Checks whether a user role has full access to view and manage ALL cases in /service/calls:
+ * Allowed: Sales team, Service/Technicians, Sales Managers, Service Managers, Executive, and Super Admin.
+ * Other departments (Marketing, Accounting, Store/Warehouse, Purchasing, Project, Production, BD, Admin, etc.)
+ * return false — they can submit new cases and view ONLY cases they submitted themselves.
+ */
+export function canViewAllServiceCalls(role: string | null | undefined): boolean {
+  if (!role) return false;
+  if (isSuperUser(role) || isReadOnlyExecutive(role)) return true;
+
+  const r = role.toLowerCase().trim();
+
+  // Explicitly exclude other department roles (including their department managers)
+  const isOtherDepartment =
+    [
+      'marketing',
+      'การตลาด',
+      'accounting',
+      'accountant',
+      'บัญชี',
+      'finance',
+      'การเงิน',
+      'purchasing',
+      'จัดซื้อ',
+      'warehouse',
+      'คลังสินค้า',
+      'store',
+      'สโตร์',
+      'project',
+      'โครงการ',
+      'โปรเจค',
+      'โปรเจกต์',
+      'production',
+      'ผลิต',
+      'business development',
+      'พัฒนาธุรกิจ',
+      'hr',
+      'บุคคล',
+      'ขนส่ง',
+      'shipping',
+      'logistics',
+      'โลจิสติกส์',
+    ].some((kw) => r.includes(kw)) ||
+    r === 'bd' ||
+    r.startsWith('bd ') ||
+    r.endsWith(' bd') ||
+    r.includes(' bd ');
+
+  if (isOtherDepartment) return false;
+
+  // Sales & Sales Managers
+  const isSalesOrSalesMgr =
+    r === 'ผู้จัดการ' ||
+    r === 'manager' ||
+    ['sale', 'ขาย', 'เซลล์', 'เซลส์', 'telesale', 'เทเลเซล'].some((kw) => r.includes(kw));
+
+  // Service, Technicians & Service Managers
+  const isServiceOrServiceMgr = [
+    'service',
+    'บริการ',
+    'ซ่อม',
+    'เซอร์วิส',
+    'technician',
+    'ช่าง',
+  ].some((kw) => r.includes(kw));
+
+  return isSalesOrSalesMgr || isServiceOrServiceMgr;
+}
+
+

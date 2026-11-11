@@ -50,8 +50,8 @@ export default async function EditDeliveryPage({
   if (!repairDelivery) return notFound();
 
   return (
-    <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50/60 min-h-0 custom-scrollbar">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-36">
+    <main className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden bg-gray-50/60 min-h-0 custom-scrollbar">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-28 sm:pb-36">
         <EditDeliveryForm initialData={repairDelivery} currentUser={session} />
       </div>
     </main>

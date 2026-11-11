@@ -9,7 +9,7 @@ export default async function RepairDeliveriesLayout({
   const user = await getUser();
 
   return (
-    <div className="flex h-screen print:h-auto bg-slate-50 text-gray-900 font-sans overflow-hidden print:overflow-visible print:block">
+    <div className="flex h-[100dvh] print:h-auto bg-slate-50 text-gray-900 font-sans overflow-hidden print:overflow-visible print:block">
       <Sidebar activeRoute="/repair-deliveries" userFullName={user?.fullName} userId={user?.id} userRole={user?.role} />
       {children}
     </div>

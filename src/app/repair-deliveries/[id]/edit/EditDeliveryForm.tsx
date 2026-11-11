@@ -510,35 +510,35 @@ export default function EditDeliveryForm({
   };
 
   const inputClass =
-    "w-full px-3.5 py-2.5 bg-white text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-900 placeholder:text-gray-400";
+    "w-full px-3.5 py-2.5 bg-white text-base sm:text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-900 placeholder:text-gray-400";
   const labelClass = "block text-xs font-bold text-gray-700 mb-1.5";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       {/* ── Top Hero Header Card (Symmetrical & Modern Red/White/Gray) ── */}
-      <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm transition-all relative overflow-hidden">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
+      <div className="bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm transition-all relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
           {/* Left: Branded Squircle Icon & Titles */}
-          <div className="flex items-center gap-4 sm:gap-5">
+          <div className="flex items-center gap-3.5 sm:gap-5">
             <div className="relative group shrink-0">
-              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] flex items-center justify-center text-white shadow-lg shadow-red-500/25 transition-transform duration-300 group-hover:scale-105">
-                <FileSignature className="w-6 h-6 sm:w-7 sm:h-7" />
+              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] flex items-center justify-center text-white shadow-lg shadow-red-500/25 transition-transform duration-300 group-hover:scale-105">
+                <FileSignature className="w-5 h-5 sm:w-7 sm:h-7" />
               </div>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center border-2 border-white shadow-sm">
+              <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white flex items-center justify-center border-2 border-white shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-[#ff2301] animate-ping" />
               </span>
             </div>
 
-            <div>
-              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <h1 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">
                   แก้ไขใบส่งมอบงาน
                 </h1>
-                <span className="inline-flex items-center px-3 py-1 bg-red-50 text-[#ff2301] border border-red-200/80 rounded-full text-xs font-mono font-bold tracking-wide">
+                <span className="inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 bg-red-50 text-[#ff2301] border border-red-200/80 rounded-full text-[11px] sm:text-xs font-mono font-bold tracking-wide">
                   {initialData.deliveryNumber}
                 </span>
                 <span
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold ${
                     formData.status === "Completed"
                       ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                       : "bg-amber-50 text-amber-700 border border-amber-200"
@@ -552,15 +552,15 @@ export default function EditDeliveryForm({
                     }`}
                   />
                   {formData.status === "Completed"
-                    ? "ส่งมอบแล้ว (Completed)"
-                    : "แบบร่าง (Draft)"}
+                    ? "ส่งมอบแล้ว"
+                    : "แบบร่าง"}
                 </span>
               </div>
 
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1 flex flex-wrap items-center gap-2">
-                <span>EDIT REPAIR DELIVERY NOTE</span>
-                <span className="text-gray-300">•</span>
-                <span className="text-gray-400 font-normal">
+              <p className="text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span className="hidden sm:inline">EDIT REPAIR DELIVERY NOTE</span>
+                <span className="text-gray-300 hidden sm:inline">•</span>
+                <span className="text-gray-500 sm:text-gray-400 font-normal normal-case">
                   แก้ไขรายละเอียดใบส่งมอบงานและรายงานการตรวจเช็คหน้างาน
                 </span>
               </p>
@@ -700,10 +700,10 @@ export default function EditDeliveryForm({
       )}
 
       {/* ── Symmetrical 2-Column Grid: Section 1 & Section 2 ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-stretch">
         {/* ── Section 1: Customer & Site Details (Left Column) ── */}
-        <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm flex flex-col justify-between">
-          <div className="space-y-6">
+        <div className="bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm flex flex-col justify-between">
+          <div className="space-y-5 sm:space-y-6">
             {/* Header */}
             <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100">
               <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0">
@@ -725,7 +725,7 @@ export default function EditDeliveryForm({
                 บริษัทผู้รับผิดชอบ (Data Owner){" "}
                 <span className="text-[#ff2301]">*</span>
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {INTERNAL_COMPANIES.map((c) => {
                   const isSelected = formData.internalCompany === c.code;
                   return (
@@ -738,7 +738,7 @@ export default function EditDeliveryForm({
                           internalCompany: c.code,
                         }))
                       }
-                      className={`p-3 rounded-2xl border text-left transition-all relative ${
+                      className={`p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border text-left transition-all relative min-w-0 ${
                         isSelected
                           ? "border-[#ff2301] bg-red-50/50 shadow-sm"
                           : "border-gray-200 bg-white hover:bg-gray-50/80"
@@ -967,8 +967,8 @@ export default function EditDeliveryForm({
         </div>
 
         {/* ── Section 2: Responsible Personnel & Status (Right Column) ── */}
-        <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm flex flex-col justify-between">
-          <div className="space-y-6">
+        <div className="bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm flex flex-col justify-between">
+          <div className="space-y-5 sm:space-y-6">
             {/* Header */}
             <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100">
               <div className="w-10 h-10 rounded-xl bg-gray-100 text-gray-800 flex items-center justify-center shrink-0">
@@ -990,7 +990,7 @@ export default function EditDeliveryForm({
                 สถานะใบส่งมอบงาน (Document Status){" "}
                 <span className="text-[#ff2301]">*</span>
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <button
                   type="button"
                   onClick={() =>
@@ -1145,7 +1145,8 @@ export default function EditDeliveryForm({
                   <Phone className="w-4 h-4" />
                 </div>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="tel"
                   name="senderPhone"
                   value={formData.senderPhone}
                   onChange={handleChange}
@@ -1180,7 +1181,8 @@ export default function EditDeliveryForm({
                     <Phone className="w-4 h-4" />
                   </div>
                   <input
-                    type="text"
+                    type="tel"
+                    inputMode="tel"
                     name="technicianPhone"
                     value={formData.technicianPhone}
                     onChange={handleChange}
@@ -1226,7 +1228,7 @@ export default function EditDeliveryForm({
       </div>
 
       {/* ── Section 3: Work Types & Service Scope (Full Width Symmetrical Card) ── */}
-      <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
+      <div className="bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm space-y-5 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100">
           <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0">
@@ -1243,7 +1245,7 @@ export default function EditDeliveryForm({
         </div>
 
         {/* 4 Interactive Checklist Cards in Responsive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* 1. งานตรวจเช็ค (Inspection) */}
           <div
             className={`p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
@@ -1259,7 +1261,7 @@ export default function EditDeliveryForm({
                   name="workInspect"
                   checked={formData.workInspect}
                   onChange={handleChange}
-                  className="w-4 h-4 text-[#ff2301] rounded border-gray-300 focus:ring-red-500"
+                  className="w-5 h-5 sm:w-4 sm:h-4 text-[#ff2301] rounded border-gray-300 focus:ring-red-500"
                 />
                 <div className="flex items-center gap-2">
                   <Eye
@@ -1276,7 +1278,7 @@ export default function EditDeliveryForm({
                   </span>
                 </div>
               </label>
-              <p className="text-[11px] text-gray-400 mt-1 pl-7">
+              <p className="text-[11px] text-gray-400 mt-1 pl-8 sm:pl-7">
                 Inspection &amp; Diagnostics
               </p>
             </div>
@@ -1287,7 +1289,7 @@ export default function EditDeliveryForm({
               value={formData.workInspectDetails}
               onChange={handleChange}
               placeholder="รายละเอียดงานตรวจเช็ค (ถ้ามี)"
-              className={`w-full px-3 py-2 text-xs border rounded-xl focus:outline-none transition-all ${
+              className={`w-full px-3 py-2 text-base sm:text-xs border rounded-xl focus:outline-none transition-all ${
                 formData.workInspect
                   ? "bg-white border-red-200 focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] text-gray-900"
                   : "bg-white/60 border-gray-200 text-gray-500 placeholder:text-gray-400"
@@ -1310,7 +1312,7 @@ export default function EditDeliveryForm({
                   name="workInstall"
                   checked={formData.workInstall}
                   onChange={handleChange}
-                  className="w-4 h-4 text-[#ff2301] rounded border-gray-300 focus:ring-red-500"
+                  className="w-5 h-5 sm:w-4 sm:h-4 text-[#ff2301] rounded border-gray-300 focus:ring-red-500"
                 />
                 <div className="flex items-center gap-2">
                   <Cog
@@ -1327,7 +1329,7 @@ export default function EditDeliveryForm({
                   </span>
                 </div>
               </label>
-              <p className="text-[11px] text-gray-400 mt-1 pl-7">
+              <p className="text-[11px] text-gray-400 mt-1 pl-8 sm:pl-7">
                 Installation &amp; Setup
               </p>
             </div>
@@ -1338,7 +1340,7 @@ export default function EditDeliveryForm({
               value={formData.workInstallDetails}
               onChange={handleChange}
               placeholder="รายละเอียดงานติดตั้ง (ถ้ามี)"
-              className={`w-full px-3 py-2 text-xs border rounded-xl focus:outline-none transition-all ${
+              className={`w-full px-3 py-2 text-base sm:text-xs border rounded-xl focus:outline-none transition-all ${
                 formData.workInstall
                   ? "bg-white border-red-200 focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] text-gray-900"
                   : "bg-white/60 border-gray-200 text-gray-500 placeholder:text-gray-400"
@@ -1361,7 +1363,7 @@ export default function EditDeliveryForm({
                   name="workRepair"
                   checked={formData.workRepair}
                   onChange={handleChange}
-                  className="w-4 h-4 text-[#ff2301] rounded border-gray-300 focus:ring-red-500"
+                  className="w-5 h-5 sm:w-4 sm:h-4 text-[#ff2301] rounded border-gray-300 focus:ring-red-500"
                 />
                 <div className="flex items-center gap-2">
                   <Wrench
@@ -1378,7 +1380,7 @@ export default function EditDeliveryForm({
                   </span>
                 </div>
               </label>
-              <p className="text-[11px] text-gray-400 mt-1 pl-7">
+              <p className="text-[11px] text-gray-400 mt-1 pl-8 sm:pl-7">
                 Repair &amp; Overhaul
               </p>
             </div>
@@ -1389,7 +1391,7 @@ export default function EditDeliveryForm({
               value={formData.workRepairDetails}
               onChange={handleChange}
               placeholder="รายละเอียดงานซ่อม (ถ้ามี)"
-              className={`w-full px-3 py-2 text-xs border rounded-xl focus:outline-none transition-all ${
+              className={`w-full px-3 py-2 text-base sm:text-xs border rounded-xl focus:outline-none transition-all ${
                 formData.workRepair
                   ? "bg-white border-red-200 focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] text-gray-900"
                   : "bg-white/60 border-gray-200 text-gray-500 placeholder:text-gray-400"
@@ -1412,7 +1414,7 @@ export default function EditDeliveryForm({
                   name="workTraining"
                   checked={formData.workTraining}
                   onChange={handleChange}
-                  className="w-4 h-4 text-[#ff2301] rounded border-gray-300 focus:ring-red-500"
+                  className="w-5 h-5 sm:w-4 sm:h-4 text-[#ff2301] rounded border-gray-300 focus:ring-red-500"
                 />
                 <div className="flex items-center gap-2">
                   <GraduationCap
@@ -1429,7 +1431,7 @@ export default function EditDeliveryForm({
                   </span>
                 </div>
               </label>
-              <p className="text-[11px] text-gray-400 mt-1 pl-7">
+              <p className="text-[11px] text-gray-400 mt-1 pl-8 sm:pl-7">
                 Training &amp; Handover
               </p>
             </div>
@@ -1440,7 +1442,7 @@ export default function EditDeliveryForm({
               value={formData.workTrainingDetails}
               onChange={handleChange}
               placeholder="รายละเอียดงานอบรม (ถ้ามี)"
-              className={`w-full px-3 py-2 text-xs border rounded-xl focus:outline-none transition-all ${
+              className={`w-full px-3 py-2 text-base sm:text-xs border rounded-xl focus:outline-none transition-all ${
                 formData.workTraining
                   ? "bg-white border-red-200 focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] text-gray-900"
                   : "bg-white/60 border-gray-200 text-gray-500 placeholder:text-gray-400"
@@ -1480,7 +1482,7 @@ export default function EditDeliveryForm({
       </div>
 
       {/* ── Section 4: Before & After Photos & Comments ── */}
-      <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
+      <div className="bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm space-y-5 sm:space-y-6">
         <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100">
           <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
             <Camera className="w-5 h-5" />
@@ -1496,26 +1498,26 @@ export default function EditDeliveryForm({
         </div>
 
         {/* 2 Columns: Before vs After Photos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Before Photos */}
-          <div className="p-4 rounded-2xl border border-red-100 bg-red-50/20 space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="p-3.5 sm:p-4 rounded-2xl border border-red-100 bg-red-50/20 space-y-3">
+            <div className="flex items-center justify-between gap-2">
               <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                <span>รูปถ่ายก่อนติดตั้ง / ก่อนดำเนินงาน (Before - สูงสุด 2 รูป)</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"></span>
+                <span>รูปก่อนติดตั้ง / ก่อนทำ (สูงสุด 2 รูป)</span>
               </label>
-              <span className="text-[11px] font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full shrink-0">
                 {formData.photosBefore.length} / 2 รูป
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               {[0, 1].map((idx) => {
                 const photoUrl = formData.photosBefore[idx];
                 return (
                   <div
                     key={`before-slot-${idx}`}
-                    className="relative aspect-[4/3] min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-red-400 transition-all shadow-sm"
+                    className="relative aspect-[4/3] min-h-[125px] sm:min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-red-400 transition-all shadow-sm"
                   >
                     {photoUrl ? (
                       <>
@@ -1528,17 +1530,17 @@ export default function EditDeliveryForm({
                         <button
                           type="button"
                           onClick={() => handleRemovePhoto(idx, 'before')}
-                          className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md opacity-90 hover:opacity-100"
+                          className="absolute top-1.5 right-1.5 p-2 rounded-xl bg-red-600/95 text-white hover:bg-red-700 transition-all shadow-md active:scale-95"
                           title="ลบรูปนี้"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </>
                     ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-red-50/50 transition-colors">
-                        <Upload className="w-5 h-5 text-gray-400 mb-1 group-hover:text-red-500 transition-colors" />
-                        <span className="text-[10px] font-bold text-gray-500 group-hover:text-red-600 text-center">
-                          {isUploadingBefore ? 'กำลังอัปโหลด...' : `+ รูปก่อนติดตั้ง #${idx + 1}`}
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-red-50/50 active:bg-red-50 transition-colors">
+                        <Upload className="w-5 h-5 text-gray-400 mb-1.5 group-hover:text-red-500 transition-colors" />
+                        <span className="text-[11px] font-bold text-gray-600 group-hover:text-red-600 text-center leading-tight">
+                          {isUploadingBefore ? 'กำลังอัปโหลด...' : `+ ถ่าย/เลือกรูป #${idx + 1}`}
                         </span>
                         <input
                           type="file"
@@ -1556,24 +1558,24 @@ export default function EditDeliveryForm({
           </div>
 
           {/* After Photos */}
-          <div className="p-4 rounded-2xl border border-green-100 bg-green-50/20 space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="p-3.5 sm:p-4 rounded-2xl border border-green-100 bg-green-50/20 space-y-3">
+            <div className="flex items-center justify-between gap-2">
               <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-                <span>รูปถ่ายหลังติดตั้ง / ผลงานแล้วเสร็จ (After - สูงสุด 2 รูป)</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0"></span>
+                <span>รูปหลังติดตั้ง / แล้วเสร็จ (สูงสุด 2 รูป)</span>
               </label>
-              <span className="text-[11px] font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full shrink-0">
                 {formData.photosAfter.length} / 2 รูป
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               {[0, 1].map((idx) => {
                 const photoUrl = formData.photosAfter[idx];
                 return (
                   <div
                     key={`after-slot-${idx}`}
-                    className="relative aspect-[4/3] min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-green-400 transition-all shadow-sm"
+                    className="relative aspect-[4/3] min-h-[125px] sm:min-h-[140px] rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center overflow-hidden group hover:border-green-400 transition-all shadow-sm"
                   >
                     {photoUrl ? (
                       <>
@@ -1586,17 +1588,17 @@ export default function EditDeliveryForm({
                         <button
                           type="button"
                           onClick={() => handleRemovePhoto(idx, 'after')}
-                          className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all shadow-md opacity-90 hover:opacity-100"
+                          className="absolute top-1.5 right-1.5 p-2 rounded-xl bg-red-600/95 text-white hover:bg-red-700 transition-all shadow-md active:scale-95"
                           title="ลบรูปนี้"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </>
                     ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-green-50/50 transition-colors">
-                        <Upload className="w-5 h-5 text-gray-400 mb-1 group-hover:text-green-600 transition-colors" />
-                        <span className="text-[10px] font-bold text-gray-500 group-hover:text-green-700 text-center">
-                          {isUploadingAfter ? 'กำลังอัปโหลด...' : `+ รูปหลังติดตั้ง #${idx + 1}`}
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-green-50/50 active:bg-green-50 transition-colors">
+                        <Upload className="w-5 h-5 text-gray-400 mb-1.5 group-hover:text-green-600 transition-colors" />
+                        <span className="text-[11px] font-bold text-gray-600 group-hover:text-green-700 text-center leading-tight">
+                          {isUploadingAfter ? 'กำลังอัปโหลด...' : `+ ถ่าย/เลือกรูป #${idx + 1}`}
                         </span>
                         <input
                           type="file"
@@ -1631,7 +1633,7 @@ export default function EditDeliveryForm({
       </div>
 
       {/* ── Section 5: Digital Signatures (ผู้ส่งมอบงาน & ผู้รับมอบงาน) ── */}
-      <div className="bg-white border border-gray-200/90 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
+      <div className="bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm space-y-5 sm:space-y-6">
         <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100">
           <div className="w-10 h-10 rounded-xl bg-red-50 text-[#ff2301] flex items-center justify-center shrink-0">
             <FileSignature className="w-5 h-5" />
@@ -1646,7 +1648,7 @@ export default function EditDeliveryForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <SignaturePadBox
             title="1. ลายเซ็นผู้ส่งมอบงาน (เจ้าหน้าที่ / ช่าง)"
             subtitle="สำหรับช่างผู้ปฏิบัติงานหรือตัวแทนบริษัท"
@@ -1681,43 +1683,43 @@ export default function EditDeliveryForm({
         </div>
       </div>
 
-      {/* ── Sticky Bottom Action Bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/90 shadow-2xl py-3.5 px-4 sm:px-8 z-40">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          {/* Left: Summary Tag */}
-          <div className="flex items-center gap-3 text-xs text-gray-500 w-full sm:w-auto justify-between sm:justify-start">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ff2301]" />
-              <span className="font-mono font-bold text-gray-900">
+      {/* ── Sticky Bottom Action Bar (Mobile-safe clearance for left-4 floating menu button, Sticky inside main on Desktop) ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 md:sticky md:bottom-4 bg-white/95 backdrop-blur-md border-t md:border border-gray-200/90 md:rounded-2xl shadow-2xl min-h-[84px] md:min-h-0 flex items-center pl-[80px] pr-4 pt-3.5 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-6 md:py-3.5">
+        <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-3">
+          {/* Left: Summary Tag (Desktop/Tablet) */}
+          <div className="hidden md:flex items-center gap-3 text-xs text-gray-500 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff2301] shrink-0" />
+              <span className="font-mono font-bold text-gray-900 shrink-0">
                 {initialData.deliveryNumber}
               </span>
               <span className="text-gray-400">•</span>
-              <span className="font-bold text-gray-800 truncate max-w-[180px] sm:max-w-xs">
+              <span className="font-bold text-gray-800 truncate max-w-xs">
                 {formData.customer || "ยังไม่ได้ระบุชื่อลูกค้า"}
               </span>
             </div>
             {formData.company && (
-              <span className="text-gray-400 truncate max-w-[150px] hidden md:inline">
+              <span className="text-gray-400 truncate max-w-[150px]">
                 ({formData.company})
               </span>
             )}
           </div>
 
-          {/* Right: Symmetrical Action Button Group */}
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+          {/* Right: Action Button Group */}
+          <div className="flex items-center gap-2 sm:gap-2.5 w-full md:w-auto justify-end">
             <Link
               href="/repair-deliveries"
-              className="inline-flex items-center gap-2 px-4 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 hover:text-gray-900 transition-all shadow-sm active:scale-95"
+              className="hidden sm:inline-flex items-center gap-2 px-4 h-11 md:h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0"
             >
               <ArrowLeft className="w-4 h-4 text-gray-500" />
-              <span className="hidden sm:inline">ยกเลิก</span>
+              <span>ยกเลิก</span>
             </Link>
 
             <button
               type="button"
               onClick={handleReset}
               disabled={isSubmitting}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all shadow-sm active:scale-95 disabled:opacity-40"
+              className="inline-flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all shadow-sm active:scale-95 disabled:opacity-40 shrink-0"
               title="คืนค่าข้อมูลเดิม"
             >
               <RotateCcw className="w-4 h-4" />
@@ -1727,26 +1729,27 @@ export default function EditDeliveryForm({
               type="button"
               onClick={() => handleSubmit("save")}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 h-10 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs tracking-wide shadow-md transition-all active:scale-95 disabled:opacity-50"
+              className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 h-11 md:h-10 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs tracking-wide shadow-md transition-all active:scale-95 disabled:opacity-50 whitespace-nowrap"
             >
               {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
               ) : (
-                <Save className="w-4 h-4" />
+                <Save className="w-4 h-4 shrink-0" />
               )}
-              <span>บันทึกข้อมูล</span>
+              <span>บันทึก</span>
+              <span className="hidden sm:inline">ข้อมูล</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleSubmit("view")}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 h-10 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all active:scale-95 disabled:opacity-50"
+              className="flex-[1.25] md:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 h-11 md:h-10 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all active:scale-95 disabled:opacity-50 whitespace-nowrap"
             >
               {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
               ) : (
-                <FileText className="w-4 h-4" />
+                <FileText className="w-4 h-4 shrink-0" />
               )}
               <span>บันทึก + ดู PDF</span>
             </button>

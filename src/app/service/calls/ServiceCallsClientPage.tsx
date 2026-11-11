@@ -34,11 +34,16 @@ import {
   ArrowUp,
   ArrowDown,
   Printer,
-  FileSignature
+  FileSignature,
+  SlidersHorizontal,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 import ServiceCallSignatureModal from "./ServiceCallSignatureModal";
+import MobileSafeSelect from "@/app/components/MobileSafeSelect";
+import { deleteServiceCallLog } from "@/app/actions/service-calls";
 
 interface ServiceCallsClientPageProps {
   initialLogs?: any[];
@@ -182,6 +187,8 @@ export default function ServiceCallsClientPage({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedCall, setSelectedCall] = useState<any | null>(null);
   const [signingCall, setSigningCall] = useState<any | null>(null);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Sync props
   useEffect(() => {
@@ -254,6 +261,7 @@ export default function ServiceCallsClientPage({
           ""
         ).toLowerCase();
         const creator = (log.creator?.fullName || "").toLowerCase();
+        const creatorRole = (log.creator?.role || "").toLowerCase();
 
         const matchesSearch =
           !term ||
@@ -264,7 +272,8 @@ export default function ServiceCallsClientPage({
           model.includes(term) ||
           issue.includes(term) ||
           tech.includes(term) ||
-          creator.includes(term);
+          creator.includes(term) ||
+          creatorRole.includes(term);
 
         if (!matchesSearch) return false;
 
@@ -388,6 +397,15 @@ export default function ServiceCallsClientPage({
     return count;
   }, [searchTerm, activeTab, statusFilter, technicianFilter, modelFilter, datePeriod]);
 
+  const secondaryFiltersCount = useMemo(() => {
+    let count = 0;
+    if (statusFilter !== "ALL") count++;
+    if (technicianFilter) count++;
+    if (modelFilter) count++;
+    if (datePeriod !== "ALL") count++;
+    return count;
+  }, [statusFilter, technicianFilter, modelFilter, datePeriod]);
+
   const handleResetFilters = () => {
     setSearchTerm("");
     setActiveTab("ALL");
@@ -408,6 +426,65 @@ export default function ServiceCallsClientPage({
     setIsRefreshing(true);
     router.refresh();
     setTimeout(() => setIsRefreshing(false), 800);
+  };
+
+  const handleDeleteCall = async (log: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!log?.id || deletingId) return;
+
+    const linkedInfo: string[] = [];
+    if (log.linkedQuotationNo) linkedInfo.push(`ใบเสนอราคา ${log.linkedQuotationNo}`);
+    if (log.linkedDeliveryNo) linkedInfo.push(`ใบส่งมอบ ${log.linkedDeliveryNo}`);
+
+    const confirm = await Swal.fire({
+      title: "ยืนยันการลบเคสแจ้งปัญหา?",
+      html: `<div style="font-size:14px;color:#374151;line-height:1.6">ต้องการลบเคสเลขที่ <b style="color:#ff2301">${
+        log.caseNumber || "-"
+      }</b><br/>ลูกค้า: <b>${log.companyName || "-"}</b> ใช่หรือไม่?${
+        linkedInfo.length > 0
+          ? `<br/><span style="font-size:12px;color:#6b7280">(หมายเหตุ: เอกสารที่สร้างไปแล้ว ได้แก่ ${linkedInfo.join(
+              ", "
+            )} จะยังคงอยู่ในระบบ)</span>`
+          : ""
+      }<br/><span style="font-size:12px;color:#dc2626">การลบนี้ไม่สามารถย้อนกลับได้</span></div>`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ff2301",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "ลบข้อมูล",
+      cancelButtonText: "ยกเลิก",
+      reverseButtons: true,
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    setDeletingId(log.id);
+    try {
+      const res = await deleteServiceCallLog(log.id);
+      if (res?.success) {
+        setLogs((prev) => prev.filter((item) => item.id !== log.id));
+        if (selectedCall?.id === log.id) {
+          setSelectedCall(null);
+        }
+        router.refresh();
+        Swal.fire({
+          icon: "success",
+          title: "ลบข้อมูลสำเร็จ",
+          text: `ลบเคส ${log.caseNumber || ""} เรียบร้อยแล้ว`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "ไม่สามารถลบข้อมูลได้",
+        text: err?.message || "เกิดข้อผิดพลาดในการลบเคส กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#ff2301",
+      });
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleSort = (field: "date" | "caseNumber" | "customer" | "model" | "status") => {
@@ -464,118 +541,121 @@ export default function ServiceCallsClientPage({
     userRole === "SUPER_ADMIN";
 
   return (
-    <div className="flex-1 flex flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="flex-1 flex flex-col w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 sm:pb-12 space-y-4 sm:space-y-6">
       {/* ───────────────────────────────────────────────────────────
           1. TOP HERO HEADER (Symmetrical & Modern Red/White/Gray)
       ─────────────────────────────────────────────────────────── */}
-      <header className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/90 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-all">
+      <header className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-gray-200/90 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 sm:gap-6 transition-all">
         {/* Left: Branded Icon & Titles */}
-        <div className="flex items-center gap-4 sm:gap-5">
-          <div className="relative group">
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#c71a00] flex items-center justify-center text-white shadow-lg shadow-red-500/25 transition-transform duration-300 group-hover:scale-105">
-              <PhoneCall size={26} />
+        <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
+          <div className="relative group shrink-0">
+            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#c71a00] flex items-center justify-center text-white shadow-lg shadow-red-500/25 transition-transform duration-300 group-hover:scale-105">
+              <PhoneCall className="w-5 h-5 sm:w-[26px] sm:h-[26px]" />
             </div>
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-[#ff2301] animate-ping" />
+            <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#ff2301] animate-ping" />
             </span>
           </div>
 
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">
                 บันทึกแจ้งปัญหาลูกค้า
               </h1>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-[#ff2301] border border-red-200/80">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-red-50 text-[#ff2301] border border-red-200/80">
                 {logs.length} เคส
               </span>
             </div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1 flex items-center gap-2">
-              <span>SERVICE CALL LOG & TROUBLESHOOTING</span>
-              <span className="text-gray-300">•</span>
-              <span className="text-gray-400 font-normal">ระบบบันทึกและติดตามการแก้ปัญหา Inverter</span>
+            <p className="text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mt-0.5 sm:mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span>SERVICE CALL LOG</span>
+              <span className="hidden sm:inline text-gray-300">•</span>
+              <span className="text-gray-400 font-normal hidden sm:inline">ระบบบันทึกและติดตามการแก้ปัญหา Inverter</span>
             </p>
           </div>
         </div>
 
         {/* Right: Symmetrical Action Button Cluster */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-start md:justify-end">
-          {/* Refresh Button */}
-          <button
-            onClick={handleRefresh}
-            title="รีเฟรชข้อมูลล่าสุด"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 hover:text-gray-900 transition-all shadow-sm active:scale-95"
-          >
-            <RotateCcw size={16} className={isRefreshing ? "animate-spin text-[#ff2301]" : ""} />
-          </button>
-
-          {/* Export to Excel */}
-          <button
-            onClick={handleExportExcel}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 hover:text-gray-900 font-bold text-xs tracking-wide transition-all shadow-sm active:scale-95"
-          >
-            <Download size={15} className="text-gray-500" />
-            <span>ส่งออก Excel</span>
-          </button>
-
-          {/* Import from Excel (Manager / Admin) */}
-          {canImport && (
-            <Link
-              href="/service-mgr/calls/import"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 hover:text-gray-900 font-bold text-xs tracking-wide transition-all shadow-sm active:scale-95"
-            >
-              <Upload size={15} className="text-gray-500" />
-              <span>นำเข้า Excel</span>
-            </Link>
-          )}
-
-          {/* View Toggle (Table / Grid) */}
-          <div className="flex items-center p-1 bg-gray-100 rounded-xl border border-gray-200/80">
-            <button
-              onClick={() => setViewMode("table")}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                viewMode === "table"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-900"
-              }`}
-              title="มุมมองตาราง"
-            >
-              <List size={16} />
-            </button>
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                viewMode === "grid"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-900"
-              }`}
-              title="มุมมองการ์ด"
-            >
-              <LayoutGrid size={16} />
-            </button>
-          </div>
-
-          {/* Primary CTA: New Call Log */}
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-2.5 w-full md:w-auto justify-start md:justify-end">
+          {/* Primary CTA on top for Mobile, on right for Desktop */}
           <Link
             href="/service/calls/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#bf1a01] text-white font-bold text-xs tracking-wider uppercase shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all active:scale-95"
+            className="sm:order-last inline-flex items-center justify-center gap-2 px-5 h-11 sm:h-auto sm:py-2.5 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#bf1a01] text-white font-bold text-xs sm:text-xs tracking-wider uppercase shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all active:scale-95"
           >
             <Plus size={16} className="stroke-[2.5]" />
             <span>เปิดเคสใหม่</span>
           </Link>
+
+          <div className="flex items-center gap-2">
+            {/* Refresh Button */}
+            <button
+              onClick={handleRefresh}
+              title="รีเฟรชข้อมูลล่าสุด"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 hover:text-gray-900 transition-all shadow-sm active:scale-95 shrink-0"
+            >
+              <RotateCcw size={16} className={isRefreshing ? "animate-spin text-[#ff2301]" : ""} />
+            </button>
+
+            {/* Export to Excel */}
+            <button
+              onClick={handleExportExcel}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 h-10 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 hover:text-gray-900 font-bold text-xs tracking-wide transition-all shadow-sm active:scale-95"
+            >
+              <Download size={15} className="text-gray-500 shrink-0" />
+              <span>ส่งออก Excel</span>
+            </button>
+
+            {/* Import from Excel (Manager / Admin) */}
+            {canImport && (
+              <Link
+                href="/service-mgr/calls/import"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 h-10 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 hover:text-gray-900 font-bold text-xs tracking-wide transition-all shadow-sm active:scale-95"
+              >
+                <Upload size={15} className="text-gray-500 shrink-0" />
+                <span>นำเข้า Excel</span>
+              </Link>
+            )}
+
+            {/* View Toggle (Table / Grid) - Desktop/Tablet only */}
+            <div className="hidden md:flex items-center p-1 bg-gray-100 rounded-xl border border-gray-200/80">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
+                  viewMode === "table"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+                title="มุมมองตาราง"
+              >
+                <List size={16} />
+              </button>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
+                  viewMode === "grid"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+                title="มุมมองการ์ด"
+              >
+                <LayoutGrid size={16} />
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
       {/* ───────────────────────────────────────────────────────────
-          2. KPI SUMMARY STRIP (4 Symmetrical Columns)
+          2. KPI SUMMARY STRIP (2x2 on Mobile, 4 Columns on Desktop)
       ─────────────────────────────────────────────────────────── */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {[
           {
             id: "ALL",
             title: "เคสทั้งหมด (Total)",
+            shortTitle: "เคสทั้งหมด",
             count: totalCount,
             sub: "บันทึกแจ้งปัญหาทั้งหมดในระบบ",
-            icon: <FileText size={20} className="text-gray-600" />,
+            icon: <FileText size={18} className="text-gray-600" />,
             iconBg: "bg-gray-100",
             borderAccent: "border-l-4 border-gray-400",
             active: activeTab === "ALL",
@@ -583,9 +663,10 @@ export default function ServiceCallsClientPage({
           {
             id: "PENDING",
             title: "เปิดเคส / รอนัดตรวจ (Pending)",
+            shortTitle: "เปิดเคส / รอนัด",
             count: pendingCount,
             sub: `${totalCount ? Math.round((pendingCount / totalCount) * 100) : 0}% ของเคสทั้งหมด`,
-            icon: <Clock size={20} className="text-[#ff2301]" />,
+            icon: <Clock size={18} className="text-[#ff2301]" />,
             iconBg: "bg-red-50",
             borderAccent: "border-l-4 border-[#ff2301]",
             active: activeTab === "PENDING",
@@ -593,9 +674,10 @@ export default function ServiceCallsClientPage({
           {
             id: "IN_PROGRESS",
             title: "กำลังดำเนินการ (In Progress)",
+            shortTitle: "กำลังดำเนินการ",
             count: inProgressCount,
             sub: `${totalCount ? Math.round((inProgressCount / totalCount) * 100) : 0}% ของเคสทั้งหมด`,
-            icon: <Wrench size={20} className="text-gray-700" />,
+            icon: <Wrench size={18} className="text-gray-700" />,
             iconBg: "bg-gray-100",
             borderAccent: "border-l-4 border-gray-700",
             active: activeTab === "IN_PROGRESS",
@@ -603,9 +685,10 @@ export default function ServiceCallsClientPage({
           {
             id: "COMPLETED",
             title: "ปิดเคสเรียบร้อย (Completed)",
+            shortTitle: "ปิดเคสเรียบร้อย",
             count: completedCount,
             sub: `${totalCount ? Math.round((completedCount / totalCount) * 100) : 0}% ของเคสทั้งหมด`,
-            icon: <CheckCircle2 size={20} className="text-gray-900" />,
+            icon: <CheckCircle2 size={18} className="text-gray-900" />,
             iconBg: "bg-gray-100",
             borderAccent: "border-l-4 border-gray-900",
             active: activeTab === "COMPLETED",
@@ -614,29 +697,30 @@ export default function ServiceCallsClientPage({
           <button
             key={card.id}
             onClick={() => setActiveTab(card.id as any)}
-            className={`w-full text-left bg-white rounded-2xl p-5 border transition-all duration-200 shadow-sm relative overflow-hidden group hover:-translate-y-0.5 hover:shadow-md ${card.borderAccent} ${
+            className={`w-full text-left bg-white rounded-2xl p-3.5 sm:p-5 border transition-all duration-200 shadow-sm relative overflow-hidden group sm:hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99] ${card.borderAccent} ${
               card.active
                 ? "ring-2 ring-[#ff2301] border-transparent"
                 : "border-gray-200/90 hover:border-gray-300"
             }`}
           >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                {card.title}
+            <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+              <span className="text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider truncate">
+                <span className="sm:hidden">{card.shortTitle}</span>
+                <span className="hidden sm:inline">{card.title}</span>
               </span>
               <div
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 ${card.iconBg}`}
+                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 ${card.iconBg}`}
               >
                 {card.icon}
               </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+            <div className="flex items-baseline gap-1.5 sm:gap-2">
+              <span className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">
                 {card.count}
               </span>
-              <span className="text-xs font-semibold text-gray-400">เคส</span>
+              <span className="text-[11px] sm:text-xs font-semibold text-gray-400">เคส</span>
             </div>
-            <p className="text-[11px] font-medium text-gray-400 mt-1 truncate">
+            <p className="hidden sm:block text-[11px] font-medium text-gray-400 mt-1 truncate">
               {card.sub}
             </p>
 
@@ -650,13 +734,13 @@ export default function ServiceCallsClientPage({
       {/* ───────────────────────────────────────────────────────────
           3. SYMMETRICAL SEARCH & MULTI-FILTER TOOLBAR
       ─────────────────────────────────────────────────────────── */}
-      <section className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200/90 shadow-sm space-y-4">
+      <section className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-gray-200/90 shadow-sm space-y-3 sm:space-y-4">
         {/* Top Status Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-gray-100 custom-scrollbar">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 border-b border-gray-100 custom-scrollbar -mx-1 px-1">
           {[
             { id: "ALL", label: "ทั้งหมด", count: totalCount },
             { id: "PENDING", label: "เปิดเคส / รอนัดตรวจ", count: pendingCount },
-            { id: "IN_PROGRESS", label: "กำลังดำเนินการ / ตรวจสอบ", count: inProgressCount },
+            { id: "IN_PROGRESS", label: "กำลังดำเนินการ", count: inProgressCount },
             { id: "COMPLETED", label: "ปิดเคสแล้ว", count: completedCount },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
@@ -664,7 +748,7 @@ export default function ServiceCallsClientPage({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all whitespace-nowrap ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all whitespace-nowrap shrink-0 ${
                   isActive
                     ? "bg-[#ff2301] text-white shadow-sm shadow-red-500/20"
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
@@ -672,7 +756,7 @@ export default function ServiceCallsClientPage({
               >
                 <span>{tab.label}</span>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                  className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] font-black ${
                     isActive ? "bg-white/20 text-white" : "bg-gray-200/70 text-gray-700"
                   }`}
                 >
@@ -684,123 +768,405 @@ export default function ServiceCallsClientPage({
         </div>
 
         {/* Filter Controls Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-          {/* Universal Search Box (Span 4) */}
-          <div className="lg:col-span-4 relative">
-            <Search
-              size={17}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="ค้นหา Case No, ชื่อลูกค้า, อาการ, รุ่น..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-9 py-2.5 text-xs sm:text-sm font-medium border border-gray-200 rounded-xl bg-gray-50/50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-full"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
+        <div className="space-y-2.5 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-3 lg:items-center">
+          {/* Universal Search Box + Mobile Filter Toggle */}
+          <div className="lg:col-span-4 flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search
+                size={17}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              />
+              <input
+                type="text"
+                placeholder="ค้นหา Case No, ชื่อลูกค้า, อาการ, รุ่น..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-9 py-2.5 text-base sm:text-sm font-medium border border-gray-200 rounded-xl bg-gray-50/50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full"
+                >
+                  <X size={15} />
+                </button>
+              )}
+            </div>
 
-          {/* Status Dropdown (Span 2) */}
-          <div className="lg:col-span-2 relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full text-xs font-semibold border border-gray-200 rounded-xl px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all appearance-none cursor-pointer pr-8"
+            <button
+              type="button"
+              onClick={() => setShowMobileFilters((prev) => !prev)}
+              className={`lg:hidden inline-flex items-center justify-center gap-1.5 px-3 h-11 rounded-xl border text-xs font-bold transition-all shrink-0 ${
+                showMobileFilters || secondaryFiltersCount > 0
+                  ? "bg-red-50 border-red-200 text-[#ff2301]"
+                  : "bg-gray-50 border-gray-200 text-gray-700"
+              }`}
             >
-              <option value="ALL">สถานะทั้งหมด</option>
-              <option value="Pending">เปิดเคส / รอนัดหมาย</option>
-              <option value="In Progress">กำลังดำเนินการ</option>
-              <option value="Completed">ปิดเคสแล้ว</option>
-              {Object.entries(CALL_STATUS_CONFIG).map(([key, val]) => (
-                <option key={key} value={key}>
-                  {val.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <SlidersHorizontal size={15} />
+              <span>ตัวกรอง</span>
+              {secondaryFiltersCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-[#ff2301] text-white font-black">
+                  {secondaryFiltersCount}
+                </span>
+              )}
+            </button>
           </div>
 
-          {/* Technician Filter (Span 2) */}
-          <div className="lg:col-span-2 relative">
-            <select
-              value={technicianFilter}
-              onChange={(e) => setTechnicianFilter(e.target.value)}
-              className="w-full text-xs font-semibold border border-gray-200 rounded-xl px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all appearance-none cursor-pointer pr-8"
-            >
-              <option value="">ช่างผู้รับผิดชอบทั้งหมด</option>
-              <option value="__unassigned__">ยังไม่ได้ระบุช่าง (Unassigned)</option>
-              {users?.map((u: any) => (
-                <option key={u.id} value={u.fullName}>
-                  {u.fullName}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          </div>
+          {/* Collapsible Filter Dropdowns on Mobile, Inline on Desktop */}
+          <div
+            className={`${
+              showMobileFilters || secondaryFiltersCount > 0 ? "grid" : "hidden"
+            } lg:grid grid-cols-1 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-8 gap-2.5 lg:gap-3 items-center`}
+          >
+            {/* Status Dropdown (Span 2) */}
+            <div className="lg:col-span-2 relative">
+              <MobileSafeSelect
+                size="sm"
+                value={statusFilter}
+                onChange={(val) => setStatusFilter(val)}
+                options={[
+                  { value: "ALL", label: "สถานะทั้งหมด" },
+                  { value: "Pending", label: "เปิดเคส / รอนัดหมาย", dotClass: "bg-[#ff2301]" },
+                  { value: "In Progress", label: "กำลังดำเนินการ", dotClass: "bg-gray-600" },
+                  { value: "Completed", label: "ปิดเคสแล้ว", dotClass: "bg-gray-900" },
+                  ...Object.entries(CALL_STATUS_CONFIG).map(([key, val]) => ({
+                    value: key,
+                    label: val.label,
+                    dotClass: val.dot === "bg-white" ? "bg-gray-900" : val.dot,
+                  })),
+                ]}
+              />
+            </div>
 
-          {/* Model Filter (Span 2) */}
-          <div className="lg:col-span-2 relative">
-            <select
-              value={modelFilter}
-              onChange={(e) => setModelFilter(e.target.value)}
-              className="w-full text-xs font-semibold border border-gray-200 rounded-xl px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all appearance-none cursor-pointer truncate pr-8"
-            >
-              <option value="">โมเดล Inverter ทั้งหมด</option>
-              {uniqueModels.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          </div>
+            {/* Technician Filter (Span 2) */}
+            <div className="lg:col-span-2 relative">
+              <MobileSafeSelect
+                size="sm"
+                value={technicianFilter}
+                onChange={(val) => setTechnicianFilter(val)}
+                searchable={(users?.length || 0) > 5}
+                searchPlaceholder="ค้นหาชื่อช่าง..."
+                options={[
+                  { value: "", label: "ช่างผู้รับผิดชอบทั้งหมด" },
+                  { value: "__unassigned__", label: "ยังไม่ได้ระบุช่าง (Unassigned)" },
+                  ...(users || []).map((u: any) => ({
+                    value: u.fullName,
+                    label: u.fullName,
+                  })),
+                ]}
+              />
+            </div>
 
-          {/* Date Period Filter (Span 1) */}
-          <div className="lg:col-span-1 relative">
-            <select
-              value={datePeriod}
-              onChange={(e) => setDatePeriod(e.target.value as any)}
-              className="w-full text-xs font-semibold border border-gray-200 rounded-xl px-2.5 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] transition-all appearance-none cursor-pointer pr-7"
-            >
-              <option value="ALL">ทุกเวลา</option>
-              <option value="TODAY">วันนี้</option>
-              <option value="WEEK">7 วัน</option>
-              <option value="MONTH">เดือนนี้</option>
-            </select>
-            <ChevronDown size={13} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
-          </div>
+            {/* Model Filter (Span 2) */}
+            <div className="lg:col-span-2 relative">
+              <MobileSafeSelect
+                size="sm"
+                value={modelFilter}
+                onChange={(val) => setModelFilter(val)}
+                searchable={uniqueModels.length > 5}
+                searchPlaceholder="ค้นหารุ่น Inverter..."
+                options={[
+                  { value: "", label: "โมเดล Inverter ทั้งหมด" },
+                  ...uniqueModels.map((m) => ({
+                    value: m,
+                    label: m,
+                  })),
+                ]}
+              />
+            </div>
 
-          {/* Clear Filter Button (Span 1) */}
-          <div className="lg:col-span-1 flex items-center justify-end">
-            {activeFiltersCount > 0 ? (
-              <button
-                onClick={handleResetFilters}
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-red-50 hover:bg-red-100 text-[#ff2301] border border-red-200 text-xs font-bold transition-all shadow-sm"
-                title="ล้างตัวกรองทั้งหมด"
-              >
-                <RotateCcw size={13} />
-                <span>ล้าง ({activeFiltersCount})</span>
-              </button>
-            ) : (
-              <div className="w-full text-center text-[11px] text-gray-400 font-medium py-2">
-                {filteredLogs.length} ผลลัพธ์
-              </div>
-            )}
+            {/* Date Period Filter (Span 1) */}
+            <div className="lg:col-span-1 relative">
+              <MobileSafeSelect
+                size="sm"
+                value={datePeriod}
+                onChange={(val) => setDatePeriod(val as any)}
+                options={[
+                  { value: "ALL", label: "ทุกเวลา" },
+                  { value: "TODAY", label: "วันนี้" },
+                  { value: "WEEK", label: "7 วัน" },
+                  { value: "MONTH", label: "เดือนนี้" },
+                ]}
+              />
+            </div>
+
+            {/* Clear Filter Button (Span 1) */}
+            <div className="lg:col-span-1 flex items-center justify-end">
+              {activeFiltersCount > 0 ? (
+                <button
+                  onClick={handleResetFilters}
+                  className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-red-50 hover:bg-red-100 text-[#ff2301] border border-red-200 text-xs font-bold transition-all shadow-sm"
+                  title="ล้างตัวกรองทั้งหมด"
+                >
+                  <RotateCcw size={13} />
+                  <span>ล้าง ({activeFiltersCount})</span>
+                </button>
+              ) : (
+                <div className="w-full text-center text-[11px] text-gray-400 font-medium py-2">
+                  {filteredLogs.length} ผลลัพธ์
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ───────────────────────────────────────────────────────────
-          4. MAIN VIEW: MODERN TABLE OR GRID CARDS
+          4A. MOBILE DEDICATED CARD VIEW (< md)
       ─────────────────────────────────────────────────────────── */}
+      <div className="md:hidden space-y-3">
+        {paginatedLogs.length > 0 ? (
+          <>
+            {paginatedLogs.map((log) => {
+              const statusMeta = getCallStatusMeta(log.status);
+              const relativeDays = getRelativeDays(log.receivedDate || log.createdAt);
+              const techName = log.responsible?.fullName || log.responsibleName;
+
+              return (
+                <div
+                  key={log.id}
+                  onClick={() => setSelectedCall(log)}
+                  className="bg-white rounded-2xl p-4 border border-gray-200/90 shadow-sm active:bg-gray-50/70 transition-all space-y-3"
+                >
+                  {/* Top Row: Case No + Date + Status */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-black text-sm text-[#ff2301]">
+                          {log.caseNumber || "—"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => handleCopyCaseNo(log.caseNumber || "", e)}
+                          className="p-1 text-gray-300 hover:text-gray-600 rounded-md"
+                          title="คัดลอก Case No."
+                        >
+                          {copiedCaseNo === log.caseNumber ? (
+                            <Check size={13} className="text-emerald-500" />
+                          ) : (
+                            <Copy size={13} />
+                          )}
+                        </button>
+                      </div>
+                      <div className="text-[11px] text-gray-400 font-medium mt-0.5">
+                        รับแจ้ง {formatThaiDate(log.receivedDate)}
+                        {relativeDays ? ` (${relativeDays})` : ""}
+                        {log.creator?.fullName ? ` • แจ้งโดย ${log.creator.fullName}` : ""}
+                      </div>
+                    </div>
+
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border shrink-0 max-w-[165px] ${statusMeta.badge}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusMeta.dot}`} />
+                      <span className="truncate">{statusMeta.label}</span>
+                    </span>
+                  </div>
+
+                  {/* Workflow Badges (Signed / Sales / QT / Delivery) */}
+                  {((log.sigTechnicianUrl || log.sigCustomerUrl) ||
+                    (log.assignedSalesName && !log.linkedQuotationNo) ||
+                    log.linkedQuotationNo ||
+                    log.linkedDeliveryNo) && (
+                    <div
+                      className="flex flex-wrap items-center gap-1.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {(log.sigTechnicianUrl || log.sigCustomerUrl) && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                          <FileSignature size={10} />
+                          มีลายเซ็นหน้างานแล้ว
+                        </span>
+                      )}
+                      {log.assignedSalesName && !log.linkedQuotationNo && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
+                          ส่งต่อเซลล์: {log.assignedSalesName}
+                        </span>
+                      )}
+                      {log.linkedQuotationNo && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold">
+                          QT: {log.linkedQuotationNo}
+                        </span>
+                      )}
+                      {log.linkedDeliveryNo && (
+                        <Link
+                          href={`/repair-deliveries/${log.linkedDeliveryId}/pdf`}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold"
+                        >
+                          ใบส่งมอบ: {log.linkedDeliveryNo}
+                        </Link>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Customer & One-tap Phone */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-black text-gray-900 leading-snug line-clamp-1">
+                        {log.companyName || "—"}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5 truncate">
+                        ผู้ติดต่อ: {log.contactName || "—"}
+                      </p>
+                    </div>
+
+                    {log.contactPhone && (
+                      <a
+                        href={`tel:${log.contactPhone}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-red-50 text-[#ff2301] border border-red-200 text-[11px] font-bold shrink-0 active:scale-95"
+                      >
+                        <Phone size={12} />
+                        <span className="font-mono">{log.contactPhone}</span>
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Inverter Model & Reported Issue */}
+                  <div className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-gray-800 font-mono">
+                        <Cpu size={13} className="text-[#ff2301] shrink-0" />
+                        <span>{log.inverterModel || "—"}</span>
+                      </span>
+                      <span className="text-[11px] font-semibold text-gray-500 truncate">
+                        ช่าง:{" "}
+                        {techName ? (
+                          <strong className="text-gray-800">{techName}</strong>
+                        ) : (
+                          <strong className="text-amber-600">ยังไม่ระบุ</strong>
+                        )}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                      {log.reportedIssue || "—"}
+                    </p>
+                  </div>
+
+                  {/* Mobile Thumb-Friendly Action Row */}
+                  <div
+                    className="pt-2 border-t border-gray-100 flex items-center gap-1.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCall(log)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 h-10 rounded-xl bg-gray-100 active:bg-gray-200 text-gray-700 text-xs font-bold transition-all"
+                    >
+                      <Eye size={14} />
+                      <span>ดูย่อ</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSigningCall(log)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 h-10 rounded-xl bg-indigo-50 active:bg-indigo-100 border border-indigo-200/70 text-indigo-700 text-xs font-bold transition-all"
+                    >
+                      <FileSignature size={14} />
+                      <span>เซ็นชื่อ</span>
+                    </button>
+
+                    <Link
+                      href={`/service/calls/${log.id}/pdf`}
+                      className="flex-1 inline-flex items-center justify-center gap-1 h-10 rounded-xl bg-emerald-50 active:bg-emerald-100 border border-emerald-200/70 text-emerald-700 text-xs font-bold transition-all"
+                    >
+                      <Printer size={14} />
+                      <span>PDF</span>
+                    </Link>
+
+                    <Link
+                      href={`/service/calls/${log.id}`}
+                      className="flex-1 inline-flex items-center justify-center gap-1 h-10 rounded-xl bg-[#ff2301] active:bg-[#d81900] text-white text-xs font-bold shadow-sm shadow-red-500/20 transition-all"
+                    >
+                      <span>เปิดเคส</span>
+                      <ExternalLink size={12} />
+                    </Link>
+
+                    <button
+                      type="button"
+                      disabled={deletingId === log.id}
+                      onClick={(e) => handleDeleteCall(log, e)}
+                      title="ลบเคสนี้"
+                      className="w-10 h-10 shrink-0 inline-flex items-center justify-center rounded-xl bg-red-50 active:bg-red-100 border border-red-200/80 text-red-600 disabled:opacity-50 transition-all"
+                    >
+                      {deletingId === log.id ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={14} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Mobile Pagination */}
+            <div className="bg-white rounded-2xl p-3.5 border border-gray-200/90 shadow-sm flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="inline-flex items-center gap-1 px-3 h-10 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-700 disabled:opacity-35 transition-all"
+              >
+                <ChevronLeft size={15} />
+                <span>ก่อนหน้า</span>
+              </button>
+
+              <div className="text-center">
+                <div className="text-xs font-black text-gray-900">
+                  หน้า {currentPage} / {totalPages}
+                </div>
+                <div className="text-[11px] text-gray-400">
+                  ทั้งหมด {filteredLogs.length} เคส
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="inline-flex items-center gap-1 px-3 h-10 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-700 disabled:opacity-35 transition-all"
+              >
+                <span>ถัดไป</span>
+                <ChevronRight size={15} />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="bg-white rounded-2xl p-8 border border-gray-200/90 text-center space-y-3 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 mx-auto">
+              <PhoneCall size={24} strokeWidth={1.5} />
+            </div>
+            <p className="text-sm font-bold text-gray-700">
+              {searchTerm || activeFiltersCount > 0
+                ? "ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา"
+                : "ยังไม่มีรายการบันทึกแจ้งปัญหาลูกค้า"}
+            </p>
+            {activeFiltersCount > 0 ? (
+              <button
+                onClick={handleResetFilters}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold"
+              >
+                <RotateCcw size={13} />
+                <span>ล้างตัวกรองทั้งหมด</span>
+              </button>
+            ) : (
+              <Link
+                href="/service/calls/new"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#ff2301] text-white text-xs font-bold shadow-md shadow-red-500/20"
+              >
+                <Plus size={14} />
+                <span>เปิดเคสแจ้งปัญหาแรก</span>
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ───────────────────────────────────────────────────────────
+          4B. DESKTOP/TABLET VIEW: MODERN TABLE OR GRID CARDS (md+)
+      ─────────────────────────────────────────────────────────── */}
+      <div className="hidden md:block">
       {viewMode === "table" ? (
         /* ──── TABLE VIEW ──── */
         <div className="bg-white rounded-3xl border border-gray-200/90 shadow-sm overflow-hidden flex flex-col">
@@ -917,21 +1283,29 @@ export default function ServiceCallsClientPage({
                       >
                         {/* 1. Case No. */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono font-black text-xs text-[#ff2301]">
-                              {log.caseNumber || "—"}
-                            </span>
-                            <button
-                              onClick={(e) => handleCopyCaseNo(log.caseNumber || "", e)}
-                              className="text-gray-300 hover:text-gray-600 p-1 rounded-md transition-colors"
-                              title="คัดลอก Case No."
-                            >
-                              {copiedCaseNo === log.caseNumber ? (
-                                <Check size={12} className="text-emerald-500" />
-                              ) : (
-                                <Copy size={12} />
-                              )}
-                            </button>
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono font-black text-xs text-[#ff2301]">
+                                {log.caseNumber || "—"}
+                              </span>
+                              <button
+                                onClick={(e) => handleCopyCaseNo(log.caseNumber || "", e)}
+                                className="text-gray-300 hover:text-gray-600 p-1 rounded-md transition-colors"
+                                title="คัดลอก Case No."
+                              >
+                                {copiedCaseNo === log.caseNumber ? (
+                                  <Check size={12} className="text-emerald-500" />
+                                ) : (
+                                  <Copy size={12} />
+                                )}
+                              </button>
+                            </div>
+                            {log.creator?.fullName && (
+                              <span className="text-[10px] text-gray-400 font-medium truncate max-w-[160px]" title={`ผู้แจ้ง: ${log.creator.fullName}${log.creator.role ? ` (${log.creator.role})` : ""}`}>
+                                แจ้งโดย: {log.creator.fullName}
+                                {log.creator.role ? ` (${log.creator.role})` : ""}
+                              </span>
+                            )}
                           </div>
                         </td>
 
@@ -1078,6 +1452,21 @@ export default function ServiceCallsClientPage({
                             >
                               <ExternalLink size={15} />
                             </Link>
+
+                            {/* Delete Case Button */}
+                            <button
+                              type="button"
+                              disabled={deletingId === log.id}
+                              onClick={(e) => handleDeleteCall(log, e)}
+                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                              title="ลบข้อมูลเคสนี้"
+                            >
+                              {deletingId === log.id ? (
+                                <Loader2 size={15} className="animate-spin text-red-600" />
+                              ) : (
+                                <Trash2 size={15} />
+                              )}
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1323,6 +1712,20 @@ export default function ServiceCallsClientPage({
                         <Printer size={13} />
                         <span>PDF</span>
                       </Link>
+
+                      <button
+                        type="button"
+                        disabled={deletingId === log.id}
+                        onClick={(e) => handleDeleteCall(log, e)}
+                        className="inline-flex items-center justify-center p-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all disabled:opacity-50"
+                        title="ลบข้อมูลเคสนี้"
+                      >
+                        {deletingId === log.id ? (
+                          <Loader2 size={13} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={13} />
+                        )}
+                      </button>
                     </div>
 
                     <Link
@@ -1368,6 +1771,7 @@ export default function ServiceCallsClientPage({
           </div>
         </div>
       )}
+      </div>
 
       {/* ───────────────────────────────────────────────────────────
           5. QUICK PREVIEW SLIDE-OVER DRAWER (MODERN & SYMMETRICAL)
@@ -1381,16 +1785,16 @@ export default function ServiceCallsClientPage({
           />
 
           {/* Slide-over panel */}
-          <div className="relative w-full max-w-2xl bg-white shadow-2xl border-l border-gray-200 flex flex-col z-10 animate-in slide-in-from-right duration-300">
+          <div className="relative w-full max-w-2xl h-[100dvh] bg-white shadow-2xl border-l border-gray-200 flex flex-col z-10 animate-in slide-in-from-right duration-300">
             {/* Drawer Header */}
-            <div className="p-6 border-b border-gray-100 flex items-start justify-between gap-4 bg-gray-50/50">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#c71a00] flex items-center justify-center text-white shadow-md shadow-red-500/20">
-                  <PhoneCall size={22} />
+            <div className="p-4 sm:p-6 border-b border-gray-100 flex items-start justify-between gap-3 sm:gap-4 bg-gray-50/50 shrink-0">
+              <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#c71a00] flex items-center justify-center text-white shadow-md shadow-red-500/20 shrink-0">
+                  <PhoneCall size={20} />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-black text-lg text-[#ff2301]">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span className="font-mono font-black text-base sm:text-lg text-[#ff2301]">
                       {selectedCall.caseNumber || "—"}
                     </span>
                     <span
@@ -1400,7 +1804,7 @@ export default function ServiceCallsClientPage({
                       <span>{getCallStatusMeta(selectedCall.status).label}</span>
                     </span>
                   </div>
-                  <h2 className="text-base font-bold text-gray-900 mt-0.5">
+                  <h2 className="text-sm sm:text-base font-bold text-gray-900 mt-0.5 line-clamp-2">
                     {selectedCall.companyName || "—"}
                   </h2>
                 </div>
@@ -1409,16 +1813,16 @@ export default function ServiceCallsClientPage({
               {/* Close Button */}
               <button
                 onClick={() => setSelectedCall(null)}
-                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-all"
+                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-all shrink-0"
               >
                 <X size={20} />
               </button>
             </div>
 
             {/* Drawer Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 custom-scrollbar">
               {/* Quick Status Bar */}
-              <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 flex flex-wrap items-center justify-between gap-3">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50 border border-gray-200 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
                     สถานะปัจจุบัน
@@ -1442,7 +1846,7 @@ export default function ServiceCallsClientPage({
                 <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Building2 size={14} className="text-[#ff2301]" /> ข้อมูลลูกค้าและการติดต่อ
                 </h3>
-                <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
                   <div>
                     <span className="text-[10px] text-gray-400 font-bold uppercase block">
                       บริษัท / ลูกค้า
@@ -1459,14 +1863,14 @@ export default function ServiceCallsClientPage({
                       {selectedCall.contactName || "—"}
                     </p>
                   </div>
-                  <div className="col-span-2">
+                  <div className="sm:col-span-2">
                     <span className="text-[10px] text-gray-400 font-bold uppercase block">
                       เบอร์โทรศัพท์ / Line
                     </span>
                     {selectedCall.contactPhone ? (
                       <a
                         href={`tel:${selectedCall.contactPhone}`}
-                        className="text-xs font-bold text-[#ff2301] hover:underline mt-0.5 inline-flex items-center gap-1.5"
+                        className="text-xs font-bold text-[#ff2301] hover:underline mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 border border-red-200"
                       >
                         <Phone size={12} className="shrink-0" />
                         <span>{selectedCall.contactPhone}</span>
@@ -1568,22 +1972,37 @@ export default function ServiceCallsClientPage({
             </div>
 
             {/* Drawer Footer Actions */}
-            <div className="p-4 sm:p-5 border-t border-gray-200 bg-gray-50/80 flex flex-wrap items-center justify-between gap-2">
-              <button
-                onClick={() => setSelectedCall(null)}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold transition-all"
-              >
-                ปิด
-              </button>
+            <div className="px-4 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom))] sm:p-5 border-t border-gray-200 bg-gray-50/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0">
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedCall(null)}
+                  className="inline-flex items-center justify-center px-4 h-10 rounded-xl bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold transition-all"
+                >
+                  ปิด
+                </button>
+                <button
+                  type="button"
+                  disabled={deletingId === selectedCall.id}
+                  onClick={(e) => handleDeleteCall(selectedCall, e)}
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 h-10 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 text-xs font-bold transition-all disabled:opacity-50"
+                >
+                  {deletingId === selectedCall.id ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={14} />
+                  )}
+                  <span>ลบเคส</span>
+                </button>
+              </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => {
                     const target = selectedCall;
                     setSelectedCall(null);
                     setSigningCall(target);
                   }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-bold transition-all"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 h-11 sm:h-10 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-bold transition-all"
                 >
                   <FileSignature size={14} />
                   <span>เซ็นชื่อหน้างาน</span>
@@ -1591,19 +2010,35 @@ export default function ServiceCallsClientPage({
 
                 <Link
                   href={`/service/calls/${selectedCall.id}/pdf`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 h-11 sm:h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all"
                 >
                   <Printer size={14} />
-                  <span>พิมพ์ใบรายงาน PDF</span>
+                  <span>รายงาน PDF</span>
                 </Link>
 
-                <Link
-                  href={`/service/calls/${selectedCall.id}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#ff2301] hover:bg-[#e01f01] text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all"
-                >
-                  <span>เปิดเอกสารแบบเต็ม</span>
-                  <ExternalLink size={13} />
-                </Link>
+                <div className="col-span-2 sm:col-span-1 flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={deletingId === selectedCall.id}
+                    onClick={(e) => handleDeleteCall(selectedCall, e)}
+                    className="sm:hidden w-11 h-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-red-50 active:bg-red-100 border border-red-200 text-red-600 transition-all disabled:opacity-50"
+                    title="ลบเคสนี้"
+                  >
+                    {deletingId === selectedCall.id ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={16} />
+                    )}
+                  </button>
+
+                  <Link
+                    href={`/service/calls/${selectedCall.id}`}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 h-11 sm:h-10 rounded-xl bg-[#ff2301] hover:bg-[#e01f01] text-white text-xs font-bold shadow-md shadow-red-500/20 transition-all"
+                  >
+                    <span>เปิดเอกสารแบบเต็ม</span>
+                    <ExternalLink size={13} />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

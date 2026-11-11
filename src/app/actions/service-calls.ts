@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
+import { canViewAllServiceCalls } from "@/app/lib/roleHelper";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { notifyUsers } from "@/app/lib/pushNotification";
@@ -147,21 +148,35 @@ export async function createServiceCallLog(data: z.infer<typeof serviceCallSchem
     console.warn("[ServiceCallLog] Failed to update extended fields on create:", e);
   }
 
-  // Notify Service Team & Responsible Person when a case is created
+  // Notify Service Team, Sales/Service Managers & Responsible Person when a case is created
   try {
-    const serviceUsers = await prisma.user.findMany({
-      where: {
-        isActive: true,
-        OR: [
-          { role: { contains: "service", mode: "insensitive" } },
-          { role: { contains: "บริการ", mode: "insensitive" } },
-          { role: { contains: "ซ่อม", mode: "insensitive" } },
-        ],
-      },
-      select: { id: true },
+    const activeUsers = await prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, role: true },
     });
 
-    const targetIds = new Set<string>(serviceUsers.map((u) => u.id));
+    const targetIds = new Set<string>();
+    for (const u of activeUsers) {
+      if (!canViewAllServiceCalls(u.role)) continue;
+      const rl = (u.role || "").toLowerCase().trim();
+      const isServiceSide = [
+        "service",
+        "บริการ",
+        "ซ่อม",
+        "เซอร์วิส",
+        "technician",
+        "ช่าง",
+      ].some((kw) => rl.includes(kw));
+      const isSalesMgr =
+        rl === "ผู้จัดการ" ||
+        rl === "sales manager" ||
+        rl.includes("sales manager") ||
+        rl.includes("ผู้จัดการฝ่ายขาย");
+      if (isServiceSide || isSalesMgr) {
+        targetIds.add(u.id);
+      }
+    }
+
     if (validated.responsibleId) {
       targetIds.add(validated.responsibleId);
     }
@@ -170,27 +185,36 @@ export async function createServiceCallLog(data: z.infer<typeof serviceCallSchem
     if (targetIds.size > 0) {
       await notifyUsers(Array.from(targetIds), {
         title: `แจ้งปัญหาลูกค้าใหม่ (${caseNumber})`,
-        body: `${validated.companyName} • รุ่น ${validated.inverterModel}: ${validated.reportedIssue} (แจ้งโดย ${user.fullName})`,
+        body: `${validated.companyName} • รุ่น ${validated.inverterModel}: ${validated.reportedIssue} (แจ้งโดย ${user.fullName}${user.role ? ` • ${user.role}` : ""})`,
         url: `/service/calls/${result.id}`,
         category: "SERVICE_CALL_NEW",
       });
     }
   } catch (notifyErr) {
-    console.warn("[ServiceCallLog] Failed to notify service team:", notifyErr);
+    console.warn("[ServiceCallLog] Failed to notify service/sales team:", notifyErr);
   }
 
   revalidatePath("/service/calls");
+  revalidatePath("/service/calls/new");
   revalidatePath("/service-mgr/calls");
   return result;
 }
 
-export async function getServiceCallLogs(filters?: { status?: string; responsibleId?: string }) {
+export async function getServiceCallLogs(filters?: {
+  status?: string;
+  responsibleId?: string;
+  onlyMine?: boolean;
+}) {
   const user = await getUser();
   if (!user) throw new Error("Unauthorized");
 
   await ensureServiceCallExtendedSchema();
 
+  const hasFullAccess = canViewAllServiceCalls(user.role);
   const where: any = {};
+  if (!hasFullAccess || filters?.onlyMine) {
+    where.createdBy = user.id;
+  }
   if (filters?.status && filters.status !== "ALL") where.status = filters.status;
   if (filters?.responsibleId && filters.responsibleId !== "ALL") where.responsibleId = filters.responsibleId;
 
@@ -199,7 +223,7 @@ export async function getServiceCallLogs(filters?: { status?: string; responsibl
     orderBy: { createdAt: "desc" },
     include: {
       responsible: { select: { fullName: true } },
-      creator: { select: { fullName: true } },
+      creator: { select: { id: true, fullName: true, role: true } },
     },
   });
 
@@ -262,6 +286,14 @@ export async function getServiceCallLogById(id: string) {
 
   if (!log) throw new Error("Not found");
 
+  if (
+    !canViewAllServiceCalls(user.role) &&
+    log.createdBy !== user.id &&
+    log.responsibleId !== user.id
+  ) {
+    throw new Error("Unauthorized");
+  }
+
   try {
     const extRows: any[] = await prisma.$queryRawUnsafe(
       `SELECT
@@ -307,6 +339,9 @@ export async function getServiceCallLogById(id: string) {
 export async function updateServiceCallLog(id: string, data: z.infer<typeof serviceCallUpdateSchema>) {
   const user = await getUser();
   if (!user) throw new Error("Unauthorized");
+  if (!canViewAllServiceCalls(user.role)) {
+    throw new Error("ไม่มีสิทธิ์แก้ไขข้อมูลเคสเซอร์วิส (สงวนสิทธิ์สำหรับทีมเซลล์และเซอร์วิส)");
+  }
 
   await ensureServiceCallExtendedSchema();
 
@@ -823,6 +858,8 @@ export async function getPendingServiceHandoverCount(): Promise<number> {
 
 export async function getOpenServiceCallCount(): Promise<number> {
   try {
+    const user = await getUser();
+    if (!user || !canViewAllServiceCalls(user.role)) return 0;
     const stats = await getServiceCallDashboardStats();
     return stats.openCount || 0;
   } catch {
@@ -834,7 +871,11 @@ export async function getServiceCallDashboardStats() {
   const user = await getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const allLogs = await prisma.serviceCallLog.findMany({ select: { status: true } });
+  const hasFullAccess = canViewAllServiceCalls(user.role);
+  const allLogs = await prisma.serviceCallLog.findMany({
+    where: hasFullAccess ? {} : { createdBy: user.id },
+    select: { status: true },
+  });
 
   let openCount = 0;
   let closedCount = 0;
@@ -997,21 +1038,16 @@ export async function getServiceUsers() {
 export async function deleteServiceCallLog(id: string) {
   const user = await getUser();
   if (!user) throw new Error("Unauthorized");
+  if (!canViewAllServiceCalls(user.role)) {
+    throw new Error("ไม่มีสิทธิ์ลบข้อมูลเคสเซอร์วิส (สงวนสิทธิ์สำหรับทีมเซลล์และเซอร์วิส)");
+  }
 
-  const roleLower = (user.role || "").toLowerCase();
-  const isMgrOrAdmin =
-    user.role === "Service Engineer MGR" ||
-    user.role === "Service Engineer MGR." ||
-    user.role === "SUPER_ADMIN" ||
-    user.role === "Admin" ||
-    user.role === "ADMIN" ||
-    roleLower.includes("manager") ||
-    roleLower.includes("ผู้จัดการ") ||
-    roleLower.includes("service") ||
-    roleLower.includes("บริการ");
-
-  if (!isMgrOrAdmin) {
-    throw new Error("เฉพาะฝ่ายบริการ ผู้จัดการ หรือผู้ดูแลระบบเท่านั้นที่สามารถลบเคสได้");
+  const existing = await prisma.serviceCallLog.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+  if (!existing) {
+    throw new Error("ไม่พบข้อมูลเคสที่ต้องการลบ หรือเคสถูกลบไปแล้ว");
   }
 
   const result = await prisma.serviceCallLog.delete({
@@ -1020,5 +1056,7 @@ export async function deleteServiceCallLog(id: string) {
 
   revalidatePath("/service/calls");
   revalidatePath("/service-mgr/calls");
+  revalidatePath("/sales/service-handovers");
+  revalidatePath("/sales");
   return { success: true, data: result };
 }

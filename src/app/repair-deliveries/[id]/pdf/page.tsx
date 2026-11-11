@@ -157,6 +157,27 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           .delivery-pdf-container * {
             font-family: 'TH Sarabun New', 'TH SarabunPSK', ${sarabun.style.fontFamily}, 'Sarabun', sans-serif !important;
           }
+
+          @media screen {
+            .pdf-scale-outer {
+              width: 100%;
+              overflow-x: auto;
+              padding: 0 8px;
+              box-sizing: border-box;
+            }
+            .pdf-scale-outer.is-scaled {
+              height: var(--pdf-scaled-height, auto);
+              overflow: hidden;
+              display: flex;
+              justify-content: center;
+            }
+            .pdf-scale-stage.is-scaled {
+              transform: scale(var(--pdf-scale, 1));
+              transform-origin: top center;
+              width: 210mm;
+              flex-shrink: 0;
+            }
+          }
           
           @media print {
             @page {
@@ -171,6 +192,16 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
               overflow: hidden !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+            }
+            .pdf-scale-outer,
+            .pdf-scale-stage {
+              width: 100% !important;
+              height: auto !important;
+              transform: none !important;
+              overflow: visible !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              display: block !important;
             }
             .delivery-pdf-container {
               width: 100% !important;
@@ -189,319 +220,317 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
         `}
       </style>
 
-      <div className="flex justify-end mb-3 print:hidden max-w-[210mm] mx-auto pt-3 px-2">
-        <PrintButton />
-      </div>
+      <PrintButton deliveryId={id}>
+        <div
+          className="delivery-pdf-container bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden"
+          style={{
+            width: '210mm',
+            minHeight: '297mm',
+            maxHeight: '297mm',
+            padding: '8mm 13mm 6mm 13mm',
+            fontSize: '11pt',
+            lineHeight: 1.2,
+            color: '#000',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div>
+            {/* 1. Header: Logo (current) + Thai & English Name + Address + Document No */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1.5px solid #000', paddingBottom: '2mm', marginBottom: '2mm' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '3.5mm' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={currentCompany.logo}
+                  alt={currentCompany.name}
+                  style={{ height: '14mm', width: 'auto', objectFit: 'contain' }}
+                />
+                <div>
+                  <div style={{ fontSize: '13pt', fontWeight: 'bold', lineHeight: 1.15, color: '#000' }}>
+                    {currentCompany.thName}
+                  </div>
+                  <div style={{ fontSize: '10.5pt', fontWeight: 'bold', lineHeight: 1.15, color: '#333' }}>
+                    {currentCompany.name}
+                  </div>
+                  <div style={{ fontSize: '9pt', color: '#555', lineHeight: 1.15 }}>
+                    {currentCompany.address} | โทร: {currentCompany.phone}
+                  </div>
+                </div>
+              </div>
 
-      <div
-        className="delivery-pdf-container bg-white shadow-lg print:shadow-none mx-auto relative overflow-hidden"
-        style={{
-          width: '210mm',
-          minHeight: '297mm',
-          maxHeight: '297mm',
-          padding: '8mm 13mm 6mm 13mm',
-          fontSize: '11pt',
-          lineHeight: 1.2,
-          color: '#000',
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}
-      >
-        <div>
-          {/* 1. Header: Logo (current) + Thai & English Name + Address + Document No */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1.5px solid #000', paddingBottom: '2mm', marginBottom: '2mm' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '3.5mm' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={currentCompany.logo}
-                alt={currentCompany.name}
-                style={{ height: '14mm', width: 'auto', objectFit: 'contain' }}
-              />
-              <div>
-                <div style={{ fontSize: '13pt', fontWeight: 'bold', lineHeight: 1.15, color: '#000' }}>
-                  {currentCompany.thName}
-                </div>
-                <div style={{ fontSize: '10.5pt', fontWeight: 'bold', lineHeight: 1.15, color: '#333' }}>
-                  {currentCompany.name}
-                </div>
-                <div style={{ fontSize: '9pt', color: '#555', lineHeight: 1.15 }}>
-                  {currentCompany.address} | โทร: {currentCompany.phone}
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ border: '1.5px solid #000', padding: '1mm 3mm', background: '#f8fafc', borderRadius: '3px' }}>
+                  <span style={{ fontSize: '9.5pt', fontWeight: 'bold' }}>เลขที่ : </span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '11pt', fontWeight: 'bold', color: '#b91c1c' }}>
+                    {delivery.deliveryNumber || '-'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ border: '1.5px solid #000', padding: '1mm 3mm', background: '#f8fafc', borderRadius: '3px' }}>
-                <span style={{ fontSize: '9.5pt', fontWeight: 'bold' }}>เลขที่ : </span>
-                <span style={{ fontFamily: 'monospace', fontSize: '11pt', fontWeight: 'bold', color: '#b91c1c' }}>
-                  {delivery.deliveryNumber || '-'}
+            {/* 2. Document Title & Delivery Date */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2mm' }}>
+              <div style={{ width: '30%' }}></div>
+              <div style={{ textAlign: 'center', fontSize: '17pt', fontWeight: 'bold', color: '#000', flex: 1, letterSpacing: '0.5px' }}>
+                ใบส่งมอบงาน
+              </div>
+              <div style={{ width: '30%', textAlign: 'right', fontSize: '11pt' }}>
+                <span style={{ fontWeight: 'bold' }}>วันที่ส่งมอบงาน : </span>
+                <span>{deliveryDateFormatted || '______/______/______'}</span>
+              </div>
+            </div>
+
+            {/* 3. Customer & Project Details */}
+            <div style={{ border: '1px solid #000', borderRadius: '2px', padding: '2mm 3mm', marginBottom: '2mm', background: '#fff' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
+                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ชื่องาน :</span>
+                <span style={{ flex: 1, fontWeight: 'bold', color: '#111' }}>{delivery.jobName || '-'}</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
+                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ลูกค้า :</span>
+                <span style={{ flex: 1 }}>
+                  {delivery.company && !['TG', 'TE', 'TP'].includes(delivery.company)
+                    ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}`
+                    : (delivery.customer || '-')}
+                </span>
+                <span style={{ fontWeight: 'bold', marginLeft: '4mm', marginRight: '2mm', flexShrink: 0 }}>เลขที่ใบเสนอราคา / PO :</span>
+                <span style={{ fontWeight: 'bold', color: '#1e3a8a' }}>{delivery.quotationNo || '-'}</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
+                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ที่อยู่ :</span>
+                <span style={{ flex: 1 }}>{delivery.address || '-'}</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
+                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>สถานที่หน้างาน :</span>
+                <span style={{ flex: 1 }}>{delivery.siteAddress || '-'}</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8mm', fontSize: '10.5pt' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'baseline' }}>
+                  <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>เซลล์ :</span>
+                  <span style={{ flex: 1 }}>{delivery.sender || '-'}</span>
+                  <span style={{ fontWeight: 'bold', marginLeft: '2mm', marginRight: '1.5mm', flexShrink: 0 }}>เบอร์โทร :</span>
+                  <span>{delivery.senderPhone || '-'}</span>
+                </div>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'baseline' }}>
+                  <span style={{ fontWeight: 'bold', flexShrink: 0, marginRight: '2mm' }}>ช่าง/วิศวกร :</span>
+                  <span style={{ flex: 1 }}>{delivery.technician || '-'}</span>
+                  <span style={{ fontWeight: 'bold', marginLeft: '2mm', marginRight: '1.5mm', flexShrink: 0 }}>เบอร์โทร :</span>
+                  <span>{delivery.technicianPhone || '-'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Work Scope Table */}
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2mm', fontSize: '10.5pt' }}>
+              <thead>
+                <tr style={{ background: '#f3f4f6' }}>
+                  <th style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontSize: '11pt', fontWeight: 'bold', width: '32%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    รายการ
+                  </th>
+                  <th style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontSize: '11pt', fontWeight: 'bold', width: '68%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    รายละเอียด
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
+                    งานตรวจเช็ค
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
+                    {delivery.workInspectDetails || (delivery.workInspect ? 'ตรวจเช็คตามมาตรฐาน' : '')}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
+                    งานติดตั้ง
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
+                    {delivery.workInstallDetails || (delivery.workInstall ? 'ติดตั้งตามมาตรฐาน' : '')}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
+                    งานซ่อม
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
+                    {delivery.workRepairDetails || (delivery.workRepair ? 'ดำเนินการซ่อมแล้วเสร็จ' : '')}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
+                    งานอบรม Training
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
+                    {delivery.workTrainingDetails || (delivery.workTraining ? 'อบรมการใช้งานเรียบร้อย' : '')}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
+                    งานอื่นๆ
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
+                    {delivery.workOther || ''}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* 5. Photos Section: Before - After (4 Photos - Large & Clear) */}
+            <div style={{ marginBottom: '2.5mm' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3.5mm' }}>
+                {/* Before Photos (Up to 2 Photos) */}
+                <div style={{ border: '1px solid #000', padding: '2mm', background: '#fafafa', borderRadius: '2px' }}>
+                  <div style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '1.5mm', color: '#b91c1c' }}>
+                    [1] ภาพก่อนติดตั้ง / ก่อนดำเนินงาน (Before)
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: beforePhotos.length === 1 ? '1fr' : '1fr 1fr', gap: '2mm' }}>
+                    {(beforePhotos.length > 0 ? beforePhotos : ['', '']).slice(0, 2).map((url, idx) => (
+                      <div
+                        key={`before-${idx}`}
+                        style={{
+                          height: '52mm',
+                          border: '1px dashed #94a3b8',
+                          background: '#fff',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
+                          borderRadius: '3px',
+                          position: 'relative'
+                        }}
+                      >
+                        {url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={url}
+                            alt={`ก่อนติดตั้ง #${idx + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                          />
+                        ) : (
+                          <div style={{ fontSize: '9pt', color: '#94a3b8', textAlign: 'center', padding: '4px' }}>
+                            (ก่อนติดตั้ง #{idx + 1})
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* After Photos (Up to 2 Photos) */}
+                <div style={{ border: '1px solid #000', padding: '2mm', background: '#fafafa', borderRadius: '2px' }}>
+                  <div style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '1.5mm', color: '#15803d' }}>
+                    [2] ภาพหลังติดตั้ง / ผลงานแล้วเสร็จ (After)
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: afterPhotos.length === 1 ? '1fr' : '1fr 1fr', gap: '2mm' }}>
+                    {(afterPhotos.length > 0 ? afterPhotos : ['', '']).slice(0, 2).map((url, idx) => (
+                      <div
+                        key={`after-${idx}`}
+                        style={{
+                          height: '52mm',
+                          border: '1px dashed #94a3b8',
+                          background: '#fff',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
+                          borderRadius: '3px',
+                          position: 'relative'
+                        }}
+                      >
+                        {url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={url}
+                            alt={`หลังติดตั้ง #${idx + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                          />
+                        ) : (
+                          <div style={{ fontSize: '9pt', color: '#94a3b8', textAlign: 'center', padding: '4px' }}>
+                            (หลังติดตั้ง #{idx + 1})
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 6. Comments & Suggestions Box */}
+            <div style={{ border: '1px solid #000', padding: '2mm 3.5mm', marginBottom: '2.5mm', background: '#fff', borderRadius: '2px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '10.5pt', color: '#000', whiteSpace: 'nowrap' }}>
+                  ความคิดเห็น / ข้อเสนอแนะ (Comments) :
+                </span>
+                <span style={{ fontSize: '10pt', color: '#111', flex: 1, minHeight: '6mm', whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.3 }}>
+                  {delivery.comments || (delivery.note ? `หมายเหตุ: ${delivery.note}` : '') || '- เรียบร้อยตามมาตรฐาน -'}
                 </span>
               </div>
             </div>
-          </div>
 
-          {/* 2. Document Title & Delivery Date */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2mm' }}>
-            <div style={{ width: '30%' }}></div>
-            <div style={{ textAlign: 'center', fontSize: '17pt', fontWeight: 'bold', color: '#000', flex: 1, letterSpacing: '0.5px' }}>
-              ใบส่งมอบงาน
-            </div>
-            <div style={{ width: '30%', textAlign: 'right', fontSize: '11pt' }}>
-              <span style={{ fontWeight: 'bold' }}>วันที่ส่งมอบงาน : </span>
-              <span>{deliveryDateFormatted || '______/______/______'}</span>
+            {/* 7. Legal Handover Declaration */}
+            <div style={{ margin: '1.5mm 0 2.5mm', fontSize: '10pt', lineHeight: 1.3, textAlign: 'center', color: '#111' }}>
+              บัดนี้ทางบริษัทฯ ได้ดำเนินงานตามรายการข้างต้นเสร็จสิ้นครบถ้วนแล้ว
+              และผู้รับมอบงานได้ทำการตรวจรับมอบงานอย่างละเอียดเป็นที่เรียบร้อยแล้ว
             </div>
           </div>
 
-          {/* 3. Customer & Project Details */}
-          <div style={{ border: '1px solid #000', borderRadius: '2px', padding: '2mm 3mm', marginBottom: '2mm', background: '#fff' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
-              <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ชื่องาน :</span>
-              <span style={{ flex: 1, fontWeight: 'bold', color: '#111' }}>{delivery.jobName || '-'}</span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
-              <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ลูกค้า :</span>
-              <span style={{ flex: 1 }}>
-                {delivery.company && !['TG', 'TE', 'TP'].includes(delivery.company)
-                  ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}`
-                  : (delivery.customer || '-')}
-              </span>
-              <span style={{ fontWeight: 'bold', marginLeft: '4mm', marginRight: '2mm', flexShrink: 0 }}>เลขที่ใบเสนอราคา / PO :</span>
-              <span style={{ fontWeight: 'bold', color: '#1e3a8a' }}>{delivery.quotationNo || '-'}</span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
-              <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ที่อยู่ :</span>
-              <span style={{ flex: 1 }}>{delivery.address || '-'}</span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
-              <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>สถานที่หน้างาน :</span>
-              <span style={{ flex: 1 }}>{delivery.siteAddress || '-'}</span>
-            </div>
-
-            <div style={{ display: 'flex', gap: '8mm', fontSize: '10.5pt' }}>
-              <div style={{ flex: 1, display: 'flex', alignItems: 'baseline' }}>
-                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>เซลล์ :</span>
-                <span style={{ flex: 1 }}>{delivery.sender || '-'}</span>
-                <span style={{ fontWeight: 'bold', marginLeft: '2mm', marginRight: '1.5mm', flexShrink: 0 }}>เบอร์โทร :</span>
-                <span>{delivery.senderPhone || '-'}</span>
+          {/* 8. Symmetrical Signatures Block (Bottom) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10mm', paddingTop: '1mm' }}>
+            {/* Sender */}
+            <div style={{ flex: 1, textAlign: 'center', border: '1px solid #999', borderRadius: '3px', padding: '2.5mm 3mm', background: '#fdfdfd' }}>
+              <div style={{ height: '13mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {delivery.sigSenderUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={delivery.sigSenderUrl} alt="Sender Sig" style={{ maxHeight: '12mm', maxWidth: '80%', objectFit: 'contain' }} />
+                ) : (
+                  <span style={{ color: '#aaa', fontSize: '9pt' }}>....................................................................</span>
+                )}
               </div>
-              <div style={{ flex: 1, display: 'flex', alignItems: 'baseline' }}>
-                <span style={{ fontWeight: 'bold', flexShrink: 0, marginRight: '2mm' }}>ช่าง/วิศวกร :</span>
-                <span style={{ flex: 1 }}>{delivery.technician || '-'}</span>
-                <span style={{ fontWeight: 'bold', marginLeft: '2mm', marginRight: '1.5mm', flexShrink: 0 }}>เบอร์โทร :</span>
-                <span>{delivery.technicianPhone || '-'}</span>
+              <div style={{ fontSize: '10.5pt', marginTop: '1mm', lineHeight: 1.3 }}>
+                ลงชื่อผู้บรรจง ( {delivery.nameSender ? delivery.nameSender : '................................................'} )
+              </div>
+              <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#000', marginTop: '0.5mm' }}>
+                ผู้ส่งมอบงาน
+              </div>
+              <div style={{ fontSize: '9.5pt', color: '#555', marginTop: '0.5mm' }}>
+                วันที่ {delivery.sigSenderUrl && deliveryDateFormatted ? deliveryDateFormatted : '............ / ............ / ............'}
+              </div>
+            </div>
+
+            {/* Receiver */}
+            <div style={{ flex: 1, textAlign: 'center', border: '1px solid #999', borderRadius: '3px', padding: '2.5mm 3mm', background: '#fdfdfd' }}>
+              <div style={{ height: '13mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {delivery.sigReceiverUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={delivery.sigReceiverUrl} alt="Receiver Sig" style={{ maxHeight: '12mm', maxWidth: '80%', objectFit: 'contain' }} />
+                ) : (
+                  <span style={{ color: '#aaa', fontSize: '9pt' }}>....................................................................</span>
+                )}
+              </div>
+              <div style={{ fontSize: '10.5pt', marginTop: '1mm', lineHeight: 1.3 }}>
+                ลงชื่อผู้บรรจง ( {delivery.nameReceiver ? delivery.nameReceiver : '................................................'} )
+              </div>
+              <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#000', marginTop: '0.5mm' }}>
+                ผู้รับมอบงาน
+              </div>
+              <div style={{ fontSize: '9.5pt', color: '#555', marginTop: '0.5mm' }}>
+                วันที่ {delivery.sigReceiverUrl && deliveryDateFormatted ? deliveryDateFormatted : '............ / ............ / ............'}
               </div>
             </div>
           </div>
 
-          {/* 4. Work Scope Table */}
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2mm', fontSize: '10.5pt' }}>
-            <thead>
-              <tr style={{ background: '#f3f4f6' }}>
-                <th style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontSize: '11pt', fontWeight: 'bold', width: '32%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                  รายการ
-                </th>
-                <th style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontSize: '11pt', fontWeight: 'bold', width: '68%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                  รายละเอียด
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                  งานตรวจเช็ค
-                </td>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                  {delivery.workInspectDetails || (delivery.workInspect ? 'ตรวจเช็คตามมาตรฐาน' : '')}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                  งานติดตั้ง
-                </td>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                  {delivery.workInstallDetails || (delivery.workInstall ? 'ติดตั้งตามมาตรฐาน' : '')}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                  งานซ่อม
-                </td>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                  {delivery.workRepairDetails || (delivery.workRepair ? 'ดำเนินการซ่อมแล้วเสร็จ' : '')}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                  งานอบรม Training
-                </td>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                  {delivery.workTrainingDetails || (delivery.workTraining ? 'อบรมการใช้งานเรียบร้อย' : '')}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                  งานอื่นๆ
-                </td>
-                <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                  {delivery.workOther || ''}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          {/* 5. Photos Section: Before - After (4 Photos - Large & Clear) */}
-          <div style={{ marginBottom: '2.5mm' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3.5mm' }}>
-              {/* Before Photos (Up to 2 Photos) */}
-              <div style={{ border: '1px solid #000', padding: '2mm', background: '#fafafa', borderRadius: '2px' }}>
-                <div style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '1.5mm', color: '#b91c1c' }}>
-                  [1] ภาพก่อนติดตั้ง / ก่อนดำเนินงาน (Before)
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: beforePhotos.length === 1 ? '1fr' : '1fr 1fr', gap: '2mm' }}>
-                  {(beforePhotos.length > 0 ? beforePhotos : ['', '']).slice(0, 2).map((url, idx) => (
-                    <div
-                      key={`before-${idx}`}
-                      style={{
-                        height: '52mm',
-                        border: '1px dashed #94a3b8',
-                        background: '#fff',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        overflow: 'hidden',
-                        borderRadius: '3px',
-                        position: 'relative'
-                      }}
-                    >
-                      {url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={url}
-                          alt={`ก่อนติดตั้ง #${idx + 1}`}
-                          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                        />
-                      ) : (
-                        <div style={{ fontSize: '9pt', color: '#94a3b8', textAlign: 'center', padding: '4px' }}>
-                          (ก่อนติดตั้ง #{idx + 1})
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* After Photos (Up to 2 Photos) */}
-              <div style={{ border: '1px solid #000', padding: '2mm', background: '#fafafa', borderRadius: '2px' }}>
-                <div style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '1.5mm', color: '#15803d' }}>
-                  [2] ภาพหลังติดตั้ง / ผลงานแล้วเสร็จ (After)
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: afterPhotos.length === 1 ? '1fr' : '1fr 1fr', gap: '2mm' }}>
-                  {(afterPhotos.length > 0 ? afterPhotos : ['', '']).slice(0, 2).map((url, idx) => (
-                    <div
-                      key={`after-${idx}`}
-                      style={{
-                        height: '52mm',
-                        border: '1px dashed #94a3b8',
-                        background: '#fff',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        overflow: 'hidden',
-                        borderRadius: '3px',
-                        position: 'relative'
-                      }}
-                    >
-                      {url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={url}
-                          alt={`หลังติดตั้ง #${idx + 1}`}
-                          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                        />
-                      ) : (
-                        <div style={{ fontSize: '9pt', color: '#94a3b8', textAlign: 'center', padding: '4px' }}>
-                          (หลังติดตั้ง #{idx + 1})
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 6. Comments & Suggestions Box */}
-          <div style={{ border: '1px solid #000', padding: '2mm 3.5mm', marginBottom: '2.5mm', background: '#fff', borderRadius: '2px' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-              <span style={{ fontWeight: 'bold', fontSize: '10.5pt', color: '#000', whiteSpace: 'nowrap' }}>
-                ความคิดเห็น / ข้อเสนอแนะ (Comments) :
-              </span>
-              <span style={{ fontSize: '10pt', color: '#111', flex: 1, minHeight: '6mm', whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.3 }}>
-                {delivery.comments || (delivery.note ? `หมายเหตุ: ${delivery.note}` : '') || '- เรียบร้อยตามมาตรฐาน -'}
-              </span>
-            </div>
-          </div>
-
-          {/* 7. Legal Handover Declaration */}
-          <div style={{ margin: '1.5mm 0 2.5mm', fontSize: '10pt', lineHeight: 1.3, textAlign: 'center', color: '#111' }}>
-            บัดนี้ทางบริษัทฯ ได้ดำเนินงานตามรายการข้างต้นเสร็จสิ้นครบถ้วนแล้ว
-            และผู้รับมอบงานได้ทำการตรวจรับมอบงานอย่างละเอียดเป็นที่เรียบร้อยแล้ว
-          </div>
         </div>
-
-        {/* 8. Symmetrical Signatures Block (Bottom) */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10mm', paddingTop: '1mm' }}>
-          {/* Sender */}
-          <div style={{ flex: 1, textAlign: 'center', border: '1px solid #999', borderRadius: '3px', padding: '2.5mm 3mm', background: '#fdfdfd' }}>
-            <div style={{ height: '13mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {delivery.sigSenderUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={delivery.sigSenderUrl} alt="Sender Sig" style={{ maxHeight: '12mm', maxWidth: '80%', objectFit: 'contain' }} />
-              ) : (
-                <span style={{ color: '#aaa', fontSize: '9pt' }}>....................................................................</span>
-              )}
-            </div>
-            <div style={{ fontSize: '10.5pt', marginTop: '1mm', lineHeight: 1.3 }}>
-              ลงชื่อผู้บรรจง ( {delivery.nameSender ? delivery.nameSender : '................................................'} )
-            </div>
-            <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#000', marginTop: '0.5mm' }}>
-              ผู้ส่งมอบงาน
-            </div>
-            <div style={{ fontSize: '9.5pt', color: '#555', marginTop: '0.5mm' }}>
-              วันที่ {delivery.sigSenderUrl && deliveryDateFormatted ? deliveryDateFormatted : '............ / ............ / ............'}
-            </div>
-          </div>
-
-          {/* Receiver */}
-          <div style={{ flex: 1, textAlign: 'center', border: '1px solid #999', borderRadius: '3px', padding: '2.5mm 3mm', background: '#fdfdfd' }}>
-            <div style={{ height: '13mm', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {delivery.sigReceiverUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={delivery.sigReceiverUrl} alt="Receiver Sig" style={{ maxHeight: '12mm', maxWidth: '80%', objectFit: 'contain' }} />
-              ) : (
-                <span style={{ color: '#aaa', fontSize: '9pt' }}>....................................................................</span>
-              )}
-            </div>
-            <div style={{ fontSize: '10.5pt', marginTop: '1mm', lineHeight: 1.3 }}>
-              ลงชื่อผู้บรรจง ( {delivery.nameReceiver ? delivery.nameReceiver : '................................................'} )
-            </div>
-            <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#000', marginTop: '0.5mm' }}>
-              ผู้รับมอบงาน
-            </div>
-            <div style={{ fontSize: '9.5pt', color: '#555', marginTop: '0.5mm' }}>
-              วันที่ {delivery.sigReceiverUrl && deliveryDateFormatted ? deliveryDateFormatted : '............ / ............ / ............'}
-            </div>
-          </div>
-        </div>
-
-      </div>
+      </PrintButton>
     </div>
   )
 }

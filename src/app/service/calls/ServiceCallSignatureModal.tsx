@@ -101,7 +101,7 @@ export function SearchableSalesSelect({
   return (
     <div ref={containerRef} className="relative">
       <div
-        className={`relative flex items-center w-full rounded-xl border transition-all ${
+        className={`relative flex items-center w-full h-12 rounded-xl border transition-all ${
           disabled
             ? "bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed"
             : isOpen
@@ -141,7 +141,7 @@ export function SearchableSalesSelect({
           placeholder={
             selectedUser ? formatUserLabel(selectedUser) : placeholder
           }
-          className={`w-full py-2.5 pr-16 text-sm bg-transparent focus:outline-none ${
+          className={`w-full h-full pr-16 text-base sm:text-sm bg-transparent focus:outline-none ${
             selectedUser && !isOpen
               ? "font-bold text-gray-900"
               : "font-medium text-gray-900 placeholder:text-gray-400"
@@ -231,7 +231,7 @@ export function SearchableSalesSelect({
                           setIsOpen(false);
                           setSearchQuery("");
                         }}
-                        className={`w-full px-3.5 py-2.5 text-left text-xs flex items-center justify-between gap-2 transition-colors ${
+                        className={`w-full px-3.5 py-3 sm:py-2.5 text-left text-xs flex items-center justify-between gap-2 transition-colors ${
                           isSelected
                             ? "bg-red-50 text-[#ff2301] font-bold"
                             : "text-gray-800 hover:bg-gray-50 font-medium"
@@ -275,7 +275,7 @@ export function SearchableSalesSelect({
                           setIsOpen(false);
                           setSearchQuery("");
                         }}
-                        className={`w-full px-3.5 py-2.5 text-left text-xs flex items-center justify-between gap-2 transition-colors ${
+                        className={`w-full px-3.5 py-3 sm:py-2.5 text-left text-xs flex items-center justify-between gap-2 transition-colors ${
                           isSelected
                             ? "bg-red-50 text-[#ff2301] font-bold"
                             : "text-gray-700 hover:bg-gray-50 font-medium"
@@ -447,29 +447,29 @@ export default function ServiceCallSignatureModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6">
       <div
         className="fixed inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity"
         onClick={() => !isSaving && onClose()}
       />
 
-      <div className="relative z-10 w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="relative z-10 w-full max-w-4xl bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col h-[95dvh] sm:h-auto sm:max-h-[92vh]">
         {/* Header */}
-        <div className="px-6 py-4 bg-white border-b border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] text-white flex items-center justify-center shadow-md shadow-red-500/20">
+        <div className="px-4 py-3.5 sm:px-6 sm:py-4 bg-white border-b border-gray-100 flex items-start sm:items-center justify-between gap-3 shrink-0">
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#ff2301] to-[#d81900] text-white flex items-center justify-center shadow-md shadow-red-500/20 shrink-0">
               <FileSignature className="w-5 h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black text-gray-900">
-                  เซ็นรับรองการเข้าตรวจสอบและบริการหน้างาน
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <h2 className="text-base sm:text-lg font-black text-gray-900 leading-snug">
+                  เซ็นรับรองการเข้าบริการหน้างาน
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-red-50 text-[#ff2301] border border-red-200">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-mono font-bold bg-red-50 text-[#ff2301] border border-red-200">
                   {callLog.caseNumber}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
                 ลูกค้า: <strong className="text-gray-800">{callLog.companyName}</strong> ({callLog.contactName}) • รุ่น {callLog.inverterModel}
               </p>
             </div>
@@ -479,26 +479,26 @@ export default function ServiceCallSignatureModal({
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto space-y-6 bg-gray-50/50">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 sm:space-y-6 bg-gray-50/50 flex-1">
           {/* Quick On-site Result Selector */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-4">
+          <div className="bg-white border border-gray-200 rounded-2xl p-3.5 sm:p-4">
             <label className="block text-xs font-bold text-gray-700 mb-2">
               สรุปผลการเข้าตรวจสอบหน้างาน (On-Site Resolution)
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
               {ONSITE_RESULT_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setOnsiteResult(opt.value)}
-                  className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-left text-xs font-bold transition-all ${
+                  className={`flex items-center gap-2.5 px-3.5 py-3 sm:py-2.5 rounded-xl border text-left text-xs font-bold transition-all ${
                     onsiteResult === opt.value
                       ? "bg-red-50 border-[#ff2301] text-gray-900 ring-2 ring-red-500/15"
                       : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-white"
@@ -522,7 +522,7 @@ export default function ServiceCallSignatureModal({
           </div>
 
           {/* 2 Signature Pads */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             <div className="space-y-3">
               <SignaturePadBox
                 title="1. ลายเซ็นช่าง/วิศวกรผู้ให้บริการ"
@@ -535,16 +535,17 @@ export default function ServiceCallSignatureModal({
                 onSignatureChange={setSigTechnicianUrl}
                 accentColor="red"
               />
-              <div className="bg-white border border-gray-200 rounded-2xl p-4">
+              <div className="bg-white border border-gray-200 rounded-2xl p-3.5 sm:p-4">
                 <label className="block text-xs font-bold text-gray-700 mb-1.5">
                   เบอร์โทรศัพท์ช่างผู้ให้บริการ
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="tel"
                   value={technicianPhone}
                   onChange={(e) => setTechnicianPhone(e.target.value)}
                   placeholder="ระบุเบอร์โทรช่าง..."
-                  className="w-full px-3.5 py-2.5 bg-gray-50 focus:bg-white text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-900"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 focus:bg-white text-base sm:text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-[#ff2301] transition-all text-gray-900"
                 />
               </div>
             </div>
@@ -561,7 +562,7 @@ export default function ServiceCallSignatureModal({
                 onSignatureChange={setSigCustomerUrl}
                 accentColor="emerald"
               />
-              <div className="bg-white border border-gray-200 rounded-2xl p-4">
+              <div className="bg-white border border-gray-200 rounded-2xl p-3.5 sm:p-4">
                 <label className="block text-xs font-bold text-gray-700 mb-1.5">
                   ตำแหน่งผู้รับบริการ (ถ้ามี)
                 </label>
@@ -570,23 +571,23 @@ export default function ServiceCallSignatureModal({
                   value={customerPosition}
                   onChange={(e) => setCustomerPosition(e.target.value)}
                   placeholder="เช่น วิศวกรประจำโรงงาน, ผู้ดูแลระบบ, เจ้าของกิจการ..."
-                  className="w-full px-3.5 py-2.5 bg-gray-50 focus:bg-white text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-600 transition-all text-gray-900"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 focus:bg-white text-base sm:text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-600 transition-all text-gray-900"
                 />
               </div>
             </div>
           </div>
 
           {/* Auto-close checkbox & Assign Salesperson for Quotation */}
-          <div className="p-4 rounded-2xl bg-white border border-gray-200 space-y-4">
-            <label className="flex items-center gap-3 cursor-pointer select-none">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-gray-200 space-y-4">
+            <label className="flex items-start sm:items-center gap-3 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={markClosed}
                 onChange={(e) => setMarkClosed(e.target.checked)}
-                className="w-4 h-4 accent-[#ff2301] rounded"
+                className="w-5 h-5 sm:w-4 sm:h-4 mt-0.5 sm:mt-0 accent-[#ff2301] rounded shrink-0"
               />
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-800">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="flex items-start sm:items-center gap-2 text-xs sm:text-sm font-bold text-gray-800 leading-snug">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 sm:mt-0" />
                 <span>
                   เปลี่ยนสถานะเคสเป็น &ldquo;ปิดเคสแล้ว (ระบบทำงานปกติ)&rdquo; พร้อมบันทึกวันที่เข้าบริการวันนี้
                 </span>
@@ -604,7 +605,7 @@ export default function ServiceCallSignatureModal({
                   onChange={setAssignedSalesId}
                   disabled={isSaving}
                 />
-                <p className="text-[11px] text-gray-500 mt-1">
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">
                   เมื่อเซลล์เปิดใบเสนอราคาเสร็จสิ้น ข้อมูลเคสนี้พร้อมรูปถ่ายหน้างานและลายเซ็นจะถูกส่งไปสร้าง <b>ใบส่งมอบงาน (Repair Delivery)</b> โดยอัตโนมัติ
                 </p>
               </div>
@@ -613,17 +614,17 @@ export default function ServiceCallSignatureModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-white border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="text-xs text-gray-400">
+        <div className="px-4 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-4 bg-white border-t border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 shrink-0">
+          <span className="hidden sm:block text-xs text-gray-400">
             ลายเซ็นและสรุปผลจะถูกแสดงในใบรายงานการตรวจสอบและบริการหน้างาน (PDF A4) ทันที
           </span>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto sm:justify-end">
             <button
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="px-4 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 transition-all"
+              className="px-3 sm:px-4 h-11 sm:h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 transition-all"
             >
               ยกเลิก
             </button>
@@ -632,7 +633,7 @@ export default function ServiceCallSignatureModal({
               type="button"
               onClick={() => handleSave(false)}
               disabled={isSaving}
-              className="inline-flex items-center gap-2 px-5 h-10 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 h-11 sm:h-10 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50"
             >
               {isSaving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -646,7 +647,7 @@ export default function ServiceCallSignatureModal({
               type="button"
               onClick={() => handleSave(true)}
               disabled={isSaving}
-              className="inline-flex items-center gap-2 px-5 h-10 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white text-xs font-bold shadow-md shadow-red-500/25 transition-all disabled:opacity-50"
+              className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 px-4 sm:px-5 h-11 sm:h-10 rounded-xl bg-gradient-to-r from-[#ff2301] to-[#e01f01] hover:from-[#e01f01] hover:to-[#c81900] text-white text-xs font-bold shadow-md shadow-red-500/25 transition-all disabled:opacity-50"
             >
               {isSaving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
