@@ -1,19 +1,17 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { evaluateAccountingMonthlyGold } from '@/app/actions/coins';
+import { isAuthorizedCronRequest, getTargetPreviousMonthBangkok } from '@/app/lib/cronAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!isAuthorizedCronRequest(request)) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // Determine the month and year for the previous month (if run on 1st of month)
-    const now = new Date();
-    now.setDate(now.getDate() - 1); 
-    const month = now.getMonth() + 1; // 1-indexed
-    const year = now.getFullYear();
+    const { month, year } = getTargetPreviousMonthBangkok(request);
 
     // Find all active Accounting users
     const acctUsers = await prisma.user.findMany({

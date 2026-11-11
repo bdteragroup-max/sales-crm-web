@@ -1,26 +1,26 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { evaluateTransportStaffMonthlyGold, evaluateLogisticsManagerMonthlyGold } from '@/app/actions/coins';
+import { isAuthorizedCronRequest, getTargetPreviousMonthBangkok } from '@/app/lib/cronAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!isAuthorizedCronRequest(request)) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const now = new Date();
-    // Go back 1 day just in case it runs at 00:00 on the 1st of the next month
-    now.setDate(now.getDate() - 1); 
-    const month = now.getMonth() + 1; // 1-indexed
-    const year = now.getFullYear();
+    const { month, year } = getTargetPreviousMonthBangkok(request);
 
-    // Find all users with transport/logistics roles
+    // Find all active users with transport/logistics roles
     const transportUsers = await prisma.user.findMany({
       where: {
+        isActive: true,
         OR: [
           { role: { contains: 'logistics', mode: 'insensitive' } },
           { role: { contains: 'shipping', mode: 'insensitive' } },
+          { role: { contains: 'transport', mode: 'insensitive' } },
           { role: { contains: 'จัดส่ง', mode: 'insensitive' } },
           { role: { contains: 'ขนส่ง', mode: 'insensitive' } }
         ],
@@ -29,12 +29,12 @@ export async function GET(request: Request) {
     });
 
     const results = [];
-    
+
     for (const user of transportUsers) {
       const roleLower = (user.role || '').toLowerCase();
-      
-      const isManager = roleLower.includes('manager') || 
-                        roleLower.includes('ผู้จัดการ') || 
+
+      const isManager = roleLower.includes('manager') ||
+                        roleLower.includes('ผู้จัดการ') ||
                         roleLower.includes('หัวหน้า') ||
                         user.role === 'Admin';
 

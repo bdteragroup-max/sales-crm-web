@@ -1,22 +1,17 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { evaluateBDMonthlyGold } from '@/app/actions/coins';
+import { isAuthorizedCronRequest, getTargetPreviousMonthBangkok } from '@/app/lib/cronAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!isAuthorizedCronRequest(request)) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // Determine the month and year. We run this at the end of the month, so current month is the target.
-    // If run on the 1st of the next month, we might need to target the previous month.
-    // Let's use the current date and subtract a day to be safe (if cron runs at midnight on the 1st).
-    const now = new Date();
-    // Go back 1 day just in case it runs at 00:00 on the 1st
-    now.setDate(now.getDate() - 1); 
-    const month = now.getMonth() + 1; // 1-indexed
-    const year = now.getFullYear();
+    const { month, year } = getTargetPreviousMonthBangkok(request);
 
     // Find all BD users (role or position containing business development or bd)
     const bdUsers = await prisma.user.findMany({

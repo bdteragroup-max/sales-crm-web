@@ -1,22 +1,22 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { evaluateTechnicianMonthlyGold } from '@/app/actions/coins';
+import { isAuthorizedCronRequest, getTargetPreviousMonthBangkok } from '@/app/lib/cronAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!isAuthorizedCronRequest(request)) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const now = new Date();
-    now.setDate(now.getDate() - 1);
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
+    const { month, year } = getTargetPreviousMonthBangkok(request);
 
-    // Find all users with technician roles
+    // Find all active users with technician roles
     const technicianUsers = await prisma.user.findMany({
       where: {
+        isActive: true,
         OR: [
           { role: { contains: 'technician', mode: 'insensitive' } },
           { role: { contains: 'ช่าง', mode: 'insensitive' } },
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     });
 
     const results = [];
-    
+
     for (const user of technicianUsers) {
       const res = await evaluateTechnicianMonthlyGold(user.id, month, year);
       results.push({ user: user.fullName, result: res });

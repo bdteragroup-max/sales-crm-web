@@ -1,18 +1,17 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { evaluatePurchasingMonthlyGold } from '@/app/actions/coins';
+import { isAuthorizedCronRequest, getTargetPreviousMonthBangkok } from '@/app/lib/cronAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!isAuthorizedCronRequest(request)) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const now = new Date();
-    now.setDate(now.getDate() - 1); // Go back 1 day just in case it runs at 00:00 on the 1st
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
+    const { month, year } = getTargetPreviousMonthBangkok(request);
 
     // Find all active users with purchasing/procurement roles or positions
     const purchasingUsers = await prisma.user.findMany({
@@ -31,7 +30,7 @@ export async function GET(request: Request) {
     });
 
     const results = [];
-    
+
     for (const user of purchasingUsers) {
       const res = await evaluatePurchasingMonthlyGold(user.id, month, year);
       results.push({ user: user.fullName, result: res });
