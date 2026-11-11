@@ -35,8 +35,8 @@ export interface RepairOrderFormData {
   items?: RepairOrderItem[];
   symptoms?: string;
   settings?: string;
-  checklist?: Record<string, boolean>;
-  checklistImages?: Record<string, string[]>;
+  checklist?: Record<string, any>;
+  checklistImages?: Record<string, any>;
   receivedDate?: string;
   sentDate?: string;
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Printer, ArrowLeft } from "lucide-react";
 import { Sarabun } from "next/font/google";
 import { getCompanyPrintInfo } from "@/app/repair-orders/lib/companyHelpers";
+import { computeRepairChecklistSummary } from "@/app/repair-orders/lib/checklistHelpers";
 
 const sarabun = Sarabun({
   weight: ["400", "500", "600", "700"],
@@ -66,52 +67,17 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
   const stP = dp(returnSentDate);
   const rrP = dp(returnSentDate);
 
-  const CHECKLIST_DEF = [
-    { key: 'frontPanel', label: 'ด้านหน้า' },
-    { key: 'topPanel', label: 'ด้านบน' },
-    { key: 'leftSide', label: 'ด้านข้าง (ซ้าย)' },
-    { key: 'rightSide', label: 'ด้านข้าง (ขวา)' },
-    { key: 'inside', label: 'ด้านใน' },
-    { key: 'nameplate', label: 'Nameplate' },
-    { key: 'bottom', label: 'ด้านล่าง' },
-    { key: 'terminalNut', label: 'Terminal / Nut' },
-    { key: 'termCover', label: 'Term. cover' },
-    { key: 'cover', label: 'ฝาครอบ / Cover' },
-    { key: 'video', label: 'Video' }
-  ];
-
-  const items = data?.items || [];
+  const items = Array.isArray(data?.items) ? data.items : [];
   const productCount = items.length || 0;
-  const checkedItems = CHECKLIST_DEF.map(def => {
-    const imgs = data?.checklistImages?.[def.key] || [];
-    let filledCount = 0;
-    for (let pi = 0; pi < productCount; pi++) {
-      const hasImg = !!(imgs[pi]);
-      const hasCheck = (pi === 0) && (data?.checklist?.[def.key] === true);
-      if (hasImg || hasCheck) filledCount++;
-    }
-    return { label: def.label, filled: filledCount, total: productCount };
-  });
+  const {
+    checkedItems,
+    perItemSummary,
+    attachedImages: rawAttachedMedia,
+  } = computeRepairChecklistSummary(items, data?.checklist, data?.checklistImages);
 
   const displayItems = [...items];
-
-  // Collect attached images
-  const attachedImages: { url: string; label: string }[] = [];
-  if (data?.checklistImages) {
-    Object.entries(data.checklistImages).forEach(([key, urls]) => {
-      if (Array.isArray(urls)) {
-        urls.forEach((url, idx) => {
-          if (url) {
-            const def = CHECKLIST_DEF.find(c => c.key === key);
-            attachedImages.push({
-              url: url as string,
-              label: def?.label?.split('/')[0] || key
-            });
-          }
-        });
-      }
-    });
-  }
+  const attachedImages = rawAttachedMedia.filter((m) => !m.isVideo);
+  const itemsWithChecks = perItemSummary.filter((s) => s.checkedLabels.length > 0);
 
   // ── Render one A4 sheet ──
   const renderA4Page = (copyLabel: string) => {
@@ -229,6 +195,15 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
             );
           })}
         </div>
+        {productCount > 1 && itemsWithChecks.length > 0 && (
+          <div style={{ marginTop: '4px', fontSize: '9.5px', color: '#333', lineHeight: 1.35 }}>
+            {itemsWithChecks.map((s) => (
+              <div key={s.itemIndex}>
+                <b>รายการที่ {s.itemIndex + 1} ({s.title}):</b> {s.checkedLabels.join(', ')}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Attached Images (compact, max 8) */}

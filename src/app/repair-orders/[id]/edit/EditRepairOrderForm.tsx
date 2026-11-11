@@ -27,26 +27,37 @@ import {
   FileText,
   Upload,
   Layers,
-  ChevronDown
+  ChevronDown,
+  Copy,
 } from "lucide-react";
 import { LoadingButton } from "@/app/components/LoadingButton";
 import { createRepairOrder } from "@/app/actions/repairOrders";
 import { searchContacts } from "@/app/actions/sales";
 import { REPAIR_COMPANIES, getRepairCompany } from "@/app/repair-orders/lib/companyHelpers";
+import {
+  ChecklistByItemMap,
+  ChecklistImagesByItemMap,
+  createEmptyChecklistMap,
+  formatRepairItemShortTitle,
+  isVideoUrl,
+  normalizeRepairChecklistData,
+  removeChecklistItemAtIndex,
+  serializeRepairChecklistData,
+} from "@/app/repair-orders/lib/checklistHelpers";
 import Swal from "sweetalert2";
 
 const CHECKLIST_OPTIONS = [
-  { key: "Front", label: "ด้านหน้า / Front" },
-  { key: "Top", label: "ด้านบน / Top" },
-  { key: "SideLeft", label: "ด้านข้าง (ซ้าย) / Left" },
-  { key: "SideRight", label: "ด้านข้าง (ขวา) / Right" },
-  { key: "Inside", label: "ด้านใน / Inside" },
-  { key: "Nameplate", label: "Nameplate" },
-  { key: "Bottom", label: "ด้านล่าง / Bottom" },
-  { key: "TerminalNut", label: "Terminal / Nut" },
-  { key: "TermCover", label: "Term. cover" },
-  { key: "Cover", label: "ฝาครอบ / Cover" },
-  { key: "Video", label: "Video" },
+  { key: "Front", label: "ด้านหน้า / Front", isVideo: false },
+  { key: "Top", label: "ด้านบน / Top", isVideo: false },
+  { key: "SideLeft", label: "ด้านข้าง (ซ้าย) / Left", isVideo: false },
+  { key: "SideRight", label: "ด้านข้าง (ขวา) / Right", isVideo: false },
+  { key: "Inside", label: "ด้านใน / Inside", isVideo: false },
+  { key: "Nameplate", label: "Nameplate", isVideo: false },
+  { key: "Bottom", label: "ด้านล่าง / Bottom", isVideo: false },
+  { key: "TerminalNut", label: "Terminal / Nut", isVideo: false },
+  { key: "TermCover", label: "Term. cover", isVideo: false },
+  { key: "Cover", label: "ฝาครอบ / Cover", isVideo: false },
+  { key: "Video", label: "Video", isVideo: true },
 ];
 
 interface EditRepairOrderFormProps {
@@ -75,10 +86,16 @@ export default function EditRepairOrderForm({
   const [contactSuggestions, setContactSuggestions] = useState<any[]>([]);
   const [showContactSuggestions, setShowContactSuggestions] = useState(false);
 
-  // File Upload
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadTarget, setUploadTarget] = useState<{ key: string; index: number } | null>(null);
+  // File Upload & Per-Item Checklist State
+  const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [activeChecklistItemIdx, setActiveChecklistItemIdx] = useState(0);
+  const [checklistByItem, setChecklistByItem] = useState<ChecklistByItemMap>({
+    0: createEmptyChecklistMap(),
+  });
+  const [imagesByItem, setImagesByItem] = useState<ChecklistImagesByItemMap>({
+    0: {},
+  });
 
   // Form Data State
   const [formData, setFormData] = useState<any>({
@@ -120,6 +137,19 @@ export default function EditRepairOrderForm({
 
   useEffect(() => {
     if (initialData) {
+      const loadedItems =
+        initialData.items?.length > 0
+          ? initialData.items
+          : [{ type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" }];
+      const normalized = normalizeRepairChecklistData(
+        loadedItems.length,
+        initialData.checklist,
+        initialData.checklistImages
+      );
+      setChecklistByItem(normalized.checklistByItem);
+      setImagesByItem(normalized.imagesByItem);
+      setActiveChecklistItemIdx(0);
+
       setFormData({
         ...initialData,
         receivedDate: initialData.receivedDate
@@ -128,10 +158,7 @@ export default function EditRepairOrderForm({
         sentDate: initialData.sentDate
           ? new Date(initialData.sentDate).toISOString().split("T")[0]
           : "",
-        items:
-          initialData.items?.length > 0
-            ? initialData.items
-            : [{ type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" }],
+        items: loadedItems,
         checklist: initialData.checklist || {},
         checklistImages: initialData.checklistImages || {},
         customerPhoneNumber: initialData.customerPhoneNumber || initialData.phoneNumber || "",
@@ -219,6 +246,7 @@ export default function EditRepairOrderForm({
   };
 
   const addItem = () => {
+    const newIdx = formData.items.length;
     setFormData((prev: any) => ({
       ...prev,
       items: [
@@ -226,107 +254,166 @@ export default function EditRepairOrderForm({
         { type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" },
       ],
     }));
-  };
-
-  const removeItem = (index: number) => {
-    setFormData((prev: any) => {
-      const newItems = prev.items.filter((_: any, i: number) => i !== index);
-      const newImages = { ...prev.checklistImages };
-      Object.keys(newImages).forEach((key) => {
-        if (newImages[key] && newImages[key].length > index) {
-          const arr = [...newImages[key]];
-          arr.splice(index, 1);
-          newImages[key] = arr;
-        }
-      });
-      return { ...prev, items: newItems, checklistImages: newImages };
-    });
-  };
-
-  const handleChecklistChange = (key: string) => {
-    setFormData((prev: any) => ({
+    setChecklistByItem((prev) => ({
       ...prev,
-      checklist: { ...prev.checklist, [key]: !prev.checklist[key] },
+      [newIdx]: createEmptyChecklistMap(),
+    }));
+    setImagesByItem((prev) => ({
+      ...prev,
+      [newIdx]: {},
     }));
   };
 
-  const triggerUpload = (key: string, index: number) => {
-    setUploadTarget({ key, index });
-    if (fileInputRef.current) fileInputRef.current.click();
+  const removeItem = (index: number) => {
+    const prevLen = formData.items.length;
+    if (prevLen <= 1) return;
+    setFormData((prev: any) => ({
+      ...prev,
+      items: prev.items.filter((_: any, i: number) => i !== index),
+    }));
+    setChecklistByItem((prev) =>
+      removeChecklistItemAtIndex(prev, index, prevLen, createEmptyChecklistMap)
+    );
+    setImagesByItem((prev) =>
+      removeChecklistItemAtIndex(prev, index, prevLen, () => ({}))
+    );
+    setActiveChecklistItemIdx((curr) => {
+      const nextMax = Math.max(0, prevLen - 2);
+      if (curr > index) return curr - 1;
+      return Math.min(curr, nextMax);
+    });
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !uploadTarget) return;
+  const safeActiveItemIdx = Math.min(
+    activeChecklistItemIdx,
+    Math.max(0, (formData.items?.length || 1) - 1)
+  );
+  const currentChecklist = checklistByItem[safeActiveItemIdx] || createEmptyChecklistMap();
+  const currentItemImages = imagesByItem[safeActiveItemIdx] || {};
 
-    if (file.size > 50 * 1024 * 1024) {
-      Swal.fire({
-        title: "ไฟล์มีขนาดใหญ่เกินไป",
-        text: `ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (รองรับสูงสุด 50MB)`,
-        icon: "warning",
-        confirmButtonColor: "#ff2301",
-      });
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
+  const handleChecklistChange = (key: string) => {
+    setChecklistByItem((prev) => {
+      const current = prev[safeActiveItemIdx] || createEmptyChecklistMap();
+      return {
+        ...prev,
+        [safeActiveItemIdx]: {
+          ...current,
+          [key]: !current[key],
+        },
+      };
+    });
+  };
 
-    setUploading(true);
-    try {
-      const supabase = (await import("@supabase/supabase-js")).createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+  const copyChecklistTopicsToAllItems = () => {
+    const total = formData.items?.length || 1;
+    if (total <= 1) return;
+    const source = checklistByItem[safeActiveItemIdx] || createEmptyChecklistMap();
+    setChecklistByItem((prev) => {
+      const next: ChecklistByItemMap = { ...prev };
+      for (let i = 0; i < total; i++) {
+        if (i === safeActiveItemIdx) continue;
+        next[i] = { ...source };
+      }
+      return next;
+    });
+    Swal.fire({
+      icon: "success",
+      title: "คัดลอกหัวข้อตรวจสอบแล้ว",
+      text: `คัดลอกหัวข้อที่ติ๊กจากรายการที่ ${safeActiveItemIdx + 1} ไปยังทุกรายการเรียบร้อย`,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("uploadsService")
-        .upload(filename, file, {
-          contentType: file.type,
-          upsert: false,
-        });
+  const handleFilesUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    key: string,
+    itemIdx: number
+  ) => {
+    const rawFiles = e.target.files ? Array.from(e.target.files) : [];
+    e.target.value = "";
+    if (rawFiles.length === 0) return;
 
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
+    const validFiles = rawFiles.filter((file) => {
+      if (file.size > 50 * 1024 * 1024) {
         Swal.fire({
-          title: "อัปโหลดไม่สำเร็จ",
-          text: `เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${uploadError.message}`,
-          icon: "error",
+          title: "ไฟล์มีขนาดใหญ่เกินไป",
+          text: `ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (รองรับสูงสุด 50MB)`,
+          icon: "warning",
           confirmButtonColor: "#ff2301",
         });
-        throw new Error("Upload failed");
+        return false;
+      }
+      return true;
+    });
+    if (validFiles.length === 0) return;
+
+    setUploading(true);
+    setUploadingSlot(`${itemIdx}-${key}`);
+    try {
+      const { createClient } = await import("@/utils/supabase/client");
+      const supabase = createClient();
+      const uploadedUrls: string[] = [];
+
+      for (const file of validFiles) {
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        const filename = `item${itemIdx + 1}-${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("uploadsService")
+          .upload(filename, file, {
+            contentType: file.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          Swal.fire({
+            title: "อัปโหลดไม่สำเร็จ",
+            text: `เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${uploadError.message}`,
+            icon: "error",
+            confirmButtonColor: "#ff2301",
+          });
+          throw new Error("Upload failed");
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("uploadsService").getPublicUrl(uploadData.path);
+        uploadedUrls.push(publicUrl);
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("uploadsService").getPublicUrl(uploadData.path);
-
-      const { key, index } = uploadTarget;
-      setFormData((prev: any) => {
-        const newImages = { ...prev.checklistImages };
-        if (!newImages[key]) newImages[key] = [];
-        while (newImages[key].length <= index) newImages[key].push("");
-        newImages[key][index] = publicUrl;
-        return { ...prev, checklistImages: newImages };
-      });
+      if (uploadedUrls.length > 0) {
+        setImagesByItem((prev) => {
+          const itemMap = prev[itemIdx] || {};
+          return {
+            ...prev,
+            [itemIdx]: {
+              ...itemMap,
+              [key]: [...(itemMap[key] || []), ...uploadedUrls],
+            },
+          };
+        });
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setUploading(false);
-      setUploadTarget(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setUploadingSlot(null);
     }
   };
 
-  const removeImage = (key: string, index: number) => {
-    setFormData((prev: any) => {
-      const newImages = { ...prev.checklistImages };
-      if (newImages[key]) {
-        const arr = [...newImages[key]];
-        arr[index] = "";
-        newImages[key] = arr;
-      }
-      return { ...prev, checklistImages: newImages };
+  const removeImage = (key: string, itemIdx: number, urlIdx: number) => {
+    setImagesByItem((prev) => {
+      const itemMap = prev[itemIdx] || {};
+      const nextArr = (itemMap[key] || []).filter((_, i) => i !== urlIdx);
+      return {
+        ...prev,
+        [itemIdx]: {
+          ...itemMap,
+          [key]: nextArr,
+        },
+      };
     });
   };
 
@@ -336,8 +423,16 @@ export default function EditRepairOrderForm({
     else setIsSubmitting(true);
     setMessage("");
 
+    const serializedChecklist = serializeRepairChecklistData(
+      formData.items?.length || 1,
+      checklistByItem,
+      imagesByItem
+    );
+
     const submitData = {
       ...formData,
+      checklist: serializedChecklist.checklist,
+      checklistImages: serializedChecklist.checklistImages,
       phoneNumber:
         formData.customerPhoneNumber &&
         formData.phoneNumber &&
@@ -1070,21 +1165,96 @@ export default function EditRepairOrderForm({
             </div>
           </div>
 
-          {/* Right Column: Checklist & Image Uploads */}
+          {/* Right Column: Checklist & Image Uploads (Per-Item Support) */}
           <div className="space-y-4">
             <div>
-              <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-2">
-                <CheckSquare size={14} className="text-[#ff2301]" />
-                <span>การตรวจสอบสภาพภายนอก (Checklist)</span>
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
+                  <CheckSquare size={14} className="text-[#ff2301]" />
+                  <span>การตรวจสอบสภาพภายนอก (Checklist)</span>
+                  {(formData.items?.length || 0) > 1 && (
+                    <span className="text-[11px] font-bold text-[#ff2301] bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
+                      รายการที่ {safeActiveItemIdx + 1} / {formData.items.length}
+                    </span>
+                  )}
+                </label>
+
+                {(formData.items?.length || 0) > 1 && (
+                  <button
+                    type="button"
+                    onClick={copyChecklistTopicsToAllItems}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-red-50 text-gray-700 hover:text-[#ff2301] border border-gray-200 hover:border-red-200 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                    title="คัดลอกหัวข้อที่ติ๊กจากเครื่องนี้ไปยังทุกเครื่อง"
+                  >
+                    <Copy size={12} />
+                    <span>คัดลอกหัวข้อที่ติ๊กไปทุกรายการ</span>
+                  </button>
+                )}
+              </div>
+
+              {(formData.items?.length || 0) > 1 && (
+                <div className="p-2.5 mb-3 rounded-2xl bg-red-50/50 border border-red-100 space-y-1.5">
+                  <div className="text-[11px] font-bold text-gray-600 flex items-center justify-between px-1">
+                    <span>เลือกรายการสินค้าเพื่อติ๊กตรวจสภาพ & แนบรูปแยกแต่ละเครื่อง:</span>
+                    <span className="text-[10px] text-gray-400">คลิกสลับเครื่องได้เลย</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {formData.items.map((it: any, idx: number) => {
+                      const isSelected = idx === safeActiveItemIdx;
+                      const itemChecks = checklistByItem[idx] || {};
+                      const checkedCount = Object.values(itemChecks).filter(Boolean).length;
+                      const itemImgs = imagesByItem[idx] || {};
+                      const imgCount = Object.values(itemImgs).reduce(
+                        (acc: number, arr: any) => acc + (Array.isArray(arr) ? arr.length : 0),
+                        0
+                      );
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActiveChecklistItemIdx(idx)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-[#ff2301] text-white border-[#ff2301] shadow-sm"
+                              : "bg-white text-gray-700 border-gray-200 hover:border-red-300"
+                          }`}
+                        >
+                          <span
+                            className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-black ${
+                              isSelected ? "bg-white text-[#ff2301]" : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {idx + 1}
+                          </span>
+                          <span className="truncate max-w-[180px]">
+                            {formatRepairItemShortTitle(it, idx)}
+                          </span>
+                          {(checkedCount > 0 || imgCount > 0) && (
+                            <span
+                              className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                                isSelected
+                                  ? "bg-red-900/30 text-white"
+                                  : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              }`}
+                            >
+                              ✓ {checkedCount}
+                              {imgCount > 0 ? ` • ${imgCount} รูป` : ""}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Checklist Option Chips */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3.5 bg-gray-50/80 rounded-2xl border border-gray-200">
                 {CHECKLIST_OPTIONS.map((item) => {
-                  const isChecked = !!formData.checklist[item.key];
+                  const isChecked = !!currentChecklist[item.key];
                   return (
                     <label
-                      key={item.key}
+                      key={`${safeActiveItemIdx}-${item.key}`}
                       onClick={() => handleChecklistChange(item.key)}
                       className={`flex items-center gap-2 p-2 rounded-xl text-xs font-semibold cursor-pointer border select-none transition-all ${
                         isChecked
@@ -1108,85 +1278,104 @@ export default function EditRepairOrderForm({
               </div>
             </div>
 
-            {/* Uploaded Images Gallery for Checked Items */}
+            {/* Uploaded Images Gallery for Checked Items (Active Item) */}
             <div className="pt-3 border-t border-gray-100">
               <div className="flex items-center justify-between mb-2.5">
                 <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
                   <Camera size={14} className="text-[#ff2301]" />
-                  <span>รูปภาพอุปกรณ์ตามหัวข้อที่เลือก</span>
+                  <span>
+                    รูปภาพ/วิดีโอตามหัวข้อที่เลือก
+                    {(formData.items?.length || 0) > 1
+                      ? ` (${formatRepairItemShortTitle(formData.items[safeActiveItemIdx], safeActiveItemIdx)})`
+                      : ""}
+                  </span>
                 </span>
-                <span className="text-[10px] text-gray-400 font-medium">(สูงสุด 50MB ต่อรูป)</span>
+                <span className="text-[10px] text-gray-400 font-medium">(สูงสุด 50MB ต่อไฟล์)</span>
               </div>
 
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-              />
-
-              <div className="flex flex-wrap gap-3">
-                {CHECKLIST_OPTIONS.filter((item) => formData.checklist[item.key]).length === 0 ? (
+              <div className="space-y-3">
+                {CHECKLIST_OPTIONS.filter((item) => currentChecklist[item.key]).length === 0 ? (
                   <p className="text-xs text-gray-400 italic py-2">
-                    ติ๊กเลือกหัวข้อด้านบนเพื่อแนบรูปถ่ายอุปกรณ์
+                    ติ๊กเลือกหัวข้อด้านบนเพื่อแนบรูปถ่ายหรือวิดีโอของเครื่องนี้
                   </p>
                 ) : (
                   CHECKLIST_OPTIONS.map((item) => {
-                    if (!formData.checklist[item.key]) return null;
-                    return formData.items.map((_: any, pIdx: number) => {
-                      const imgUrl = formData.checklistImages[item.key]?.[pIdx];
-                      const isUploadingThis =
-                        uploading && uploadTarget?.key === item.key && uploadTarget?.index === pIdx;
+                    if (!currentChecklist[item.key]) return null;
+                    const urls = currentItemImages[item.key] || [];
+                    const isUploadingThis =
+                      uploading && uploadingSlot === `${safeActiveItemIdx}-${item.key}`;
 
-                      return (
-                        <div
-                          key={`${item.key}-${pIdx}`}
-                          className="flex flex-col items-center w-[84px] group"
-                        >
-                          <div
-                            onClick={() => triggerUpload(item.key, pIdx)}
-                            className={`w-[84px] h-[84px] rounded-2xl border-2 flex items-center justify-center cursor-pointer overflow-hidden transition-all relative ${
-                              !imgUrl
-                                ? "bg-gray-50 border-dashed border-gray-300 hover:border-[#ff2301] hover:bg-red-50/20"
-                                : "bg-white border-solid border-gray-200 shadow-sm"
-                            }`}
-                          >
-                            {imgUrl ? (
-                              <img src={imgUrl} alt={item.label} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="flex flex-col items-center gap-1 text-gray-400 group-hover:text-[#ff2301] transition-colors">
-                                {isUploadingThis ? (
-                                  <span className="w-5 h-5 rounded-full border-2 border-[#ff2301] border-t-transparent animate-spin" />
-                                ) : (
-                                  <>
-                                    <Camera size={20} />
-                                    <span className="text-[9px] font-bold uppercase">อัปโหลด</span>
-                                  </>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          {imgUrl && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeImage(item.key, pIdx);
-                              }}
-                              className="mt-1.5 text-[10px] text-red-600 hover:text-red-700 font-bold bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors"
-                            >
-                              ลบรูป
-                            </button>
+                    return (
+                      <div
+                        key={`${safeActiveItemIdx}-gallery-${item.key}`}
+                        className="p-3 rounded-2xl border border-gray-200/80 bg-gray-50/50 space-y-2"
+                      >
+                        <div className="text-[11px] font-bold text-gray-700 flex items-center justify-between">
+                          <span>{item.label}</span>
+                          {urls.length > 0 && (
+                            <span className="text-[10px] text-emerald-600 font-bold">
+                              {urls.length} ไฟล์
+                            </span>
                           )}
-
-                          <span className="text-[9px] font-medium text-gray-500 text-center leading-tight mt-1 truncate max-w-[80px]">
-                            {item.label.split("/")[0]}
-                          </span>
                         </div>
-                      );
-                    });
+                        <div className="flex flex-wrap gap-2.5 items-start">
+                          <label className="w-[74px] h-[74px] rounded-2xl border-2 border-dashed border-gray-300 hover:border-[#ff2301] hover:bg-red-50/30 bg-white flex flex-col items-center justify-center cursor-pointer text-gray-400 hover:text-[#ff2301] transition-all shrink-0">
+                            {isUploadingThis ? (
+                              <span className="w-5 h-5 rounded-full border-2 border-[#ff2301] border-t-transparent animate-spin" />
+                            ) : (
+                              <>
+                                <Upload size={18} />
+                                <span className="text-[9px] font-bold uppercase mt-0.5">
+                                  {item.isVideo ? "วิดีโอ" : "เพิ่มรูป"}
+                                </span>
+                              </>
+                            )}
+                            <input
+                              type="file"
+                              accept={item.isVideo ? "video/*" : "image/*"}
+                              multiple
+                              className="hidden"
+                              disabled={uploading}
+                              onChange={(e) => handleFilesUpload(e, item.key, safeActiveItemIdx)}
+                            />
+                          </label>
+
+                          {urls.map((imgUrl: string, uIdx: number) => {
+                            const isVid = Boolean(item.isVideo) || isVideoUrl(imgUrl);
+                            return (
+                              <div
+                                key={`${imgUrl}-${uIdx}`}
+                                className="relative group w-[74px] h-[74px] rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-2xs shrink-0"
+                              >
+                                {isVid ? (
+                                  <video
+                                    src={imgUrl}
+                                    className="w-full h-full object-cover"
+                                    muted
+                                    controls={false}
+                                  />
+                                ) : (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={imgUrl}
+                                    alt={item.label}
+                                    className="w-full h-full object-cover"
+                                  />
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(item.key, safeActiveItemIdx, uIdx)}
+                                  className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                                  title="ลบไฟล์นี้"
+                                >
+                                  <X size={11} />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
                   })
                 )}
               </div>

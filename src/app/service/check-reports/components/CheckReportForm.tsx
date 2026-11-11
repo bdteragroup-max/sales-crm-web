@@ -43,10 +43,13 @@ import {
   ScrollText,
   Sliders,
   Star,
+  Copy,
+  Package,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import {
   createInverterCheckReport,
+  createBatchInverterCheckReports,
   updateInverterCheckReport,
   generateCrNumber,
   searchCompaniesForCheckReport,
@@ -74,6 +77,12 @@ import {
   EQUIPMENT_TYPE_CONFIG,
   EQUIPMENT_TYPE_OPTIONS,
 } from "../lib/crConstants";
+import {
+  BatchCrItemDraft,
+  createEmptyBatchCrItem,
+  buildBatchItemsFromRepairOrder,
+  buildPreviewBatchCrNumbers,
+} from "../lib/multiItemCrHelpers";
 
 export type PhotoKey =
   | "front"
@@ -408,8 +417,47 @@ export function normalizeWarrantyStatus(val?: string | null): string {
   return val;
 }
 
+function normalizeCheckReportPhotos(rawInput: any): CheckReportPhotos {
+  const raw = rawInput || {};
+  const normalized: CheckReportPhotos = {};
+  const allKeys: PhotoKey[] = [
+    "front",
+    "left",
+    "right",
+    "top",
+    "fan",
+    "inside",
+    "damage",
+    "terminal",
+    "nameplate",
+    "other",
+  ];
+  allKeys.forEach((key) => {
+    const existing = raw[key];
+    if (Array.isArray(existing)) {
+      normalized[key] = existing.filter(Boolean);
+    } else if (typeof existing === "string" && existing) {
+      normalized[key] = [existing];
+    } else {
+      normalized[key] = [];
+    }
+  });
+  if (Array.isArray(raw.side)) normalized.side = raw.side.filter(Boolean);
+  return normalized;
+}
+
+function countItemPhotos(p?: CheckReportPhotos): number {
+  if (!p) return 0;
+  return Object.values(p).reduce(
+    (sum, arr) => sum + (Array.isArray(arr) ? arr.filter(Boolean).length : 0),
+    0
+  );
+}
+
 interface CheckReportFormProps {
   initialData?: any;
+  initialBatchItems?: BatchCrItemDraft[];
+  initialActiveBatchIdx?: number;
   users?: any[];
   companies?: any[];
   currentUserName?: string;
@@ -418,6 +466,8 @@ interface CheckReportFormProps {
 
 export default function CheckReportForm({
   initialData,
+  initialBatchItems,
+  initialActiveBatchIdx = 0,
   users = [],
   companies = [],
   currentUserName = "",
@@ -649,34 +699,285 @@ export default function CheckReportForm({
   );
 
   // Photos: supports multiple photos per slot
-  const [photos, setPhotos] = useState<CheckReportPhotos>(() => {
-    const raw = initialData?.photos || {};
-    const normalized: CheckReportPhotos = {};
-    const allKeys: PhotoKey[] = [
-      "front",
-      "left",
-      "right",
-      "top",
-      "fan",
-      "inside",
-      "damage",
-      "terminal",
-      "nameplate",
-      "other",
+  const [photos, setPhotos] = useState<CheckReportPhotos>(() =>
+    normalizeCheckReportPhotos(initialData?.photos)
+  );
+
+  // ── Multi-Item Batch State (for creating multiple CRs from one Repair Order) ──
+  const [batchItems, setBatchItems] = useState<BatchCrItemDraft[]>(() => {
+    if (!isEdit && initialBatchItems && initialBatchItems.length > 0) {
+      return initialBatchItems;
+    }
+    return [
+      createEmptyBatchCrItem(0, {
+        roItemKey: (initialData?.diodeMeasurement as any)?.roItemKey || "item-0-unit-0",
+        equipmentType: (initialData?.equipmentType as EquipmentType) || "INVERTER",
+        hasInverterInCabinet: initialData?.hasInverterInCabinet ?? true,
+        inverterBrand:
+          initialData?.inverterBrand ??
+          (initialData?.equipmentType === "CONTROL_CABINET"
+            ? "TERA GROUP"
+            : initialData?.equipmentType === "PUMP" || initialData?.equipmentType === "MOTOR"
+            ? ""
+            : "INVT"),
+        inverterModel: initialData?.inverterModel || "",
+        serialNumber: initialData?.serialNumber || "",
+        motorKw: initialData?.motorKw || "",
+        applicationLoad: initialData?.applicationLoad || "",
+        purchaseDate: initialData?.purchaseDate
+          ? new Date(initialData.purchaseDate).toISOString().split("T")[0]
+          : "",
+        saleDate: initialData?.saleDate
+          ? new Date(initialData.saleDate).toISOString().split("T")[0]
+          : "",
+        faultDate: initialData?.faultDate
+          ? new Date(initialData.faultDate).toISOString().split("T")[0]
+          : "",
+        warrantyStatus: normalizeWarrantyStatus(initialData?.warrantyStatus || "IN_WARRANTY"),
+        symptoms: initialData?.symptoms || "",
+        causeOfFault: initialData?.causeOfFault || "",
+        recommendations: initialData?.recommendations || "",
+        requireParts: initialData?.requireParts?.length
+          ? initialData.requireParts
+          : [{ partName: "", qty: 1 }],
+        diodeMeasurement: initialData?.diodeMeasurement || {},
+        powerInputVoltage: initialData?.powerInputVoltage || {},
+        powerOutputVoltage: initialData?.powerOutputVoltage || {},
+        panelComponentsCheck: initialData?.panelComponentsCheck?.length
+          ? initialData.panelComponentsCheck
+          : DEFAULT_PANEL_COMPONENTS,
+        motorMeasurement: initialData?.motorMeasurement || {},
+        photos: normalizeCheckReportPhotos(initialData?.photos),
+      }),
     ];
-    allKeys.forEach((key) => {
-      const existing = raw[key];
-      if (Array.isArray(existing)) {
-        normalized[key] = existing.filter(Boolean);
-      } else if (typeof existing === "string" && existing) {
-        normalized[key] = [existing];
-      } else {
-        normalized[key] = [];
-      }
-    });
-    if (Array.isArray(raw.side)) normalized.side = raw.side.filter(Boolean);
-    return normalized;
   });
+  const [activeBatchIdx, setActiveBatchIdx] = useState<number>(() => {
+    if (!isEdit && initialBatchItems && initialBatchItems.length > 0) {
+      return Math.min(Math.max(0, initialActiveBatchIdx), initialBatchItems.length - 1);
+    }
+    return 0;
+  });
+
+  const getCurrentItemSnapshot = (baseItem?: BatchCrItemDraft): BatchCrItemDraft => {
+    const base =
+      baseItem ||
+      batchItems[activeBatchIdx] ||
+      createEmptyBatchCrItem(activeBatchIdx);
+    return {
+      ...base,
+      equipmentType,
+      hasInverterInCabinet,
+      inverterBrand,
+      inverterModel,
+      serialNumber,
+      motorKw,
+      applicationLoad,
+      purchaseDate,
+      saleDate,
+      faultDate,
+      warrantyStatus,
+      symptoms,
+      causeOfFault,
+      recommendations,
+      requireParts: requireParts.map((p) => ({ ...p })),
+      diodeMeasurement: { ...diodeMeasurement },
+      powerInputVoltage: { ...powerInputVoltage },
+      powerOutputVoltage: { ...powerOutputVoltage },
+      panelComponentsCheck: panelComponentsCheck.map((c) => ({ ...c })),
+      motorMeasurement: { ...motorMeasurement },
+      photos: normalizeCheckReportPhotos(photos),
+    };
+  };
+
+  const loadItemIntoForm = (item: BatchCrItemDraft) => {
+    const nextType = item.equipmentType || "INVERTER";
+    setEquipmentType(nextType);
+    setHasInverterInCabinet(item.hasInverterInCabinet ?? true);
+    setInverterBrand(item.inverterBrand || "");
+    setInverterModel(item.inverterModel || "");
+    setSerialNumber(item.serialNumber || "");
+    setMotorKw(item.motorKw || "");
+    setApplicationLoad(item.applicationLoad || "");
+    setPurchaseDate(item.purchaseDate || "");
+    setSaleDate(item.saleDate || "");
+    setFaultDate(item.faultDate || "");
+    setWarrantyStatus(normalizeWarrantyStatus(item.warrantyStatus || "IN_WARRANTY"));
+    setSymptoms(item.symptoms || "");
+    setCauseOfFault(item.causeOfFault || "");
+    setRecommendations(item.recommendations || "");
+    setRequireParts(
+      item.requireParts?.length
+        ? item.requireParts.map((p) => ({ ...p }))
+        : [{ partName: "", qty: 1 }]
+    );
+    setDiodeMeasurement({ ...(item.diodeMeasurement || {}) });
+    setPowerInputVoltage({ ...(item.powerInputVoltage || {}) });
+    setPowerOutputVoltage({ ...(item.powerOutputVoltage || {}) });
+    setPanelComponentsCheck(
+      item.panelComponentsCheck?.length
+        ? item.panelComponentsCheck.map((c) => ({ ...c }))
+        : DEFAULT_PANEL_COMPONENTS.map((c) => ({ ...c }))
+    );
+    setMotorMeasurement({ ...(item.motorMeasurement || {}) });
+    setPhotos(normalizeCheckReportPhotos(item.photos));
+    setSelectedPhotoIndex({});
+
+    // Keep activeTab valid for the loaded equipmentType
+    if ((nextType === "MOTOR" || nextType === "PUMP") && activeTab === "voltage") {
+      setActiveTab(nextType === "PUMP" ? "specs" : "inspection");
+    } else if (nextType === "PUMP" && (activeTab === "inspection" || activeTab === "inverter_check")) {
+      setActiveTab("specs");
+    } else if (nextType !== "CONTROL_CABINET" && activeTab === "inverter_check") {
+      setActiveTab("inspection");
+    }
+  };
+
+  const switchBatchItem = (targetIdx: number) => {
+    if (isEdit) return;
+    if (targetIdx === activeBatchIdx || targetIdx < 0 || targetIdx >= batchItems.length) return;
+    const currentSnap = getCurrentItemSnapshot(batchItems[activeBatchIdx]);
+    const nextList = batchItems.map((it, idx) => (idx === activeBatchIdx ? currentSnap : it));
+    setBatchItems(nextList);
+    loadItemIntoForm(nextList[targetIdx]);
+    setActiveBatchIdx(targetIdx);
+  };
+
+  const toggleBatchItemSelected = (idx: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const currentSnap = getCurrentItemSnapshot(batchItems[activeBatchIdx]);
+    setBatchItems((prev) =>
+      prev.map((it, i) => {
+        const base = i === activeBatchIdx ? currentSnap : it;
+        return i === idx ? { ...base, selectedForSave: !base.selectedForSave } : base;
+      })
+    );
+  };
+
+  const addBatchItem = () => {
+    const currentSnap = getCurrentItemSnapshot(batchItems[activeBatchIdx]);
+    const nextIdx = batchItems.length;
+    const newItem = createEmptyBatchCrItem(nextIdx, {
+      roItemKey: `manual-${nextIdx}`,
+      equipmentType: currentSnap.equipmentType,
+      warrantyStatus: currentSnap.warrantyStatus,
+      purchaseDate: currentSnap.purchaseDate,
+      saleDate: currentSnap.saleDate,
+      faultDate: currentSnap.faultDate,
+      symptoms: currentSnap.symptoms,
+    });
+    const nextList = [
+      ...batchItems.map((it, i) => (i === activeBatchIdx ? currentSnap : it)),
+      newItem,
+    ];
+    setBatchItems(nextList);
+    loadItemIntoForm(newItem);
+    setActiveBatchIdx(nextIdx);
+    if (activeTab === "customer") {
+      setActiveTab("specs");
+    }
+  };
+
+  const removeBatchItem = (removeIdx: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (batchItems.length <= 1) return;
+    const currentSnap = getCurrentItemSnapshot(batchItems[activeBatchIdx]);
+    const synced = batchItems.map((it, i) => (i === activeBatchIdx ? currentSnap : it));
+    const nextList = synced.filter((_, i) => i !== removeIdx);
+    let nextActive = activeBatchIdx;
+    if (removeIdx === activeBatchIdx) {
+      nextActive = Math.min(removeIdx, nextList.length - 1);
+      loadItemIntoForm(nextList[nextActive]);
+    } else if (removeIdx < activeBatchIdx) {
+      nextActive = activeBatchIdx - 1;
+    }
+    setBatchItems(nextList);
+    setActiveBatchIdx(nextActive);
+  };
+
+  const copyCommonDiagnosisToAllItems = () => {
+    if (batchItems.length <= 1) return;
+    const currentSnap = getCurrentItemSnapshot(batchItems[activeBatchIdx]);
+    setBatchItems((prev) =>
+      prev.map((it, idx) => {
+        if (idx === activeBatchIdx) return currentSnap;
+        return {
+          ...it,
+          warrantyStatus: currentSnap.warrantyStatus,
+          purchaseDate: currentSnap.purchaseDate || it.purchaseDate,
+          saleDate: currentSnap.saleDate || it.saleDate,
+          faultDate: currentSnap.faultDate || it.faultDate,
+          applicationLoad: currentSnap.applicationLoad || it.applicationLoad,
+          symptoms: currentSnap.symptoms || it.symptoms,
+          causeOfFault: currentSnap.causeOfFault || it.causeOfFault,
+          recommendations: currentSnap.recommendations || it.recommendations,
+        };
+      })
+    );
+    Swal.fire({
+      icon: "success",
+      title: "คัดลอกอาการเสีย/สาเหตุ/ประกัน เรียบร้อย",
+      text: `คัดลอกข้อมูลจากรายการที่ ${activeBatchIdx + 1} ไปยังทั้ง ${batchItems.length} รายการแล้ว (ไม่ทับรุ่น/S/N หรือค่าที่วัดรายเครื่อง)`,
+      timer: 1800,
+      showConfirmButton: false,
+    });
+  };
+
+  // Live-merged view of batchItems so the active pill reflects keystrokes immediately
+  const displayBatchItems = useMemo(() => {
+    return batchItems.map((it, idx) => {
+      if (idx !== activeBatchIdx) return it;
+      return {
+        ...it,
+        equipmentType,
+        hasInverterInCabinet,
+        inverterBrand,
+        inverterModel,
+        serialNumber,
+        motorKw,
+        symptoms,
+        causeOfFault,
+        photos,
+      };
+    });
+  }, [
+    batchItems,
+    activeBatchIdx,
+    equipmentType,
+    hasInverterInCabinet,
+    inverterBrand,
+    inverterModel,
+    serialNumber,
+    motorKw,
+    symptoms,
+    causeOfFault,
+    photos,
+  ]);
+
+  const selectedBatchIndices = useMemo(
+    () =>
+      displayBatchItems
+        .map((it, idx) => (it.selectedForSave ? idx : -1))
+        .filter((idx) => idx >= 0),
+    [displayBatchItems]
+  );
+
+  const previewCrNumbersList = useMemo(
+    () =>
+      buildPreviewBatchCrNumbers(
+        crNumber,
+        selectedBatchIndices.length,
+        displayBatchItems.length > 1
+      ),
+    [crNumber, selectedBatchIndices.length, displayBatchItems.length]
+  );
+
+  const previewCrByBatchIdx = useMemo(() => {
+    const map: Record<number, string> = {};
+    selectedBatchIndices.forEach((batchIdx, orderIdx) => {
+      map[batchIdx] = previewCrNumbersList[orderIdx] || "";
+    });
+    return map;
+  }, [selectedBatchIndices, previewCrNumbersList]);
 
   // Dynamic Tabs based on Equipment Type
   const tabs = useMemo(() => {
@@ -893,10 +1194,12 @@ export default function CheckReportForm({
     }
   };
 
-  // Sync Voltage from QC Data
-  const syncQcVoltage = (qcData: any) => {
+  // Sync Voltage from QC Data (matches activeBatchIdx when multiple items exist)
+  const syncQcVoltage = (qcData: any, unitIdx: number = activeBatchIdx) => {
     if (!qcData) return;
-    const itemQc = Array.isArray(qcData.itemsQc) ? qcData.itemsQc[0] : qcData;
+    const itemQc = Array.isArray(qcData.itemsQc)
+      ? qcData.itemsQc[unitIdx] || qcData.itemsQc[0] || qcData
+      : qcData;
     if (itemQc?.inputVoltage) {
       setPowerInputVoltage({
         inputDc: itemQc.inputVoltage?.dcSinglePhase?.value || "",
@@ -908,7 +1211,10 @@ export default function CheckReportForm({
     }
     if (itemQc?.outputVoltage) {
       setPowerOutputVoltage({
-        output1PhaseLn: itemQc.outputVoltage?.singlePhase220?.ln || "",
+        output1PhaseLn:
+          itemQc.outputVoltage?.singlePhaseLN?.value ||
+          itemQc.outputVoltage?.singlePhase220?.ln ||
+          "",
         output3Phase220Uv: itemQc.outputVoltage?.threePhase220?.uv || "",
         output3Phase220Uw: itemQc.outputVoltage?.threePhase220?.uw || "",
         output3Phase220Vw: itemQc.outputVoltage?.threePhase220?.vw || "",
@@ -939,7 +1245,7 @@ export default function CheckReportForm({
         });
         return;
       }
-      syncQcVoltage(ro.inverterQc);
+      syncQcVoltage(ro.inverterQc, activeBatchIdx);
       Swal.fire({
         icon: "success",
         title: "ดึงข้อมูลแรงดัน QC สำเร็จ",
@@ -974,8 +1280,39 @@ export default function CheckReportForm({
       setSalesPerson(order.salesPerson);
       setSalesSearchQuery(order.salesPerson);
     }
-    if (order.symptoms) setSymptoms(order.symptoms);
 
+    const rawComp = (order.company || "").toUpperCase();
+    if (rawComp === "TP" || rawComp.includes("POWER")) setCompanyCode("TP");
+    else if (rawComp === "TE" || rawComp.includes("ELECTRIC") || rawComp.includes("ENERGY")) setCompanyCode("TE");
+    else setCompanyCode("TG");
+
+    if (!isEdit) {
+      const builtItems = buildBatchItemsFromRepairOrder(order, order.existingReports || []);
+      const firstPending = builtItems.findIndex((it) => it.selectedForSave);
+      const targetIdx = firstPending >= 0 ? firstPending : 0;
+      setBatchItems(builtItems);
+      setActiveBatchIdx(targetIdx);
+      if (builtItems[targetIdx]) {
+        loadItemIntoForm(builtItems[targetIdx]);
+      }
+
+      setIsRoDropdownOpen(false);
+      setRoSearchQuery("");
+
+      Swal.fire({
+        icon: "success",
+        title: "เชื่อมโยงใบรับซ่อมเรียบร้อย",
+        text:
+          builtItems.length > 1
+            ? `ดึงข้อมูลจากใบรับซ่อม ${order.job?.jobNumber || ""} ทั้งหมด ${builtItems.length} รายการเครื่อง`
+            : `ดึงข้อมูลจากใบรับซ่อมเลขที่ ${order.job?.jobNumber || ""}`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    if (order.symptoms) setSymptoms(order.symptoms);
     const items = Array.isArray(order.items) ? (order.items as any[]) : [];
     if (items.length > 0) {
       const firstItem = items[0] || {};
@@ -996,13 +1333,8 @@ export default function CheckReportForm({
       }
     }
 
-    const rawComp = (order.company || "").toUpperCase();
-    if (rawComp === "TP" || rawComp.includes("POWER")) setCompanyCode("TP");
-    else if (rawComp === "TE" || rawComp.includes("ELECTRIC") || rawComp.includes("ENERGY")) setCompanyCode("TE");
-    else setCompanyCode("TG");
-
     if (order.inverterQc) {
-      syncQcVoltage(order.inverterQc);
+      syncQcVoltage(order.inverterQc, 0);
     }
 
     setIsRoDropdownOpen(false);
@@ -1302,6 +1634,141 @@ export default function CheckReportForm({
       return false;
     }
 
+    // Multi-item batch submission path (when !isEdit && batchItems.length > 1)
+    if (!isEdit && batchItems.length > 1) {
+      const currentSnap = getCurrentItemSnapshot(batchItems[activeBatchIdx]);
+      const syncedItems = batchItems.map((it, idx) =>
+        idx === activeBatchIdx ? currentSnap : it
+      );
+      setBatchItems(syncedItems);
+
+      const selectedEntries = syncedItems
+        .map((item, idx) => ({ item, idx }))
+        .filter((x) => x.item.selectedForSave);
+
+      if (selectedEntries.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "ยังไม่ได้เลือกรายการบันทึก",
+          text: "กรุณาติ๊กเลือกรายการเครื่องที่ต้องการออกรายงาน CR อย่างน้อย 1 รายการ",
+          confirmButtonColor: "#ff2301",
+        });
+        return false;
+      }
+
+      for (const { item, idx } of selectedEntries) {
+        if (!item.symptoms.trim()) {
+          loadItemIntoForm(item);
+          setActiveBatchIdx(idx);
+          setActiveTab("specs");
+          const itemLabel =
+            [item.inverterBrand, item.inverterModel].filter(Boolean).join(" ") ||
+            EQUIPMENT_TYPE_CONFIG[item.equipmentType]?.shortLabel ||
+            `เครื่องที่ ${idx + 1}`;
+          Swal.fire({
+            icon: "warning",
+            title: `กรุณาระบุอาการเสีย (รายการที่ ${idx + 1})`,
+            text: `ยังไม่ได้ระบุอาการเสียของ ${itemLabel}${item.serialNumber ? ` (S/N: ${item.serialNumber})` : ""}`,
+            confirmButtonColor: "#ff2301",
+          });
+          return false;
+        }
+      }
+
+      setIsSubmitting(true);
+      try {
+        const batchPayloads: InverterCheckReportFormData[] = selectedEntries.map(({ item }) => ({
+          equipmentType: item.equipmentType,
+          crNumber: crNumber.trim(),
+          checkDate,
+          companyCode,
+          customerCompany: customerCompany.trim(),
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          customerAddress: customerAddress.trim(),
+          salesPerson: salesPerson.trim(),
+          inspectorName: inspectorName.trim(),
+          approvedByName: approvedByName.trim() || undefined,
+          approvedDate: approvedDate || undefined,
+          convertedJobId: convertedJobId || undefined,
+          convertedJobNumber: convertedJobNumber || undefined,
+          convertedRepairOrderId: convertedRepairOrderId || undefined,
+          inverterBrand: item.inverterBrand.trim(),
+          inverterModel: item.inverterModel.trim(),
+          serialNumber: item.serialNumber.trim(),
+          motorKw: item.motorKw.trim(),
+          applicationLoad: item.applicationLoad.trim(),
+          purchaseDate: item.purchaseDate || undefined,
+          saleDate: item.saleDate || undefined,
+          faultDate: item.faultDate || undefined,
+          warrantyStatus: item.warrantyStatus,
+          symptoms: item.symptoms.trim(),
+          causeOfFault: item.causeOfFault.trim(),
+          recommendations: item.recommendations.trim(),
+          requireParts: item.requireParts.filter((p) => p.partName.trim()),
+          hasInverterInCabinet: item.hasInverterInCabinet,
+          diodeMeasurement: {
+            ...item.diodeMeasurement,
+            roItemKey: item.roItemKey,
+            hasInverter:
+              item.equipmentType === "CONTROL_CABINET"
+                ? item.hasInverterInCabinet
+                : item.equipmentType === "INVERTER",
+          },
+          powerInputVoltage: item.powerInputVoltage,
+          powerOutputVoltage: item.powerOutputVoltage,
+          panelComponentsCheck: item.panelComponentsCheck,
+          motorMeasurement: item.motorMeasurement,
+          photos: item.photos,
+          reportBy: approvedByName.trim() || currentUserName,
+        }));
+
+        const res = await createBatchInverterCheckReports(
+          batchPayloads,
+          crNumber.trim(),
+          { forceSequenceSuffix: true }
+        );
+
+        if (!res.success) {
+          Swal.fire({
+            icon: "error",
+            title: "บันทึกไม่สำเร็จ",
+            text: res.error || "เกิดข้อผิดพลาดในการบันทึกรายงานหลายรายการ",
+            confirmButtonColor: "#ff2301",
+          });
+          setIsSubmitting(false);
+          return false;
+        }
+
+        const createdNums = (res.data || []).map((r: any) => r.crNumber).filter(Boolean);
+        if (!skipRedirect) {
+          await Swal.fire({
+            icon: "success",
+            title: `บันทึกรายงานตรวจเช็คสำเร็จ (${createdNums.length} ใบ)`,
+            text:
+              createdNums.length > 1
+                ? `ออกเลขที่: ${createdNums.join(", ")}`
+                : `ออกเลขที่: ${createdNums[0] || ""}`,
+            timer: 2400,
+            showConfirmButton: false,
+          });
+          router.push("/service/check-reports");
+          router.refresh();
+        }
+        return true;
+      } catch (err: any) {
+        console.error("Batch submit error:", err);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: err.message,
+        });
+        return false;
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+
     if (!symptoms.trim()) {
       Swal.fire({
         icon: "warning",
@@ -1347,6 +1814,9 @@ export default function CheckReportForm({
         hasInverterInCabinet,
         diodeMeasurement: {
           ...diodeMeasurement,
+          ...(!isEdit && batchItems[0]?.roItemKey
+            ? { roItemKey: batchItems[0].roItemKey }
+            : {}),
           hasInverter:
             equipmentType === "CONTROL_CABINET"
               ? hasInverterInCabinet
@@ -1551,7 +2021,11 @@ export default function CheckReportForm({
             ) : (
               <>
                 <Save className="w-4 h-4 text-emerald-400" />
-                บันทึกข้อมูล
+                <span>
+                  {!isEdit && displayBatchItems.length > 1
+                    ? `บันทึก ${selectedBatchIndices.length} รายการ (แยกเลข CR)`
+                    : "บันทึกข้อมูล"}
+                </span>
               </>
             )}
           </button>
@@ -1559,6 +2033,194 @@ export default function CheckReportForm({
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
+        {/* ================= MULTI-ITEM INSPECTION BAR (WHEN CREATING NEW CR) ================= */}
+        {!isEdit && (
+          <div className="bg-white rounded-2xl border-2 border-indigo-100 shadow-sm p-4 sm:p-5 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center font-bold shrink-0">
+                  <Package className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-800">
+                      {displayBatchItems.length > 1
+                        ? `รายการเครื่องที่ตรวจเช็ค (${displayBatchItems.length} รายการ)`
+                        : "รายการเครื่องที่ตรวจเช็ค (1 รายการ)"}
+                    </h3>
+                    {displayBatchItems.length > 1 && (
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        เลือกออกรายงาน {selectedBatchIndices.length} / {displayBatchItems.length} เครื่อง
+                      </span>
+                    )}
+                    {convertedJobNumber && (
+                      <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-[#ff2301] border border-red-200">
+                        RO: {convertedJobNumber}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {displayBatchItems.length > 1
+                      ? "คลิกสลับเครื่องเพื่อกรอกประเภทอุปกรณ์/ค่าที่วัด/รูปถ่ายแยกแต่ละเครื่อง ระบบจะบันทึกแยกเลข CR (-01, -02, ...) ผูกกับใบรับซ่อมเดียวกันให้อัตโนมัติ"
+                      : "หากใบรับซ่อมหรือการตรวจเช็คครั้งนี้มีหลายเครื่อง สามารถกดปุ่มเพิ่มรายการเครื่องเพื่อกรอกพร้อมกันในฟอร์มเดียวได้"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {displayBatchItems.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={copyCommonDiagnosisToAllItems}
+                    className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                    title="คัดลอกอาการเสีย สาเหตุ ข้อเสนอแนะ และสถานะประกันจากเครื่องนี้ไปทุกเครื่อง"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>คัดลอกอาการเสีย/สาเหตุ ไปทุกรายการ</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={addBatchItem}
+                  className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>เพิ่มรายการเครื่อง</span>
+                </button>
+              </div>
+            </div>
+
+            {displayBatchItems.length > 1 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+                {displayBatchItems.map((it, idx) => {
+                  const isActive = idx === activeBatchIdx;
+                  const eqCfg = EQUIPMENT_TYPE_CONFIG[it.equipmentType];
+                  const previewCr = previewCrByBatchIdx[idx];
+                  const photoCount = countItemPhotos(it.photos);
+                  const hasSymptoms = Boolean(it.symptoms?.trim());
+
+                  return (
+                    <div
+                      key={it.uid}
+                      onClick={() => switchBatchItem(idx)}
+                      className={`relative rounded-xl p-3.5 border text-left transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                        isActive
+                          ? "bg-indigo-50/70 border-indigo-600 ring-2 ring-indigo-500/25 shadow-sm"
+                          : it.selectedForSave
+                          ? "bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50/60"
+                          : "bg-slate-50/80 border-slate-200/70 opacity-75 hover:opacity-100"
+                      }`}
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <label
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 cursor-pointer select-none"
+                            title="ติ๊กเลือกเพื่อบันทึกออกเลข CR สำหรับเครื่องนี้"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={it.selectedForSave}
+                              onChange={() => toggleBatchItemSelected(idx)}
+                              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                            />
+                            <span>เครื่องที่ {idx + 1}</span>
+                          </label>
+
+                          <div className="flex items-center gap-1">
+                            {it.selectedForSave && previewCr ? (
+                              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-50 text-[#ff2301] border border-red-200">
+                                {previewCr}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-200/70 text-slate-600">
+                                ข้ามบันทึก
+                              </span>
+                            )}
+                            {displayBatchItems.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={(e) => removeBatchItem(idx, e)}
+                                className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                title="ลบรายการเครื่องนี้ออกจากชุดตรวจเช็ค"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-white">
+                            {eqCfg?.shortLabel || it.equipmentType}
+                          </span>
+                          {it.motorKw && (
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                              {it.motorKw}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-xs font-bold text-slate-900 truncate">
+                          {[it.inverterBrand, it.inverterModel].filter(Boolean).join(" ") ||
+                            "ยังไม่ระบุยี่ห้อ/รุ่น"}
+                        </div>
+                        <div className="text-[11px] font-mono text-slate-500 truncate">
+                          S/N: {it.serialNumber || "-"}
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-1 text-[10px]">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`inline-flex items-center gap-1 font-bold ${
+                              hasSymptoms ? "text-emerald-600" : "text-amber-600"
+                            }`}
+                          >
+                            {hasSymptoms ? (
+                              <>
+                                <CheckCircle2 className="w-3 h-3" />
+                                <span>พร้อมบันทึก</span>
+                              </>
+                            ) : (
+                              <>
+                                <AlertCircle className="w-3 h-3" />
+                                <span>รอระบุอาการ</span>
+                              </>
+                            )}
+                          </span>
+                          {photoCount > 0 && (
+                            <span className="px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-bold">
+                              รูป {photoCount}
+                            </span>
+                          )}
+                        </div>
+
+                        {it.existingCr ? (
+                          <Link
+                            href={`/service/check-reports/${it.existingCr.id}/edit`}
+                            target="_blank"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold transition-colors"
+                            title={`เครื่องนี้เคยออกใบ ${it.existingCr.crNumber} แล้ว คลิกเพื่อเปิดดู/แก้ไข`}
+                          >
+                            <span>ออกแล้ว: {it.existingCr.crNumber}</span>
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </Link>
+                        ) : isActive ? (
+                          <span className="font-bold text-indigo-700">กำลังกรอกข้อมูล</span>
+                        ) : (
+                          <span className="text-slate-400">คลิกเพื่อกรอก</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ================= STEP 1: EQUIPMENT TYPE SELECTION (TOP PRIORITY) ================= */}
         <div className="bg-white rounded-2xl border-2 border-red-100 shadow-sm p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -1567,8 +2229,16 @@ export default function CheckReportForm({
                 <SlidersHorizontal className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-800">
-                  ขั้นตอนที่ 1: เลือกประเภทอุปกรณ์ที่ตรวจเช็ค (Equipment Type) <span className="text-red-500">*</span>
+                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2 flex-wrap">
+                  <span>
+                    ขั้นตอนที่ 1: เลือกประเภทอุปกรณ์ที่ตรวจเช็ค (Equipment Type){" "}
+                    <span className="text-red-500">*</span>
+                  </span>
+                  {!isEdit && displayBatchItems.length > 1 && (
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white">
+                      กำลังกรอกเครื่องที่ {activeBatchIdx + 1} / {displayBatchItems.length}
+                    </span>
+                  )}
                 </h3>
                 <p className="text-xs text-slate-500">
                   เลือกประเภทอุปกรณ์ก่อน เพื่อแยกหัวข้อและแสดงเฉพาะแบบฟอร์มของอุปกรณ์นั้นๆ ทันที
@@ -1934,7 +2604,8 @@ export default function CheckReportForm({
                       พบใบรับซ่อม ({roSearchResults.length})
                     </div>
                     {roSearchResults.map((order) => {
-                      const firstItem = Array.isArray(order.items) ? order.items[0] : null;
+                      const orderItems = Array.isArray(order.items) ? order.items : [];
+                      const firstItem = orderItems[0] || null;
                       return (
                         <div
                           key={order.id}
@@ -1942,18 +2613,30 @@ export default function CheckReportForm({
                           className="p-2 text-xs rounded-lg hover:bg-red-50/60 cursor-pointer border-b border-slate-100 last:border-none flex items-center justify-between transition-colors"
                         >
                           <div>
-                            <div className="font-bold text-slate-800 flex items-center gap-2">
+                            <div className="font-bold text-slate-800 flex items-center gap-2 flex-wrap">
                               <span className="text-[#ff2301] font-mono">{order.job?.jobNumber || "RO"}</span>
                               <span>•</span>
                               <span>{order.customerCompany || order.job?.customerName || "ไม่ระบุชื่อ"}</span>
+                              {orderItems.length > 1 && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                  {orderItems.length} รายการเครื่อง
+                                </span>
+                              )}
+                              {Array.isArray(order.existingReports) && order.existingReports.length > 0 && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  ออก CR แล้ว {order.existingReports.length} ใบ
+                                </span>
+                              )}
                             </div>
                             <div className="text-[11px] text-slate-500 mt-0.5">
                               {firstItem
-                                ? `${firstItem.brand || ""} ${firstItem.model || ""} (S/N: ${firstItem.serial || "-"})`
+                                ? `${firstItem.brand || ""} ${firstItem.model || ""} (S/N: ${firstItem.serial || "-"})${
+                                    orderItems.length > 1 ? ` และอีก ${orderItems.length - 1} รายการ` : ""
+                                  }`
                                 : "ไม่มีข้อมูลสินค้า"}
                             </div>
                           </div>
-                          <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-1 rounded">
+                          <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-1 rounded shrink-0">
                             เลือกใบนี้
                           </span>
                         </div>
@@ -1968,7 +2651,10 @@ export default function CheckReportForm({
               {/* CR Number */}
               <div>
                 <label className="font-bold text-slate-700 block mb-1">
-                  เลขที่เอกสาร CR <span className="text-red-500">*</span>
+                  {!isEdit && displayBatchItems.length > 1
+                    ? "เลขที่เอกสาร CR หลัก (รันแยกอัตโนมัติ)"
+                    : "เลขที่เอกสาร CR"}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -1978,6 +2664,20 @@ export default function CheckReportForm({
                   placeholder="เช่น CR69-1019"
                   className="w-full text-xs font-mono font-bold px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-red-600"
                 />
+                {!isEdit && displayBatchItems.length > 1 && previewCrNumbersList.length > 0 && (
+                  <p className="text-[10px] font-semibold text-indigo-700 mt-1 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-indigo-500 shrink-0" />
+                    <span>
+                      จะบันทึกเป็น:{" "}
+                      <b className="font-mono">
+                        {previewCrNumbersList.length > 1
+                          ? `${previewCrNumbersList[0]} ถึง ${previewCrNumbersList[previewCrNumbersList.length - 1]}`
+                          : previewCrNumbersList[0]}
+                      </b>{" "}
+                      ({previewCrNumbersList.length} ใบ)
+                    </span>
+                  </p>
+                )}
               </div>
 
               {/* Check Date */}
@@ -3268,9 +3968,23 @@ export default function CheckReportForm({
 
         {/* Bottom Sticky Action Bar */}
         <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-xl p-4 flex flex-wrap items-center justify-between gap-4 sticky bottom-4 z-10">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2 text-xs text-slate-500 flex-wrap">
             <span className="font-bold text-slate-700">เลขที่ CR:</span>
-            <span className="font-mono text-red-600 font-bold">{crNumber || "-"}</span>
+            <span className="font-mono text-red-600 font-bold">
+              {!isEdit && displayBatchItems.length > 1 && previewCrNumbersList.length > 0
+                ? previewCrNumbersList.length > 1
+                  ? `${previewCrNumbersList[0]} .. ${previewCrNumbersList[previewCrNumbersList.length - 1]}`
+                  : previewCrNumbersList[0]
+                : crNumber || "-"}
+            </span>
+            {!isEdit && displayBatchItems.length > 1 && (
+              <>
+                <span>•</span>
+                <span className="font-bold text-indigo-700">
+                  เครื่องที่ {activeBatchIdx + 1}/{displayBatchItems.length}
+                </span>
+              </>
+            )}
             <span>•</span>
             <span className="font-bold text-slate-700">ประเภท:</span>
             <span className="font-bold text-slate-900">{EQUIPMENT_TYPE_CONFIG[equipmentType]?.shortLabel}</span>
@@ -3301,7 +4015,11 @@ export default function CheckReportForm({
               ) : (
                 <>
                   <Save className="w-4 h-4 text-white" />
-                  บันทึกข้อมูล
+                  <span>
+                    {!isEdit && displayBatchItems.length > 1
+                      ? `บันทึก ${selectedBatchIndices.length} รายการ`
+                      : "บันทึกข้อมูล"}
+                  </span>
                 </>
               )}
             </button>

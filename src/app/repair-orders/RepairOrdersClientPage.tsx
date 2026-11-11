@@ -55,6 +55,7 @@ import {
   getRepairCompany,
   type RepairCompanyOption,
 } from "./lib/companyHelpers";
+import { computeRepairChecklistSummary } from "./lib/checklistHelpers";
 
 interface RepairOrdersClientPageProps {
   initialRepairOrders?: any[];
@@ -1535,10 +1536,25 @@ export default function RepairOrdersClientPage({
                             {/* Check Report (CR) Button */}
                             <Link
                               href={`/service/check-reports/new?roId=${record.id}`}
-                              className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                              title="ออกรายงานตรวจเช็ค / Fault Report (CR) จากใบรับซ่อมนี้"
+                              className={`relative p-1.5 rounded-lg transition-colors ${
+                                Array.isArray(record.checkReports) && record.checkReports.length > 0
+                                  ? "text-indigo-600 hover:text-indigo-700 bg-indigo-50/80 hover:bg-indigo-100"
+                                  : "text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
+                              }`}
+                              title={
+                                Array.isArray(record.checkReports) && record.checkReports.length > 0
+                                  ? `ออกรายงาน CR แล้ว ${record.checkReports.length} ใบ (${record.checkReports
+                                      .map((c: any) => c.crNumber)
+                                      .join(", ")}) - คลิกเพื่อออกเพิ่ม/ตรวจสอบ`
+                                  : "ออกรายงานตรวจเช็ค / Fault Report (CR) จากใบรับซ่อมนี้"
+                              }
                             >
                               <FileSpreadsheet size={15} />
+                              {Array.isArray(record.checkReports) && record.checkReports.length > 0 && (
+                                <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-indigo-600 text-white text-[9px] font-black flex items-center justify-center leading-none">
+                                  {record.checkReports.length}
+                                </span>
+                              )}
                             </Link>
 
                             {/* Print PDF Button */}
@@ -1849,10 +1865,23 @@ export default function RepairOrdersClientPage({
                     <div className="flex items-center gap-1">
                       <Link
                         href={`/service/check-reports/new?roId=${record.id}`}
-                        className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                        title="ออกรายงานตรวจเช็ค (CR)"
+                        className={`relative p-1.5 rounded-lg transition-colors ${
+                          Array.isArray(record.checkReports) && record.checkReports.length > 0
+                            ? "text-indigo-600 hover:text-indigo-700 bg-indigo-50/80 hover:bg-indigo-100"
+                            : "text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
+                        }`}
+                        title={
+                          Array.isArray(record.checkReports) && record.checkReports.length > 0
+                            ? `ออกรายงาน CR แล้ว ${record.checkReports.length} ใบ`
+                            : "ออกรายงานตรวจเช็ค (CR)"
+                        }
                       >
                         <FileSpreadsheet size={15} />
+                        {Array.isArray(record.checkReports) && record.checkReports.length > 0 && (
+                          <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-indigo-600 text-white text-[9px] font-black flex items-center justify-center leading-none">
+                            {record.checkReports.length}
+                          </span>
+                        )}
                       </Link>
 
                       <Link
@@ -2163,29 +2192,68 @@ export default function RepairOrdersClientPage({
                 </div>
               </div>
 
-              {/* Checklist Items */}
-              {Object.keys(parseChecklist(selectedOrder.checklist)).length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <CheckSquare size={14} className="text-[#ff2301]" /> รายการอุปกรณ์ที่ส่งมาพร้อมเครื่อง
-                  </h3>
-                  <div className="flex flex-wrap gap-2 p-4 rounded-2xl border border-gray-200 bg-white">
-                    {Object.entries(parseChecklist(selectedOrder.checklist)).map(([k, checked]) => {
-                      if (!checked) return null;
-                      const label = CHECKLIST_LABELS[k] || k;
-                      return (
-                        <span
-                          key={k}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-red-50 text-red-700 border border-red-200"
-                        >
-                          <Check size={13} className="text-[#ff2301]" />
-                          <span>{label}</span>
-                        </span>
-                      );
-                    })}
+              {/* Checklist Items (Supports Multi-Item Per-Machine Summary) */}
+              {(() => {
+                const parsedItems = parseItems(selectedOrder.items);
+                const summary = computeRepairChecklistSummary(
+                  parsedItems,
+                  selectedOrder.checklist,
+                  selectedOrder.checklistImages
+                );
+                const anyChecked = summary.checkedItems.some((c) => c.filled > 0);
+                if (!anyChecked) return null;
+
+                return (
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <CheckSquare size={14} className="text-[#ff2301]" /> รายการตรวจสอบสภาพภายนอกก่อนซ่อม
+                    </h3>
+                    {summary.perItemSummary.length > 1 ? (
+                      <div className="p-4 rounded-2xl border border-gray-200 bg-white space-y-3">
+                        {summary.perItemSummary.map((row) => (
+                          <div
+                            key={row.itemIndex}
+                            className="p-2.5 rounded-xl bg-gray-50/80 border border-gray-100 space-y-1.5"
+                          >
+                            <div className="text-[11px] font-bold text-gray-800">
+                              รายการที่ {row.itemIndex + 1}: {row.title}
+                            </div>
+                            {row.checkedLabels.length > 0 ? (
+                              <div className="flex flex-wrap gap-1.5">
+                                {row.checkedLabels.map((lbl) => (
+                                  <span
+                                    key={lbl}
+                                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-red-50 text-red-700 border border-red-200"
+                                  >
+                                    <Check size={11} className="text-[#ff2301]" />
+                                    <span>{lbl}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-[11px] text-gray-400">ยังไม่ได้ติ๊กหัวข้อตรวจสอบ</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2 p-4 rounded-2xl border border-gray-200 bg-white">
+                        {summary.checkedItems
+                          .filter((c) => c.filled > 0)
+                          .map((c) => (
+                            <span
+                              key={c.key}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-red-50 text-red-700 border border-red-200"
+                            >
+                              <Check size={13} className="text-[#ff2301]" />
+                              <span>{c.label}</span>
+                            </span>
+                          ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Personnel */}
               <div className="space-y-3">
@@ -2223,6 +2291,107 @@ export default function RepairOrdersClientPage({
                         <span>ยังไม่ระบุ</span>
                       </p>
                     )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Check Reports (CR) Card */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <FileSpreadsheet size={14} className="text-indigo-600" /> รายงานตรวจเช็ค & Fault Report (CR)
+                  </h3>
+                  {Array.isArray(selectedOrder.checkReports) && selectedOrder.checkReports.length > 0 ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                      <Check size={11} className="stroke-[3]" /> ออกแล้ว {selectedOrder.checkReports.length} ใบ
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                      ยังไม่ได้ออก CR
+                    </span>
+                  )}
+                </div>
+
+                <div className="p-4 rounded-2xl border border-gray-200 bg-white space-y-3">
+                  {Array.isArray(selectedOrder.checkReports) && selectedOrder.checkReports.length > 0 ? (
+                    <div className="space-y-2">
+                      {selectedOrder.checkReports.map((cr: any) => {
+                        const printTab =
+                          cr.equipmentType === "PUMP"
+                            ? "pump_th"
+                            : cr.equipmentType === "MOTOR"
+                            ? "motor_th"
+                            : cr.equipmentType === "INVERTER"
+                            ? "check_list"
+                            : "cr";
+                        return (
+                          <div
+                            key={cr.id}
+                            className="p-2.5 rounded-xl bg-indigo-50/40 border border-indigo-100 flex flex-wrap items-center justify-between gap-2 text-xs"
+                          >
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-mono font-black text-indigo-700">
+                                  {cr.crNumber}
+                                </span>
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-900 text-white">
+                                  {cr.equipmentType || "INVERTER"}
+                                </span>
+                                <span className="font-bold text-gray-800 truncate">
+                                  {[cr.inverterBrand, cr.inverterModel].filter(Boolean).join(" ") || "—"}
+                                </span>
+                              </div>
+                              {cr.serialNumber && (
+                                <p className="text-[11px] font-mono text-gray-500 mt-0.5">
+                                  S/N: {cr.serialNumber}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <Link
+                                href={`/service/check-reports/${cr.id}/print?tab=${printTab}`}
+                                target="_blank"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-[11px] font-bold transition-colors"
+                              >
+                                <Printer size={12} />
+                                <span>พิมพ์</span>
+                              </Link>
+                              <Link
+                                href={`/service/check-reports/${cr.id}/edit`}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold transition-colors"
+                              >
+                                <Edit2 size={12} />
+                                <span>แก้ไข</span>
+                              </Link>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-xs">
+                      <p className="font-semibold text-gray-700">
+                        ยังไม่มีรายงานตรวจเช็ค (CR) สำหรับใบรับซ่อมนี้
+                      </p>
+                      <p className="text-[11px] text-gray-400">
+                        รองรับการตรวจเช็คหลายรายการพร้อมกันในฟอร์มเดียว และรันเลข CR แยกเครื่องให้อัตโนมัติ (-01, -02, ...)
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="pt-1 flex justify-end">
+                    <Link
+                      href={`/service/check-reports/new?roId=${selectedOrder.id}`}
+                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-sm"
+                    >
+                      <Plus size={14} />
+                      <span>
+                        {Array.isArray(selectedOrder.checkReports) && selectedOrder.checkReports.length > 0
+                          ? "ออกใบตรวจเช็ค (CR) เพิ่มเติม"
+                          : "ออกใบตรวจเช็ค (CR) ทุกรายการ"}
+                      </span>
+                    </Link>
                   </div>
                 </div>
               </div>

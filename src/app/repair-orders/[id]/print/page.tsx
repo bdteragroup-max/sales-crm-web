@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Printer, ArrowLeft } from "lucide-react";
 import { Sarabun } from "next/font/google";
 import { getCompanyPrintInfo } from "@/app/repair-orders/lib/companyHelpers";
+import { computeRepairChecklistSummary } from "@/app/repair-orders/lib/checklistHelpers";
 
 const sarabun = Sarabun({
   weight: ["400", "500", "600", "700"],
@@ -66,70 +67,18 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
   const stP = dp(returnSentDate);
   const rrP = dp(returnSentDate);
 
-  const CHECKLIST_DEF = [
-    { key: 'Front', label: 'ด้านหน้า' },
-    { key: 'Top', label: 'ด้านบน' },
-    { key: 'SideLeft', label: 'ด้านข้าง (ซ้าย)' },
-    { key: 'SideRight', label: 'ด้านข้าง (ขวา)' },
-    { key: 'Inside', label: 'ด้านใน' },
-    { key: 'Nameplate', label: 'Nameplate' },
-    { key: 'Bottom', label: 'ด้านล่าง' },
-    { key: 'TerminalNut', label: 'Terminal / Nut' },
-    { key: 'TermCover', label: 'Term. cover' },
-    { key: 'Cover', label: 'ฝาครอบ / Cover' },
-    { key: 'Video', label: 'Video' }
-  ];
-
-  const items = data?.items || [];
+  const items = Array.isArray(data?.items) ? data.items : [];
   const productCount = items.length || 0;
-  const checkedItems = CHECKLIST_DEF.map(def => {
-    const imgs = data?.checklistImages?.[def.key] || [];
-    let filledCount = 0;
-    for (let pi = 0; pi < productCount; pi++) {
-      const hasImg = !!(imgs[pi]);
-      const hasCheck = (pi === 0) && (data?.checklist?.[def.key] === true);
-      if (hasImg || hasCheck) filledCount++;
-    }
-    return { label: def.label, filled: filledCount, total: productCount };
-  });
+  const {
+    checkedItems,
+    perItemSummary,
+    attachedImages: rawAttachedMedia,
+  } = computeRepairChecklistSummary(items, data?.checklist, data?.checklistImages);
 
   // Use items as-is without padding empty rows
   const displayItems = [...items];
-
-  // Collect attached images
-  const attachedImages: { url: string; label: string }[] = [];
-  const seenFileNames = new Set<string>();
-
-  const getFileName = (url: string) => {
-    try {
-      const parts = url.split('/');
-      const last = parts[parts.length - 1]; // e.g. 1234-5678-my_image.jpg
-      const match = last.match(/^\d+-\d+-(.+)$/);
-      return match ? match[1] : last;
-    } catch {
-      return url;
-    }
-  };
-
-  if (data?.checklistImages) {
-    Object.entries(data.checklistImages).forEach(([key, urls]) => {
-      if (Array.isArray(urls)) {
-        urls.forEach((url, idx) => {
-          if (url && typeof url === 'string') {
-            const fileName = getFileName(url);
-            if (!seenFileNames.has(fileName)) {
-              seenFileNames.add(fileName);
-              const def = CHECKLIST_DEF.find(c => c.key === key);
-              attachedImages.push({
-                url: url,
-                label: def?.label?.split('/')[0] || key
-              });
-            }
-          }
-        });
-      }
-    });
-  }
+  const attachedImages = rawAttachedMedia.filter((m) => !m.isVideo);
+  const itemsWithChecks = perItemSummary.filter((s) => s.checkedLabels.length > 0);
 
   // ── Render one A4 sheet ──
   const renderA4Page = (copyLabel: string) => {
@@ -247,6 +196,15 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
             );
           })}
         </div>
+        {productCount > 1 && itemsWithChecks.length > 0 && (
+          <div style={{ marginTop: '4px', fontSize: '9.5px', color: '#333', lineHeight: 1.35 }}>
+            {itemsWithChecks.map((s) => (
+              <div key={s.itemIndex}>
+                <b>รายการที่ {s.itemIndex + 1} ({s.title}):</b> {s.checkedLabels.join(', ')}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Attached Images */}

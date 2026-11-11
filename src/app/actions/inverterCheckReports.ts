@@ -78,6 +78,9 @@ export interface DiodeMeasurement {
   inverterModel?: string;
   inverterSerial?: string;
   inverterKw?: string;
+
+  // อ้างอิงลำดับรายการเครื่องในใบรับซ่อม (เช่น "item-0-unit-0") สำหรับรองรับใบรับซ่อมหลายรายการ
+  roItemKey?: string;
 }
 
 export interface PowerVoltageCheck {
@@ -403,6 +406,7 @@ export async function createInverterCheckReport(formData: InverterCheckReportFor
     });
 
     revalidatePath("/service/check-reports");
+    revalidatePath("/repair-orders");
     revalidatePath("/service/dashboard");
     const createdDiodeMeta = (report.diodeMeasurement as any) || {};
     const hasInverterInCabinet =
@@ -432,6 +436,158 @@ export async function createInverterCheckReport(formData: InverterCheckReportFor
   } catch (error: any) {
     console.error("Error creating InverterCheckReport:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการบันทึกรายงาน" };
+  }
+}
+
+/**
+ * Create multiple Check Reports in one atomic transaction (for multi-item Repair Orders)
+ * Automatically numbers sequential suffixes (-01, -02, -03, ...) without collisions.
+ */
+export async function createBatchInverterCheckReports(
+  itemsPayload: InverterCheckReportFormData[],
+  baseCrInput?: string,
+  options?: { forceSequenceSuffix?: boolean }
+) {
+  try {
+    if (!itemsPayload || itemsPayload.length === 0) {
+      return { success: false, error: "ไม่มีรายการเครื่องที่เลือกสำหรับบันทึก" };
+    }
+
+    const user = await getUser();
+    const firstCheckDate = itemsPayload[0]?.checkDate;
+    const d = firstCheckDate
+      ? new Date(firstCheckDate)
+      : new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+    const beYear = (d.getFullYear() + 543).toString().slice(-2);
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const defaultBase = `CR${beYear}-${month}${day}`;
+
+    const rawBase = (baseCrInput || itemsPayload[0]?.crNumber || "").trim() || defaultBase;
+    const suffixMatch = rawBase.match(/^(.*)-(\d{2,})$/);
+    const prefix = suffixMatch ? suffixMatch[1] : rawBase;
+    const requestedStartSeq = suffixMatch ? Math.max(1, parseInt(suffixMatch[2], 10) || 1) : 1;
+    const forceSeq = Boolean(options?.forceSequenceSuffix);
+
+    const createdReports = await prisma.$transaction(async (tx) => {
+      const existing = await tx.inverterCheckReport.findMany({
+        where: {
+          crNumber: {
+            startsWith: prefix,
+          },
+        },
+        select: { crNumber: true },
+      });
+
+      const existingSet = new Set(existing.map((e) => e.crNumber));
+      let maxExistingSeq = 0;
+      const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const seqRegex = new RegExp(`^${escapedPrefix}-(\\d+)$`);
+
+      for (const item of existing) {
+        const m = item.crNumber.match(seqRegex);
+        if (m) {
+          const seq = parseInt(m[1], 10);
+          if (!isNaN(seq) && seq > maxExistingSeq) {
+            maxExistingSeq = seq;
+          }
+        }
+      }
+
+      let nextSeq = Math.max(requestedStartSeq, maxExistingSeq + 1);
+      const results: any[] = [];
+
+      for (let i = 0; i < itemsPayload.length; i++) {
+        const formData = itemsPayload[i];
+        let assignedCrNumber: string;
+
+        if (
+          itemsPayload.length === 1 &&
+          !forceSeq &&
+          !suffixMatch &&
+          !existingSet.has(prefix) &&
+          maxExistingSeq === 0
+        ) {
+          assignedCrNumber = prefix;
+          existingSet.add(assignedCrNumber);
+        } else {
+          let seq = nextSeq;
+          let candidate = `${prefix}-${String(seq).padStart(2, "0")}`;
+          while (existingSet.has(candidate)) {
+            seq++;
+            candidate = `${prefix}-${String(seq).padStart(2, "0")}`;
+          }
+          assignedCrNumber = candidate;
+          existingSet.add(assignedCrNumber);
+          nextSeq = seq + 1;
+        }
+
+        const report = await tx.inverterCheckReport.create({
+          data: {
+            crNumber: assignedCrNumber,
+            checkDate: formData.checkDate ? new Date(formData.checkDate) : new Date(),
+            customerName: formData.customerName,
+            customerCompany: formData.customerCompany,
+            customerPhone: formData.customerPhone,
+            customerAddress: formData.customerAddress,
+            inspectorName: formData.inspectorName || user?.fullName,
+            salesPerson: formData.salesPerson,
+            inverterBrand: formData.inverterBrand,
+            inverterModel: formData.inverterModel,
+            serialNumber: formData.serialNumber,
+            motorKw: formData.motorKw,
+            applicationLoad: formData.applicationLoad,
+            purchaseDate: formData.purchaseDate ? new Date(formData.purchaseDate) : null,
+            saleDate: formData.saleDate ? new Date(formData.saleDate) : null,
+            faultDate: formData.faultDate ? new Date(formData.faultDate) : null,
+            warrantyStatus: formData.warrantyStatus || "PENDING",
+            symptoms: formData.symptoms,
+            causeOfFault: formData.causeOfFault,
+            recommendations: formData.recommendations,
+            requireParts: (formData.requireParts || []) as any,
+            diodeMeasurement: {
+              ...(formData.diodeMeasurement || {}),
+              approvedByName: formData.approvedByName || formData.reportBy || undefined,
+              approvedDate: formData.approvedDate || undefined,
+              ...(formData.hasInverterInCabinet !== undefined
+                ? { hasInverter: formData.hasInverterInCabinet }
+                : {}),
+            } as any,
+            powerInputVoltage: (formData.powerInputVoltage || {}) as any,
+            powerOutputVoltage: (formData.powerOutputVoltage || {}) as any,
+            panelComponentsCheck: (formData.panelComponentsCheck || []) as any,
+            motorMeasurement: (formData.motorMeasurement || {}) as any,
+            photos: (formData.photos || {}) as any,
+            reportBy: formData.approvedByName || formData.reportBy || user?.fullName,
+            status: formData.status || (formData.convertedJobNumber ? "CONVERTED_TO_RO" : "PENDING"),
+            companyCode: formData.companyCode || "TG",
+            equipmentType: formData.equipmentType || "INVERTER",
+            convertedJobId: formData.convertedJobId || null,
+            convertedJobNumber: formData.convertedJobNumber || null,
+            convertedRepairOrderId: formData.convertedRepairOrderId || null,
+          },
+        });
+
+        results.push(report);
+      }
+
+      return results;
+    });
+
+    revalidatePath("/service/check-reports");
+    revalidatePath("/repair-orders");
+    revalidatePath("/service/dashboard");
+
+    return {
+      success: true,
+      data: createdReports,
+    };
+  } catch (error: any) {
+    console.error("Error creating batch InverterCheckReports:", error);
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการบันทึกรายงานหลายรายการ",
+    };
   }
 }
 
@@ -639,7 +795,7 @@ export async function convertCheckReportToRepairOrder(
       receivedDate: new Date().toISOString(),
       items: [
         {
-          type: "INVERTER",
+          type: report.equipmentType || "INVERTER",
           brand: report.inverterBrand || "",
           model: report.inverterModel || "",
           size: report.motorKw ? `${report.motorKw} kW` : "",
@@ -940,7 +1096,49 @@ export async function searchRepairOrdersForCheckReport(query: string = "") {
       orderBy: { createdAt: "desc" },
     });
 
-    return orders;
+    if (orders.length === 0) return [];
+
+    const roIds = orders.map((o) => o.id).filter(Boolean);
+    const jobIds = orders.map((o) => o.jobId).filter((v): v is string => Boolean(v));
+    const jobNumbers = orders
+      .map((o) => o.job?.jobNumber)
+      .filter((v): v is string => Boolean(v));
+
+    const orFilters: any[] = [];
+    if (roIds.length > 0) orFilters.push({ convertedRepairOrderId: { in: roIds } });
+    if (jobIds.length > 0) orFilters.push({ convertedJobId: { in: jobIds } });
+    if (jobNumbers.length > 0) orFilters.push({ convertedJobNumber: { in: jobNumbers } });
+
+    const linkedReports =
+      orFilters.length > 0
+        ? await prisma.inverterCheckReport.findMany({
+            where: { OR: orFilters },
+            select: {
+              id: true,
+              crNumber: true,
+              equipmentType: true,
+              inverterBrand: true,
+              inverterModel: true,
+              serialNumber: true,
+              status: true,
+              diodeMeasurement: true,
+              convertedRepairOrderId: true,
+              convertedJobId: true,
+              convertedJobNumber: true,
+            },
+            orderBy: { crNumber: "asc" },
+          })
+        : [];
+
+    return orders.map((o) => ({
+      ...o,
+      existingReports: linkedReports.filter(
+        (cr) =>
+          (cr.convertedRepairOrderId && cr.convertedRepairOrderId === o.id) ||
+          (o.jobId && cr.convertedJobId === o.jobId) ||
+          (o.job?.jobNumber && cr.convertedJobNumber === o.job.jobNumber)
+      ),
+    }));
   } catch (err) {
     console.error("Error searching repair orders for check report:", err);
     return [];
@@ -969,7 +1167,35 @@ export async function getRepairOrderForCheckReport(id: string) {
       return { success: false, error: "ไม่พบข้อมูลใบรับซ่อม" };
     }
 
-    return { success: true, data: order };
+    const orFilters: any[] = [{ convertedRepairOrderId: order.id }];
+    if (order.jobId) orFilters.push({ convertedJobId: order.jobId });
+    if (order.job?.jobNumber) orFilters.push({ convertedJobNumber: order.job.jobNumber });
+
+    const existingReports = await prisma.inverterCheckReport.findMany({
+      where: { OR: orFilters },
+      select: {
+        id: true,
+        crNumber: true,
+        equipmentType: true,
+        inverterBrand: true,
+        inverterModel: true,
+        serialNumber: true,
+        status: true,
+        diodeMeasurement: true,
+        convertedRepairOrderId: true,
+        convertedJobId: true,
+        convertedJobNumber: true,
+      },
+      orderBy: { crNumber: "asc" },
+    });
+
+    return {
+      success: true,
+      data: {
+        ...order,
+        existingReports,
+      },
+    };
   } catch (err: any) {
     console.error("Error fetching repair order for check report:", err);
     return { success: false, error: err.message || "Failed to fetch repair order" };

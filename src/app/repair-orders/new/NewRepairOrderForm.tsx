@@ -26,10 +26,19 @@ import {
   Cpu,
   Layers,
   Search,
+  Copy,
 } from "lucide-react";
 import { createRepairOrder } from "@/app/actions/repairOrders";
 import { searchCompanies, searchContacts, getPostalInfo } from "@/app/actions/sales";
 import { REPAIR_COMPANIES, getRepairCompany } from "@/app/repair-orders/lib/companyHelpers";
+import {
+  ChecklistByItemMap,
+  ChecklistImagesByItemMap,
+  createEmptyChecklistMap,
+  formatRepairItemShortTitle,
+  removeChecklistItemAtIndex,
+  serializeRepairChecklistData,
+} from "@/app/repair-orders/lib/checklistHelpers";
 import Swal from "sweetalert2";
 
 interface UserOption {
@@ -114,25 +123,18 @@ export default function NewRepairOrderForm({
     { id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" },
   ]);
 
-  // Symptoms & Checklist State
+  // Symptoms & Per-Item Checklist State
   const [symptoms, setSymptoms] = useState("");
   const [settings, setSettings] = useState("");
-  const [checklist, setChecklist] = useState<Record<string, boolean>>({
-    Front: false,
-    Top: false,
-    SideLeft: false,
-    SideRight: false,
-    Inside: false,
-    Nameplate: false,
-    Bottom: false,
-    TerminalNut: false,
-    TermCover: false,
-    Cover: false,
-    Video: false,
+  const [activeChecklistItemIdx, setActiveChecklistItemIdx] = useState(0);
+  const [checklistByItem, setChecklistByItem] = useState<ChecklistByItemMap>({
+    0: createEmptyChecklistMap(),
   });
 
-  // Images State
-  const [checklistFiles, setChecklistFiles] = useState<Record<string, File[]>>({});
+  // Images State (per item index -> per checklist key -> File[])
+  const [checklistFilesByItem, setChecklistFilesByItem] = useState<
+    Record<number, Record<string, File[]>>
+  >({ 0: {} });
   const [isUploading, setIsUploading] = useState(false);
 
   // Signatures State
@@ -241,15 +243,38 @@ export default function NewRepairOrderForm({
 
   // Handle Items
   const addItem = () => {
+    const newIndex = items.length;
     setItems([
       ...items,
       { id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" },
     ]);
+    setChecklistByItem((prev) => ({
+      ...prev,
+      [newIndex]: createEmptyChecklistMap(),
+    }));
+    setChecklistFilesByItem((prev) => ({
+      ...prev,
+      [newIndex]: {},
+    }));
   };
 
   const removeItem = (id: string) => {
     if (items.length > 1) {
+      const removeIdx = items.findIndex((item) => item.id === id);
+      if (removeIdx === -1) return;
+      const prevLen = items.length;
       setItems(items.filter((item) => item.id !== id));
+      setChecklistByItem((prev) =>
+        removeChecklistItemAtIndex(prev, removeIdx, prevLen, createEmptyChecklistMap)
+      );
+      setChecklistFilesByItem((prev) =>
+        removeChecklistItemAtIndex(prev, removeIdx, prevLen, () => ({}))
+      );
+      setActiveChecklistItemIdx((curr) => {
+        const nextMax = Math.max(0, prevLen - 2);
+        if (curr > removeIdx) return curr - 1;
+        return Math.min(curr, nextMax);
+      });
     }
   };
 
@@ -257,12 +282,46 @@ export default function NewRepairOrderForm({
     setItems(items.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
-  // Handle Checklist
+  const safeActiveItemIdx = Math.min(activeChecklistItemIdx, Math.max(0, items.length - 1));
+  const currentChecklist = checklistByItem[safeActiveItemIdx] || createEmptyChecklistMap();
+  const currentChecklistFiles = checklistFilesByItem[safeActiveItemIdx] || {};
+
+  // Handle Checklist (for active item)
   const toggleChecklist = (key: string) => {
-    setChecklist((prev) => ({ ...prev, [key]: !prev[key] }));
+    setChecklistByItem((prev) => {
+      const current = prev[safeActiveItemIdx] || createEmptyChecklistMap();
+      return {
+        ...prev,
+        [safeActiveItemIdx]: {
+          ...current,
+          [key]: !current[key],
+        },
+      };
+    });
   };
 
-  // Handle Images per Checklist Item
+  // Copy checked topics from active item to all other items
+  const copyChecklistTopicsToAllItems = () => {
+    if (items.length <= 1) return;
+    const source = checklistByItem[safeActiveItemIdx] || createEmptyChecklistMap();
+    setChecklistByItem((prev) => {
+      const next: ChecklistByItemMap = { ...prev };
+      for (let i = 0; i < items.length; i++) {
+        if (i === safeActiveItemIdx) continue;
+        next[i] = { ...source };
+      }
+      return next;
+    });
+    Swal.fire({
+      icon: "success",
+      title: "คัดลอกหัวข้อตรวจสอบแล้ว",
+      text: `คัดลอกหัวข้อที่ติ๊กจากรายการที่ ${safeActiveItemIdx + 1} ไปยังทุกรายการเรียบร้อย (รูปถ่ายของแต่ละเครื่องไม่ถูกเขียนทับ)`,
+      timer: 1600,
+      showConfirmButton: false,
+    });
+  };
+
+  // Handle Images per Checklist Item (for active item)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
@@ -279,18 +338,31 @@ export default function NewRepairOrderForm({
           validFiles.push(file);
         }
       }
-      setChecklistFiles((prev) => ({
-        ...prev,
-        [key]: [...(prev[key] || []), ...validFiles],
-      }));
+      setChecklistFilesByItem((prev) => {
+        const itemFiles = prev[safeActiveItemIdx] || {};
+        return {
+          ...prev,
+          [safeActiveItemIdx]: {
+            ...itemFiles,
+            [key]: [...(itemFiles[key] || []), ...validFiles],
+          },
+        };
+      });
     }
+    e.target.value = "";
   };
 
   const removeFile = (key: string, index: number) => {
-    setChecklistFiles((prev) => ({
-      ...prev,
-      [key]: prev[key].filter((_, i) => i !== index),
-    }));
+    setChecklistFilesByItem((prev) => {
+      const itemFiles = prev[safeActiveItemIdx] || {};
+      return {
+        ...prev,
+        [safeActiveItemIdx]: {
+          ...itemFiles,
+          [key]: (itemFiles[key] || []).filter((_, i) => i !== index),
+        },
+      };
+    });
   };
 
   // Reset form
@@ -315,20 +387,9 @@ export default function NewRepairOrderForm({
     setItems([{ id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" }]);
     setSymptoms("");
     setSettings("");
-    setChecklist({
-      Front: false,
-      Top: false,
-      SideLeft: false,
-      SideRight: false,
-      Inside: false,
-      Nameplate: false,
-      Bottom: false,
-      TerminalNut: false,
-      TermCover: false,
-      Cover: false,
-      Video: false,
-    });
-    setChecklistFiles({});
+    setActiveChecklistItemIdx(0);
+    setChecklistByItem({ 0: createEmptyChecklistMap() });
+    setChecklistFilesByItem({ 0: {} });
     setSenderName("");
     setReceivedDate(new Date().toISOString().split("T")[0]);
     setSentDate(new Date().toISOString().split("T")[0]);
@@ -349,43 +410,63 @@ export default function NewRepairOrderForm({
     setIsSubmitting(true);
 
     try {
-      // 1. Upload Images/Videos directly from browser to Supabase Storage
-      const uploadedFilesMap: Record<string, string[]> = {};
-      const allFiles = Object.values(checklistFiles).flat();
-      if (allFiles.length > 0) {
+      // 1. Upload Images/Videos directly from browser to Supabase Storage (per item index)
+      const uploadedByItem: ChecklistImagesByItemMap = {};
+      let hasAnyFiles = false;
+      for (let i = 0; i < items.length; i++) {
+        uploadedByItem[i] = {};
+        const itemFiles = checklistFilesByItem[i] || {};
+        for (const files of Object.values(itemFiles)) {
+          if (files && files.length > 0) {
+            hasAnyFiles = true;
+            break;
+          }
+        }
+      }
+
+      if (hasAnyFiles) {
         setIsUploading(true);
 
         const { createClient } = await import("@/utils/supabase/client");
         const supabase = createClient();
 
-        for (const [key, files] of Object.entries(checklistFiles)) {
-          if (files.length === 0) continue;
-          uploadedFilesMap[key] = [];
-          for (const file of files) {
-            const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-            const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+        for (let itemIdx = 0; itemIdx < items.length; itemIdx++) {
+          const itemFiles = checklistFilesByItem[itemIdx] || {};
+          for (const [key, files] of Object.entries(itemFiles)) {
+            if (!files || files.length === 0) continue;
+            uploadedByItem[itemIdx][key] = [];
+            for (const file of files) {
+              const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+              const filename = `item${itemIdx + 1}-${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
 
-            const { data: uploadData, error: uploadError } = await supabase.storage
-              .from("uploadsService")
-              .upload(filename, file, {
-                contentType: file.type,
-                upsert: false,
-              });
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from("uploadsService")
+                .upload(filename, file, {
+                  contentType: file.type,
+                  upsert: false,
+                });
 
-            if (uploadError) {
-              console.error("Upload error:", uploadError);
-              throw new Error(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}`);
+              if (uploadError) {
+                console.error("Upload error:", uploadError);
+                throw new Error(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}`);
+              }
+
+              const {
+                data: { publicUrl },
+              } = supabase.storage.from("uploadsService").getPublicUrl(uploadData.path);
+
+              uploadedByItem[itemIdx][key].push(publicUrl);
             }
-
-            const {
-              data: { publicUrl },
-            } = supabase.storage.from("uploadsService").getPublicUrl(uploadData.path);
-
-            uploadedFilesMap[key].push(publicUrl);
           }
         }
         setIsUploading(false);
       }
+
+      const serializedChecklist = serializeRepairChecklistData(
+        items.length,
+        checklistByItem,
+        uploadedByItem
+      );
 
       // 2. Prepare Data
       const selectedUser = users.find((u) => u.id === receiverId);
@@ -413,8 +494,8 @@ export default function NewRepairOrderForm({
         })),
         symptoms,
         settings,
-        checklist,
-        checklistImages: uploadedFilesMap,
+        checklist: serializedChecklist.checklist,
+        checklistImages: serializedChecklist.checklistImages,
         senderName,
         receivedDate,
         sentDate,
@@ -1111,20 +1192,98 @@ export default function NewRepairOrderForm({
             </div>
           </div>
 
-          {/* Right Column: Checklist with Photos */}
-          <div>
-            <label className={labelClass}>Checklist ตรวจสอบสภาพภายนอกก่อนซ่อม</label>
+          {/* Right Column: Checklist with Photos (Per-Item Support) */}
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className={`${labelClass} mb-0`}>
+                Checklist ตรวจสอบสภาพภายนอกก่อนซ่อม
+                {items.length > 1 && (
+                  <span className="ml-2 text-[11px] font-bold text-[#ff2301] bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
+                    รายการที่ {safeActiveItemIdx + 1} / {items.length}
+                  </span>
+                )}
+              </label>
+
+              {items.length > 1 && (
+                <button
+                  type="button"
+                  onClick={copyChecklistTopicsToAllItems}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-red-50 text-gray-700 hover:text-[#ff2301] border border-gray-200 hover:border-red-200 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                  title="คัดลอกหัวข้อที่ติ๊กจากเครื่องนี้ไปยังทุกเครื่อง"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>คัดลอกหัวข้อที่ติ๊กไปทุกรายการ</span>
+                </button>
+              )}
+            </div>
+
+            {items.length > 1 && (
+              <div className="p-2.5 rounded-2xl bg-red-50/50 border border-red-100 space-y-1.5">
+                <div className="text-[11px] font-bold text-gray-600 flex items-center justify-between px-1">
+                  <span>เลือกรายการสินค้าเพื่อติ๊กตรวจสภาพ & แนบรูปแยกแต่ละเครื่อง:</span>
+                  <span className="text-[10px] text-gray-400">คลิกสลับเครื่องได้เลย</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {items.map((it, idx) => {
+                    const isSelected = idx === safeActiveItemIdx;
+                    const itemChecks = checklistByItem[idx] || {};
+                    const checkedCount = Object.values(itemChecks).filter(Boolean).length;
+                    const itemFiles = checklistFilesByItem[idx] || {};
+                    const fileCount = Object.values(itemFiles).reduce(
+                      (acc, arr) => acc + (arr?.length || 0),
+                      0
+                    );
+                    return (
+                      <button
+                        key={it.id}
+                        type="button"
+                        onClick={() => setActiveChecklistItemIdx(idx)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-[#ff2301] text-white border-[#ff2301] shadow-sm"
+                            : "bg-white text-gray-700 border-gray-200 hover:border-red-300 hover:bg-white"
+                        }`}
+                      >
+                        <span
+                          className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-black ${
+                            isSelected ? "bg-white text-[#ff2301]" : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {idx + 1}
+                        </span>
+                        <span className="truncate max-w-[180px]">
+                          {formatRepairItemShortTitle(it, idx)}
+                        </span>
+                        {(checkedCount > 0 || fileCount > 0) && (
+                          <span
+                            className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                              isSelected
+                                ? "bg-red-900/30 text-white"
+                                : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            }`}
+                          >
+                            ✓ {checkedCount}
+                            {fileCount > 0 ? ` • ${fileCount} รูป` : ""}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-gray-50/70 p-4 sm:p-5 rounded-2xl border border-gray-200">
               {CHECKLIST_ITEMS.map(({ k, l, isVideo }) => (
                 <div
-                  key={k}
+                  key={`${safeActiveItemIdx}-${k}`}
                   className="flex flex-col gap-2 p-3 bg-white rounded-xl border border-gray-200/80 shadow-sm"
                 >
                   <label className="flex items-center gap-2.5 cursor-pointer group select-none">
                     <div className="relative flex items-center justify-center">
                       <input
                         type="checkbox"
-                        checked={checklist[k] || false}
+                        checked={currentChecklist[k] || false}
                         onChange={() => toggleChecklist(k)}
                         className="peer w-4 h-4 opacity-0 absolute"
                       />
@@ -1137,7 +1296,7 @@ export default function NewRepairOrderForm({
                     </span>
                   </label>
 
-                  {checklist[k] && (
+                  {currentChecklist[k] && (
                     <div className="flex flex-wrap gap-2 items-start pl-6 mt-1">
                       <label className="cursor-pointer border-2 border-dashed border-red-200 hover:border-[#ff2301] hover:bg-red-50 rounded-xl w-16 h-16 flex flex-col items-center justify-center text-red-400 hover:text-[#ff2301] transition-all shrink-0">
                         <Upload className="w-4 h-4 mb-0.5" />
@@ -1151,7 +1310,7 @@ export default function NewRepairOrderForm({
                         />
                       </label>
 
-                      {(checklistFiles[k] || []).map((file, idx) => {
+                      {(currentChecklistFiles[k] || []).map((file, idx) => {
                         const previewUrl = URL.createObjectURL(file);
                         const isVid = file.type.startsWith("video/");
                         return (
