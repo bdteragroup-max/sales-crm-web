@@ -46,6 +46,11 @@ import {
   savePaymentScheduleItem,
   deletePaymentScheduleItem
 } from "@/app/actions/accounting";
+import {
+  deduplicatePersonNames,
+  getPersonIdentityKey,
+  isSamePersonName,
+} from "@/app/lib/personName";
 
 function formatDate(d: string | Date | null | undefined) {
   if (!d) return '-';
@@ -1132,7 +1137,18 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const uniqueJobTypes = useMemo(() => Array.from(new Set(tasks.map(t => t.job?.jobType).filter(Boolean))), [tasks]);
   const uniquePaymentMethods = useMemo(() => Array.from(new Set(tasks.map(t => t.job?.paymentMethod).filter(Boolean))), [tasks]);
   const uniqueYears = useMemo(() => Array.from(new Set(tasks.map(t => t.job?.yearBe).filter(Boolean))).sort((a, b) => Number(b) - Number(a)), [tasks]);
-  const uniqueSalespersons = useMemo(() => Array.from(new Set(tasks.map(t => t.job?.project?.contractSignatory || t.job?.quotation?.salesperson?.fullName || t.job?.sellerName).filter(Boolean))).sort(), [tasks]);
+  const uniqueSalespersons = useMemo(
+    () =>
+      deduplicatePersonNames(
+        tasks.map(
+          (t) =>
+            t.job?.project?.contractSignatory ||
+            t.job?.quotation?.salesperson?.fullName ||
+            t.job?.sellerName
+        )
+      ),
+    [tasks]
+  );
 
   const handleUpdate = (id: string, status: string, note: string = "", invoiceNumber?: string, invoiceDate?: string) => {
     startTransition(async () => {
@@ -1314,12 +1330,16 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
       // 3. Search Query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
+        const qKey = getPersonIdentityKey(searchQuery);
         const jNum = (g.job?.jobNumber || '').toLowerCase();
         const cust = (g.job?.customerName || '').toLowerCase();
         const item = (g.job?.item || '').toLowerCase();
-        const seller = (g.job?.sellerName || g.job?.project?.contractSignatory || g.job?.quotation?.salesperson?.fullName || '').toLowerCase();
+        const rawSeller = g.job?.sellerName || g.job?.project?.contractSignatory || g.job?.quotation?.salesperson?.fullName || '';
+        const seller = rawSeller.toLowerCase();
+        const sellerKey = getPersonIdentityKey(rawSeller);
+        const sellerMatches = seller.includes(q) || Boolean(qKey && sellerKey && sellerKey.includes(qKey));
 
-        if (!jNum.includes(q) && !cust.includes(q) && !item.includes(q) && !seller.includes(q)) {
+        if (!jNum.includes(q) && !cust.includes(q) && !item.includes(q) && !sellerMatches) {
           return false;
         }
       }
@@ -1343,7 +1363,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
       // 7. Salesperson
       if (filterSalesperson) {
         const seller = g.job?.sellerName || g.job?.project?.contractSignatory || g.job?.quotation?.salesperson?.fullName;
-        if (seller !== filterSalesperson) return false;
+        if (!isSamePersonName(seller, filterSalesperson)) return false;
       }
 
       return true;
@@ -1860,7 +1880,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
             >
               <option value="">ทุกเซลส์ผู้ดูแล</option>
               {uniqueSalespersons.map(s => (
-                <option key={s as string} value={s as string}>{s as string}</option>
+                <option key={s.key} value={s.key}>{s.label}</option>
               ))}
             </select>
           </div>

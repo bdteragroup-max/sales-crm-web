@@ -42,6 +42,11 @@ import JobTimeline from "./JobTimeline";
 import JobsExecutiveCockpit from "./JobsExecutiveCockpit";
 import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
 import { formatDateForInput, formatThaiDate } from "@/utils/thai-date";
+import {
+  deduplicatePersonNames,
+  getPersonIdentityKey,
+  isSamePersonName,
+} from "@/app/lib/personName";
 
 type StepLog = {
   step: string
@@ -247,8 +252,8 @@ function JobProcurementStatus({ customerName, projectName }: { customerName: str
                   const chipClass = isCancelled
                     ? 'bg-red-50 border-red-200 text-red-700 line-through opacity-75'
                     : isReceived
-                    ? 'bg-green-50 border-green-100 text-green-700'
-                    : 'bg-amber-50 border-amber-100 text-amber-700';
+                      ? 'bg-green-50 border-green-100 text-green-700'
+                      : 'bg-amber-50 border-amber-100 text-amber-700';
                   const statusText = isCancelled ? 'ยกเลิก' : (isReceived ? 'รับแล้ว' : 'รอรับ');
                   return (
                     <div key={po.id} className={`flex items-center gap-1.5 px-2 py-1 rounded border text-[10px] font-medium ${chipClass}`}>
@@ -510,10 +515,10 @@ function ExpandedRow({
             label="วันที่ต้องการจัดส่ง"
             value={formatDateForInput(
               job.deliveryDate ||
-                job.repairOrder?.sentDate ||
-                job.repairOrder?.receivedDate ||
-                job.project?.endDate ||
-                job.project?.deliveryDate
+              job.repairOrder?.sentDate ||
+              job.repairOrder?.receivedDate ||
+              job.project?.endDate ||
+              job.project?.deliveryDate
             )}
             type="date"
             onSave={save("deliveryDate")}
@@ -529,9 +534,9 @@ function ExpandedRow({
               job.paymentMethod ||
               job.repairOrder?.deliveryMethod ||
               (job.project?.installment1 ||
-              job.project?.installment2 ||
-              job.project?.installment3 ||
-              job.project?.installment4
+                job.project?.installment2 ||
+                job.project?.installment3 ||
+                job.project?.installment4
                 ? "แบ่งชำระ"
                 : "")
             }
@@ -768,12 +773,7 @@ export default function JobsClientPage({
   }, [jobs]);
 
   const uniqueEmployees = useMemo(() => {
-    const s = new Set<string>();
-    jobs.forEach((j) => {
-      const name = j.sellerName?.trim().replace(/\s+/g, " ");
-      if (name) s.add(name);
-    });
-    return Array.from(s).sort((a, b) => a.localeCompare(b, "th"));
+    return deduplicatePersonNames(jobs.map((j) => j.sellerName));
   }, [jobs]);
 
   const thisMonthCount = useMemo(() => {
@@ -827,12 +827,12 @@ export default function JobsClientPage({
         prev.map((j) =>
           j.id === id
             ? ({
-                ...j,
-                ...data,
-                ...(data.dateClosed
-                  ? { dateClosed: new Date(data.dateClosed) }
-                  : {}),
-              } as any)
+              ...j,
+              ...data,
+              ...(data.dateClosed
+                ? { dateClosed: new Date(data.dateClosed) }
+                : {}),
+            } as any)
             : j
         )
       );
@@ -885,8 +885,8 @@ export default function JobsClientPage({
           j.deliveryMethod === "in-house"
             ? "จัดส่งเอง"
             : j.deliveryMethod === "courier"
-            ? "ขนส่งเอกชน"
-            : "-",
+              ? "ขนส่งเอกชน"
+              : "-",
         "วันที่ต้องการจัดส่ง": j.deliveryDate ? formatDate(j.deliveryDate) : "-",
       };
     });
@@ -1190,9 +1190,7 @@ export default function JobsClientPage({
       if (filterCo && normalizeCompanyCode(j.companyCode) !== filterCo) return false;
       if (filterType && j.jobType !== filterType) return false;
       if (filterEmployee) {
-        const jobSeller = (j.sellerName || "").trim().replace(/\s+/g, " ");
-        const targetSeller = filterEmployee.trim().replace(/\s+/g, " ");
-        if (jobSeller !== targetSeller) return false;
+        if (!isSamePersonName(j.sellerName, filterEmployee)) return false;
       }
       if (filterDeptStatus) {
         if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
@@ -1222,19 +1220,23 @@ export default function JobsClientPage({
       }
       if (search) {
         const q = search.trim().replace(/\s+/g, " ").toLowerCase();
+        const qKey = getPersonIdentityKey(search);
         const jn = j.jobNumber.toLowerCase();
         const cn = j.customerName.toLowerCase();
         const it = (j.item || "").toLowerCase();
         const qn = (j.quotationNumber || "").toLowerCase();
         const po = (j.poNumber || "").toLowerCase();
         const sn = (j.sellerName || "").trim().replace(/\s+/g, " ").toLowerCase();
+        const snKey = getPersonIdentityKey(j.sellerName);
+        const sellerMatches =
+          sn.includes(q) || Boolean(qKey && snKey && snKey.includes(qKey));
         if (
           !jn.includes(q) &&
           !cn.includes(q) &&
           !it.includes(q) &&
           !qn.includes(q) &&
           !po.includes(q) &&
-          !sn.includes(q)
+          !sellerMatches
         ) {
           return false;
         }
@@ -1323,15 +1325,15 @@ export default function JobsClientPage({
 
   const isFiltered = Boolean(
     statusTab !== "all" ||
-      filterCo ||
-      filterType ||
-      filterEmployee ||
-      filterMonth ||
-      filterStartDate ||
-      filterEndDate ||
-      filterDeptStatus ||
-      filterPo ||
-      search
+    filterCo ||
+    filterType ||
+    filterEmployee ||
+    filterMonth ||
+    filterStartDate ||
+    filterEndDate ||
+    filterDeptStatus ||
+    filterPo ||
+    search
   );
 
   const resetFilters = () => {
@@ -1412,8 +1414,8 @@ export default function JobsClientPage({
                 {isSuperAdmin
                   ? "ผู้ดูแลระบบ (SUPER ADMIN)"
                   : isManager
-                  ? "ผู้บริหาร (ทุกงานในระบบ)"
-                  : `พนักงาน: ${currentUser}`}
+                    ? "ผู้บริหาร (ทุกงานในระบบ)"
+                    : `พนักงาน: ${currentUser}`}
               </span>
             </span>
           </div>
@@ -1424,11 +1426,10 @@ export default function JobsClientPage({
               <button
                 type="button"
                 onClick={() => setViewMode('cockpit')}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
-                  viewMode === 'cockpit'
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${viewMode === 'cockpit'
                     ? 'bg-red-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
                 title="สลับไปโหมดหน้าจอเดียว (Executive Cockpit)"
               >
                 <Monitor size={13} />
@@ -1437,11 +1438,10 @@ export default function JobsClientPage({
               <button
                 type="button"
                 onClick={() => setViewMode('operational')}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
-                  viewMode === 'operational'
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${viewMode === 'operational'
                     ? 'bg-white text-slate-900 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
                 title="โหมดตารางปฏิบัติการ (Operational Table)"
               >
                 <Table size={13} />
@@ -1478,15 +1478,15 @@ export default function JobsClientPage({
             {(normalizedDept.includes("project") ||
               normalizedDept.includes("sales") ||
               isManager) && (
-              <button
-                type="button"
-                onClick={() => setShowQuickProject(true)}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all shrink-0 cursor-pointer"
-              >
-                <FolderOpen size={14} />
-                <span>สร้างงานโปรเจกต์</span>
-              </button>
-            )}
+                <button
+                  type="button"
+                  onClick={() => setShowQuickProject(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all shrink-0 cursor-pointer"
+                >
+                  <FolderOpen size={14} />
+                  <span>สร้างงานโปรเจกต์</span>
+                </button>
+              )}
 
             {(normalizedDept.includes("service") || isManager) && (
               <button
@@ -1525,11 +1525,10 @@ export default function JobsClientPage({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div
           onClick={() => setStatusTab("all")}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-            statusTab === "all"
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "all"
               ? "border-blue-400 ring-2 ring-blue-100"
               : "border-slate-200/80 hover:border-blue-300"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
@@ -1553,11 +1552,10 @@ export default function JobsClientPage({
               onClick={() =>
                 setStatusTab(statusTab === "this_month" ? "all" : "this_month")
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-                statusTab === "this_month"
+              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "this_month"
                   ? "border-sky-400 ring-2 ring-sky-100"
                   : "border-slate-200/80 hover:border-sky-300"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-sky-700 uppercase tracking-wider">
@@ -1579,11 +1577,10 @@ export default function JobsClientPage({
               onClick={() =>
                 setStatusTab(statusTab === "in_progress" ? "all" : "in_progress")
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-                statusTab === "in_progress"
+              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "in_progress"
                   ? "border-amber-400 ring-2 ring-amber-100"
                   : "border-slate-200/80 hover:border-amber-300"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
@@ -1605,11 +1602,10 @@ export default function JobsClientPage({
               onClick={() =>
                 setStatusTab(statusTab === "completed" ? "all" : "completed")
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-                statusTab === "completed"
+              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "completed"
                   ? "border-emerald-400 ring-2 ring-emerald-100"
                   : "border-slate-200/80 hover:border-emerald-300"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
@@ -1635,11 +1631,10 @@ export default function JobsClientPage({
                   statusTab === "pending_action" ? "all" : "pending_action"
                 )
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-                statusTab === "pending_action"
+              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "pending_action"
                   ? "border-amber-400 ring-2 ring-amber-100"
                   : "border-slate-200/80 hover:border-amber-300"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
@@ -1663,11 +1658,10 @@ export default function JobsClientPage({
                   statusTab === "waiting_other" ? "all" : "waiting_other"
                 )
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-                statusTab === "waiting_other"
+              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "waiting_other"
                   ? "border-sky-400 ring-2 ring-sky-100"
                   : "border-slate-200/80 hover:border-sky-300"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-sky-700 uppercase tracking-wider">
@@ -1689,11 +1683,10 @@ export default function JobsClientPage({
               onClick={() =>
                 setStatusTab(statusTab === "completed" ? "all" : "completed")
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
-                statusTab === "completed"
+              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "completed"
                   ? "border-emerald-400 ring-2 ring-emerald-100"
                   : "border-slate-200/80 hover:border-emerald-300"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
@@ -1719,11 +1712,10 @@ export default function JobsClientPage({
           <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/60 w-fit">
             <button
               onClick={() => setFilterCo("")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                filterCo === ""
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${filterCo === ""
                   ? "bg-white text-slate-900 shadow-xs"
                   : "text-slate-500 hover:text-slate-900"
-              }`}
+                }`}
             >
               ทั้งหมด ({jobs.length})
             </button>
@@ -1733,11 +1725,10 @@ export default function JobsClientPage({
                 <button
                   key={code}
                   onClick={() => setFilterCo(filterCo === code ? "" : code)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    filterCo === code
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${filterCo === code
                       ? "bg-white text-blue-600 shadow-xs"
                       : "text-slate-500 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   {code} ({count})
                 </button>
@@ -1778,8 +1769,8 @@ export default function JobsClientPage({
           >
             <option value="">พนักงานขายทั้งหมด</option>
             {uniqueEmployees.map((emp) => (
-              <option key={emp} value={emp}>
-                {emp}
+              <option key={emp.key} value={emp.key}>
+                {emp.label}
               </option>
             ))}
           </select>
@@ -1931,11 +1922,11 @@ export default function JobsClientPage({
                     </div>
                     <div className="flex items-center gap-1.5">
                       {(() => {
-                        const beforeVatVal = val > 0 
-                          ? val 
+                        const beforeVatVal = val > 0
+                          ? val
                           : (job.project?.projectValue ? Number(job.project.projectValue) / 1.07 : 0);
-                        const incVatVal = job.project?.projectValue 
-                          ? Number(job.project.projectValue) 
+                        const incVatVal = job.project?.projectValue
+                          ? Number(job.project.projectValue)
                           : (beforeVatVal > 0 ? beforeVatVal * 1.07 : 0);
 
                         if (beforeVatVal <= 0 && incVatVal <= 0) {
@@ -1987,11 +1978,10 @@ export default function JobsClientPage({
                     <div className="flex items-center gap-2">
                       <JobTypeBadge type={job.jobType} />
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                          isDone
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${isDone
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-blue-50 text-blue-700 border border-blue-200"
-                        }`}
+                          }`}
                       >
                         {isDone ? (
                           <>
@@ -2136,11 +2126,10 @@ export default function JobsClientPage({
                     <React.Fragment key={job.id}>
                       <tr
                         onClick={() => setExpanded(isOpen ? null : job.id)}
-                        className={`cursor-pointer transition-colors ${
-                          isOpen
+                        className={`cursor-pointer transition-colors ${isOpen
                             ? "bg-blue-50/40"
                             : "hover:bg-slate-50/80 bg-white"
-                        }`}
+                          }`}
                       >
                         <td className="py-3.5 px-4 text-center text-slate-400">
                           {isOpen ? (
@@ -2158,11 +2147,10 @@ export default function JobsClientPage({
 
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border shadow-2xs ${
-                              isDone
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border shadow-2xs ${isDone
                                 ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                                 : "bg-blue-50 border-blue-200 text-blue-700"
-                            }`}
+                              }`}
                           >
                             {isDone ? (
                               <>
@@ -2229,11 +2217,11 @@ export default function JobsClientPage({
                         {/* Estimated Amount */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           {(() => {
-                            const beforeVatVal = val > 0 
-                              ? val 
+                            const beforeVatVal = val > 0
+                              ? val
                               : (job.project?.projectValue ? Number(job.project.projectValue) / 1.07 : 0);
-                            const incVatVal = job.project?.projectValue 
-                              ? Number(job.project.projectValue) 
+                            const incVatVal = job.project?.projectValue
+                              ? Number(job.project.projectValue)
                               : (beforeVatVal > 0 ? beforeVatVal * 1.07 : 0);
 
                             if (beforeVatVal <= 0 && incVatVal <= 0) {

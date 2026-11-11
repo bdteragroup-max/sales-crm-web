@@ -5,6 +5,7 @@ import { teraDb } from '@/app/lib/teraDb'
 import { redirect } from "next/navigation";
 import Sidebar from '@/app/components/Sidebar';
 import JobsClientPage from "./JobsClientPage";
+import { buildThaiPersonNameVariants } from "@/app/lib/personName";
 
 export const dynamic = 'force-dynamic';
 
@@ -74,27 +75,11 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     });
     const teamFullNames = Array.from(
       new Set(
-        teamUsers.flatMap((u) =>
-          u.fullName
-            ? [
-                u.fullName,
-                u.fullName.trim().replace(/\s+/g, " "),
-                u.fullName.trim().replace(/\s+/g, "  "),
-              ]
-            : []
-        )
+        teamUsers.flatMap((u) => buildThaiPersonNameVariants(u.fullName))
       )
     );
 
-    const userNames = user.fullName
-      ? Array.from(
-          new Set([
-            user.fullName,
-            user.fullName.trim().replace(/\s+/g, " "),
-            user.fullName.trim().replace(/\s+/g, "  "),
-          ])
-        )
-      : [];
+    const userNames = buildThaiPersonNameVariants(user.fullName);
 
     whereClause = {
       OR: [
@@ -105,15 +90,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
       ],
     };
   } else if (isSales && !isServiceManager) {
-    const userNames = user.fullName
-      ? Array.from(
-          new Set([
-            user.fullName,
-            user.fullName.trim().replace(/\s+/g, " "),
-            user.fullName.trim().replace(/\s+/g, "  "),
-          ])
-        )
-      : [];
+    const userNames = buildThaiPersonNameVariants(user.fullName);
 
     whereClause = {
       OR: [

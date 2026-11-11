@@ -5,6 +5,7 @@ import { teraDb } from '@/app/lib/teraDb'
 import { redirect } from "next/navigation";
 import Sidebar from '@/app/components/Sidebar';
 import JobsClientPage from "@/app/jobs/JobsClientPage";
+import { buildThaiPersonNameVariants } from "@/app/lib/personName";
 
 export const dynamic = 'force-dynamic';
 
@@ -71,18 +72,23 @@ export default async function DepartmentPage() {
       where: { employeeId: { in: subEmpIds }, isActive: true },
       select: { fullName: true }
     });
-    const teamFullNames = teamUsers.map(u => u.fullName);
+    const teamFullNames = Array.from(
+      new Set([
+        ...teamUsers.flatMap((u) => buildThaiPersonNameVariants(u.fullName)),
+        ...buildThaiPersonNameVariants(user.fullName),
+      ])
+    );
 
     whereClause = {
       OR: [
         { sellerName: { in: teamFullNames } },
-        { sellerName: user.fullName ?? "" },
         { sellerName: null },
         { sellerName: "" }
       ]
     };
   } else if (isSales) {
-    whereClause = { OR: [{ sellerName: user.fullName ?? "" }, { sellerName: null }, { sellerName: "" }] };
+    const myNames = buildThaiPersonNameVariants(user.fullName);
+    whereClause = { OR: [{ sellerName: { in: myNames } }, { sellerName: null }, { sellerName: "" }] };
   }
 
   const jobs = await prisma.job.findMany({ 
