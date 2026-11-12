@@ -11,13 +11,45 @@ export async function GET(
   try {
     const { id } = await context.params;
 
-    // If job has a linked project, ensure payment tasks are synced with project installment plan
+    // Only initialize payment tasks from linked project when the job has no structured tasks yet
+    // (never overwrite or delete payment rounds already configured/updated by Accounting)
     const linkedProject = await prisma.project.findFirst({
       where: { jobId: id },
-      select: { id: true }
+      select: {
+        id: true,
+        firstPayment: true,
+        installment1: true,
+        installmentsData: true,
+      }
     });
     if (linkedProject) {
-      await syncProjectInstallmentsToPaymentTasks(linkedProject.id);
+      const existingTasks = await prisma.paymentTask.findMany({
+        where: { jobId: id },
+        select: {
+          id: true,
+          installmentNo: true,
+          installmentAmount: true,
+          paidAmount: true,
+          status: true,
+          creditType: true,
+          invoiceNumber: true,
+          note: true,
+        }
+      });
+      const isUntouchedPlaceholderOnly =
+        existingTasks.length === 0 ||
+        (existingTasks.length === 1 &&
+          existingTasks[0].installmentNo === null &&
+          !existingTasks[0].installmentAmount &&
+          (!existingTasks[0].paidAmount || existingTasks[0].paidAmount === 0) &&
+          existingTasks[0].status === 'รอดำเนินการ' &&
+          !existingTasks[0].creditType &&
+          !existingTasks[0].invoiceNumber &&
+          !existingTasks[0].note);
+
+      if (isUntouchedPlaceholderOnly) {
+        await syncProjectInstallmentsToPaymentTasks(linkedProject.id);
+      }
     }
 
     const job = await prisma.job.findUnique({

@@ -345,7 +345,7 @@ function JobDetailModal({
               <ClipboardList className="text-blue-600" size={22} />
               งาน {job.jobNumber}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">{company?.companyName || job.customerName}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{company?.companyName || project?.clientName || job.customerName}</p>
           </div>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
             <X size={20} />
@@ -361,7 +361,7 @@ function JobDetailModal({
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-xs">
               <div>
                 <p className="text-slate-400 mb-0.5 font-medium">ชื่อบริษัท / ลูกค้า</p>
-                <p className="font-bold text-slate-900 text-sm">{company?.companyName || job.customerName}</p>
+                <p className="font-bold text-slate-900 text-sm">{company?.companyName || project?.clientName || job.customerName}</p>
               </div>
               <div>
                 <p className="text-slate-400 mb-0.5 font-medium">เลขประจำตัวผู้เสียภาษี</p>
@@ -536,7 +536,12 @@ function JobDetailModal({
                         ) : pt.installmentNo !== undefined && pt.installmentNo !== null ? (
                           pt.installmentNo === 0 || pt.creditType === 'DEPOSIT'
                             ? `เงินมัดจำ - ${formatCurrency(pt.installmentAmount)}`
-                            : `งวดที่ ${pt.installmentNo}/${pt.installmentTotal || '-'} - ${formatCurrency(pt.installmentAmount)}`
+                            : `งวดที่ ${pt.installmentNo}/${pt.installmentTotal || '-'} - ${formatCurrency(
+                                pt.installmentAmount ||
+                                  ((paymentTasks || []).length === 1
+                                    ? (projectValueExclVat || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 0)
+                                    : 0)
+                              )}`
                         ) : (
                           pt.job?.paymentMethod || pt.paymentMethod || job.paymentMethod || '-'
                         )}
@@ -564,15 +569,22 @@ function JobDetailModal({
                         ) : (
                           <div className="flex gap-2">
                             <input
+                              key={`${pt.id}-${pt.creditType || ''}`}
                               type="text"
                               placeholder="ระบุรูปแบบเครดิต (เช่น เช็ค, LC, วางบิล 30 วัน)"
                               defaultValue={pt.creditType || ''}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
                               onBlur={(e) => {
-                                if (e.target.value !== (pt.creditType || '')) {
-                                  onUpdateCreditType(pt.id, e.target.value);
+                                const nextVal = e.target.value.trim();
+                                if (nextVal !== (pt.creditType || '')) {
+                                  onUpdateCreditType(pt.id, nextVal);
                                   setData((prev: any) => ({
                                     ...prev,
-                                    paymentTasks: prev.paymentTasks.map((t: any) => t.id === pt.id ? { ...t, creditType: e.target.value } : t)
+                                    paymentTasks: prev.paymentTasks.map((t: any) => t.id === pt.id ? { ...t, creditType: nextVal || null } : t)
                                   }));
                                 }
                               }}
@@ -615,7 +627,9 @@ function JobDetailModal({
                             <Pencil size={12} />
                             แก้ไข
                           </button>
-                          {(!pt.paidAmount || pt.paidAmount === 0) && pt.status !== 'ตรวจสอบและบันทึกแล้ว' && (
+                          {(!pt.paidAmount || pt.paidAmount === 0) &&
+                            pt.status !== 'ตรวจสอบและบันทึกแล้ว' &&
+                            ((paymentTasks || []).length > 1 || pt.installmentNo !== null || Boolean(pt.installmentAmount)) && (
                             <button
                               type="button"
                               disabled={isPending}
@@ -891,7 +905,7 @@ function JobDetailModal({
                   : (scheduleType === 'DELIVERY' ? "เพิ่มรอบส่งมอบสินค้าใหม่" : "เพิ่มงวดชำระเงินใหม่")}
               </h3>
               <p className="text-xs text-slate-500 mb-4">
-                งาน {job.jobNumber} ({company?.companyName || job.customerName})
+                งาน {job.jobNumber} ({company?.companyName || project?.clientName || job.customerName})
               </p>
 
               <div className="space-y-3.5 text-xs">
@@ -1111,6 +1125,10 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [isPending, startTransition] = useTransition();
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
+
   const [confirmPaymentModal, setConfirmPaymentModal] = useState<{ id: string, status: string } | null>(null);
   const [paymentNote, setPaymentNote] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -1194,23 +1212,35 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
     });
   };
 
-  const handleUpdateCreditType = (id: string, creditType: string) => {
-    startTransition(async () => {
+  const handleUpdateCreditType = async (id: string, creditType: string) => {
+    const normalized = creditType ? creditType.trim() : null;
+    setTasks(prev => prev.map(t => t.id === id ? {
+      ...t,
+      creditType: normalized
+    } : t));
+    try {
       await updatePaymentTaskCreditType(id, creditType);
-      setTasks(prev => prev.map(t => t.id === id ? {
-        ...t,
-        creditType
-      } : t));
-    });
+    } catch (err) {
+      console.error("Failed to update credit type:", err);
+    }
   };
 
   const handleTasksUpdated = (jId: string, updatedJobTasks: any[]) => {
     setTasks(prev => {
       const others = prev.filter(t => t.jobId !== jId);
       const existingSample = prev.find(t => t.jobId === jId);
+      const hasInstallments =
+        updatedJobTasks.length > 1 ||
+        updatedJobTasks.some(t => t.installmentNo !== null && t.installmentNo !== undefined);
+      const updatedSampleJob = existingSample?.job
+        ? {
+            ...existingSample.job,
+            paymentMethod: hasInstallments ? 'ผ่อนชำระ' : existingSample.job.paymentMethod,
+          }
+        : undefined;
       const enriched = updatedJobTasks.map(t => ({
         ...t,
-        job: t.job || existingSample?.job
+        job: t.job || updatedSampleJob
       }));
       return [...others, ...enriched];
     });
@@ -1268,7 +1298,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         const isPaid = t.status === 'ตรวจสอบและบันทึกแล้ว';
         const projectVal = g.job?.project?.projectValue ? Number(g.job.project.projectValue) * 100 / 107 : null;
         const totalVal = Number(projectVal || g.job?.quotation?.actualClosingAmount || g.job?.quotation?.totalAmountBeforeVat || 0);
-        const taskAmt = Number(t.installmentAmount) || (t.installmentNo ? 0 : totalVal);
+        const taskAmt = Number(t.installmentAmount) || ((t.installmentNo && g.tasks.length > 1) ? 0 : totalVal);
         const paidAmt = Number(t.paidAmount) || 0;
 
         if (isPaid) {
@@ -1332,8 +1362,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         const q = searchQuery.toLowerCase().trim();
         const qKey = getPersonIdentityKey(searchQuery);
         const jNum = (g.job?.jobNumber || '').toLowerCase();
-        const cust = (g.job?.customerName || '').toLowerCase();
-        const item = (g.job?.item || '').toLowerCase();
+        const cust = `${g.job?.project?.clientName || ''} ${g.job?.customerName || ''}`.toLowerCase();
+        const item = `${g.job?.item || ''} ${g.job?.project?.name || ''}`.toLowerCase();
         const rawSeller = g.job?.sellerName || g.job?.project?.contractSignatory || g.job?.quotation?.salesperson?.fullName || '';
         const seller = rawSeller.toLowerCase();
         const sellerKey = getPersonIdentityKey(rawSeller);
@@ -1382,8 +1412,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           aValue = a.job?.jobNumber || '';
           bValue = b.job?.jobNumber || '';
         } else if (sortConfig.key === 'customerName') {
-          aValue = a.job?.customerName || '';
-          bValue = b.job?.customerName || '';
+          aValue = a.job?.project?.clientName || a.job?.customerName || '';
+          bValue = b.job?.project?.clientName || b.job?.customerName || '';
         } else if (sortConfig.key === 'company') {
           aValue = a.job?.companyCode || '';
           bValue = b.job?.companyCode || '';
@@ -1446,11 +1476,11 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
         const projectValueExclVat = g.job?.project?.projectValue ? Number(g.job.project.projectValue) * 100 / 107 : null;
         const totalValue = Number(projectValueExclVat || g.job?.quotation?.actualClosingAmount || g.job?.quotation?.totalAmountBeforeVat || 0);
-        const amountDue = Number(t.installmentAmount) || (t.installmentNo ? 0 : totalValue);
+        const amountDue = Number(t.installmentAmount) || ((t.installmentNo && g.tasks.length > 1) ? 0 : totalValue);
 
         return {
           'เลขที่งาน (Job No.)': g.job?.jobNumber || '-',
-          'ชื่อลูกค้า (Customer)': g.job?.customerName || '-',
+          'ชื่อลูกค้า (Customer)': g.job?.project?.clientName || g.job?.customerName || '-',
           'บริษัท (Company)': g.job?.companyCode || '-',
           'รูปแบบการชำระเงิน': g.job?.paymentMethod || '-',
           'ยอดรวมทั้งโครงการ': totalValue,
@@ -2033,11 +2063,11 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                       {/* Customer / Item */}
                       <td className="py-3.5 px-4 max-w-[220px]">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-slate-900 truncate" title={group.job?.customerName}>
-                            {group.job?.customerName || '-'}
+                          <span className="font-bold text-slate-900 truncate" title={group.job?.project?.clientName || group.job?.customerName}>
+                            {group.job?.project?.clientName || group.job?.customerName || '-'}
                           </span>
-                          <span className="text-[11px] text-slate-500 truncate" title={group.job?.item}>
-                            {group.job?.item || '-'}
+                          <span className="text-[11px] text-slate-500 truncate" title={group.job?.item || group.job?.project?.name}>
+                            {group.job?.item || group.job?.project?.name || '-'}
                           </span>
                           {group.job?.jobType && (
                             <span className="inline-block mt-0.5 px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded text-[10px] font-bold w-fit">

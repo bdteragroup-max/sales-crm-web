@@ -19,6 +19,10 @@ export type UpdateJobPayload = {
 };
 
 export async function updateJob(jobId: string, data: UpdateJobPayload) { 
+  const previousJob = data.customerName !== undefined
+    ? await prisma.job.findUnique({ where: { id: jobId }, select: { customerName: true } })
+    : null;
+
   const { dateClosed, deliveryDate, paymentDate, ...rest } = data;
   const updated = await prisma.job.update({ 
     where: { id: jobId }, 
@@ -30,8 +34,46 @@ export async function updateJob(jobId: string, data: UpdateJobPayload) {
     }, 
   }); 
 
+  const existingProject = await prisma.project.findFirst({ where: { jobId } });
+  if (existingProject && data.customerName !== undefined && data.customerName.trim()) {
+    const newCustomerName = data.customerName.trim();
+    if (existingProject.clientName !== newCustomerName) {
+      await prisma.project.update({
+        where: { id: existingProject.id },
+        data: { clientName: newCustomerName },
+      });
+      revalidatePath(`/projects/${existingProject.id}`);
+      revalidatePath(`/projects/${existingProject.id}/edit`);
+      revalidatePath("/projects/dashboard");
+    }
+  }
+
+  if (previousJob?.customerName && data.customerName && previousJob.customerName.trim() !== data.customerName.trim()) {
+    try {
+      const oldTrimmed = previousJob.customerName.trim();
+      const newTrimmed = data.customerName.trim();
+      const remaining = await prisma.job.count({
+        where: { customerName: { equals: oldTrimmed, mode: "insensitive" } },
+      });
+      if (remaining === 0) {
+        const existingNew = await prisma.$queryRawUnsafe<any[]>(
+          `SELECT id FROM customer_credit_settings WHERE LOWER(TRIM(customer_name)) = LOWER($1) LIMIT 1`,
+          newTrimmed
+        );
+        if (!existingNew || existingNew.length === 0) {
+          await prisma.$executeRawUnsafe(
+            `UPDATE customer_credit_settings SET customer_name = $1, updated_at = NOW() WHERE LOWER(TRIM(customer_name)) = LOWER($2)`,
+            newTrimmed,
+            oldTrimmed
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Failed to sync customer_credit_settings on updateJob:", err);
+    }
+  }
+
   if (data.jobType && ["งานโปรเจค", "งานติดตั้ง", "งานขาย + ติดตั้ง"].includes(data.jobType)) {
-    const existingProject = await prisma.project.findFirst({ where: { jobId } });
     if (!existingProject) {
       try {
         const { createProject } = await import("@/app/actions/projects");
@@ -67,6 +109,9 @@ export async function updateJob(jobId: string, data: UpdateJobPayload) {
 
   revalidatePath("/jobs"); 
   revalidatePath("/projects");
+  revalidatePath("/accounting");
+  revalidatePath("/accounting/dashboard");
+  revalidatePath("/accounting/credit-settings");
   return updated;
 }
 

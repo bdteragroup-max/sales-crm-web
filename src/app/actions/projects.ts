@@ -177,6 +177,7 @@ export async function createProject(data: any) {
           yearBe,
           dateClosed: closedDate,
           customerName: projectDataRaw.clientName || projectDataRaw.name,
+          item: projectDataRaw.name ? `Project: ${projectDataRaw.name}` : undefined,
           sellerName: managerName || undefined,
           paymentDate: depositItem?.dueDate || (projectDataRaw.contractSigningDate ? new Date(projectDataRaw.contractSigningDate) : (projectDataRaw.paymentDate ? new Date(projectDataRaw.paymentDate) : undefined)),
           deliveryDate: projectDataRaw.endDate ? new Date(projectDataRaw.endDate) : (projectDataRaw.deliveryDate ? new Date(projectDataRaw.deliveryDate) : undefined),
@@ -282,6 +283,33 @@ export async function createProject(data: any) {
   }
 }
 
+async function syncCustomerCreditSettingName(oldCustomerName: string, newCustomerName: string) {
+  const oldTrimmed = oldCustomerName.trim();
+  const newTrimmed = newCustomerName.trim();
+  if (!oldTrimmed || !newTrimmed || oldTrimmed.toLowerCase() === newTrimmed.toLowerCase()) return;
+
+  try {
+    const remainingWithOldName = await prisma.job.count({
+      where: { customerName: { equals: oldTrimmed, mode: "insensitive" } },
+    });
+    if (remainingWithOldName > 0) return;
+
+    const existingNew = await prisma.$queryRawUnsafe<any[]>(
+      `SELECT id FROM customer_credit_settings WHERE LOWER(TRIM(customer_name)) = LOWER($1) LIMIT 1`,
+      newTrimmed
+    );
+    if (existingNew && existingNew.length > 0) return;
+
+    await prisma.$executeRawUnsafe(
+      `UPDATE customer_credit_settings SET customer_name = $1, updated_at = NOW() WHERE LOWER(TRIM(customer_name)) = LOWER($2)`,
+      newTrimmed,
+      oldTrimmed
+    );
+  } catch (err) {
+    console.error("Failed to sync customer_credit_settings customer_name:", err);
+  }
+}
+
 export async function updateProject(id: string, data: any) {
   try {
     const sanitizedData = sanitizeProjectDateFields(data);
@@ -290,9 +318,11 @@ export async function updateProject(id: string, data: any) {
     // Process dynamic installments if present in update data
     if (projectDataRaw.installmentsData !== undefined) {
       let instList: any[] = [];
+      let hasDepositAmount = false;
       if (projectDataRaw.installmentsData && typeof projectDataRaw.installmentsData === 'object' && !Array.isArray(projectDataRaw.installmentsData)) {
         const instData = projectDataRaw.installmentsData as any;
         if (instData.hasDeposit && instData.deposit && Number(instData.deposit.amount) > 0) {
+          hasDepositAmount = true;
           projectDataRaw.firstPayment = parseFloat(instData.deposit.amount);
         } else if (instData.hasDeposit === false) {
           projectDataRaw.firstPayment = null;
@@ -304,13 +334,60 @@ export async function updateProject(id: string, data: any) {
         instList = projectDataRaw.installmentsData;
       }
 
-      for (let i = 1; i <= 12; i++) {
-        const item = instList[i - 1];
-        if (item && item.amount !== undefined && item.amount !== null && String(item.amount).trim() !== '') {
-          const num = parseFloat(item.amount);
-          projectDataRaw[`installment${i}`] = !isNaN(num) ? num : null;
+      const positiveInstCount = instList.filter((it) => it && Number(it.amount) > 0).length;
+
+      // Guard: if the Project edit form submits blank installments, do NOT wipe Accounting's existing schedule
+      if (!hasDepositAmount && positiveInstCount === 0) {
+        const currentProj = await prisma.project.findUnique({
+          where: { id },
+          select: {
+            jobId: true,
+            job: {
+              select: {
+                paymentTasks: {
+                  select: {
+                    installmentNo: true,
+                    installmentAmount: true,
+                    paidAmount: true,
+                    status: true,
+                    creditType: true,
+                    invoiceNumber: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+        const accountingHasSchedule = (currentProj?.job?.paymentTasks || []).some(
+          (t) =>
+            (t.installmentAmount !== null && Number(t.installmentAmount) > 0) ||
+            (t.paidAmount !== null && Number(t.paidAmount) > 0) ||
+            t.status === 'ตรวจสอบและบันทึกแล้ว' ||
+            t.status === 'ชำระมัดจำแล้ว' ||
+            t.creditType === 'DELIVERY' ||
+            t.creditType === 'DEPOSIT' ||
+            Boolean(t.invoiceNumber)
+        );
+        if (accountingHasSchedule) {
+          delete projectDataRaw.installmentsData;
+          delete projectDataRaw.firstPayment;
+          for (let i = 1; i <= 12; i++) {
+            delete projectDataRaw[`installment${i}`];
+          }
         } else {
-          projectDataRaw[`installment${i}`] = null;
+          for (let i = 1; i <= 12; i++) {
+            projectDataRaw[`installment${i}`] = null;
+          }
+        }
+      } else {
+        for (let i = 1; i <= 12; i++) {
+          const item = instList[i - 1];
+          if (item && item.amount !== undefined && item.amount !== null && String(item.amount).trim() !== '') {
+            const num = parseFloat(item.amount);
+            projectDataRaw[`installment${i}`] = !isNaN(num) ? num : null;
+          } else {
+            projectDataRaw[`installment${i}`] = null;
+          }
         }
       }
     }
@@ -404,10 +481,31 @@ export async function updateProject(id: string, data: any) {
     revalidatePath(`/projects/${id}/edit`);
     revalidatePath("/projects/dashboard");
     if (project.jobId) {
+      const targetCustomerName = (project.clientName || project.name || "").trim();
+      if (targetCustomerName) {
+        const currentJob = await prisma.job.findUnique({
+          where: { id: project.jobId },
+          select: { id: true, customerName: true, item: true },
+        });
+        if (currentJob && (currentJob.customerName !== targetCustomerName || (!currentJob.item && project.name))) {
+          const oldCustomerName = (currentJob.customerName || "").trim();
+          await prisma.job.update({
+            where: { id: currentJob.id },
+            data: {
+              customerName: targetCustomerName,
+              ...(!currentJob.item && project.name ? { item: `Project: ${project.name}` } : {}),
+            },
+          });
+          if (oldCustomerName && oldCustomerName !== targetCustomerName) {
+            await syncCustomerCreditSettingName(oldCustomerName, targetCustomerName);
+          }
+        }
+      }
       await syncProjectInstallmentsToPaymentTasks(id);
       revalidatePath("/jobs");
       revalidatePath("/accounting");
       revalidatePath("/accounting/dashboard");
+      revalidatePath("/accounting/credit-settings");
     }
     return JSON.parse(JSON.stringify(project));
   } catch (error) {
@@ -421,7 +519,7 @@ function parseProjectInstallments(project: any) {
   if (typeof rawData === "string") {
     try {
       rawData = JSON.parse(rawData);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   let depositItem: {
@@ -525,11 +623,30 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
 
     if (!project || !project.job) return;
 
+    const targetCustomerName = (project.clientName || project.name || "").trim();
+    if (targetCustomerName && (project.job.customerName !== targetCustomerName || (!project.job.item && project.name))) {
+      const oldCustomerName = (project.job.customerName || "").trim();
+      await prisma.job.update({
+        where: { id: project.job.id },
+        data: {
+          customerName: targetCustomerName,
+          ...(!project.job.item && project.name ? { item: `Project: ${project.name}` } : {}),
+        },
+      });
+      if (oldCustomerName && oldCustomerName !== targetCustomerName) {
+        await syncCustomerCreditSettingName(oldCustomerName, targetCustomerName);
+      }
+    }
+
     const { depositItem, installmentList } = parseProjectInstallments(project);
     const jobId = project.job.id;
     const existingTasks = project.job.paymentTasks || [];
 
     if (!depositItem && installmentList.length === 0) return;
+
+    // Preserve Accounting's custom delivery-lot schedule if Accounting manages this job by delivery rounds
+    const hasAccountingDeliveryLots = existingTasks.some((t) => t.creditType === "DELIVERY");
+    if (hasAccountingDeliveryLots) return;
 
     const startDate = project.startDate ? (normalizeDateToCE(project.startDate) || new Date(project.startDate)) : new Date(project.job.createdAt);
     const endDate = project.endDate
@@ -546,13 +663,21 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
       );
 
       if (existingDepositTask) {
+        const isDepositLocked =
+          existingDepositTask.status === "ตรวจสอบและบันทึกแล้ว" ||
+          existingDepositTask.status === "ชำระมัดจำแล้ว" ||
+          Boolean(existingDepositTask.paidAmount && existingDepositTask.paidAmount > 0) ||
+          Boolean(existingDepositTask.invoiceNumber);
+
         await prisma.paymentTask.update({
           where: { id: existingDepositTask.id },
           data: {
             installmentNo: 0,
             installmentTotal: installmentList.length,
-            installmentAmount: depositItem.amount,
-            creditType: "DEPOSIT",
+            installmentAmount: isDepositLocked && existingDepositTask.installmentAmount
+              ? existingDepositTask.installmentAmount
+              : depositItem.amount,
+            creditType: existingDepositTask.creditType || "DEPOSIT",
             dueDate: existingDepositTask.dueDate || depositItem.dueDate || (project.contractSigningDate ? normalizeDateToCE(project.contractSigningDate) : startDate),
             note: existingDepositTask.note || depositItem.title || "เงินมัดจำเมื่อเซ็นสัญญา",
           },
@@ -586,11 +711,19 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
       }
 
       if (existingInstTask) {
+        const isInstLocked =
+          existingInstTask.status === "ตรวจสอบและบันทึกแล้ว" ||
+          existingInstTask.status === "ชำระมัดจำแล้ว" ||
+          Boolean(existingInstTask.paidAmount && existingInstTask.paidAmount > 0) ||
+          Boolean(existingInstTask.invoiceNumber);
+
         await prisma.paymentTask.update({
           where: { id: existingInstTask.id },
           data: {
             installmentTotal: installmentList.length,
-            installmentAmount: inst.amount,
+            installmentAmount: isInstLocked && existingInstTask.installmentAmount
+              ? existingInstTask.installmentAmount
+              : inst.amount,
             dueDate: existingInstTask.dueDate || calculatedDueDate,
             note: existingInstTask.note || (inst.title ? `งวดที่ ${inst.no}: ${inst.title}` : `งวดที่ ${inst.no}`),
           },
@@ -610,20 +743,34 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
       }
     }
 
-    // 3. Remove excess progress tasks if installment count was reduced
-    const excessTasks = existingTasks.filter(
-      (t) => t.installmentNo !== null && t.installmentNo > installmentList.length && (!t.paidAmount || t.paidAmount === 0) && t.status !== "ตรวจสอบและบันทึกแล้ว"
-    );
-    if (excessTasks.length > 0) {
-      await prisma.paymentTask.deleteMany({
-        where: { id: { in: excessTasks.map((t) => t.id) } },
-      });
+    // 3. Remove excess progress tasks ONLY if installmentList is non-empty and task has no payment/invoice/delivery history
+    if (installmentList.length > 0) {
+      const excessTasks = existingTasks.filter(
+        (t) =>
+          t.installmentNo !== null &&
+          t.installmentNo > installmentList.length &&
+          (!t.paidAmount || t.paidAmount === 0) &&
+          t.status !== "ตรวจสอบและบันทึกแล้ว" &&
+          t.status !== "ชำระมัดจำแล้ว" &&
+          t.creditType !== "DELIVERY" &&
+          !t.invoiceNumber
+      );
+      if (excessTasks.length > 0) {
+        await prisma.paymentTask.deleteMany({
+          where: { id: { in: excessTasks.map((t) => t.id) } },
+        });
+      }
     }
 
-    // 4. If no depositItem, remove unpaid deposit task
+    // 4. If no depositItem, remove unpaid deposit task ONLY when it has no payment or invoice recorded
     if (!depositItem) {
       const unpaidDeposit = existingTasks.filter(
-        (t) => (t.installmentNo === 0 || t.creditType === "DEPOSIT") && (!t.paidAmount || t.paidAmount === 0) && t.status !== "ตรวจสอบและบันทึกแล้ว"
+        (t) =>
+          (t.installmentNo === 0 || t.creditType === "DEPOSIT") &&
+          (!t.paidAmount || t.paidAmount === 0) &&
+          t.status !== "ตรวจสอบและบันทึกแล้ว" &&
+          t.status !== "ชำระมัดจำแล้ว" &&
+          !t.invoiceNumber
       );
       if (unpaidDeposit.length > 0) {
         await prisma.paymentTask.deleteMany({
@@ -634,7 +781,13 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
 
     // 5. Remove unassigned legacy single task if it wasn't used for deposit or installment and has 0 paid
     const remainingLegacy = existingTasks.filter(
-      (t) => t.installmentNo === null && t.creditType !== "DEPOSIT" && (!t.paidAmount || t.paidAmount === 0) && t.status === "รอดำเนินการ"
+      (t) =>
+        t.installmentNo === null &&
+        t.creditType !== "DEPOSIT" &&
+        t.creditType !== "DELIVERY" &&
+        (!t.paidAmount || t.paidAmount === 0) &&
+        t.status === "รอดำเนินการ" &&
+        !t.invoiceNumber
     );
     if (remainingLegacy.length > 0) {
       await prisma.paymentTask.deleteMany({
@@ -927,6 +1080,7 @@ export async function generateJobForProject(projectId: string, companyCode: stri
         yearBe,
         dateClosed: closedDate,
         customerName: project.clientName || project.name,
+        item: project.name ? `Project: ${project.name}` : undefined,
         sellerName: project.contractSignatory || project.manager?.fullName || undefined,
         paymentDate: depositItem?.dueDate || (project.contractSigningDate || project.paymentDate || undefined),
         deliveryDate: project.endDate || project.deliveryDate || undefined,

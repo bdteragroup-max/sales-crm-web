@@ -74,6 +74,7 @@ export default async function AccountingPage() {
               id: true,
               projectNumber: true,
               name: true,
+              clientName: true,
               projectValue: true,
               contractSignatory: true,
             },
