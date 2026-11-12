@@ -116,14 +116,14 @@ export default function GoodsReturnPrintPaper({ data, mode = "half" }: Props) {
             </div>
             <div className="grp-info-item w-[190px]">
               <span className="grp-lbl">เลขที่ใบส่งคืน:</span>
-              <span className="grp-val font-mono font-bold text-gray-900">{docNo}</span>
+              <span className="grp-val font-bold text-gray-900">{docNo}</span>
             </div>
           </div>
           {refNo && (
             <div className="grp-info-row" style={{ marginTop: "1px" }}>
               <div className="grp-info-item flex-1">
                 <span className="grp-lbl">อ้างถึง (JOB/PO/Ref):</span>
-                <span className="grp-val font-mono">{refNo}</span>
+                <span className="grp-val">{refNo}</span>
               </div>
             </div>
           )}
@@ -229,23 +229,83 @@ export default function GoodsReturnPrintPaper({ data, mode = "half" }: Props) {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 300;
+          font-display: block;
+          src: url('/THSarabunNew.woff2') format('woff2'),
+               local('TH Sarabun New'),
+               local('THSarabunNew'),
+               local('TH SarabunPSK');
+        }
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 400;
+          font-display: block;
+          src: url('/THSarabunNew.woff2') format('woff2'),
+               local('TH Sarabun New'),
+               local('THSarabunNew'),
+               local('TH SarabunPSK');
+        }
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 500;
+          font-display: block;
+          src: url('/THSarabunNew.woff2') format('woff2'),
+               local('TH Sarabun New'),
+               local('THSarabunNew'),
+               local('TH SarabunPSK');
+        }
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 600;
+          font-display: block;
+          src: url('/THSarabunNew-Bold.woff2') format('woff2'),
+               local('TH Sarabun New Bold'),
+               local('THSarabunNew-Bold'),
+               local('TH SarabunPSK Bold');
+        }
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 700;
+          font-display: block;
+          src: url('/THSarabunNew-Bold.woff2') format('woff2'),
+               local('TH Sarabun New Bold'),
+               local('THSarabunNew-Bold'),
+               local('TH SarabunPSK Bold');
+        }
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 800;
+          font-display: block;
+          src: url('/THSarabunNew-Bold.woff2') format('woff2'),
+               local('TH Sarabun New Bold'),
+               local('THSarabunNew-Bold'),
+               local('TH SarabunPSK Bold');
+        }
 
         @page {
           size: A4 portrait;
           margin: 0;
         }
 
+        .grp-wrapper,
         .grp-wrapper * {
           box-sizing: border-box;
           margin: 0;
           padding: 0;
+          font-family: 'TH Sarabun New', 'THSarabunNew', 'TH SarabunPSK', sans-serif !important;
         }
 
         .grp-wrapper {
-          font-family: 'TH Sarabun New', 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
           color: #000;
-          font-size: 13.5px;
+          font-size: 15px;
           line-height: 1.25;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
@@ -270,6 +330,10 @@ export default function GoodsReturnPrintPaper({ data, mode = "half" }: Props) {
             background: #fff !important;
             margin: 0 !important;
             padding: 0 !important;
+          }
+          .grp-wrapper,
+          .grp-wrapper * {
+            font-family: 'TH Sarabun New', 'THSarabunNew', 'TH SarabunPSK', sans-serif !important;
           }
           .grp-wrapper {
             background: #fff !important;

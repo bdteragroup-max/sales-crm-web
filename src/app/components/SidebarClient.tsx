@@ -156,6 +156,7 @@ const purchasingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดจัดซื้อ', href: '/admin/procurement/dashboard' },
   { icon: FileText, label: 'รายการ PR', href: '/admin/procurement/pr' },
   { icon: ClipboardList, label: 'รายการ PO', href: '/admin/procurement/po' },
+  { icon: Package, label: 'รายการเบิก/ยืมวัสดุอุปกรณ์', href: '/store/requisitions' },
 ];
 
 const storeNav = [
@@ -309,7 +310,7 @@ export default function SidebarClient(props: SidebarProps) {
     nav = storeAndPurchasingNav;
   } else if (roleStr.includes('production') || roleStr.includes('ผลิต')) {
     nav = productionNav;
-  } else if (['purchasing', 'จัดซื้อ'].some(r => roleStr.includes(r))) {
+  } else if (['purchasing', 'purchase', 'procurement', 'จัดซื้อ'].some(r => roleStr.includes(r))) {
     nav = purchasingNav;
   } else if (['warehouse', 'คลังสินค้า', 'store', 'สโตร์'].some(r => roleStr.includes(r))) {
     nav = storeNav;

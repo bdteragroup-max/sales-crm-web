@@ -43,19 +43,21 @@ function generateGoodsReturnHTML(doc: any, logoBase64: string = '', fontRegularB
     <title>Goods Return Note</title>
     <style>
       @font-face {
-        font-family: 'Sarabun';
-        src: url('data:font/truetype;base64,${fontRegularBase64}') format('truetype');
+        font-family: 'TH Sarabun New';
+        src: url('data:font/woff2;base64,${fontRegularBase64}') format('woff2');
         font-weight: normal;
         font-style: normal;
       }
       @font-face {
-        font-family: 'Sarabun';
-        src: url('data:font/truetype;base64,${fontBoldBase64}') format('truetype');
+        font-family: 'TH Sarabun New';
+        src: url('data:font/woff2;base64,${fontBoldBase64}') format('woff2');
         font-weight: bold;
         font-style: normal;
       }
+      body, body * {
+        font-family: 'TH Sarabun New', sans-serif !important;
+      }
       body {
-        font-family: 'Sarabun', sans-serif;
         font-size: 16px;
         margin: 0;
         padding: 0;
@@ -283,9 +285,9 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       logoBase64 = `data:image/png;base64,${imageBuffer.toString('base64')}`;
     }
 
-    // Embed fonts as base64 so Puppeteer does not need network access
-    const fontRegularPath = path.join(process.cwd(), 'public', 'Sarabun-Regular.ttf');
-    const fontBoldPath = path.join(process.cwd(), 'public', 'Sarabun-Bold.ttf');
+    // Embed TH Sarabun New fonts as base64 so Puppeteer does not need network access
+    const fontRegularPath = path.join(process.cwd(), 'public', 'THSarabunNew.woff2');
+    const fontBoldPath = path.join(process.cwd(), 'public', 'THSarabunNew-Bold.woff2');
     const fontRegularBase64 = fs.existsSync(fontRegularPath)
       ? fs.readFileSync(fontRegularPath).toString('base64')
       : '';

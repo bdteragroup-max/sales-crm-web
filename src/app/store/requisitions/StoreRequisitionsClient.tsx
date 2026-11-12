@@ -101,6 +101,7 @@ interface StoreRequisitionsClientProps {
   userName: string;
   userRole?: string;
   isSuperAdmin?: boolean;
+  canManageStore?: boolean;
 }
 
 export default function StoreRequisitionsClient({
@@ -108,12 +109,15 @@ export default function StoreRequisitionsClient({
   userName,
   userRole,
   isSuperAdmin = false,
+  canManageStore = true,
 }: StoreRequisitionsClientProps) {
   const router = useRouter();
 
   const [requisitions, setRequisitions] = useState<Requisition[]>(initialRequisitions);
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'ALL' | 'APPROVED' | 'RETURN_PENDING' | 'COMPLETED' | 'RETURNED' | 'PENDING_APPROVAL'>('APPROVED');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'APPROVED' | 'RETURN_PENDING' | 'COMPLETED' | 'RETURNED' | 'PENDING_APPROVAL'>(
+    canManageStore ? 'APPROVED' : 'ALL'
+  );
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<string | null>(null);
 
   // Modal State
@@ -2827,89 +2831,101 @@ export default function StoreRequisitionsClient({
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
-                          <Link
-                            href={`/store/requisitions/${req.id}`}
-                            className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition-all border border-blue-200"
-                            title="เปิดหน้าตรวจรับของ เซ็นรับผ่านมือถือ และแนบรูปภาพ"
-                          >
-                            <Smartphone className="w-3.5 h-3.5" />
-                            <span>ตรวจรับ/เซ็น</span>
-                          </Link>
-
-                          {req.status === 'APPROVED' ? (
+                          {canManageStore ? (
                             <>
-                              <button
-                                onClick={() => handleQuickFulfill(req)}
-                                disabled={isLoading}
-                                className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
-                                title="บันทึกส่งมอบอุปกรณ์ให้ผู้ขอเบิกเรียบร้อย"
+                              <Link
+                                href={`/store/requisitions/${req.id}`}
+                                className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition-all border border-blue-200"
+                                title="เปิดหน้าตรวจรับของ เซ็นรับผ่านมือถือ และแนบรูปภาพ"
                               >
-                                <Check className="w-3.5 h-3.5" />
-                                <span>{isLoading ? 'กำลังบันทึก...' : 'ส่งมอบแล้ว'}</span>
-                              </button>
-                            </>
-                          ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' || req.status === 'RETURN_PENDING' ? (
-                            <>
-                              <button
-                                onClick={() => openReturnModal(req)}
-                                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] ${
-                                  req.status === 'RETURN_PENDING'
-                                    ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
-                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                                }`}
-                                title={req.status === 'RETURN_PENDING' ? 'พนักงานแจ้งขอส่งคืนแล้ว - คลิกเพื่อตรวจรับของ' : 'บันทึกรับคืนวัสดุและอุปกรณ์เข้าสโตร์'}
-                              >
-                                <RotateCcw className="w-3.5 h-3.5" />
-                                <span>{req.status === 'RETURN_PENDING' ? 'ตรวจรับคืน' : req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
-                              </button>
+                                <Smartphone className="w-3.5 h-3.5" />
+                                <span>ตรวจรับ/เซ็น</span>
+                              </Link>
 
-                              <button
-                                onClick={() => setDetailReq(req)}
-                                className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all"
-                                title="ดูรายละเอียด"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                              </button>
-                            </>
-                          ) : req.status === 'RETURNED' ? (
-                            <>
-                              <button
-                                onClick={() => openReturnModal(req)}
-                                className="flex items-center gap-1 px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-lg text-xs font-bold transition-all"
-                                title="ดูหรือแก้ไขบันทึกการรับคืนของ"
-                              >
-                                <RotateCcw className="w-3.5 h-3.5 text-teal-600" />
-                                <span>ดูการคืนของ</span>
-                              </button>
+                              {req.status === 'APPROVED' ? (
+                                <>
+                                  <button
+                                    onClick={() => handleQuickFulfill(req)}
+                                    disabled={isLoading}
+                                    className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+                                    title="บันทึกส่งมอบอุปกรณ์ให้ผู้ขอเบิกเรียบร้อย"
+                                  >
+                                    <Check className="w-3.5 h-3.5" />
+                                    <span>{isLoading ? 'กำลังบันทึก...' : 'ส่งมอบแล้ว'}</span>
+                                  </button>
+                                </>
+                              ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' || req.status === 'RETURN_PENDING' ? (
+                                <>
+                                  <button
+                                    onClick={() => openReturnModal(req)}
+                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] ${
+                                      req.status === 'RETURN_PENDING'
+                                        ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                    }`}
+                                    title={req.status === 'RETURN_PENDING' ? 'พนักงานแจ้งขอส่งคืนแล้ว - คลิกเพื่อตรวจรับของ' : 'บันทึกรับคืนวัสดุและอุปกรณ์เข้าสโตร์'}
+                                  >
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                    <span>{req.status === 'RETURN_PENDING' ? 'ตรวจรับคืน' : req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
+                                  </button>
 
-                              <button
-                                onClick={() => setDetailReq(req)}
-                                className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all"
-                                title="ดูรายละเอียด"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                              </button>
+                                  <button
+                                    onClick={() => setDetailReq(req)}
+                                    className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all"
+                                    title="ดูรายละเอียด"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </button>
+                                </>
+                              ) : req.status === 'RETURNED' ? (
+                                <>
+                                  <button
+                                    onClick={() => openReturnModal(req)}
+                                    className="flex items-center gap-1 px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-lg text-xs font-bold transition-all"
+                                    title="ดูหรือแก้ไขบันทึกการรับคืนของ"
+                                  >
+                                    <RotateCcw className="w-3.5 h-3.5 text-teal-600" />
+                                    <span>ดูการคืนของ</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => setDetailReq(req)}
+                                    className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all"
+                                    title="ดูรายละเอียด"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  {isSuperAdmin && req.status === 'PENDING_APPROVAL' && (
+                                    <Link
+                                      href={`/requisitions/${req.id}/approve`}
+                                      className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold transition-all"
+                                      title="อนุมัติใบเบิก (Super Admin)"
+                                    >
+                                      <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                                      <span>อนุมัติ</span>
+                                    </Link>
+                                  )}
+                                  <button
+                                    onClick={() => setDetailReq(req)}
+                                    className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                    <span>ดูรายละเอียด</span>
+                                  </button>
+                                </>
+                              )}
                             </>
                           ) : (
-                            <>
-                              {isSuperAdmin && req.status === 'PENDING_APPROVAL' && (
-                                <Link
-                                  href={`/requisitions/${req.id}/approve`}
-                                  className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold transition-all"
-                                  title="อนุมัติใบเบิก (Super Admin)"
-                                >
-                                  <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                                  <span>อนุมัติ</span>
-                                </Link>
-                              )}
-                              <button
-                                onClick={() => setDetailReq(req)}
-                                className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                                <span>ดูรายละเอียด</span>
-                              </button>
-                            </>
+                            <button
+                              onClick={() => setDetailReq(req)}
+                              className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>ดูรายละเอียด</span>
+                            </button>
                           )}
 
                           <Link
@@ -3080,14 +3096,16 @@ export default function StoreRequisitionsClient({
 
                   {/* Mobile Actions */}
                   <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-                    <Link
-                      href={`/store/requisitions/${req.id}`}
-                      className="flex-1 min-w-[120px] flex items-center justify-center gap-1 px-3 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors"
-                      title="บันทึกตรวจรับของหน้างาน & เซ็นรับ"
-                    >
-                      <Smartphone className="w-3.5 h-3.5" />
-                      <span>ตรวจรับ/เซ็น</span>
-                    </Link>
+                    {canManageStore && (
+                      <Link
+                        href={`/store/requisitions/${req.id}`}
+                        className="flex-1 min-w-[120px] flex items-center justify-center gap-1 px-3 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors"
+                        title="บันทึกตรวจรับของหน้างาน & เซ็นรับ"
+                      >
+                        <Smartphone className="w-3.5 h-3.5" />
+                        <span>ตรวจรับ/เซ็น</span>
+                      </Link>
+                    )}
 
                     <Link
                       href={`/requisitions/${req.id}/pdf`}
@@ -3098,7 +3116,7 @@ export default function StoreRequisitionsClient({
                       <span>PDF</span>
                     </Link>
 
-                    {req.status === 'APPROVED' ? (
+                    {canManageStore && req.status === 'APPROVED' ? (
                       <button
                         onClick={() => handleQuickFulfill(req)}
                         disabled={isLoading}
@@ -3107,7 +3125,7 @@ export default function StoreRequisitionsClient({
                         <Check className="w-3.5 h-3.5" />
                         <span>{isLoading ? '...' : 'ส่งมอบแล้ว'}</span>
                       </button>
-                    ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' ? (
+                    ) : canManageStore && (req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED') ? (
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => openReturnModal(req)}
@@ -3136,9 +3154,10 @@ export default function StoreRequisitionsClient({
                         )}
                         <button
                           onClick={() => setDetailReq(req)}
-                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1"
                         >
                           <Eye className="w-3.5 h-3.5" />
+                          {!canManageStore && <span>ดูรายละเอียด</span>}
                         </button>
                         {isSuperAdmin && (
                           <button
@@ -3443,7 +3462,7 @@ export default function StoreRequisitionsClient({
                   <span>พิมพ์ใบเบิก PDF</span>
                 </Link>
 
-                {detailReq.status === 'PENDING_APPROVAL' && (
+                {canManageStore && detailReq.status === 'PENDING_APPROVAL' && (
                   <Link
                     href={`/requisitions/${detailReq.id}/approve`}
                     className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow transition-all"
@@ -3465,7 +3484,7 @@ export default function StoreRequisitionsClient({
                   </button>
                 )}
 
-                {detailReq.status === 'APPROVED' && (
+                {canManageStore && detailReq.status === 'APPROVED' && (
                   <button
                     onClick={() => handleQuickFulfill(detailReq)}
                     disabled={!!loadingMap[detailReq.id]}
@@ -3476,7 +3495,7 @@ export default function StoreRequisitionsClient({
                   </button>
                 )}
 
-                {(detailReq.status === 'COMPLETED' || detailReq.status === 'PARTIALLY_RETURNED') && (
+                {canManageStore && (detailReq.status === 'COMPLETED' || detailReq.status === 'PARTIALLY_RETURNED') && (
                   <button
                     onClick={() => {
                       const r = detailReq;
@@ -3490,7 +3509,7 @@ export default function StoreRequisitionsClient({
                   </button>
                 )}
 
-                {detailReq.status === 'RETURNED' && (
+                {canManageStore && detailReq.status === 'RETURNED' && (
                   <button
                     onClick={() => {
                       const r = detailReq;

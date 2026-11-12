@@ -17,11 +17,15 @@ export default async function StoreRequisitionsPage() {
 
   const userRoleStr = (user.role || '').toLowerCase();
   const isSuper = isSuperUser(user.role);
-  const isStore = isSuper || canViewAll(user.role) || ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin', 'ซุปเปอร์แอดมิน'].some((r) => userRoleStr.includes(r));
-  
-  if (!isStore) {
+  const isStoreRole = ['store', 'สโตร์', 'คลังสินค้า', 'warehouse', 'admin', 'ซุปเปอร์แอดมิน'].some((r) => userRoleStr.includes(r));
+  const isPurchasingRole = ['purchasing', 'purchase', 'procurement', 'จัดซื้อ'].some((r) => userRoleStr.includes(r));
+  const canAccess = isSuper || canViewAll(user.role) || isStoreRole || isPurchasingRole;
+
+  if (!canAccess) {
     redirect('/dashboard');
   }
+
+  const canManageStore = isSuper || isStoreRole;
 
   // Fetch material requisitions
   const requisitions = await prisma.materialRequisition.findMany({
@@ -58,6 +62,7 @@ export default async function StoreRequisitionsPage() {
         userName={user.fullName || 'เจ้าหน้าที่สโตร์'}
         userRole={user.role}
         isSuperAdmin={isSuper}
+        canManageStore={canManageStore}
       />
     </div>
   );
