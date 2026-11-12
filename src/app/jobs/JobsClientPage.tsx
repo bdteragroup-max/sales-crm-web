@@ -91,12 +91,79 @@ type Job = {
     subject: string | null;
     actualClosingAmount: number | null;
     totalAmountBeforeVat: number | null;
+    invoiceNumber?: string | null;
     company?: {
       businessType: string | null;
     } | null;
     orders?: any[];
   } | null;
 };
+
+const NON_INVOICE_STEP_NOTES = new Set([
+  "ปิดงานสมบูรณ์",
+  "ตรวจสอบเอกสาร ปิดงานเสร็จสมบูรณ์ (Completed)",
+  "ชำระเงินโอน",
+]);
+
+function getJobInvoiceNumber(job: Job): string {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  const addTokens = (
+    raw?: string | null,
+    opts?: { excludeReceipt?: boolean; strictPrefix?: boolean }
+  ) => {
+    if (!raw) return;
+    const parts = String(raw)
+      .split(/[,;\n]+/)
+      .map((s) => s.trim())
+      .filter((s) => s && s !== "-");
+
+    for (const part of parts) {
+      if (NON_INVOICE_STEP_NOTES.has(part)) continue;
+      if (/^(ดำเนินการอัตโนมัติ|ตีกลับ|ยกเลิก)/.test(part)) continue;
+      if (opts?.excludeReceipt && /^RE[-/]?\d/i.test(part)) continue;
+      if (opts?.strictPrefix) {
+        if (!/^[A-Za-z]{2,6}[-/]?\d{3,}/.test(part)) continue;
+      } else {
+        if (!/([A-Za-z]{1,6}[-/]?\d{3,}|\b\d{5,}\b)/.test(part)) continue;
+      }
+      const key = part.toUpperCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(part);
+      }
+    }
+  };
+
+  // 1. หมายเหตุขั้นตอนบัญชีในหน้า /jobs (หลัก)
+  for (const log of job.stepLogs || []) {
+    if (log.step === "accounting" && log.note) {
+      addTokens(log.note);
+    }
+  }
+
+  // 2. เลขที่อินวอยซ์ในรอบชำระเงินหน้า /accounting (ไม่รวมใบเสร็จ RE...)
+  for (const pt of job.paymentTasks || []) {
+    if (pt?.invoiceNumber) {
+      addTokens(pt.invoiceNumber, { excludeReceipt: true });
+    }
+  }
+
+  // 3. เลขที่อินวอยซ์จากใบส่งมอบงานซ่อม (ถ้ามี)
+  for (const rd of job.repairDeliveries || []) {
+    if (rd?.accountingInvoiceNo) {
+      addTokens(rd.accountingInvoiceNo, { excludeReceipt: true });
+    }
+  }
+
+  // 4. เลขที่อินวอยซ์ในใบเสนอราคา (ถ้ามี)
+  if (job.quotation?.invoiceNumber) {
+    addTokens(job.quotation.invoiceNumber, { excludeReceipt: true, strictPrefix: true });
+  }
+
+  return result.join(", ");
+}
 
 const COMPANY_CODES = ["TP", "TG", "TE"] as const;
 
@@ -1513,6 +1580,7 @@ export default function JobsClientPage({
         "วันที่ปิดการขาย": formatDate(j.dateClosed),
         "ใบเสนอราคา": j.quotationNumber || "-",
         "เลขที่ PO": j.poNumber || "-",
+        "เลขที่ Invoice": getJobInvoiceNumber(j) || "-",
         "เซลส์ผู้ดูแล": j.sellerName || "-",
         "การชำระเงิน": j.paymentMethod || "-",
         "รูปแบบการจัดส่ง":
@@ -1860,6 +1928,7 @@ export default function JobsClientPage({
         const it = (j.item || "").toLowerCase();
         const qn = (j.quotationNumber || "").toLowerCase();
         const po = (j.poNumber || "").toLowerCase();
+        const inv = getJobInvoiceNumber(j).toLowerCase();
         const sn = (j.sellerName || "").trim().replace(/\s+/g, " ").toLowerCase();
         const snKey = getPersonIdentityKey(j.sellerName);
         const sellerMatches =
@@ -1870,6 +1939,7 @@ export default function JobsClientPage({
           !it.includes(q) &&
           !qn.includes(q) &&
           !po.includes(q) &&
+          !inv.includes(q) &&
           !sellerMatches
         ) {
           return false;
