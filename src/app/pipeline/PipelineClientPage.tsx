@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { isSalesOrMarketingManager } from '@/app/lib/roleHelper'
 import { updateQuotationStatus } from '@/app/actions/pipeline'
 import { searchCompanies } from '@/app/actions/sales'
 import { extractCompanyCode } from '@/utils/company-utils'
@@ -218,7 +219,7 @@ export default function PipelineClientPage({
     updateFilters({ df: 'statusChangedAt', pr: '', dFrom: '', dTo: '', search: '' })
   }
 
-  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
+  const isManager = isSalesOrMarketingManager(userRole)
 
   const triggerToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type })

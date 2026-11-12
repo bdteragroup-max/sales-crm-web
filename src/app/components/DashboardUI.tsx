@@ -24,6 +24,7 @@ import {
 import ManagerDailySummary from './ManagerDailySummary';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { isSalesOrMarketingManager } from '@/app/lib/roleHelper';
 
 interface DashboardUIProps {
   userFullName: string;
@@ -390,7 +391,7 @@ export default function DashboardUI({
                 <PhoneCall size={12} strokeWidth={2.5} />
                 <span className="whitespace-nowrap">ประสิทธิภาพเทเลเซลล์</span>
               </button>
-              {['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
+              {isSalesOrMarketingManager(userRole) && (
                 <button
                   onClick={() => setActiveDashboardTab('management')}
                   className={`text-[11px] font-black px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${activeDashboardTab === 'management'
@@ -407,7 +408,7 @@ export default function DashboardUI({
 
           {/* Tier 2: Filter Toolbar Row */}
           <div className="py-3 px-6 md:px-8 bg-gray-50/40 flex flex-wrap items-center gap-3">
-            {['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
+            {isSalesOrMarketingManager(userRole) && (
               <div className="relative">
                 <button
                   onClick={(e) => { e.stopPropagation(); setIsSalespersonDropdownOpen(!isSalespersonDropdownOpen); }}
@@ -792,7 +793,7 @@ export default function DashboardUI({
                 </div>
 
                 {/* Activity Correlation Chart (Full Width, directly below daily trend graph) */}
-                {['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
+                {isSalesOrMarketingManager(userRole) && (
                   <div className="bg-white rounded-3xl p-4 md:p-8 shadow-sm border border-gray-100 flex flex-col h-[480px]">
                     <div className="mb-8">
                       <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">ความสัมพันธ์ของกิจกรรมและยอดขาย (ความสัมพันธ์ระหว่างกิจกรรมและรายได้)</h3>

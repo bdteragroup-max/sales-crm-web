@@ -3,7 +3,8 @@
 import prisma from '@/app/lib/db'
 import { getUser } from '@/app/lib/dal'
 import { revalidatePath } from 'next/cache'
-import { teraDb } from '@/app/lib/teraDb'
+import { isSuperUser, isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from '@/app/lib/roleHelper'
+import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates'
 
 export async function upsertMonthlyTarget(data: {
   userId?: string | null
@@ -16,27 +17,22 @@ export async function upsertMonthlyTarget(data: {
     return { success: false, error: 'Unauthorized.' }
   }
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager'
+  const isManager = isSalesOrMarketingManager(user.role)
 
   try {
     if (isManager) {
-      // Security check: Ensure userId belongs to manager's team
+      // Security check: Ensure userId belongs to manager's team (or company-wide for Super Admin / Head of Sales & Marketing / Marketing Manager)
       if (data.userId) {
-        if (data.userId !== user.id) {
+        if (data.userId !== user.id && !isSuperUser(user.role) && !checkMarketingManager(user.role)) {
           const targetUser = await prisma.user.findUnique({ where: { id: data.userId } });
           if (!targetUser) return { success: false, error: 'User not found' };
         
-        let isTeamMember = false;
-        try {
-          const hrEmployee = await teraDb.employees.findUnique({ where: { emp_id: targetUser.employeeId } });
-          if (hrEmployee && hrEmployee.supervisor_id === user.employeeId) {
-            isTeamMember = true;
-          }
-        } catch (e) { console.warn(e) }
+          const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
+          const isTeamMember = subEmpIds.includes(targetUser.employeeId);
 
-        if (!isTeamMember) {
-          return { success: false, error: 'Unauthorized. This user is not in your team or is inactive.' }
-        }
+          if (!isTeamMember) {
+            return { success: false, error: 'Unauthorized. This user is not in your team or is inactive.' }
+          }
         }
       }
     } else {
@@ -86,21 +82,26 @@ export async function getMonthlyTargets(month: number, year: number) {
   const user = await getUser()
   if (!user) return []
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager'
+  const isManager = isSalesOrMarketingManager(user.role)
 
   let targetUserIds: string[] = [user.id];
 
   if (isManager) {
     try {
-      const subordinates = await teraDb.employees.findMany({
-        where: { supervisor_id: user.employeeId, is_active: true }
-      });
-      const empIds = subordinates.map((s: any) => s.emp_id);
-      const targetUsers = await prisma.user.findMany({
-        where: { employeeId: { in: empIds }, isActive: true },
-        select: { id: true }
-      });
-      targetUserIds = targetUsers.map((u: any) => u.id);
+      if (isSuperUser(user.role) || checkMarketingManager(user.role)) {
+        const targetUsers = await prisma.user.findMany({
+          where: { isActive: true },
+          select: { id: true }
+        });
+        targetUserIds = targetUsers.map((u: any) => u.id);
+      } else {
+        const empIds = await getRecursiveSubordinateEmpIds(user.employeeId);
+        const targetUsers = await prisma.user.findMany({
+          where: { employeeId: { in: empIds }, isActive: true },
+          select: { id: true }
+        });
+        targetUserIds = targetUsers.map((u: any) => u.id);
+      }
     } catch(err) {
       console.warn(err);
     }
@@ -133,22 +134,17 @@ export async function upsertTelesalesKPI(data: {
     return { success: false, error: 'Unauthorized.' }
   }
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager'
+  const isManager = isSalesOrMarketingManager(user.role)
 
   try {
     if (isManager) {
       if (data.userId) {
-        if (data.userId !== user.id) {
+        if (data.userId !== user.id && !isSuperUser(user.role) && !checkMarketingManager(user.role)) {
           const targetUser = await prisma.user.findUnique({ where: { id: data.userId } });
           if (!targetUser) return { success: false, error: 'User not found' };
           
-          let isTeamMember = false;
-          try {
-            const hrEmployee = await teraDb.employees.findUnique({ where: { emp_id: targetUser.employeeId } });
-            if (hrEmployee && hrEmployee.supervisor_id === user.employeeId) {
-              isTeamMember = true;
-            }
-          } catch (e) { console.warn(e) }
+          const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
+          const isTeamMember = subEmpIds.includes(targetUser.employeeId);
 
           if (!isTeamMember) {
             return { success: false, error: 'Unauthorized. This user is not in your team or is inactive.' }
@@ -208,21 +204,26 @@ export async function getTelesalesKPIs(month: number, year: number) {
   const user = await getUser()
   if (!user) return []
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager'
+  const isManager = isSalesOrMarketingManager(user.role)
 
   let targetUserIds: string[] = [user.id];
 
   if (isManager) {
     try {
-      const subordinates = await teraDb.employees.findMany({
-        where: { supervisor_id: user.employeeId, is_active: true }
-      });
-      const empIds = subordinates.map((s: any) => s.emp_id);
-      const targetUsers = await prisma.user.findMany({
-        where: { employeeId: { in: empIds }, isActive: true },
-        select: { id: true }
-      });
-      targetUserIds = targetUsers.map((u: any) => u.id);
+      if (isSuperUser(user.role) || checkMarketingManager(user.role)) {
+        const targetUsers = await prisma.user.findMany({
+          where: { isActive: true },
+          select: { id: true }
+        });
+        targetUserIds = targetUsers.map((u: any) => u.id);
+      } else {
+        const empIds = await getRecursiveSubordinateEmpIds(user.employeeId);
+        const targetUsers = await prisma.user.findMany({
+          where: { employeeId: { in: empIds }, isActive: true },
+          select: { id: true }
+        });
+        targetUserIds = targetUsers.map((u: any) => u.id);
+      }
     } catch(err) {
       console.warn(err);
     }

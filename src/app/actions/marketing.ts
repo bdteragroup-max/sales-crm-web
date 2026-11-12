@@ -3,6 +3,7 @@
 import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
 import { notifyUser } from '@/app/lib/pushNotification'
+import { isSalesOrMarketingManager } from '@/app/lib/roleHelper'
 import ExcelJS from 'exceljs'
 
 export async function createMarketingLead(data: {
@@ -170,7 +171,10 @@ export async function getMarketingLeads() {
 export async function getAssignedLeads(userId: string) {
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const isManager = user?.role?.includes('ผู้จัดการ') || user?.role?.toLowerCase().includes('manager');
+    const isManager =
+      isSalesOrMarketingManager(user?.role) ||
+      user?.role?.includes('ผู้จัดการ') ||
+      user?.role?.toLowerCase().includes('manager');
     
     let whereClause: any = { 
       OR: [

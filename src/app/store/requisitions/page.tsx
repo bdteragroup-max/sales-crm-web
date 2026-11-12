@@ -55,6 +55,12 @@ export default async function StoreRequisitionsPage() {
     approverName: req.approver?.fullName || 'ไม่ระบุ'
   }));
 
+  const savedUserSignatureUrl =
+    requisitions.find((r) => r.storeStaffId === user.id && r.storeStaffSignatureUrl)?.storeStaffSignatureUrl ||
+    requisitions.find((r) => r.approverId === user.id && r.approverSignatureUrl)?.approverSignatureUrl ||
+    requisitions.find((r) => r.requesterId === user.id && r.requesterSignatureUrl)?.requesterSignatureUrl ||
+    null;
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-slate-50/50 min-h-screen">
       <StoreRequisitionsClient
@@ -63,6 +69,7 @@ export default async function StoreRequisitionsPage() {
         userRole={user.role}
         isSuperAdmin={isSuper}
         canManageStore={canManageStore}
+        savedUserSignatureUrl={savedUserSignatureUrl}
       />
     </div>
   );

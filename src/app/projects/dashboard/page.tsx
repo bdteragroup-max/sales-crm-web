@@ -4,7 +4,7 @@ import prisma from '@/app/lib/db';
 import Sidebar from '@/app/components/Sidebar';
 import { redirect } from 'next/navigation';
 import ProjectDashboardClient from './ProjectDashboardClient';
-import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive, isHeadOfSalesAndMarketing } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +18,7 @@ export default async function ProjectDashboardPage() {
   const isExecutive = isReadOnlyExecutive(user.role);
   const isManager = isExecutive ||
                     isSuperUser(user.role) ||
+                    isHeadOfSalesAndMarketing(user.role) ||
                     roleLower === 'ผู้จัดการ' || 
                     roleLower === 'sales manager' || 
                     roleLower.includes('admin project') || 

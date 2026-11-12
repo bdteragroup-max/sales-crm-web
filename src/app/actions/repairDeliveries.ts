@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
+import { isSuperUser, isSalesOrMarketingManager } from "@/app/lib/roleHelper";
 import { revalidatePath } from "next/cache";
 import { notifyUsers } from "@/app/lib/pushNotification";
 
@@ -761,10 +762,13 @@ export async function getPendingSalesDeliveryAckCount(): Promise<number> {
     if (!user) return 0;
     const roleStr = (user.role || "").toLowerCase();
     const isSuperOrMgr =
+      isSuperUser(user.role) ||
+      isSalesOrMarketingManager(user.role) ||
       user.role === "SUPER_ADMIN" ||
       user.role === "ผู้จัดการ" ||
       roleStr.includes("manager") ||
-      roleStr.includes("ผู้จัดการ");
+      roleStr.includes("ผู้จัดการ") ||
+      roleStr.includes("mgr");
     const items = await getSignedDeliveriesForSales(
       user.id,
       user.fullName,

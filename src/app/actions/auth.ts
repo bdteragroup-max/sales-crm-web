@@ -93,13 +93,15 @@ export async function login(state: FormState, formData: FormData) {
       const deptName = employee.departments?.name || '';
       
       let crmRole = 'ตัวแทนฝ่ายขาย';
-      const salesDepts = ['sales', 'automation', 'telesales', 'solar pump', 'solar roof', 'support', 'business development', 'บริหาร'];
+      const salesDepts = ['sales', 'ขาย', 'automation', 'telesales', 'solar pump', 'solar roof', 'support', 'business development', 'บริหาร'];
       const isSalesDept = deptName ? salesDepts.some(d => deptName.toLowerCase().includes(d)) : false;
       
-      if (deptName && !isSalesDept) {
+      if (title.includes('หัวหน้าฝ่ายขายและการตลาด') || title.includes('ผู้จัดการฝ่ายขายและการตลาด')) {
+        crmRole = 'หัวหน้าฝ่ายขายและการตลาด';
+      } else if (deptName && !isSalesDept) {
         crmRole = 'อื่นๆ';
       } else {
-        if (/(MGR|Mgr|Sup|Manager|MD|Director|บริหาร)/i.test(title)) {
+        if (/(MGR|Mgr|Sup|Manager|MD|Director|บริหาร|หัวหน้า)/i.test(title)) {
           crmRole = 'ผู้จัดการ';
         }
       }
@@ -128,8 +130,8 @@ export async function login(state: FormState, formData: FormData) {
 
       // 6. Set redirect path for non-sales roles
       const actualRole = crmUser.role.toLowerCase();
-      const isMarketingManager = actualRole === 'marketing manager' || actualRole === 'ผู้จัดการฝ่ายการตลาด' || actualRole === 'ผู้จัดการการตลาด' || actualRole === 'ผู้การจัดการตลาด';
-      const isBackofficeRole = !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some(r => actualRole.includes(r));
+      const isMarketingMgr = actualRole === 'marketing manager' || actualRole === 'ผู้จัดการฝ่ายการตลาด' || actualRole === 'ผู้จัดการการตลาด' || actualRole === 'ผู้การจัดการตลาด' || actualRole === 'หัวหน้าฝ่ายขายและการตลาด' || actualRole.includes('หัวหน้าฝ่ายขายและการตลาด');
+      const isBackofficeRole = !isMarketingMgr && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some(r => actualRole.includes(r));
       const isServiceRole = ['service', 'บริการ', 'ช่าง'].some(r => actualRole.includes(r));
       
       if (isReadOnlyExecutive(crmUser.role)) {

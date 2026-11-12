@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import prisma from '@/app/lib/db'
 import { redirect } from 'next/navigation'
 import OrdersClientPage from './OrdersClientPage'
+import { isSuperUser, isHeadOfSalesAndMarketing } from '@/app/lib/roleHelper'
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +29,7 @@ export default async function OrdersPage({
   }
 
   const roleStr = (user.role || '').toLowerCase()
-  const isManager = ['admin', 'super_admin', 'ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r))
+  const isManager = ['admin', 'super_admin', 'ผู้จัดการ', 'หัวหน้าฝ่ายขายและการตลาด', 'ผู้จัดการฝ่ายขายและการตลาด', 'หัวหน้าฝ่ายขาย', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r))
 
   const whereClause: any = {
     quotation: {
@@ -48,25 +49,33 @@ export default async function OrdersPage({
 
   let teamMembers: { id: string; fullName: string }[] = []
   if (isManager) {
-    const teamViaRelation = await prisma.user.findMany({
-      where: {
-        isActive: true,
-        OR: [
-          { employeeSale: { teamLeader: user.fullName } },
-          { id: user.id }
-        ]
-      },
-      select: { id: true, fullName: true }
-    })
-
-    if (teamViaRelation.length <= 1) {
+    if (isSuperUser(user.role) || isHeadOfSalesAndMarketing(user.role)) {
       teamMembers = await prisma.user.findMany({
         where: { isActive: true },
         select: { id: true, fullName: true },
         orderBy: { fullName: 'asc' }
       })
     } else {
-      teamMembers = teamViaRelation
+      const teamViaRelation = await prisma.user.findMany({
+        where: {
+          isActive: true,
+          OR: [
+            { employeeSale: { teamLeader: user.fullName } },
+            { id: user.id }
+          ]
+        },
+        select: { id: true, fullName: true }
+      })
+
+      if (teamViaRelation.length <= 1) {
+        teamMembers = await prisma.user.findMany({
+          where: { isActive: true },
+          select: { id: true, fullName: true },
+          orderBy: { fullName: 'asc' }
+        })
+      } else {
+        teamMembers = teamViaRelation
+      }
     }
   } else {
     teamMembers = [{ id: user.id, fullName: user.fullName }]

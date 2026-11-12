@@ -2,6 +2,8 @@ import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
 import prisma from '@/app/lib/db'
 import { getCompanyWhereClause } from '@/app/lib/visibility';
+import { isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from '@/app/lib/roleHelper';
+import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
 import { teraDb } from '@/app/lib/teraDb';
 import { redirect } from 'next/navigation'
 import PipelineClientPage from './PipelineClientPage'
@@ -31,8 +33,8 @@ export default async function PipelinePage({
   }
 
   const roleStr = (user.role || '').toLowerCase();
-  const isMarketingManager = roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด') || roleStr.includes('ผู้การจัดการตลาด');
-  const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager') || isMarketingManager;
+  const isMarketingManager = checkMarketingManager(user.role);
+  const isSalesManager = isSalesOrMarketingManager(user.role);
   const isServiceManager = roleStr.includes('service engineer mgr');
 
   const teraEmployee = await teraDb.employees.findUnique({
@@ -70,17 +72,8 @@ export default async function PipelinePage({
         orderBy: { fullName: 'asc' }
       })
     } else {
-      // Fetch manager's direct subordinates from HR database
-      let subEmpIds: string[] = [];
-      try {
-        const subordinates = await teraDb.employees.findMany({
-          where: { supervisor_id: user.employeeId, is_active: true },
-          select: { emp_id: true }
-        });
-        subEmpIds = subordinates.map((s) => s.emp_id);
-      } catch (err) {
-        console.warn("Failed to fetch subordinates from HR database:", err);
-      }
+      // Fetch manager's subordinates from HR database (supports multi-tier hierarchy)
+      const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
 
       teamMembers = await prisma.user.findMany({
         where: {

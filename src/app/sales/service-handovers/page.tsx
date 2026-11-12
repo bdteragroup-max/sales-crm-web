@@ -1,7 +1,7 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { getUser } from "@/app/lib/dal";
-import { isSuperUser } from "@/app/lib/roleHelper";
+import { isSuperUser, isSalesOrMarketingManager } from "@/app/lib/roleHelper";
 import { getServiceHandoversForSales } from "@/app/actions/service-calls";
 import ServiceHandoversClient from "./ServiceHandoversClient";
 
@@ -22,6 +22,7 @@ export default async function ServiceHandoversPage({ searchParams }: PageProps) 
   const roleStr = (user.role || "").toLowerCase();
   const isSuperAdmin = isSuperUser(user.role);
   const isManager =
+    isSalesOrMarketingManager(user.role) ||
     user.role === "ผู้จัดการ" ||
     roleStr.includes("manager") ||
     roleStr.includes("ผู้จัดการ") ||

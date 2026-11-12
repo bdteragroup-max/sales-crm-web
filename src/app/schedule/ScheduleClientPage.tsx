@@ -96,9 +96,10 @@ export default function ScheduleClientPage({
 
   const roleLower = (userRole || '').toLowerCase().trim()
   const isManager =
-    ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'super_admin', 'super admin', 'admin'].includes(roleLower) ||
+    ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'หัวหน้าฝ่ายขายและการตลาด', 'ผู้จัดการฝ่ายขายและการตลาด', 'super_admin', 'super admin', 'admin'].includes(roleLower) ||
     roleLower.includes('manager') ||
     roleLower.includes('ผู้จัดการ') ||
+    roleLower.includes('หัวหน้า') ||
     roleLower.includes('marketing') ||
     roleLower.includes('การตลาด')
 
@@ -106,7 +107,9 @@ export default function ScheduleClientPage({
     roleLower.includes('marketing manager') ||
     roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
     roleLower.includes('ผู้จัดการการตลาด') ||
-    roleLower.includes('ผู้การจัดการตลาด')
+    roleLower.includes('ผู้การจัดการตลาด') ||
+    roleLower.includes('หัวหน้าฝ่ายขายและการตลาด') ||
+    roleLower.includes('ผู้จัดการฝ่ายขายและการตลาด')
 
   // Current time reference in Bangkok timezone
   const now = useMemo(() => new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })), [])

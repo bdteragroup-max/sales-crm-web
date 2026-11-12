@@ -115,6 +115,7 @@ export default function SignupPage() {
                       defaultValue={state?.data?.role as string}
                       className={`w-full bg-gray-50 border ${state?.errors?.role ? 'border-brand-red' : 'border-gray-200'} group-hover:border-gray-300 focus:border-brand-red rounded-xl pl-12 pr-10 py-3 text-gray-900 appearance-none outline-none transition-all focus:ring-4 focus:ring-brand-red/10`}
                     >
+                      <option value="หัวหน้าฝ่ายขายและการตลาด">หัวหน้าฝ่ายขายและการตลาด</option>
                       <option value="ผู้จัดการ">ผู้จัดการ</option>
                       <option value="ตัวแทนฝ่ายขาย">ตัวแทนฝ่ายขาย</option>
                     </select>

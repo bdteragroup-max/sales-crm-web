@@ -3,6 +3,7 @@
 import { getUser } from '@/app/lib/dal'
 import prisma from '@/app/lib/db'
 import { isSamePersonName } from '@/app/lib/personName'
+import { isMarketingManager } from '@/app/lib/roleHelper'
 import { getPreviousCalendarMonthBangkok } from '@/app/lib/cronAuth'
 
 const evaluatedMonthsCache = new Set<string>()
@@ -1496,7 +1497,7 @@ export async function runAllMonthlyGoldEvaluations(
   });
   for (const u of marketingUsers) {
     const roleLower = (u.role || '').toLowerCase();
-    const isManager = roleLower.includes('manager') || roleLower.includes('ผู้จัดการ') || u.role === 'Admin';
+    const isManager = isMarketingManager(u.role) || roleLower.includes('manager') || roleLower.includes('ผู้จัดการ') || u.role === 'Admin';
     const res = isManager
       ? await evaluateMarketingManagerMonthlyGold(u.id, month, year)
       : await evaluateMarketingStaffMonthlyGold(u.id, month, year);

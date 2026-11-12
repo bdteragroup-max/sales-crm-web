@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -43,11 +43,13 @@ import {
   Bell,
   AlertTriangle,
   Trash2,
-  ShieldCheck
+  ShieldCheck,
+  ListChecks,
+  Loader2
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
-import { updateRequisitionStatus, returnMaterialRequisition, deleteMaterialRequisition } from '@/app/actions/requisitions';
+import { updateRequisitionStatus, returnMaterialRequisition, deleteMaterialRequisition, confirmUsedRequisitionItems } from '@/app/actions/requisitions';
 
 export interface RequisitionItem {
   detail: string;
@@ -88,6 +90,8 @@ export interface Requisition {
   deliveryDate?: string | null;
   storeStaffName?: string | null;
   storeStaffSignatureUrl?: string | null;
+  dispensedAt?: string | null;
+  receivedAt?: string | null;
   receiverName?: string | null;
   receiverSignatureUrl?: string | null;
   deliveryPhotos?: any;
@@ -103,6 +107,7 @@ interface StoreRequisitionsClientProps {
   userRole?: string;
   isSuperAdmin?: boolean;
   canManageStore?: boolean;
+  savedUserSignatureUrl?: string | null;
 }
 
 export default function StoreRequisitionsClient({
@@ -111,6 +116,7 @@ export default function StoreRequisitionsClient({
   userRole,
   isSuperAdmin = false,
   canManageStore = true,
+  savedUserSignatureUrl = null,
 }: StoreRequisitionsClientProps) {
   const router = useRouter();
 
@@ -123,6 +129,35 @@ export default function StoreRequisitionsClient({
 
   // Modal State
   const [detailReq, setDetailReq] = useState<Requisition | null>(null);
+  const [detailItemChecks, setDetailItemChecks] = useState<boolean[]>([]);
+
+  // Select Used Items & Auto-Delete Unused Items -> Open PDF Modal State
+  const [usedItemsModalReq, setUsedItemsModalReq] = useState<Requisition | null>(null);
+  const [usedItemChecks, setUsedItemChecks] = useState<boolean[]>([]);
+  const [markCompletedTogether, setMarkCompletedTogether] = useState<boolean>(false);
+  const [pullStoreSignature, setPullStoreSignature] = useState<boolean>(false);
+  const [localSavedSig, setLocalSavedSig] = useState<string | null>(null);
+  const [isSavingUsedItems, setIsSavingUsedItems] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem('crm_user_signature');
+      if (cached) setLocalSavedSig(cached);
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  const effectiveSavedStoreSig = savedUserSignatureUrl || localSavedSig || null;
+
+  useEffect(() => {
+    if (detailReq) {
+      const list = Array.isArray(detailReq.items) ? detailReq.items : [];
+      setDetailItemChecks(list.map(() => true));
+    } else {
+      setDetailItemChecks([]);
+    }
+  }, [detailReq?.id, detailReq?.items?.length]);
 
   // Return Modal State
   const [returnModalReq, setReturnModalReq] = useState<Requisition | null>(null);
@@ -1737,6 +1772,194 @@ export default function StoreRequisitionsClient({
     }
   };
 
+
+  // Helper: Whether Store can tick used items & auto-remove unused ones
+  const canEditUsedItems = (req: Requisition) =>
+    canManageStore &&
+    req.status !== 'RETURNED' &&
+    req.status !== 'REJECTED' &&
+    Array.isArray(req.items) &&
+    req.items.length > 0;
+
+  // Action: Open Select Used Items & Print PDF Modal
+  const openUsedItemsModal = (req: Requisition) => {
+    const items = Array.isArray(req.items) ? req.items : [];
+    setUsedItemsModalReq(req);
+    setUsedItemChecks(items.map(() => true));
+    setMarkCompletedTogether(false);
+    setPullStoreSignature(false);
+  };
+
+  // Action: Save checked (used) items, auto-delete unchecked items, and open PDF
+  const handleConfirmUsedItems = async (
+    targetReq: Requisition,
+    checks: boolean[],
+    options?: {
+      openPdf?: boolean;
+      markCompleted?: boolean;
+      closeUsedModal?: boolean;
+      storeStaffSignatureUrl?: string | null;
+    }
+  ) => {
+    const openPdf = options?.openPdf ?? true;
+    const markCompleted = Boolean(options?.markCompleted);
+    const sigToApply =
+      !targetReq.storeStaffSignatureUrl && options?.storeStaffSignatureUrl
+        ? options.storeStaffSignatureUrl
+        : undefined;
+    const items = Array.isArray(targetReq.items) ? targetReq.items : [];
+    const keptItems = items.filter((_, idx) => checks[idx] !== false);
+    const removedCount = items.length - keptItems.length;
+
+    if (keptItems.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณาติ๊กสิ่งที่ใช้จริงอย่างน้อย 1 รายการ',
+        text: 'หากไม่ได้เบิกทุกรายการเลย กรุณาปฏิเสธหรือลบใบเบิกแทน',
+      });
+      return;
+    }
+
+    const pdfUrl = `/requisitions/${targetReq.id}/pdf`;
+
+    // Fast path: Nothing removed, not changing status, and no new signature to pull -> open PDF directly
+    if (removedCount === 0 && !markCompleted && !sigToApply) {
+      if (openPdf) {
+        window.open(pdfUrl, '_blank');
+      }
+      if (options?.closeUsedModal) {
+        setUsedItemsModalReq(null);
+      }
+      return;
+    }
+
+    // Open new tab synchronously inside user click gesture so mobile/desktop browsers never block it
+    let pdfWin: Window | null = null;
+    if (openPdf) {
+      pdfWin = window.open('', '_blank');
+      if (pdfWin) {
+        try {
+          pdfWin.document.write(`
+            <!DOCTYPE html>
+            <html lang="th">
+              <head>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>กำลังจัดเตรียมเอกสาร PDF...</title>
+                <style>
+                  body { margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; text-align: center; padding: 20px; }
+                  .spinner { width: 38px; height: 38px; border: 3px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.75s linear infinite; margin-bottom: 14px; }
+                  @keyframes spin { to { transform: rotate(360deg); } }
+                  .title { font-size: 15px; font-weight: 700; }
+                  .sub { font-size: 12px; color: #64748b; margin-top: 6px; }
+                </style>
+              </head>
+              <body>
+                <div class="spinner"></div>
+                <div class="title">กำลังอัปเดตรายการที่ใช้จริงและสร้างหน้า PDF...</div>
+                <div class="sub">${removedCount > 0 ? `กำลังลบรายการที่ไม่ได้ใช้ ${removedCount} รายการออกอัตโนมัติ` : 'กำลังบันทึกสถานะใบเบิก'}</div>
+              </body>
+            </html>
+          `);
+          pdfWin.document.close();
+        } catch {
+          // ignore document write edge cases
+        }
+      }
+    }
+
+    setIsSavingUsedItems(true);
+    setLoadingMap(prev => ({ ...prev, [targetReq.id]: true }));
+    try {
+      const res = await confirmUsedRequisitionItems(targetReq.id, {
+        keptItems,
+        markCompleted,
+        storeStaffSignatureUrl: sigToApply,
+      });
+
+      if (res.success) {
+        const nextStatus = res.status || (markCompleted && targetReq.status === 'APPROVED' ? 'COMPLETED' : targetReq.status);
+        const nextStoreSig = res.storeStaffSignatureUrl || sigToApply || targetReq.storeStaffSignatureUrl;
+        const nextStoreName = res.storeStaffName || (sigToApply ? userName : targetReq.storeStaffName);
+        const nextDispensedAt = res.dispensedAt || targetReq.dispensedAt;
+
+        setRequisitions(prev =>
+          prev.map(r =>
+            r.id === targetReq.id
+              ? {
+                  ...r,
+                  items: keptItems,
+                  status: nextStatus,
+                  storeStaffSignatureUrl: nextStoreSig,
+                  storeStaffName: nextStoreName,
+                  dispensedAt: nextDispensedAt,
+                }
+              : r
+          )
+        );
+
+        if (detailReq?.id === targetReq.id) {
+          setDetailReq(prev =>
+            prev
+              ? {
+                  ...prev,
+                  items: keptItems,
+                  status: nextStatus,
+                  storeStaffSignatureUrl: nextStoreSig,
+                  storeStaffName: nextStoreName,
+                  dispensedAt: nextDispensedAt,
+                }
+              : null
+          );
+          setDetailItemChecks(keptItems.map(() => true));
+        }
+
+        if (options?.closeUsedModal) {
+          setUsedItemsModalReq(null);
+        }
+
+        if (openPdf) {
+          if (pdfWin && !pdfWin.closed) {
+            pdfWin.location.replace(pdfUrl);
+          } else {
+            window.location.href = pdfUrl;
+          }
+        }
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title:
+            removedCount > 0
+              ? `ลบรายการที่ไม่ใช้ ${removedCount} รายการอัตโนมัติแล้ว`
+              : 'บันทึกส่งมอบของเรียบร้อยแล้ว',
+          text: openPdf ? `แสดงหน้า PDF เฉพาะ ${keptItems.length} รายการที่ใช้จริง` : undefined,
+          showConfirmButton: false,
+          timer: 2800,
+        });
+
+        router.refresh();
+      } else {
+        if (pdfWin && !pdfWin.closed) pdfWin.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: res.error || 'ไม่สามารถอัปเดตรายการในใบเบิกได้',
+        });
+      }
+    } catch (e: any) {
+      if (pdfWin && !pdfWin.closed) pdfWin.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
+      });
+    } finally {
+      setIsSavingUsedItems(false);
+      setLoadingMap(prev => ({ ...prev, [targetReq.id]: false }));
+    }
+  };
 
   // Action: Open Return Modal
   const openReturnModal = (req: Requisition) => {
@@ -3413,186 +3636,319 @@ export default function StoreRequisitionsClient({
               )}
 
               {/* Items Table */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-slate-500" />
-                    <span>รายการวัสดุอุปกรณ์ที่ขอเบิก ({detailReq.items?.length || 0} รายการ)</span>
-                  </span>
-                </div>
+              {(() => {
+                const dItems = Array.isArray(detailReq.items) ? detailReq.items : [];
+                const editable = canEditUsedItems(detailReq);
+                const dKeptCount = dItems.filter((_, i) => detailItemChecks[i] !== false).length;
+                const dRemovedCount = dItems.length - dKeptCount;
 
-                <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600">
-                        <th className="py-2.5 px-3 w-10 text-center">#</th>
-                        <th className="py-2.5 px-3">รายละเอียดสิ่งของ</th>
-                        <th className="py-2.5 px-3 text-right">จำนวนเบิก</th>
-                        <th className="py-2.5 px-3">หน่วย</th>
-                        <th className="py-2.5 px-3">งานที่ใช้ / โครงการ</th>
-                        <th className="py-2.5 px-3">สถานะการคืน</th>
-                        <th className="py-2.5 px-3">หมายเหตุ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-xs">
-                      {detailReq.items && detailReq.items.length > 0 ? (
-                        detailReq.items.map((item, idx) => {
-                          const origQty = Number(item.quantity) || 1;
-                          const hasReturnInfo = item.returnedQuantity !== undefined;
-                          const retQty = Number(item.returnedQuantity) || 0;
-                          return (
-                            <tr key={idx} className="hover:bg-slate-50/60">
-                              <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{idx + 1}</td>
-                              <td className="py-2.5 px-3 font-semibold text-slate-900">{item.detail}</td>
-                              <td className="py-2.5 px-3 text-right font-bold text-slate-900">{item.quantity}</td>
-                              <td className="py-2.5 px-3 text-slate-600">{item.unit}</td>
-                              <td className="py-2.5 px-3 text-slate-700">{item.job || '-'}</td>
-                              <td className="py-2.5 px-3">
-                                {detailReq.requisitionType === 'CLAIM' ? (
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
-                                    ไม่ต้องคืน (เบิกเคลม)
-                                  </span>
-                                ) : hasReturnInfo ? (
-                                  <div className="space-y-1">
-                                    <span
-                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                        retQty >= origQty
-                                          ? 'bg-teal-50 text-teal-800 border-teal-200'
-                                          : retQty > 0
-                                          ? 'bg-amber-50 text-amber-800 border-amber-200'
-                                          : 'bg-slate-100 text-slate-600 border-slate-200'
-                                      }`}
-                                    >
-                                      <RotateCcw className="w-2.5 h-2.5" />
-                                      {retQty >= origQty
-                                        ? `คืนครบ (${retQty}/${origQty})`
-                                        : retQty > 0
-                                        ? `คืนแล้ว ${retQty}/${origQty}`
-                                        : 'ยังไม่คืน'}
+                return (
+                  <div className="space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[11px] text-slate-500 uppercase font-bold tracking-wider flex items-center gap-1.5">
+                        <Layers className="w-3.5 h-3.5 text-slate-500" />
+                        <span>รายการวัสดุอุปกรณ์ที่ขอเบิก ({dItems.length} รายการ)</span>
+                      </span>
+
+                      {editable && dItems.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ใช้จริง {dKeptCount}/{dItems.length}
+                          </span>
+                          {dRemovedCount > 0 && (
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                              ลบอัตโนมัติ {dRemovedCount}
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setDetailItemChecks(dItems.map(() => true))}
+                            className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition-colors"
+                          >
+                            เลือกทั้งหมด
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDetailItemChecks(dItems.map(() => false))}
+                            className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-bold transition-colors"
+                          >
+                            ล้างที่เลือก
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {editable && (
+                      <div className="px-3 py-2 rounded-xl bg-indigo-50/70 border border-indigo-100 text-[11px] text-indigo-900 font-medium">
+                        สามารถติ๊กเฉพาะรายการที่ใช้จริง แล้วกดปุ่มแสดงหน้า PDF ด้านล่างได้เลย รายการที่ไม่ได้ติ๊กจะถูกลบออกอัตโนมัติ
+                      </div>
+                    )}
+
+                    <div className="border border-slate-200 rounded-2xl overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600">
+                            {editable && <th className="py-2.5 px-3 w-12 text-center">ใช้จริง</th>}
+                            <th className="py-2.5 px-3 w-10 text-center">#</th>
+                            <th className="py-2.5 px-3">รายละเอียดสิ่งของ</th>
+                            <th className="py-2.5 px-3 text-right">จำนวนเบิก</th>
+                            <th className="py-2.5 px-3">หน่วย</th>
+                            <th className="py-2.5 px-3">งานที่ใช้ / โครงการ</th>
+                            <th className="py-2.5 px-3">สถานะการคืน</th>
+                            <th className="py-2.5 px-3">หมายเหตุ</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-xs">
+                          {dItems.length > 0 ? (
+                            dItems.map((item, idx) => {
+                              const origQty = Number(item.quantity) || 1;
+                              const hasReturnInfo = item.returnedQuantity !== undefined;
+                              const retQty = Number(item.returnedQuantity) || 0;
+                              const isChecked = detailItemChecks[idx] !== false;
+                              return (
+                                <tr
+                                  key={idx}
+                                  onClick={() => {
+                                    if (!editable) return;
+                                    setDetailItemChecks(prev => {
+                                      const copy = dItems.map((_, i) => prev[i] !== false);
+                                      copy[idx] = !isChecked;
+                                      return copy;
+                                    });
+                                  }}
+                                  className={`transition-colors ${
+                                    editable ? 'cursor-pointer ' : ''
+                                  }${
+                                    !editable || isChecked
+                                      ? 'hover:bg-slate-50/60'
+                                      : 'bg-rose-50/50 opacity-75'
+                                  }`}
+                                >
+                                  {editable && (
+                                    <td className="py-2.5 px-3 text-center" onClick={e => e.stopPropagation()}>
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={e => {
+                                          const next = e.target.checked;
+                                          setDetailItemChecks(prev => {
+                                            const copy = dItems.map((_, i) => prev[i] !== false);
+                                            copy[idx] = next;
+                                            return copy;
+                                          });
+                                        }}
+                                        className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                                      />
+                                    </td>
+                                  )}
+                                  <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{idx + 1}</td>
+                                  <td className="py-2.5 px-3 font-semibold text-slate-900">
+                                    <span className={!editable || isChecked ? '' : 'line-through text-slate-400'}>
+                                      {item.detail}
                                     </span>
-                                    {item.returnCondition && (
-                                      <div className="text-[10px] text-slate-500">
-                                        สภาพ:{' '}
-                                        {item.returnCondition === 'NORMAL'
-                                          ? 'ปกติ'
-                                          : item.returnCondition === 'DAMAGED'
-                                          ? 'ชำรุด'
-                                          : item.returnCondition === 'LOST'
-                                          ? 'สูญหาย'
-                                          : item.returnCondition}
-                                      </div>
+                                    {editable && !isChecked && (
+                                      <span className="ml-2 inline-flex px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">
+                                        ไม่ใช้ • ลบอัตโนมัติ
+                                      </span>
                                     )}
-                                  </div>
-                                ) : detailReq.status === 'COMPLETED' ? (
-                                  <span className="text-[11px] text-slate-400">ยังไม่บันทึกคืน</span>
-                                ) : (
-                                  <span className="text-[11px] text-slate-400">-</span>
-                                )}
-                              </td>
-                              <td className="py-2.5 px-3 text-slate-500">
-                                {item.returnRemark ? (
-                                  <span className="text-teal-700 font-medium">คืน: {item.returnRemark}</span>
-                                ) : (
-                                  item.remark || '-'
-                                )}
+                                  </td>
+                                  <td className={`py-2.5 px-3 text-right font-bold ${!editable || isChecked ? 'text-slate-900' : 'text-slate-400 line-through'}`}>
+                                    {item.quantity}
+                                  </td>
+                                  <td className="py-2.5 px-3 text-slate-600">{item.unit}</td>
+                                  <td className="py-2.5 px-3 text-slate-700">{item.job || '-'}</td>
+                                  <td className="py-2.5 px-3">
+                                    {detailReq.requisitionType === 'CLAIM' ? (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                                        ไม่ต้องคืน (เบิกเคลม)
+                                      </span>
+                                    ) : hasReturnInfo ? (
+                                      <div className="space-y-1">
+                                        <span
+                                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                            retQty >= origQty
+                                              ? 'bg-teal-50 text-teal-800 border-teal-200'
+                                              : retQty > 0
+                                              ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                                          }`}
+                                        >
+                                          <RotateCcw className="w-2.5 h-2.5" />
+                                          {retQty >= origQty
+                                            ? `คืนครบ (${retQty}/${origQty})`
+                                            : retQty > 0
+                                            ? `คืนแล้ว ${retQty}/${origQty}`
+                                            : 'ยังไม่คืน'}
+                                        </span>
+                                        {item.returnCondition && (
+                                          <div className="text-[10px] text-slate-500">
+                                            สภาพ:{' '}
+                                            {item.returnCondition === 'NORMAL'
+                                              ? 'ปกติ'
+                                              : item.returnCondition === 'DAMAGED'
+                                              ? 'ชำรุด'
+                                              : item.returnCondition === 'LOST'
+                                              ? 'สูญหาย'
+                                              : item.returnCondition}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : detailReq.status === 'COMPLETED' ? (
+                                      <span className="text-[11px] text-slate-400">ยังไม่บันทึกคืน</span>
+                                    ) : (
+                                      <span className="text-[11px] text-slate-400">-</span>
+                                    )}
+                                  </td>
+                                  <td className="py-2.5 px-3 text-slate-500">
+                                    {item.returnRemark ? (
+                                      <span className="text-teal-700 font-medium">คืน: {item.returnRemark}</span>
+                                    ) : (
+                                      item.remark || '-'
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={editable ? 8 : 7} className="py-6 text-center text-slate-400">
+                                ไม่มีรายการสิ่งของ
                               </td>
                             </tr>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td colSpan={7} className="py-6 text-center text-slate-400">
-                            ไม่มีรายการสิ่งของ
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Modal Footer */}
-            <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-2">
-              <button
-                onClick={() => setDetailReq(null)}
-                className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all"
-              >
-                ปิดหน้าต่าง
-              </button>
+            {(() => {
+              const dItems = Array.isArray(detailReq.items) ? detailReq.items : [];
+              const editable = canEditUsedItems(detailReq);
+              const dKeptCount = dItems.filter((_, i) => detailItemChecks[i] !== false).length;
+              const dRemovedCount = dItems.length - dKeptCount;
 
-              <div className="flex items-center gap-2">
-                <Link
-                  href={`/requisitions/${detailReq.id}/pdf`}
-                  target="_blank"
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all"
-                >
-                  <Printer className="w-4 h-4 text-slate-500" />
-                  <span>พิมพ์ใบเบิก PDF</span>
-                </Link>
-
-                {canManageStore && detailReq.status === 'PENDING_APPROVAL' && (
-                  <Link
-                    href={`/requisitions/${detailReq.id}/approve`}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow transition-all"
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>ไปหน้าอนุมัติใบเบิก{isSuperAdmin ? ' (สิทธิ์ Super Admin)' : ''}</span>
-                  </Link>
-                )}
-
-                {isSuperAdmin && (
+              return (
+                <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-2">
                   <button
-                    onClick={() => handleDeleteRequisition(detailReq)}
-                    disabled={!!loadingMap[detailReq.id]}
-                    className="flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition-all"
-                    title="ลบใบเบิกนี้ (สิทธิ์ Super Admin)"
+                    onClick={() => setDetailReq(null)}
+                    className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all"
                   >
-                    <Trash2 className="w-4 h-4 text-rose-500" />
-                    <span>ลบใบเบิก</span>
+                    ปิดหน้าต่าง
                   </button>
-                )}
 
-                {canManageStore && detailReq.status === 'APPROVED' && (
-                  <button
-                    onClick={() => handleQuickFulfill(detailReq)}
-                    disabled={!!loadingMap[detailReq.id]}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition-all disabled:opacity-50"
-                  >
-                    <Check className="w-4 h-4" />
-                    <span>บันทึกส่งมอบเรียบร้อย</span>
-                  </button>
-                )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {editable && dRemovedCount > 0 ? (
+                      <button
+                        type="button"
+                        disabled={isSavingUsedItems || dKeptCount === 0}
+                        onClick={() =>
+                          handleConfirmUsedItems(detailReq, detailItemChecks, {
+                            openPdf: true,
+                          })
+                        }
+                        className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all disabled:opacity-50"
+                      >
+                        {isSavingUsedItems ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Printer className="w-4 h-4" />
+                        )}
+                        <span>
+                          ยืนยันสิ่งที่ใช้ ({dKeptCount}) &amp; แสดง PDF (ลบ {dRemovedCount} รายการ)
+                        </span>
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/requisitions/${detailReq.id}/pdf`}
+                        target="_blank"
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all"
+                      >
+                        <Printer className="w-4 h-4 text-slate-500" />
+                        <span>พิมพ์ใบเบิก PDF</span>
+                      </Link>
+                    )}
 
-                {canManageStore && detailReq.requisitionType !== 'CLAIM' && (detailReq.status === 'COMPLETED' || detailReq.status === 'PARTIALLY_RETURNED') && (
-                  <button
-                    onClick={() => {
-                      const r = detailReq;
-                      setDetailReq(null);
-                      openReturnModal(r);
-                    }}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow transition-all hover:scale-[1.02]"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    <span>{detailReq.status === 'PARTIALLY_RETURNED' ? 'บันทึกคืนของเพิ่มเติม' : 'บันทึกรับคืนของ'}</span>
-                  </button>
-                )}
+                    {canManageStore && detailReq.status === 'PENDING_APPROVAL' && (
+                      <Link
+                        href={`/requisitions/${detailReq.id}/approve`}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow transition-all"
+                      >
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>ไปหน้าอนุมัติใบเบิก{isSuperAdmin ? ' (สิทธิ์ Super Admin)' : ''}</span>
+                      </Link>
+                    )}
 
-                {canManageStore && detailReq.status === 'RETURNED' && (
-                  <button
-                    onClick={() => {
-                      const r = detailReq;
-                      setDetailReq(null);
-                      openReturnModal(r);
-                    }}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition-all hover:scale-[1.02]"
-                  >
-                    <RotateCcw className="w-4 h-4 text-teal-600" />
-                    <span>ดู / แก้ไขบันทึกการคืนของ</span>
-                  </button>
-                )}
-              </div>
-            </div>
+                    {isSuperAdmin && (
+                      <button
+                        onClick={() => handleDeleteRequisition(detailReq)}
+                        disabled={!!loadingMap[detailReq.id]}
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition-all"
+                        title="ลบใบเบิกนี้ (สิทธิ์ Super Admin)"
+                      >
+                        <Trash2 className="w-4 h-4 text-rose-500" />
+                        <span>ลบใบเบิก</span>
+                      </button>
+                    )}
+
+                    {canManageStore && detailReq.status === 'APPROVED' && (
+                      <button
+                        onClick={() => {
+                          if (editable && dRemovedCount > 0) {
+                            handleConfirmUsedItems(detailReq, detailItemChecks, {
+                              openPdf: false,
+                              markCompleted: true,
+                            });
+                          } else {
+                            handleQuickFulfill(detailReq);
+                          }
+                        }}
+                        disabled={!!loadingMap[detailReq.id] || (editable && dKeptCount === 0)}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition-all disabled:opacity-50"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>
+                          {editable && dRemovedCount > 0
+                            ? `ส่งมอบสิ่งที่ใช้ (${dKeptCount} รายการ)`
+                            : 'บันทึกส่งมอบเรียบร้อย'}
+                        </span>
+                      </button>
+                    )}
+
+                    {canManageStore && detailReq.requisitionType !== 'CLAIM' && (detailReq.status === 'COMPLETED' || detailReq.status === 'PARTIALLY_RETURNED') && (
+                      <button
+                        onClick={() => {
+                          const r = detailReq;
+                          setDetailReq(null);
+                          openReturnModal(r);
+                        }}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow transition-all hover:scale-[1.02]"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        <span>{detailReq.status === 'PARTIALLY_RETURNED' ? 'บันทึกคืนของเพิ่มเติม' : 'บันทึกรับคืนของ'}</span>
+                      </button>
+                    )}
+
+                    {canManageStore && detailReq.status === 'RETURNED' && (
+                      <button
+                        onClick={() => {
+                          const r = detailReq;
+                          setDetailReq(null);
+                          openReturnModal(r);
+                        }}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition-all hover:scale-[1.02]"
+                      >
+                        <RotateCcw className="w-4 h-4 text-teal-600" />
+                        <span>ดู / แก้ไขบันทึกการคืนของ</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}

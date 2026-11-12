@@ -99,7 +99,7 @@ export default function OrdersClientPage({
   const [search, setSearch] = useState('')
   const [memberFilter, setMemberFilter] = useState('')
 
-  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => (userRole || '').toLowerCase().includes(r))
+  const isManager = ['ผู้จัดการ', 'หัวหน้าฝ่ายขายและการตลาด', 'ผู้จัดการฝ่ายขายและการตลาด', 'หัวหน้าฝ่ายขาย', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => (userRole || '').toLowerCase().includes(r))
 
   const COLUMNS = [
     { id: 'รอยืนยัน', label: 'รอการยืนยัน', subLabel: 'Pending', accent: '#f59e0b', icon: Clock },

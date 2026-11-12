@@ -4,7 +4,7 @@ import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 import { sendPushToUser } from "@/app/lib/pushNotification";
-import { isSuperUser } from "@/app/lib/roleHelper";
+import { isSuperUser, canViewAll } from "@/app/lib/roleHelper";
 
 export async function createMaterialRequisition(data: any) {
   try {
@@ -604,6 +604,128 @@ export async function recordSiteHandover(
   } catch (error: any) {
     console.error("Error recording site handover:", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function confirmUsedRequisitionItems(
+  id: string,
+  data: {
+    keptItems: any[];
+    markCompleted?: boolean;
+    storeStaffSignatureUrl?: string;
+  }
+) {
+  try {
+    const session = await getUser();
+    if (!session) return { success: false, error: "Unauthorized" };
+
+    const userRoleStr = (session.role || "").toLowerCase();
+    const isSuper = isSuperUser(session.role) || canViewAll(session.role);
+    const isStoreRole = ["store", "สโตร์", "คลังสินค้า", "warehouse", "admin", "ซุปเปอร์แอดมิน"].some((r) =>
+      userRoleStr.includes(r)
+    );
+
+    const existingReq = await prisma.materialRequisition.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        requesterId: true,
+        approverId: true,
+        status: true,
+        requisitionNumber: true,
+        storeStaffId: true,
+        storeStaffName: true,
+        storeStaffSignatureUrl: true,
+        dispensedAt: true,
+      },
+    });
+
+    if (!existingReq) {
+      return { success: false, error: "ไม่พบข้อมูลใบเบิก" };
+    }
+
+    const canModify =
+      isSuper ||
+      isStoreRole ||
+      existingReq.requesterId === session.id ||
+      existingReq.approverId === session.id;
+
+    if (!canModify) {
+      return { success: false, error: "คุณไม่มีสิทธิ์แก้ไขรายการในใบเบิกนี้" };
+    }
+
+    if (existingReq.status === "RETURNED" || existingReq.status === "REJECTED") {
+      return {
+        success: false,
+        error: "ไม่สามารถแก้ไขรายการของใบเบิกที่คืนของครบแล้วหรือไม่อนุมัติได้",
+      };
+    }
+
+    if (!Array.isArray(data.keptItems) || data.keptItems.length === 0) {
+      return {
+        success: false,
+        error: "กรุณาติ๊กเลือกรายการที่ใช้จริงอย่างน้อย 1 รายการ",
+      };
+    }
+
+    const updatePayload: any = {
+      items: data.keptItems,
+    };
+
+    if (data.storeStaffSignatureUrl && !existingReq.storeStaffSignatureUrl) {
+      updatePayload.storeStaffSignatureUrl = data.storeStaffSignatureUrl;
+      updatePayload.storeStaffId = existingReq.storeStaffId || session.id;
+      updatePayload.storeStaffName = existingReq.storeStaffName || session.fullName || "เจ้าหน้าที่สโตร์";
+      if (!existingReq.dispensedAt) {
+        updatePayload.dispensedAt = new Date();
+      }
+    }
+
+    if (data.markCompleted && existingReq.status === "APPROVED") {
+      updatePayload.status = "COMPLETED";
+      updatePayload.storeStaffId = existingReq.storeStaffId || session.id;
+      updatePayload.storeStaffName = existingReq.storeStaffName || session.fullName || "เจ้าหน้าที่สโตร์";
+      if (!existingReq.dispensedAt) {
+        updatePayload.dispensedAt = new Date();
+      }
+    }
+
+    const updated = await prisma.materialRequisition.update({
+      where: { id },
+      data: updatePayload,
+    });
+
+    if (data.markCompleted && existingReq.status === "APPROVED" && updated.requesterId) {
+      sendPushToUser(updated.requesterId, {
+        title: "อัปเดตสถานะใบเบิก/ยืมของ",
+        body: `ใบเบิก/ยืมของหมายเลข ${updated.requisitionNumber} จัดเตรียมและส่งมอบของเรียบร้อยแล้ว (${data.keptItems.length} รายการ)`,
+        url: `/requisitions/${id}`,
+        category: "REQUISITION_UPDATE",
+      }).catch(console.error);
+    }
+
+    revalidatePath("/requisitions");
+    revalidatePath(`/requisitions/${id}`);
+    revalidatePath(`/requisitions/${id}/pdf`);
+    revalidatePath("/store/requisitions");
+    revalidatePath(`/store/requisitions/${id}`);
+    revalidatePath("/store/dashboard");
+
+    return {
+      success: true,
+      id: updated.id,
+      status: updated.status,
+      items: data.keptItems,
+      storeStaffSignatureUrl: updated.storeStaffSignatureUrl,
+      storeStaffName: updated.storeStaffName,
+      dispensedAt: updated.dispensedAt ? updated.dispensedAt.toISOString() : null,
+    };
+  } catch (error: any) {
+    console.error("Error confirming used requisition items:", error);
+    return {
+      success: false,
+      error: error.message || "ไม่สามารถอัปเดตรายการในใบเบิกได้",
+    };
   }
 }
 

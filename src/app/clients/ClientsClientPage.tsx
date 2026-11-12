@@ -19,6 +19,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import MergeCompanyModal from './MergeCompanyModal';
+import { isSalesOrMarketingManager } from '@/app/lib/roleHelper';
 import { createCompany, createContact, getDistricts, getSubDistricts, getLocationsByPostalCode, updateCompany, updateContact, reassignCompanyAdministrator, checkTaxIdExists, deleteCompany } from '@/app/actions/clients';
 
 interface Company {
@@ -182,6 +183,12 @@ export default function ClientsClientPage({
   const searchParams = useSearchParams();
 
   const activeTab = 'companies';
+  const canManageClients = Boolean(
+    currentUser &&
+      (isSalesOrMarketingManager(currentUser.role) ||
+        currentUser.role.includes('ผู้จัดการ') ||
+        currentUser.role.toLowerCase().includes('manager'))
+  );
   const urlSearch = searchParams.get('search') || '';
   const searchTerm = urlSearch;
 
@@ -661,7 +668,7 @@ export default function ClientsClientPage({
 
   {/* Action Buttons */}
   <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-    {currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) && (
+    {canManageClients && (
       <button
         onClick={() => setIsMergeModalOpen(true)}
         className="hidden sm:flex items-center gap-2 bg-white border border-red-200 text-red-600 px-5 py-2.5 rounded-xl font-bold hover:bg-red-50 transition-all shadow-sm active:scale-95 text-sm"
@@ -959,9 +966,9 @@ export default function ClientsClientPage({
                       </div>
                     ) : (company.assignedUser && company.assignedUser.isActive === true) ? (
                       <div
-                        className={`group/reassign relative ${currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                        className={`group/reassign relative ${canManageClients ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
                         onClick={(e) => {
-                          if (currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager'))) {
+                          if (canManageClients) {
                             e.stopPropagation();
                             setReassigningCompanyId(company.id);
                           }
@@ -976,9 +983,9 @@ export default function ClientsClientPage({
                       </div>
                     ) : activeHandler ? (
                       <div
-                        className={`group/reassign relative ${currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                        className={`group/reassign relative ${canManageClients ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
                         onClick={(e) => {
-                          if (currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager'))) {
+                          if (canManageClients) {
                             e.stopPropagation();
                             setReassigningCompanyId(company.id);
                           }
@@ -991,9 +998,9 @@ export default function ClientsClientPage({
                       </div>
                     ) : (
                       <div
-                        className={`group/reassign relative ${currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                        className={`group/reassign relative ${canManageClients ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
                         onClick={(e) => {
-                          if (currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager'))) {
+                          if (canManageClients) {
                             e.stopPropagation();
                             setReassigningCompanyId(company.id);
                           }

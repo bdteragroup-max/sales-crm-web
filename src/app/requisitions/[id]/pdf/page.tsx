@@ -5,6 +5,8 @@ import { notFound } from "next/navigation"
 import { Sarabun } from "next/font/google"
 import RequisitionPDFClient from "./RequisitionPDFClient"
 
+export const dynamic = "force-dynamic"
+
 const sarabun = Sarabun({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin", "thai"],

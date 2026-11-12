@@ -1,4 +1,5 @@
 import { Prisma } from '@/generated/client';
+import { isHeadOfSalesAndMarketing, isMarketingManager } from '@/app/lib/roleHelper';
 
 export type UserContext = {
   id: string;
@@ -27,8 +28,15 @@ export function getCompanyWhereClause(user: UserContext): Prisma.CompanyWhereInp
 
   const roleStr = user.role.toLowerCase();
 
-  // 1. Admins, MDs, and Executives see everything
-  const isAdminOrMD = roleStr.includes('admin') || roleStr.includes('md') || roleStr.includes('managing director') || roleStr === 'executive' || roleStr === 'ผู้บริหาร';
+  // 1. Admins, MDs, Executives, and Head of Sales & Marketing / Marketing Managers see everything
+  const isAdminOrMD =
+    roleStr.includes('admin') ||
+    roleStr.includes('md') ||
+    roleStr.includes('managing director') ||
+    roleStr === 'executive' ||
+    roleStr === 'ผู้บริหาร' ||
+    isHeadOfSalesAndMarketing(user.role) ||
+    isMarketingManager(user.role);
   if (isAdminOrMD) {
     return {};
   }

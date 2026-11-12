@@ -1,7 +1,7 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { getUser } from "@/app/lib/dal";
-import { isSuperUser } from "@/app/lib/roleHelper";
+import { isSuperUser, isSalesOrMarketingManager } from "@/app/lib/roleHelper";
 import { getSignedDeliveriesForSales } from "@/app/actions/repairDeliveries";
 import DeliveryAcknowledgementsClient from "./DeliveryAcknowledgementsClient";
 
@@ -24,6 +24,7 @@ export default async function SalesDeliveryAcknowledgementsPage({
   const roleStr = (user.role || "").toLowerCase();
   const isSuperAdmin = isSuperUser(user.role);
   const isManager =
+    isSalesOrMarketingManager(user.role) ||
     user.role === "ผู้จัดการ" ||
     roleStr.includes("manager") ||
     roleStr.includes("ผู้จัดการ") ||

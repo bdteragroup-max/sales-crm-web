@@ -4,7 +4,8 @@ import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import TelesalesClientPage from './TelesalesClientPage';
 import { Suspense } from 'react';
-import { isSuperUser } from '@/app/lib/roleHelper';
+import { isSuperUser, isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from '@/app/lib/roleHelper';
+import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,22 +44,14 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   let salesReps: { id: string; fullName: string; role: string }[] = [];
   const roleLower = (user?.role || '').toLowerCase();
   const isSuperAdmin = isSuperUser(user?.role);
-  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
+  const isManager = isSalesOrMarketingManager(user?.role);
   
-  const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
+  const isMarketingManager = checkMarketingManager(user?.role);
   
   if (isSuperAdmin || isManager) {
     let subEmpIds: string[] = [];
     if (user && user.employeeId) {
-      try {
-        const subordinates = await teraDb.employees.findMany({
-          where: { supervisor_id: user.employeeId, is_active: true },
-          select: { emp_id: true }
-        });
-        subEmpIds = subordinates.map(s => s.emp_id);
-      } catch (err) {
-        console.warn("Failed to fetch subordinates from HR database:", err);
-      }
+      subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
     }
 
     if (isSuperAdmin || isMarketingManager) {

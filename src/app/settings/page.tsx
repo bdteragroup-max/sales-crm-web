@@ -5,12 +5,14 @@ import { teraDb } from '@/app/lib/teraDb'
 import SettingsClientPage from './SettingsClientPage'
 import { redirect } from 'next/navigation'
 import { getMonthlyTargets, getTelesalesKPIs } from '@/app/actions/settings'
+import { isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from '@/app/lib/roleHelper'
+import { getRecursiveSubordinateEmployees } from '@/app/lib/subordinates'
 
 export default async function SettingsPage() {
   const user = await getUser()
   if (!user) redirect('/login')
   const userRoleStr = (user.role || '').toLowerCase();
-  const isMarketingManager = userRoleStr === 'marketing manager' || userRoleStr === 'ผู้จัดการฝ่ายการตลาด' || userRoleStr === 'ผู้จัดการการตลาด' || userRoleStr === 'ผู้การจัดการตลาด';
+  const isMarketingManager = checkMarketingManager(user.role);
   if (user.role === 'อื่นๆ' || (!isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some(r => userRoleStr.includes(r)))) {
     redirect('/department');
   }
@@ -18,26 +20,13 @@ export default async function SettingsPage() {
   const currentMonth = new Date().getMonth() + 1
   const currentYear = new Date().getFullYear()
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager' || isMarketingManager
+  const isManager = isSalesOrMarketingManager(user.role)
 
   let staffList: { id: string; fullName: string; position: string | null }[] = [];
 
   if (isManager) {
-    // 1. Fetch subordinates from TERA HR DB
-    let subordinates: any[] = [];
-    try {
-      subordinates = await teraDb.employees.findMany({
-        where: {
-          supervisor_id: user.employeeId,
-          is_active: true
-        },
-        include: {
-          job_positions: true
-        }
-      });
-    } catch (err) {
-      console.warn("Failed to fetch subordinates from HR database:", err);
-    }
+    // 1. Fetch subordinates from TERA HR DB (supports multi-tier hierarchy)
+    const subordinates = await getRecursiveSubordinateEmployees(user.employeeId);
     
     const subordinateEmpIds = subordinates.map(s => s.emp_id);
     
@@ -78,7 +67,9 @@ export default async function SettingsPage() {
           { role: { contains: 'sales', mode: 'insensitive' } },
           { role: { contains: 'ขาย', mode: 'insensitive' } },
           { role: 'ผู้จัดการ' },
+          { role: { contains: 'หัวหน้าฝ่ายขาย', mode: 'insensitive' } },
           { role: { contains: 'marketing manager', mode: 'insensitive' } },
+          { role: { contains: 'ผู้จัดการฝ่ายการตลาด', mode: 'insensitive' } },
         ]
       },
       select: { id: true, fullName: true, position: true }

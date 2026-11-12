@@ -27,7 +27,7 @@ export async function updateOrderStatus(
     }
 
     const roleStr = (user.role || '').toLowerCase();
-    const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r));
+    const isManager = ['ผู้จัดการ', 'หัวหน้าฝ่ายขายและการตลาด', 'ผู้จัดการฝ่ายขายและการตลาด', 'หัวหน้าฝ่ายขาย', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r));
 
     // Only manager or the assigned salesperson can update
     if (!isManager && order.salespersonId !== user.id) {
@@ -139,7 +139,7 @@ export async function fetchOrders(filters?: {
     if (filters?.companyId) where.companyId = filters.companyId;
 
     const roleStr = (user.role || '').toLowerCase();
-    const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r));
+    const isManager = ['ผู้จัดการ', 'หัวหน้าฝ่ายขายและการตลาด', 'ผู้จัดการฝ่ายขายและการตลาด', 'หัวหน้าฝ่ายขาย', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r));
 
     // Reps only see their own orders unless they are a manager
     if (!isManager) {

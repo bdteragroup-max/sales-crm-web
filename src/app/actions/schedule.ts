@@ -38,7 +38,7 @@ export async function getStaffSchedules(preFetchedUser?: any) {
           isActive: true,
           OR: [
             { employeeSale: { isNot: null } },
-            { role: { in: ['Sales Representative', 'Sales Manager', 'Business Development', 'BD Intern', 'ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'Marketing Manager'] } },
+            { role: { in: ['Sales Representative', 'Sales Manager', 'Business Development', 'BD Intern', 'ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'Marketing Manager', 'หัวหน้าฝ่ายขายและการตลาด'] } },
             { role: { contains: 'sale', mode: 'insensitive' } },
             { role: { contains: 'ขาย', mode: 'insensitive' } },
             { role: { contains: 'เซลส์', mode: 'insensitive' } },
@@ -155,7 +155,7 @@ export async function createSchedule(data: { userId: string, title: string, desc
               isActive: true,
               OR: [
                 { employeeSale: { isNot: null } },
-                { role: { in: ['Sales Representative', 'Sales Manager', 'Business Development', 'BD Intern', 'ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'Marketing Manager'] } },
+                { role: { in: ['Sales Representative', 'Sales Manager', 'Business Development', 'BD Intern', 'ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'Marketing Manager', 'หัวหน้าฝ่ายขายและการตลาด'] } },
                 { role: { contains: 'sale', mode: 'insensitive' } },
                 { role: { contains: 'ขาย', mode: 'insensitive' } },
                 { id: user.id }

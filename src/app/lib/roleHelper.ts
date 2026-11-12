@@ -19,8 +19,29 @@ export function isReadOnlyExecutive(role: string | null | undefined): boolean {
   return ["executive", "ผู้บริหาร"].includes(r);
 }
 
+export function isHeadOfSalesAndMarketing(role: string | null | undefined): boolean {
+  if (!role) return false;
+  const r = role.toLowerCase().trim();
+  return (
+    r === 'หัวหน้าฝ่ายขายและการตลาด' ||
+    r === 'ผู้จัดการฝ่ายขายและการตลาด' ||
+    r === 'ผู้อำนวยการฝ่ายขายและการตลาด' ||
+    r === 'head of sales and marketing' ||
+    r === 'head of sales & marketing' ||
+    r === 'sales and marketing manager' ||
+    r === 'sales & marketing manager' ||
+    r === 'sales and marketing director' ||
+    r.includes('หัวหน้าฝ่ายขายและการตลาด') ||
+    r.includes('ผู้จัดการฝ่ายขายและการตลาด') ||
+    ((r.includes('หัวหน้า') || r.includes('ผู้จัดการ') || r.includes('head') || r.includes('director')) &&
+      (r.includes('ขาย') || r.includes('sale')) &&
+      (r.includes('การตลาด') || r.includes('marketing')))
+  );
+}
+
 export function isMarketingManager(role: string | null | undefined): boolean {
   if (!role) return false;
+  if (isHeadOfSalesAndMarketing(role)) return true;
   const r = role.toLowerCase().trim();
   return (
     r === 'marketing manager' ||
@@ -32,6 +53,100 @@ export function isMarketingManager(role: string | null | undefined): boolean {
     r.includes('ผู้จัดการการตลาด') ||
     r.includes('ผู้การจัดการตลาด') ||
     isSuperUser(role)
+  );
+}
+
+export function isSalesOrMarketingManager(role: string | null | undefined): boolean {
+  if (!role) return false;
+  if (isSuperUser(role) || isMarketingManager(role) || isHeadOfSalesAndMarketing(role)) return true;
+  const r = role.toLowerCase().trim();
+  return (
+    r === 'ผู้จัดการ' ||
+    r === 'manager' ||
+    r === 'sales manager' ||
+    r === 'ผู้จัดการฝ่ายขาย' ||
+    r === 'หัวหน้าฝ่ายขาย' ||
+    r.includes('sales manager') ||
+    r.includes('ผู้จัดการฝ่ายขาย') ||
+    r.includes('หัวหน้าฝ่ายขาย')
+  );
+}
+
+/**
+ * Checks whether a user role is strictly a Sales Representative (ฝ่ายขาย) or Sales/Branch Manager (ผู้จัดการ).
+ * Excludes Super Admin, Executive, Head of Sales & Marketing, Marketing, BD, Service, Technician,
+ * Project, Engineering, Production, Purchasing, Warehouse/Store, Shipping, Accounting, HR, and Other.
+ */
+export function isSalesRepOrSalesManagerRole(role: string | null | undefined): boolean {
+  if (!role) return false;
+  if (isSuperUser(role) || isReadOnlyExecutive(role) || isHeadOfSalesAndMarketing(role)) {
+    return false;
+  }
+
+  const r = role.toLowerCase().trim();
+  if (!r || r === 'อื่นๆ') return false;
+
+  const nonSalesKeywords = [
+    'marketing',
+    'การตลาด',
+    'accounting',
+    'accountant',
+    'บัญชี',
+    'finance',
+    'การเงิน',
+    'purchasing',
+    'purchase',
+    'จัดซื้อ',
+    'warehouse',
+    'คลังสินค้า',
+    'คลัง',
+    'store',
+    'สโตร์',
+    'ขนส่ง',
+    'จัดส่ง',
+    'shipping',
+    'logistics',
+    'โลจิสติกส์',
+    'service',
+    'บริการ',
+    'เซอร์วิส',
+    'ซ่อม',
+    'technician',
+    'ช่าง',
+    'engineering',
+    'วิศวกรรม',
+    'project',
+    'โครงการ',
+    'โปรเจค',
+    'โปรเจกต์',
+    'production',
+    'ผลิต',
+    'business development',
+    'พัฒนาธุรกิจ',
+    'hr',
+    'บุคคล',
+    'admin',
+    'แอดมิน',
+  ];
+
+  if (
+    nonSalesKeywords.some((kw) => r.includes(kw)) ||
+    r === 'bd' ||
+    r.startsWith('bd ') ||
+    r.endsWith(' bd') ||
+    r.includes(' bd ')
+  ) {
+    return false;
+  }
+
+  return (
+    r === 'ผู้จัดการ' ||
+    r === 'manager' ||
+    r === 'sales manager' ||
+    r === 'ผู้จัดการฝ่ายขาย' ||
+    r === 'หัวหน้าฝ่ายขาย' ||
+    r === 'ผู้จัดการสาขา' ||
+    ['sale', 'ขาย', 'เซลล์', 'เซลส์', 'telesale', 'เทเลเซล'].some((kw) => r.includes(kw))
   );
 }
 
@@ -265,7 +380,7 @@ export function canSupervisorApproveRequest({
  */
 export function canViewAllServiceCalls(role: string | null | undefined): boolean {
   if (!role) return false;
-  if (isSuperUser(role) || isReadOnlyExecutive(role)) return true;
+  if (isSuperUser(role) || isReadOnlyExecutive(role) || isHeadOfSalesAndMarketing(role)) return true;
 
   const r = role.toLowerCase().trim();
 

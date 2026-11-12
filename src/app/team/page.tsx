@@ -2,20 +2,17 @@ import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import { teraDb } from '@/app/lib/teraDb';
 import { redirect } from 'next/navigation';
-import { UserPlus, Mail, Phone, BadgeCheck, Building, Users } from 'lucide-react';
+import { UserPlus, Mail, Phone, BadgeCheck, Building, Users, MapPin } from 'lucide-react';
 import Link from 'next/link';
+import { isSalesOrMarketingManager } from '@/app/lib/roleHelper';
+import { getRecursiveSubordinateEmployees } from '@/app/lib/subordinates';
 
 export const dynamic = 'force-dynamic';
 
 export default async function TeamPage() {
   const user = await getUser();
   const roleLower = (user?.role || '').toLowerCase();
-  const isTeamManager = user?.role === 'ผู้จัดการ' || 
-                        roleLower === 'sales manager' || 
-                        roleLower === 'marketing manager' || 
-                        roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
-                        roleLower.includes('ผู้จัดการการตลาด') ||
-                        roleLower.includes('ผู้การจัดการตลาด') ||
+  const isTeamManager = isSalesOrMarketingManager(user?.role) ||
                         roleLower.includes('admin') ||
                         user?.role === 'Admin';
                         
@@ -25,22 +22,21 @@ export default async function TeamPage() {
     redirect('/dashboard');
   }
 
-  // Fetch subordinates from TERA HR DB directly
+  // Fetch subordinates from TERA HR DB directly (supports multi-tier hierarchy)
   let subordinates: any[] = [];
   try {
-    subordinates = await teraDb.employees.findMany({
-      where: {
-        ...(isProjectAdmin ? {} : { supervisor_id: user.employeeId }),
-        is_active: true,
-      },
-      include: {
-        departments: true,
-        job_positions: true,
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    });
+    if (isProjectAdmin) {
+      subordinates = await teraDb.employees.findMany({
+        where: { is_active: true },
+        include: {
+          departments: true,
+          job_positions: true,
+        },
+        orderBy: { name: 'asc' },
+      });
+    } else {
+      subordinates = await getRecursiveSubordinateEmployees(user.employeeId);
+    }
   } catch (err) {
     console.warn("Failed to fetch subordinates from HR database:", err);
   }
@@ -93,6 +89,12 @@ export default async function TeamPage() {
                     <div className="flex items-center gap-3 text-sm text-gray-600">
                       <Building size={16} className="text-red-400" />
                       <span>{member.departments.name}</span>
+                    </div>
+                  )}
+                  {member.branch_id && (
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <MapPin size={16} className="text-red-400" />
+                      <span>สาขา: {member.branch_id}</span>
                     </div>
                   )}
                 </div>

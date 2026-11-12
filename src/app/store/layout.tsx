@@ -11,7 +11,7 @@ export default async function StoreLayout({
   return (
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/store" userFullName={user?.fullName} userId={user?.id} userRole={user?.role} />
-      <div className="flex-1 flex flex-col h-full overflow-hidden relative z-10 overflow-y-auto">
+      <div className="flex-1 flex flex-col h-full overflow-x-hidden overflow-y-auto bg-slate-50/70 relative">
         {children}
       </div>
     </div>

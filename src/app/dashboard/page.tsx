@@ -5,7 +5,8 @@ import { teraDb } from '@/app/lib/teraDb';
 import DashboardClientWrapper from '@/app/components/DashboardClientWrapper';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive, isMarketingManager as checkMarketingManager, isSalesOrMarketingManager, isSalesRepOrSalesManagerRole } from '@/app/lib/roleHelper';
+import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +20,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   }
 
   const userRoleStr = (user.role || '').toLowerCase();
-  const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(userRoleStr);
+  const isMarketingManager = checkMarketingManager(user.role);
   const isMarketing = ['marketing', 'การตลาด'].some((r) => userRoleStr.includes(r));
 
   if (!isSuperUser(user.role) && (user.role === 'อื่นๆ' || !(isMarketingManager || isMarketing) && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'admin', 'project', 'โครงการ'].some((r) => userRoleStr.includes(r)))) {
@@ -109,7 +110,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     filterEnd = bkkEndOfDay(filterEndDateStr);
   }
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'manager' || (user.role || '').toLowerCase() === 'sales manager' || (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
+  const isManager = isSalesOrMarketingManager(user.role);
   const isSuper = isSuperUser(user.role);
 
   const thirtyDaysAgoFilter = new Date(filterEnd.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -139,16 +140,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   if (isManager || isSuper) {
     let subEmpIds: string[] = [];
     if (!isSuper) {
-      try {
-        const subordinates = await teraDb.employees.findMany({
-          where: { supervisor_id: user.employeeId, is_active: true },
-          select: { emp_id: true }
-        });
-        subEmpIds = subordinates.map((s) => s.emp_id);
-      } catch (err) {
-        console.warn("Failed to fetch subordinates from HR database:", err);
-        // Fallback: Manager will only see their own data if HR db fails
-      }
+      subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
     }
 
     salesReps = await prisma.user.findMany({
@@ -1597,21 +1589,29 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   const branchPerformanceMap: Record<string, { branch: string; sales: number; expenses: number }> = {};
   const individualPerformanceMap: Record<string, { salespersonId: string; name: string; branch: string; sales: number; expenses: number }> = {};
+  const salesRepBranchMap = new Map<string, string>();
 
   salesReps.forEach((r: any) => {
     const b = r.hrBranch || 'Head Office';
+    salesRepBranchMap.set(r.id, b);
     if (!branchPerformanceMap[b]) branchPerformanceMap[b] = { branch: b, sales: 0, expenses: 0 };
-    individualPerformanceMap[r.id] = { salespersonId: r.id, name: r.fullName, branch: b, sales: 0, expenses: 0 };
+    if (filterIds.includes(r.id) && isSalesRepOrSalesManagerRole(r.role)) {
+      individualPerformanceMap[r.id] = { salespersonId: r.id, name: r.fullName, branch: b, sales: 0, expenses: 0 };
+    }
   });
 
   analyticalData.forEach((q: any) => {
     if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) {
       const amt = q.actualClosingAmount || q.totalAmountBeforeVat || 0;
       const sellerId = q.salespersonId;
-      if (sellerId && individualPerformanceMap[sellerId]) {
-        individualPerformanceMap[sellerId].sales += amt;
-        const b = individualPerformanceMap[sellerId].branch;
-        if (branchPerformanceMap[b]) branchPerformanceMap[b].sales += amt;
+      if (sellerId) {
+        if (individualPerformanceMap[sellerId]) {
+          individualPerformanceMap[sellerId].sales += amt;
+        }
+        const b = salesRepBranchMap.get(sellerId);
+        if (b && branchPerformanceMap[b]) {
+          branchPerformanceMap[b].sales += amt;
+        }
       }
     }
   });

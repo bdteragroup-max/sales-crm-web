@@ -69,7 +69,7 @@ export async function GET(request: Request) {
     const isExpenseAdmin = isSuperAdmin || ['accounting', 'บัญชี', 'admin', 'finance', 'การเงิน'].some(r => roleLower.includes(r));
     
     const isMarketingRole = roleLower.includes('marketing') || roleLower.includes('การตลาด') || positionLower.includes('marketing') || positionLower.includes('การตลาด');
-    const isManagerRole = roleLower.includes('manager') || roleLower.includes('ผู้จัดการ') || positionLower.includes('manager') || positionLower.includes('ผู้จัดการ');
+    const isManagerRole = roleLower.includes('manager') || roleLower.includes('ผู้จัดการ') || roleLower.includes('หัวหน้า') || positionLower.includes('manager') || positionLower.includes('ผู้จัดการ') || positionLower.includes('หัวหน้า');
     const isMarketingManager = isMarketingRole && isManagerRole;
 
     let orClauses: any[] = [

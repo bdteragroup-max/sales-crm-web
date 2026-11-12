@@ -141,6 +141,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
     OR: [
       { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'sales manager', 'Sales Manager', 'Sales Representative', 'Business Development'] } },
       { role: { contains: 'ผู้จัดการ', mode: 'insensitive' as const } },
+      { role: { contains: 'หัวหน้า', mode: 'insensitive' as const } },
       { role: { contains: 'manager', mode: 'insensitive' as const } },
       { assignedCompanies: { some: {} } },
     ],

@@ -1292,7 +1292,10 @@ export default function RequisitionPDFClient({
 
   // 7. FORMAL SIGNATURES AUDIT SECTION
   const renderSignatures = () => {
-    if (isBorrow) {
+    const hasHandoverSigs = Boolean(
+      requisition.storeStaffSignatureUrl || requisition.receiverSignatureUrl
+    )
+    if (isBorrow && !hasHandoverSigs) {
       return (
         <div
           style={{
@@ -1457,7 +1460,7 @@ export default function RequisitionPDFClient({
               borderBottom: "1px solid #000000",
             }}
           >
-            1. ผู้ขอเบิก (Requester)
+            {isBorrow ? "1. ผู้ขอยืม (Borrower)" : "1. ผู้ขอเบิก (Requester)"}
           </div>
 
           <div
@@ -1489,7 +1492,7 @@ export default function RequisitionPDFClient({
               ( {requisition.requester?.fullName || "...................................."} )
             </div>
             <div style={{ fontSize: "7.5px", color: "#444444", marginTop: "0.5px" }}>
-              ตำแหน่ง: {requisition.requester?.position || "พนักงานขอเบิก"}
+              ตำแหน่ง: {requisition.requester?.position || (isBorrow ? "พนักงานขอยืมอุปกรณ์" : "พนักงานขอเบิก")}
             </div>
             <div style={{ fontSize: "7.5px", color: "#444444" }}>
               วันที่: {requisitionDateStr}
@@ -1640,7 +1643,7 @@ export default function RequisitionPDFClient({
               borderBottom: "1px solid #000000",
             }}
           >
-            4. ผู้รับของหน้างาน (Site Receiver)
+            {isBorrow ? "4. ผู้รับมอบอุปกรณ์ (Receiver)" : "4. ผู้รับของหน้างาน (Site Receiver)"}
           </div>
 
           <div
@@ -1672,7 +1675,7 @@ export default function RequisitionPDFClient({
               ( {requisition.receiverName || "...................................................."} )
             </div>
             <div style={{ fontSize: "7.5px", color: "#444444", marginTop: "0.5px" }}>
-              ตำแหน่ง: {requisition.receiverName ? "ผู้ตรวจรับสินค้าหน้างานโครงการ" : "ผู้รับมอบสินค้าหน้างาน"}
+              ตำแหน่ง: {isBorrow ? "ผู้รับมอบเครื่องมือและอุปกรณ์" : requisition.receiverName ? "ผู้ตรวจรับสินค้าหน้างานโครงการ" : "ผู้รับมอบสินค้าหน้างาน"}
             </div>
             <div style={{ fontSize: "7.5px", color: "#444444" }}>
               วันที่รับ: {requisition.receivedAt ? formatThaiDate(requisition.receivedAt) : "...../...../........."}

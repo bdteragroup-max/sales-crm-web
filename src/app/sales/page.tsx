@@ -4,7 +4,8 @@ import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import { redirect } from 'next/navigation';
-import { isSuperUser } from '@/app/lib/roleHelper';
+import { isSuperUser, isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from '@/app/lib/roleHelper';
+import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
 import { getServiceCallLogById, getPendingServiceCallsForSales } from '@/app/actions/service-calls';
 
@@ -27,8 +28,8 @@ export default async function SalesPage({ searchParams }: PageProps) {
   if (!user) redirect('/login');
 
   const roleStr = (user.role || '').toLowerCase();
-  const isMarketingManager = roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด') || roleStr.includes('ผู้การจัดการตลาด');
-  const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager') || isMarketingManager;
+  const isMarketingManager = checkMarketingManager(user.role);
+  const isSalesManager = isSalesOrMarketingManager(user.role);
   const isServiceManager = roleStr.includes('service engineer mgr');
   const isManager = isSalesManager || isServiceManager;
 
@@ -51,11 +52,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
       orderBy: { fullName: 'asc' }
     });
   } else if (isSalesManager) {
-    const subordinates = await teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    });
-    const subEmpIds = subordinates.map(s => s.emp_id);
+    const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
 
     teamMembers = await prisma.user.findMany({
       where: isMarketingManager ? {

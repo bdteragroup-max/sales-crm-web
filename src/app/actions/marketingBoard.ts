@@ -2,6 +2,7 @@
 
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
+import { isSuperUser, isReadOnlyExecutive, isMarketingManager as checkMarketingManager } from '@/app/lib/roleHelper';
 import { revalidatePath } from 'next/cache';
 
 import { 
@@ -20,9 +21,9 @@ export async function getMarketingPermissions() {
   if (!user) return null;
 
   const roleStr = (user.role || '').toLowerCase();
-  const isSuperAdmin = ['super_admin', 'super admin'].includes(roleStr);
-  const isExecutive = ['executive', 'ผู้บริหาร'].includes(roleStr);
-  const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleStr);
+  const isSuperAdmin = isSuperUser(user.role);
+  const isExecutive = isReadOnlyExecutive(user.role);
+  const isMarketingManager = checkMarketingManager(user.role);
   const isMarketingStaff = roleStr.includes('marketing') || roleStr.includes('การตลาด');
   const isBranchManager = ['ผู้จัดการ', 'manager', 'sales manager'].includes(roleStr);
   const isTelesalesOrSales = ['ตัวแทนฝ่ายขาย', 'telesales', 'sales representative'].includes(roleStr);

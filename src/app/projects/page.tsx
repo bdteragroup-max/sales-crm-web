@@ -4,7 +4,7 @@ import prisma from '@/app/lib/db'
 import { redirect } from "next/navigation";
 import Sidebar from '@/app/components/Sidebar';
 import ProjectsClientPage from "./ProjectsClientPage";
-import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive, isHeadOfSalesAndMarketing } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +27,7 @@ export default async function ProjectsPage() {
   const roleLower = (user.role || '').toLowerCase();
   const isSuperAdmin = isSuperUser(user.role);
   const isExecutive = isReadOnlyExecutive(user.role);
-  const isManager = isSuperAdmin || isExecutive || user.role === 'ผู้จัดการ' || roleLower.includes('manager') || roleLower.includes('mgr') || user.role === 'Admin' || roleLower.includes('admin');
+  const isManager = isSuperAdmin || isExecutive || isHeadOfSalesAndMarketing(user.role) || user.role === 'ผู้จัดการ' || roleLower.includes('manager') || roleLower.includes('mgr') || user.role === 'Admin' || roleLower.includes('admin');
 
   const whereClause = isManager ? {} : {
     OR: [

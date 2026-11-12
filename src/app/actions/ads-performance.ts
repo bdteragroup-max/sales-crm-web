@@ -3,6 +3,7 @@
 import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/app/lib/dal'
+import { isSuperUser, isMarketingManager, isMarketingStaff } from '@/app/lib/roleHelper'
 import { buildDedupeKey } from '@/lib/adsMetrics'
 import fs from 'fs'
 import path from 'path'
@@ -1508,7 +1509,7 @@ export async function createPerformanceEntry(data: {
 }, channelId: string) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role)) {
+  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role) && !isSuperUser(user.role) && !isMarketingManager(user.role) && !isMarketingStaff(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to add performance data")
   }
 
@@ -1560,7 +1561,7 @@ export async function createPerformanceEntry(data: {
 export async function updatePerformanceEntry(id: string, data: Partial<any>) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role)) {
+  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role) && !isSuperUser(user.role) && !isMarketingManager(user.role) && !isMarketingStaff(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to edit performance data")
   }
 
@@ -1616,7 +1617,7 @@ export async function getDistinctAdSetsAndAds(campaignId: string) {
 export async function bulkSavePerformanceEntries(entries: any[], overwrite: boolean = false) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role)) {
+  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role) && !isSuperUser(user.role) && !isMarketingManager(user.role) && !isMarketingStaff(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to add performance data")
   }
 
@@ -1700,7 +1701,7 @@ export async function bulkSavePerformanceEntries(entries: any[], overwrite: bool
 export async function deletePerformanceEntry(id: string) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager'].includes(user.role)) {
+  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager'].includes(user.role) && !isSuperUser(user.role) && !isMarketingManager(user.role)) {
     throw new Error("Forbidden: Insufficient privileges")
   }
 

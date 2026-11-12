@@ -136,6 +136,8 @@ export default function EditMemberForm({ member, isSuperAdmin = false }: EditMem
                   className={`w-full bg-gray-50 border ${state?.errors?.role ? 'border-brand-red' : 'border-gray-200'} group-hover:border-gray-300 focus:border-brand-red rounded-xl pl-12 pr-10 py-3.5 text-gray-900 appearance-none outline-none transition-all focus:ring-4 focus:ring-brand-red/10`}
                 >
                   <option value="">เลือกตำแหน่ง</option>
+                  <option value="หัวหน้าฝ่ายขายและการตลาด">หัวหน้าฝ่ายขายและการตลาด</option>
+                  <option value="ผู้จัดการฝ่ายการตลาด">ผู้จัดการฝ่ายการตลาด</option>
                   <option value="Sales Manager">Sales Manager</option>
                   <option value="Sales Representative">Sales Representative</option>
                   <option value="Business Development">Business Development</option>

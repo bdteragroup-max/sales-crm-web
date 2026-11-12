@@ -3,19 +3,14 @@ import { getUser } from '@/app/lib/dal';
 import Sidebar from '@/app/components/Sidebar';
 import { redirect } from 'next/navigation';
 import SignupForm from './SignupForm'; // We'll move the form logic here
-import { isSuperUser } from '@/app/lib/roleHelper';
+import { isSuperUser, isSalesOrMarketingManager } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AddTeamMemberPage() {
   const user = await getUser();
   const roleLower = (user?.role || '').toLowerCase();
-  const isTeamManager = user?.role === 'ผู้จัดการ' || 
-                        roleLower === 'sales manager' || 
-                        roleLower === 'marketing manager' || 
-                        roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
-                        roleLower.includes('ผู้จัดการการตลาด') ||
-                        roleLower.includes('ผู้การจัดการตลาด') ||
+  const isTeamManager = isSalesOrMarketingManager(user?.role) ||
                         roleLower.includes('admin') ||
                         user?.role === 'Admin';
                         

@@ -3,6 +3,7 @@
 import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/app/lib/dal'
+import { isSuperUser, isMarketingManager, isMarketingStaff } from '@/app/lib/roleHelper'
 import fs from 'fs'
 import path from 'path'
 import { getActiveAdsWithPerformance } from './ads-performance'
@@ -864,7 +865,7 @@ export async function getCrmSummaryCards(filters: any = {}) {
 export async function bindLeadsToCampaign(leadIds: string[], campaignId: string) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role)) {
+  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role) && !isSuperUser(user.role) && !isMarketingManager(user.role) && !isMarketingStaff(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to bind leads")
   }
 
@@ -885,7 +886,7 @@ export async function bindLeadsToCampaign(leadIds: string[], campaignId: string)
 export async function unbindLeads(leadIds: string[]) {
   const user = await getUser()
   if (!user) throw new Error("Unauthorized")
-  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role)) {
+  if (!['Admin', 'SUPER_ADMIN', 'Marketing Manager', 'Marketing Editor'].includes(user.role) && !isSuperUser(user.role) && !isMarketingManager(user.role) && !isMarketingStaff(user.role)) {
     throw new Error("Forbidden: Insufficient privileges to unbind leads")
   }
 

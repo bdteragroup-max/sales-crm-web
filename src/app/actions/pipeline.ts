@@ -3,6 +3,7 @@
 import prisma from "@/app/lib/db";
 import { generateOrderNumber } from "./orderHelper";
 import { getUser } from "@/app/lib/dal";
+import { isSalesOrMarketingManager } from "@/app/lib/roleHelper";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -59,7 +60,7 @@ export async function updateQuotationStatus(
     }
 
     // Authorization validation: only owner or a manager can edit
-    if (user.role !== "ผู้จัดการ" && (user.role || '').toLowerCase() !== "sales manager" && quotation.salespersonId !== user.id) {
+    if (!isSalesOrMarketingManager(user.role) && quotation.salespersonId !== user.id) {
       return { success: false, error: "ปฏิเสธการเข้าถึง: คุณสามารถแก้ไขเฉพาะดีลของคุณเองเท่านั้น" };
     }
 

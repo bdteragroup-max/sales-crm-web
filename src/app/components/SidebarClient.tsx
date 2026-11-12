@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
   LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw, Sparkles, PanelLeftClose, PanelLeftOpen, Search
 } from 'lucide-react';
-import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests, canViewAllServiceCalls } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests, canViewAllServiceCalls, isHeadOfSalesAndMarketing, isSalesOrMarketingManager } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
@@ -272,7 +272,7 @@ export default function SidebarClient(props: SidebarProps) {
 
   const isExecutive = isReadOnlyExecutive(roleStr);
   const isSuperAdmin = isSuperUser(roleStr);
-  const isManager = roleStr === 'ผู้จัดการ' || roleStr === 'manager' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้การจัดการตลาด';
+  const isManager = isSalesOrMarketingManager(props.userRole);
 
   const allNavs = [
     ...executiveNav, ...managerNav, ...repNav, ...serviceNav, ...serviceMgrNav, ...technicianNav,
@@ -285,6 +285,25 @@ export default function SidebarClient(props: SidebarProps) {
     nav = superAdminNav;
   } else if (isExecutive) {
     nav = executiveNav;
+  } else if (isHeadOfSalesAndMarketing(props.userRole)) {
+    const headOfSalesOpsNav = [
+      { icon: Briefcase, label: 'ติดตามงานทั้งหมด (Master Jobs)', href: '/jobs' },
+      { icon: LayoutDashboard, label: 'ภาพรวมโครงการ (Projects Dashboard)', href: '/projects/dashboard' },
+      { icon: FolderOpen, label: 'จัดการโครงการ (Projects)', href: '/projects' },
+      { icon: Package, label: 'สถานะคำสั่งผลิต', href: '/orders' },
+    ];
+    const surveyIdx = managerNav.findIndex(item => item.href === '/sales/surveys');
+    const managerWithOpsNav =
+      surveyIdx !== -1
+        ? [
+            ...managerNav.slice(0, surveyIdx + 1),
+            ...headOfSalesOpsNav,
+            ...managerNav.slice(surveyIdx + 1),
+          ]
+        : [...managerNav, ...headOfSalesOpsNav];
+    nav = Array.from(
+      new Map([...managerWithOpsNav, ...marketingNav, ...marketingManagerNav].map(item => [item.href, item])).values()
+    );
   } else if (['marketing', 'การตลาด'].some(r => roleStr.includes(r))) {
     if (isManager) {
       nav = Array.from(new Map([...managerNav, ...marketingNav, ...marketingManagerNav].map(item => [item.href, item])).values());
@@ -565,7 +584,7 @@ function ResponsiveSidebar({
       getPendingPaymentTaskCount().then(setUnpaidCount).catch(() => { });
     }
 
-    const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('technician') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
+    const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('technician') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || isSalesOrMarketingManager(userRole) || roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
     if (isServiceUser) {
       getPendingInstallationCount().then(setPendingInstallationCount).catch(() => { });
       getPendingRepairOrderCount().then(setPendingRepairCount).catch(() => { });

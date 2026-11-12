@@ -4,7 +4,8 @@ import prisma from '@/app/lib/db';
 import Sidebar from '@/app/components/Sidebar';
 import { redirect, notFound } from 'next/navigation';
 import EditMemberForm from './EditMemberForm';
-import { isSuperUser } from '@/app/lib/roleHelper';
+import { isSuperUser, isHeadOfSalesAndMarketing, isSalesOrMarketingManager } from '@/app/lib/roleHelper';
+import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
 import { User, BadgeCheck, ShieldCheck } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -13,12 +14,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const user = await getUser();
   const roleLower = (user?.role || '').toLowerCase();
-  const isTeamManager = user?.role === 'ผู้จัดการ' ||
-    roleLower === 'sales manager' ||
-    roleLower === 'marketing manager' ||
-    roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
-    roleLower.includes('ผู้จัดการการตลาด') ||
-    roleLower.includes('ผู้การจัดการตลาด') ||
+  const isTeamManager = isSalesOrMarketingManager(user?.role) ||
     roleLower.includes('admin') ||
     user?.role === 'Admin';
 
@@ -28,9 +24,11 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
     redirect('/dashboard');
   }
 
-  // Fetch the specific team member
-  const member = await prisma.user.findUnique({
-    where: { id },
+  // Fetch the specific team member (support both CRM user.id and HR employeeId)
+  const member = await prisma.user.findFirst({
+    where: {
+      OR: [{ id }, { employeeId: id }],
+    },
     include: { employeeSale: true },
   });
 
@@ -39,10 +37,19 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
   }
 
   const isSuperAdmin = isSuperUser(user?.role);
+  const subEmpIds = (!isSuperAdmin && !isProjectAdmin && user.employeeId)
+    ? await getRecursiveSubordinateEmpIds(user.employeeId)
+    : [];
 
-  // Security Check: Only the Manager (Team Leader) can edit their subordinates
-  // Project Admins can edit anyone
-  if (!isSuperAdmin && !isProjectAdmin && member.employeeSale?.teamLeader !== user.fullName && member.id !== user.id) {
+  // Security Check: Only the Manager / Supervisor line / Admin can edit their subordinates
+  if (
+    !isSuperAdmin &&
+    !isProjectAdmin &&
+    !isHeadOfSalesAndMarketing(user?.role) &&
+    member.employeeSale?.teamLeader !== user.fullName &&
+    !subEmpIds.includes(member.employeeId) &&
+    member.id !== user.id
+  ) {
     redirect('/team');
   }
 

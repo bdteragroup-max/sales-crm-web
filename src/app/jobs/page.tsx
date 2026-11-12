@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import Sidebar from '@/app/components/Sidebar';
 import JobsClientPage from "./JobsClientPage";
 import { buildThaiPersonNameVariants } from "@/app/lib/personName";
+import { isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from "@/app/lib/roleHelper";
+import { getRecursiveSubordinateEmpIds } from "@/app/lib/subordinates";
 
 export const dynamic = 'force-dynamic';
 
@@ -41,8 +43,8 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     roleStr.includes('administrator') ||
     roleStr.includes('ผู้ดูแลระบบ');
   const isExecutive = roleStr === 'ผู้บริหาร' || roleStr === 'executive';
-  const isMarketingManager = roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด');
-  const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager');
+  const isMarketingManager = checkMarketingManager(user.role);
+  const isSalesManager = isSalesOrMarketingManager(user.role);
   const isServiceManager = roleStr.includes('service engineer mgr');
   const isOpsManager = roleStr.includes('warehouse, transport & purchasing manager') || roleStr.includes('ผู้จัดการฝ่ายคลังสินค้า') || roleStr.includes('คลังสินค้า') || roleStr.includes('จัดส่ง') || roleStr.includes('จัดซื้อ') || roleStr.includes('warehouse') || roleStr.includes('transport') || roleStr.includes('purchasing');
   const isManager = isSuperAdmin || isExecutive || isSalesManager || isServiceManager || isMarketingManager || isOpsManager; 
@@ -64,11 +66,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   } else if (isMarketingManager) {
     whereClause = {}; // Marketing Manager sees all jobs
   } else if (isSalesManager) {
-    const subordinates = await teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    });
-    const subEmpIds = subordinates.map(s => s.emp_id);
+    const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
     const teamUsers = await prisma.user.findMany({
       where: { employeeId: { in: subEmpIds }, isActive: true },
       select: { fullName: true }

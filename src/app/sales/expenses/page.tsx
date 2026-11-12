@@ -5,7 +5,8 @@ import { redirect } from 'next/navigation';
 import ExpenseManager from './components/ExpenseManager';
 import { getExpenses } from '@/app/actions/expenseActions';
 
-import { isSuperUser } from '@/app/lib/roleHelper';
+import { isSuperUser, isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from '@/app/lib/roleHelper';
+import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
 import { teraDb } from '@/app/lib/teraDb';
 
 export const metadata = {
@@ -23,8 +24,8 @@ export default async function ExpensesPage() {
 
   const roleStr = (user.role || '').toLowerCase();
   const isSuperAdmin = isSuperUser(user.role);
-  const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].some(r => roleStr.includes(r));
-  const isManager = isSuperAdmin || isMarketingManager || roleStr === 'manager' || roleStr === 'admin' || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager';
+  const isMarketingManager = checkMarketingManager(user.role);
+  const isManager = isSuperAdmin || isSalesOrMarketingManager(user.role) || roleStr === 'admin';
   
   let userWhereClause: any = { id: user.id };
 
@@ -39,11 +40,7 @@ export default async function ExpensesPage() {
     };
   } else if (isManager && user.employeeId) {
     let filterIds = [user.id];
-    const subordinates = await teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    });
-    const subEmpIds = subordinates.map((s: any) => s.emp_id).filter(Boolean);
+    const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
     
     if (subEmpIds.length > 0) {
       const subUsers = await prisma.user.findMany({
@@ -79,10 +76,10 @@ export default async function ExpensesPage() {
   }));
 
   return (
-    <main className="flex-1 overflow-y-auto bg-gray-50 pb-20 md:pb-10 relative custom-scrollbar h-full">
+    <main className="flex-1 overflow-y-auto bg-slate-50/80 pb-24 md:pb-12 relative custom-scrollbar h-full">
       <ExpenseManager 
-        initialExpenses={initialExpenses} 
-        currentUser={user} 
+        initialExpenses={JSON.parse(JSON.stringify(initialExpenses))} 
+        currentUser={JSON.parse(JSON.stringify(user))} 
         salesReps={salesReps} 
       />
     </main>

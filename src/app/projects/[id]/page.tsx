@@ -4,6 +4,7 @@ import prisma from '@/app/lib/db'
 import { redirect } from "next/navigation";
 import Sidebar from '@/app/components/Sidebar';
 import ProjectDetailClient from "./ProjectDetailClient";
+import { isSuperUser, isReadOnlyExecutive, isHeadOfSalesAndMarketing } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,7 +56,15 @@ export default async function ProjectDetailPage(props: { params: Promise<{ id: s
 
   // Check access permission
   const roleLower = (user.role || '').toLowerCase();
-  const isManager = user.role === 'ผู้จัดการ' || roleLower.includes('manager') || roleLower.includes('mgr') || user.role === 'Admin' || roleLower.includes('admin');
+  const isManager =
+    isSuperUser(user.role) ||
+    isReadOnlyExecutive(user.role) ||
+    isHeadOfSalesAndMarketing(user.role) ||
+    user.role === 'ผู้จัดการ' ||
+    roleLower.includes('manager') ||
+    roleLower.includes('mgr') ||
+    user.role === 'Admin' ||
+    roleLower.includes('admin');
   const isMember = project.members.some(m => m.userId === user.id) || project.managerId === user.id;
 
   if (!isManager && !isMember) redirect('/projects')

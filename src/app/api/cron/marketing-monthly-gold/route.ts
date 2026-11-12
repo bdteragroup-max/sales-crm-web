@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { evaluateMarketingStaffMonthlyGold, evaluateMarketingManagerMonthlyGold } from '@/app/actions/coins';
 import { isAuthorizedCronRequest, getTargetPreviousMonthBangkok } from '@/app/lib/cronAuth';
+import { isMarketingManager } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,8 @@ export async function GET(request: Request) {
     for (const user of marketingUsers) {
       const roleLower = (user.role || '').toLowerCase();
 
-      const isManager = roleLower.includes('manager') ||
+      const isManager = isMarketingManager(user.role) ||
+                        roleLower.includes('manager') ||
                         roleLower.includes('ผู้จัดการ') ||
                         user.role === 'Admin';
 

@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import Sidebar from '@/app/components/Sidebar';
 import JobsClientPage from "@/app/jobs/JobsClientPage";
 import { buildThaiPersonNameVariants } from "@/app/lib/personName";
+import { isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from "@/app/lib/roleHelper";
+import { getRecursiveSubordinateEmpIds } from "@/app/lib/subordinates";
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +37,8 @@ export default async function DepartmentPage() {
     roleLower.includes('admin') || 
     roleLower.includes('ผู้ดูแลระบบ');
   const isExecutive = user.role === 'ผู้บริหาร' || roleLower === 'executive';
-  const isManager = isSuperAdmin || isExecutive || user.role === 'ผู้จัดการ' || roleLower.includes('manager'); 
+  const isMarketingManager = checkMarketingManager(user.role);
+  const isManager = isSuperAdmin || isExecutive || isSalesOrMarketingManager(user.role) || roleLower.includes('manager') || roleLower.includes('หัวหน้า'); 
   
   let teraEmployee = null;
   try {
@@ -54,19 +57,10 @@ export default async function DepartmentPage() {
 
   let whereClause: any = {}; // Default to all jobs for non-sales (like Store, Accounting)
   
-  if (isSuperAdmin || isExecutive) {
+  if (isSuperAdmin || isExecutive || isMarketingManager) {
     whereClause = {};
   } else if (isManager) {
-    let subEmpIds: string[] = [];
-    try {
-      const subordinates = await teraDb.employees.findMany({
-        where: { supervisor_id: user.employeeId, is_active: true },
-        select: { emp_id: true }
-      });
-      subEmpIds = subordinates.map(s => s.emp_id);
-    } catch (err) {
-      console.warn("Failed to fetch subordinates from HR database:", err);
-    }
+    const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
     
     const teamUsers = await prisma.user.findMany({
       where: { employeeId: { in: subEmpIds }, isActive: true },
