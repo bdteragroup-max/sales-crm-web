@@ -50,10 +50,10 @@ export default async function NewRequisitionPage(props: {
         <div>
           <h1 className="text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2">
             <Package className="text-red-600" />
-            สร้างใบเบิกของงานโครงการ / เบิกยืมอุปกรณ์
+            สร้างใบเบิกโครงการ / เบิกยืม / เบิกเคลม
           </h1>
           <p className="text-gray-500 text-xs md:text-sm mt-0.5">
-            กรอกข้อมูลเพื่อส่งคำขอเบิกของเข้าโครงการ หรือยืมวัสดุอุปกรณ์สำหรับสาขาและไซต์งานทั่วประเทศ
+            กรอกข้อมูลเพื่อส่งคำขอเบิกของเข้าโครงการ ยืมเครื่องมืออุปกรณ์ หรือเบิกเคลมสินค้า (ไม่คืนของ)
           </p>
         </div>
       </div>

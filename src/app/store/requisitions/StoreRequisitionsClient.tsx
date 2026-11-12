@@ -51,6 +51,7 @@ import { updateRequisitionStatus, returnMaterialRequisition, deleteMaterialRequi
 
 export interface RequisitionItem {
   detail: string;
+  assetCode?: string;
   quantity: number | string;
   unit: string;
   job?: string;
@@ -150,7 +151,7 @@ export default function StoreRequisitionsClient({
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<'ALL' | 'PROJECT' | 'BORROW_EQUIPMENT'>('ALL');
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'PROJECT' | 'BORROW_EQUIPMENT' | 'CLAIM'>('ALL');
   const [projectFilter, setProjectFilter] = useState<string>('ALL');
   const [branchFilter, setBranchFilter] = useState<string>('ALL');
   const [companyFilter, setCompanyFilter] = useState<'ALL' | 'TE' | 'TP' | 'TG'>('ALL');
@@ -204,7 +205,7 @@ export default function StoreRequisitionsClient({
   };
 
   // Helper: Status Styling
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, requisitionType?: string | null) => {
     switch (status) {
       case 'APPROVED':
         return {
@@ -215,7 +216,7 @@ export default function StoreRequisitionsClient({
         };
       case 'COMPLETED':
         return {
-          label: 'ส่งมอบแล้ว (รอคืน/ใช้งาน)',
+          label: requisitionType === 'CLAIM' ? 'ส่งมอบเคลมแล้ว (ไม่คืนของ)' : 'ส่งมอบแล้ว (รอคืน/ใช้งาน)',
           badge: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold',
           icon: CheckCircle2,
           iconColor: 'text-emerald-600'
@@ -366,18 +367,21 @@ export default function StoreRequisitionsClient({
     return counts;
   }, [requisitions]);
 
-  // Type Counts (Project vs Borrow)
+  // Type Counts (Project vs Borrow vs Claim)
   const typeCounts = useMemo(() => {
     let project = 0;
     let borrow = 0;
+    let claim = 0;
     requisitions.forEach(req => {
       if (req.requisitionType === 'PROJECT') {
         project++;
+      } else if (req.requisitionType === 'CLAIM') {
+        claim++;
       } else {
         borrow++;
       }
     });
-    return { ALL: requisitions.length, PROJECT: project, BORROW_EQUIPMENT: borrow };
+    return { ALL: requisitions.length, PROJECT: project, BORROW_EQUIPMENT: borrow, CLAIM: claim };
   }, [requisitions]);
 
   // Project Options for dropdown (sorted with requisition counts)
@@ -561,6 +565,7 @@ export default function StoreRequisitionsClient({
     let rejected = 0;
     let totalItems = 0;
     let totalQuantity = 0;
+    let returnableQuantity = 0;
     let totalReturnedQuantity = 0;
 
     const conditionCounts: Record<string, number> = {
@@ -576,10 +581,11 @@ export default function StoreRequisitionsClient({
       OTHER: { count: 0, itemsCount: 0, quantity: 0, returnedQuantity: 0 },
     };
 
-    const requesterMap: Record<string, { name: string; reqCount: number; itemsCount: number; quantity: number; returnedQuantity: number }> = {};
+    const requesterMap: Record<string, { name: string; reqCount: number; itemsCount: number; quantity: number; returnableQty: number; returnedQuantity: number }> = {};
     const itemAggregateMap: Record<string, {
       detail: string;
       totalQty: number;
+      returnableQty: number;
       totalReturnedQty: number;
       unit: string;
       reqCount: number;
@@ -606,15 +612,18 @@ export default function StoreRequisitionsClient({
 
       const requester = req.requesterName || 'ไม่ระบุ';
       if (!requesterMap[requester]) {
-        requesterMap[requester] = { name: requester, reqCount: 0, itemsCount: 0, quantity: 0, returnedQuantity: 0 };
+        requesterMap[requester] = { name: requester, reqCount: 0, itemsCount: 0, quantity: 0, returnableQty: 0, returnedQuantity: 0 };
       }
       requesterMap[requester].reqCount++;
+
+      const isNonReturnable = req.requisitionType === 'CLAIM';
 
       if (Array.isArray(req.items)) {
         req.items.forEach(it => {
           totalItems++;
           const qty = Number(it.quantity) || 1;
           totalQuantity += qty;
+          if (!isNonReturnable) returnableQuantity += qty;
 
           const retQty = it.returnedQuantity !== undefined 
             ? Number(it.returnedQuantity) 
@@ -638,6 +647,7 @@ export default function StoreRequisitionsClient({
 
           requesterMap[requester].itemsCount++;
           requesterMap[requester].quantity += qty;
+          if (!isNonReturnable) requesterMap[requester].returnableQty += qty;
           requesterMap[requester].returnedQuantity += retQty;
 
           const normName = (it.detail || '').trim();
@@ -647,6 +657,7 @@ export default function StoreRequisitionsClient({
               itemAggregateMap[key] = {
                 detail: normName,
                 totalQty: 0,
+                returnableQty: 0,
                 totalReturnedQty: 0,
                 unit: it.unit || 'ชิ้น',
                 reqCount: 0,
@@ -657,6 +668,7 @@ export default function StoreRequisitionsClient({
               };
             }
             itemAggregateMap[key].totalQty += qty;
+            if (!isNonReturnable) itemAggregateMap[key].returnableQty += qty;
             itemAggregateMap[key].totalReturnedQty += retQty;
             itemAggregateMap[key].reqCount++;
             if (retQty > 0) itemAggregateMap[key].returnCount++;
@@ -668,8 +680,8 @@ export default function StoreRequisitionsClient({
       }
     });
 
-    const totalPendingReturnQuantity = Math.max(0, totalQuantity - totalReturnedQuantity);
-    const returnRate = totalQuantity > 0 ? Math.round((totalReturnedQuantity / totalQuantity) * 100) : 0;
+    const totalPendingReturnQuantity = Math.max(0, returnableQuantity - totalReturnedQuantity);
+    const returnRate = returnableQuantity > 0 ? Math.round((totalReturnedQuantity / returnableQuantity) * 100) : 0;
     const fulfillRate = totalReqs > 0 ? Math.round(((completed + returned + partiallyReturned) / totalReqs) * 100) : 0;
 
     const sortedMaterials = Object.values(itemAggregateMap).sort((a, b) => b.totalQty - a.totalQty);
@@ -796,6 +808,7 @@ export default function StoreRequisitionsClient({
       let totalReturnedBorrowQty = 0;
 
       dataToExport.forEach((req) => {
+        if (req.requisitionType === 'CLAIM') return;
         const reqDate = formatSheetDate(req.date || req.createdAt);
         const borrower = req.requesterName || '-';
 
@@ -1062,6 +1075,7 @@ export default function StoreRequisitionsClient({
       let rejectedCount = 0;
       let totalItems = 0;
       let totalQty = 0;
+      let returnableQty = 0;
       let totalReturnedQty = 0;
 
       const conditionStats: Record<string, number> = {
@@ -1071,7 +1085,7 @@ export default function StoreRequisitionsClient({
       };
 
       const compStats: Record<string, number> = { TE: 0, TP: 0, TG: 0, OTHER: 0 };
-      const itemAggMap: Record<string, { detail: string; qty: number; returnedQty: number; unit: string; count: number; jobs: Set<string> }> = {};
+      const itemAggMap: Record<string, { detail: string; qty: number; returnableQty: number; returnedQty: number; unit: string; count: number; jobs: Set<string> }> = {};
 
       dataToExport.forEach(r => {
         if (r.status === 'APPROVED') approvedCount++;
@@ -1083,12 +1097,14 @@ export default function StoreRequisitionsClient({
 
         const c = normalizeCompany(r.company);
         compStats[c] = (compStats[c] || 0) + 1;
+        const isClaimReq = r.requisitionType === 'CLAIM';
 
         if (Array.isArray(r.items)) {
           r.items.forEach(it => {
             totalItems++;
             const q = Number(it.quantity) || 1;
             totalQty += q;
+            if (!isClaimReq) returnableQty += q;
 
             const retQ = it.returnedQuantity !== undefined 
               ? Number(it.returnedQuantity) 
@@ -1107,9 +1123,10 @@ export default function StoreRequisitionsClient({
             const key = (it.detail || '').trim().toLowerCase();
             if (key) {
               if (!itemAggMap[key]) {
-                itemAggMap[key] = { detail: (it.detail || '').trim(), qty: 0, returnedQty: 0, unit: it.unit || 'ชิ้น', count: 0, jobs: new Set() };
+                itemAggMap[key] = { detail: (it.detail || '').trim(), qty: 0, returnableQty: 0, returnedQty: 0, unit: it.unit || 'ชิ้น', count: 0, jobs: new Set() };
               }
               itemAggMap[key].qty += q;
+              if (!isClaimReq) itemAggMap[key].returnableQty += q;
               itemAggMap[key].returnedQty += retQ;
               itemAggMap[key].count++;
               if (it.job) itemAggMap[key].jobs.add(it.job);
@@ -1118,8 +1135,8 @@ export default function StoreRequisitionsClient({
         }
       });
 
-      const totalPendingReturnQty = Math.max(0, totalQty - totalReturnedQty);
-      const returnRate = totalQty > 0 ? `${((totalReturnedQty / totalQty) * 100).toFixed(1)}%` : '0%';
+      const totalPendingReturnQty = Math.max(0, returnableQty - totalReturnedQty);
+      const returnRate = returnableQty > 0 ? `${((totalReturnedQty / returnableQty) * 100).toFixed(1)}%` : '0%';
       const fulfillRate = dataToExport.length > 0 ? `${(((completedCount + returnedCount + partiallyReturnedCount) / dataToExport.length) * 100).toFixed(1)}%` : '0%';
 
       const top15 = Object.values(itemAggMap).sort((a, b) => b.qty - a.qty).slice(0, 15);
@@ -1164,7 +1181,7 @@ export default function StoreRequisitionsClient({
           item.detail,
           item.qty,
           item.returnedQty,
-          Math.max(0, item.qty - item.returnedQty),
+          Math.max(0, item.returnableQty - item.returnedQty),
           item.unit,
           item.count,
           Array.from(item.jobs).slice(0, 3).join(', ') || '-'
@@ -1205,7 +1222,8 @@ export default function StoreRequisitionsClient({
       dataToExport.forEach(req => {
         const reqDate = req.date ? formatThaiDate(req.date) : (req.createdAt ? formatThaiDate(req.createdAt) : '-');
         const comp = normalizeCompany(req.company);
-        const statusLabel = getStatusBadge(req.status).label;
+        const statusLabel = getStatusBadge(req.status, req.requisitionType).label;
+        const isClaimReq = req.requisitionType === 'CLAIM';
 
         if (Array.isArray(req.items) && req.items.length > 0) {
           req.items.forEach((item, itemIdx) => {
@@ -1213,11 +1231,13 @@ export default function StoreRequisitionsClient({
             const retQty = item.returnedQuantity !== undefined 
               ? Number(item.returnedQuantity) 
               : (req.status === 'RETURNED' ? origQty : 0);
-            const pendingQty = Math.max(0, origQty - retQty);
+            const pendingQty = isClaimReq ? 0 : Math.max(0, origQty - retQty);
 
-            let returnStatusText = 'ยังไม่คืน';
+            let returnStatusText = isClaimReq ? 'ไม่ต้องคืน (เบิกเคลม)' : 'ยังไม่คืน';
             if (req.status === 'APPROVED' || req.status === 'PENDING_APPROVAL') {
               returnStatusText = 'ยังไม่ส่งมอบ';
+            } else if (isClaimReq) {
+              returnStatusText = 'ไม่ต้องคืน (เบิกเคลม)';
             } else if (retQty >= origQty && origQty > 0) {
               returnStatusText = 'คืนครบถ้วน';
             } else if (retQty > 0) {
@@ -1341,7 +1361,8 @@ export default function StoreRequisitionsClient({
       const reqsRows = dataToExport.map((req, idx) => {
         const reqDate = req.date ? formatThaiDate(req.date) : (req.createdAt ? formatThaiDate(req.createdAt) : '-');
         const comp = normalizeCompany(req.company);
-        const statusLabel = getStatusBadge(req.status).label;
+        const statusLabel = getStatusBadge(req.status, req.requisitionType).label;
+        const isClaimReq = req.requisitionType === 'CLAIM';
         const itemCount = req.items?.length || 0;
         const totalUnits = req.items?.reduce((sum, it) => sum + (Number(it.quantity) || 1), 0) || 0;
         const returnedUnits = req.items?.reduce((sum, it) => {
@@ -1349,10 +1370,12 @@ export default function StoreRequisitionsClient({
           const rq = it.returnedQuantity !== undefined ? Number(it.returnedQuantity) : (req.status === 'RETURNED' ? q : 0);
           return sum + rq;
         }, 0) || 0;
-        const pendingUnits = Math.max(0, totalUnits - returnedUnits);
+        const pendingUnits = isClaimReq ? 0 : Math.max(0, totalUnits - returnedUnits);
 
         let overallReturnStatus = '-';
-        if (req.status === 'RETURNED') overallReturnStatus = 'คืนของครบแล้ว';
+        if (isClaimReq) {
+          overallReturnStatus = req.status === 'COMPLETED' ? 'ส่งมอบเคลมแล้ว (ไม่ต้องคืน)' : 'เบิกเคลม (ไม่ต้องคืน)';
+        } else if (req.status === 'RETURNED') overallReturnStatus = 'คืนของครบแล้ว';
         else if (req.status === 'PARTIALLY_RETURNED') overallReturnStatus = 'คืนบางส่วน';
         else if (req.status === 'COMPLETED') overallReturnStatus = 'ส่งมอบแล้ว / รอคืน';
         else if (req.status === 'APPROVED') overallReturnStatus = 'รอจัดของส่งมอบ';
@@ -2275,7 +2298,7 @@ export default function StoreRequisitionsClient({
               <Layers className="w-3.5 h-3.5 text-slate-500" />
               <span>ประเภทใบเบิก:</span>
             </span>
-            <div className="grid grid-cols-3 gap-1.5 flex-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 flex-1">
               <button
                 type="button"
                 onClick={() => {
@@ -2335,6 +2358,27 @@ export default function StoreRequisitionsClient({
                   typeFilter === 'BORROW_EQUIPMENT' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-800'
                 }`}>
                   {typeCounts.BORROW_EQUIPMENT}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('CLAIM');
+                  setCurrentPage(1);
+                }}
+                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                  typeFilter === 'CLAIM'
+                    ? 'bg-violet-600 text-white shadow-sm font-bold'
+                    : 'bg-white text-violet-800 hover:bg-violet-50 border border-slate-200/80'
+                }`}
+              >
+                <ShieldCheck className="w-3 h-3" />
+                <span>เบิกเคลม</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
+                  typeFilter === 'CLAIM' ? 'bg-violet-700 text-white' : 'bg-violet-50 text-violet-800'
+                }`}>
+                  {typeCounts.CLAIM}
                 </span>
               </button>
             </div>
@@ -2563,7 +2607,12 @@ export default function StoreRequisitionsClient({
 
               {typeFilter !== 'ALL' && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200 text-[11px] font-semibold">
-                  {typeFilter === 'PROJECT' ? (
+                  {typeFilter === 'CLAIM' ? (
+                    <>
+                      <ShieldCheck className="w-3 h-3" />
+                      <span>เบิกเคลม</span>
+                    </>
+                  ) : typeFilter === 'PROJECT' ? (
                     <>
                       <Building2 className="w-3 h-3" />
                       <span>งานโปรเจค</span>
@@ -2690,7 +2739,7 @@ export default function StoreRequisitionsClient({
               ) : (
                 paginatedList.map(req => {
                   const compBadge = getCompanyBadge(req.company);
-                  const statusInfo = getStatusBadge(req.status);
+                  const statusInfo = getStatusBadge(req.status, req.requisitionType);
                   const StatusIcon = statusInfo.icon;
                   const isLoading = !!loadingMap[req.id];
 
@@ -2715,12 +2764,19 @@ export default function StoreRequisitionsClient({
                             </button>
                             <span
                               className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                                req.requisitionType === 'BORROW_EQUIPMENT'
+                                req.requisitionType === 'CLAIM'
+                                  ? 'bg-violet-50 text-violet-800 border border-violet-200'
+                                  : req.requisitionType === 'BORROW_EQUIPMENT'
                                   ? 'bg-amber-50 text-amber-800 border border-amber-200'
                                   : 'bg-blue-50 text-blue-800 border border-blue-200'
                               }`}
                             >
-                              {req.requisitionType === 'BORROW_EQUIPMENT' ? (
+                              {req.requisitionType === 'CLAIM' ? (
+                                <>
+                                  <ShieldCheck className="w-2.5 h-2.5" />
+                                  <span>เบิกเคลม</span>
+                                </>
+                              ) : req.requisitionType === 'BORROW_EQUIPMENT' ? (
                                 <>
                                   <Wrench className="w-2.5 h-2.5" />
                                   <span>เบิกยืมสโตร์</span>
@@ -2856,18 +2912,20 @@ export default function StoreRequisitionsClient({
                                 </>
                               ) : req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED' || req.status === 'RETURN_PENDING' ? (
                                 <>
-                                  <button
-                                    onClick={() => openReturnModal(req)}
-                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] ${
-                                      req.status === 'RETURN_PENDING'
-                                        ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
-                                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                                    }`}
-                                    title={req.status === 'RETURN_PENDING' ? 'พนักงานแจ้งขอส่งคืนแล้ว - คลิกเพื่อตรวจรับของ' : 'บันทึกรับคืนวัสดุและอุปกรณ์เข้าสโตร์'}
-                                  >
-                                    <RotateCcw className="w-3.5 h-3.5" />
-                                    <span>{req.status === 'RETURN_PENDING' ? 'ตรวจรับคืน' : req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
-                                  </button>
+                                  {req.requisitionType !== 'CLAIM' && (
+                                    <button
+                                      onClick={() => openReturnModal(req)}
+                                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] ${
+                                        req.status === 'RETURN_PENDING'
+                                          ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
+                                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                      }`}
+                                      title={req.status === 'RETURN_PENDING' ? 'พนักงานแจ้งขอส่งคืนแล้ว - คลิกเพื่อตรวจรับของ' : 'บันทึกรับคืนวัสดุและอุปกรณ์เข้าสโตร์'}
+                                    >
+                                      <RotateCcw className="w-3.5 h-3.5" />
+                                      <span>{req.status === 'RETURN_PENDING' ? 'ตรวจรับคืน' : req.status === 'PARTIALLY_RETURNED' ? 'คืนเพิ่ม' : 'รับคืนของ'}</span>
+                                    </button>
+                                  )}
 
                                   <button
                                     onClick={() => setDetailReq(req)}
@@ -2987,12 +3045,19 @@ export default function StoreRequisitionsClient({
                       </span>
                       <span
                         className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                          req.requisitionType === 'BORROW_EQUIPMENT'
+                          req.requisitionType === 'CLAIM'
+                            ? 'bg-violet-50 text-violet-800 border border-violet-200'
+                            : req.requisitionType === 'BORROW_EQUIPMENT'
                             ? 'bg-amber-50 text-amber-800 border border-amber-200'
                             : 'bg-blue-50 text-blue-800 border border-blue-200'
                         }`}
                       >
-                        {req.requisitionType === 'BORROW_EQUIPMENT' ? (
+                        {req.requisitionType === 'CLAIM' ? (
+                          <>
+                            <ShieldCheck className="w-2.5 h-2.5" />
+                            <span>เบิกเคลม</span>
+                          </>
+                        ) : req.requisitionType === 'BORROW_EQUIPMENT' ? (
                           <>
                             <Wrench className="w-2.5 h-2.5" />
                             <span>เบิกยืมสโตร์</span>
@@ -3125,7 +3190,7 @@ export default function StoreRequisitionsClient({
                         <Check className="w-3.5 h-3.5" />
                         <span>{isLoading ? '...' : 'ส่งมอบแล้ว'}</span>
                       </button>
-                    ) : canManageStore && (req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED') ? (
+                    ) : canManageStore && req.requisitionType !== 'CLAIM' && (req.status === 'COMPLETED' || req.status === 'PARTIALLY_RETURNED') ? (
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => openReturnModal(req)}
@@ -3241,7 +3306,7 @@ export default function StoreRequisitionsClient({
                 <div className="text-xs text-slate-500 flex items-center gap-3">
                   <span>วันที่: <span className="font-semibold text-slate-700">{detailReq.date ? formatThaiDate(detailReq.date) : '-'}</span></span>
                   {(() => {
-                    const s = getStatusBadge(detailReq.status);
+                    const s = getStatusBadge(detailReq.status, detailReq.requisitionType);
                     const Icon = s.icon;
                     return (
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border ${s.badge}`}>
@@ -3383,7 +3448,11 @@ export default function StoreRequisitionsClient({
                               <td className="py-2.5 px-3 text-slate-600">{item.unit}</td>
                               <td className="py-2.5 px-3 text-slate-700">{item.job || '-'}</td>
                               <td className="py-2.5 px-3">
-                                {hasReturnInfo ? (
+                                {detailReq.requisitionType === 'CLAIM' ? (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                                    ไม่ต้องคืน (เบิกเคลม)
+                                  </span>
+                                ) : hasReturnInfo ? (
                                   <div className="space-y-1">
                                     <span
                                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
@@ -3495,7 +3564,7 @@ export default function StoreRequisitionsClient({
                   </button>
                 )}
 
-                {canManageStore && (detailReq.status === 'COMPLETED' || detailReq.status === 'PARTIALLY_RETURNED') && (
+                {canManageStore && detailReq.requisitionType !== 'CLAIM' && (detailReq.status === 'COMPLETED' || detailReq.status === 'PARTIALLY_RETURNED') && (
                   <button
                     onClick={() => {
                       const r = detailReq;
@@ -4325,8 +4394,10 @@ export default function StoreRequisitionsClient({
 
                     <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                       {reportStats.sortedRequesters.slice(0, 5).map((req, idx) => {
-                        const isFullyReturned = req.quantity > 0 && req.returnedQuantity >= req.quantity;
-                        const hasPartialReturn = req.returnedQuantity > 0 && req.returnedQuantity < req.quantity;
+                        const isNoReturnNeeded = req.returnableQty === 0 && req.quantity > 0;
+                        const isFullyReturned = req.returnableQty > 0 && req.returnedQuantity >= req.returnableQty;
+                        const hasPartialReturn = req.returnedQuantity > 0 && req.returnedQuantity < req.returnableQty;
+                        const pendingReqQty = Math.max(0, req.returnableQty - req.returnedQuantity);
                         return (
                           <div
                             key={req.name + idx}
@@ -4360,17 +4431,21 @@ export default function StoreRequisitionsClient({
                               <span>
                                 เบิก {req.quantity.toLocaleString()} หน่วย
                               </span>
-                              {isFullyReturned ? (
+                              {isNoReturnNeeded ? (
+                                <span className="px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 border border-violet-200 text-[10px] font-semibold">
+                                  ไม่ต้องคืน (เคลม)
+                                </span>
+                              ) : isFullyReturned ? (
                                 <span className="px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 text-[10px] font-semibold">
                                   คืนครบแล้ว ({req.returnedQuantity})
                                 </span>
                               ) : hasPartialReturn ? (
                                 <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-semibold">
-                                  คืนแล้ว {req.returnedQuantity} / {req.quantity}
+                                  คืนแล้ว {req.returnedQuantity} / {req.returnableQty}
                                 </span>
                               ) : (
                                 <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 text-[10px]">
-                                  คงค้าง {req.quantity} หน่วย
+                                  คงค้าง {pendingReqQty} หน่วย
                                 </span>
                               )}
                             </div>
@@ -4487,9 +4562,10 @@ export default function StoreRequisitionsClient({
                         : filteredReportMaterials
                       ).map((item, idx) => {
                         const rank = idx + 1;
-                        const pendingQty = Math.max(0, item.totalQty - item.totalReturnedQty);
-                        const itemReturnRate = item.totalQty > 0 ? Math.round((item.totalReturnedQty / item.totalQty) * 100) : 0;
-                        const isFullyReturned = item.totalQty > 0 && item.totalReturnedQty >= item.totalQty;
+                        const isNoReturnItem = item.returnableQty === 0 && item.totalQty > 0;
+                        const pendingQty = Math.max(0, item.returnableQty - item.totalReturnedQty);
+                        const itemReturnRate = item.returnableQty > 0 ? Math.round((item.totalReturnedQty / item.returnableQty) * 100) : 0;
+                        const isFullyReturned = item.returnableQty > 0 && item.totalReturnedQty >= item.returnableQty;
                         return (
                           <tr key={item.detail + idx} className="hover:bg-indigo-50/30 transition-colors">
                             <td className="py-2.5 px-3.5 text-center">
@@ -4530,7 +4606,11 @@ export default function StoreRequisitionsClient({
                               )}
                             </td>
                             <td className="py-2.5 px-3.5 text-right font-medium">
-                              {isFullyReturned ? (
+                              {isNoReturnItem ? (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 text-[10px] font-bold">
+                                  ไม่ต้องคืน
+                                </span>
+                              ) : isFullyReturned ? (
                                 <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">
                                   คืนครบ
                                 </span>

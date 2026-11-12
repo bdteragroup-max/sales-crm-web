@@ -24,12 +24,17 @@ export async function generateMetadata({
 
   if (!req) return { title: "ใบเบิก / ยืมวัสดุและอุปกรณ์ | Tera Group" }
 
+  const isClaim = req.requisitionType === "CLAIM"
   const isBorrow =
     req.requisitionType === "BORROW_EQUIPMENT" ||
     req.requisitionType === "BORROW" ||
     req.requisitionType === "EQUIPMENT"
 
-  const docTitle = isBorrow ? "ใบยืมเครื่องมือและอุปกรณ์" : "ใบเบิกวัสดุอุปกรณ์งานโครงการ"
+  const docTitle = isClaim
+    ? "ใบเบิกเคลมสินค้าและอะไหล่"
+    : isBorrow
+    ? "ใบยืมเครื่องมือและอุปกรณ์"
+    : "ใบเบิกวัสดุอุปกรณ์งานโครงการ"
   return {
     title: `${docTitle} ${req.requisitionNumber} | Tera Group`,
   }

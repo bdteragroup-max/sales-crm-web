@@ -2,7 +2,7 @@ import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import { getRequisitionById } from '@/app/actions/requisitions';
 import { isSuperUser, canViewAll } from '@/app/lib/roleHelper';
-import { Package, Clock, Image as ImageIcon, Wrench, Building2, CheckCircle2, RotateCcw, Truck, XCircle } from 'lucide-react';
+import { Package, Clock, Image as ImageIcon, Wrench, Building2, CheckCircle2, RotateCcw, Truck, XCircle, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import RequisitionDetailActions from './RequisitionDetailActions';
 
@@ -103,9 +103,14 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-8 mt-6">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-lg font-bold text-gray-900">รายละเอียดใบเบิก/ยืมของ</h2>
-            {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+            {requisition.requisitionType === 'CLAIM' ? (
+              <span className="px-2.5 py-1 bg-violet-50 text-violet-800 text-xs rounded-lg border border-violet-200 font-semibold flex items-center gap-1.5">
+                <ShieldCheck size={13} />
+                <span>เบิกเคลมสินค้า (ไม่มีการคืนสินค้า)</span>
+              </span>
+            ) : requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
               <span className="px-2.5 py-1 bg-amber-50 text-amber-800 text-xs rounded-lg border border-amber-200 font-semibold flex items-center gap-1.5">
                 <Wrench size={13} />
                 <span>เบิกยืมสโตร์ (อุปกรณ์)</span>
@@ -166,7 +171,48 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
         </div>
 
         {/* Metadata Grid (Adapted for Type) */}
-        {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+        {requisition.requisitionType === 'CLAIM' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm bg-violet-50/50 p-4 rounded-2xl border border-violet-200/80">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">เลขที่ใบเบิกเคลม</p>
+              <p className="font-bold text-slate-900 text-base">{requisition.requisitionNumber}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">วันที่ทำรายการ</p>
+              <p className="font-bold text-slate-900">{new Date(requisition.date).toLocaleDateString('th-TH')}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-violet-900 mb-1">กำหนดส่งมอบเคลม</p>
+              <p className="font-bold text-violet-700">
+                {requisition.deliveryDate ? new Date(requisition.deliveryDate).toLocaleDateString('th-TH') : 'ไม่ระบุ'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">สาขาผู้จ่ายของ</p>
+              <p className="font-semibold text-slate-800">{requisition.branch || 'BKK-HQ'}</p>
+            </div>
+            <div className="sm:col-span-2">
+              <p className="text-xs font-semibold text-slate-500 mb-1">ชื่องานเคลม / ลูกค้า / อ้างอิง</p>
+              <p className="font-bold text-violet-900 text-sm">{requisition.projectName || '-'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">สถานที่จัดส่ง / ปลายทาง</p>
+              <p className="font-semibold text-slate-800">{requisition.destinationSite || '-'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">เงื่อนไขการคืนสินค้า</p>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-violet-100 text-violet-800 rounded-md text-xs font-bold border border-violet-200">
+                ไม่มีการคืนสินค้าเข้าคลัง
+              </span>
+            </div>
+            {requisition.deliveryNote && (
+              <div className="sm:col-span-4">
+                <p className="text-xs font-semibold text-slate-500 mb-1">สาเหตุการเคลม &amp; รายละเอียดการจัดส่ง</p>
+                <p className="text-slate-700 font-medium">{requisition.deliveryNote}</p>
+              </div>
+            )}
+          </div>
+        ) : requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm bg-amber-50/50 p-4 rounded-2xl border border-amber-200/80">
             <div>
               <p className="text-xs font-semibold text-slate-500 mb-1">เลขที่ใบเบิกยืม</p>
@@ -242,7 +288,9 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
         <div>
           <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center justify-between">
             <span>
-              {requisition.requisitionType === 'BORROW_EQUIPMENT'
+              {requisition.requisitionType === 'CLAIM'
+                ? `รายการสินค้า/อะไหล่ที่เบิกเคลม (${(requisition.items as any[])?.length || 0} รายการ)`
+                : requisition.requisitionType === 'BORROW_EQUIPMENT'
                 ? `รายการเครื่องมือ/อุปกรณ์ที่ยืม (${(requisition.items as any[])?.length || 0} รายการ)`
                 : `รายการวัสดุ-อุปกรณ์เข้าโครงการ (${(requisition.items as any[])?.length || 0} รายการ)`}
             </span>
@@ -254,10 +302,14 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
                 <tr className="bg-slate-50 border-b border-slate-200 text-xs text-slate-700 font-bold uppercase">
                   <th className="px-3 py-3 w-12 text-center">ลำดับ</th>
                   <th className="px-4 py-3">
-                    {requisition.requisitionType === 'BORROW_EQUIPMENT' ? 'ชื่อเครื่องมือ / อุปกรณ์' : 'รายการวัสดุ / อุปกรณ์'}
+                    {requisition.requisitionType === 'CLAIM'
+                      ? 'รายการสินค้า / อะไหล่ที่เบิกเคลม'
+                      : requisition.requisitionType === 'BORROW_EQUIPMENT'
+                      ? 'ชื่อเครื่องมือ / อุปกรณ์'
+                      : 'รายการวัสดุ / อุปกรณ์'}
                   </th>
-                  {requisition.requisitionType === 'BORROW_EQUIPMENT' && (
-                    <th className="px-3 py-3 w-32">รหัส / Serial No.</th>
+                  {(requisition.requisitionType === 'BORROW_EQUIPMENT' || requisition.requisitionType === 'CLAIM') && (
+                    <th className="px-3 py-3 w-36">รหัส / Serial No.</th>
                   )}
                   <th className="px-3 py-3 text-center w-24">จำนวน</th>
                   <th className="px-3 py-3 text-center w-24">หน่วย</th>
@@ -266,6 +318,11 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
                       <th className="px-3 py-3 w-36">สภาพก่อนยืม</th>
                       <th className="px-4 py-3 text-center bg-teal-50 text-teal-800">สถานะการคืนสโตร์</th>
                       <th className="px-4 py-3">อุปกรณ์เสริม / หมายเหตุ</th>
+                    </>
+                  ) : requisition.requisitionType === 'CLAIM' ? (
+                    <>
+                      <th className="px-4 py-3 w-44">งานเคลม / ลูกค้า</th>
+                      <th className="px-4 py-3">หมายเหตุ / อ้างอิงตัวเสีย</th>
                     </>
                   ) : (
                     <>
@@ -284,7 +341,7 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
                     <tr key={index} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-3 py-3 text-center text-slate-400 font-bold">{index + 1}</td>
                       <td className="px-4 py-3 font-semibold text-slate-900">{item.detail}</td>
-                      {requisition.requisitionType === 'BORROW_EQUIPMENT' && (
+                      {(requisition.requisitionType === 'BORROW_EQUIPMENT' || requisition.requisitionType === 'CLAIM') && (
                         <td className="px-3 py-3 font-mono text-xs text-slate-600">{item.assetCode || '-'}</td>
                       )}
                       <td className="px-3 py-3 text-center font-bold text-slate-800">{item.quantity}</td>
@@ -372,7 +429,9 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
           </div>
 
           <div className="flex flex-col items-center">
-            <span className="font-semibold text-gray-700 mb-2">4. ผู้รับของ / ผู้ส่งคืน</span>
+            <span className="font-semibold text-gray-700 mb-2">
+              {requisition.requisitionType === 'BORROW_EQUIPMENT' ? '4. ผู้รับของ / ผู้ส่งคืน' : '4. ผู้รับของ'}
+            </span>
             <div className="w-full h-16 flex items-center justify-center bg-gray-50 rounded-xl border border-gray-200 p-1">
               {requisition.receiverSignatureUrl ? (
                 <img src={requisition.receiverSignatureUrl} alt="Receiver" className="max-h-full object-contain" />

@@ -29,6 +29,7 @@ import {
   Wrench,
   Building2,
   Bell,
+  ShieldCheck,
 } from 'lucide-react';
 import ConfirmModal from '@/app/components/ConfirmModal';
 import Link from 'next/link';
@@ -96,7 +97,10 @@ export default function StoreFulfillForm({
       case 'RETURN_PENDING':
         return { label: 'แจ้งคืนแล้ว (รอตรวจรับ)', badge: 'bg-amber-100 text-amber-900 border-amber-300 font-bold animate-pulse' };
       case 'COMPLETED':
-        return { label: 'ส่งมอบแล้ว (รอคืน/ใช้งาน)', badge: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+        return {
+          label: requisition.requisitionType === 'CLAIM' ? 'ส่งมอบเคลมแล้ว (ไม่ต้องคืน)' : 'ส่งมอบแล้ว (รอคืน/ใช้งาน)',
+          badge: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+        };
       case 'RETURNED':
         return { label: 'คืนของเรียบร้อย', badge: 'bg-teal-100 text-teal-800 border-teal-200' };
       case 'PARTIALLY_RETURNED':
@@ -360,21 +364,28 @@ export default function StoreFulfillForm({
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8 space-y-6 mt-6">
       <div className="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
-          <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2 flex-wrap">
             <span>รายละเอียดใบเบิก</span>
-            <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700 border border-slate-200">
-              {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
-                <>
-                  <Wrench size={12} className="text-slate-600" />
-                  <span>เบิกยืมสโตร์ (อุปกรณ์)</span>
-                </>
-              ) : (
-                <>
-                  <Building2 size={12} className="text-slate-600" />
-                  <span>เบิกของงานโครงการ</span>
-                </>
-              )}
-            </span>
+            {requisition.requisitionType === 'CLAIM' ? (
+              <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-bold bg-violet-50 text-violet-800 border border-violet-200">
+                <ShieldCheck size={12} className="text-violet-600" />
+                <span>เบิกเคลมสินค้า (ไม่มีการคืนสินค้า)</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+                  <>
+                    <Wrench size={12} className="text-slate-600" />
+                    <span>เบิกยืมสโตร์ (อุปกรณ์)</span>
+                  </>
+                ) : (
+                  <>
+                    <Building2 size={12} className="text-slate-600" />
+                    <span>เบิกของงานโครงการ</span>
+                  </>
+                )}
+              </span>
+            )}
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">จัดการสถานะการจัดส่งมอบ ตรวจรับหน้างาน และรับคืนอุปกรณ์</p>
         </div>
@@ -460,7 +471,29 @@ export default function StoreFulfillForm({
         </div>
 
         {/* Second Row: Adapted for Requisition Type */}
-        {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+        {requisition.requisitionType === 'CLAIM' ? (
+          <>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-0.5">ชื่องานเคลม / ลูกค้า</p>
+              <p className="font-bold text-violet-900 truncate" title={requisition.projectName || '-'}>
+                {requisition.projectName || requisition.items?.[0]?.job || '-'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-violet-900 mb-0.5">กำหนดส่งมอบเคลม</p>
+              <p className="font-bold text-violet-700">
+                {requisition.deliveryDate ? new Date(requisition.deliveryDate).toLocaleDateString('th-TH') : 'ไม่ระบุ'}
+              </p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-xs font-semibold text-gray-500 mb-0.5">สถานที่จัดส่ง &amp; สาเหตุการเคลม</p>
+              <p className="font-medium text-slate-700 truncate" title={`${requisition.destinationSite || '-'} ${requisition.deliveryNote || ''}`}>
+                {requisition.destinationSite || '-'}
+                {requisition.deliveryNote ? ` • สาเหตุ/หมายเหตุ: ${requisition.deliveryNote}` : ''}
+              </p>
+            </div>
+          </>
+        ) : requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
           <>
             <div>
               <p className="text-xs font-semibold text-gray-500 mb-0.5">วัตถุประสงค์ในการยืม</p>
@@ -559,15 +592,21 @@ export default function StoreFulfillForm({
               <tr className="bg-gray-50 border-b border-gray-200 text-sm">
                 <th className="px-4 py-3 font-semibold text-gray-700 w-12 text-center">ลำดับ</th>
                 <th className="px-4 py-3 font-semibold text-gray-700">
-                  {requisition.requisitionType === 'BORROW_EQUIPMENT' ? 'ชื่อเครื่องมือ / อุปกรณ์' : 'รายการวัสดุ / อุปกรณ์'}
+                  {requisition.requisitionType === 'CLAIM'
+                    ? 'รายการสินค้า / อะไหล่เคลม'
+                    : requisition.requisitionType === 'BORROW_EQUIPMENT'
+                    ? 'ชื่อเครื่องมือ / อุปกรณ์'
+                    : 'รายการวัสดุ / อุปกรณ์'}
                 </th>
-                {requisition.requisitionType === 'BORROW_EQUIPMENT' && (
+                {(requisition.requisitionType === 'BORROW_EQUIPMENT' || requisition.requisitionType === 'CLAIM') && (
                   <th className="px-4 py-3 font-semibold text-gray-700 w-32">รหัส / Serial No.</th>
                 )}
                 <th className="px-4 py-3 font-semibold text-gray-700 text-right w-24">จำนวน</th>
                 <th className="px-4 py-3 font-semibold text-gray-700 w-24">หน่วย</th>
                 {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
                   <th className="px-4 py-3 font-semibold text-gray-700 w-36">สภาพก่อนยืม</th>
+                ) : requisition.requisitionType === 'CLAIM' ? (
+                  <th className="px-4 py-3 font-semibold text-gray-700">งานเคลม / ลูกค้า</th>
                 ) : (
                   <th className="px-4 py-3 font-semibold text-gray-700">งานที่ใช้ / Sub-Job</th>
                 )}
@@ -585,7 +624,7 @@ export default function StoreFulfillForm({
                   <tr key={index} className="hover:bg-gray-50/50">
                     <td className="px-4 py-3 text-center text-gray-500">{index + 1}</td>
                     <td className="px-4 py-3 font-medium text-gray-900">{item.detail}</td>
-                    {requisition.requisitionType === 'BORROW_EQUIPMENT' && (
+                    {(requisition.requisitionType === 'BORROW_EQUIPMENT' || requisition.requisitionType === 'CLAIM') && (
                       <td className="px-4 py-3 font-mono text-xs text-slate-600">{item.assetCode || '-'}</td>
                     )}
                     <td className="px-4 py-3 font-bold text-gray-900 text-right">{item.quantity}</td>
@@ -600,7 +639,11 @@ export default function StoreFulfillForm({
                       <td className="px-4 py-3 text-gray-700">{item.job || '-'}</td>
                     )}
                     <td className="px-4 py-3">
-                      {hasRet ? (
+                      {requisition.requisitionType === 'CLAIM' ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                          ไม่ต้องคืน (เบิกเคลม)
+                        </span>
+                      ) : hasRet ? (
                         <div className="space-y-1">
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border ${
@@ -805,7 +848,7 @@ export default function StoreFulfillForm({
           </button>
         )}
 
-        {(requisition.status === 'COMPLETED' || requisition.status === 'PARTIALLY_RETURNED' || requisition.status === 'RETURN_PENDING') && (
+        {requisition.requisitionType !== 'CLAIM' && (requisition.status === 'COMPLETED' || requisition.status === 'PARTIALLY_RETURNED' || requisition.status === 'RETURN_PENDING') && (
           <button
             type="button"
             onClick={openReturnModal}

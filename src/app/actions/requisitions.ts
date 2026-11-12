@@ -62,10 +62,16 @@ export async function createMaterialRequisition(data: any) {
     });
 
     if (data.approverId) {
+      const typeLabel =
+        data.requisitionType === 'CLAIM'
+          ? 'ใบเบิกเคลมสินค้า'
+          : data.requisitionType === 'PROJECT'
+          ? 'ใบเบิกของงานโครงการ'
+          : 'ใบเบิก/ยืมของ';
       // Optional: Send a notification to the approver
       sendPushToUser(data.approverId, {
-        title: 'รออนุมัติใบเบิก/ยืมของ',
-        body: `มีใบเบิก/ยืมของใหม่หมายเลข ${requisition.requisitionNumber} รอการอนุมัติจากคุณ`,
+        title: `รออนุมัติ${typeLabel}`,
+        body: `มี${typeLabel}ใหม่หมายเลข ${requisition.requisitionNumber} รอการอนุมัติจากคุณ`,
         url: `/requisitions/${requisition.id}/approve`,
         category: 'REQUISITION_APPROVAL'
       }).catch(console.error);
@@ -345,6 +351,9 @@ export async function returnMaterialRequisition(
       where: { id },
     });
     if (!existingReq) return { success: false, error: "Requisition not found" };
+    if (existingReq.requisitionType === "CLAIM") {
+      return { success: false, error: "รายการเบิกเคลมไม่มีการคืนสินค้าเข้าคลัง" };
+    }
 
     const currentItems = Array.isArray(existingReq.items) ? (existingReq.items as any[]) : [];
     const nowIso = new Date().toISOString();
@@ -426,6 +435,9 @@ export async function submitReturnRequest(
       include: { requester: { select: { fullName: true } } },
     });
     if (!req) return { success: false, error: "Requisition not found" };
+    if (req.requisitionType === "CLAIM") {
+      return { success: false, error: "รายการเบิกเคลมไม่มีการคืนสินค้าเข้าคลัง" };
+    }
 
     // Update Requisition status to RETURN_PENDING
     const updated = await prisma.materialRequisition.update({

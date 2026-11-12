@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SignatureCanvas from 'react-signature-canvas';
 import { updateMaterialRequisition } from '@/app/actions/requisitions';
-import { Plus, Trash2, Save, Loader2, Eraser } from 'lucide-react';
+import { Plus, Trash2, Save, Loader2, Eraser, Building2, Wrench, ShieldCheck } from 'lucide-react';
 
 interface UserOption {
   id: string;
@@ -26,6 +26,10 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
 
   const [date, setDate] = useState(req.date ? new Date(req.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
   const [company, setCompany] = useState(req.company || 'Group');
+  const [requisitionType, setRequisitionType] = useState<string>(req.requisitionType || 'BORROW_EQUIPMENT');
+  const [projectName, setProjectName] = useState<string>(req.projectName || '');
+  const [destinationSite, setDestinationSite] = useState<string>(req.destinationSite || '');
+  const [deliveryNote, setDeliveryNote] = useState<string>(req.deliveryNote || '');
   const [approverId, setApproverId] = useState(req.approverId || '');
 
   const [approverSearch, setApproverSearch] = useState(users.find(u => u.id === req.approverId)?.fullName || '');
@@ -98,6 +102,10 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
       company,
       items,
       approverId,
+      requisitionType,
+      projectName: projectName || null,
+      destinationSite: destinationSite || null,
+      deliveryNote: deliveryNote || null,
       ...(signatureDataUrl && { requesterSignatureUrl: signatureDataUrl }),
     });
 
@@ -111,6 +119,60 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-8">
+
+      {/* Requisition Type Selector */}
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">ประเภทการเบิก</label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            type="button"
+            onClick={() => setRequisitionType('PROJECT')}
+            className={`p-3.5 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
+              requisitionType === 'PROJECT'
+                ? 'bg-blue-50 border-blue-500 text-blue-900 font-bold shadow-xs'
+                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Building2 size={18} className={requisitionType === 'PROJECT' ? 'text-blue-600' : 'text-gray-400'} />
+            <div>
+              <div className="text-sm font-bold">เบิกของงานโครงการ</div>
+              <div className="text-[11px] text-gray-500 font-normal">ตัดจ่ายเข้าโครงการ (ไม่คืนของ)</div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRequisitionType('BORROW_EQUIPMENT')}
+            className={`p-3.5 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
+              requisitionType === 'BORROW_EQUIPMENT'
+                ? 'bg-amber-50 border-amber-500 text-amber-900 font-bold shadow-xs'
+                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Wrench size={18} className={requisitionType === 'BORROW_EQUIPMENT' ? 'text-amber-600' : 'text-gray-400'} />
+            <div>
+              <div className="text-sm font-bold">เบิกยืมสโตร์ (อุปกรณ์)</div>
+              <div className="text-[11px] text-gray-500 font-normal">ยืมชั่วคราว (ส่งคืนสโตร์)</div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRequisitionType('CLAIM')}
+            className={`p-3.5 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
+              requisitionType === 'CLAIM'
+                ? 'bg-violet-50 border-violet-500 text-violet-900 font-bold shadow-xs'
+                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <ShieldCheck size={18} className={requisitionType === 'CLAIM' ? 'text-violet-600' : 'text-gray-400'} />
+            <div>
+              <div className="text-sm font-bold">เบิกเคลมสินค้า / อะไหล่</div>
+              <div className="text-[11px] text-gray-500 font-normal">เบิกตัดจ่ายเคลม (ไม่มีการคืนสินค้า)</div>
+            </div>
+          </button>
+        </div>
+      </div>
 
       {/* Header Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -141,6 +203,46 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
               </label>
             ))}
           </div>
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            {requisitionType === 'CLAIM' ? 'ชื่องานเคลม / ลูกค้า / เลขอ้างอิง' : 'โครงการ / ชื่องานที่เกี่ยวข้อง'}
+          </label>
+          <input
+            type="text"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            placeholder={requisitionType === 'CLAIM' ? 'เช่น งานเคลม หจก.แพร่มณีรัตน...' : 'ระบุชื่อโครงการ (ถ้ามี)...'}
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            {requisitionType === 'BORROW_EQUIPMENT' ? 'สถานที่นำไปใช้งาน' : 'สถานที่จัดส่ง / ไซต์งานปลายทาง'}
+          </label>
+          <input
+            type="text"
+            value={destinationSite}
+            onChange={(e) => setDestinationSite(e.target.value)}
+            placeholder="ระบุสถานที่ใช้งานหรือจัดส่ง..."
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all text-sm"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            {requisitionType === 'BORROW_EQUIPMENT'
+              ? 'วัตถุประสงค์ในการยืม'
+              : requisitionType === 'CLAIM'
+              ? 'สาเหตุการเคลม & วิธีการจัดส่ง'
+              : 'วิธีการจัดส่ง & หมายเหตุ'}
+          </label>
+          <input
+            type="text"
+            value={deliveryNote}
+            onChange={(e) => setDeliveryNote(e.target.value)}
+            placeholder="ระบุรายละเอียดเพิ่มเติม..."
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all text-sm"
+          />
         </div>
       </div>
 

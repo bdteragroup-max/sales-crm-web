@@ -23,6 +23,7 @@ import {
   Briefcase,
   Truck,
   ShieldAlert,
+  ShieldCheck,
   Info,
   Check
 } from 'lucide-react';
@@ -77,6 +78,13 @@ const BORROW_PURPOSE_TAGS = [
   'งานช่างทั่วไป / สำรองใช้งาน',
 ];
 
+const CLAIM_REASON_TAGS = [
+  'เคลมเปลี่ยนตัวใหม่ในประกัน',
+  'เบิกอะไหล่ทดแทนงานเคลม',
+  'ส่งมอบสินค้าเคลมให้ลูกค้า',
+  'ทดแทนอุปกรณ์ชำรุดหน้างาน',
+];
+
 const EQUIPMENT_CONDITION_OPTIONS = [
   'สมบูรณ์พร้อมใช้งาน',
   'มีรอยขีดข่วนทั่วไป',
@@ -101,8 +109,12 @@ export default function RequisitionForm({
   const [signatureFileUrl, setSignatureFileUrl] = useState<string | null>(null);
 
   // 1. Requisition Type
-  const [requisitionType, setRequisitionType] = useState<'PROJECT' | 'BORROW_EQUIPMENT'>(
-    initialType === 'BORROW_EQUIPMENT' ? 'BORROW_EQUIPMENT' : 'PROJECT'
+  const [requisitionType, setRequisitionType] = useState<'PROJECT' | 'BORROW_EQUIPMENT' | 'CLAIM'>(
+    initialType === 'BORROW_EQUIPMENT'
+      ? 'BORROW_EQUIPMENT'
+      : initialType === 'CLAIM'
+      ? 'CLAIM'
+      : 'PROJECT'
   );
 
   // Shared Common Fields
@@ -137,6 +149,16 @@ export default function RequisitionForm({
   const [isRelatedProjectOpen, setIsRelatedProjectOpen] = useState(false);
   const relatedProjectRef = useRef<HTMLDivElement>(null);
 
+  // 3.5 Specific Fields for "CLAIM" (เบิกเคลม - ไม่มีการคืนสินค้า)
+  const [claimSelectedProjectId, setClaimSelectedProjectId] = useState<string>(initialProjectId || '');
+  const [claimRefName, setClaimRefName] = useState<string>('');
+  const [claimProjectSearch, setClaimProjectSearch] = useState('');
+  const [isClaimProjectOpen, setIsClaimProjectOpen] = useState(false);
+  const claimProjectRef = useRef<HTMLDivElement>(null);
+  const [claimDestinationSite, setClaimDestinationSite] = useState<string>('');
+  const [claimDeliveryDate, setClaimDeliveryDate] = useState<string>('');
+  const [claimReasonNote, setClaimReasonNote] = useState<string>('');
+
   // 4. Items State (Dynamic based on type)
   const [projectItems, setProjectItems] = useState([
     { detail: '', quantity: 1, unit: 'เมตร', job: '', remark: '' }
@@ -144,6 +166,10 @@ export default function RequisitionForm({
 
   const [equipmentItems, setEquipmentItems] = useState([
     { detail: '', assetCode: '', quantity: 1, unit: 'เครื่อง', condition: 'สมบูรณ์พร้อมใช้งาน', remark: '' }
+  ]);
+
+  const [claimItems, setClaimItems] = useState([
+    { detail: '', assetCode: '', quantity: 1, unit: 'เครื่อง', job: '', remark: '' }
   ]);
 
   // Handle Initial Project prefill
@@ -158,9 +184,13 @@ export default function RequisitionForm({
         setRelatedProjectId(p.id);
         setRelatedProjectName(name);
         setRelatedProjectSearch(name);
+        setClaimSelectedProjectId(p.id);
+        setClaimRefName(name);
+        setClaimProjectSearch(name);
         if (p.siteAddress) {
           setDestinationSite(p.siteAddress);
           setUsageLocation(p.siteAddress);
+          setClaimDestinationSite(p.siteAddress);
         }
       }
     }
@@ -177,6 +207,9 @@ export default function RequisitionForm({
       }
       if (relatedProjectRef.current && !relatedProjectRef.current.contains(event.target as Node)) {
         setIsRelatedProjectOpen(false);
+      }
+      if (claimProjectRef.current && !claimProjectRef.current.contains(event.target as Node)) {
+        setIsClaimProjectOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -198,6 +231,13 @@ export default function RequisitionForm({
     (p.name && p.name.toLowerCase().includes(relatedProjectSearch.toLowerCase())) ||
     (p.projectNumber && p.projectNumber.toLowerCase().includes(relatedProjectSearch.toLowerCase())) ||
     (p.clientName && p.clientName.toLowerCase().includes(relatedProjectSearch.toLowerCase()))
+  );
+
+  const filteredClaimProjects = projects.filter(p =>
+    (p.name && p.name.toLowerCase().includes(claimProjectSearch.toLowerCase())) ||
+    (p.projectNumber && p.projectNumber.toLowerCase().includes(claimProjectSearch.toLowerCase())) ||
+    (p.clientName && p.clientName.toLowerCase().includes(claimProjectSearch.toLowerCase())) ||
+    (p.province && p.province.toLowerCase().includes(claimProjectSearch.toLowerCase()))
   );
 
   const handleSelectProject = (p: ProjectOption) => {
@@ -226,6 +266,22 @@ export default function RequisitionForm({
       setUsageLocation(p.siteAddress);
     }
     setIsRelatedProjectOpen(false);
+  };
+
+  const handleSelectClaimProject = (p: ProjectOption) => {
+    setClaimSelectedProjectId(p.id);
+    const fullName = `${p.projectNumber ? p.projectNumber + ' - ' : ''}${p.name}${p.clientName ? ` (${p.clientName})` : ''}`;
+    setClaimRefName(fullName);
+    setClaimProjectSearch(fullName);
+    if (p.siteAddress) {
+      setClaimDestinationSite(p.siteAddress);
+    }
+    setIsClaimProjectOpen(false);
+
+    setClaimItems(prev => prev.map(item => ({
+      ...item,
+      job: item.job ? item.job : fullName,
+    })));
   };
 
   // ── Project Items Methods ──
@@ -263,6 +319,26 @@ export default function RequisitionForm({
     const newItems = [...equipmentItems];
     newItems[index] = { ...newItems[index], [field]: value };
     setEquipmentItems(newItems);
+  };
+
+  // ── Claim Items Methods ──
+  const addClaimItem = () => {
+    setClaimItems([
+      ...claimItems,
+      { detail: '', assetCode: '', quantity: 1, unit: 'เครื่อง', job: claimRefName || '', remark: '' }
+    ]);
+  };
+
+  const removeClaimItem = (index: number) => {
+    if (claimItems.length > 1) {
+      setClaimItems(claimItems.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateClaimItem = (index: number, field: string, value: any) => {
+    const newItems = [...claimItems];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setClaimItems(newItems);
   };
 
   const clearSignature = () => {
@@ -433,6 +509,18 @@ export default function RequisitionForm({
       }
     }
 
+    // 3. Validation for Claim Requisition
+    if (requisitionType === 'CLAIM') {
+      if (claimItems.some(i => !i.detail.trim())) {
+        Swal.fire({ icon: 'warning', title: 'กรุณากรอกรายการสินค้า/อะไหล่ที่เบิกเคลมให้ครบถ้วน' });
+        return;
+      }
+      if (!claimRefName.trim() && !claimDestinationSite.trim()) {
+        Swal.fire({ icon: 'warning', title: 'กรุณาระบุชื่องานเคลม/ชื่อลูกค้า หรือสถานที่จัดส่ง' });
+        return;
+      }
+    }
+
     if (!approverId) {
       Swal.fire({ icon: 'warning', title: 'กรุณาเลือกผู้อนุมัติ' });
       return;
@@ -447,42 +535,66 @@ export default function RequisitionForm({
     try {
       const signatureDataUrl = signatureFileUrl || sigPad.current.getTrimmedCanvas().toDataURL('image/png');
 
-      const payload = requisitionType === 'PROJECT'
-        ? {
-            date,
-            company,
-            items: projectItems,
-            approverId,
-            requesterSignatureUrl: signatureDataUrl,
-            requisitionType: 'PROJECT',
-            projectId: selectedProjectId || null,
-            projectName: projectName || (projectItems[0]?.job || null),
-            branch,
-            destinationSite: destinationSite || null,
-            deliveryDate: deliveryDate || null,
-            deliveryNote: deliveryNote || null,
-          }
-        : {
-            date,
-            company,
-            items: equipmentItems, // each item has detail, assetCode, quantity, unit, condition, remark
-            approverId,
-            requesterSignatureUrl: signatureDataUrl,
-            requisitionType: 'BORROW_EQUIPMENT',
-            projectId: relatedProjectId || null,
-            projectName: relatedProjectName || null,
-            branch,
-            destinationSite: usageLocation, // stores location of use
-            deliveryDate: expectedReturnDate || null, // stores expected return date (optional)
-            deliveryNote: borrowPurpose, // stores borrow purpose
-          };
+      const payload =
+        requisitionType === 'PROJECT'
+          ? {
+              date,
+              company,
+              items: projectItems,
+              approverId,
+              requesterSignatureUrl: signatureDataUrl,
+              requisitionType: 'PROJECT',
+              projectId: selectedProjectId || null,
+              projectName: projectName || (projectItems[0]?.job || null),
+              branch,
+              destinationSite: destinationSite || null,
+              deliveryDate: deliveryDate || null,
+              deliveryNote: deliveryNote || null,
+            }
+          : requisitionType === 'CLAIM'
+          ? {
+              date,
+              company,
+              items: claimItems.map((it) => ({
+                ...it,
+                job: it.job || claimRefName || '',
+              })),
+              approverId,
+              requesterSignatureUrl: signatureDataUrl,
+              requisitionType: 'CLAIM',
+              projectId: claimSelectedProjectId || null,
+              projectName: claimRefName || (claimItems[0]?.job || null),
+              branch,
+              destinationSite: claimDestinationSite || null,
+              deliveryDate: claimDeliveryDate || null,
+              deliveryNote: claimReasonNote || null,
+            }
+          : {
+              date,
+              company,
+              items: equipmentItems, // each item has detail, assetCode, quantity, unit, condition, remark
+              approverId,
+              requesterSignatureUrl: signatureDataUrl,
+              requisitionType: 'BORROW_EQUIPMENT',
+              projectId: relatedProjectId || null,
+              projectName: relatedProjectName || null,
+              branch,
+              destinationSite: usageLocation, // stores location of use
+              deliveryDate: expectedReturnDate || null, // stores expected return date (optional)
+              deliveryNote: borrowPurpose, // stores borrow purpose
+            };
 
       const res = await createMaterialRequisition(payload);
 
       if (res.success) {
         Swal.fire({
           icon: 'success',
-          title: requisitionType === 'PROJECT' ? 'สร้างใบเบิกของโครงการเรียบร้อยแล้ว' : 'สร้างใบเบิกยืมเครื่องมือเรียบร้อยแล้ว',
+          title:
+            requisitionType === 'PROJECT'
+              ? 'สร้างใบเบิกของโครงการเรียบร้อยแล้ว'
+              : requisitionType === 'CLAIM'
+              ? 'สร้างใบเบิกเคลมสินค้าเรียบร้อยแล้ว'
+              : 'สร้างใบเบิกยืมเครื่องมือเรียบร้อยแล้ว',
           text: 'ระบบได้ส่งการแจ้งเตือนไปยังผู้อนุมัติเรียบร้อยแล้ว',
           timer: 2000,
           showConfirmButton: false,
@@ -521,7 +633,7 @@ export default function RequisitionForm({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Option 1: เบิกของงานโครงการ */}
           <button
             type="button"
@@ -539,12 +651,12 @@ export default function RequisitionForm({
                 <Building2 size={24} />
               </div>
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-black text-slate-900 text-base">
                     เบิกของงานโครงการ
                   </span>
                   <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                    Project Material Issue
+                    Project Issue
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">
@@ -555,7 +667,7 @@ export default function RequisitionForm({
 
             <div className="mt-4 pt-3 border-t border-blue-100/60 flex items-center justify-between text-xs text-blue-700 font-semibold">
               <span className="inline-flex items-center gap-1">
-                <FileSpreadsheet size={13} /> รองรับการ Import ไฟล์ Excel โครงการ
+                <FileSpreadsheet size={13} /> รองรับ Import Excel โครงการ
               </span>
               {requisitionType === 'PROJECT' && (
                 <span className="inline-flex items-center gap-1 text-blue-700 font-bold bg-blue-100/80 px-2.5 py-0.5 rounded-full">
@@ -582,9 +694,9 @@ export default function RequisitionForm({
                 <Wrench size={24} />
               </div>
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-black text-slate-900 text-base">
-                    เบิกยืมสโตร์ (เครื่องมือ/อุปกรณ์)
+                    เบิกยืมสโตร์ (อุปกรณ์)
                   </span>
                   <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
                     Store Borrowing
@@ -598,10 +710,53 @@ export default function RequisitionForm({
 
             <div className="mt-4 pt-3 border-t border-amber-100/60 flex items-center justify-between text-xs text-amber-800 font-semibold">
               <span className="inline-flex items-center gap-1">
-                <Clock size={13} /> กำหนดส่งคืน (ถ้ามี) + ตรวจสภาพตอนคืน
+                <Clock size={13} /> กำหนดส่งคืน + ตรวจสภาพตอนคืน
               </span>
               {requisitionType === 'BORROW_EQUIPMENT' && (
                 <span className="inline-flex items-center gap-1 text-amber-800 font-bold bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                  <Check size={12} strokeWidth={3} /> กำลังเลือก
+                </span>
+              )}
+            </div>
+          </button>
+
+          {/* Option 3: เบิกเคลมสินค้า / อะไหล่ (ไม่มีการคืนสินค้า) */}
+          <button
+            type="button"
+            onClick={() => setRequisitionType('CLAIM')}
+            className={`p-5 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between ${
+              requisitionType === 'CLAIM'
+                ? 'bg-gradient-to-br from-violet-50/90 via-purple-50/40 to-white border-violet-600 ring-2 ring-violet-500/20 shadow-md'
+                : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+            }`}
+          >
+            <div className="flex items-start gap-3.5">
+              <div className={`p-3 rounded-2xl shrink-0 ${
+                requisitionType === 'CLAIM' ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20' : 'bg-slate-100 text-slate-500'
+              }`}>
+                <ShieldCheck size={24} />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-black text-slate-900 text-base">
+                    เบิกเคลมสินค้า / อะไหล่
+                  </span>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-900">
+                    Claim Issue
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  สำหรับเบิกสินค้าตัวใหม่หรืออะไหล่ทดแทนเพื่อนำไปเคลม/เปลี่ยนให้ลูกค้า (เบิกตัดจ่ายถาวร <strong>ไม่มีการคืนสินค้า</strong>)
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-violet-100/60 flex items-center justify-between text-xs text-violet-800 font-semibold">
+              <span className="inline-flex items-center gap-1">
+                <CheckCircle size={13} /> เบิกตัดจ่าย • ไม่มีการคืนสินค้าเข้าสโตร์
+              </span>
+              {requisitionType === 'CLAIM' && (
+                <span className="inline-flex items-center gap-1 text-violet-800 font-bold bg-violet-200/80 px-2.5 py-0.5 rounded-full">
                   <Check size={12} strokeWidth={3} /> กำลังเลือก
                 </span>
               )}
@@ -913,6 +1068,163 @@ export default function RequisitionForm({
         </div>
       )}
 
+      {/* CASE C: FOR CLAIM REQUISITION (ไม่มีการคืนสินค้า) */}
+      {requisitionType === 'CLAIM' && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Header Banner */}
+          <div className="p-4 bg-violet-50/80 border border-violet-200/90 rounded-2xl flex items-start gap-3 text-xs text-violet-950">
+            <ShieldCheck className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-sm font-bold block text-violet-950">
+                ข้อมูลการเบิกเคลมสินค้า / อะไหล่ทดแทน (Claim Requisition — ไม่มีการคืนสินค้า)
+              </strong>
+              <p className="text-violet-900 mt-0.5">
+                ระบุชื่องานเคลมหรือชื่อลูกค้า สถานที่จัดส่ง และสาเหตุการเคลม เพื่อให้สโตร์จัดเตรียมและตัดจ่ายสินค้าเคลมโดยไม่มีการติดตามรับคืน
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Branch / Warehouse */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                สาขา / คลังสินค้าผู้จ่ายของเคลม <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={branch}
+                onChange={(e) => setBranch(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm font-semibold text-slate-800"
+              >
+                {BRANCH_OPTIONS.map((b) => (
+                  <option key={b.code} value={b.code}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Claim Customer / Job / Project Ref */}
+            <div ref={claimProjectRef} className="relative">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                ชื่องานเคลม / ลูกค้า / เลขอ้างอิง (Claim / Customer Ref) <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={claimProjectSearch}
+                  onChange={(e) => {
+                    setClaimProjectSearch(e.target.value);
+                    setClaimRefName(e.target.value);
+                    setClaimSelectedProjectId('');
+                    setIsClaimProjectOpen(true);
+                  }}
+                  onFocus={() => setIsClaimProjectOpen(true)}
+                  placeholder="เช่น งานเคลม หจก.แพร่มณีรัตน / JR69-11006 หรือเลือกโครงการ..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm"
+                  required
+                />
+                {claimProjectSearch && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setClaimProjectSearch('');
+                      setClaimRefName('');
+                      setClaimSelectedProjectId('');
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+              </div>
+
+              {isClaimProjectOpen && (
+                <div className="absolute z-20 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-slate-100">
+                  {filteredClaimProjects.length > 0 ? (
+                    filteredClaimProjects.map((p) => (
+                      <div
+                        key={p.id}
+                        className="px-4 py-2.5 hover:bg-violet-50/60 cursor-pointer text-xs transition-colors"
+                        onClick={() => handleSelectClaimProject(p)}
+                      >
+                        <div className="font-bold text-slate-800">
+                          {p.projectNumber ? `${p.projectNumber} - ` : ''}{p.name}
+                        </div>
+                        {(p.clientName || p.province) && (
+                          <div className="text-[11px] text-slate-500 mt-0.5">
+                            {p.clientName ? `ลูกค้า: ${p.clientName}` : ''} {p.province ? `• ${p.province}` : ''}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-xs text-slate-400">
+                      พิมพ์ระบุชื่องานเคลม ชื่อลูกค้า หรือเลขใบแจ้งซ่อมได้โดยตรง
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Destination / Customer Site */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                สถานที่จัดส่ง / ปลายทางลูกค้าเคลม (Customer / Site) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={claimDestinationSite}
+                onChange={(e) => setClaimDestinationSite(e.target.value)}
+                placeholder="เช่น ส่งลูกค้าหน้างาน จ.แพร่ / รับที่คลังส่งขนส่ง..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm"
+                required
+              />
+            </div>
+
+            {/* Delivery / Dispatch Date */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                <span>วันที่ต้องการรับของ / วันจัดส่งเคลม (Delivery Date)</span>
+                <span className="text-[11px] text-slate-400 font-normal">(ถ้ามี)</span>
+              </label>
+              <input
+                type="date"
+                value={claimDeliveryDate}
+                onChange={(e) => setClaimDeliveryDate(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm bg-white"
+              />
+            </div>
+
+            {/* Claim Reason & Transport Note */}
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                สาเหตุการเคลม & วิธีการจัดส่ง (Claim Reason & Delivery Note)
+              </label>
+              <input
+                type="text"
+                value={claimReasonNote}
+                onChange={(e) => setClaimReasonNote(e.target.value)}
+                placeholder="เช่น เคลมเปลี่ยนตัวใหม่ในประกัน เนื่องจากบอร์ดไหม้ / ช่างรับไปเปลี่ยนหน้างาน..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm"
+              />
+              <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                <span className="text-[11px] text-slate-400 font-medium mr-1">เลือกด่วน:</span>
+                {CLAIM_REASON_TAGS.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setClaimReasonNote(tag)}
+                    className="px-2.5 py-0.5 bg-slate-100 hover:bg-violet-100 hover:text-violet-900 text-slate-600 rounded-lg text-[11px] font-medium transition-colors border border-slate-200"
+                  >
+                    + {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── 3. COMMON: DATE & COMPANY ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-slate-100">
         <div>
@@ -1210,11 +1522,144 @@ export default function RequisitionForm({
         </div>
       )}
 
+      {/* TABLE C: CLAIM ITEMS (เบิกเคลม — ไม่มีการคืนสินค้า) */}
+      {requisitionType === 'CLAIM' && (
+        <div className="space-y-4 pt-2 border-t border-slate-100 animate-fadeIn">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <label className="block text-sm font-bold text-slate-900">
+                รายการสินค้า / อะไหล่ที่เบิกเคลม ({claimItems.length} รายการ)
+              </label>
+              <p className="text-xs text-slate-500">
+                ระบุรุ่นสินค้าหรืออะไหล่ที่เบิกไปเคลม พร้อมรหัส/Serial No. (ถ้ามี) และอ้างอิงงานเคลม
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={addClaimItem}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
+              >
+                <Plus size={15} /> <span>เพิ่มรายการเบิกเคลม</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto border border-violet-200/80 rounded-2xl shadow-xs">
+            <table className="w-full text-left border-collapse min-w-[750px]">
+              <thead>
+                <tr className="bg-violet-50/70 border-b border-violet-200 text-xs text-violet-950 font-bold">
+                  <th className="px-3 py-3 w-12 text-center">ลำดับ</th>
+                  <th className="px-4 py-3">รายการสินค้า / อะไหล่ที่เบิกเคลม</th>
+                  <th className="px-3 py-3 w-36">รหัส / Serial No.</th>
+                  <th className="px-3 py-3 w-24 text-center">จำนวน</th>
+                  <th className="px-3 py-3 w-28 text-center">หน่วย</th>
+                  <th className="px-4 py-3 w-44">งานเคลม / ลูกค้า</th>
+                  <th className="px-4 py-3 w-40">อาการเสีย / หมายเหตุ</th>
+                  <th className="px-2 py-3 w-12 text-center"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                {claimItems.map((item, index) => (
+                  <tr key={index} className="hover:bg-violet-50/30 transition-colors">
+                    <td className="px-3 py-2.5 text-center text-slate-400 font-bold text-xs">{index + 1}</td>
+                    <td className="px-4 py-2.5">
+                      <input
+                        type="text"
+                        value={item.detail}
+                        onChange={(e) => updateClaimItem(index, 'detail', e.target.value)}
+                        placeholder="เช่น Inverter Namwon 37kW, ปั๊มน้ำ Calpeda, บอร์ดควบคุม..."
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm font-medium"
+                        required
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <input
+                        type="text"
+                        value={item.assetCode}
+                        onChange={(e) => updateClaimItem(index, 'assetCode', e.target.value)}
+                        placeholder="Serial / รหัส..."
+                        className="w-full px-2.5 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => updateClaimItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                        className="w-full px-2 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm text-center font-bold text-slate-800"
+                        required
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <input
+                        type="text"
+                        list="claim-units"
+                        value={item.unit}
+                        onChange={(e) => updateClaimItem(index, 'unit', e.target.value)}
+                        placeholder="หน่วย..."
+                        className="w-full px-2.5 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm text-center"
+                        required
+                      />
+                      <datalist id="claim-units">
+                        {[...EQUIPMENT_UNITS, ...MATERIAL_UNITS].filter((v, i, a) => a.indexOf(v) === i).map(u => (
+                          <option key={u} value={u} />
+                        ))}
+                      </datalist>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <input
+                        type="text"
+                        value={item.job}
+                        onChange={(e) => updateClaimItem(index, 'job', e.target.value)}
+                        placeholder={claimRefName || 'ชื่อลูกค้า / เลขเคลม...'}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm"
+                      />
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <input
+                        type="text"
+                        value={item.remark}
+                        onChange={(e) => updateClaimItem(index, 'remark', e.target.value)}
+                        placeholder="เช่น เคลมตัวใหม่..."
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none text-xs sm:text-sm"
+                      />
+                    </td>
+                    <td className="px-2 py-2.5 text-center">
+                      <button
+                        type="button"
+                        onClick={() => removeClaimItem(index)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-30"
+                        disabled={claimItems.length === 1}
+                        title="ลบรายการ"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="p-3 bg-violet-50/70 border border-violet-200/80 rounded-xl text-xs text-violet-900 flex items-center gap-2">
+            <Info size={15} className="text-violet-600 shrink-0" />
+            <span>รายการเบิกเคลมนี้เป็นการเบิกตัดจ่ายถาวรเพื่อส่งมอบหรือเปลี่ยนสินค้าเคลมให้ลูกค้า <strong>ไม่มีการคืนสินค้าเข้าสโตร์</strong></span>
+          </div>
+        </div>
+      )}
+
       {/* ── 5. APPROVER SELECTION ── */}
       <div className="pt-4 border-t border-slate-100">
         <div className="max-w-md" ref={approverRef}>
           <label className="block text-xs font-bold text-slate-700 mb-1.5">
-            {requisitionType === 'BORROW_EQUIPMENT' ? 'ผู้อนุมัติการยืมเครื่องมือ (Approver)' : 'ผู้อนุมัติโครงการ (Project Approver)'}{' '}
+            {requisitionType === 'BORROW_EQUIPMENT'
+              ? 'ผู้อนุมัติการยืมเครื่องมือ (Approver)'
+              : requisitionType === 'CLAIM'
+              ? 'ผู้อนุมัติการเบิกเคลม (Claim Approver)'
+              : 'ผู้อนุมัติโครงการ (Project Approver)'}{' '}
             <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -1325,6 +1770,8 @@ export default function RequisitionForm({
           className={`flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl font-bold transition-all shadow-md text-xs sm:text-sm disabled:opacity-50 text-white ${
             requisitionType === 'BORROW_EQUIPMENT'
               ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20'
+              : requisitionType === 'CLAIM'
+              ? 'bg-violet-600 hover:bg-violet-700 shadow-violet-600/20'
               : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
           }`}
         >
@@ -1338,6 +1785,8 @@ export default function RequisitionForm({
               ? 'กำลังบันทึก...'
               : requisitionType === 'BORROW_EQUIPMENT'
               ? 'บันทึกและขออนุมัติเบิกยืมเครื่องมือ'
+              : requisitionType === 'CLAIM'
+              ? 'บันทึกและขออนุมัติใบเบิกเคลม'
               : 'บันทึกและขออนุมัติเบิกของโครงการ'}
           </span>
         </button>

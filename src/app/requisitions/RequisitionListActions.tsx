@@ -24,9 +24,11 @@ export default function RequisitionListActions({ req, currentUserId }: Props) {
   const isApprover = req.approverId === currentUserId;
 
   const isBorrowType = req.requisitionType === 'BORROW_EQUIPMENT';
+  const isNonReturnable = req.requisitionType === 'CLAIM' || req.requisitionType === 'PROJECT';
 
   const canRequestReturn =
     isRequester &&
+    !isNonReturnable &&
     (isBorrowType || req.status === 'PARTIALLY_RETURNED' || req.status === 'RETURN_PENDING') &&
     (req.status === 'COMPLETED' ||
      req.status === 'PARTIALLY_RETURNED' ||

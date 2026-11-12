@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import SignatureCanvas from 'react-signature-canvas';
 import { approveMaterialRequisition, updateRequisitionStatus } from '@/app/actions/requisitions';
-import { Save, Loader2, Eraser, XCircle, Upload } from 'lucide-react';
+import { Save, Loader2, Eraser, XCircle, Upload, ShieldCheck, Wrench, Building2 } from 'lucide-react';
 import ConfirmModal from '@/app/components/ConfirmModal';
 
 export default function ApproveForm({ requisition, currentUser }: { requisition: any, currentUser: any }) {
@@ -81,8 +81,26 @@ export default function ApproveForm({ requisition, currentUser }: { requisition:
 
   return (
     <form onSubmit={handleApprove} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-8 mt-6">
-      <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-        <h2 className="text-lg font-bold text-gray-900">อนุมัติคำขอเบิก/ยืมของ</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h2 className="text-lg font-bold text-gray-900">อนุมัติคำขอเบิก/ยืมของ</h2>
+          {requisition.requisitionType === 'CLAIM' ? (
+            <span className="px-2.5 py-1 bg-violet-50 text-violet-800 text-xs rounded-lg border border-violet-200 font-bold inline-flex items-center gap-1.5">
+              <ShieldCheck size={14} className="text-violet-600" />
+              เบิกเคลมสินค้า (ไม่มีการคืนสินค้า)
+            </span>
+          ) : requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
+            <span className="px-2.5 py-1 bg-amber-50 text-amber-800 text-xs rounded-lg border border-amber-200 font-bold inline-flex items-center gap-1.5">
+              <Wrench size={14} className="text-amber-600" />
+              เบิกยืมสโตร์ (อุปกรณ์)
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 bg-blue-50 text-blue-800 text-xs rounded-lg border border-blue-200 font-bold inline-flex items-center gap-1.5">
+              <Building2 size={14} className="text-blue-600" />
+              เบิกของงานโครงการ
+            </span>
+          )}
+        </div>
         <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-bold rounded-full">รอการอนุมัติ</span>
       </div>
 
@@ -96,13 +114,35 @@ export default function ApproveForm({ requisition, currentUser }: { requisition:
           <p className="font-bold text-gray-900">{new Date(requisition.date).toLocaleDateString('th-TH')}</p>
         </div>
         <div>
-          <p className="text-sm font-semibold text-gray-500 mb-1">บริษัท</p>
-          <p className="font-bold text-gray-900">{requisition.company}</p>
+          <p className="text-sm font-semibold text-gray-500 mb-1">บริษัท / สาขา</p>
+          <p className="font-bold text-gray-900">{requisition.company}{requisition.branch ? ` (${requisition.branch})` : ''}</p>
         </div>
         <div>
           <p className="text-sm font-semibold text-gray-500 mb-1">ผู้ขอเบิก</p>
           <p className="font-bold text-gray-900">{requisition.requester.fullName}</p>
         </div>
+        {requisition.projectName && (
+          <div>
+            <p className="text-sm font-semibold text-gray-500 mb-1">
+              {requisition.requisitionType === 'CLAIM' ? 'ชื่องานเคลม / ลูกค้า' : 'โครงการ'}
+            </p>
+            <p className="font-bold text-gray-900">{requisition.projectName}</p>
+          </div>
+        )}
+        {requisition.destinationSite && (
+          <div>
+            <p className="text-sm font-semibold text-gray-500 mb-1">สถานที่จัดส่ง / ปลายทาง</p>
+            <p className="font-bold text-gray-900">{requisition.destinationSite}</p>
+          </div>
+        )}
+        {requisition.deliveryNote && (
+          <div className="md:col-span-2">
+            <p className="text-sm font-semibold text-gray-500 mb-1">
+              {requisition.requisitionType === 'CLAIM' ? 'สาเหตุการเคลม & การจัดส่ง' : 'หมายเหตุ / วัตถุประสงค์'}
+            </p>
+            <p className="font-medium text-gray-800">{requisition.deliveryNote}</p>
+          </div>
+        )}
       </div>
 
       <div>

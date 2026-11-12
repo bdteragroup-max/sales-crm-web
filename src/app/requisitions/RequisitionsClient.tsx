@@ -21,7 +21,8 @@ import {
   Layers,
   Copy,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  ShieldCheck
 } from 'lucide-react';
 import RequisitionListActions from './RequisitionListActions';
 
@@ -37,7 +38,7 @@ export interface Requisition {
   approver?: { fullName: string } | null;
   requesterSignatureUrl?: string | null;
   status: string;
-  requisitionType: 'PROJECT' | 'BORROW_EQUIPMENT' | string;
+  requisitionType: 'PROJECT' | 'BORROW_EQUIPMENT' | 'CLAIM' | string;
   projectId?: string | null;
   projectName?: string | null;
   branch?: string | null;
@@ -66,7 +67,7 @@ export default function RequisitionsClient({
   currentUserFullName
 }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<'ALL' | 'PROJECT' | 'BORROW_EQUIPMENT'>('ALL');
+  const [selectedType, setSelectedType] = useState<'ALL' | 'PROJECT' | 'BORROW_EQUIPMENT' | 'CLAIM'>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -256,7 +257,7 @@ export default function RequisitionsClient({
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              รายการขอเบิกวัสดุโครงการและยืมเครื่องมืออุปกรณ์สำหรับพนักงาน
+              รายการขอเบิกวัสดุโครงการ ยืมเครื่องมืออุปกรณ์ และเบิกเคลมสินค้า (ไม่คืนของ)
             </p>
           </div>
         </div>
@@ -296,7 +297,7 @@ export default function RequisitionsClient({
           <div className="mt-3">
             <div className="text-2xl sm:text-3xl font-black tracking-tight">{counts.ALL}</div>
             <div className={`text-[11px] mt-0.5 truncate ${selectedStatus === 'ALL' && selectedType === 'ALL' ? 'text-slate-400' : 'text-slate-400'}`}>
-              โครงการ & เบิกยืมอุปกรณ์
+              โครงการ, เบิกยืม &amp; เบิกเคลม
             </div>
           </div>
         </button>
@@ -409,7 +410,7 @@ export default function RequisitionsClient({
           </div>
 
           {/* Requisition Type Segmented Control */}
-          <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/70 self-stretch sm:self-auto shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/70 self-stretch sm:self-auto shrink-0 gap-0.5">
             <button
               type="button"
               onClick={() => setSelectedType('ALL')}
@@ -444,6 +445,18 @@ export default function RequisitionsClient({
             >
               <Wrench size={13} className="text-amber-600" />
               <span>เบิกยืมสโตร์</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedType('CLAIM')}
+              className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                selectedType === 'CLAIM'
+                  ? 'bg-white text-violet-700 shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <ShieldCheck size={13} className="text-violet-600" />
+              <span>เบิกเคลม</span>
             </button>
           </div>
         </div>
@@ -602,7 +615,12 @@ export default function RequisitionsClient({
 
                       {/* 2. Type */}
                       <td className="py-4 px-4">
-                        {req.requisitionType === 'BORROW_EQUIPMENT' ? (
+                        {req.requisitionType === 'CLAIM' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-violet-50 text-violet-800 border border-violet-200/90 text-xs rounded-lg font-bold shadow-xs">
+                            <ShieldCheck size={12} className="text-violet-600" />
+                            <span>เบิกเคลม</span>
+                          </span>
+                        ) : req.requisitionType === 'BORROW_EQUIPMENT' ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200/90 text-xs rounded-lg font-bold shadow-xs">
                             <Wrench size={12} className="text-amber-600" />
                             <span>เบิกยืมสโตร์</span>
@@ -708,11 +726,17 @@ export default function RequisitionsClient({
                           {compBadge.label}
                         </span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                          req.requisitionType === 'BORROW_EQUIPMENT'
+                          req.requisitionType === 'CLAIM'
+                            ? 'bg-violet-50 text-violet-800 border-violet-200'
+                            : req.requisitionType === 'BORROW_EQUIPMENT'
                             ? 'bg-amber-50 text-amber-800 border-amber-200'
                             : 'bg-blue-50 text-blue-800 border-blue-200'
                         }`}>
-                          {req.requisitionType === 'BORROW_EQUIPMENT' ? 'เบิกยืมสโตร์' : 'งานโครงการ'}
+                          {req.requisitionType === 'CLAIM'
+                            ? 'เบิกเคลม'
+                            : req.requisitionType === 'BORROW_EQUIPMENT'
+                            ? 'เบิกยืมสโตร์'
+                            : 'งานโครงการ'}
                         </span>
                       </div>
                     </div>

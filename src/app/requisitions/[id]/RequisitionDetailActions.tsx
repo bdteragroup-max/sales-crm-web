@@ -16,8 +16,13 @@ export default function RequisitionDetailActions({ requisition, currentUserId }:
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
 
   const isRequester = requisition.requesterId === currentUserId;
+  const isBorrowType = requisition.requisitionType === 'BORROW_EQUIPMENT';
+  const isNonReturnable = requisition.requisitionType === 'CLAIM' || requisition.requisitionType === 'PROJECT';
+
   const canRequestReturn =
     isRequester &&
+    !isNonReturnable &&
+    (isBorrowType || requisition.status === 'PARTIALLY_RETURNED' || requisition.status === 'RETURN_PENDING') &&
     (requisition.status === 'COMPLETED' ||
      requisition.status === 'PARTIALLY_RETURNED' ||
      requisition.status === 'DISPATCHED' ||

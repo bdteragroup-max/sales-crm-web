@@ -5,6 +5,7 @@ import RequisitionPrintToolbar from "./RequisitionPrintToolbar"
 
 interface RequisitionItem {
   detail?: string
+  assetCode?: string
   quantity?: number | string
   unit?: string
   job?: string
@@ -282,6 +283,7 @@ export default function RequisitionPDFClient({
   const receivedDateStr = requisition.receivedAt ? formatThaiDateTime(requisition.receivedAt) : "-"
 
   // Requisition Type
+  const isClaim = requisition.requisitionType === "CLAIM"
   const isBorrow =
     requisition.requisitionType === "BORROW_EQUIPMENT" ||
     requisition.requisitionType === "BORROW" ||
@@ -299,9 +301,21 @@ export default function RequisitionPDFClient({
   )
 
   // Document Title & Subtitles based on type
-  const docTitleTh = isBorrow ? "ใบยืมเครื่องมือและอุปกรณ์" : "ใบเบิกวัสดุอุปกรณ์งานโครงการ"
-  const docTitleEn = isBorrow ? "EQUIPMENT BORROWING FORM" : "PROJECT MATERIAL REQUISITION FORM"
-  const formCode = isBorrow ? "FM-WHS-003 Rev.01" : "FM-WHS-002 Rev.01"
+  const docTitleTh = isClaim
+    ? "ใบเบิกเคลมสินค้าและอะไหล่"
+    : isBorrow
+    ? "ใบยืมเครื่องมือและอุปกรณ์"
+    : "ใบเบิกวัสดุอุปกรณ์งานโครงการ"
+  const docTitleEn = isClaim
+    ? "CLAIM MATERIAL REQUISITION FORM"
+    : isBorrow
+    ? "EQUIPMENT BORROWING FORM"
+    : "PROJECT MATERIAL REQUISITION FORM"
+  const formCode = isClaim
+    ? "FM-WHS-004 Rev.01"
+    : isBorrow
+    ? "FM-WHS-003 Rev.01"
+    : "FM-WHS-002 Rev.01"
 
   // Status mapping
   const getStatusText = (status: string) => {
@@ -312,7 +326,9 @@ export default function RequisitionPDFClient({
         return "อยู่ระหว่างจัดส่ง (DISPATCHED)"
       case "DISPENSED":
       case "COMPLETED":
-        return isBorrow
+        return isClaim
+          ? "เบิกเคลมสำเร็จ (ไม่ต้องคืนสินค้า)"
+          : isBorrow
           ? "รับของแล้ว (อยู่ระหว่างยืม)"
           : "เบิกจ่ายสำเร็จ (COMPLETED)"
       case "RETURN_PENDING":
@@ -543,7 +559,7 @@ export default function RequisitionPDFClient({
       }}
     >
       {/* Left: Requisition Type Selection */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
         <span style={{ fontWeight: "bold", color: "#000000" }}>
           ประเภทคำขอ (TYPE):
         </span>
@@ -564,7 +580,7 @@ export default function RequisitionPDFClient({
             {isBorrow ? "✓" : ""}
           </span>
           <span style={{ fontWeight: isBorrow ? "bold" : "normal" }}>
-            ยืมเครื่องมือและอุปกรณ์ (Equipment Borrowing)
+            ยืมเครื่องมือ/อุปกรณ์ (Borrow)
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -581,10 +597,30 @@ export default function RequisitionPDFClient({
               lineHeight: 1,
             }}
           >
-            {!isBorrow ? "✓" : ""}
+            {!isBorrow && !isClaim ? "✓" : ""}
           </span>
-          <span style={{ fontWeight: !isBorrow ? "bold" : "normal" }}>
-            เบิกวัสดุอุปกรณ์งานโครงการ (Project Requisition)
+          <span style={{ fontWeight: !isBorrow && !isClaim ? "bold" : "normal" }}>
+            เบิกวัสดุโครงการ (Project)
+          </span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "11px",
+              height: "11px",
+              border: "1px solid #000000",
+              fontSize: "8.5px",
+              fontWeight: "bold",
+              lineHeight: 1,
+            }}
+          >
+            {isClaim ? "✓" : ""}
+          </span>
+          <span style={{ fontWeight: isClaim ? "bold" : "normal" }}>
+            เบิกเคลมสินค้า-ไม่คืนของ (Claim)
           </span>
         </div>
       </div>
@@ -847,14 +883,18 @@ export default function RequisitionPDFClient({
               justifyContent: "space-between",
             }}
           >
-            <span>ข้อมูลโครงการ / สถานที่ใช้งาน (PROJECT & LOCATION)</span>
+            <span>
+              {isClaim
+                ? "ข้อมูลงานเคลม / ลูกค้าและสถานที่ (CLAIM & LOCATION)"
+                : "ข้อมูลโครงการ / สถานที่ใช้งาน (PROJECT & LOCATION)"}
+            </span>
             <span style={{ fontSize: "8px", fontWeight: "normal", color: "#555555" }}>ส่วนที่ 2</span>
           </div>
 
           <div style={{ padding: "3px 5px" }}>
             <div style={{ display: "flex", marginBottom: "1.5px" }}>
               <span style={{ width: "90px", fontWeight: 600, color: "#333333", flexShrink: 0 }}>
-                งาน / โครงการ:
+                {isClaim ? "งานเคลม / ลูกค้า:" : "งาน / โครงการ:"}
               </span>
               <span style={{ fontWeight: "bold", color: "#000000", flex: 1, wordBreak: "break-word" }}>
                 {rawProjName || "-"}
@@ -987,7 +1027,7 @@ export default function RequisitionPDFClient({
         }}
       >
         <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "46%" }}>
-          <strong style={{ color: "#333333" }}>โครงการ: </strong>
+          <strong style={{ color: "#333333" }}>{isClaim ? "งานเคลม: " : "โครงการ: "}</strong>
           <span style={{ fontWeight: 600, color: "#000000" }}>{rawProjName || "-"}</span>
         </div>
         <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "32%" }}>
@@ -1023,9 +1063,17 @@ export default function RequisitionPDFClient({
                 <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>ITEM</span>
               </th>
               <th style={{ width: isPortrait ? "38%" : "37%", padding: "3px 5px", textAlign: "left" }}>
-                {isBorrow ? "รายการเครื่องมือและอุปกรณ์ / รายละเอียดสเปก" : "รายการเบิกวัสดุอุปกรณ์ / รายละเอียดสเปก"}<br />
+                {isClaim
+                  ? "รายการสินค้าและอะไหล่ที่เบิกเคลม / สเปก"
+                  : isBorrow
+                  ? "รายการเครื่องมือและอุปกรณ์ / รายละเอียดสเปก"
+                  : "รายการเบิกวัสดุอุปกรณ์ / รายละเอียดสเปก"}<br />
                 <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>
-                  {isBorrow ? "EQUIPMENT DESCRIPTION & SPECIFICATION" : "MATERIAL DESCRIPTION & SPECIFICATION"}
+                  {isClaim
+                    ? "CLAIM ITEM DESCRIPTION & SPECIFICATION"
+                    : isBorrow
+                    ? "EQUIPMENT DESCRIPTION & SPECIFICATION"
+                    : "MATERIAL DESCRIPTION & SPECIFICATION"}
                 </span>
               </th>
               <th style={{ width: "8%", padding: "3px 2px" }}>
@@ -1037,9 +1085,13 @@ export default function RequisitionPDFClient({
                 <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>UNIT</span>
               </th>
               <th style={{ width: isPortrait ? "17%" : "18%", padding: "3px 4px", textAlign: "left" }}>
-                {isBorrow ? "วัตถุประสงค์การนำไปใช้" : "งานที่นำไปใช้ / โครงการ"}<br />
+                {isClaim
+                  ? "งานเคลม / ลูกค้า"
+                  : isBorrow
+                  ? "วัตถุประสงค์การนำไปใช้"
+                  : "งานที่นำไปใช้ / โครงการ"}<br />
                 <span style={{ fontSize: "7.5px", fontWeight: "normal" }}>
-                  {isBorrow ? "PURPOSE / USAGE" : "JOB / PURPOSE"}
+                  {isClaim ? "CLAIM / CUSTOMER" : isBorrow ? "PURPOSE / USAGE" : "JOB / PURPOSE"}
                 </span>
               </th>
               <th style={{ width: isPortrait ? "10%" : "10%", padding: "3px 2px" }}>
@@ -1089,6 +1141,11 @@ export default function RequisitionPDFClient({
                       }}
                     >
                       <span style={{ fontWeight: "bold", color: "#000000" }}>{item?.detail || "-"}</span>
+                      {item?.assetCode && (
+                        <span style={{ fontWeight: "normal", color: "#444444", fontSize: "8px", marginLeft: "4px" }}>
+                          [S/N: {item.assetCode}]
+                        </span>
+                      )}
                     </td>
 
                     {/* Quantity */}
@@ -1125,7 +1182,9 @@ export default function RequisitionPDFClient({
 
                     {/* Return Status */}
                     <td style={{ textAlign: "center", fontSize: "8.5px", padding: "2.5px 2px", color: "#000000" }}>
-                      {isReqFullyReturned || (returnedQty > 0 && returnedQty >= itemQty) ? (
+                      {isClaim ? (
+                        <span style={{ color: "#444444", fontWeight: 600 }}>ไม่ต้องคืน</span>
+                      ) : isReqFullyReturned || (returnedQty > 0 && returnedQty >= itemQty) ? (
                         <span style={{ fontWeight: "bold" }}>
                           คืนครบแล้ว ({itemQty}/{itemQty})
                         </span>
@@ -1177,7 +1236,9 @@ export default function RequisitionPDFClient({
                     </span>
                   ) : (
                     <span>
-                      {isBorrow
+                      {isClaim
+                        ? "รายการเบิกเคลมสินค้า/อะไหล่ทดแทน (เบิกตัดจ่ายถาวร ไม่มีการคืนสินค้าเข้าคลัง)"
+                        : isBorrow
                         ? "ตรวจนับจำนวน ตรวจสภาพเครื่องมือและความพร้อมใช้งานให้เรียบร้อยก่อนรับมอบ"
                         : "ตรวจนับจำนวนและสภาพวัสดุอุปกรณ์ให้เรียบร้อยก่อนลงนามรับมอบ"}
                     </span>
@@ -1204,7 +1265,14 @@ export default function RequisitionPDFClient({
         backgroundColor: "#ffffff",
       }}
     >
-      {isBorrow ? (
+      {isClaim ? (
+        <>
+          <strong style={{ color: "#000000" }}>ระเบียบและข้อกำหนดการเบิกเคลมสินค้าและอะไหล่:</strong>
+          &nbsp;1. ผู้ขอเบิกต้องตรวจสอบรุ่น รหัสสินค้า/Serial No. และสภาพสินค้าให้ถูกต้องสมบูรณ์ ณ วันที่รับมอบจากคลังสินค้า
+          &nbsp;2. รายการเบิกเคลมนี้เป็นการเบิกตัดจ่ายเพื่อทดแทน/ส่งเคลมให้ลูกค้าตามอ้างอิงที่ระบุไว้เท่านั้น โดยไม่มีการคืนสินค้าที่เบิกเข้าคลังสินค้า
+          &nbsp;3. กรณีมีการรับซากหรือตัวเสียจากลูกค้า ให้ดำเนินการบันทึกแยกตามระเบียบงานบริการ/เคลมของบริษัทฯ
+        </>
+      ) : isBorrow ? (
         <>
           <strong style={{ color: "#000000" }}>ระเบียบและข้อกำหนดการยืมเครื่องมือและอุปกรณ์:</strong>
           &nbsp;1. ผู้ขอยืมต้องตรวจนับจำนวน ตรวจสอบสภาพและความพร้อมใช้งานของเครื่องมือ ณ วันที่รับมอบจากคลังสินค้า
