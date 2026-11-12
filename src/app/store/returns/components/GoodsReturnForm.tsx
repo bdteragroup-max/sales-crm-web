@@ -927,7 +927,7 @@ export default function GoodsReturnForm({
                 สาเหตุการคืนสินค้า & ลายมือชื่อ
               </h2>
               <p className="text-xs text-gray-500">
-                ระบุเหตุผล (เช่น ผิดรุ่น, เปลี่ยนสเปค) และข้อมูลผู้ส่งคืน/ผู้ตรวจรับคลังสินค้า
+                ระบุเหตุผล (เช่น ผิดรุ่น, เปลี่ยนสเปค, ส่งซ่อม) และข้อมูลผู้ส่งสินค้า / ผู้รับสินค้า
               </p>
             </div>
           </div>
@@ -992,28 +992,28 @@ export default function GoodsReturnForm({
 
           {/* Symmetrical Signature Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
-            {/* Sender (ซับคอนแทรคเตอร์ / ผู้ส่ง) */}
+            {/* Sender */}
             <div className="p-5 rounded-2xl border border-gray-200 bg-gray-50/50 space-y-3.5">
               <div className="flex items-center gap-2 text-xs font-black text-gray-900 h-6">
                 <User className="w-4 h-4 text-[#ff2301]" />
-                <span>ผู้ส่งคืนสินค้า (ซับคอนแทรคเตอร์ / คู่ค้า)</span>
+                <span>ผู้ส่งสินค้า</span>
               </div>
               <div className="space-y-1">
                 <label className="block text-[11px] font-bold text-gray-500">
-                  ชื่อ-สกุล ผู้ส่งคืน
+                  ชื่อ-สกุล ผู้ส่งสินค้า
                 </label>
                 <input
                   type="text"
                   name="senderName"
                   value={formData.senderName}
                   onChange={handleChange}
-                  placeholder="เช่น เผ่าอินทร์"
+                  placeholder="ระบุชื่อผู้ส่งสินค้า"
                   className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-xs font-semibold focus:ring-2 focus:ring-[#ff2301] outline-none bg-white transition-all"
                 />
               </div>
               <div className="space-y-1">
                 <label className="block text-[11px] font-bold text-gray-500">
-                  วันที่ส่งคืน
+                  วันที่ส่งสินค้า
                 </label>
                 <input
                   type="date"
@@ -1025,28 +1025,28 @@ export default function GoodsReturnForm({
               </div>
             </div>
 
-            {/* Receiver (เจ้าหน้าที่คลังสินค้า) */}
+            {/* Receiver */}
             <div className="p-5 rounded-2xl border border-gray-200 bg-gray-50/50 space-y-3.5">
               <div className="flex items-center gap-2 text-xs font-black text-gray-900 h-6">
                 <Package className="w-4 h-4 text-[#ff2301]" />
-                <span>ผู้รับคืนสินค้า (เจ้าหน้าที่คลังสินค้า / TERA)</span>
+                <span>ผู้รับสินค้า</span>
               </div>
               <div className="space-y-1">
                 <label className="block text-[11px] font-bold text-gray-500">
-                  ชื่อ-สกุล ผู้ตรวจรับ
+                  ชื่อ-สกุล ผู้รับสินค้า
                 </label>
                 <input
                   type="text"
                   name="receiverName"
                   value={formData.receiverName}
                   onChange={handleChange}
-                  placeholder="ชื่อเจ้าหน้าที่สโตร์ / คลังสินค้า"
+                  placeholder="ระบุชื่อผู้รับสินค้า"
                   className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-xs font-semibold focus:ring-2 focus:ring-[#ff2301] outline-none bg-white transition-all"
                 />
               </div>
               <div className="space-y-1">
                 <label className="block text-[11px] font-bold text-gray-500">
-                  วันที่รับเข้าคลัง
+                  วันที่รับสินค้า
                 </label>
                 <input
                   type="date"

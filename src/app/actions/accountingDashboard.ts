@@ -1374,14 +1374,16 @@ export async function getFinancialDrilldownDetails(query: {
       note: l.note || `ดำเนินการขั้นตอน: ${l.step}`
     }));
 
-    // Map real documents
-    const documents = (job.documents || []).map((d: any) => ({
-      id: d.id,
-      type: d.type || 'เอกสารทั่วไป',
-      fileName: d.fileName,
-      fileUrl: d.fileUrl,
-      createdAt: formatThaiDate(d.createdAt) || '-'
-    }));
+    // Map real documents (excluding reserved procurement link/hide metadata)
+    const documents = (job.documents || [])
+      .filter((d: any) => !String(d.type || "").startsWith("PROCUREMENT_"))
+      .map((d: any) => ({
+        id: d.id,
+        type: d.type || 'เอกสารทั่วไป',
+        fileName: d.fileName,
+        fileUrl: d.fileUrl,
+        createdAt: formatThaiDate(d.createdAt) || '-'
+      }));
 
     return {
       found: true,

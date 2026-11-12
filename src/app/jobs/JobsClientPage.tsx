@@ -30,6 +30,8 @@ import {
   FileSpreadsheet,
   Monitor,
   Table,
+  ExternalLink,
+  Link2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -212,64 +214,693 @@ function EditableField({
 }
 
 // ── Job Procurement Status ──────────────────────
-import { getProcurementForJob } from "@/app/actions/jobs";
+import {
+  getJobProcurementDetails,
+  searchProcurementDocsForJob,
+  linkProcurementToJob,
+  unlinkProcurementFromJob,
+  restoreHiddenProcurementForJob,
+  type JobProcurementResult,
+  type JobMatchedPO,
+  type ProcurementSearchItem,
+  type ProcurementMatchType,
+} from "@/app/actions/jobs";
 
-function JobProcurementStatus({ customerName, projectName }: { customerName: string, projectName?: string }) {
-  const [data, setData] = useState<any[]>([]);
+function MatchTypeBadge({
+  matchType,
+  label,
+}: {
+  matchType: ProcurementMatchType;
+  label: string;
+}) {
+  const styles: Record<ProcurementMatchType, string> = {
+    MANUAL: "bg-purple-50 text-purple-700 border-purple-200",
+    ORDER: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    CODE: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    PROJECT: "bg-sky-50 text-sky-700 border-sky-200",
+    NAME: "bg-gray-100 text-gray-600 border-gray-200",
+  };
+  return (
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold border whitespace-nowrap ${
+        styles[matchType] || styles.NAME
+      }`}
+      title={label}
+    >
+      {label}
+    </span>
+  );
+}
+
+function PoReceiveBadge({ status }: { status: string | null }) {
+  const norm = String(status || "").toLowerCase();
+  if (norm === "cancelled") {
+    return (
+      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-700 border border-red-200">
+        ยกเลิก
+      </span>
+    );
+  }
+  if (norm === "received") {
+    return (
+      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <CheckCircle2 size={10} />
+        รับของแล้ว
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+      <Clock size={10} />
+      รอรับของ
+    </span>
+  );
+}
+
+function JobProcurementStatus({
+  jobId,
+  refreshKey,
+}: {
+  jobId: string;
+  refreshKey?: string;
+}) {
+  const [result, setResult] = useState<JobProcurementResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mutatingKey, setMutatingKey] = useState<string | null>(null);
+
+  // Manual search & link panel state
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<ProcurementSearchItem[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  const loadProcurement = async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const res = await getJobProcurementDetails(jobId);
+      setResult(res);
+    } catch (err) {
+      console.error("Failed to fetch job procurement details:", err);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    getProcurementForJob(customerName, projectName).then(res => {
-      setData(res);
-      setLoading(false);
-    });
-  }, [customerName, projectName]);
+    loadProcurement(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobId, refreshKey]);
 
-  if (loading) return <div className="mt-5 pt-5 border-t border-gray-100 text-sm text-gray-500 flex items-center gap-2"><div className="animate-spin h-3 w-3 border-2 border-brand-red rounded-full border-t-transparent"></div> กำลังโหลดสถานะจัดซื้อ...</div>;
-  if (data.length === 0) return null;
+  useEffect(() => {
+    if (!linkOpen) return;
+    let active = true;
+    setSearching(true);
+    const timer = setTimeout(() => {
+      searchProcurementDocsForJob(searchQuery)
+        .then((items) => {
+          if (active) setSearchResults(items);
+        })
+        .catch((err) => console.error("Search PR/PO failed:", err))
+        .finally(() => {
+          if (active) setSearching(false);
+        });
+    }, 250);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [linkOpen, searchQuery]);
+
+  const existingPrNumbers = useMemo(() => {
+    const s = new Set<string>();
+    for (const pr of result?.prs || []) s.add(pr.prNumber.toUpperCase());
+    return s;
+  }, [result]);
+
+  const existingPoNumbers = useMemo(() => {
+    const s = new Set<string>();
+    for (const pr of result?.prs || []) {
+      for (const po of pr.purchaseOrders || []) s.add(po.poNumber.toUpperCase());
+    }
+    for (const po of result?.standalonePos || []) s.add(po.poNumber.toUpperCase());
+    return s;
+  }, [result]);
+
+  const handleLink = async (docType: "PR" | "PO", docNumber: string) => {
+    const key = `link:${docType}:${docNumber}`;
+    setMutatingKey(key);
+    try {
+      await linkProcurementToJob(jobId, docType, docNumber);
+      await loadProcurement(true);
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "ผูกเอกสารไม่สำเร็จ",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง",
+      });
+    } finally {
+      setMutatingKey(null);
+    }
+  };
+
+  const handleUnlink = async (
+    docType: "PR" | "PO",
+    docNumber: string,
+    childPoNumbers?: string[]
+  ) => {
+    const key = `unlink:${docType}:${docNumber}`;
+    setMutatingKey(key);
+    try {
+      await unlinkProcurementFromJob(jobId, docType, docNumber, childPoNumbers);
+      await loadProcurement(true);
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "ยกเลิกการผูกไม่สำเร็จ",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง",
+      });
+    } finally {
+      setMutatingKey(null);
+    }
+  };
+
+  const handleRestoreHidden = async () => {
+    setMutatingKey("restore");
+    try {
+      await restoreHiddenProcurementForJob(jobId);
+      await loadProcurement(true);
+    } finally {
+      setMutatingKey(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="mt-5 pt-5 border-t border-gray-100 text-xs text-gray-500 flex items-center gap-2">
+        <div className="animate-spin h-3.5 w-3.5 border-2 border-brand-red rounded-full border-t-transparent" />
+        กำลังตรวจสอบข้อมูลจัดซื้อ (PR / PO)...
+      </div>
+    );
+  }
+
+  const prs = result?.prs || [];
+  const standalonePos = result?.standalonePos || [];
+  const summary = result?.summary || {
+    prCount: 0,
+    poCount: 0,
+    receivedPoCount: 0,
+    pendingPoCount: 0,
+    totalPoAmount: 0,
+    hiddenCount: 0,
+  };
+  const hasAny = prs.length > 0 || standalonePos.length > 0;
+  const activePoTotal = summary.receivedPoCount + summary.pendingPoCount;
 
   return (
     <div className="mt-5 pt-5 border-t border-gray-100 animate-in fade-in">
-      <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest flex items-center gap-1.5">
-        <FolderOpen size={12} />
-        สถานะจัดซื้อ (Procurement)
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {data.map(pr => (
-          <div key={pr.id} className="bg-gray-50/50 p-2.5 rounded-lg border border-gray-100 flex flex-col gap-2 w-fit min-w-[240px]">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-                <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px]">PR</span>
-                {pr.prNumber}
+      {/* Header & Summary Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5 mr-1">
+            <FolderOpen size={13} className="text-brand-red" />
+            เอกสารจัดซื้อ (PR / PO)
+          </p>
+
+          {hasAny && (
+            <>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                PR {summary.prCount} ฉบับ
               </span>
-              <span className="text-[10px] text-gray-500">{new Date(pr.createdAt).toLocaleDateString('th-TH')}</span>
-            </div>
-            {pr.purchaseOrders?.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {pr.purchaseOrders.map((po: any) => {
-                  const isCancelled = po.receiveStatus === 'Cancelled';
-                  const isReceived = po.receiveStatus === 'Received';
-                  const chipClass = isCancelled
-                    ? 'bg-red-50 border-red-200 text-red-700 line-through opacity-75'
-                    : isReceived
-                      ? 'bg-green-50 border-green-100 text-green-700'
-                      : 'bg-amber-50 border-amber-100 text-amber-700';
-                  const statusText = isCancelled ? 'ยกเลิก' : (isReceived ? 'รับแล้ว' : 'รอรับ');
-                  return (
-                    <div key={po.id} className={`flex items-center gap-1.5 px-2 py-1 rounded border text-[10px] font-medium ${chipClass}`}>
-                      <span>{po.poNumber}</span>
-                      <span className="text-gray-300">|</span>
-                      <span>{statusText}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-[10px] text-gray-400">รอเปิด PO (Purchase Order)</div>
-            )}
-          </div>
-        ))}
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                PO {summary.poCount} ฉบับ
+              </span>
+              {activePoTotal > 0 && (
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border ${
+                    summary.receivedPoCount === activePoTotal
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "bg-amber-50 text-amber-700 border-amber-200"
+                  }`}
+                >
+                  รับของแล้ว {summary.receivedPoCount}/{activePoTotal}
+                </span>
+              )}
+              {summary.totalPoAmount > 0 && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-800 border border-gray-200 font-mono">
+                  รวม ฿
+                  {summary.totalPoAmount.toLocaleString("th-TH", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {summary.hiddenCount > 0 && (
+            <button
+              type="button"
+              onClick={handleRestoreHidden}
+              disabled={mutatingKey === "restore"}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-gray-500 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors"
+              title="แสดงรายการ PR/PO ที่เคยกดซ่อนไว้กลับมาใหม่"
+            >
+              <RotateCcw size={11} />
+              <span>คืนค่าที่ซ่อน ({summary.hiddenCount})</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setLinkOpen((prev) => !prev)}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${
+              linkOpen
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white hover:bg-gray-50 text-gray-700 border-gray-200"
+            }`}
+          >
+            {linkOpen ? <X size={12} /> : <Link2 size={12} />}
+            <span>{linkOpen ? "ปิดช่องค้นหา" : "+ ผูกเลข PR / PO"}</span>
+          </button>
+        </div>
       </div>
+
+      {/* Inline Search & Manual Link Panel */}
+      {linkOpen && (
+        <div className="mb-3.5 p-3.5 rounded-xl bg-gray-50 border border-gray-200 space-y-2.5">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="พิมพ์เลข PR (เช่น PR69-...), เลข PO (เช่น PO69-...), ชื่องาน หรือชื่อร้านค้า..."
+                className="w-full pl-8 pr-8 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-brand-red"
+                autoFocus
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {searching ? (
+            <div className="py-3 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
+              <Loader2 size={13} className="animate-spin" />
+              กำลังค้นหาเอกสาร PR / PO...
+            </div>
+          ) : searchResults.length > 0 ? (
+            <div className="max-h-56 overflow-y-auto divide-y divide-gray-100 bg-white rounded-lg border border-gray-200">
+              {searchResults.map((item) => {
+                const upper = item.docNumber.toUpperCase();
+                const alreadyLinked =
+                  item.docType === "PR"
+                    ? existingPrNumbers.has(upper)
+                    : existingPoNumbers.has(upper);
+                const rowKey = `link:${item.docType}:${item.docNumber}`;
+                const isBusy = mutatingKey === rowKey;
+
+                return (
+                  <div
+                    key={`${item.docType}-${item.docNumber}`}
+                    className="px-3 py-2 flex items-center justify-between gap-3 hover:bg-gray-50/80 transition-colors"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                            item.docType === "PR"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-rose-100 text-rose-700"
+                          }`}
+                        >
+                          {item.docType}
+                        </span>
+                        <span className="text-xs font-bold font-mono text-gray-900">
+                          {item.docNumber}
+                        </span>
+                        {item.amount !== null && (
+                          <span className="text-[11px] font-mono font-semibold text-gray-700">
+                            ฿
+                            {item.amount.toLocaleString("th-TH", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        )}
+                        {item.date && (
+                          <span className="text-[10px] text-gray-400">
+                            {formatThaiDate(item.date)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-700 font-medium truncate mt-0.5">
+                        {item.title}
+                      </p>
+                      {item.subtitle && (
+                        <p className="text-[11px] text-gray-400 truncate">
+                          {item.subtitle}
+                        </p>
+                      )}
+                    </div>
+
+                    {alreadyLinked ? (
+                      <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <CheckCircle2 size={11} />
+                        แสดงอยู่แล้ว
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={isBusy}
+                        onClick={() => handleLink(item.docType, item.docNumber)}
+                        className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-brand-red hover:bg-red-700 text-white transition-colors disabled:opacity-50"
+                      >
+                        {isBusy ? (
+                          <Loader2 size={11} className="animate-spin" />
+                        ) : (
+                          <Plus size={11} />
+                        )}
+                        ผูกกับงานนี้
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="py-3 text-center text-xs text-gray-400">
+              ไม่พบรายการ PR หรือ PO ที่ตรงกับ &ldquo;{searchQuery}&rdquo;
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!hasAny && (
+        <div className="bg-gray-50/70 border border-dashed border-gray-200 rounded-xl px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span className="text-xs text-gray-400">
+            ยังไม่มีเอกสาร PR / PO ที่เชื่อมโยงกับรหัสหรือชื่องานนี้โดยอัตโนมัติ
+          </span>
+          {!linkOpen && (
+            <button
+              type="button"
+              onClick={() => setLinkOpen(true)}
+              className="text-xs font-semibold text-brand-red hover:underline self-start sm:self-auto"
+            >
+              ค้นหาและผูกเลข PR / PO เพิ่มเติม
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Matched PR Cards & Standalone PO Cards */}
+      {hasAny && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {prs.map((pr) => {
+            const childPoNums = pr.purchaseOrders.map((p) => p.poNumber);
+            const unlinkKey = `unlink:PR:${pr.prNumber}`;
+            return (
+              <div
+                key={`pr-${pr.id}-${pr.prNumber}`}
+                className="bg-gray-50/60 hover:bg-white rounded-xl border border-gray-200/80 hover:border-gray-300 p-3.5 flex flex-col gap-2.5 transition-all"
+              >
+                {/* PR Header */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                        PR
+                      </span>
+                      <a
+                        href={`/admin/procurement/pr?search=${encodeURIComponent(pr.prNumber)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-black font-mono text-gray-900 hover:text-blue-700 hover:underline inline-flex items-center gap-1"
+                      >
+                        <span>{pr.prNumber}</span>
+                        <ExternalLink size={11} className="opacity-60" />
+                      </a>
+                      <MatchTypeBadge
+                        matchType={pr.matchType}
+                        label={pr.matchLabel}
+                      />
+                    </div>
+                    {pr.projectName && (
+                      <p
+                        className="text-xs font-semibold text-gray-800 truncate mt-1"
+                        title={pr.projectName}
+                      >
+                        {pr.projectName}
+                      </p>
+                    )}
+                    {pr.itemList && (
+                      <p
+                        className="text-[11px] text-gray-500 line-clamp-2 mt-0.5"
+                        title={pr.itemList}
+                      >
+                        รายการ: {pr.itemList}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] text-gray-400 font-mono whitespace-nowrap">
+                      {formatThaiDate(pr.recordedAt || pr.createdAt)}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={mutatingKey === unlinkKey}
+                      onClick={() =>
+                        handleUnlink("PR", pr.prNumber, childPoNums)
+                      }
+                      className="p-1 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      title="ซ่อน / ยกเลิกการผูก PR นี้จากงาน"
+                    >
+                      {mutatingKey === unlinkKey ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <X size={12} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {pr.requestedBy && (
+                  <div className="text-[11px] text-gray-500 flex items-center gap-1">
+                    <User2 size={11} className="text-gray-400" />
+                    <span>ผู้ขอซื้อ: {pr.requestedBy}</span>
+                  </div>
+                )}
+
+                {/* Nested PO List */}
+                {pr.purchaseOrders.length > 0 ? (
+                  <div className="space-y-1.5 pt-1 border-t border-gray-200/60">
+                    {pr.purchaseOrders.map((po: JobMatchedPO) => {
+                      const isCancelled =
+                        String(po.receiveStatus || "").toLowerCase() ===
+                        "cancelled";
+                      const poUnlinkKey = `unlink:PO:${po.poNumber}`;
+                      return (
+                        <div
+                          key={`po-${po.id}-${po.poNumber}`}
+                          className={`bg-white rounded-lg border px-2.5 py-2 flex flex-wrap items-center justify-between gap-2 ${
+                            isCancelled
+                              ? "border-red-100 opacity-70"
+                              : "border-gray-200/80"
+                          }`}
+                        >
+                          <div className="min-w-0 flex items-center gap-1.5 flex-wrap">
+                            <span className="bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                              PO
+                            </span>
+                            <a
+                              href={`/admin/procurement/po?search=${encodeURIComponent(po.poNumber)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={`text-xs font-bold font-mono hover:underline inline-flex items-center gap-1 ${
+                                isCancelled
+                                  ? "text-red-700 line-through"
+                                  : "text-rose-700"
+                              }`}
+                            >
+                              <span>{po.poNumber}</span>
+                              <ExternalLink size={10} className="opacity-60" />
+                            </a>
+                            {po.vendorName && (
+                              <span
+                                className="text-[11px] text-gray-600 truncate max-w-[180px]"
+                                title={po.vendorName}
+                              >
+                                • {po.vendorName}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+                            {po.totalAmount !== null && (
+                              <span className="text-xs font-bold font-mono text-gray-900">
+                                ฿
+                                {po.totalAmount.toLocaleString("th-TH", {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </span>
+                            )}
+                            <PoReceiveBadge status={po.receiveStatus} />
+                            <button
+                              type="button"
+                              disabled={mutatingKey === poUnlinkKey}
+                              onClick={() => handleUnlink("PO", po.poNumber)}
+                              className="p-0.5 rounded text-gray-300 hover:text-red-600 hover:bg-red-50 transition-colors"
+                              title="ซ่อน PO ใบนี้จากงาน"
+                            >
+                              {mutatingKey === poUnlinkKey ? (
+                                <Loader2 size={11} className="animate-spin" />
+                              ) : (
+                                <X size={11} />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="pt-1 border-t border-gray-200/60 text-[11px] text-amber-600 font-medium flex items-center gap-1.5">
+                    <Clock size={11} />
+                    <span>รอฝ่ายจัดซื้อเปิดใบสั่งซื้อ (PO)</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Standalone PO Cards */}
+          {standalonePos.map((po) => {
+            const isCancelled =
+              String(po.receiveStatus || "").toLowerCase() === "cancelled";
+            const poUnlinkKey = `unlink:PO:${po.poNumber}`;
+            return (
+              <div
+                key={`standalone-po-${po.id}-${po.poNumber}`}
+                className="bg-gray-50/60 hover:bg-white rounded-xl border border-gray-200/80 hover:border-rose-200 p-3.5 flex flex-col gap-2 transition-all"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                        PO
+                      </span>
+                      <a
+                        href={`/admin/procurement/po?search=${encodeURIComponent(po.poNumber)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`text-xs font-black font-mono hover:underline inline-flex items-center gap-1 ${
+                          isCancelled
+                            ? "text-red-700 line-through"
+                            : "text-rose-700"
+                        }`}
+                      >
+                        <span>{po.poNumber}</span>
+                        <ExternalLink size={11} className="opacity-60" />
+                      </a>
+                      <MatchTypeBadge
+                        matchType={po.matchType}
+                        label={po.matchLabel}
+                      />
+                      <PoReceiveBadge status={po.receiveStatus} />
+                    </div>
+                    {po.jobName && (
+                      <p
+                        className="text-xs font-semibold text-gray-800 truncate mt-1"
+                        title={po.jobName}
+                      >
+                        {po.jobName}
+                      </p>
+                    )}
+                    {po.vendorName && (
+                      <p className="text-[11px] text-gray-600 truncate mt-0.5">
+                        ผู้จำหน่าย: {po.vendorName}
+                      </p>
+                    )}
+                    {po.itemList && (
+                      <p
+                        className="text-[11px] text-gray-500 line-clamp-2 mt-0.5"
+                        title={po.itemList}
+                      >
+                        รายการ: {po.itemList}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-gray-400 font-mono">
+                        {formatThaiDate(po.recordedAt || po.createdAt)}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={mutatingKey === poUnlinkKey}
+                        onClick={() => handleUnlink("PO", po.poNumber)}
+                        className="p-1 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        title="ซ่อน / ยกเลิกการผูก PO นี้จากงาน"
+                      >
+                        {mutatingKey === poUnlinkKey ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <X size={12} />
+                        )}
+                      </button>
+                    </div>
+                    {po.totalAmount !== null && (
+                      <span className="text-xs font-black font-mono text-gray-900">
+                        ฿
+                        {po.totalAmount.toLocaleString("th-TH", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {(po.prNumber || po.deliveryDate) && (
+                  <div className="pt-1.5 border-t border-gray-200/60 flex items-center justify-between text-[10px] text-gray-500 font-mono">
+                    {po.prNumber ? (
+                      <a
+                        href={`/admin/procurement/pr?search=${encodeURIComponent(po.prNumber)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:text-blue-700 hover:underline font-semibold"
+                      >
+                        อ้างอิง PR: {po.prNumber}
+                      </a>
+                    ) : (
+                      <span>ไม่มีเลข PR อ้างอิง</span>
+                    )}
+                    {po.deliveryDate && (
+                      <span>กำหนดส่ง: {formatThaiDate(po.deliveryDate)}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -454,7 +1085,10 @@ function ExpandedRow({
           </div>
         )}
 
-        <JobProcurementStatus customerName={job.customerName} projectName={job.project?.name} />
+        <JobProcurementStatus
+          jobId={job.id}
+          refreshKey={`${job.customerName}|${job.poNumber || ""}|${job.quotationNumber || ""}|${job.item || ""}`}
+        />
         {/* Production Status & QC */}
         <JobProductionStatus job={job} userRole={userRole} />
 

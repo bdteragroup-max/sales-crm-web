@@ -182,8 +182,8 @@ export default function GoodsReturnPrintPaper({ data, mode = "half" }: Props) {
         <table className="grp-sig-table">
           <thead>
             <tr>
-              <th style={{ width: "50%" }}>ผู้ส่งคืนสินค้า (ลูกค้า / ซับคอนแทรคเตอร์)</th>
-              <th style={{ width: "50%" }}>ผู้รับคืนสินค้า (เจ้าหน้าที่คลังสินค้า)</th>
+              <th style={{ width: "50%" }}>ผู้ส่งสินค้า</th>
+              <th style={{ width: "50%" }}>ผู้รับสินค้า</th>
             </tr>
           </thead>
           <tbody>

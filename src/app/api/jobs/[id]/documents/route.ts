@@ -20,7 +20,10 @@ export async function GET(
     const { id } = await context.params;
 
     const documents = await prisma.jobDocument.findMany({
-      where: { jobId: id },
+      where: {
+        jobId: id,
+        NOT: { type: { startsWith: "PROCUREMENT_" } },
+      },
       orderBy: { createdAt: "desc" },
     });
 
