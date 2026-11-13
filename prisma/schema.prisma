@@ -4146,3 +4146,85 @@ model BranchContentLog {
   @@index([contentId], map: "idx_branch_content_logs_cid")
   @@map("branch_content_logs")
 }
+
+model StockCategory {
+  id              String      @id @default(cuid())
+  code            String      @unique @db.VarChar(50)
+  name            String      @db.VarChar(150)
+  description     String?     @db.Text
+  ownerDepartment String      @default("MARKETING") @map("owner_department") @db.VarChar(50)
+  isActive        Boolean     @default(true) @map("is_active")
+  displayOrder    Int         @default(0) @map("display_order")
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  items           StockItem[]
+
+  @@index([isActive], map: "idx_stock_categories_active")
+  @@map("stock_categories")
+}
+
+model StockItem {
+  id            String             @id @default(cuid())
+  categoryId    String             @map("category_id")
+  sku           String?            @unique @db.VarChar(60)
+  name          String             @db.VarChar(200)
+  unit          String             @default("ชิ้น") @db.VarChar(40)
+  currentStock  Int                @default(0) @map("current_stock")
+  minStock      Int?               @map("min_stock")
+  unitPrice     Decimal?           @map("unit_price") @db.Decimal(12, 2)
+  prInfo        String?            @map("pr_info") @db.VarChar(200)
+  note          String?            @db.Text
+  imageUrl      String?            @map("image_url")
+  excelColName  String?            @map("excel_col_name") @db.VarChar(200)
+  displayOrder  Int                @default(0) @map("display_order")
+  isActive      Boolean            @default(true) @map("is_active")
+  createdById   String?            @map("created_by_id")
+  createdByName String?            @map("created_by_name") @db.VarChar(150)
+  updatedById   String?            @map("updated_by_id")
+  updatedByName String?            @map("updated_by_name") @db.VarChar(150)
+  createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  category      StockCategory      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  transactions  StockTransaction[]
+
+  @@index([categoryId], map: "idx_stock_items_category_id")
+  @@index([isActive], map: "idx_stock_items_active")
+  @@map("stock_items")
+}
+
+model StockTransaction {
+  id              String    @id @default(cuid())
+  batchCode       String?   @map("batch_code") @db.VarChar(50)
+  itemId          String    @map("item_id")
+  txType          String    @map("tx_type") @db.VarChar(30)
+  qtyChange       Int       @map("qty_change")
+  stockBefore     Int       @map("stock_before")
+  stockAfter      Int       @map("stock_after")
+  txDate          DateTime  @default(now()) @map("tx_date") @db.Timestamptz(6)
+  requesterName   String?   @map("requester_name") @db.VarChar(200)
+  requesterUserId String?   @map("requester_user_id")
+  branch          String?   @db.VarChar(80)
+  purpose         String?   @db.VarChar(255)
+  note            String?   @db.Text
+  unitPrice       Decimal?  @map("unit_price") @db.Decimal(12, 2)
+  status          String    @default("COMPLETED") @db.VarChar(30)
+  reversedTxId    String?   @map("reversed_tx_id")
+  createdById     String?   @map("created_by_id")
+  createdByName   String?   @map("created_by_name") @db.VarChar(150)
+  createdByRole   String?   @map("created_by_role") @db.VarChar(100)
+  cancelledById   String?   @map("cancelled_by_id")
+  cancelledByName String?   @map("cancelled_by_name") @db.VarChar(150)
+  cancelledAt     DateTime? @map("cancelled_at") @db.Timestamptz(6)
+  cancelReason    String?   @map("cancel_reason") @db.Text
+  sourceRef       String?   @map("source_ref") @db.VarChar(120)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  item            StockItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, sourceRef], map: "uq_stock_tx_item_source_ref")
+  @@index([itemId, txDate(sort: Desc)], map: "idx_stock_tx_item_date")
+  @@index([txDate(sort: Desc)], map: "idx_stock_tx_date")
+  @@index([txType], map: "idx_stock_tx_type")
+  @@index([batchCode], map: "idx_stock_tx_batch")
+  @@index([requesterUserId], map: "idx_stock_tx_requester_uid")
+  @@map("stock_transactions")
+}

@@ -1,5 +1,11 @@
 "use server";
 import prisma from "@/app/lib/db";
+import {
+  getBangkokDayDiff,
+  getTaskOverdueDays,
+  isScheduleTaskSettled,
+  isTaskOverdue,
+} from "@/app/lib/accounting-schedule";
 
 function extractSearchKeywords(project: any) {
   const terms = new Set<string>();
@@ -99,17 +105,6 @@ function extractSearchKeywords(project: any) {
     keywords: Array.from(terms).filter((t) => t && t.length >= 3),
     primaryKeyword: primaryKeyword || project.name || "",
   };
-}
-
-function normalizeDate(d: Date | string | null | undefined): Date | null {
-  if (!d) return null;
-  const date = new Date(d);
-  if (isNaN(date.getTime())) return null;
-  if (date.getFullYear() >= 2400) {
-    // If year was stored in Buddhist Era (e.g. 2569), convert to CE (2026) for accurate timestamp calculations
-    date.setFullYear(date.getFullYear() - 543);
-  }
-  return date;
 }
 
 function formatThaiDate(d: Date | string | null | undefined): string | null {
@@ -252,6 +247,7 @@ function getTaskBilledAmount(pt: any): number {
 
   filteredPaymentTasks.forEach((pt: any) => {
     const isCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
+    const isSettled = isScheduleTaskSettled(pt);
     const amount = getTaskBilledAmount(pt);
 
     totalSales += amount;
@@ -262,14 +258,17 @@ function getTaskBilledAmount(pt: any): number {
 
     if (isCompleted) {
       totalRevenue += amount;
+    } else if (isSettled) {
+      const paid = Number(pt.paidAmount) || 0;
+      totalRevenue += paid > 0 ? paid : amount;
     } else {
       if (pt.paidAmount && Number(pt.paidAmount) > 0) {
         totalRevenue += Number(pt.paidAmount);
       }
-      const remaining = amount - (Number(pt.paidAmount) || 0);
+      const remaining = Math.max(0, amount - (Number(pt.paidAmount) || 0));
       if (remaining > 0) totalAR += remaining;
 
-      if (pt.dueDate && new Date(pt.dueDate) < now) {
+      if (remaining > 0 && isTaskOverdue(pt, now)) {
         overdueAmount += remaining;
         overdueCount++;
       }
@@ -397,9 +396,10 @@ function getTaskBilledAmount(pt: any): number {
 
   filteredPaymentTasks.forEach((pt: any) => {
     const isCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
+    const isSettled = isScheduleTaskSettled(pt);
     const amount = getTaskBilledAmount(pt);
     const paid = Number(pt.paidAmount) || (isCompleted ? amount : 0);
-    const outstanding = Math.max(0, amount - paid);
+    const outstanding = isSettled ? 0 : Math.max(0, amount - paid);
 
     // Monthly revenue & sales aggregation
     const pDate = pt.paidDate || (paid > 0 ? (pt.depositPaidDate || pt.updatedAt || pt.createdAt) : null);
@@ -417,10 +417,10 @@ function getTaskBilledAmount(pt: any): number {
       monthlyStats[k].sales += amount;
     }
 
-    if (!isCompleted && outstanding > 0) {
-      const dueDate = normalizeDate(pt.dueDate);
-      if (dueDate) {
-        const diffDays = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (!isSettled && outstanding > 0) {
+      const dayDiff = pt.dueDate ? getBangkokDayDiff(pt.dueDate, now) : null;
+      if (dayDiff !== null) {
+        const diffDays = -dayDiff;
 
         if (diffDays > 0) {
           if (diffDays <= 30) {
@@ -452,7 +452,7 @@ function getTaskBilledAmount(pt: any): number {
             amount,
             paid,
             outstanding,
-            daysUntilDue: -diffDays
+            daysUntilDue: dayDiff
           });
         }
       } else {
@@ -511,13 +511,10 @@ function getTaskBilledAmount(pt: any): number {
         else if (cCode.includes('TP') || cCode.includes('POWER')) cEntry.tp += outstanding;
         else cEntry.tg += outstanding;
 
-        if (pt.dueDate) {
-          const dDate = normalizeDate(pt.dueDate);
-          if (dDate && dDate < now) {
-            cEntry.overdueAmount += outstanding;
-            const dDays = Math.floor((now.getTime() - dDate.getTime()) / (1000 * 60 * 60 * 24));
-            if (dDays > cEntry.maxOverdueDays) cEntry.maxOverdueDays = dDays;
-          }
+        const dDays = getTaskOverdueDays(pt, now);
+        if (dDays > 0) {
+          cEntry.overdueAmount += outstanding;
+          if (dDays > cEntry.maxOverdueDays) cEntry.maxOverdueDays = dDays;
         }
       }
     }
@@ -1148,7 +1145,7 @@ function getTaskBilledAmount(pt: any): number {
 
   // Top Overdue
   const overdueTasks = filteredPaymentTasks
-    .filter(pt => pt.status !== 'ตรวจสอบและบันทึกแล้ว' && pt.dueDate && new Date(pt.dueDate) < now);
+    .filter(pt => isTaskOverdue(pt, now));
 
   const topOverdue = overdueTasks
     .sort((a: any, b: any) => {
@@ -1336,19 +1333,15 @@ export async function getFinancialDrilldownDetails(query: {
     const installments = (job.paymentTasks || []).map((pt: any, idx: number) => {
       const amt = Number(pt.installmentAmount) || 0;
       const paid = Number(pt.paidAmount) || 0;
-      const normDueDate = normalizeDate(pt.dueDate);
+      const overdueDays = getTaskOverdueDays(pt, now);
       let status: 'PAID' | 'OVERDUE' | 'PENDING' | 'PARTIAL' = 'PENDING';
-      if (pt.status === 'ตรวจสอบและบันทึกแล้ว' || (amt > 0 && paid >= amt)) {
+      if (isScheduleTaskSettled(pt) || (amt > 0 && paid >= amt)) {
         status = 'PAID';
       } else if (paid > 0) {
         status = 'PARTIAL';
-      } else if (normDueDate && normDueDate < now) {
+      } else if (overdueDays > 0) {
         status = 'OVERDUE';
       }
-
-      const overdueDays = normDueDate && normDueDate < now
-        ? Math.floor((now.getTime() - normDueDate.getTime()) / (1000 * 60 * 60 * 24))
-        : 0;
 
       return {
         id: pt.id,

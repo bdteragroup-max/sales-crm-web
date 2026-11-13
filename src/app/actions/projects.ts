@@ -2,8 +2,162 @@
 
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
-import { generateJobNumber } from "@/app/lib/job-utils";
+import { generateJobNumber, stringToAdvisoryLockIds } from "@/app/lib/job-utils";
 import { normalizeDateToCE } from "@/utils/thai-date";
+
+import type { Prisma } from "../../generated/client";
+
+type InstallmentEntry = {
+  amount?: string | number | null;
+  dueDate?: string | Date | null;
+  title?: string | null;
+};
+
+type InstallmentsDataObject = {
+  hasDeposit?: boolean;
+  deposit?: InstallmentEntry | null;
+  installments?: InstallmentEntry[];
+};
+
+type ProjectPlanSource = {
+  installmentsData?: unknown;
+  firstPayment?: string | number | null;
+  paymentDate?: string | Date | null;
+  contractSigningDate?: string | Date | null;
+  startDate?: string | Date | null;
+  endDate?: string | Date | null;
+  deliveryDate?: string | Date | null;
+  [key: string]: unknown;
+};
+
+function toDateOrNull(val: unknown): Date | null {
+  if (!val) return null;
+  if (val instanceof Date) return val;
+  if (typeof val === "string" || typeof val === "number") return new Date(val);
+  return null;
+}
+
+function buildProjectPaymentPlan(
+  source: ProjectPlanSource,
+  closedDate: Date,
+  options?: { syncArrayFieldsTo?: Record<string, unknown> }
+) {
+  let depositItem: { amount: number; dueDate?: Date | null; title?: string } | null = null;
+  let installmentList: InstallmentEntry[] = [];
+
+  const instDataRaw = source.installmentsData;
+  if (instDataRaw && typeof instDataRaw === "object" && !Array.isArray(instDataRaw)) {
+    const obj = instDataRaw as InstallmentsDataObject;
+    if (obj.hasDeposit && obj.deposit && Number(obj.deposit.amount) > 0) {
+      depositItem = {
+        amount: parseFloat(String(obj.deposit.amount)),
+        dueDate: toDateOrNull(obj.deposit.dueDate),
+        title: obj.deposit.title || "เงินมัดจำเมื่อเซ็นสัญญา",
+      };
+    }
+    if (Array.isArray(obj.installments)) {
+      installmentList = obj.installments;
+    }
+  } else if (Array.isArray(instDataRaw)) {
+    installmentList = instDataRaw as InstallmentEntry[];
+  }
+
+  if (!depositItem && source.firstPayment) {
+    const fp = Number(source.firstPayment);
+    if (!isNaN(fp) && fp > 0) {
+      depositItem = {
+        amount: fp,
+        dueDate: toDateOrNull(source.paymentDate),
+        title: "เงินมัดจำเมื่อเซ็นสัญญา",
+      };
+    }
+  }
+
+  const rawInstallments: Array<{ amount: number; dueDate?: Date | null; title?: string }> = [];
+  if (installmentList.length > 0) {
+    installmentList.forEach((inst) => {
+      if (inst && inst.amount !== undefined && inst.amount !== null && String(inst.amount).trim() !== "") {
+        const num = parseFloat(String(inst.amount));
+        if (!isNaN(num) && num > 0) {
+          rawInstallments.push({
+            amount: num,
+            dueDate: toDateOrNull(inst.dueDate),
+            title: inst.title || undefined,
+          });
+        }
+      }
+    });
+  } else {
+    for (let i = 1; i <= 12; i++) {
+      const val = source[`installment${i}`];
+      if (val !== undefined && val !== null && String(val).trim() !== "") {
+        const num = Number(val);
+        if (!isNaN(num) && num > 0) {
+          rawInstallments.push({ amount: num });
+        }
+      }
+    }
+  }
+
+  if (options?.syncArrayFieldsTo) {
+    for (let i = 1; i <= 12; i++) {
+      options.syncArrayFieldsTo[`installment${i}`] = rawInstallments[i - 1]
+        ? rawInstallments[i - 1].amount
+        : null;
+    }
+    if (depositItem) {
+      options.syncArrayFieldsTo.firstPayment = depositItem.amount;
+    }
+  }
+
+  const startDate = toDateOrNull(source.startDate) ?? closedDate;
+  const endDate =
+    toDateOrNull(source.endDate) ??
+    toDateOrNull(source.deliveryDate) ??
+    new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000);
+  const totalDurationMs = endDate.getTime() - startDate.getTime();
+  const signingDate = toDateOrNull(source.contractSigningDate);
+
+  const buildTasks = (jobId: string): Prisma.PaymentTaskCreateManyInput[] => {
+    const tasks: Prisma.PaymentTaskCreateManyInput[] = [];
+    if (depositItem) {
+      tasks.push({
+        jobId,
+        status: "รอดำเนินการ",
+        dueDate: depositItem.dueDate || signingDate || closedDate,
+        installmentNo: 0,
+        installmentTotal: rawInstallments.length,
+        installmentAmount: depositItem.amount,
+        creditType: "DEPOSIT",
+        note: depositItem.title || "เงินมัดจำเมื่อเซ็นสัญญา",
+      });
+    }
+    rawInstallments.forEach((inst, idx) => {
+      let newDate = inst.dueDate || endDate;
+      if (!inst.dueDate && rawInstallments.length > 1) {
+        const fraction = idx / (rawInstallments.length - 1);
+        newDate = new Date(startDate.getTime() + totalDurationMs * fraction);
+      }
+      tasks.push({
+        jobId,
+        status: "รอดำเนินการ",
+        dueDate: newDate,
+        installmentNo: idx + 1,
+        installmentTotal: rawInstallments.length,
+        installmentAmount: inst.amount,
+        creditType: "PROGRESS",
+        note: inst.title ? `งวดที่ ${idx + 1}: ${inst.title}` : undefined,
+      });
+    });
+    return tasks;
+  };
+
+  return {
+    depositItem,
+    hasPaymentPlan: depositItem !== null || rawInstallments.length > 0,
+    buildTasks,
+  };
+}
 
 function sanitizeProjectDateFields(data: any) {
   if (!data || typeof data !== "object") return data;
@@ -54,229 +208,187 @@ function sanitizeProjectDateFields(data: any) {
 
 export async function createProject(data: any) {
   try {
-    let projectNumber = data.projectNumber;
-
-    if (!projectNumber) {
-      const yearPrefix = `PJ${new Date().getFullYear().toString().slice(-2)}-`;
-
-      // Find the latest project starting with this year's prefix
-      const latestProject = await prisma.project.findFirst({
-        where: {
-          projectNumber: {
-            startsWith: yearPrefix,
-          },
-        },
-        orderBy: {
-          projectNumber: 'desc',
-        },
-      });
-
-      if (latestProject && latestProject.projectNumber) {
-        const lastSequence = parseInt(latestProject.projectNumber.replace(yearPrefix, ''), 10);
-        if (!isNaN(lastSequence)) {
-          const nextSequence = lastSequence + 1;
-          projectNumber = `${yearPrefix}${nextSequence.toString().padStart(4, '0')}`;
-        } else {
-          projectNumber = `${yearPrefix}0001`;
-        }
-      } else {
-        projectNumber = `${yearPrefix}0001`;
-      }
-    }
-
     const sanitizedData = sanitizeProjectDateFields(data);
     const { companyCode, ...projectDataRaw } = sanitizedData;
-    let finalJobId = projectDataRaw.jobId;
 
-    if (!finalJobId && companyCode) {
-      const closedDate = new Date();
-      const jobNum = await generateJobNumber(closedDate);
-      const yearBe = (closedDate.getFullYear() + 543) % 100;
-      const month = closedDate.getMonth() + 1;
-
-      let managerName = projectDataRaw.contractSignatory;
-      if (!managerName && projectDataRaw.managerId) {
-        const m = await prisma.user.findUnique({ where: { id: projectDataRaw.managerId } });
-        if (m) managerName = m.fullName;
+    const txResult = await prisma.$transaction(async (tx) => {
+      const lockKeys = [
+        "project_seq",
+        ...(projectDataRaw.jobId ? [`project_job:${projectDataRaw.jobId}`] : []),
+      ].sort();
+      for (const key of lockKeys) {
+        const [k1, k2] = stringToAdvisoryLockIds(key);
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(${k1}::int, ${k2}::int)`;
       }
 
-      // Extract dynamic installments and deposit
-      let depositItem: { amount: number; dueDate?: Date | null; title?: string } | null = null;
-      let installmentList: any[] = [];
-
-      if (projectDataRaw.installmentsData && typeof projectDataRaw.installmentsData === 'object' && !Array.isArray(projectDataRaw.installmentsData)) {
-        const instData = projectDataRaw.installmentsData as any;
-        if (instData.hasDeposit && instData.deposit && Number(instData.deposit.amount) > 0) {
-          depositItem = {
-            amount: parseFloat(instData.deposit.amount),
-            dueDate: instData.deposit.dueDate ? new Date(instData.deposit.dueDate) : null,
-            title: instData.deposit.title || 'เงินมัดจำเมื่อเซ็นสัญญา',
-          };
-        }
-        if (Array.isArray(instData.installments)) {
-          installmentList = instData.installments;
-        }
-      } else if (Array.isArray(projectDataRaw.installmentsData)) {
-        installmentList = projectDataRaw.installmentsData;
-      }
-
-      if (!depositItem && projectDataRaw.firstPayment) {
-        const fp = parseFloat(projectDataRaw.firstPayment);
-        if (!isNaN(fp) && fp > 0) {
-          depositItem = {
-            amount: fp,
-            dueDate: projectDataRaw.paymentDate ? new Date(projectDataRaw.paymentDate) : null,
-            title: 'เงินมัดจำเมื่อเซ็นสัญญา',
+      // If caller passed a jobId that already has a linked Project, return the existing Project idempotently
+      if (projectDataRaw.jobId) {
+        const existingForJob = await tx.project.findUnique({
+          where: { jobId: projectDataRaw.jobId },
+        });
+        if (existingForJob) {
+          return {
+            project: existingForJob,
+            finalJobId: existingForJob.jobId,
+            createdNewJob: false as const,
+            reusedExisting: true as const,
           };
         }
       }
 
-      const rawInstallments: Array<{ amount: number; dueDate?: Date | null; title?: string }> = [];
-      if (installmentList.length > 0) {
-        installmentList.forEach((inst: any) => {
-          if (inst && inst.amount !== undefined && inst.amount !== null && String(inst.amount).trim() !== '') {
-            const num = parseFloat(inst.amount);
-            if (!isNaN(num) && num > 0) {
-              rawInstallments.push({
-                amount: num,
-                dueDate: inst.dueDate ? new Date(inst.dueDate) : null,
-                title: inst.title || undefined,
-              });
-            }
-          }
+      let projectNumber = data.projectNumber;
+      if (!projectNumber) {
+        const yearPrefix = `PJ${new Date().getFullYear().toString().slice(-2)}-`;
+        const latestProject = await tx.project.findFirst({
+          where: {
+            projectNumber: {
+              startsWith: yearPrefix,
+            },
+          },
+          orderBy: {
+            projectNumber: "desc",
+          },
         });
-      } else {
-        for (let i = 1; i <= 12; i++) {
-          const val = projectDataRaw[`installment${i}`];
-          if (val !== undefined && val !== null && String(val).trim() !== '') {
-            const num = parseFloat(val);
-            if (!isNaN(num) && num > 0) {
-              rawInstallments.push({ amount: num });
-            }
+
+        let nextSequence = 1;
+        if (latestProject && latestProject.projectNumber) {
+          const lastSequence = parseInt(
+            latestProject.projectNumber.replace(yearPrefix, ""),
+            10
+          );
+          if (!isNaN(lastSequence)) {
+            nextSequence = lastSequence + 1;
           }
+        }
+        projectNumber = `${yearPrefix}${nextSequence.toString().padStart(4, "0")}`;
+        while (
+          await tx.project.findFirst({
+            where: { projectNumber },
+            select: { id: true },
+          })
+        ) {
+          nextSequence += 1;
+          projectNumber = `${yearPrefix}${nextSequence.toString().padStart(4, "0")}`;
         }
       }
 
-      // Populate installment1..12 and firstPayment on projectDataRaw for quick SQL queries and backward compatibility
-      for (let i = 1; i <= 12; i++) {
-        projectDataRaw[`installment${i}`] = rawInstallments[i - 1] ? rawInstallments[i - 1].amount : null;
-      }
-      if (depositItem) {
-        projectDataRaw.firstPayment = depositItem.amount;
-      }
+      let finalJobId = projectDataRaw.jobId;
+      let createdNewJob = false;
 
-      const hasPaymentPlan = depositItem !== null || rawInstallments.length > 0;
+      if (!finalJobId && companyCode) {
+        const closedDate = new Date();
+        const jobNum = await generateJobNumber(closedDate, tx);
+        const yearBe = (closedDate.getFullYear() + 543) % 100;
+        const month = closedDate.getMonth() + 1;
 
-      const job = await prisma.job.create({
-        data: {
-          jobNumber: jobNum,
-          companyCode: companyCode,
-          jobType: "งานโปรเจค",
-          paymentMethod: hasPaymentPlan ? "แบ่งชำระ" : undefined,
-          month,
-          yearBe,
-          dateClosed: closedDate,
-          customerName: projectDataRaw.clientName || projectDataRaw.name,
-          item: projectDataRaw.name ? `Project: ${projectDataRaw.name}` : undefined,
-          sellerName: managerName || undefined,
-          paymentDate: depositItem?.dueDate || (projectDataRaw.contractSigningDate ? new Date(projectDataRaw.contractSigningDate) : (projectDataRaw.paymentDate ? new Date(projectDataRaw.paymentDate) : undefined)),
-          deliveryDate: projectDataRaw.endDate ? new Date(projectDataRaw.endDate) : (projectDataRaw.deliveryDate ? new Date(projectDataRaw.deliveryDate) : undefined),
+        let managerName = projectDataRaw.contractSignatory;
+        if (!managerName && projectDataRaw.managerId) {
+          const m = await tx.user.findUnique({ where: { id: projectDataRaw.managerId } });
+          if (m) managerName = m.fullName;
         }
-      });
-      finalJobId = job.id;
 
-      // Create PaymentTasks for the new Job so it appears in Accounting
-      const paymentTasksData: any[] = [];
-      const startDate = projectDataRaw.startDate ? new Date(projectDataRaw.startDate) : closedDate;
-      const endDate = projectDataRaw.endDate ? new Date(projectDataRaw.endDate) : (projectDataRaw.deliveryDate ? new Date(projectDataRaw.deliveryDate) : new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000));
-      const totalDurationMs = endDate.getTime() - startDate.getTime();
-
-      // 1. Deposit Task (if configured)
-      if (depositItem) {
-        paymentTasksData.push({
-          jobId: finalJobId,
-          status: 'รอดำเนินการ',
-          dueDate: depositItem.dueDate || (projectDataRaw.contractSigningDate ? new Date(projectDataRaw.contractSigningDate) : closedDate),
-          installmentNo: 0,
-          installmentTotal: rawInstallments.length,
-          installmentAmount: depositItem.amount,
-          creditType: 'DEPOSIT',
-          note: depositItem.title || 'เงินมัดจำเมื่อเซ็นสัญญา',
+        const plan = buildProjectPaymentPlan(projectDataRaw, closedDate, {
+          syncArrayFieldsTo: projectDataRaw,
         });
-      }
 
-      // 2. Progress Installments Tasks
-      if (rawInstallments.length > 0) {
-        rawInstallments.forEach((inst, idx) => {
-          let newDate = inst.dueDate || endDate;
-          if (!inst.dueDate && rawInstallments.length > 1) {
-            const fraction = idx / (rawInstallments.length - 1);
-            newDate = new Date(startDate.getTime() + (totalDurationMs * fraction));
-          }
-          paymentTasksData.push({
-            jobId: finalJobId,
-            status: 'รอดำเนินการ',
-            dueDate: newDate,
-            installmentNo: idx + 1,
-            installmentTotal: rawInstallments.length,
-            installmentAmount: inst.amount,
-            creditType: 'PROGRESS',
-            note: inst.title ? `งวดที่ ${idx + 1}: ${inst.title}` : undefined,
-          });
-        });
-      }
-
-      if (paymentTasksData.length > 0) {
-        await prisma.paymentTask.createMany({
-          data: paymentTasksData,
-        });
-      } else {
-        await prisma.paymentTask.create({
+        const job = await tx.job.create({
           data: {
-            jobId: finalJobId,
-            status: 'รอดำเนินการ',
-            dueDate: projectDataRaw.contractSigningDate ? new Date(projectDataRaw.contractSigningDate) : null,
-          }
+            jobNumber: jobNum,
+            companyCode,
+            jobType: "งานโปรเจค",
+            paymentMethod: plan.hasPaymentPlan ? "แบ่งชำระ" : undefined,
+            month,
+            yearBe,
+            dateClosed: closedDate,
+            customerName: projectDataRaw.clientName || projectDataRaw.name,
+            item: projectDataRaw.name ? `Project: ${projectDataRaw.name}` : undefined,
+            sellerName: managerName || undefined,
+            paymentDate:
+              plan.depositItem?.dueDate ||
+              (projectDataRaw.contractSigningDate
+                ? new Date(projectDataRaw.contractSigningDate)
+                : projectDataRaw.paymentDate
+                ? new Date(projectDataRaw.paymentDate)
+                : undefined),
+            deliveryDate: projectDataRaw.endDate
+              ? new Date(projectDataRaw.endDate)
+              : projectDataRaw.deliveryDate
+              ? new Date(projectDataRaw.deliveryDate)
+              : undefined,
+          },
+        });
+        finalJobId = job.id;
+        createdNewJob = true;
+
+        const paymentTasksData = plan.buildTasks(finalJobId);
+        if (paymentTasksData.length > 0) {
+          await tx.paymentTask.createMany({
+            data: paymentTasksData,
+          });
+        } else {
+          await tx.paymentTask.create({
+            data: {
+              jobId: finalJobId,
+              status: "รอดำเนินการ",
+              dueDate: projectDataRaw.contractSigningDate
+                ? new Date(projectDataRaw.contractSigningDate)
+                : null,
+            },
+          });
+        }
+      }
+
+      const project = await tx.project.create({
+        data: {
+          ...projectDataRaw,
+          jobId: finalJobId,
+          projectNumber,
+        },
+      });
+
+      if (data.managerId) {
+        await tx.projectMember.create({
+          data: {
+            projectId: project.id,
+            userId: data.managerId,
+            role: "manager",
+          },
         });
       }
 
-      // Push Notification to Accounting
+      return {
+        project,
+        finalJobId,
+        createdNewJob,
+        reusedExisting: false as const,
+      };
+    });
+
+    if (txResult.createdNewJob) {
       try {
-        const { sendPushToRole } = await import('@/app/lib/webpush');
-        await sendPushToRole('บัญชี', 'มีรายการเบิกจ่ายใหม่ (โครงการ)', `โครงการใหม่ถูกสร้างและมีรายการรอตรวจสอบแล้ว`, '/accounting');
+        const { sendPushToRole } = await import("@/app/lib/webpush");
+        await sendPushToRole(
+          "บัญชี",
+          "มีรายการเบิกจ่ายใหม่ (โครงการ)",
+          "โครงการใหม่ถูกสร้างและมีรายการรอตรวจสอบแล้ว",
+          "/accounting"
+        );
       } catch (err) {
         console.error("Web push error (Accounting for projects):", err);
       }
     }
 
-    const project = await prisma.project.create({
-      data: {
-        ...projectDataRaw,
-        jobId: finalJobId,
-        projectNumber,
-      },
-    });
-
-    // Automatically add the manager as a member if provided
-    if (data.managerId) {
-      await prisma.projectMember.create({
-        data: {
-          projectId: project.id,
-          userId: data.managerId,
-          role: "manager"
-        }
-      });
+    if (!txResult.reusedExisting) {
+      revalidatePath("/projects");
+      revalidatePath("/projects/dashboard");
+      if (txResult.finalJobId) {
+        await syncProjectInstallmentsToPaymentTasks(txResult.project.id);
+        revalidatePath("/jobs");
+        revalidatePath("/accounting");
+        revalidatePath("/accounting/dashboard");
+      }
     }
-
-    revalidatePath("/projects");
-    revalidatePath("/projects/dashboard");
-    if (finalJobId) {
-      await syncProjectInstallmentsToPaymentTasks(project.id);
-      revalidatePath("/jobs");
-      revalidatePath("/accounting");
-      revalidatePath("/accounting/dashboard");
-    }
-    return JSON.parse(JSON.stringify(project));
+    return JSON.parse(JSON.stringify(txResult.project));
   } catch (error) {
     console.error("Error creating project:", error);
     throw new Error("Failed to create project");
@@ -999,156 +1111,71 @@ export async function deleteProjectEquipment(id: string) {
 
 export async function generateJobForProject(projectId: string, companyCode: string) {
   try {
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      include: { manager: true }
-    });
-    if (!project) throw new Error("Project not found");
-    if (project.jobId) throw new Error("Project already has a Job");
+    const job = await prisma.$transaction(async (tx) => {
+      const [k1, k2] = stringToAdvisoryLockIds(`project_genjob:${projectId}`);
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(${k1}::int, ${k2}::int)`;
 
-    const closedDate = new Date();
-    const jobNum = await generateJobNumber(closedDate);
-    const yearBe = (closedDate.getFullYear() + 543) % 100;
-    const month = closedDate.getMonth() + 1;
-
-    let depositItem: { amount: number; dueDate?: Date | null; title?: string } | null = null;
-    let installmentList: any[] = [];
-
-    const instDataRaw = project.installmentsData as any;
-    if (instDataRaw && typeof instDataRaw === 'object' && !Array.isArray(instDataRaw)) {
-      if (instDataRaw.hasDeposit && instDataRaw.deposit && Number(instDataRaw.deposit.amount) > 0) {
-        depositItem = {
-          amount: parseFloat(instDataRaw.deposit.amount),
-          dueDate: instDataRaw.deposit.dueDate ? new Date(instDataRaw.deposit.dueDate) : null,
-          title: instDataRaw.deposit.title || 'เงินมัดจำเมื่อเซ็นสัญญา',
-        };
-      }
-      if (Array.isArray(instDataRaw.installments)) {
-        installmentList = instDataRaw.installments;
-      }
-    } else if (Array.isArray(instDataRaw)) {
-      installmentList = instDataRaw;
-    }
-
-    if (!depositItem && project.firstPayment) {
-      const fp = Number(project.firstPayment);
-      if (!isNaN(fp) && fp > 0) {
-        depositItem = {
-          amount: fp,
-          dueDate: project.paymentDate ? new Date(project.paymentDate) : null,
-          title: 'เงินมัดจำเมื่อเซ็นสัญญา',
-        };
-      }
-    }
-
-    const rawInstallments: Array<{ amount: number; dueDate?: Date | null; title?: string }> = [];
-
-    if (installmentList.length > 0) {
-      installmentList.forEach((inst: any) => {
-        if (inst && inst.amount !== undefined && inst.amount !== null) {
-          const num = parseFloat(inst.amount);
-          if (!isNaN(num) && num > 0) {
-            rawInstallments.push({
-              amount: num,
-              dueDate: inst.dueDate ? new Date(inst.dueDate) : null,
-              title: inst.title || undefined,
-            });
-          }
-        }
+      const project = await tx.project.findUnique({
+        where: { id: projectId },
+        include: { manager: true },
       });
-    } else {
-      for (let i = 1; i <= 12; i++) {
-        const val = (project as any)[`installment${i}`];
-        if (val !== undefined && val !== null) {
-          const num = Number(val);
-          if (!isNaN(num) && num > 0) {
-            rawInstallments.push({ amount: num });
-          }
-        }
-      }
-    }
+      if (!project) throw new Error("Project not found");
+      if (project.jobId) throw new Error("Project already has a Job");
 
-    const hasPaymentPlan = depositItem !== null || rawInstallments.length > 0;
+      const closedDate = new Date();
+      const jobNum = await generateJobNumber(closedDate, tx);
+      const yearBe = (closedDate.getFullYear() + 543) % 100;
+      const month = closedDate.getMonth() + 1;
 
-    const job = await prisma.job.create({
-      data: {
-        jobNumber: jobNum,
-        companyCode: companyCode,
-        jobType: "งานโปรเจค",
-        paymentMethod: hasPaymentPlan ? "แบ่งชำระ" : undefined,
-        month,
-        yearBe,
-        dateClosed: closedDate,
-        customerName: project.clientName || project.name,
-        item: project.name ? `Project: ${project.name}` : undefined,
-        sellerName: project.contractSignatory || project.manager?.fullName || undefined,
-        paymentDate: depositItem?.dueDate || (project.contractSigningDate || project.paymentDate || undefined),
-        deliveryDate: project.endDate || project.deliveryDate || undefined,
-      }
-    });
+      const plan = buildProjectPaymentPlan(project as ProjectPlanSource, closedDate);
 
-    const paymentTasksData: any[] = [];
-    const startDate = project.startDate ? new Date(project.startDate) : closedDate;
-    const endDate = project.endDate ? new Date(project.endDate) : (project.deliveryDate ? new Date(project.deliveryDate) : new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000));
-    const totalDurationMs = endDate.getTime() - startDate.getTime();
-
-    // 1. Deposit Task (if present)
-    if (depositItem) {
-      paymentTasksData.push({
-        jobId: job.id,
-        status: 'รอดำเนินการ',
-        dueDate: depositItem.dueDate || (project.contractSigningDate ? new Date(project.contractSigningDate) : closedDate),
-        installmentNo: 0,
-        installmentTotal: rawInstallments.length,
-        installmentAmount: depositItem.amount,
-        creditType: 'DEPOSIT',
-        note: depositItem.title || 'เงินมัดจำเมื่อเซ็นสัญญา',
-      });
-    }
-
-    // 2. Progress Installments Tasks
-    if (rawInstallments.length > 0) {
-      rawInstallments.forEach((inst, idx) => {
-        let newDate = inst.dueDate || endDate;
-        if (!inst.dueDate && rawInstallments.length > 1) {
-          const fraction = idx / (rawInstallments.length - 1);
-          newDate = new Date(startDate.getTime() + (totalDurationMs * fraction));
-        }
-        paymentTasksData.push({
-          jobId: job.id,
-          status: 'รอดำเนินการ',
-          dueDate: newDate,
-          installmentNo: idx + 1,
-          installmentTotal: rawInstallments.length,
-          installmentAmount: inst.amount,
-          creditType: 'PROGRESS',
-          note: inst.title ? `งวดที่ ${idx + 1}: ${inst.title}` : undefined,
-        });
-      });
-    }
-
-    if (paymentTasksData.length > 0) {
-      await prisma.paymentTask.createMany({
-        data: paymentTasksData,
-      });
-    } else {
-      await prisma.paymentTask.create({
+      const createdJob = await tx.job.create({
         data: {
-          jobId: job.id,
-          status: 'รอดำเนินการ',
-          dueDate: project.contractSigningDate ? new Date(project.contractSigningDate) : null,
-        }
+          jobNumber: jobNum,
+          companyCode,
+          jobType: "งานโปรเจค",
+          paymentMethod: plan.hasPaymentPlan ? "แบ่งชำระ" : undefined,
+          month,
+          yearBe,
+          dateClosed: closedDate,
+          customerName: project.clientName || project.name,
+          item: project.name ? `Project: ${project.name}` : undefined,
+          sellerName: project.contractSignatory || project.manager?.fullName || undefined,
+          paymentDate:
+            plan.depositItem?.dueDate ||
+            (project.contractSigningDate || project.paymentDate || undefined),
+          deliveryDate: project.endDate || project.deliveryDate || undefined,
+        },
       });
-    }
 
-    await prisma.project.update({
-      where: { id: projectId },
-      data: { jobId: job.id }
+      const paymentTasksData = plan.buildTasks(createdJob.id);
+      if (paymentTasksData.length > 0) {
+        await tx.paymentTask.createMany({
+          data: paymentTasksData,
+        });
+      } else {
+        await tx.paymentTask.create({
+          data: {
+            jobId: createdJob.id,
+            status: "รอดำเนินการ",
+            dueDate: project.contractSigningDate ? new Date(project.contractSigningDate) : null,
+          },
+        });
+      }
+
+      await tx.project.update({
+        where: { id: projectId },
+        data: { jobId: createdJob.id },
+      });
+
+      return createdJob;
     });
 
     revalidatePath("/projects");
     revalidatePath("/projects/dashboard");
     revalidatePath("/jobs");
+    revalidatePath("/accounting");
+    revalidatePath("/accounting/dashboard");
     return JSON.parse(JSON.stringify(job));
   } catch (error) {
     console.error("Error generating job for project:", error);

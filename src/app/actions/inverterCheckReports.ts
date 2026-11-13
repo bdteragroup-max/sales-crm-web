@@ -760,103 +760,145 @@ export async function convertCheckReportToRepairOrder(
       };
     }
 
-    // Map photos from check report into checklist images
-    const photosMap: Record<string, string[]> = {};
-    if (report.photos && typeof report.photos === "object") {
-      const p = report.photos as Record<string, string[]>;
-      if (p.nameplate?.length) photosMap["Nameplate"] = p.nameplate;
-      if (p.front?.length) photosMap["Front"] = p.front;
-      if (p.side?.length) photosMap["SideLeft"] = p.side;
-      if (p.damage?.length) photosMap["Inside"] = p.damage;
-      if (p.other?.length) photosMap["Cover"] = p.other;
-    }
-
-    // Description of symptoms combining fault cause
-    let fullSymptoms = report.symptoms || "";
-    if (report.causeOfFault) {
-      fullSymptoms += fullSymptoms ? `\nสาเหตุที่พบ: ${report.causeOfFault}` : `สาเหตุที่พบ: ${report.causeOfFault}`;
-    }
-    if (report.crNumber) {
-      fullSymptoms += `\n[อ้างอิงจากใบตรวจเช็ค CR: ${report.crNumber}]`;
-    }
-
-    const roPayload = {
-      workType: options?.workType || "ซ่อม",
-      deliveryMethod: options?.deliveryMethod || "ช่างนำเข้า",
-      customerCompany: report.customerCompany || report.customerName || "ไม่ระบุชื่อลูกค้า",
-      company: report.companyCode || "TG",
-      customerAddress: report.customerAddress || "",
-      phoneNumber: report.customerPhone || "",
-      salesPerson: report.salesPerson || "",
-      technicianName: options?.technicianName || report.inspectorName || "",
-      forwardedBy: report.reportBy || report.inspectorName || "",
-      symptoms: fullSymptoms,
-      settings: report.applicationLoad || "",
-      receivedDate: new Date().toISOString(),
-      items: [
-        {
-          type: report.equipmentType || "INVERTER",
-          brand: report.inverterBrand || "",
-          model: report.inverterModel || "",
-          size: report.motorKw ? `${report.motorKw} kW` : "",
-          serial: report.serialNumber || "",
-          qty: 1,
-          remark: fullSymptoms,
-        },
-      ],
-      checklist: {
-        Front: !!photosMap["Front"],
-        Top: false,
-        SideLeft: !!photosMap["SideLeft"],
-        SideRight: false,
-        Inside: !!photosMap["Inside"],
-        Nameplate: !!photosMap["Nameplate"],
-        Bottom: false,
-        TerminalNut: false,
-        TermCover: false,
-        Cover: !!photosMap["Cover"],
-        Video: false,
+    // Atomically claim this report before creating the RepairOrder/Job so double-clicks never spawn duplicates
+    const originalStatus = report.status;
+    const claim = await prisma.inverterCheckReport.updateMany({
+      where: {
+        id: checkReportId,
+        status: { notIn: ["CONVERTED_TO_RO", "CONVERTING_TO_RO"] },
+        convertedJobId: null,
       },
-      checklistImages: photosMap,
-    };
+      data: { status: "CONVERTING_TO_RO" },
+    });
 
-    const roResult = await createRepairOrder(roPayload);
-    if (!roResult || !roResult.success || !roResult.jobId) {
+    if (claim.count === 0) {
+      const latest = await prisma.inverterCheckReport.findUnique({
+        where: { id: checkReportId },
+        select: { status: true, convertedJobId: true, convertedJobNumber: true },
+      });
+      if (latest?.convertedJobId) {
+        return {
+          success: false,
+          error: `รายงานนี้เคยถูกแปลงเป็นใบรับซ่อมแล้ว (เลขที่: ${latest.convertedJobNumber || "-"})`,
+          jobId: latest.convertedJobId,
+          jobNumber: latest.convertedJobNumber,
+        };
+      }
       return {
         success: false,
-        error: roResult?.error || "ไม่สามารถสร้างใบรับซ่อมได้",
+        error: "กำลังดำเนินการแปลงรายงานนี้เป็นใบรับซ่อม กรุณารอสักครู่",
       };
     }
 
-    const createdJob = await prisma.job.findUnique({
-      where: { id: roResult.jobId },
-      select: { jobNumber: true },
-    });
-    const jobNumber = createdJob?.jobNumber || "";
+    try {
+      // Map photos from check report into checklist images
+      const photosMap: Record<string, string[]> = {};
+      if (report.photos && typeof report.photos === "object") {
+        const p = report.photos as Record<string, string[]>;
+        if (p.nameplate?.length) photosMap["Nameplate"] = p.nameplate;
+        if (p.front?.length) photosMap["Front"] = p.front;
+        if (p.side?.length) photosMap["SideLeft"] = p.side;
+        if (p.damage?.length) photosMap["Inside"] = p.damage;
+        if (p.other?.length) photosMap["Cover"] = p.other;
+      }
 
-    // Update Check Report status and links
-    await prisma.inverterCheckReport.update({
-      where: { id: checkReportId },
-      data: {
-        status: "CONVERTED_TO_RO",
-        convertedJobId: roResult.jobId,
-        convertedJobNumber: jobNumber,
-        convertedRepairOrderId: roResult.repairOrderId,
-      },
-    });
+      // Description of symptoms combining fault cause
+      let fullSymptoms = report.symptoms || "";
+      if (report.causeOfFault) {
+        fullSymptoms += fullSymptoms ? `\nสาเหตุที่พบ: ${report.causeOfFault}` : `สาเหตุที่พบ: ${report.causeOfFault}`;
+      }
+      if (report.crNumber) {
+        fullSymptoms += `\n[อ้างอิงจากใบตรวจเช็ค CR: ${report.crNumber}]`;
+      }
 
-    revalidatePath("/service/check-reports");
-    revalidatePath(`/service/check-reports/${checkReportId}`);
-    revalidatePath("/repair-orders");
-    revalidatePath("/service/dashboard");
-    revalidatePath("/jobs");
+      const roPayload = {
+        workType: options?.workType || "ซ่อม",
+        deliveryMethod: options?.deliveryMethod || "ช่างนำเข้า",
+        customerCompany: report.customerCompany || report.customerName || "ไม่ระบุชื่อลูกค้า",
+        company: report.companyCode || "TG",
+        customerAddress: report.customerAddress || "",
+        phoneNumber: report.customerPhone || "",
+        salesPerson: report.salesPerson || "",
+        technicianName: options?.technicianName || report.inspectorName || "",
+        forwardedBy: report.reportBy || report.inspectorName || "",
+        symptoms: fullSymptoms,
+        settings: report.applicationLoad || "",
+        receivedDate: new Date().toISOString(),
+        items: [
+          {
+            type: report.equipmentType || "INVERTER",
+            brand: report.inverterBrand || "",
+            model: report.inverterModel || "",
+            size: report.motorKw ? `${report.motorKw} kW` : "",
+            serial: report.serialNumber || "",
+            qty: 1,
+            remark: fullSymptoms,
+          },
+        ],
+        checklist: {
+          Front: !!photosMap["Front"],
+          Top: false,
+          SideLeft: !!photosMap["SideLeft"],
+          SideRight: false,
+          Inside: !!photosMap["Inside"],
+          Nameplate: !!photosMap["Nameplate"],
+          Bottom: false,
+          TerminalNut: false,
+          TermCover: false,
+          Cover: !!photosMap["Cover"],
+          Video: false,
+        },
+        checklistImages: photosMap,
+      };
 
-    return {
-      success: true,
-      jobId: roResult.jobId,
-      jobNumber: jobNumber,
-      repairOrderId: roResult.repairOrderId,
-    };
+      const roResult = await createRepairOrder(roPayload);
+      if (!roResult || !roResult.success || !roResult.jobId) {
+        await prisma.inverterCheckReport.updateMany({
+          where: { id: checkReportId, status: "CONVERTING_TO_RO", convertedJobId: null },
+          data: { status: originalStatus },
+        });
+        return {
+          success: false,
+          error: roResult?.error || "ไม่สามารถสร้างใบรับซ่อมได้",
+        };
+      }
+
+      const createdJob = await prisma.job.findUnique({
+        where: { id: roResult.jobId },
+        select: { jobNumber: true },
+      });
+      const jobNumber = createdJob?.jobNumber || "";
+
+      // Update Check Report status and links
+      await prisma.inverterCheckReport.update({
+        where: { id: checkReportId },
+        data: {
+          status: "CONVERTED_TO_RO",
+          convertedJobId: roResult.jobId,
+          convertedJobNumber: jobNumber,
+          convertedRepairOrderId: roResult.repairOrderId,
+        },
+      });
+
+      revalidatePath("/service/check-reports");
+      revalidatePath(`/service/check-reports/${checkReportId}`);
+      revalidatePath("/repair-orders");
+      revalidatePath("/service/dashboard");
+      revalidatePath("/jobs");
+
+      return {
+        success: true,
+        jobId: roResult.jobId,
+        jobNumber: jobNumber,
+        repairOrderId: roResult.repairOrderId,
+      };
+    } catch (innerErr) {
+      await prisma.inverterCheckReport.updateMany({
+        where: { id: checkReportId, status: "CONVERTING_TO_RO", convertedJobId: null },
+        data: { status: originalStatus },
+      });
+      throw innerErr;
+    }
   } catch (error: any) {
     console.error("Error converting check report to repair order:", error);
     return {

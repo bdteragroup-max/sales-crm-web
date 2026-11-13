@@ -3,6 +3,15 @@
 import React, { useState, useTransition, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
+  formatTaskRoundLabel,
+  getBangkokDayDiff,
+  getNextPendingScheduleTask,
+  getTaskOverdueDays,
+  getTaskRemainingAmount,
+  isScheduleTaskSettled,
+  isTaskOverdue,
+} from "@/app/lib/accounting-schedule";
+import {
   DollarSign,
   Search,
   CheckCircle2,
@@ -517,7 +526,8 @@ function JobDetailModal({
             <div className="space-y-3 text-xs">
               {(paymentTasks || []).map((pt: any) => {
                 const ptIsCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
-                const isOverdue = !ptIsCompleted && pt.dueDate && new Date(pt.dueDate) < new Date();
+                const overdueDays = getTaskOverdueDays(pt);
+                const isOverdue = overdueDays > 0;
                 const isDeliveryItem = pt.creditType === 'DELIVERY' || (pt.note && (pt.note.includes('ส่งมอบ') || pt.note.includes('ล็อต')));
                 return (
                   <div key={pt.id} className="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
@@ -557,7 +567,8 @@ function JobDetailModal({
                       <p className="text-slate-400 mb-0.5 font-medium">วันครบกำหนด</p>
                       <p className={`font-bold ${isOverdue ? 'text-rose-600 flex items-center gap-1' : 'text-slate-800'}`}>
                         {isOverdue && <AlertTriangle size={13} />}
-                        {pt.dueDate ? formatDate(pt.dueDate) : '-'}
+                        <span>{pt.dueDate ? formatDate(pt.dueDate) : '-'}</span>
+                        {isOverdue && <span className="text-[11px] font-semibold">({overdueDays} วัน)</span>}
                       </p>
                     </div>
 
@@ -1283,8 +1294,9 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
     groupedJobs.forEach(g => {
       const allCompleted = g.tasks.every((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว');
+      const allSettled = g.tasks.every((t: any) => isScheduleTaskSettled(t));
       const hasDeposit = g.tasks.some((t: any) => t.status === 'ชำระมัดจำแล้ว');
-      const isOverdue = !allCompleted && g.tasks.some((t: any) => t.status !== 'ตรวจสอบและบันทึกแล้ว' && t.dueDate && new Date(t.dueDate) < now);
+      const isOverdue = !allSettled && g.tasks.some((t: any) => isTaskOverdue(t, now));
 
       if (allCompleted) {
         completedJobsCount++;
@@ -1296,6 +1308,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
       g.tasks.forEach((t: any) => {
         const isPaid = t.status === 'ตรวจสอบและบันทึกแล้ว';
+        const isSettled = isScheduleTaskSettled(t);
         const projectVal = g.job?.project?.projectValue ? Number(g.job.project.projectValue) * 100 / 107 : null;
         const totalVal = Number(projectVal || g.job?.quotation?.actualClosingAmount || g.job?.quotation?.totalAmountBeforeVat || 0);
         const taskAmt = Number(t.installmentAmount) || ((t.installmentNo && g.tasks.length > 1) ? 0 : totalVal);
@@ -1303,10 +1316,12 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
         if (isPaid) {
           completedAmount += taskAmt > 0 ? taskAmt : (paidAmt > 0 ? paidAmt : totalVal);
+        } else if (isSettled) {
+          completedAmount += paidAmt > 0 ? paidAmt : taskAmt;
         } else {
-          const remain = Math.max(0, taskAmt - paidAmt);
+          const remain = getTaskRemainingAmount(t, (t.installmentNo && g.tasks.length > 1) ? 0 : totalVal);
           pendingAmount += remain;
-          if (t.dueDate && new Date(t.dueDate) < now) {
+          if (isTaskOverdue(t, now)) {
             overdueAmount += remain;
           }
         }
@@ -1343,8 +1358,9 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
     return groupedJobs.filter(g => {
       const allCompleted = g.tasks.every((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว');
+      const allSettled = g.tasks.every((t: any) => isScheduleTaskSettled(t));
       const hasDeposit = g.tasks.some((t: any) => t.status === 'ชำระมัดจำแล้ว');
-      const isOverdue = !allCompleted && g.tasks.some((t: any) => t.status !== 'ตรวจสอบและบันทึกแล้ว' && t.dueDate && new Date(t.dueDate) < now);
+      const isOverdue = !allSettled && g.tasks.some((t: any) => isTaskOverdue(t, now));
 
       // 1. Status Tab Filter
       if (activeStatusTab === 'PENDING' && allCompleted) return false;
@@ -1467,11 +1483,13 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const exportToExcel = () => {
     const data = sortedJobs.flatMap((g: any) => {
       return g.tasks.map((t: any) => {
-        const isPaid = t.status === 'ตรวจสอบและบันทึกแล้ว';
+        const isSettled = isScheduleTaskSettled(t);
         let creditDaysLeft = '-';
-        if (!isPaid && t.dueDate) {
-          const diff = new Date(t.dueDate).getTime() - new Date().getTime();
-          creditDaysLeft = Math.ceil(diff / (1000 * 3600 * 24)).toString();
+        if (!isSettled && t.dueDate) {
+          const dayDiff = getBangkokDayDiff(t.dueDate);
+          if (dayDiff !== null) {
+            creditDaysLeft = dayDiff.toString();
+          }
         }
 
         const projectValueExclVat = g.job?.project?.projectValue ? Number(g.job.project.projectValue) * 100 / 107 : null;
@@ -2033,10 +2051,12 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
               ) : (
                 paginatedJobs.map(group => {
                   const allCompleted = group.tasks.every((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว');
-                  const completedCount = group.tasks.filter((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว').length;
+                  const settledCount = group.tasks.filter((t: any) => isScheduleTaskSettled(t)).length;
                   const hasInstallments = group.tasks.length > 1 || group.tasks.some((t: any) => t.installmentNo);
-                  const isOverdue = !allCompleted && group.tasks.some((t: any) => t.status !== 'ตรวจสอบและบันทึกแล้ว' && t.dueDate && new Date(t.dueDate) < new Date());
-                  const singlePendingTask = group.tasks.find((t: any) => t.status !== 'ตรวจสอบและบันทึกแล้ว');
+                  const overdueTasks = group.tasks.filter((t: any) => isTaskOverdue(t));
+                  const isOverdue = !allCompleted && overdueTasks.length > 0;
+                  const nextPendingTask = getNextPendingScheduleTask(group.tasks);
+                  const singlePendingTask = nextPendingTask;
 
                   const projectVal = group.job?.project?.projectValue ? Number(group.job.project.projectValue) * 100 / 107 : null;
                   const totalJobVal = Number(projectVal || group.job?.quotation?.actualClosingAmount || group.job?.quotation?.totalAmountBeforeVat || group.tasks[0]?.installmentAmount || 0);
@@ -2105,8 +2125,22 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                           </span>
                           {isOverdue && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 w-fit mt-0.5">
-                              <AlertTriangle className="w-2.5 h-2.5" />
-                              <span>เลยกำหนดชำระ!</span>
+                              <AlertTriangle className="w-2.5 h-2.5 flex-shrink-0" />
+                              <span>
+                                {hasInstallments
+                                  ? `เลยกำหนด: ${formatTaskRoundLabel(overdueTasks[0], { short: true })}${overdueTasks[0]?.dueDate ? ` (${formatDate(overdueTasks[0].dueDate)})` : ''}${overdueTasks.length > 1 ? ` +${overdueTasks.length - 1}` : ''}`
+                                  : `เลยกำหนดชำระ${overdueTasks[0]?.dueDate ? ` (${formatDate(overdueTasks[0].dueDate)})` : '!'}`}
+                              </span>
+                            </span>
+                          )}
+                          {!allCompleted && !isOverdue && nextPendingTask?.dueDate && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 w-fit mt-0.5">
+                              <Calendar className="w-2.5 h-2.5 text-slate-500 flex-shrink-0" />
+                              <span>
+                                {hasInstallments
+                                  ? `รอบถัดไป ${formatTaskRoundLabel(nextPendingTask, { short: true })}: ${formatDate(nextPendingTask.dueDate)}`
+                                  : `ครบกำหนด: ${formatDate(nextPendingTask.dueDate)}`}
+                              </span>
                             </span>
                           )}
                         </div>
@@ -2129,14 +2163,14 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                         ) : group.tasks.some((t: any) => t.status === 'ชำระมัดจำแล้ว') ? (
                           <div className="inline-flex flex-col items-center">
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                              <span>ชำระมัดจำแล้ว {hasInstallments ? `(${completedCount}/${group.tasks.length})` : ''}</span>
+                              <span>ชำระมัดจำแล้ว {hasInstallments ? `(${settledCount}/${group.tasks.length})` : ''}</span>
                             </span>
                           </div>
                         ) : (
                           <div className="inline-flex flex-col items-center">
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                               <Clock className="w-3 h-3 text-amber-600" />
-                              <span>รอดำเนินการ {hasInstallments ? `(${completedCount}/${group.tasks.length})` : ''}</span>
+                              <span>รอดำเนินการ {hasInstallments ? `(${settledCount}/${group.tasks.length})` : ''}</span>
                             </span>
                           </div>
                         )}
@@ -2153,10 +2187,14 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                             <span>ดูรายละเอียด</span>
                           </button>
 
-                          {!hasInstallments && !allCompleted && singlePendingTask && (
+                          {!hasInstallments && !allCompleted && singlePendingTask?.id && (
                             <button
                               disabled={isPending}
-                              onClick={() => setConfirmPaymentModal({ id: singlePendingTask.id, status: 'ตรวจสอบและบันทึกแล้ว' })}
+                              onClick={() => {
+                                if (singlePendingTask.id) {
+                                  setConfirmPaymentModal({ id: singlePendingTask.id, status: 'ตรวจสอบและบันทึกแล้ว' });
+                                }
+                              }}
                               className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all disabled:opacity-50"
                             >
                               <CheckCircle2 size={13} />

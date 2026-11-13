@@ -145,7 +145,7 @@ export default function PipelineClientPage({
   const [selectedBranch, setSelectedBranch] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm)
   const [showLostDeals, setShowLostDeals] = useState<boolean>(false)
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null)
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
   const [showCoinModal, setShowCoinModal] = useState(false)
   const [coinModalData, setCoinModalData] = useState({ gold: 0, message: '' })
@@ -221,9 +221,9 @@ export default function PipelineClientPage({
 
   const isManager = isSalesOrMarketingManager(userRole)
 
-  const triggerToast = (message: string, type: 'success' | 'error') => {
+  const triggerToast = (message: string, type: 'success' | 'error' | 'warning') => {
     setToast({ message, type })
-    setTimeout(() => setToast(null), 3000)
+    setTimeout(() => setToast(null), type === 'warning' ? 6000 : 3000)
   }
 
   const columnsToRender = showLostDeals ? [...COLUMNS, LOST_COLUMN] : [...COLUMNS]
@@ -329,7 +329,11 @@ export default function PipelineClientPage({
       try {
         const response = await updateQuotationStatus(id, nextDbStatus, extra)
         if (response.success) {
-          triggerToast('ย้ายสถานะดีลสำเร็จ!', 'success')
+          if (response.accountingWarning) {
+            triggerToast(`อัปเดตดีลแล้ว (${response.accountingWarning})`, 'warning')
+          } else {
+            triggerToast('ย้ายสถานะดีลสำเร็จ!', 'success')
+          }
           if (response.awardedGold && response.awardedGold > 0) {
             setCoinModalData({ gold: response.awardedGold, message: response.awardMessage || '' })
             setShowCoinModal(true)
@@ -419,12 +423,20 @@ export default function PipelineClientPage({
 
       {/* ── Toast ── */}
       {toast && (
-        <div className={`fixed top-6 right-6 z-[60] px-5 py-3.5 rounded-2xl border text-xs font-black shadow-2xl flex items-center gap-2.5 backdrop-blur-sm transition-all ${
+        <div className={`fixed top-6 right-6 z-[60] max-w-md px-5 py-3.5 rounded-2xl border text-xs font-black shadow-2xl flex items-center gap-2.5 backdrop-blur-sm transition-all ${
           toast.type === 'success'
             ? 'bg-emerald-50/95 border-emerald-200 text-emerald-800 shadow-emerald-100'
+            : toast.type === 'warning'
+            ? 'bg-amber-50/95 border-amber-200 text-amber-900 shadow-amber-100'
             : 'bg-red-50/95 border-red-200 text-red-800 shadow-red-100'
         }`}>
-          {toast.type === 'success' ? <CheckCircle2 size={15} className="text-emerald-500" /> : <AlertCircle size={15} className="text-red-500" />}
+          {toast.type === 'success' ? (
+            <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />
+          ) : toast.type === 'warning' ? (
+            <AlertCircle size={15} className="text-amber-600 shrink-0" />
+          ) : (
+            <AlertCircle size={15} className="text-red-500 shrink-0" />
+          )}
           <span>{toast.message}</span>
         </div>
       )}

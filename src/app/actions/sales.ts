@@ -1,11 +1,100 @@
 "use server";
 
 import prisma from "@/app/lib/db";
-import { generateOrderNumber } from "./orderHelper";
 import { getUser } from "@/app/lib/dal";
 import { getCompanyWhereClause } from "@/app/lib/visibility";
 import { revalidatePath, unstable_noStore as noStore } from "next/cache";
 import { getCycleDateRange, getQuotationCycleWhere, resolveInstallationStatusBatch } from "@/app/lib/satisfactionServerHelper";
+import { isClosedQuotationStatus } from "@/app/lib/job-utils";
+import {
+  createJobFromQuotation,
+  ensureQuotationOrder,
+  handleQuotationExitFromClosedStatus,
+} from "@/app/actions/jobs";
+
+async function findCompanyByNormalizedName(companyName: string) {
+  const normalizedName = companyName.trim();
+  const exact = await prisma.company.findFirst({
+    where: { companyName: normalizedName },
+  });
+  if (exact) return { company: exact, normalizedName };
+
+  const insensitive = await prisma.company.findFirst({
+    where: { companyName: { equals: normalizedName, mode: "insensitive" } },
+  });
+  return { company: insensitive, normalizedName };
+}
+
+async function syncClosedQuotationEntities(params: {
+  quotationId: string;
+  quotationNumber?: string | null;
+  companyId: string;
+  salespersonId: string;
+  value: number;
+  jobType?: string | null;
+  poNumber?: string | null;
+  closedDate: Date;
+  paymentMethod?: string | null;
+  installments?: { installmentNo: number; amount: number; dueDate: Date }[];
+  salesOrderDate?: Date | null;
+  deliveryDate?: Date | null;
+  creditTerms?: string | null;
+  creditDocsUrl?: string | null;
+  billingRegulations?: string | null;
+  billingDocsUrl?: string | null;
+  percentageTerms?: string | null;
+  paymentDate?: Date | null;
+  workName?: string | null;
+  companyCode?: string | null;
+  jobDocumentsRaw?: string | null;
+}) {
+  await ensureQuotationOrder({
+    quotationId: params.quotationId,
+    quotationNumber: params.quotationNumber,
+    companyId: params.companyId,
+    jobType: params.jobType,
+    salespersonId: params.salespersonId,
+    value: params.value,
+    requireCabinetJob: true,
+  });
+
+  let jobDocuments;
+  if (params.jobDocumentsRaw) {
+    try {
+      jobDocuments = JSON.parse(params.jobDocumentsRaw);
+    } catch (e) {
+      console.error("Error parsing jobDocuments", e);
+    }
+  }
+
+  const jobSync = await createJobFromQuotation({
+    quotationId: params.quotationId,
+    poNumber: params.poNumber || undefined,
+    companyCode: params.companyCode || undefined,
+    jobType: params.jobType || undefined,
+    closedDate: params.closedDate,
+    paymentMethod: params.paymentMethod || undefined,
+    installments: params.installments,
+    salesOrderDate: params.salesOrderDate || undefined,
+    deliveryDate: params.deliveryDate || undefined,
+    creditTerms: params.creditTerms || undefined,
+    creditDocsUrl: params.creditDocsUrl || undefined,
+    billingRegulations: params.billingRegulations || undefined,
+    billingDocsUrl: params.billingDocsUrl || undefined,
+    percentageTerms: params.percentageTerms || undefined,
+    paymentDate: params.paymentDate || undefined,
+    workName: params.workName || undefined,
+    jobDocuments,
+  });
+
+  return {
+    job: jobSync.job,
+    accountingWarning:
+      jobSync.accountingWarnings.length > 0
+        ? jobSync.accountingWarnings.join(" | ")
+        : undefined,
+  };
+}
 
 const VALID_WIN_LOSS_REASONS = [
   "ราคาแพงกว่าคู่แข่ง",
@@ -431,14 +520,13 @@ export async function saveSalesData(formData: FormData) {
     const parseDate = (d: string) => d ? new Date(d) : null;
 
     // Find or create company
-    let company = await prisma.company.findFirst({
-      where: { companyName }
-    });
+    const { company: existingCompany, normalizedName } = await findCompanyByNormalizedName(companyName);
+    let company = existingCompany;
 
     if (!company) {
       company = await prisma.company.create({
         data: {
-          companyName,
+          companyName: normalizedName,
           taxId,
           branchOrHeadOffice,
           businessType,
@@ -549,69 +637,35 @@ export async function saveSalesData(formData: FormData) {
       console.error('Failed to log quotation interaction', e);
     }
 
-    // Auto-create an Order if status is closed (เปิดบิลแล้ว / PO...)
+    // Auto-create an Order & Job if status is closed (เปิดบิลแล้ว / PO...)
     let awardedGold = 0;
     let awardMessage = '';
-    if (status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) {
-      const existingOrder = await prisma.order.findFirst({
-        where: { quotationId: newQuotation.id }
-      });
-      const isCabinetJob = ['งานตู้', 'งานตู้ + ติดตั้ง', 'Cabinet Work', 'Cabinet Work + Installation'].includes(jobType || '');
-      if (!existingOrder && company.id && isCabinetJob) {
-        const finalOrderNumber = await generateOrderNumber();
-        const newOrder = await prisma.order.create({
-          data: {
-            orderNumber: finalOrderNumber,
-            companyId: company.id,
-            quotationId: newQuotation.id,
-            salespersonId: user.id,
-            value: actualClosingAmount || totalAmountBeforeVat || 0,
-            status: 'รอยืนยัน',
-          }
-        });
-        await prisma.orderStatusLog.create({
-          data: {
-            orderId: newOrder.id,
-            userId: user.id,
-            fromStatus: 'System',
-            toStatus: 'รอยืนยัน'
-          }
-        });
-        revalidatePath("/orders");
-      }
-      
-      // Auto-create Job
-      const { createJobFromQuotation } = await import('@/app/actions/jobs');
-      const companyCode = formData.get("companyCode") as string;
-      const jobDocumentsRaw = formData.get("jobDocuments") as string;
-      let jobDocuments;
-      if (jobDocumentsRaw) {
-        try {
-          jobDocuments = JSON.parse(jobDocumentsRaw);
-        } catch (e) {
-          console.error("Error parsing jobDocuments", e);
-        }
-      }
-
-      await createJobFromQuotation({
+    let accountingWarning: string | undefined = undefined;
+    if (isClosedQuotationStatus(status)) {
+      const syncResult = await syncClosedQuotationEntities({
         quotationId: newQuotation.id,
-        poNumber: poNumber,
-        companyCode: companyCode || undefined,
-        jobType: jobType || undefined,
+        quotationNumber: newQuotation.quotationNumber,
+        companyId: company.id,
+        salespersonId: user.id,
+        value: actualClosingAmount || totalAmountBeforeVat || 0,
+        jobType,
+        poNumber,
         closedDate: finalBillingDate || finalPoDate || new Date(),
-        paymentMethod: paymentMethod || undefined,
-        installments: installments,
-        salesOrderDate: parseDate(salesOrderDateRaw) || undefined,
-        deliveryDate: parseDate(deliveryDateRaw) || undefined,
-        creditTerms: creditTerms || undefined,
-        creditDocsUrl: creditDocsUrl || undefined,
-        billingRegulations: billingRegulations || undefined,
-        billingDocsUrl: billingDocsUrl || undefined,
-        percentageTerms: percentageTerms || undefined,
-        paymentDate: parseDate(paymentDateRaw) || undefined,
-        workName: workName || undefined,
-        jobDocuments: jobDocuments,
+        paymentMethod,
+        installments,
+        salesOrderDate: parseDate(salesOrderDateRaw),
+        deliveryDate: parseDate(deliveryDateRaw),
+        creditTerms,
+        creditDocsUrl,
+        billingRegulations,
+        billingDocsUrl,
+        percentageTerms,
+        paymentDate: parseDate(paymentDateRaw),
+        workName,
+        companyCode: formData.get("companyCode") as string,
+        jobDocumentsRaw: formData.get("jobDocuments") as string,
       });
+      accountingWarning = syncResult?.accountingWarning;
     }
 
     // If this Quotation was opened from a ServiceCallLog, automatically create/update RepairDelivery (ใบส่งมอบงาน) with photos & signatures
@@ -633,7 +687,7 @@ export async function saveSalesData(formData: FormData) {
 
     revalidatePath("/sales");
     revalidatePath("/dashboard");
-    return { success: true, awardedGold, awardMessage, repairDeliveryId, deliveryNumber };
+    return { success: true, awardedGold, awardMessage, accountingWarning, repairDeliveryId, deliveryNumber };
 
   } catch (error) {
     console.error("Error saving sales data:", error);
@@ -739,14 +793,13 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
     const parseDate = (d: string) => d ? new Date(d) : null;
 
     // Find or create company (same as create)
-    let company = await prisma.company.findFirst({
-      where: { companyName }
-    });
+    const { company: existingCompany, normalizedName } = await findCompanyByNormalizedName(companyName);
+    let company = existingCompany;
 
     if (!company) {
       company = await prisma.company.create({
         data: {
-          companyName,
+          companyName: normalizedName,
           taxId,
           branchOrHeadOffice,
           businessType,
@@ -815,6 +868,16 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
     const safeStatus = (existingQuotation?.status !== 'หมดอายุ' && status === 'หมดอายุ') ? (existingQuotation?.status || 'เสนอราคา') : status;
     const statusActuallyChanged = existingQuotation?.status !== safeStatus;
 
+    if (
+      isClosedQuotationStatus(existingQuotation?.status) &&
+      !isClosedQuotationStatus(safeStatus)
+    ) {
+      const exitCheck = await handleQuotationExitFromClosedStatus(quotationId);
+      if (!exitCheck.allowed) {
+        return { success: false, error: exitCheck.error };
+      }
+    }
+
     const updatedQuotation = await prisma.quotation.update({
       where: { id: quotationId },
       data: {
@@ -850,69 +913,35 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       }
     });
 
-    // Auto-create an Order if status is closed (เปิดบิลแล้ว / PO...)
+    // Auto-create an Order & Job if status is closed (เปิดบิลแล้ว / PO...)
     let awardedGold = 0;
     let awardMessage = '';
-    if (status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) {
-      const existingOrder = await prisma.order.findFirst({
-        where: { quotationId: updatedQuotation.id }
-      });
-      const isCabinetJob = ['งานตู้', 'งานตู้ + ติดตั้ง', 'Cabinet Work', 'Cabinet Work + Installation'].includes(jobType || '');
-      if (!existingOrder && company.id && isCabinetJob) {
-        const finalOrderNumber = await generateOrderNumber();
-        const newOrder = await prisma.order.create({
-          data: {
-            orderNumber: finalOrderNumber,
-            companyId: company.id,
-            quotationId: updatedQuotation.id,
-            salespersonId: user.id,
-            value: actualClosingAmount || totalAmountBeforeVat || 0,
-            status: 'รอยืนยัน',
-          }
-        });
-        await prisma.orderStatusLog.create({
-          data: {
-            orderId: newOrder.id,
-            userId: user.id,
-            fromStatus: 'System',
-            toStatus: 'รอยืนยัน'
-          }
-        });
-        revalidatePath("/orders");
-      }
-      
-      // Auto-create Job
-      const { createJobFromQuotation } = await import('@/app/actions/jobs');
-      const companyCode = formData.get("companyCode") as string;
-      const jobDocumentsRaw = formData.get("jobDocuments") as string;
-      let jobDocuments;
-      if (jobDocumentsRaw) {
-        try {
-          jobDocuments = JSON.parse(jobDocumentsRaw);
-        } catch (e) {
-          console.error("Error parsing jobDocuments", e);
-        }
-      }
-
-      await createJobFromQuotation({
+    let accountingWarning: string | undefined = undefined;
+    if (isClosedQuotationStatus(safeStatus)) {
+      const syncResult = await syncClosedQuotationEntities({
         quotationId: updatedQuotation.id,
-        poNumber: poNumber,
-        companyCode: companyCode || undefined,
-        jobType: jobType || undefined,
+        quotationNumber: updatedQuotation.quotationNumber,
+        companyId: company.id,
+        salespersonId: user.id,
+        value: actualClosingAmount || totalAmountBeforeVat || 0,
+        jobType,
+        poNumber,
         closedDate: finalBillingDate || finalPoDate || new Date(),
-        paymentMethod: paymentMethod || undefined,
-        installments: installments,
-        salesOrderDate: parseDate(salesOrderDateRaw) || undefined,
-        deliveryDate: parseDate(deliveryDateRaw) || undefined,
-        creditTerms: creditTerms || undefined,
-        creditDocsUrl: creditDocsUrl || undefined,
-        billingRegulations: billingRegulations || undefined,
-        billingDocsUrl: billingDocsUrl || undefined,
-        percentageTerms: percentageTerms || undefined,
-        paymentDate: parseDate(paymentDateRaw) || undefined,
-        workName: workName || undefined,
-        jobDocuments: jobDocuments,
+        paymentMethod,
+        installments,
+        salesOrderDate: parseDate(salesOrderDateRaw),
+        deliveryDate: parseDate(deliveryDateRaw),
+        creditTerms,
+        creditDocsUrl,
+        billingRegulations,
+        billingDocsUrl,
+        percentageTerms,
+        paymentDate: parseDate(paymentDateRaw),
+        workName,
+        companyCode: formData.get("companyCode") as string,
+        jobDocumentsRaw: formData.get("jobDocuments") as string,
       });
+      accountingWarning = syncResult?.accountingWarning;
     }
 
     // If this Quotation is linked to a ServiceCallLog, automatically create/update RepairDelivery (ใบส่งมอบงาน) with photos & signatures
@@ -949,7 +978,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
 
     revalidatePath("/sales");
     revalidatePath("/dashboard");
-    return { success: true, id: updatedQuotation.id, awardedGold, awardMessage, repairDeliveryId, deliveryNumber };
+    return { success: true, id: updatedQuotation.id, awardedGold, awardMessage, accountingWarning, repairDeliveryId, deliveryNumber };
 
   } catch (error) {
     console.error("Error updating sales data:", error);

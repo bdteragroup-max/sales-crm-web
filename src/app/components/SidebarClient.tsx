@@ -54,6 +54,7 @@ const executiveNav = [
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Sparkles, label: 'บอร์ดคอนเทนต์สาขา (Branch Content Board)', href: '/marketing-board/branch-content' },
   { icon: Tv, label: 'แดชบอร์ดการตลาดและโฆษณา (Marketing & Ads)', href: '/marketing/dashboard' },
+  { icon: Boxes, label: 'สต็อก & เบิกของพรีเมี่ยม', href: '/stock' },
   { icon: Users, label: 'ทะเบียนลูกค้า (Client 360)', href: '/clients' },
 
   // ── 4. Finance, Procurement & Rewards ──
@@ -193,6 +194,7 @@ const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Sparkles, label: 'บอร์ดคอนเทนต์สาขา (Branch Content Board)', href: '/marketing-board/branch-content' },
+  { icon: Boxes, label: 'สต็อก & เบิกของพรีเมี่ยม', href: '/stock' },
   { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests' },
   { icon: Tv, label: 'แดชบอร์ดโฆษณา (Ads Dashboard)', href: '/marketing/ads/dashboard' },
   { icon: FolderOpen, label: 'แคมเปญโฆษณา (Ads Campaigns)', href: '/marketing/ads/campaigns' },
@@ -262,6 +264,7 @@ const commonNav = [
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
   { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' },
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
+  { icon: Boxes, label: 'สต็อก & เบิกของพรีเมี่ยม', href: '/stock' },
   { icon: Package, label: 'เบิกของโครงการ / เบิกยืมอุปกรณ์', href: '/requisitions' }
 ];
 
@@ -377,6 +380,15 @@ export default function SidebarClient(props: SidebarProps) {
       icon: Package,
       label: 'เบิกของโครงการ / เบิกยืมอุปกรณ์',
       href: '/requisitions',
+    });
+  }
+
+  // Guarantee that /stock (Marketing Premium Stock & Withdrawals) is ALWAYS visible to all roles
+  if (!finalNav.some(item => item.href === '/stock')) {
+    finalNav.push({
+      icon: Boxes,
+      label: 'สต็อก & เบิกของพรีเมี่ยม',
+      href: '/stock',
     });
   }
 

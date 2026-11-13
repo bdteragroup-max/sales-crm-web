@@ -2,6 +2,11 @@
 
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
+import {
+  computeDefaultDueDateByPaymentMethod,
+  hasAccountingInvoiceOrPayment,
+  toBangkokDateString,
+} from "@/app/lib/accounting-schedule";
 
 export type UpdateJobPayload = {
   jobType?: string;
@@ -18,21 +23,129 @@ export type UpdateJobPayload = {
   paymentDate?: string | null;
 };
 
-export async function updateJob(jobId: string, data: UpdateJobPayload) { 
-  const previousJob = data.customerName !== undefined
-    ? await prisma.job.findUnique({ where: { id: jobId }, select: { customerName: true } })
-    : null;
+type UpdatedJobRecord = Awaited<ReturnType<typeof prisma.job.update>>;
+type UpdatedPaymentTaskRecord = Awaited<ReturnType<typeof prisma.paymentTask.findMany>>[number];
+
+export type UpdateJobResult =
+  | {
+      success: true;
+      job: UpdatedJobRecord;
+      paymentTasks: UpdatedPaymentTaskRecord[];
+      syncNotice?: string;
+    }
+  | {
+      success: false;
+      error: string;
+    };
+
+export async function updateJob(jobId: string, data: UpdateJobPayload): Promise<UpdateJobResult> {
+  const existingJob = await prisma.job.findUnique({
+    where: { id: jobId },
+    include: {
+      paymentTasks: {
+        orderBy: [{ installmentNo: "asc" }, { dueDate: "asc" }],
+      },
+    },
+  });
+
+  if (!existingJob) {
+    return { success: false, error: "ไม่พบข้อมูลงานในระบบ" };
+  }
+
+  const normalizeText = (v?: string | null) => (v || "").trim();
+  const normalizeCode = (v?: string | null) => normalizeText(v).toUpperCase();
+  const hasLockedBilling = existingJob.paymentTasks.some((t) => hasAccountingInvoiceOrPayment(t));
+  const hasMultiTasks = existingJob.paymentTasks.length > 1;
+  const singleTask = existingJob.paymentTasks.length === 1 ? existingJob.paymentTasks[0] : null;
+
+  if (
+    data.companyCode !== undefined &&
+    normalizeCode(data.companyCode) !== normalizeCode(existingJob.companyCode) &&
+    hasLockedBilling
+  ) {
+    return {
+      success: false,
+      error: "ไม่สามารถเปลี่ยนบริษัทของงานนี้ได้ เนื่องจากฝ่ายบัญชีได้บันทึกเลขที่ใบแจ้งหนี้หรือรับชำระเงินแล้ว",
+    };
+  }
+
+  const paymentMethodChanged =
+    data.paymentMethod !== undefined &&
+    normalizeText(data.paymentMethod) !== normalizeText(existingJob.paymentMethod);
+  const paymentDateChanged =
+    data.paymentDate !== undefined &&
+    toBangkokDateString(data.paymentDate) !== toBangkokDateString(existingJob.paymentDate);
+
+  if (paymentMethodChanged && (hasMultiTasks || hasLockedBilling)) {
+    return {
+      success: false,
+      error: hasMultiTasks
+        ? "ไม่สามารถเปลี่ยนรูปแบบการชำระเงินจากหน้างานได้ เนื่องจากงานนี้แบ่งชำระหลายงวดแล้ว กรุณาแก้ไขที่หน้าบัญชี (/accounting)"
+        : "ไม่สามารถเปลี่ยนรูปแบบการชำระเงินได้ เนื่องจากฝ่ายบัญชีได้ออกบิลหรือรับชำระเงินแล้ว",
+    };
+  }
+
+  if (paymentDateChanged && (hasMultiTasks || hasLockedBilling)) {
+    return {
+      success: false,
+      error: hasMultiTasks
+        ? "งานนี้แบ่งชำระหลายงวด กรุณาแก้ไขวันครบกำหนดรายงวดที่หน้าบัญชี (/accounting)"
+        : "ไม่สามารถเปลี่ยนวันที่ชำระเงินได้ เนื่องจากฝ่ายบัญชีได้ออกบิลหรือรับชำระเงินแล้ว",
+    };
+  }
 
   const { dateClosed, deliveryDate, paymentDate, ...rest } = data;
-  const updated = await prisma.job.update({ 
-    where: { id: jobId }, 
-    data: { 
-      ...rest, 
-      ...(dateClosed && { dateClosed: new Date(dateClosed) }), 
-      ...(deliveryDate !== undefined && { deliveryDate: deliveryDate ? new Date(deliveryDate) : null }),
-      ...(paymentDate !== undefined && { paymentDate: paymentDate ? new Date(paymentDate) : null }),
-    }, 
-  }); 
+  let syncNotice: string | undefined;
+
+  const { updated, latestTasks } = await prisma.$transaction(async (tx) => {
+    let nextPaymentDate =
+      paymentDate !== undefined ? (paymentDate ? new Date(paymentDate) : null) : existingJob.paymentDate;
+
+    const updatedJob = await tx.job.update({
+      where: { id: jobId },
+      data: {
+        ...rest,
+        ...(dateClosed && { dateClosed: new Date(dateClosed) }),
+        ...(deliveryDate !== undefined && { deliveryDate: deliveryDate ? new Date(deliveryDate) : null }),
+        ...(paymentDate !== undefined && { paymentDate: paymentDate ? new Date(paymentDate) : null }),
+      },
+    });
+
+    if (singleTask && !hasAccountingInvoiceOrPayment(singleTask)) {
+      if (paymentDateChanged) {
+        await tx.paymentTask.update({
+          where: { id: singleTask.id },
+          data: { dueDate: nextPaymentDate },
+        });
+        syncNotice = "ซิงค์วันครบกำหนดไปยังหน้าบัญชี (/accounting) เรียบร้อยแล้ว";
+      } else if (paymentMethodChanged) {
+        const computedDueDate = computeDefaultDueDateByPaymentMethod(
+          updatedJob.dateClosed,
+          data.paymentMethod
+        );
+        await tx.paymentTask.update({
+          where: { id: singleTask.id },
+          data: { dueDate: computedDueDate },
+        });
+        nextPaymentDate = computedDueDate;
+        await tx.job.update({
+          where: { id: jobId },
+          data: { paymentDate: computedDueDate },
+        });
+        syncNotice = "อัปเดตวันครบกำหนดในหน้าบัญชี (/accounting) ตามรูปแบบการชำระเงินใหม่แล้ว";
+      }
+    }
+
+    const tasksAfter = await tx.paymentTask.findMany({
+      where: { jobId },
+      orderBy: [{ installmentNo: "asc" }, { dueDate: "asc" }],
+    });
+
+    return {
+      updated: { ...updatedJob, paymentDate: nextPaymentDate },
+      latestTasks: tasksAfter,
+    };
+  });
 
   const existingProject = await prisma.project.findFirst({ where: { jobId } });
   if (existingProject && data.customerName !== undefined && data.customerName.trim()) {
@@ -48,9 +161,9 @@ export async function updateJob(jobId: string, data: UpdateJobPayload) {
     }
   }
 
-  if (previousJob?.customerName && data.customerName && previousJob.customerName.trim() !== data.customerName.trim()) {
+  if (existingJob.customerName && data.customerName && existingJob.customerName.trim() !== data.customerName.trim()) {
     try {
-      const oldTrimmed = previousJob.customerName.trim();
+      const oldTrimmed = existingJob.customerName.trim();
       const newTrimmed = data.customerName.trim();
       const remaining = await prisma.job.count({
         where: { customerName: { equals: oldTrimmed, mode: "insensitive" } },
@@ -112,12 +225,42 @@ export async function updateJob(jobId: string, data: UpdateJobPayload) {
   revalidatePath("/accounting");
   revalidatePath("/accounting/dashboard");
   revalidatePath("/accounting/credit-settings");
-  return updated;
+  return {
+    success: true,
+    job: JSON.parse(JSON.stringify(updated)),
+    paymentTasks: JSON.parse(JSON.stringify(latestTasks)),
+    syncNotice,
+  };
 }
 
-export async function deleteJob(jobId: string) { 
-  await prisma.job.delete({ where: { id: jobId } }); 
+export async function deleteJob(jobId: string): Promise<{ success: true } | { success: false; error: string }> {
+  const existingJob = await prisma.job.findUnique({
+    where: { id: jobId },
+    include: { paymentTasks: true },
+  });
+
+  if (!existingJob) {
+    return { success: false, error: "ไม่พบข้อมูลงานที่ต้องการลบ" };
+  }
+
+  const hasLockedAccounting =
+    existingJob.paymentStatus === "paid" ||
+    existingJob.paymentTasks.some((t) => hasAccountingInvoiceOrPayment(t));
+
+  if (hasLockedAccounting) {
+    return {
+      success: false,
+      error: "ไม่สามารถลบงานนี้ได้ เนื่องจากฝ่ายบัญชีได้บันทึกออกใบแจ้งหนี้หรือรับชำระเงินแล้ว",
+    };
+  }
+
+  await prisma.job.delete({ where: { id: jobId } });
   revalidatePath("/jobs");
+  revalidatePath("/projects");
+  revalidatePath("/accounting");
+  revalidatePath("/accounting/dashboard");
+  revalidatePath("/accounting/credit-settings");
+  return { success: true };
 }
 
 export async function createStandaloneJob(data: { customerName: string; item: string; companyCode: string; jobType: string }) {

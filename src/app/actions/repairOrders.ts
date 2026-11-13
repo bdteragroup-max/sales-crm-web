@@ -1,9 +1,13 @@
 "use server";
 
 import prisma from "@/app/lib/db";
+import type { Prisma } from "../../generated/client";
 import { revalidatePath } from "next/cache";
 import { getUser } from "@/app/lib/dal";
 import { checkAndAwardServiceGold } from "@/app/actions/coins";
+import { nonEmptyTrimmed, stringToAdvisoryLockIds } from "@/app/lib/job-utils";
+
+type DbTxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
 export interface RepairOrderItem {
   type?: string;
@@ -41,14 +45,14 @@ export interface RepairOrderFormData {
   sentDate?: string;
 }
 
-async function generateRepairOrderNumber() {
+async function generateRepairOrderNumber(tx: DbTxClient) {
   const now = new Date(
     new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })
   );
   const beYear = (now.getFullYear() + 543).toString().slice(-2);
   const prefix = `RO${beYear}-`;
 
-  const lastJob = await prisma.job.findFirst({
+  const lastJob = await tx.job.findFirst({
     where: { jobNumber: { startsWith: prefix } },
     orderBy: { jobNumber: 'desc' },
   });
@@ -61,18 +65,21 @@ async function generateRepairOrderNumber() {
       nextNum = lastNum + 1;
     }
   } else {
-    const count = await prisma.repairOrder.count();
+    const count = await tx.repairOrder.count();
     nextNum = count + 1;
   }
 
-  return `${prefix}${String(nextNum).padStart(4, '0')}`;
+  let candidate = `${prefix}${String(nextNum).padStart(4, '0')}`;
+  while (await tx.job.findUnique({ where: { jobNumber: candidate }, select: { id: true } })) {
+    nextNum += 1;
+    candidate = `${prefix}${String(nextNum).padStart(4, '0')}`;
+  }
+
+  return candidate;
 }
 
 export async function createRepairOrder(formData: RepairOrderFormData) {
   try {
-    let jobId = formData.jobId;
-
-
     // Determine company code & DB company name (TP, TG, TE)
     const rawCompany = (formData.company || "").trim().toUpperCase();
     let compCode: "TP" | "TG" | "TE" = "TG";
@@ -95,78 +102,111 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
       dbCompany = "TERA GROUP";
     }
 
-    // If no jobId is provided, we need to create a standalone job first
-    if (!jobId) {
-      const newJobNumber = await generateRepairOrderNumber();
-      const closedDate = new Date();
+    const explicitId = nonEmptyTrimmed(formData.id);
+    const explicitJobId = nonEmptyTrimmed(formData.jobId);
 
-      const job = await prisma.job.create({
-        data: {
-          jobNumber: newJobNumber,
-          companyCode: compCode,
-          jobType: formData.workType || "ซ่อม",
-          month: closedDate.getMonth() + 1,
-          yearBe: (closedDate.getFullYear() + 543) % 100,
-          dateClosed: closedDate,
-          customerName: formData.customerCompany || "",
-          item: (formData.items?.[0]?.type as string) || "งานซ่อม",
-          currentStep: "service_receive", 
+    const { result, existingOrder, createdNewJob } = await prisma.$transaction(async (tx) => {
+      const [k1, k2] = stringToAdvisoryLockIds("repair_order_create");
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(${k1}::int, ${k2}::int)`;
+
+      let jobId = explicitJobId;
+      let isNewJob = false;
+
+      // Never spawn a fresh Job if editing an existing RepairOrder whose jobId wasn't passed
+      if (!jobId && explicitId) {
+        const existingById = await tx.repairOrder.findUnique({
+          where: { id: explicitId },
+          select: { jobId: true },
+        });
+        if (!existingById) {
+          throw new Error(`ไม่พบใบรับซ่อมรหัส ${explicitId}`);
         }
+        jobId = existingById.jobId;
+      }
+
+      if (!jobId) {
+        const newJobNumber = await generateRepairOrderNumber(tx);
+        const closedDate = new Date();
+
+        const job = await tx.job.create({
+          data: {
+            jobNumber: newJobNumber,
+            companyCode: compCode,
+            jobType: formData.workType || "ซ่อม",
+            month: closedDate.getMonth() + 1,
+            yearBe: (closedDate.getFullYear() + 543) % 100,
+            dateClosed: closedDate,
+            customerName: formData.customerCompany || "",
+            item: (formData.items?.[0]?.type as string) || "งานซ่อม",
+            currentStep: "service_receive",
+          },
+        });
+        jobId = job.id;
+        isNewJob = true;
+      } else {
+        const targetJob = await tx.job.findUnique({
+          where: { id: jobId },
+          select: { id: true },
+        });
+        if (targetJob) {
+          await tx.job.update({
+            where: { id: jobId },
+            data: { companyCode: compCode },
+          });
+        }
+      }
+
+      const dataToSave = {
+        jobId,
+        invoiceNo: formData.invoiceNo,
+        deliveryMethod: formData.deliveryMethod,
+        deliveryNoteNo: formData.deliveryNoteNo,
+        receiverName: formData.receiverName,
+        senderName: formData.senderName,
+        handoverRef: formData.handoverRef,
+        phoneNumber: formData.phoneNumber,
+        workType: formData.workType,
+        forwardedBy: formData.forwardedBy,
+        technicianName: formData.technicianName,
+        company: dbCompany,
+        customerCompany: formData.customerCompany,
+        customerAddress: formData.customerAddress,
+        salesPerson: formData.salesPerson,
+        items: (formData.items || []) as unknown as Prisma.InputJsonValue,
+        symptoms: formData.symptoms,
+        settings: formData.settings,
+        checklist: (formData.checklist || {}) as Prisma.InputJsonValue,
+        checklistImages: (formData.checklistImages || {}) as Prisma.InputJsonValue,
+        receivedDate: formData.receivedDate ? new Date(formData.receivedDate) : null,
+        sentDate: formData.sentDate ? new Date(formData.sentDate) : null,
+      };
+
+      const prevOrder = await tx.repairOrder.findUnique({ where: { jobId } });
+      const saved = await tx.repairOrder.upsert({
+        where: { jobId },
+        update: dataToSave,
+        create: dataToSave,
       });
-      jobId = job.id;
-    } else {
-      // Also update job companyCode if existing
-      await prisma.job.update({
-        where: { id: jobId },
-        data: { companyCode: compCode },
-      }).catch((e) => console.warn("Could not sync companyCode to job:", e));
-    }
 
-    const dataToSave = {
-      jobId,
-      invoiceNo: formData.invoiceNo,
-      deliveryMethod: formData.deliveryMethod,
-      deliveryNoteNo: formData.deliveryNoteNo,
-      receiverName: formData.receiverName,
-      senderName: formData.senderName,
-      handoverRef: formData.handoverRef,
-      phoneNumber: formData.phoneNumber,
-      workType: formData.workType,
-      forwardedBy: formData.forwardedBy,
-      technicianName: formData.technicianName,
-      company: dbCompany,
-      customerCompany: formData.customerCompany,
-      customerAddress: formData.customerAddress,
-      salesPerson: formData.salesPerson,
-      items: (formData.items || []) as any,
-      symptoms: formData.symptoms,
-      settings: formData.settings,
-      checklist: (formData.checklist || {}) as any,
-      checklistImages: (formData.checklistImages || {}) as any,
-      receivedDate: formData.receivedDate ? new Date(formData.receivedDate) : null,
-      sentDate: formData.sentDate ? new Date(formData.sentDate) : null,
-    };
-
-    const existingOrder = await prisma.repairOrder.findUnique({ where: { jobId } });
-    
-    const result = await prisma.repairOrder.upsert({
-      where: { jobId },
-      update: dataToSave,
-      create: dataToSave,
+      return {
+        result: saved,
+        existingOrder: prevOrder,
+        createdNewJob: isNewJob,
+        technicianName: dataToSave.technicianName,
+      };
     });
 
     const wasAssigned = !!existingOrder?.technicianName;
-    const isAssigned = !!dataToSave.technicianName;
-    const changedTech = existingOrder?.technicianName !== dataToSave.technicianName;
+    const isAssigned = !!result.technicianName;
+    const changedTech = existingOrder?.technicianName !== result.technicianName;
 
     if (isAssigned && (!wasAssigned || changedTech)) {
       try {
         const { getLineUserIdByEmpId, pushLineMessage, repairAssignedMessage } = await import('@/app/lib/lineNotify');
-        const techUser = await prisma.user.findFirst({ where: { fullName: dataToSave.technicianName as string } });
+        const techUser = await prisma.user.findFirst({ where: { fullName: result.technicianName as string } });
         if (techUser?.employeeId) {
           const lineId = await getLineUserIdByEmpId(techUser.employeeId);
           if (lineId) {
-            // Need to fetch Job to get Job details for the message
             const orderWithJob = await prisma.repairOrder.findUnique({ where: { id: result.id }, include: { job: true } });
             if (orderWithJob) {
               await pushLineMessage(lineId, [repairAssignedMessage(orderWithJob)], 'service');
@@ -195,6 +235,9 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
     }
 
     revalidatePath("/repair-orders");
+    if (createdNewJob) {
+      revalidatePath("/jobs");
+    }
     return { success: true, data: result, jobId: result.jobId, repairOrderId: result.id };
   } catch (error: unknown) {
     console.error("Error saving repair order:", error);

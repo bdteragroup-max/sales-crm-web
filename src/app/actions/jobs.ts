@@ -2,9 +2,15 @@
 
 import prisma from "@/app/lib/db";
 import {
+  extractBaseQuotationNumber,
   generateJobNumber,
+  isClosedQuotationStatus,
   mapProductTypeToJobType,
+  nonEmptyTrimmed,
+  normalizeCompanyKey,
+  stringToAdvisoryLockIds,
 } from "@/app/lib/job-utils";
+import { generateOrderNumber } from "./orderHelper";
 import { extractCompanyCode } from "@/utils/company-utils";
 import { revalidatePath } from "next/cache";
 import {
@@ -15,6 +21,117 @@ import {
 } from "@/app/lib/lineNotify";
 import { isCompleted } from "@/app/lib/job-workflow";
 import { getUser } from "@/app/lib/dal";
+import {
+  computeDefaultDueDateByPaymentMethod,
+  hasAccountingInvoiceOrPayment,
+  hasAccountingManagedSchedule,
+  isPlaceholderPaymentTask,
+  isScheduleTaskSettled,
+} from "@/app/lib/accounting-schedule";
+
+type DbTransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
+async function acquireAdvisoryLocks(tx: DbTransactionClient, lockKeys: string[]) {
+  const uniqueSortedKeys = Array.from(new Set(lockKeys.filter(Boolean))).sort();
+  for (const key of uniqueSortedKeys) {
+    const [k1, k2] = stringToAdvisoryLockIds(key);
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(${k1}::int, ${k2}::int)`;
+  }
+}
+
+function buildQuotationJobLockKeys(
+  quotationId: string,
+  quotationNumber?: string | null,
+  companyId?: string | null,
+  companyName?: string | null
+): string[] {
+  const keys = [`job_qt:${quotationId}`];
+  const baseQt = extractBaseQuotationNumber(quotationNumber);
+  const companyKey = companyId
+    ? `cid:${companyId}`
+    : normalizeCompanyKey(companyName)
+    ? `cname:${normalizeCompanyKey(companyName)}`
+    : "";
+  if (baseQt && companyKey) {
+    keys.push(`job_baseqt:${companyKey}:${baseQt}`);
+  }
+  return keys;
+}
+
+async function createInitialPaymentTasks(
+  tx: DbTransactionClient,
+  jobId: string,
+  closedDate: Date,
+  paymentMethod?: string,
+  installments?: CreateJobInput["installments"]
+) {
+  if (paymentMethod === "ผ่อนชำระ" && installments && installments.length > 0) {
+    await tx.paymentTask.createMany({
+      data: installments.map((inst) => ({
+        jobId,
+        status: "รอดำเนินการ",
+        dueDate: inst.dueDate,
+        installmentNo: inst.installmentNo,
+        installmentTotal: installments.length,
+        installmentAmount: inst.amount,
+      })),
+    });
+    return;
+  }
+
+  const dueDate = computeDefaultDueDateByPaymentMethod(closedDate, paymentMethod);
+
+  await tx.paymentTask.create({
+    data: {
+      jobId,
+      status: "รอดำเนินการ",
+      dueDate,
+    },
+  });
+}
+
+async function findExistingJobForQuotation(
+  tx: DbTransactionClient,
+  quotation: {
+    id: string;
+    quotationNumber: string | null;
+    companyId: string | null;
+    company: { companyName: string } | null;
+  }
+) {
+  const byId = await tx.job.findFirst({
+    where: { quotationId: quotation.id },
+    orderBy: [{ dateClosed: "asc" }, { createdAt: "asc" }],
+  });
+  if (byId) return byId;
+
+  const baseQt = extractBaseQuotationNumber(quotation.quotationNumber);
+  const qtCompanyKey = normalizeCompanyKey(quotation.company?.companyName);
+  if (!baseQt || (!quotation.companyId && !qtCompanyKey)) return null;
+
+  const candidates = await tx.job.findMany({
+    where: {
+      quotationNumber: { contains: baseQt, mode: "insensitive" },
+    },
+    include: {
+      quotation: { select: { id: true, companyId: true } },
+    },
+    orderBy: [{ dateClosed: "asc" }, { createdAt: "asc" }],
+  });
+
+  return (
+    candidates.find((candidate) => {
+      if (extractBaseQuotationNumber(candidate.quotationNumber) !== baseQt) {
+        return false;
+      }
+      if (quotation.companyId && candidate.quotation?.companyId) {
+        return candidate.quotation.companyId === quotation.companyId;
+      }
+      const candidateCustomerKey = normalizeCompanyKey(candidate.customerName);
+      return Boolean(qtCompanyKey && candidateCustomerKey && candidateCustomerKey === qtCompanyKey);
+    }) ?? null
+  );
+}
 
 export type CreateJobInput = {
   quotationId: string;
@@ -53,199 +170,640 @@ export type CreateJobInput = {
 export async function createJobFromQuotation(input: CreateJobInput) {
   const { quotationId, jobType, poNumber, companyCode: inputCompanyCode } = input;
   const closedDate = input.closedDate ?? new Date();
+  const currentUser = input.jobDocuments && input.jobDocuments.length > 0 ? await getUser() : null;
 
-  // 1. Retrieve Quotation data along with customer and creator
-  const quotation = await prisma.quotation.findUnique({
-    where: { id: quotationId },
-    include: {
-      company: true, // customer
-      salesperson: true, // seller
-    },
-  });
-
-  if (!quotation) throw new Error(`Quotation ${quotationId} not found`);
-
-  // Verify if a job already exists. If so, update it to keep data in sync with Quotation.
-  const existingJob = await prisma.job.findFirst({
-    where: { quotationId: quotation.id }
-  });
-  if (existingJob) {
-    const updatedJob = await prisma.job.update({
-      where: { id: existingJob.id },
-      data: {
-        customerName: quotation.company?.companyName ?? existingJob.customerName,
-        item: input.workName || quotation.subject || quotation.productType || existingJob.item,
-        quotationNumber: quotation.quotationNumber ?? existingJob.quotationNumber,
-        poNumber: poNumber ?? existingJob.poNumber,
-        sellerName: quotation.salesperson?.fullName ?? existingJob.sellerName,
-        companyCode: inputCompanyCode ?? existingJob.companyCode,
-        jobType: jobType ?? existingJob.jobType,
-        paymentMethod: input.paymentMethod ?? existingJob.paymentMethod,
-        salesOrderDate: input.salesOrderDate ?? existingJob.salesOrderDate,
-        creditTerms: input.creditTerms ?? existingJob.creditTerms,
-        creditDocsUrl: input.creditDocsUrl ?? existingJob.creditDocsUrl,
-        billingRegulations: input.billingRegulations ?? existingJob.billingRegulations,
-        billingDocsUrl: input.billingDocsUrl ?? existingJob.billingDocsUrl,
-        percentageTerms: input.percentageTerms ?? existingJob.percentageTerms,
-        deliveryDate: input.deliveryDate ?? existingJob.deliveryDate,
-        paymentDate: input.paymentDate ?? existingJob.paymentDate,
-        paymentStatus: input.paymentMethod === 'จ่ายแล้ว' ? 'paid' : existingJob.paymentStatus,
-        additionalInformation: input.additionalInformation ?? existingJob.additionalInformation,
-      }
+  const txResult = await prisma.$transaction(async (tx) => {
+    // 1. Retrieve Quotation data along with customer and creator
+    const quotation = await tx.quotation.findUnique({
+      where: { id: quotationId },
+      include: {
+        company: true,
+        salesperson: true,
+      },
     });
 
-    if (input.jobDocuments && input.jobDocuments.length > 0) {
-      const user = await import("@/app/lib/dal").then(m => m.getUser());
-      await prisma.jobDocument.createMany({
-        data: input.jobDocuments.map((doc) => ({
-          jobId: updatedJob.id,
-          type: doc.type,
-          fileUrl: doc.fileUrl,
-          fileName: doc.fileName,
-          fileSize: doc.fileSize,
-          uploadedBy: user?.id || "System",
-        })),
+    if (!quotation) throw new Error(`Quotation ${quotationId} not found`);
+
+    // Serialize concurrent saves & revision confirmations on the same QT or base-QT + customer
+    await acquireAdvisoryLocks(
+      tx,
+      buildQuotationJobLockKeys(
+        quotation.id,
+        quotation.quotationNumber,
+        quotation.companyId,
+        quotation.company?.companyName
+      )
+    );
+
+    const { getSteps, getNextStep } = await import("@/app/lib/job-workflow");
+
+    const appendMissingJobDocuments = async (targetJobId: string) => {
+      if (!input.jobDocuments || input.jobDocuments.length === 0) return;
+      const existingDocs = await tx.jobDocument.findMany({
+        where: { jobId: targetJobId },
+        select: { type: true, fileUrl: true },
       });
-    }
+      const seen = new Set(existingDocs.map((d) => `${d.type}::${d.fileUrl}`));
+      const docsToInsert = input.jobDocuments.filter((doc) => {
+        const docKey = `${doc.type}::${doc.fileUrl}`;
+        if (seen.has(docKey)) return false;
+        seen.add(docKey);
+        return true;
+      });
+      if (docsToInsert.length > 0) {
+        await tx.jobDocument.createMany({
+          data: docsToInsert.map((doc) => ({
+            jobId: targetJobId,
+            type: doc.type,
+            fileUrl: doc.fileUrl,
+            fileName: doc.fileName,
+            fileSize: doc.fileSize,
+            uploadedBy: currentUser?.id || "System",
+          })),
+        });
+      }
+    };
 
-    revalidatePath("/jobs"); 
-    return updatedJob;
-  }
+    // 2. Verify if a Job already exists for this quotation or an earlier revision for the same customer
+    const existingJob = await findExistingJobForQuotation(tx, quotation);
+    if (existingJob) {
+      const existingTasks = await tx.paymentTask.findMany({
+        where: { jobId: existingJob.id },
+        orderBy: [{ installmentNo: "asc" }, { dueDate: "asc" }],
+      });
+      const existingProject = await tx.project.findUnique({
+        where: { jobId: existingJob.id },
+        select: { projectValue: true },
+      });
 
-  // 2. Extract company code from QT number or use provided company code
-  const companyCode = inputCompanyCode || extractCompanyCode(quotation.quotationNumber ?? "");
+      const hasLockedBilling = existingTasks.some((t) => hasAccountingInvoiceOrPayment(t));
+      const hasManagedSchedule = hasAccountingManagedSchedule(existingTasks);
+      const accountingWarnings: string[] = [];
 
-  // 3. jobType: Use the one sent or the default from productType in QT
-  const resolvedJobType =
-    jobType ?? mapProductTypeToJobType(quotation.productType);
+      const requestedCompanyCode = nonEmptyTrimmed(inputCompanyCode);
+      const companyCodeLockedConflict =
+        hasLockedBilling &&
+        Boolean(requestedCompanyCode) &&
+        requestedCompanyCode!.toUpperCase() !== (existingJob.companyCode || "").trim().toUpperCase();
+      if (companyCodeLockedConflict) {
+        accountingWarnings.push(
+          `คงรหัสบริษัทเดิม (${existingJob.companyCode}) เนื่องจากฝ่ายบัญชีออกบิลหรือรับชำระเงินแล้ว`
+        );
+      }
 
-  // 4. Generate atomic Job Number
-  const jobNumber = await generateJobNumber(closedDate);
+      const requestedMethod = nonEmptyTrimmed(input.paymentMethod);
+      const existingMethod = (existingJob.paymentMethod || "").trim();
+      const isSameCreditFamily =
+        requestedMethod === "เครดิต" && existingMethod.startsWith("เครดิต");
 
-  // 5. Save Job 
-  let job = await prisma.job.create({ 
-    data: { 
-      jobNumber, 
-      companyCode, 
-      jobType: resolvedJobType, 
-      month: closedDate.getMonth() + 1, 
-      yearBe: (closedDate.getFullYear() + 543) % 100, 
-      dateClosed: closedDate, 
-      customerName: quotation.company?.companyName ?? "", 
-      item: input.workName || quotation.subject || quotation.productType || "", 
-      quotationNumber: quotation.quotationNumber ?? "", 
-      poNumber: poNumber ?? null, 
-      sellerName: quotation.salesperson?.fullName ?? "", 
-      quotationId,
-      paymentMethod: input.paymentMethod,
-      paymentStatus: input.paymentMethod === 'จ่ายแล้ว' ? 'paid' : 'pending',
-      salesOrderDate: input.salesOrderDate,
-      creditTerms: input.creditTerms,
-      creditDocsUrl: input.creditDocsUrl,
-      billingRegulations: input.billingRegulations,
-      billingDocsUrl: input.billingDocsUrl,
-      percentageTerms: input.percentageTerms,
-      deliveryDate: input.deliveryDate,
-      paymentDate: input.paymentDate,
-      additionalInformation: input.additionalInformation,
-    }, 
-  }); 
+      if (hasManagedSchedule) {
+        const methodDiffers =
+          Boolean(requestedMethod) &&
+          Boolean(existingMethod) &&
+          requestedMethod !== existingMethod &&
+          !isSameCreditFamily;
+        const installmentCountDiffers =
+          requestedMethod === "ผ่อนชำระ" &&
+          Boolean(input.installments && input.installments.length > 0) &&
+          input.installments!.length !== existingTasks.length;
 
-  if (input.jobDocuments && input.jobDocuments.length > 0) {
-    const user = await import("@/app/lib/dal").then(m => m.getUser());
-    await prisma.jobDocument.createMany({
-      data: input.jobDocuments.map((doc) => ({
-        jobId: job.id,
-        type: doc.type,
-        fileUrl: doc.fileUrl,
-        fileName: doc.fileName,
-        fileSize: doc.fileSize,
-        uploadedBy: user?.id || "System",
-      })),
-    });
-  }
-
-  // Auto-approve the first step if it is a 'sales' step
-  const { getSteps, getNextStep } = await import("@/app/lib/job-workflow");
-  const firstStep = getSteps(resolvedJobType)[0];
-  
-  if (firstStep?.key === 'sales') {
-    const nextStep = getNextStep(resolvedJobType, 'sales');
-    if (nextStep) {
-      await prisma.jobStepLog.create({
-        data: {
-          jobId: job.id,
-          step: 'sales',
-          completedBy: quotation.salesperson?.fullName ?? "System",
-          department: "sales",
-          note: "ดำเนินการอัตโนมัติเมื่อสร้างงาน",
+        if (methodDiffers || installmentCountDiffers) {
+          accountingWarnings.push(
+            "รูปแบบ/จำนวนงวดชำระเงินที่แก้ไขจะไม่เขียนทับข้อมูลของฝ่ายบัญชี (ระบบยึดรายการในหน้า /accounting เป็นหลัก)"
+          );
+        } else if (
+          requestedMethod === "จ่ายแล้ว" &&
+          existingTasks.some((t) => !isScheduleTaskSettled(t))
+        ) {
+          accountingWarnings.push(
+            "สถานะงวดในหน้าบัญชี (/accounting) ยังไม่ถูกเปลี่ยนเป็นตรวจสอบแล้วอัตโนมัติ กรุณายืนยันรับเงินที่หน้าบัญชี"
+          );
         }
-      });
-      job = await prisma.job.update({
-        where: { id: job.id },
-        data: { currentStep: nextStep.key },
-      });
-    }
-  }
-
-  // Auto-create PaymentTasks
-  if (input.paymentMethod === 'ผ่อนชำระ' && input.installments && input.installments.length > 0) {
-    // Create multiple installment tasks
-    await prisma.paymentTask.createMany({
-      data: input.installments.map(inst => ({
-        jobId: job.id,
-        status: 'รอดำเนินการ',
-        dueDate: inst.dueDate,
-        installmentNo: inst.installmentNo,
-        installmentTotal: input.installments!.length,
-        installmentAmount: inst.amount,
-      }))
-    });
-  } else {
-    // Single payment task
-    let dueDate = new Date(closedDate);
-    if (input.paymentMethod?.includes('เครดิต 30 วัน') || input.paymentMethod === 'เครดิต') {
-      dueDate.setDate(dueDate.getDate() + 30);
-    } else if (input.paymentMethod?.includes('เครดิต 60 วัน')) {
-      dueDate.setDate(dueDate.getDate() + 60);
-    } else if (input.paymentMethod === 'เก็บเงินหน้างาน' || input.paymentMethod === 'จ่ายแล้ว') {
-      dueDate.setDate(dueDate.getDate() + 7);
-    }
-    
-    await prisma.paymentTask.create({
-      data: {
-        jobId: job.id,
-        status: 'รอดำเนินการ',
-        dueDate,
       }
-    });
-  }
 
-  // Notify Service Manager if it's a Service Job or Installation Job
-  const isPendingInstallation = ["ติดตั้ง", "ตรวจเช็ค"].some(t => resolvedJobType.includes(t));
-  const isServiceRepair = ["ซ่อม", "เคลมประกัน", "เคลมประกัน/ซ่อมในประกัน"].some(t => resolvedJobType.includes(t));
+      const qtTotalExclVat =
+        Number(quotation.actualClosingAmount) ||
+        Number(quotation.totalAmountBeforeVat) ||
+        0;
+      const taskAmountsSum = existingTasks.reduce(
+        (sum, t) => sum + (Number(t.installmentAmount) || 0),
+        0
+      );
+      if (
+        !existingProject?.projectValue &&
+        existingTasks.some((t) => (Number(t.installmentAmount) || 0) > 0) &&
+        qtTotalExclVat > 0
+      ) {
+        const matchesExcl = Math.abs(taskAmountsSum - qtTotalExclVat) <= 10;
+        const matchesIncl = Math.abs(taskAmountsSum - qtTotalExclVat * 1.07) <= 10;
+        if (!matchesExcl && !matchesIncl) {
+          accountingWarnings.push(
+            `ยอดใบเสนอราคาใหม่ (${qtTotalExclVat.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })} บาท ก่อน VAT) ไม่ตรงกับผลรวมยอดงวดในบัญชี (${taskAmountsSum.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })} บาท) กรุณาแจ้งฝ่ายบัญชีปรับปรุงงวดที่หน้า /accounting`
+          );
+        }
+      }
 
-  if (isPendingInstallation || isServiceRepair) {
-    try {
-      const { pushLineMessageToTeam, getServiceManagerLineIds, newServiceJobMessage, newPendingInstallationJobMessage } = await import('@/app/lib/lineNotify');
-      const teamLineIds = await getServiceManagerLineIds();
-      if (teamLineIds.length > 0) {
-        if (isPendingInstallation) {
-          // It will appear on the Installation Page as '-รอสร้างใบงาน-'
-          await pushLineMessageToTeam(teamLineIds, [newPendingInstallationJobMessage(job)], 'service');
+      const resolvedPaymentMethodForJob = hasManagedSchedule
+        ? existingJob.paymentMethod
+        : (requestedMethod ?? existingJob.paymentMethod);
+
+      let resolvedPaymentDateForJob = hasManagedSchedule
+        ? existingJob.paymentDate
+        : (input.paymentDate ?? existingJob.paymentDate);
+
+      if (existingTasks.length === 0) {
+        await createInitialPaymentTasks(
+          tx,
+          existingJob.id,
+          closedDate,
+          requestedMethod ?? existingJob.paymentMethod ?? undefined,
+          input.installments
+        );
+      } else if (existingTasks.length === 1 && isPlaceholderPaymentTask(existingTasks[0])) {
+        const onlyTask = existingTasks[0];
+        if (
+          requestedMethod === "ผ่อนชำระ" &&
+          input.installments &&
+          input.installments.length > 0
+        ) {
+          await tx.paymentTask.delete({ where: { id: onlyTask.id } });
+          await createInitialPaymentTasks(
+            tx,
+            existingJob.id,
+            closedDate,
+            requestedMethod,
+            input.installments
+          );
         } else {
-          // Standard service job
-          await pushLineMessageToTeam(teamLineIds, [newServiceJobMessage(job)], 'service');
+          const syncedDueDate =
+            input.paymentDate ??
+            computeDefaultDueDateByPaymentMethod(
+              closedDate,
+              requestedMethod ?? existingJob.paymentMethod
+            );
+          await tx.paymentTask.update({
+            where: { id: onlyTask.id },
+            data: { dueDate: syncedDueDate },
+          });
+          if (input.paymentDate === undefined && requestedMethod && requestedMethod !== existingMethod) {
+            resolvedPaymentDateForJob = syncedDueDate;
+          }
         }
       }
-    } catch (err) {
-      console.error("Line notify error (Service job created):", err);
+
+      const updatedJob = await tx.job.update({
+        where: { id: existingJob.id },
+        data: {
+          quotationId: quotation.id,
+          customerName:
+            nonEmptyTrimmed(quotation.company?.companyName) ?? existingJob.customerName,
+          item:
+            nonEmptyTrimmed(input.workName) ??
+            nonEmptyTrimmed(quotation.subject) ??
+            nonEmptyTrimmed(quotation.productType) ??
+            existingJob.item,
+          quotationNumber:
+            nonEmptyTrimmed(quotation.quotationNumber) ?? existingJob.quotationNumber,
+          poNumber: nonEmptyTrimmed(poNumber) ?? existingJob.poNumber,
+          sellerName:
+            nonEmptyTrimmed(quotation.salesperson?.fullName) ?? existingJob.sellerName,
+          companyCode: companyCodeLockedConflict
+            ? existingJob.companyCode
+            : (requestedCompanyCode ?? existingJob.companyCode),
+          jobType: nonEmptyTrimmed(jobType) ?? existingJob.jobType,
+          paymentMethod: resolvedPaymentMethodForJob,
+          salesOrderDate: input.salesOrderDate ?? existingJob.salesOrderDate,
+          creditTerms: nonEmptyTrimmed(input.creditTerms) ?? existingJob.creditTerms,
+          creditDocsUrl: nonEmptyTrimmed(input.creditDocsUrl) ?? existingJob.creditDocsUrl,
+          billingRegulations:
+            nonEmptyTrimmed(input.billingRegulations) ?? existingJob.billingRegulations,
+          billingDocsUrl:
+            nonEmptyTrimmed(input.billingDocsUrl) ?? existingJob.billingDocsUrl,
+          percentageTerms:
+            nonEmptyTrimmed(input.percentageTerms) ?? existingJob.percentageTerms,
+          deliveryDate: input.deliveryDate ?? existingJob.deliveryDate,
+          paymentDate: resolvedPaymentDateForJob,
+          paymentStatus: existingJob.paymentStatus,
+          additionalInformation:
+            nonEmptyTrimmed(input.additionalInformation) ?? existingJob.additionalInformation,
+        },
+      });
+
+      await appendMissingJobDocuments(updatedJob.id);
+
+      return {
+        job: updatedJob,
+        isNew: false as const,
+        resolvedJobType: updatedJob.jobType,
+        accountingWarnings,
+      };
+    }
+
+    // 3. Extract company code & jobType
+    const companyCode =
+      nonEmptyTrimmed(inputCompanyCode) ??
+      extractCompanyCode(quotation.quotationNumber ?? "");
+    const resolvedJobType =
+      nonEmptyTrimmed(jobType) ?? mapProductTypeToJobType(quotation.productType);
+
+    // 4. Generate atomic Job Number inside the same transaction
+    const jobNumber = await generateJobNumber(closedDate, tx);
+
+    // 5. Save Job
+    let job = await tx.job.create({
+      data: {
+        jobNumber,
+        companyCode,
+        jobType: resolvedJobType,
+        month: closedDate.getMonth() + 1,
+        yearBe: (closedDate.getFullYear() + 543) % 100,
+        dateClosed: closedDate,
+        customerName: nonEmptyTrimmed(quotation.company?.companyName) ?? "",
+        item:
+          nonEmptyTrimmed(input.workName) ??
+          nonEmptyTrimmed(quotation.subject) ??
+          nonEmptyTrimmed(quotation.productType) ??
+          "",
+        quotationNumber: nonEmptyTrimmed(quotation.quotationNumber) ?? "",
+        poNumber: nonEmptyTrimmed(poNumber),
+        sellerName: nonEmptyTrimmed(quotation.salesperson?.fullName) ?? "",
+        quotationId,
+        paymentMethod: nonEmptyTrimmed(input.paymentMethod),
+        paymentStatus: input.paymentMethod === "จ่ายแล้ว" ? "paid" : "pending",
+        salesOrderDate: input.salesOrderDate,
+        creditTerms: nonEmptyTrimmed(input.creditTerms),
+        creditDocsUrl: nonEmptyTrimmed(input.creditDocsUrl),
+        billingRegulations: nonEmptyTrimmed(input.billingRegulations),
+        billingDocsUrl: nonEmptyTrimmed(input.billingDocsUrl),
+        percentageTerms: nonEmptyTrimmed(input.percentageTerms),
+        deliveryDate: input.deliveryDate,
+        paymentDate: input.paymentDate,
+        additionalInformation: nonEmptyTrimmed(input.additionalInformation),
+      },
+    });
+
+    await appendMissingJobDocuments(job.id);
+
+    // Auto-approve the first step if it is a 'sales' step
+    const firstStep = getSteps(resolvedJobType)[0];
+    if (firstStep?.key === "sales") {
+      const nextStep = getNextStep(resolvedJobType, "sales");
+      if (nextStep) {
+        await tx.jobStepLog.create({
+          data: {
+            jobId: job.id,
+            step: "sales",
+            completedBy: nonEmptyTrimmed(quotation.salesperson?.fullName) ?? "System",
+            department: "sales",
+            note: "ดำเนินการอัตโนมัติเมื่อสร้างงาน",
+          },
+        });
+        job = await tx.job.update({
+          where: { id: job.id },
+          data: { currentStep: nextStep.key },
+        });
+      }
+    }
+
+    await createInitialPaymentTasks(
+      tx,
+      job.id,
+      closedDate,
+      input.paymentMethod,
+      input.installments
+    );
+
+    return {
+      job,
+      isNew: true as const,
+      resolvedJobType,
+      accountingWarnings: [] as string[],
+    };
+  });
+
+  // Notify Service Manager after commit only when a genuinely new Job is created
+  if (txResult.isNew) {
+    const isPendingInstallation = ["ติดตั้ง", "ตรวจเช็ค"].some((t) =>
+      txResult.resolvedJobType.includes(t)
+    );
+    const isServiceRepair = ["ซ่อม", "เคลมประกัน", "เคลมประกัน/ซ่อมในประกัน"].some((t) =>
+      txResult.resolvedJobType.includes(t)
+    );
+
+    if (isPendingInstallation || isServiceRepair) {
+      try {
+        const {
+          pushLineMessageToTeam,
+          getServiceManagerLineIds,
+          newServiceJobMessage,
+          newPendingInstallationJobMessage,
+        } = await import("@/app/lib/lineNotify");
+        const teamLineIds = await getServiceManagerLineIds();
+        if (teamLineIds.length > 0) {
+          if (isPendingInstallation) {
+            await pushLineMessageToTeam(
+              teamLineIds,
+              [newPendingInstallationJobMessage(txResult.job)],
+              "service"
+            );
+          } else {
+            await pushLineMessageToTeam(
+              teamLineIds,
+              [newServiceJobMessage(txResult.job)],
+              "service"
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Line notify error (Service job created):", err);
+      }
     }
   }
 
-  revalidatePath("/jobs"); 
+  revalidatePath("/jobs");
   revalidatePath("/accounting");
-  return job;
+  revalidatePath("/accounting/dashboard");
+  return {
+    job: txResult.job,
+    isNew: txResult.isNew,
+    accountingWarnings: txResult.accountingWarnings,
+  };
+}
+
+const CABINET_ORDER_JOB_TYPES = new Set([
+  "งานตู้",
+  "งานตู้ + ติดตั้ง",
+  "Cabinet Work",
+  "Cabinet Work + Installation",
+]);
+
+// ================================================
+// ensureQuotationOrder
+// Deduplicate Order creation across Quotation revisions
+// ================================================
+export async function ensureQuotationOrder(input: {
+  quotationId: string;
+  quotationNumber?: string | null;
+  companyId?: string | null;
+  jobType?: string | null;
+  salespersonId: string;
+  value: number;
+  requireCabinetJob?: boolean;
+}) {
+  if (!input.companyId) return null;
+  if (input.requireCabinetJob && !CABINET_ORDER_JOB_TYPES.has(input.jobType || "")) {
+    return null;
+  }
+
+  const baseQt = extractBaseQuotationNumber(input.quotationNumber);
+  const lockKeys = [`order_qt:${input.quotationId}`];
+  if (baseQt) {
+    lockKeys.push(`order_baseqt:${input.companyId}:${baseQt}`);
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    await acquireAdvisoryLocks(tx, lockKeys);
+
+    let existingOrder = await tx.order.findFirst({
+      where: { quotationId: input.quotationId },
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (!existingOrder && baseQt) {
+      const candidateOrders = await tx.order.findMany({
+        where: {
+          companyId: input.companyId,
+          quotation: {
+            quotationNumber: { contains: baseQt, mode: "insensitive" },
+          },
+        },
+        include: {
+          quotation: { select: { quotationNumber: true } },
+        },
+        orderBy: { createdAt: "asc" },
+      });
+
+      existingOrder =
+        candidateOrders.find(
+          (o) => extractBaseQuotationNumber(o.quotation?.quotationNumber) === baseQt
+        ) ?? null;
+    }
+
+    if (existingOrder) {
+      if (existingOrder.quotationId !== input.quotationId) {
+        await tx.order.update({
+          where: { id: existingOrder.id },
+          data: { quotationId: input.quotationId },
+        });
+      }
+      return { created: false as const, order: existingOrder };
+    }
+
+    const finalOrderNumber = await generateOrderNumber();
+    const newOrder = await tx.order.create({
+      data: {
+        orderNumber: finalOrderNumber,
+        companyId: input.companyId!,
+        quotationId: input.quotationId,
+        salespersonId: input.salespersonId,
+        value: input.value || 0,
+        status: "รอยืนยัน",
+      },
+    });
+    await tx.orderStatusLog.create({
+      data: {
+        orderId: newOrder.id,
+        userId: input.salespersonId,
+        fromStatus: "System",
+        toStatus: "รอยืนยัน",
+      },
+    });
+
+    return { created: true as const, order: newOrder };
+  });
+
+  if (result.created) {
+    revalidatePath("/orders");
+  }
+  return result.order;
+}
+
+// ================================================
+// handleQuotationExitFromClosedStatus
+// Prevent orphaned Jobs/Orders when QT leaves เปิดบิลแล้ว / PO*
+// ================================================
+export async function handleQuotationExitFromClosedStatus(quotationId: string): Promise<{
+  allowed: boolean;
+  error?: string;
+}> {
+  const txOutcome = await prisma.$transaction(async (tx) => {
+    const quotation = await tx.quotation.findUnique({
+      where: { id: quotationId },
+      include: { company: { select: { companyName: true } } },
+    });
+
+    if (!quotation || !isClosedQuotationStatus(quotation.status)) {
+      return { allowed: true as const, mutated: false as const };
+    }
+
+    await acquireAdvisoryLocks(
+      tx,
+      buildQuotationJobLockKeys(
+        quotation.id,
+        quotation.quotationNumber,
+        quotation.companyId,
+        quotation.company?.companyName
+      )
+    );
+
+    const linkedJobs = await tx.job.findMany({
+      where: { quotationId },
+      include: {
+        paymentTasks: true,
+        stepLogs: true,
+        documents: { select: { id: true } },
+        project: { select: { id: true } },
+        repairOrder: { select: { id: true } },
+        installationOrders: { select: { id: true } },
+        goodsReturns: { select: { id: true } },
+        outsourceRepairs: { select: { id: true } },
+        repairDeliveries: { select: { id: true } },
+        technicianTasks: { select: { id: true } },
+      },
+    });
+
+    const linkedOrders = await tx.order.findMany({
+      where: { quotationId },
+      include: {
+        cabinetAssemblyJobs: { select: { id: true } },
+        assignments: { select: { id: true } },
+        productionSteps: { select: { id: true } },
+        timeLogs: { select: { id: true } },
+        purchaseRequests: { select: { id: true } },
+      },
+    });
+
+    if (linkedJobs.length === 0 && linkedOrders.length === 0) {
+      return { allowed: true as const, mutated: false as const };
+    }
+
+    // Check if another active closed revision for the same base QT & customer can adopt these records
+    const baseQt = extractBaseQuotationNumber(quotation.quotationNumber);
+    let siblingClosedQtId: string | null = null;
+    if (baseQt && (quotation.companyId || quotation.company?.companyName)) {
+      const siblings = await tx.quotation.findMany({
+        where: {
+          id: { not: quotationId },
+          quotationNumber: { contains: baseQt, mode: "insensitive" },
+          ...(quotation.companyId ? { companyId: quotation.companyId } : {}),
+        },
+        select: { id: true, quotationNumber: true, status: true, updatedAt: true },
+        orderBy: { updatedAt: "desc" },
+      });
+      const validSibling = siblings.find(
+        (s) =>
+          isClosedQuotationStatus(s.status) &&
+          extractBaseQuotationNumber(s.quotationNumber) === baseQt
+      );
+      siblingClosedQtId = validSibling?.id ?? null;
+    }
+
+    if (siblingClosedQtId) {
+      if (linkedJobs.length > 0) {
+        await tx.job.updateMany({
+          where: { id: { in: linkedJobs.map((j) => j.id) } },
+          data: { quotationId: siblingClosedQtId },
+        });
+      }
+      if (linkedOrders.length > 0) {
+        await tx.order.updateMany({
+          where: { id: { in: linkedOrders.map((o) => o.id) } },
+          data: { quotationId: siblingClosedQtId },
+        });
+      }
+      return { allowed: true as const, mutated: true as const };
+    }
+
+    const touchedJobs = linkedJobs.filter(
+      (job) =>
+        job.paymentStatus === "paid" ||
+        job.paymentTasks.length > 1 ||
+        job.paymentTasks.some(
+          (t) =>
+            t.status !== "รอดำเนินการ" ||
+            nonEmptyTrimmed(t.invoiceNumber) !== null ||
+            (t.paidAmount ?? 0) > 0 ||
+            t.installmentNo !== null ||
+            nonEmptyTrimmed(t.creditType) !== null ||
+            nonEmptyTrimmed(t.note) !== null
+        ) ||
+        job.stepLogs.length > 1 ||
+        job.stepLogs.some((l) => l.note !== "ดำเนินการอัตโนมัติเมื่อสร้างงาน") ||
+        job.documents.length > 0 ||
+        job.project !== null ||
+        job.repairOrder !== null ||
+        job.installationOrders.length > 0 ||
+        job.goodsReturns.length > 0 ||
+        job.outsourceRepairs.length > 0 ||
+        job.repairDeliveries.length > 0 ||
+        job.technicianTasks.length > 0
+    );
+
+    const touchedOrders = linkedOrders.filter(
+      (order) =>
+        order.status !== "รอยืนยัน" ||
+        order.materialReady ||
+        order.prRequired ||
+        order.cabinetAssemblyJobs.length > 0 ||
+        order.assignments.length > 0 ||
+        order.productionSteps.length > 0 ||
+        order.timeLogs.length > 0 ||
+        order.purchaseRequests.length > 0
+    );
+
+    if (touchedJobs.length > 0 || touchedOrders.length > 0) {
+      const refs = [
+        ...touchedJobs.map((j) => j.jobNumber),
+        ...touchedOrders.map((o) => o.orderNumber),
+      ].join(", ");
+      return {
+        allowed: false as const,
+        mutated: false as const,
+        error: `ไม่สามารถเปลี่ยนสถานะออกจาก 'เปิดบิลแล้ว / PO' ได้ เนื่องจากมีรายการ (${refs}) ที่บัญชีหรือฝ่ายอื่นดำเนินการแล้ว หากต้องการยกเลิกกรุณาติดต่อผู้ดูแลระบบหรือฝ่ายบัญชี`,
+      };
+    }
+
+    // Safe to remove untouched auto-created Jobs and Orders so no orphans remain
+    if (linkedOrders.length > 0) {
+      await tx.order.deleteMany({
+        where: { id: { in: linkedOrders.map((o) => o.id) } },
+      });
+    }
+    if (linkedJobs.length > 0) {
+      await tx.job.deleteMany({
+        where: { id: { in: linkedJobs.map((j) => j.id) } },
+      });
+    }
+
+    return { allowed: true as const, mutated: true as const };
+  });
+
+  if (txOutcome.mutated) {
+    revalidatePath("/jobs");
+    revalidatePath("/accounting");
+    revalidatePath("/accounting/dashboard");
+    revalidatePath("/orders");
+  }
+
+  return txOutcome.allowed
+    ? { allowed: true }
+    : { allowed: false, error: txOutcome.error };
 }
 
 // ================================================

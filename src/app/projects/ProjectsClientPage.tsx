@@ -365,8 +365,11 @@ export default function ProjectsClientPage({
   };
 
   // Generate Job Action
+  const generateJobLockRef = useRef(false);
+
   const handleGenerateJob = async () => {
-    if (!generateJobProject || !generateJobCompanyCode) return;
+    if (generateJobLockRef.current || !generateJobProject || !generateJobCompanyCode) return;
+    generateJobLockRef.current = true;
     setIsGeneratingJob(true);
     try {
       await generateJobForProject(
@@ -379,6 +382,7 @@ export default function ProjectsClientPage({
       console.error(err);
       alert("ไม่สามารถสร้าง Job ได้ กรุณาลองใหม่อีกครั้ง");
     } finally {
+      generateJobLockRef.current = false;
       setIsGeneratingJob(false);
     }
   };

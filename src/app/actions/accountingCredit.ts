@@ -4,6 +4,7 @@ import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { decrypt } from "@/app/lib/session";
+import { getTaskOverdueDays, isScheduleTaskSettled } from "@/app/lib/accounting-schedule";
 
 export interface CustomerCreditSettingDTO {
   id: string;
@@ -159,7 +160,7 @@ export async function getAccountingCreditSettings(search?: string, statusFilter?
   const exposureMap = new Map<string, CustomerExposure>();
 
   for (const pt of activeTasks) {
-    if (!pt.job?.customerName) continue;
+    if (!pt.job?.customerName || isScheduleTaskSettled(pt)) continue;
     const cName = pt.job.customerName.trim();
     const key = cName.toLowerCase();
 
@@ -195,13 +196,8 @@ export async function getAccountingCreditSettings(search?: string, statusFilter?
     else if (code.includes("TP") || code.includes("POWER")) exp.tp += outstanding;
     else exp.tg += outstanding;
 
-    if (pt.dueDate) {
-      const dDate = new Date(pt.dueDate);
-      if (dDate < now) {
-        const diffDays = Math.floor((now.getTime() - dDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays > exp.maxOverdueDays) exp.maxOverdueDays = diffDays;
-      }
-    }
+    const diffDays = getTaskOverdueDays(pt, now);
+    if (diffDays > exp.maxOverdueDays) exp.maxOverdueDays = diffDays;
   }
 
   // 3. Merge configured settings with live exposure

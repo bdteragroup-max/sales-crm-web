@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react"
 import { getUser } from "@/app/lib/dal"
 import prisma from "@/app/lib/db"
 import { notFound } from "next/navigation"
@@ -121,6 +122,41 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
     : delivery.createdAt
       ? new Date(delivery.createdAt).toLocaleDateString('th-TH')
       : '';
+
+  const customerDisplay =
+    delivery.company && !['TG', 'TE', 'TP'].includes(delivery.company)
+      ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}`.trim()
+      : (delivery.customer || '-');
+
+  const infoRowBorder = '1px solid #cbd5e1';
+  const infoLabelStyle: CSSProperties = {
+    borderBottom: infoRowBorder,
+    borderRight: infoRowBorder,
+    padding: '1.2mm 1.8mm',
+    background: '#f8fafc',
+    fontWeight: 'bold',
+    color: '#111827',
+    verticalAlign: 'top',
+    WebkitPrintColorAdjust: 'exact',
+    printColorAdjust: 'exact',
+  };
+  const infoValueStyle: CSSProperties = {
+    borderBottom: infoRowBorder,
+    padding: '1.2mm 2.2mm',
+    verticalAlign: 'top',
+    wordBreak: 'break-word',
+  };
+  const renderInfoLabel = (label: string) => (
+    <div style={{ whiteSpace: 'nowrap' }}>{label}</div>
+  );
+
+  const workScopeRows = [
+    { label: 'งานตรวจเช็ค', detail: delivery.workInspectDetails || (delivery.workInspect ? 'ตรวจเช็คตามมาตรฐาน' : '') },
+    { label: 'งานติดตั้ง', detail: delivery.workInstallDetails || (delivery.workInstall ? 'ติดตั้งตามมาตรฐาน' : '') },
+    { label: 'งานซ่อม', detail: delivery.workRepairDetails || (delivery.workRepair ? 'ดำเนินการซ่อมแล้วเสร็จ' : '') },
+    { label: 'งานอบรม Training', detail: delivery.workTrainingDetails || (delivery.workTraining ? 'อบรมการใช้งานเรียบร้อย' : '') },
+    { label: 'งานอื่นๆ', detail: delivery.workOther || '' },
+  ];
 
   return (
     <div className={`${sarabun.className} bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-10 print:bg-white print:p-0 print:m-0`}>
@@ -271,114 +307,115 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
             </div>
 
             {/* 2. Document Title & Delivery Date */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2mm' }}>
-              <div style={{ width: '30%' }}></div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2.5mm' }}>
+              <div style={{ width: '33%' }}></div>
               <div style={{ textAlign: 'center', fontSize: '17pt', fontWeight: 'bold', color: '#000', flex: 1, letterSpacing: '0.5px' }}>
                 ใบส่งมอบงาน
               </div>
-              <div style={{ width: '30%', textAlign: 'right', fontSize: '11pt' }}>
+              <div style={{ width: '33%', textAlign: 'right', fontSize: '10.5pt', whiteSpace: 'nowrap' }}>
                 <span style={{ fontWeight: 'bold' }}>วันที่ส่งมอบงาน : </span>
                 <span>{deliveryDateFormatted || '______/______/______'}</span>
               </div>
             </div>
 
-            {/* 3. Customer & Project Details */}
-            <div style={{ border: '1px solid #000', borderRadius: '2px', padding: '2mm 3mm', marginBottom: '2mm', background: '#fff' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
-                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ชื่องาน :</span>
-                <span style={{ flex: 1, fontWeight: 'bold', color: '#111' }}>{delivery.jobName || '-'}</span>
-              </div>
+            {/* 3. Customer & Project Details (Symmetrical 50/50 Formal Grid) */}
+            <div style={{ border: '1px solid #000', borderRadius: '2px', overflow: 'hidden', marginBottom: '2.5mm', background: '#fff' }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  tableLayout: 'fixed',
+                  fontSize: '10pt',
+                  lineHeight: 1.3,
+                }}
+              >
+                <colgroup>
+                  <col style={{ width: '15.5%' }} />
+                  <col style={{ width: '34.5%' }} />
+                  <col style={{ width: '20.5%' }} />
+                  <col style={{ width: '29.5%' }} />
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <td style={infoLabelStyle}>{renderInfoLabel('ชื่องาน')}</td>
+                    <td colSpan={3} style={{ ...infoValueStyle, fontWeight: 'bold', color: '#111' }}>
+                      {delivery.jobName || '-'}
+                    </td>
+                  </tr>
 
-              <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
-                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ลูกค้า :</span>
-                <span style={{ flex: 1 }}>
-                  {delivery.company && !['TG', 'TE', 'TP'].includes(delivery.company)
-                    ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}`
-                    : (delivery.customer || '-')}
-                </span>
-                <span style={{ fontWeight: 'bold', marginLeft: '4mm', marginRight: '2mm', flexShrink: 0 }}>เลขที่ใบเสนอราคา / PO :</span>
-                <span style={{ fontWeight: 'bold', color: '#1e3a8a' }}>{delivery.quotationNo || '-'}</span>
-              </div>
+                  <tr>
+                    <td style={infoLabelStyle}>{renderInfoLabel('ลูกค้า')}</td>
+                    <td style={{ ...infoValueStyle, borderRight: infoRowBorder }}>
+                      {customerDisplay}
+                    </td>
+                    <td style={infoLabelStyle}>{renderInfoLabel('เลขที่ใบเสนอราคา / PO')}</td>
+                    <td style={{ ...infoValueStyle, fontWeight: 'bold', color: '#1e3a8a' }}>
+                      {delivery.quotationNo || '-'}
+                    </td>
+                  </tr>
 
-              <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
-                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>ที่อยู่ :</span>
-                <span style={{ flex: 1 }}>{delivery.address || '-'}</span>
-              </div>
+                  <tr>
+                    <td style={infoLabelStyle}>{renderInfoLabel('ที่อยู่')}</td>
+                    <td colSpan={3} style={infoValueStyle}>
+                      {delivery.address || '-'}
+                    </td>
+                  </tr>
 
-              <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '10.5pt', marginBottom: '0.8mm' }}>
-                <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>สถานที่หน้างาน :</span>
-                <span style={{ flex: 1 }}>{delivery.siteAddress || '-'}</span>
-              </div>
+                  <tr>
+                    <td style={infoLabelStyle}>{renderInfoLabel('สถานที่หน้างาน')}</td>
+                    <td colSpan={3} style={infoValueStyle}>
+                      {delivery.siteAddress || '-'}
+                    </td>
+                  </tr>
 
-              <div style={{ display: 'flex', gap: '8mm', fontSize: '10.5pt' }}>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'baseline' }}>
-                  <span style={{ fontWeight: 'bold', minWidth: '18mm', flexShrink: 0 }}>เซลล์ :</span>
-                  <span style={{ flex: 1 }}>{delivery.sender || '-'}</span>
-                  <span style={{ fontWeight: 'bold', marginLeft: '2mm', marginRight: '1.5mm', flexShrink: 0 }}>เบอร์โทร :</span>
-                  <span>{delivery.senderPhone || '-'}</span>
-                </div>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'baseline' }}>
-                  <span style={{ fontWeight: 'bold', flexShrink: 0, marginRight: '2mm' }}>ช่าง/วิศวกร :</span>
-                  <span style={{ flex: 1 }}>{delivery.technician || '-'}</span>
-                  <span style={{ fontWeight: 'bold', marginLeft: '2mm', marginRight: '1.5mm', flexShrink: 0 }}>เบอร์โทร :</span>
-                  <span>{delivery.technicianPhone || '-'}</span>
-                </div>
-              </div>
+                  <tr>
+                    <td style={infoLabelStyle}>{renderInfoLabel('เซลล์')}</td>
+                    <td style={{ ...infoValueStyle, borderRight: infoRowBorder }}>
+                      {delivery.sender || '-'}
+                    </td>
+                    <td style={infoLabelStyle}>{renderInfoLabel('ช่าง / วิศวกร')}</td>
+                    <td style={infoValueStyle}>
+                      {delivery.technician || '-'}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style={{ ...infoLabelStyle, borderBottom: 'none' }}>{renderInfoLabel('เบอร์โทร')}</td>
+                    <td style={{ ...infoValueStyle, borderBottom: 'none', borderRight: infoRowBorder }}>
+                      {delivery.senderPhone || '-'}
+                    </td>
+                    <td style={{ ...infoLabelStyle, borderBottom: 'none' }}>{renderInfoLabel('เบอร์โทร')}</td>
+                    <td style={{ ...infoValueStyle, borderBottom: 'none' }}>
+                      {delivery.technicianPhone || '-'}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             {/* 4. Work Scope Table */}
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2mm', fontSize: '10.5pt' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', marginBottom: '2.5mm', fontSize: '10.5pt' }}>
               <thead>
-                <tr style={{ background: '#f3f4f6' }}>
-                  <th style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontSize: '11pt', fontWeight: 'bold', width: '32%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                <tr style={{ background: '#f8fafc' }}>
+                  <th style={{ border: '1px solid #000', padding: '1.2mm 2.5mm', textAlign: 'center', fontSize: '11pt', fontWeight: 'bold', width: '32%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                     รายการ
                   </th>
-                  <th style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontSize: '11pt', fontWeight: 'bold', width: '68%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                  <th style={{ border: '1px solid #000', padding: '1.2mm 2.5mm', textAlign: 'center', fontSize: '11pt', fontWeight: 'bold', width: '68%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                     รายละเอียด
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                    งานตรวจเช็ค
-                  </td>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                    {delivery.workInspectDetails || (delivery.workInspect ? 'ตรวจเช็คตามมาตรฐาน' : '')}
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                    งานติดตั้ง
-                  </td>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                    {delivery.workInstallDetails || (delivery.workInstall ? 'ติดตั้งตามมาตรฐาน' : '')}
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                    งานซ่อม
-                  </td>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                    {delivery.workRepairDetails || (delivery.workRepair ? 'ดำเนินการซ่อมแล้วเสร็จ' : '')}
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                    งานอบรม Training
-                  </td>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                    {delivery.workTrainingDetails || (delivery.workTraining ? 'อบรมการใช้งานเรียบร้อย' : '')}
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm', textAlign: 'center', fontWeight: 'bold' }}>
-                    งานอื่นๆ
-                  </td>
-                  <td style={{ border: '1px solid #000', padding: '1mm 2.5mm' }}>
-                    {delivery.workOther || ''}
-                  </td>
-                </tr>
+                {workScopeRows.map((row) => (
+                  <tr key={row.label}>
+                    <td style={{ border: '1px solid #000', padding: '1.1mm 2.5mm', textAlign: 'center', fontWeight: 'bold', verticalAlign: 'top' }}>
+                      {row.label}
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '1.1mm 2.8mm', verticalAlign: 'top', wordBreak: 'break-word' }}>
+                      {row.detail}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
 

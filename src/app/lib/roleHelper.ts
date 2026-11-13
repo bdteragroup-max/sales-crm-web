@@ -455,4 +455,37 @@ export function canViewAllServiceCalls(role: string | null | undefined): boolean
   return isSalesOrSalesMgr || isServiceOrServiceMgr;
 }
 
+/**
+ * Checks whether a user role can restock, create/edit items, adjust counts,
+ * or reverse withdrawals in the Marketing Stock / Premium module.
+ * Strictly reserved for Marketing staff, Marketing Manager, Head of Sales & Marketing, and Super Admin.
+ */
+export function canManageMarketingStock(role: string | null | undefined): boolean {
+  if (!role) return false;
+  return isSuperUser(role) || isMarketingManager(role) || isMarketingStaff(role);
+}
+
+/**
+ * Category-scoped stock management permission check so future stock categories
+ * (e.g. STORE, HR, ADMIN) can delegate management to their own department roles.
+ */
+export function canManageStockCategory(
+  role: string | null | undefined,
+  ownerDepartment?: string | null
+): boolean {
+  if (!role) return false;
+  if (isSuperUser(role)) return true;
+
+  const dept = (ownerDepartment || 'MARKETING').toUpperCase().trim();
+  if (dept === 'MARKETING') {
+    return canManageMarketingStock(role);
+  }
+  if (dept === 'STORE' || dept === 'WAREHOUSE') {
+    const r = role.toLowerCase().trim();
+    return ['store', 'สโตร์', 'คลังสินค้า', 'warehouse'].some((kw) => r.includes(kw));
+  }
+  return canManageMarketingStock(role);
+}
+
+
 

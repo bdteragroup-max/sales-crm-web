@@ -5,6 +5,10 @@ import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 import { sendPushToUser } from "@/app/lib/pushNotification";
 import { isSuperUser, canViewAll } from "@/app/lib/roleHelper";
+import {
+  isNonReturnableRequisitionType,
+  getNonReturnableErrorMessage,
+} from "@/app/lib/requisitionUtils";
 
 export async function createMaterialRequisition(data: any) {
   try {
@@ -295,6 +299,24 @@ export async function updateRequisitionStatus(id: string, status: string) {
     const session = await getUser();
     if (!session) return { success: false, error: "Unauthorized" };
 
+    if (
+      status === 'RETURNED' ||
+      status === 'PARTIALLY_RETURNED' ||
+      status === 'RETURN_PENDING'
+    ) {
+      const existingReq = await prisma.materialRequisition.findUnique({
+        where: { id },
+        select: { requisitionType: true },
+      });
+      if (!existingReq) return { success: false, error: "Requisition not found" };
+      if (isNonReturnableRequisitionType(existingReq.requisitionType)) {
+        return {
+          success: false,
+          error: getNonReturnableErrorMessage(existingReq.requisitionType),
+        };
+      }
+    }
+
     const requisition = await prisma.materialRequisition.update({
       where: { id },
       data: { status },
@@ -351,8 +373,11 @@ export async function returnMaterialRequisition(
       where: { id },
     });
     if (!existingReq) return { success: false, error: "Requisition not found" };
-    if (existingReq.requisitionType === "CLAIM") {
-      return { success: false, error: "รายการเบิกเคลมไม่มีการคืนสินค้าเข้าคลัง" };
+    if (isNonReturnableRequisitionType(existingReq.requisitionType)) {
+      return {
+        success: false,
+        error: getNonReturnableErrorMessage(existingReq.requisitionType),
+      };
     }
 
     const currentItems = Array.isArray(existingReq.items) ? (existingReq.items as any[]) : [];
@@ -435,8 +460,11 @@ export async function submitReturnRequest(
       include: { requester: { select: { fullName: true } } },
     });
     if (!req) return { success: false, error: "Requisition not found" };
-    if (req.requisitionType === "CLAIM") {
-      return { success: false, error: "รายการเบิกเคลมไม่มีการคืนสินค้าเข้าคลัง" };
+    if (isNonReturnableRequisitionType(req.requisitionType)) {
+      return {
+        success: false,
+        error: getNonReturnableErrorMessage(req.requisitionType),
+      };
     }
 
     // Update Requisition status to RETURN_PENDING

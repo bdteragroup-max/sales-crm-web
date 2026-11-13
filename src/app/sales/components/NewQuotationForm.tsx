@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Save, 
   X, 
@@ -30,6 +30,7 @@ import { JOB_TYPES } from '@/constants/job-types';
 import { createClient } from '@/utils/supabase/client';
 import CabinetDocumentSection from './CabinetDocumentSection';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
+import Swal from 'sweetalert2';
 
 interface NewQuotationFormProps {
   businessTypes?: string[];
@@ -49,6 +50,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
   const [companySuggestions, setCompanySuggestions] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [accountingWarning, setAccountingWarning] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [contactSuggestions, setContactSuggestions] = useState<any[]>([]);
   const [showContactSuggestions, setShowContactSuggestions] = useState(false);
@@ -408,11 +410,29 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           jobType: initialData.jobs?.[0]?.jobType || '',
           paymentMethod: initialData.jobs?.[0]?.paymentMethod?.startsWith('เครดิต') ? 'เครดิต' : (initialData.jobs?.[0]?.paymentMethod || 'เครดิต'),
           installmentCount: initialData.jobs?.[0]?.paymentTasks?.length || 3,
-          installments: initialData.jobs?.[0]?.paymentTasks?.length > 0 ? initialData.jobs[0].paymentTasks : [
-            { installmentNo: 1, amount: '', dueDate: formatDateForInput(new Date()) },
-            { installmentNo: 2, amount: '', dueDate: '' },
-            { installmentNo: 3, amount: '', dueDate: '' }
-          ],
+          installments: initialData.jobs?.[0]?.paymentTasks?.length > 0
+            ? initialData.jobs[0].paymentTasks.map(
+                (
+                  pt: {
+                    installmentNo?: number | null;
+                    amount?: number | string | null;
+                    installmentAmount?: number | string | null;
+                    dueDate?: Date | string | null;
+                    [key: string]: unknown;
+                  },
+                  idx: number
+                ) => ({
+                  ...pt,
+                  installmentNo: pt.installmentNo ?? idx + 1,
+                  amount: pt.amount ?? pt.installmentAmount ?? '',
+                  dueDate: pt.dueDate ? formatDateForInput(pt.dueDate) : '',
+                })
+              )
+            : [
+                { installmentNo: 1, amount: '', dueDate: formatDateForInput(new Date()) },
+                { installmentNo: 2, amount: '', dueDate: '' },
+                { installmentNo: 3, amount: '', dueDate: '' }
+              ],
           salesOrderDate: initialData.jobs?.[0]?.salesOrderDate ? formatDateForInput(initialData.jobs[0].salesOrderDate) : formatDateForInput(new Date()),
           paymentDate: initialData.jobs?.[0]?.paymentDate ? formatDateForInput(initialData.jobs[0].paymentDate) : '',
           deliveryDate: initialData.jobs?.[0]?.deliveryDate ? formatDateForInput(initialData.jobs[0].deliveryDate) : '',
@@ -472,76 +492,102 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
     deliveryNumber?: string;
   } | null>(null);
 
+  const submitLockRef = useRef(false);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     setIsSubmitting(true);
     setMessage('');
+    setAccountingWarning('');
     setLinkedDeliveryResult(null);
 
-    const formDataObj = new FormData(e.currentTarget);
-    if (creditDocsUrl) {
-      formDataObj.append('creditDocsUrl', creditDocsUrl);
-    }
-    if (billingDocsUrl) {
-      formDataObj.append('billingDocsUrl', billingDocsUrl);
-    }
-    const activeServiceCallId = formData.serviceCallId || initialData?.serviceCallId || '';
-    if (activeServiceCallId && !formDataObj.get('serviceCallId')) {
-      formDataObj.append('serviceCallId', activeServiceCallId);
-    }
+    try {
+      const formDataObj = new FormData(e.currentTarget);
+      if (creditDocsUrl) {
+        formDataObj.append('creditDocsUrl', creditDocsUrl);
+      }
+      if (billingDocsUrl) {
+        formDataObj.append('billingDocsUrl', billingDocsUrl);
+      }
+      const activeServiceCallId = formData.serviceCallId || initialData?.serviceCallId || '';
+      if (activeServiceCallId && !formDataObj.get('serviceCallId')) {
+        formDataObj.append('serviceCallId', activeServiceCallId);
+      }
 
-    const isCabinetSelected = formData.jobType === "งานตู้" || formData.jobType === "งานตู้ + ติดตั้ง" || formData.jobType === "Cabinet Job" || formData.jobType === "Cabinet Job + Installation";
-    const cabinetJob = initialData?.jobs?.find((j: any) => j.jobType === "งานตู้" || j.jobType === "งานตู้ + ติดตั้ง" || j.jobType === "Cabinet Job" || j.jobType === "Cabinet Job + Installation");
-    const isPOStatus = status?.startsWith("PO") || status === "Invoice Opened" || status === "เปิดบิลแล้ว";
+      const isCabinetSelected = formData.jobType === "งานตู้" || formData.jobType === "งานตู้ + ติดตั้ง" || formData.jobType === "Cabinet Job" || formData.jobType === "Cabinet Job + Installation";
+      const cabinetJob = (initialData?.jobs as Array<{ jobType?: string | null }> | undefined)?.find((j) => j.jobType === "งานตู้" || j.jobType === "งานตู้ + ติดตั้ง" || j.jobType === "Cabinet Job" || j.jobType === "Cabinet Job + Installation");
+      const isPOStatus = status?.startsWith("PO") || status === "Invoice Opened" || status === "เปิดบิลแล้ว";
 
-    if (isCabinetSelected && isPOStatus && !cabinetJob) {
-      const jobDocuments = [
-        ...boqFiles.map(f => ({ type: 'BOQ', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
-        ...quotationFiles.map(f => ({ type: 'QUOTATION', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
-        ...paymentFiles.map(f => ({ type: 'PAYMENT', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
-        ...customerDocFiles.map(f => ({ type: 'CUSTOMER_DOC', fileUrl: f.url, fileName: f.name, fileSize: f.size }))
-      ];
-      formDataObj.append('jobDocuments', JSON.stringify(jobDocuments));
-    }
+      if (isCabinetSelected && isPOStatus && !cabinetJob) {
+        const jobDocuments = [
+          ...boqFiles.map(f => ({ type: 'BOQ', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
+          ...quotationFiles.map(f => ({ type: 'QUOTATION', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
+          ...paymentFiles.map(f => ({ type: 'PAYMENT', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
+          ...customerDocFiles.map(f => ({ type: 'CUSTOMER_DOC', fileUrl: f.url, fileName: f.name, fileSize: f.size }))
+        ];
+        formDataObj.append('jobDocuments', JSON.stringify(jobDocuments));
+      }
 
-    let res: any;
-    if (isEditing) {
-      formDataObj.append('id', initialData.id);
-      res = await updateSalesData(initialData.id, formDataObj);
-    } else {
-      res = await saveSalesData(formDataObj);
-    }
+      const res: {
+        success?: boolean;
+        error?: string;
+        repairDeliveryId?: string;
+        deliveryNumber?: string;
+        awardedGold?: number;
+        awardMessage?: string;
+        accountingWarning?: string;
+      } = isEditing
+        ? (formDataObj.append('id', initialData.id), await updateSalesData(initialData.id, formDataObj))
+        : await saveSalesData(formDataObj);
 
-    if (res.success) {
-      if (res.repairDeliveryId) {
-        setLinkedDeliveryResult({
-          id: res.repairDeliveryId,
-          deliveryNumber: res.deliveryNumber,
-        });
-        setMessage(
-          `${isEditing ? 'แก้ไข' : 'บันทึก'}ใบเสนอราคาเรียบร้อยแล้ว และส่งข้อมูลพร้อมรูปถ่าย/ลายเซ็นไปสร้างใบส่งมอบงาน (${res.deliveryNumber || 'DN'}) อัตโนมัติแล้ว!`
-        );
+      if (res.success) {
+        if (res.accountingWarning) {
+          setAccountingWarning(res.accountingWarning);
+        }
+        if (res.repairDeliveryId) {
+          setLinkedDeliveryResult({
+            id: res.repairDeliveryId,
+            deliveryNumber: res.deliveryNumber,
+          });
+          setMessage(
+            `${isEditing ? 'แก้ไข' : 'บันทึก'}ใบเสนอราคาเรียบร้อยแล้ว และส่งข้อมูลพร้อมรูปถ่าย/ลายเซ็นไปสร้างใบส่งมอบงาน (${res.deliveryNumber || 'DN'}) อัตโนมัติแล้ว!`
+          );
+        } else {
+          setMessage(isEditing ? 'แก้ไขข้อมูลเรียบร้อยแล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว');
+        }
+        if (!isEditing) {
+          (e.target as HTMLFormElement).reset();
+          setSalesBeforeVat(0);
+          setTransportationFee(0);
+          setInstallationFee(0);
+          setStatus('');
+        }
+
+        if (res.accountingWarning) {
+          await Swal.fire({
+            icon: 'warning',
+            title: 'บันทึกใบเสนอราคาแล้ว (มีข้อมูลส่วนที่ฝ่ายบัญชีล็อกไว้)',
+            text: res.accountingWarning,
+            confirmButtonColor: '#d97706',
+            confirmButtonText: 'รับทราบ',
+          });
+        }
+
+        if (res.awardedGold && res.awardedGold > 0) {
+          setCoinModalData({ gold: res.awardedGold, message: res.awardMessage || '' });
+          setShowCoinModal(true);
+        } else if (onSuccess) {
+          setTimeout(onSuccess, res.accountingWarning ? 400 : 1500);
+        }
       } else {
-        setMessage(isEditing ? 'แก้ไขข้อมูลเรียบร้อยแล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว');
+        setMessage(res.error || 'เกิดข้อผิดพลาด');
       }
-      if (!isEditing) {
-        (e.target as HTMLFormElement).reset();
-        setSalesBeforeVat(0);
-        setTransportationFee(0);
-        setInstallationFee(0);
-        setStatus('');
-      }
-
-      if (res.awardedGold && res.awardedGold > 0) {
-        setCoinModalData({ gold: res.awardedGold, message: res.awardMessage || '' });
-        setShowCoinModal(true);
-      } else if (onSuccess) {
-        setTimeout(onSuccess, 1500);
-      }
-    } else {
-      setMessage(res.error || 'เกิดข้อผิดพลาด');
+    } finally {
+      submitLockRef.current = false;
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   }
 
   const handleInputChange = (e: any) => {
@@ -689,6 +735,13 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                 </a>
               </div>
             )}
+          </div>
+        )}
+
+        {accountingWarning && (
+          <div className="p-4 rounded-xl text-xs font-bold flex items-start gap-2.5 border bg-amber-50 text-amber-900 border-amber-200 animate-in fade-in">
+            <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+            <span>{accountingWarning}</span>
           </div>
         )}
 

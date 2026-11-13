@@ -1,6 +1,7 @@
 "use server";
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
+import { getNextPendingScheduleTask } from "@/app/lib/accounting-schedule";
 
 function safeRevalidatePath(path: string) {
   try {
@@ -76,7 +77,7 @@ export async function syncFinancialAdjustments(jobId: string) {
 
     const allCompleted = updatedTasks.length > 0 && updatedTasks.every(t => t.status === 'ตรวจสอบและบันทึกแล้ว');
     const hasAnyPaid = updatedTasks.some(t => (t.paidAmount && t.paidAmount > 0) || t.status === 'ชำระมัดจำแล้ว' || t.status === 'ตรวจสอบและบันทึกแล้ว');
-    const nextPendingTask = updatedTasks.find(t => t.status !== 'ตรวจสอบและบันทึกแล้ว' && t.dueDate);
+    const nextPendingTask = getNextPendingScheduleTask(updatedTasks, { requireDueDate: true });
 
     const jobUpdateData: any = {
       paymentStatus: allCompleted ? 'paid' : (hasAnyPaid ? 'partial' : 'unpaid'),

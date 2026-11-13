@@ -11,6 +11,12 @@ import {
   confirmUsedRequisitionItems,
 } from '@/app/actions/requisitions';
 import {
+  isNonReturnableRequisitionType,
+  getCompletedStatusLabel,
+  getNonReturnableLabel,
+  getNonReturnableBadgeClass,
+} from '@/app/lib/requisitionUtils';
+import {
   CheckCircle,
   Loader2,
   Printer,
@@ -245,10 +251,7 @@ export default function StoreFulfillForm({
         };
       case 'COMPLETED':
         return {
-          label:
-            requisition.requisitionType === 'CLAIM'
-              ? 'ส่งมอบเคลมแล้ว (ไม่ต้องคืน)'
-              : 'ส่งมอบแล้ว (รอคืน/ใช้งาน)',
+          label: getCompletedStatusLabel(requisition.requisitionType),
           badge: 'bg-emerald-50 text-emerald-800 border-emerald-200',
           dot: 'bg-emerald-500',
         };
@@ -796,7 +799,7 @@ export default function StoreFulfillForm({
         </button>
       )}
 
-      {requisition.requisitionType !== 'CLAIM' &&
+      {!isNonReturnableRequisitionType(requisition.requisitionType) &&
         (requisition.status === 'COMPLETED' ||
           requisition.status === 'PARTIALLY_RETURNED' ||
           requisition.status === 'RETURN_PENDING') && (
@@ -1838,13 +1841,15 @@ export default function StoreFulfillForm({
                 ) : (
                   <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-blue-50 text-blue-800 border border-blue-200">
                     <Building2 size={12} className="text-blue-600 shrink-0" />
-                    <span>เบิกของงานโครงการ</span>
+                    <span>เบิกของงานโครงการ (ไม่คืนของ)</span>
                   </span>
                 )}
               </div>
 
               <p className="text-xs text-slate-500 font-medium">
-                ตรวจสอบรายการวัสดุอุปกรณ์ จัดส่งมอบ ตรวจรับหน้างาน และรับคืนเข้าคลัง
+                {isNonReturnableRequisitionType(requisition.requisitionType)
+                  ? 'ตรวจสอบรายการวัสดุอุปกรณ์ จัดส่งมอบ และตรวจรับหน้างาน (ไม่มีการคืนของ)'
+                  : 'ตรวจสอบรายการวัสดุอุปกรณ์ จัดส่งมอบ ตรวจรับหน้างาน และรับคืนเข้าคลัง'}
               </p>
             </div>
 
@@ -2220,9 +2225,9 @@ export default function StoreFulfillForm({
                     </span>
                   ) : null}
 
-                  {requisition.requisitionType === 'CLAIM' ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
-                      ไม่ต้องคืน (เคลม)
+                  {isNonReturnableRequisitionType(requisition.requisitionType) ? (
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border ${getNonReturnableBadgeClass(requisition.requisitionType)}`}>
+                      {getNonReturnableLabel(requisition.requisitionType, true)}
                     </span>
                   ) : hasRet ? (
                     <span
@@ -2395,9 +2400,9 @@ export default function StoreFulfillForm({
                       </td>
                     )}
                     <td className="px-4 py-3">
-                      {requisition.requisitionType === 'CLAIM' ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-50 text-violet-700 border border-violet-200">
-                          ไม่ต้องคืน (เบิกเคลม)
+                      {isNonReturnableRequisitionType(requisition.requisitionType) ? (
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${getNonReturnableBadgeClass(requisition.requisitionType)}`}>
+                          {getNonReturnableLabel(requisition.requisitionType)}
                         </span>
                       ) : hasRet ? (
                         <div className="space-y-1">

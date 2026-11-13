@@ -417,8 +417,12 @@ export default function EditRepairOrderForm({
     });
   };
 
+  const submitLockRef = useRef(false);
+
   async function handleSubmit(e: React.FormEvent, printAfter: boolean = false) {
     e.preventDefault();
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     if (printAfter) setIsSubmittingAndPrint(true);
     else setIsSubmitting(true);
     setMessage("");
@@ -467,11 +471,13 @@ export default function EditRepairOrderForm({
           icon: "error",
           confirmButtonColor: "#ff2301",
         });
+        submitLockRef.current = false;
         setIsSubmitting(false);
         setIsSubmittingAndPrint(false);
       }
     } catch (err: any) {
       setMessage(err.message || "เกิดข้อผิดพลาด");
+      submitLockRef.current = false;
       setIsSubmitting(false);
       setIsSubmittingAndPrint(false);
     }

@@ -1,10 +1,15 @@
 'use server'
 
 import prisma from "@/app/lib/db";
-import { generateOrderNumber } from "./orderHelper";
 import { getUser } from "@/app/lib/dal";
 import { isSalesOrMarketingManager } from "@/app/lib/roleHelper";
 import { revalidatePath } from "next/cache";
+import { isClosedQuotationStatus } from "@/app/lib/job-utils";
+import {
+  createJobFromQuotation,
+  ensureQuotationOrder,
+  handleQuotationExitFromClosedStatus,
+} from "@/app/actions/jobs";
 
 /**
  * Updates a quotation's status during Kanban board drag-and-drop operations.
@@ -70,6 +75,16 @@ export async function updateQuotationStatus(
 
     const statusChanged = quotation.status !== newStatus;
 
+    if (
+      isClosedQuotationStatus(quotation.status) &&
+      !isClosedQuotationStatus(newStatus)
+    ) {
+      const exitCheck = await handleQuotationExitFromClosedStatus(id);
+      if (!exitCheck.allowed) {
+        return { success: false, error: exitCheck.error };
+      }
+    }
+
     const updateData: any = { 
       status: newStatus,
       updatedAt: new Date(),
@@ -116,37 +131,21 @@ export async function updateQuotationStatus(
 
     let awardedGold = 0;
     let awardMessage = '';
+    let accountingWarning: string | undefined = undefined;
     // Auto-create an Order if status is closed (เปิดบิลแล้ว / PO...)
-    if (newStatus === 'เปิดบิลแล้ว' || newStatus.startsWith('PO')) {
-      const existingOrder = await prisma.order.findFirst({
-        where: { quotationId: quotation.id }
+    if (isClosedQuotationStatus(newStatus)) {
+      await ensureQuotationOrder({
+        quotationId: quotation.id,
+        quotationNumber: updated.quotationNumber,
+        companyId: updated.companyId,
+        jobType: extra?.jobType || updated.productType,
+        salespersonId: quotation.salespersonId || user.id,
+        value: quotation.actualClosingAmount || quotation.totalAmountBeforeVat || 0,
+        requireCabinetJob: false,
       });
-      if (!existingOrder && quotation.companyId) {
-        const finalOrderNumber = await generateOrderNumber();
-        const newOrder = await prisma.order.create({
-          data: {
-            orderNumber: finalOrderNumber,
-            companyId: quotation.companyId,
-            quotationId: quotation.id,
-            salespersonId: quotation.salespersonId || user.id,
-            value: quotation.actualClosingAmount || quotation.totalAmountBeforeVat || 0,
-            status: 'รอยืนยัน',
-          }
-        });
-        await prisma.orderStatusLog.create({
-          data: {
-            orderId: newOrder.id,
-            userId: user.id,
-            fromStatus: 'System',
-            toStatus: 'รอยืนยัน'
-          }
-        });
-        revalidatePath("/orders");
-      }
-      
+
       // Auto-create Job
-      const { createJobFromQuotation } = await import('@/app/actions/jobs');
-      await createJobFromQuotation({
+      const jobSync = await createJobFromQuotation({
         quotationId: quotation.id,
         poNumber: updateData.poNumber,
         companyCode: extra?.companyCode,
@@ -166,6 +165,9 @@ export async function updateQuotationStatus(
         additionalInformation: extra?.additionalInformation,
         jobDocuments: extra?.jobDocuments,
       });
+      if (jobSync.accountingWarnings.length > 0) {
+        accountingWarning = jobSync.accountingWarnings.join(" | ");
+      }
     }
 
     // If this Quotation is linked to a ServiceCallLog, keep RepairDelivery synced (including quotationNo, jobId, photos & signatures)
@@ -190,6 +192,9 @@ export async function updateQuotationStatus(
     revalidatePath("/schedule");
     revalidatePath("/sales");
     revalidatePath("/dashboard");
+    revalidatePath("/jobs");
+    revalidatePath("/accounting");
+    revalidatePath("/accounting/dashboard");
     
     // Notification for Salesperson when quotation status changes
     if (statusChanged && updated.salespersonId && updated.salespersonId !== user.id) {
@@ -206,7 +211,7 @@ export async function updateQuotationStatus(
       }
     }
 
-    return { success: true, data: updated, awardedGold, awardMessage };
+    return { success: true, data: updated, awardedGold, awardMessage, accountingWarning };
   } catch (error: any) {
     console.error("Error updating quotation status:", error);
     return { success: false, error: "เกิดข้อผิดพลาดในการอัปเดตสถานะดีล" };

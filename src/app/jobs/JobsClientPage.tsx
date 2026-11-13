@@ -32,10 +32,12 @@ import {
   Table,
   ExternalLink,
   Link2,
+  Lock,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 import { updateJob, deleteJob, UpdateJobPayload, createStandaloneJob } from "./actions";
+import { hasAccountingInvoiceOrPayment } from "@/app/lib/accounting-schedule";
 import { JOB_TYPES } from "@/constants/job-types";
 import { useRouter } from "next/navigation";
 
@@ -80,6 +82,7 @@ type Job = {
   trackingPhotoUrl?: string | null;
   stepLogs: StepLog[];
   paymentMethod?: string | null;
+  paymentStatus?: string | null;
   creditTerms?: string | null;
   paymentDate?: Date | string | null;
   paymentTasks?: any[];
@@ -223,13 +226,15 @@ function JobTypeBadge({ type }: { type: string }) {
 
 // ── Editable fields ───────────────────── ─────────────────────
 function EditableField({
-  label, value, type = "text", options, onSave,
+  label, value, type = "text", options, onSave, disabled = false, disabledReason,
 }: {
   label: string;
   value: string;
   type?: "text" | "date" | "select";
   options?: string[];
   onSave: (v: string) => void;
+  disabled?: boolean;
+  disabledReason?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -241,8 +246,23 @@ function EditableField({
 
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-0.5">{label}</p>
-      {editing ? (
+      <p className="text-xs text-gray-400 mb-0.5 flex items-center gap-1">
+        <span>{label}</span>
+        {disabled && <Lock size={11} className="text-amber-600" />}
+      </p>
+      {disabled ? (
+        <div>
+          <span
+            title={disabledReason}
+            className="text-sm text-gray-500 flex items-center gap-1.5 cursor-not-allowed"
+          >
+            <span>{value || <span className="text-gray-400 italic">—</span>}</span>
+          </span>
+          {disabledReason && (
+            <p className="text-[10px] text-amber-600 mt-0.5">{disabledReason}</p>
+          )}
+        </div>
+      ) : editing ? (
         <div className="flex gap-1 items-center">
           {type === "select" ? (
             <select
@@ -1077,6 +1097,13 @@ function ExpandedRow({
   const save = (field: keyof UpdateJobPayload) => (value: string) =>
     onUpdate(job.id, { [field]: value });
 
+  const jobPaymentTasks = job.paymentTasks || [];
+  const hasLockedAccountingBilling = jobPaymentTasks.some((pt) =>
+    hasAccountingInvoiceOrPayment(pt)
+  );
+  const hasMultiPaymentTasks = jobPaymentTasks.length > 1;
+  const hasAnyLockedPayment = job.paymentStatus === "paid" || hasLockedAccountingBilling;
+
   const hasInstallments =
     job.project?.installment1 ||
     job.project?.installment2 ||
@@ -1184,7 +1211,15 @@ function ExpandedRow({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
           {/* Row 1 */}
           <EditableField label="ชื่อลูกค้า" value={job.customerName} onSave={save("customerName")} />
-          <EditableField label="บริษัท" value={normalizeCompanyCode(job.companyCode)} type="select" options={COMPANY_CODES as unknown as string[]} onSave={save("companyCode")} />
+          <EditableField
+            label="บริษัท"
+            value={normalizeCompanyCode(job.companyCode)}
+            type="select"
+            options={COMPANY_CODES as unknown as string[]}
+            onSave={save("companyCode")}
+            disabled={hasLockedAccountingBilling}
+            disabledReason={hasLockedAccountingBilling ? "ล็อก: บัญชีออกบิล/รับเงินแล้ว" : undefined}
+          />
           <div>
             <p className="text-xs text-gray-400 mb-0.5">
               {job.jobType === "งานซ่อม" || job.repairOrder ? "ผู้รับผิดชอบ / ผู้ดูแล" : "พนักงานขาย"}
@@ -1242,19 +1277,49 @@ function ExpandedRow({
                 : "")
             }
             onSave={save("paymentMethod")}
+            disabled={hasMultiPaymentTasks || hasLockedAccountingBilling}
+            disabledReason={
+              hasMultiPaymentTasks
+                ? "แบ่งหลายงวด (แก้ที่หน้า /accounting)"
+                : hasLockedAccountingBilling
+                ? "ล็อก: บัญชีออกบิล/รับเงินแล้ว"
+                : undefined
+            }
           />
-          <EditableField label="วันที่ชำระเงิน" value={formatDateForInput(job.paymentDate || job.project?.contractSigningDate || job.project?.paymentDate)} type="date" onSave={save("paymentDate")} />
+          <EditableField
+            label="วันที่ชำระเงิน"
+            value={formatDateForInput(job.paymentDate || job.project?.contractSigningDate || job.project?.paymentDate)}
+            type="date"
+            onSave={save("paymentDate")}
+            disabled={hasMultiPaymentTasks || hasLockedAccountingBilling}
+            disabledReason={
+              hasMultiPaymentTasks
+                ? "แก้รายงวดที่หน้า /accounting"
+                : hasLockedAccountingBilling
+                ? "ล็อก: บัญชีออกบิล/รับเงินแล้ว"
+                : undefined
+            }
+          />
         </div>
       </div>
 
       {isManager && (
         <div className="flex justify-end mt-4">
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="text-xs text-red-500 font-bold hover:text-white hover:bg-red-500 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
-          >
-            <Trash2 size={12} /> ลบงานนี้
-          </button>
+          {hasAnyLockedPayment ? (
+            <span
+              title="ไม่สามารถลบงานนี้ได้ เนื่องจากฝ่ายบัญชีบันทึกออกบิลหรือรับชำระเงินแล้ว"
+              className="text-xs text-slate-400 font-semibold px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 flex items-center gap-1.5 cursor-not-allowed"
+            >
+              <Lock size={12} /> ลบงานไม่ได้ (บัญชีออกบิล/รับเงินแล้ว)
+            </span>
+          ) : (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="text-xs text-red-500 font-bold hover:text-white hover:bg-red-500 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+            >
+              <Trash2 size={12} /> ลบงานนี้
+            </button>
+          )}
         </div>
       )}
 
@@ -1523,26 +1588,54 @@ export default function JobsClientPage({
 
   function handleUpdate(id: string, data: UpdateJobPayload) {
     startTransition(async () => {
-      await updateJob(id, data);
+      const res = await updateJob(id, data);
+      if (!res.success) {
+        await Swal.fire({
+          icon: "warning",
+          title: "ไม่สามารถแก้ไขข้อมูลได้",
+          text: res.error,
+          confirmButtonColor: "#e11d48",
+        });
+        return;
+      }
+
       setJobs((prev) =>
         prev.map((j) =>
           j.id === id
             ? ({
-              ...j,
-              ...data,
-              ...(data.dateClosed
-                ? { dateClosed: new Date(data.dateClosed) }
-                : {}),
-            } as any)
+                ...j,
+                ...res.job,
+                paymentTasks: res.paymentTasks ?? j.paymentTasks,
+              } as Job)
             : j
         )
       );
+
+      if (res.syncNotice) {
+        void Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "info",
+          title: res.syncNotice,
+          showConfirmButton: false,
+          timer: 2600,
+        });
+      }
     });
   }
 
   function handleDelete(id: string) {
     startTransition(async () => {
-      await deleteJob(id);
+      const res = await deleteJob(id);
+      if (!res.success) {
+        await Swal.fire({
+          icon: "error",
+          title: "ไม่สามารถลบงานได้",
+          text: res.error,
+          confirmButtonColor: "#e11d48",
+        });
+        return;
+      }
       setJobs((prev) => prev.filter((j) => j.id !== id));
       setExpanded(null);
     });
@@ -1606,9 +1699,11 @@ export default function JobsClientPage({
     const [customerName, setCustomerName] = useState("");
     const [item, setItem] = useState("");
     const [companyCode, setCompanyCode] = useState("TP");
+    const submitLockRef = useRef(false);
 
     async function handleCreate(e: React.FormEvent) {
       e.preventDefault();
+      if (submitLockRef.current) return;
       if (!customerName || !item) {
         Swal.fire({
           icon: "warning",
@@ -1617,6 +1712,7 @@ export default function JobsClientPage({
         });
         return;
       }
+      submitLockRef.current = true;
       setQuickRepairLoading(true);
       try {
         const newJob = await createStandaloneJob({
@@ -1635,6 +1731,7 @@ export default function JobsClientPage({
           text: "ไม่สามารถสร้างใบรับซ่อมได้",
         });
       } finally {
+        submitLockRef.current = false;
         setQuickRepairLoading(false);
       }
     }
@@ -1727,9 +1824,11 @@ export default function JobsClientPage({
     const [customerName, setCustomerName] = useState("");
     const [item, setItem] = useState("");
     const [companyCode, setCompanyCode] = useState("TP");
+    const submitLockRef = useRef(false);
 
     async function handleCreate(e: React.FormEvent) {
       e.preventDefault();
+      if (submitLockRef.current) return;
       if (!customerName || !item) {
         Swal.fire({
           icon: "warning",
@@ -1738,6 +1837,7 @@ export default function JobsClientPage({
         });
         return;
       }
+      submitLockRef.current = true;
       setQuickProjectLoading(true);
       try {
         const newJob = await createStandaloneJob({
@@ -1756,6 +1856,7 @@ export default function JobsClientPage({
           text: "ไม่สามารถสร้างโปรเจคได้",
         });
       } finally {
+        submitLockRef.current = false;
         setQuickProjectLoading(false);
       }
     }

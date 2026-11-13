@@ -397,7 +397,10 @@ export default function NewRepairOrderForm({
   };
 
   // Submit Handler
+  const submitLockRef = useRef(false);
+
   const handleSubmit = async (action: "save" | "print") => {
+    if (submitLockRef.current) return;
     if (!customerCompany.trim()) {
       Swal.fire({
         icon: "warning",
@@ -408,6 +411,7 @@ export default function NewRepairOrderForm({
       return;
     }
 
+    submitLockRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -536,6 +540,7 @@ export default function NewRepairOrderForm({
         confirmButtonColor: "#ff2301",
       });
     } finally {
+      submitLockRef.current = false;
       setIsSubmitting(false);
       setIsUploading(false);
     }

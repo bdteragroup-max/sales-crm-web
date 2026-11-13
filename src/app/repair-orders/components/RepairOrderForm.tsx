@@ -216,37 +216,45 @@ export default function RepairOrderForm({ companies = [], users = [], initialDat
     });
   };
 
+  const submitLockRef = useRef(false);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>, printAfter: boolean = false) {
     e.preventDefault();
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     if (printAfter) setIsSubmittingAndPrint(true);
     else setIsSubmitting(true);
     setMessage('');
-    
-    // Merge phone number back if needed
-    const submitData = {
-      ...formData,
-      phoneNumber: formData.customerPhoneNumber || formData.phoneNumber
-    };
 
-    const res = await saveRepairOrder(submitData);
+    try {
+      // Merge phone number back if needed
+      const submitData = {
+        ...formData,
+        phoneNumber: formData.customerPhoneNumber || formData.phoneNumber
+      };
 
-    if (res.success) {
-      setMessage('บันทึกข้อมูลใบรับซ่อมเรียบร้อยแล้ว');
-      if (printAfter) {
-        const generatedJobId = formData.jobId || res.data?.jobId;
-        if (generatedJobId) {
-          router.push(`/jobs/${generatedJobId}/repair-order?print=true`);
+      const res = await saveRepairOrder(submitData);
+
+      if (res.success) {
+        setMessage('บันทึกข้อมูลใบรับซ่อมเรียบร้อยแล้ว');
+        if (printAfter) {
+          const generatedJobId = formData.jobId || res.data?.jobId;
+          if (generatedJobId) {
+            router.push(`/jobs/${generatedJobId}/repair-order?print=true`);
+          }
+        } else {
+          if (onSuccess) {
+            setTimeout(onSuccess, 1500);
+          }
         }
       } else {
-        if (onSuccess) {
-          setTimeout(onSuccess, 1500);
-        }
+        setMessage(res.error || 'เกิดข้อผิดพลาด');
       }
-    } else {
-      setMessage(res.error || 'เกิดข้อผิดพลาด');
+    } finally {
+      submitLockRef.current = false;
+      setIsSubmitting(false);
+      setIsSubmittingAndPrint(false);
     }
-    setIsSubmitting(false);
-    setIsSubmittingAndPrint(false);
   }
 
   return (
