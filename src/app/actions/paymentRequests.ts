@@ -14,6 +14,8 @@ import {
   canManageAllPaymentRequests,
   isSupervisorOrManager,
   canSupervisorApproveRequest,
+  stripThaiHonorific,
+  normalizePersonName,
 } from '@/app/lib/roleHelper';
 import type { AttachmentCheckItem } from '@/lib/attachmentUtils';
 import {
@@ -122,14 +124,11 @@ export type PaymentRequestRecord = {
   updated_at: string;
 };
 
-export type ItemAttachment = {
+export type ItemAttachment = AttachmentCheckItem & {
   id?: string;
   url: string;
   fileName: string;
   fileType?: string;
-  fileSize?: number;
-  fileHash?: string;
-  visualHash?: string;
 };
 
 export type RequisitionItem = {
@@ -302,7 +301,7 @@ export async function checkAttachmentDuplicates(params: {
         invoice_number, net_amount, document_date, status, requester_name, attachments, items, created_at
       FROM payment_requests
       WHERE status NOT IN ('CANCELLED', 'REJECTED')
-        AND (attachments IS NOT NULL OR items IS NOT NULL)
+        AND (attachments IS NOT NULL OR items IS NOT NULL OR NULLIF(TRIM(invoice_number), '') IS NOT NULL)
     `;
     const values: any[] = [];
     if (excludeId) {
@@ -337,7 +336,95 @@ export async function checkAttachmentDuplicates(params: {
         }
       }
 
-      if (allRowAttachments.length === 0) continue;
+      if (matchedReqIds.has(row.id)) continue;
+
+      const pushMatch = (matchType: string, reason: string, duplicateFileName?: string, matchedFileName?: string) => {
+        if (matchedReqIds.has(row.id)) return;
+        matchedReqIds.add(row.id);
+        matches.push({
+          id: row.id,
+          pay_number: row.pay_number,
+          company: row.company,
+          branch: row.branch,
+          supplier_name: row.supplier_name,
+          supplier_tax_id: row.supplier_tax_id,
+          invoice_number: row.invoice_number,
+          net_amount: Number(row.net_amount || 0),
+          document_date: toDateString(row.document_date) || '',
+          created_at: toTimestampString(row.created_at) || '',
+          status: row.status,
+          requester_name: row.requester_name,
+          matchType,
+          matchedFileName,
+          duplicateFileName,
+          reason,
+        });
+      };
+
+      const isRecordInvoiceCorroborated = (
+        item: AttachmentCheckItem,
+        recTaxId: string | null | undefined,
+        recAmt: number | undefined,
+        recSupplier: string | null | undefined
+      ) => {
+        const cleanTax = (recTaxId || '').replace(/\D/g, '');
+        const taxMatch = !!(item.extractedTaxId && cleanTax && item.extractedTaxId === cleanTax);
+        const effItemAmt = item.extractedAmount ?? item.currentAmount;
+        const amtMatch = !!(effItemAmt !== undefined && recAmt !== undefined && recAmt > 0 && Math.abs(effItemAmt - recAmt) < 1.0);
+        const effItemSupp = (item.currentSupplier || item.extractedSupplier || '').trim().toLowerCase();
+        const effRecSupp = (recSupplier || '').trim().toLowerCase();
+        const suppMatch = !!(
+          effItemSupp.length >= 3 &&
+          effRecSupp.length >= 3 &&
+          (effItemSupp.includes(effRecSupp) || effRecSupp.includes(effItemSupp))
+        );
+        return taxMatch || amtMatch || suppMatch;
+      };
+
+      // 0.3 OCR Match against previous payment request record (header OR per-item invoiceNumber even when no photo was attached)
+      for (const item of checkItems) {
+        if (!item.extractedInvoiceNo) continue;
+        const normInvIn = normalizeInvoiceNo(item.extractedInvoiceNo);
+        if (normInvIn.length < 4) continue;
+
+        if (row.invoice_number) {
+          const normInvRow = normalizeInvoiceNo(row.invoice_number);
+          if (normInvIn === normInvRow && isRecordInvoiceCorroborated(item, row.supplier_tax_id, Number(row.net_amount || 0), row.supplier_name)) {
+            pushMatch(
+              'ATTACHMENT_OCR_RECORD',
+              `ตรวจพบเลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" จากภาพตรงกับคำขอเดิม (${row.pay_number})`,
+              item.fileName
+            );
+            break;
+          }
+        }
+
+        if (Array.isArray(rowItems)) {
+          for (const rowIt of rowItems) {
+            if (!rowIt?.invoiceNumber) continue;
+            const normInvIt = normalizeInvoiceNo(rowIt.invoiceNumber);
+            if (
+              normInvIn === normInvIt &&
+              isRecordInvoiceCorroborated(
+                item,
+                rowIt.supplierTaxId || row.supplier_tax_id,
+                Number(rowIt.amount || row.net_amount || 0),
+                rowIt.supplierName || row.supplier_name
+              )
+            ) {
+              pushMatch(
+                'ATTACHMENT_OCR_RECORD',
+                `ตรวจพบเลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" จากภาพตรงกับรายการบิลในคำขอเดิม (${row.pay_number})`,
+                item.fileName
+              );
+              break;
+            }
+          }
+        }
+        if (matchedReqIds.has(row.id)) break;
+      }
+
+      if (matchedReqIds.has(row.id) || allRowAttachments.length === 0) continue;
       for (const att of allRowAttachments) {
         for (const item of checkItems) {
           let isMatch = false;
@@ -362,33 +449,23 @@ export async function checkAttachmentDuplicates(params: {
             reason = `ตรวจพบบาร์โค้ดบนเอกสารตรงกัน (${item.barcode})`;
           }
 
-          // 0.2 OCR Tax ID + Invoice Number Match (Invariant to separate shots/cameras)
+          // 0.2 OCR Tax ID / Amount / Supplier + Invoice Number Match (Invariant to separate shots/cameras)
           if (!isMatch && item.extractedInvoiceNo && att.extractedInvoiceNo) {
             const normInvIn = normalizeInvoiceNo(item.extractedInvoiceNo);
             const normInvAtt = normalizeInvoiceNo(att.extractedInvoiceNo);
             if (normInvIn.length >= 4 && normInvIn === normInvAtt) {
-              const taxMatch = item.extractedTaxId && att.extractedTaxId && item.extractedTaxId === att.extractedTaxId;
-              const amtMatch = item.extractedAmount && att.extractedAmount && Math.abs(item.extractedAmount - att.extractedAmount) < 0.01;
-              if (taxMatch || amtMatch) {
+              const effAttAmt = att.extractedAmount ?? (row.net_amount ? Number(row.net_amount) : undefined);
+              if (
+                isRecordInvoiceCorroborated(
+                  item,
+                  att.extractedTaxId || row.supplier_tax_id,
+                  effAttAmt,
+                  att.extractedSupplier || row.supplier_name
+                )
+              ) {
                 isMatch = true;
                 matchType = 'ATTACHMENT_OCR';
-                reason = `ตรวจพบข้อมูล OCR เลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" ${taxMatch ? 'และเลขผู้เสียภาษีตรงกัน' : 'และยอดเงินตรงกัน'} (ถ่ายจากต่างกล้อง)`;
-              }
-            }
-          }
-
-          // 0.3 OCR Match against previous payment request record (invoice_number & supplier_tax_id / net_amount)
-          if (!isMatch && item.extractedInvoiceNo && row.invoice_number) {
-            const normInvIn = normalizeInvoiceNo(item.extractedInvoiceNo);
-            const normInvRow = normalizeInvoiceNo(row.invoice_number);
-            if (normInvIn.length >= 4 && normInvIn === normInvRow) {
-              const cleanRowTax = (row.supplier_tax_id || '').replace(/\D/g, '');
-              const taxMatch = item.extractedTaxId && cleanRowTax && item.extractedTaxId === cleanRowTax;
-              const amtMatch = item.extractedAmount && row.net_amount && Math.abs(item.extractedAmount - Number(row.net_amount)) < 0.01;
-              if (taxMatch || amtMatch) {
-                isMatch = true;
-                matchType = 'ATTACHMENT_OCR_RECORD';
-                reason = `ตรวจพบเลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" จากภาพตรงกับคำขอเดิม (${row.pay_number})`;
+                reason = `ตรวจพบข้อมูล OCR เลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" ตรงกับเอกสาร "${att.fileName || 'เอกสารเดิม'}" (ถ่ายจากต่างกล้อง)`;
               }
             }
           }
@@ -667,53 +744,41 @@ export async function checkDuplicates(params: {
     }
   }
 
-  // 3. Exact Duplicate by Attachments (Multi-Signal: SHA-256, Visual Hash, Normalized Filename)
-  const allAttItems: AttachmentCheckItem[] = [
-    ...(attachmentItems || []),
-    ...(Array.isArray(attachments) ? attachments : []),
+  // 3. Collect all attachments metadata + hashes for single unified attachment duplicate check (Step 5)
+  const combinedAttachments: AttachmentCheckItem[] = [
+    ...(attachmentItems || []).map((a) => ({
+      ...a,
+      currentAmount: a.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
+      currentSupplier: a.currentSupplier ?? (cleanSupplier || undefined),
+    })),
+    ...(Array.isArray(attachments) ? attachments : []).map((a: any) => ({
+      ...a,
+      currentAmount: a.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
+      currentSupplier: a.currentSupplier ?? (cleanSupplier || undefined),
+    })),
   ];
   if (Array.isArray(items)) {
     for (const it of items) {
       if (Array.isArray(it.attachments)) {
-        allAttItems.push(
-          ...it.attachments.map((a: any) => ({
+        for (const a of it.attachments as any[]) {
+          combinedAttachments.push({
             ...a,
             currentAmount: Number(it.amount) || (netAmount > 0 ? netAmount : undefined),
             currentSupplier: it.supplierName?.trim() || cleanSupplier || undefined,
-          }))
-        );
+          });
+        }
       }
     }
   }
-  const mappedAttItems: AttachmentCheckItem[] = allAttItems.map((it) => ({
-    ...it,
-    currentAmount: it.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
-    currentSupplier: it.currentSupplier ?? (cleanSupplier || undefined),
-  }));
   if (fileHashes && fileHashes.length > 0) {
     for (const h of fileHashes) {
-      if (typeof h === 'string' && h.trim() && !mappedAttItems.some((it) => it.fileHash === h.trim())) {
-        mappedAttItems.push({
+      if (typeof h === 'string' && h.trim() && !combinedAttachments.some((it) => it.fileHash === h.trim())) {
+        combinedAttachments.push({
           fileHash: h.trim(),
           currentAmount: netAmount > 0 ? netAmount : undefined,
           currentSupplier: cleanSupplier || undefined,
         });
       }
-    }
-  }
-
-  if (mappedAttItems.length > 0 && exactMatches.length === 0) {
-    const attDupRes = await checkAttachmentDuplicates({
-      items: mappedAttItems,
-      excludeId,
-    });
-    if (attDupRes.isDuplicate && attDupRes.matches.length > 0) {
-      attDupRes.matches.forEach((m) => {
-        exactMatches.push({
-          ...m,
-          matchType: m.matchType || 'ATTACHMENT_HASH',
-        });
-      });
     }
   }
 
@@ -752,16 +817,17 @@ export async function checkDuplicates(params: {
       }));
   }
 
-  // 5. Multi-Item Duplicate Check: Check each requisition item across active requests
+  // 5. Multi-Item Duplicate Check: Check each requisition item accurately inside JSONB items array
   if (items && items.length > 0) {
+    const itemsJsonExpr = `CASE WHEN items IS NOT NULL AND items::text ~ '^\\s*\\[' THEN items::jsonb ELSE '[]'::jsonb END`;
     for (let i = 0; i < items.length; i++) {
       const it = items[i];
       const itSupplier = it.supplierName ? it.supplierName.trim() : '';
       const itInv = it.invoiceNumber ? it.invoiceNumber.replace(/[^a-zA-Z0-9ก-๙]/g, '').toLowerCase() : '';
       const itAmount = Number(it.amount || 0);
-      const itDate = it.billDate || documentDate;
+      const itDate = (toDateString(it.billDate || documentDate) || '').trim();
 
-      // 5.1 Item exact invoice check
+      // 5.1 Item exact invoice check (top-level header OR same element in items JSONB)
       if (itInv.length >= 3 && itSupplier.length >= 2) {
         const itemInvQuery = `
           SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
@@ -769,36 +835,40 @@ export async function checkDuplicates(params: {
           WHERE company = $1
             AND status NOT IN ('CANCELLED', 'REJECTED')
             AND (
-              regexp_replace(LOWER(invoice_number), '[^a-zA-Z0-9ก-๙]', '', 'g') = $2
-              OR items::text ILIKE $3
+              (
+                regexp_replace(LOWER(COALESCE(invoice_number, '')), '[^a-zA-Z0-9ก-๙]', '', 'g') = $2
+                AND LOWER(TRIM(COALESCE(supplier_name, ''))) = LOWER(TRIM($3))
+              )
+              OR EXISTS (
+                SELECT 1 FROM jsonb_array_elements(${itemsJsonExpr}) AS el
+                WHERE regexp_replace(LOWER(COALESCE(el->>'invoiceNumber', '')), '[^a-zA-Z0-9ก-๙]', '', 'g') = $2
+                  AND LOWER(TRIM(COALESCE(el->>'supplierName', ''))) = LOWER(TRIM($3))
+              )
             )
-            AND (
-              LOWER(TRIM(supplier_name)) = LOWER(TRIM($4))
-              OR items::text ILIKE $5
-            )
-            ${excludeId ? `AND id != $6` : ''}
+            ${excludeId ? `AND id != $4` : ''}
           ORDER BY created_at DESC
           LIMIT 3
         `;
-        const itemInvValues = excludeId
-          ? [company, itInv, `%"invoiceNumber":"${it.invoiceNumber?.trim()}"%`, itSupplier, `%"supplierName":"${itSupplier}"%`, excludeId]
-          : [company, itInv, `%"invoiceNumber":"${it.invoiceNumber?.trim()}"%`, itSupplier, `%"supplierName":"${itSupplier}"%`];
+        const itemInvValues = excludeId ? [company, itInv, itSupplier, excludeId] : [company, itInv, itSupplier];
 
         const itemRes = await pool.query(itemInvQuery, itemInvValues);
         if (itemRes.rows.length > 0) {
-          itemRes.rows.forEach((r: any) => {
-            exactMatches.push({
-              ...r,
-              document_date: toDateString(r.document_date) || '',
-              created_at: toTimestampString(r.created_at) || '',
-              net_amount: Number(r.net_amount || 0),
-              matchType: 'ITEM_DUPLICATE',
-              matchedItemIndex: i + 1,
-              matchedItemDesc: it.description,
-              matchedItemSupplier: it.supplierName,
-              matchedItemAmount: itAmount,
+          const exactIds = new Set(exactMatches.map((m) => m.id));
+          itemRes.rows
+            .filter((r: any) => !exactIds.has(r.id))
+            .forEach((r: any) => {
+              exactMatches.push({
+                ...r,
+                document_date: toDateString(r.document_date) || '',
+                created_at: toTimestampString(r.created_at) || '',
+                net_amount: Number(r.net_amount || 0),
+                matchType: 'ITEM_DUPLICATE',
+                matchedItemIndex: i + 1,
+                matchedItemDesc: it.description,
+                matchedItemSupplier: it.supplierName,
+                matchedItemAmount: itAmount,
+              });
             });
-          });
         }
       }
 
@@ -810,22 +880,29 @@ export async function checkDuplicates(params: {
           WHERE company = $1
             AND status NOT IN ('CANCELLED', 'REJECTED')
             AND (
-              (LOWER(TRIM(supplier_name)) = LOWER(TRIM($2)) AND ABS(net_amount - $3) < 1.00 AND document_date = $4)
-              OR (items::text ILIKE $5 AND items::text ILIKE $6)
+              (LOWER(TRIM(COALESCE(supplier_name, ''))) = LOWER(TRIM($2)) AND ABS(net_amount - $3) < 1.00 AND to_char(document_date, 'YYYY-MM-DD') = $4)
+              OR EXISTS (
+                SELECT 1 FROM jsonb_array_elements(${itemsJsonExpr}) AS el
+                WHERE LOWER(TRIM(COALESCE(el->>'supplierName', ''))) = LOWER(TRIM($2))
+                  AND (el->>'amount') ~ '^-?[0-9]+(\\.[0-9]+)?$'
+                  AND ABS((el->>'amount')::numeric - $3) < 1.00
+                  AND COALESCE(NULLIF(el->>'billDate', ''), to_char(document_date, 'YYYY-MM-DD')) = $4
+              )
             )
-            ${excludeId ? `AND id != $7` : ''}
+            ${excludeId ? `AND id != $5` : ''}
           ORDER BY created_at DESC
           LIMIT 3
         `;
         const itemAmountValues = excludeId
-          ? [company, itSupplier, itAmount, itDate, `%"supplierName":"${itSupplier}"%`, `%"amount":${itAmount}%`, excludeId]
-          : [company, itSupplier, itAmount, itDate, `%"supplierName":"${itSupplier}"%`, `%"amount":${itAmount}%`];
+          ? [company, itSupplier, itAmount, itDate, excludeId]
+          : [company, itSupplier, itAmount, itDate];
 
         const itemAmountRes = await pool.query(itemAmountQuery, itemAmountValues);
         if (itemAmountRes.rows.length > 0) {
           const exactIds = new Set(exactMatches.map((m) => m.id));
+          const possibleIds = new Set(possibleMatches.map((m) => m.id));
           itemAmountRes.rows
-            .filter((r: any) => !exactIds.has(r.id))
+            .filter((r: any) => !exactIds.has(r.id) && !possibleIds.has(r.id))
             .forEach((r: any) => {
               possibleMatches.push({
                 ...r,
@@ -844,18 +921,9 @@ export async function checkDuplicates(params: {
     }
   }
 
-  // 6. Attachment Multi-Signal Cross-Check (Invariance across separate cameras, angles, and phone models)
-  const allAttachments: any[] = [...(Array.isArray(attachments) ? attachments : [])];
-  if (Array.isArray(items)) {
-    items.forEach((it) => {
-      if (Array.isArray(it.attachments)) {
-        allAttachments.push(...it.attachments);
-      }
-    });
-  }
-
-  if (allAttachments.length > 0) {
-    const checkItems: AttachmentCheckItem[] = allAttachments.map((a: any) => ({
+  // 6. Unified Attachment Multi-Signal Cross-Check (single pass across SHA-256, visual hash, QR, OCR fields)
+  if (combinedAttachments.length > 0) {
+    const checkItems: AttachmentCheckItem[] = combinedAttachments.map((a: any) => ({
       fileName: a.fileName,
       fileHash: a.fileHash,
       visualHash: a.visualHash,
@@ -873,8 +941,8 @@ export async function checkDuplicates(params: {
       extractedLineItems: a.extractedLineItems,
       rawTextSnippet: a.rawTextSnippet,
       distinctiveTokens: a.distinctiveTokens,
-      currentAmount: netAmount,
-      currentSupplier: cleanSupplier,
+      currentAmount: a.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
+      currentSupplier: a.currentSupplier ?? (cleanSupplier || undefined),
     }));
 
     const attRes = await checkAttachmentDuplicates({
@@ -995,13 +1063,15 @@ function buildUserScopeClause(
   const values: any[] = [];
   let idx = startIdx;
 
+  const cleanUserFullName = stripThaiHonorific(currentUser.fullName);
+
   // 1. Own requests (as requester)
   conditions.push(`requester_id = $${idx++}`);
   values.push(currentUser.id);
 
-  if (currentUser.fullName) {
+  if (cleanUserFullName) {
     conditions.push(`requester_name ILIKE $${idx++}`);
-    values.push(`%${currentUser.fullName.trim()}%`);
+    values.push(`%${cleanUserFullName}%`);
   }
 
   // 2. Assigned supervisor
@@ -1010,9 +1080,14 @@ function buildUserScopeClause(
     values.push(currentUser.employeeId.trim());
   }
 
-  if (currentUser.fullName) {
+  if (currentUser.id) {
+    conditions.push(`assigned_supervisor_id = $${idx++}`);
+    values.push(currentUser.id);
+  }
+
+  if (cleanUserFullName) {
     conditions.push(`assigned_supervisor_name ILIKE $${idx++}`);
-    values.push(`%${currentUser.fullName.trim()}%`);
+    values.push(`%${cleanUserFullName}%`);
   }
 
   // 3. Subordinates' requests
@@ -1022,8 +1097,14 @@ function buildUserScopeClause(
   }
 
   if (subNames && subNames.length > 0) {
-    conditions.push(`requester_name = ANY($${idx++})`);
-    values.push(subNames);
+    const cleanSubPatterns = subNames
+      .map((n: string) => stripThaiHonorific(n))
+      .filter(Boolean)
+      .map((n: string) => `%${n}%`);
+    if (cleanSubPatterns.length > 0) {
+      conditions.push(`requester_name ILIKE ANY($${idx++})`);
+      values.push(cleanSubPatterns);
+    }
   }
 
   return {
@@ -1217,17 +1298,29 @@ export async function getPaymentRequestById(id: string) {
   if (!scope.isUnrestricted) {
     if (!currentUser) return null;
 
+    const cleanCurrentName = normalizePersonName(currentUser.fullName);
     const isOwner =
       (row.requester_id && row.requester_id === currentUser.id) ||
-      (row.requester_name && currentUser.fullName && row.requester_name.trim().toLowerCase() === currentUser.fullName.trim().toLowerCase());
+      Boolean(cleanCurrentName && normalizePersonName(row.requester_name) === cleanCurrentName);
 
     const isAssignedSup =
-      (currentUser.employeeId && row.assigned_supervisor_id && currentUser.employeeId.trim().toUpperCase() === row.assigned_supervisor_id.trim().toUpperCase()) ||
-      (currentUser.fullName && row.assigned_supervisor_name && currentUser.fullName.trim().toLowerCase() === row.assigned_supervisor_name.trim().toLowerCase());
+      (row.assigned_supervisor_id &&
+        ((currentUser.employeeId &&
+          currentUser.employeeId.trim().toUpperCase() === row.assigned_supervisor_id.trim().toUpperCase()) ||
+          (currentUser.id && currentUser.id.trim() === row.assigned_supervisor_id.trim()))) ||
+      Boolean(cleanCurrentName && normalizePersonName(row.assigned_supervisor_name) === cleanCurrentName);
 
+    const cleanRowReqName = normalizePersonName(row.requester_name);
     const isSubordinate =
       (scope.subUserIds && row.requester_id && scope.subUserIds.includes(row.requester_id)) ||
-      (scope.subNames && row.requester_name && scope.subNames.some((n: string) => n.toLowerCase() === row.requester_name.trim().toLowerCase()));
+      Boolean(
+        cleanRowReqName &&
+          scope.subNames &&
+          scope.subNames.some((n: string) => {
+            const cleanSub = normalizePersonName(n);
+            return Boolean(cleanSub) && (cleanSub === cleanRowReqName || cleanRowReqName.includes(cleanSub) || cleanSub.includes(cleanRowReqName));
+          })
+      );
 
     if (!isOwner && !isAssignedSup && !isSubordinate) {
       // General employees or non-subordinate supervisors cannot view requests belonging to other people!
@@ -1247,6 +1340,103 @@ export async function getPaymentRequestById(id: string) {
 }
 
 // Create new Payment Request
+async function resolveAssignedSupervisorInput(params: {
+  suppliedId?: string | null;
+  suppliedName?: string | null;
+  currentUser: Awaited<ReturnType<typeof getUser>>;
+  isManagerOrAdmin: boolean;
+  allowHrFallback: boolean;
+}): Promise<{ id: string | null; name: string | null }> {
+  const cleanSuppliedId = params.suppliedId?.trim() || '';
+  const cleanSuppliedName = params.suppliedName?.trim() || '';
+  const user = params.currentUser;
+
+  if (cleanSuppliedId === '__NONE__' && params.isManagerOrAdmin) {
+    return { id: null, name: null };
+  }
+
+  if ((cleanSuppliedId && cleanSuppliedId !== '__NONE__') || cleanSuppliedName) {
+    const cleanUserNorm = normalizePersonName(user?.fullName);
+    const isSelfId = Boolean(
+      cleanSuppliedId &&
+        user &&
+        ((user.employeeId && cleanSuppliedId.toUpperCase() === user.employeeId.trim().toUpperCase()) ||
+          cleanSuppliedId === user.id)
+    );
+    const isSelfName = Boolean(
+      cleanSuppliedName && cleanUserNorm && normalizePersonName(cleanSuppliedName) === cleanUserNorm
+    );
+
+    if (!isSelfId && !isSelfName) {
+      let resolvedId: string | null = cleanSuppliedId && cleanSuppliedId !== '__NONE__' ? cleanSuppliedId : null;
+      let resolvedName: string | null = cleanSuppliedName || null;
+
+      try {
+        if (!resolvedId && resolvedName) {
+          const cleanTarget = normalizePersonName(resolvedName);
+          const activeUsers = await prisma.user.findMany({
+            where: { isActive: true },
+            select: { id: true, employeeId: true, fullName: true },
+          });
+          const matchedUser = activeUsers.find(
+            (u) => normalizePersonName(u.fullName) === cleanTarget
+          );
+          if (matchedUser) {
+            resolvedId = matchedUser.employeeId || matchedUser.id;
+            resolvedName = matchedUser.fullName;
+          }
+        } else if (resolvedId && !resolvedName) {
+          const matchedUser = await prisma.user.findFirst({
+            where: {
+              isActive: true,
+              OR: [{ employeeId: resolvedId }, { id: resolvedId }],
+            },
+            select: { fullName: true },
+          });
+          if (matchedUser?.fullName) {
+            resolvedName = matchedUser.fullName;
+          } else {
+            const { teraDb } = await import('@/app/lib/teraDb');
+            const matchedEmp = await teraDb.employees.findUnique({
+              where: { emp_id: resolvedId },
+              select: { name: true },
+            });
+            if (matchedEmp?.name) resolvedName = matchedEmp.name;
+          }
+        }
+      } catch (e) {
+        console.warn('Error enriching manually chosen supervisor:', e);
+      }
+
+      return { id: resolvedId, name: resolvedName };
+    }
+  }
+
+  if (params.allowHrFallback && user?.employeeId) {
+    try {
+      const { teraDb } = await import('@/app/lib/teraDb');
+      const emp = await teraDb.employees.findUnique({
+        where: { emp_id: user.employeeId },
+      });
+      const candidateSupIds = [emp?.supervisor_id, emp?.secondary_supervisor_id].filter(
+        (supId): supId is string => Boolean(supId && supId.trim() && supId !== emp?.emp_id)
+      );
+      for (const supId of candidateSupIds) {
+        const sup = await teraDb.employees.findUnique({
+          where: { emp_id: supId },
+        });
+        if (sup && sup.is_active !== false) {
+          return { id: sup.emp_id, name: sup.name?.trim() || null };
+        }
+      }
+    } catch (e) {
+      console.warn('Error resolving assigned supervisor:', e);
+    }
+  }
+
+  return { id: null, name: null };
+}
+
 export async function createPaymentRequest(data: {
   company: 'TG' | 'TE' | 'TP';
   branch: string;
@@ -1256,6 +1446,8 @@ export async function createPaymentRequest(data: {
   requester_name: string;
   requester_department?: string;
   requester_phone?: string;
+  assigned_supervisor_id?: string | null;
+  assigned_supervisor_name?: string | null;
   supplier_name: string;
   supplier_tax_id?: string;
   bank_name?: string;
@@ -1315,34 +1507,26 @@ export async function createPaymentRequest(data: {
     });
 
     const currentUser = await getUser();
-    let assignedSupId: string | null = null;
-    let assignedSupName: string | null = null;
-    let isManagerOrAdmin = currentUser ? isSupervisorOrManager(currentUser.role) : false;
-
-    if (currentUser?.employeeId) {
-      try {
-        const { teraDb } = await import('@/app/lib/teraDb');
-        const emp = await teraDb.employees.findUnique({
-          where: { emp_id: currentUser.employeeId },
-        });
-        if (emp?.supervisor_id) {
-          const sup = await teraDb.employees.findUnique({
-            where: { emp_id: emp.supervisor_id },
-          });
-          if (sup) {
-            assignedSupId = sup.emp_id;
-            assignedSupName = sup.name;
-          }
-        }
-      } catch (e) {
-        console.warn('Error resolving assigned supervisor:', e);
-      }
-    }
+    const isManagerOrAdmin = currentUser ? isSupervisorOrManager(currentUser.role) : false;
+    const resolvedSup = await resolveAssignedSupervisorInput({
+      suppliedId: data.assigned_supervisor_id,
+      suppliedName: data.assigned_supervisor_name,
+      currentUser,
+      isManagerOrAdmin,
+      allowHrFallback: data.assigned_supervisor_id !== '__NONE__' && !data.assigned_supervisor_name?.trim(),
+    });
+    const assignedSupId = resolvedSup.id;
+    const assignedSupName = resolvedSup.name;
 
     // Disbursement request initial status:
-    // If the requester reports to a direct supervisor, supervisor approval is required (PENDING_SUPERVISOR)
+    // If a supervisor is assigned (explicitly or via HR), supervisor approval is required (PENDING_SUPERVISOR)
     // If no direct supervisor exists (e.g. Executive / Super Admin), it bypasses directly to AP (SUBMITTED)
-    let initialStatus = assignedSupId ? 'PENDING_SUPERVISOR' : (isManagerOrAdmin ? 'SUBMITTED' : 'PENDING_SUPERVISOR');
+    let initialStatus =
+      assignedSupId || assignedSupName
+        ? 'PENDING_SUPERVISOR'
+        : isManagerOrAdmin
+        ? 'SUBMITTED'
+        : 'PENDING_SUPERVISOR';
     let isPossibleDuplicate = false;
     let duplicateReason: string | null = null;
     let duplicateMatches: any[] = [];
@@ -1495,6 +1679,60 @@ export async function createPaymentRequest(data: {
   }
 }
 
+// Shared helper to check department/branch/direct supervisor authorization for a payment request
+async function resolveSupervisorAuthorization(
+  currentUser: NonNullable<Awaited<ReturnType<typeof getUser>>>,
+  reqRow: {
+    requester_id?: string | null;
+    requester_name?: string | null;
+    requester_department?: string | null;
+    branch?: string | null;
+    assigned_supervisor_id?: string | null;
+    assigned_supervisor_name?: string | null;
+  }
+) {
+  let userDept = '';
+  let userBranch = '';
+  let isDirectSupervisor = false;
+  try {
+    const profile = await getUserProfileDetails(currentUser.id, currentUser.employeeId);
+    userDept = profile.defaultDept;
+    userBranch = profile.defaultBranch;
+    if (currentUser.employeeId && reqRow.requester_name?.trim()) {
+      const { teraDb } = await import('@/app/lib/teraDb');
+      const requesterKeyword = stripThaiHonorific(reqRow.requester_name) || reqRow.requester_name.trim();
+      const directSub = await teraDb.employees.findFirst({
+        where: {
+          OR: [
+            { supervisor_id: currentUser.employeeId },
+            { secondary_supervisor_id: currentUser.employeeId },
+          ],
+          name: { contains: requesterKeyword },
+        },
+      });
+      if (directSub) isDirectSupervisor = true;
+    }
+  } catch (e) {
+    console.warn('Error verifying supervisor department / hierarchy:', e);
+  }
+
+  return canSupervisorApproveRequest({
+    userRole: currentUser.role,
+    userDepartment: userDept,
+    userBranch: userBranch,
+    userId: currentUser.id,
+    userFullName: currentUser.fullName,
+    userEmployeeId: currentUser.employeeId,
+    requestRequesterId: reqRow.requester_id,
+    requestRequesterName: reqRow.requester_name,
+    requestDepartment: reqRow.requester_department,
+    requestBranch: reqRow.branch,
+    requestAssignedSupervisorId: reqRow.assigned_supervisor_id,
+    requestAssignedSupervisorName: reqRow.assigned_supervisor_name,
+    isDirectSupervisor,
+  });
+}
+
 // Department Supervisor Approval (Step 1: Before Accounting Review)
 export async function supervisorApprovePaymentRequest(
   id: string,
@@ -1520,47 +1758,7 @@ export async function supervisorApprovePaymentRequest(
   if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
 
   const reqRow = currentReq.rows[0];
-
-  // Resolve current user department, branch, and check direct subordinate relationship
-  let userDept = '';
-  let userBranch = '';
-  let isDirectSupervisor = false;
-  try {
-    const profile = await getUserProfileDetails(currentUser.id, currentUser.employeeId);
-    userDept = profile.defaultDept;
-    userBranch = profile.defaultBranch;
-    if (currentUser.employeeId) {
-      const { teraDb } = await import('@/app/lib/teraDb');
-      const directSub = await teraDb.employees.findFirst({
-        where: {
-          OR: [
-            { supervisor_id: currentUser.employeeId },
-            { secondary_supervisor_id: currentUser.employeeId },
-          ],
-          name: { contains: reqRow.requester_name?.trim() },
-        },
-      });
-      if (directSub) isDirectSupervisor = true;
-    }
-  } catch (e) {
-    console.warn('Error verifying supervisor department / hierarchy:', e);
-  }
-
-  const auth = canSupervisorApproveRequest({
-    userRole: currentUser.role,
-    userDepartment: userDept,
-    userBranch: userBranch,
-    userId: currentUser.id,
-    userFullName: currentUser.fullName,
-    userEmployeeId: currentUser.employeeId,
-    requestRequesterId: reqRow.requester_id,
-    requestRequesterName: reqRow.requester_name,
-    requestDepartment: reqRow.requester_department,
-    requestBranch: reqRow.branch,
-    requestAssignedSupervisorId: reqRow.assigned_supervisor_id,
-    requestAssignedSupervisorName: reqRow.assigned_supervisor_name,
-    isDirectSupervisor,
-  });
+  const auth = await resolveSupervisorAuthorization(currentUser, reqRow);
 
   if (!auth.canApprove) {
     return {
@@ -1595,6 +1793,83 @@ export async function supervisorApprovePaymentRequest(
   return { success: true };
 }
 
+// Persist updated substitute receipt certificates (บก.111) after supervisor / staff / editable-owner signing
+export async function supervisorUpdateSubstituteCertificates(
+  id: string,
+  data: {
+    items: RequisitionItem[];
+    attachments?: any[];
+    approverSignatureUrl?: string | null;
+    approverName?: string;
+    note?: string;
+  }
+) {
+  const currentUser = await getUser();
+  if (!currentUser) {
+    return { success: false, error: 'ไม่มีสิทธิ์: กรุณาเข้าสู่ระบบก่อนทำรายการ' };
+  }
+
+  const pool = getPool();
+  const currentReq = await pool.query(
+    'SELECT status, requester_id, requester_name, requester_department, branch, assigned_supervisor_id, assigned_supervisor_name FROM payment_requests WHERE id = $1',
+    [id]
+  );
+  if (currentReq.rows.length === 0) return { success: false, error: 'ไม่พบคำขอเบิกจ่ายนี้' };
+
+  const reqRow = currentReq.rows[0];
+  const isStaff = isAccountingStaff(currentUser.role);
+  const isOwner =
+    (currentUser.id && reqRow.requester_id === currentUser.id) ||
+    (currentUser.fullName && reqRow.requester_name?.trim().toLowerCase() === currentUser.fullName.trim().toLowerCase());
+  const ownerEditableStatuses = ['PENDING_SUPERVISOR', 'RETURN_DOCUMENT', 'DRAFT', 'SUBMITTED'];
+
+  const isAuthorized = isStaff || (isOwner && ownerEditableStatuses.includes(reqRow.status));
+  let finalAuthorized = isAuthorized;
+  let authReason: string | undefined;
+
+  if (!finalAuthorized && !['PAID', 'POSTED_TO_GL', 'ORIGINAL_RECEIVED', 'CLOSED', 'CANCELLED', 'REJECTED'].includes(reqRow.status)) {
+    const auth = await resolveSupervisorAuthorization(currentUser, reqRow);
+    finalAuthorized = auth.canApprove;
+    authReason = auth.reason;
+  }
+
+  if (!finalAuthorized) {
+    return {
+      success: false,
+      error: authReason || 'ไม่มีสิทธิ์ลงนามหรือแก้ไขใบรับรองแทนใบเสร็จในรายการนี้',
+    };
+  }
+
+  const itemsJson = JSON.stringify(data.items || []);
+  const attachmentsJson = data.attachments ? JSON.stringify(data.attachments) : null;
+  const signerName = data.approverName || currentUser.fullName;
+
+  await pool.query(
+    `UPDATE payment_requests
+     SET items = $1::jsonb,
+         attachments = COALESCE($2::jsonb, attachments),
+         supervisor_signature_url = COALESCE($3, supervisor_signature_url),
+         updated_at = NOW()
+     WHERE id = $4`,
+    [itemsJson, attachmentsJson, data.approverSignatureUrl || null, id]
+  );
+
+  await pool.query(
+    `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
+     VALUES ($1, 'SUPERVISOR_SIGNED_CERT', $2, $3, $3, $4)`,
+    [
+      id,
+      signerName,
+      reqRow.status,
+      data.note || 'ลงนามและอัปเดตเอกสารใบรับรองแทนใบเสร็จ (บก.111)',
+    ]
+  );
+
+  revalidatePath('/accounting/payment-requests');
+  revalidatePath(`/accounting/payment-requests/${id}`);
+  return { success: true };
+}
+
 // Department Supervisor Return (Send back to Requester for revision)
 export async function supervisorReturnPaymentRequest(
   id: string,
@@ -1619,47 +1894,7 @@ export async function supervisorReturnPaymentRequest(
   if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
 
   const reqRow = currentReq.rows[0];
-
-  // Resolve current user department, branch, and check direct subordinate relationship
-  let userDept = '';
-  let userBranch = '';
-  let isDirectSupervisor = false;
-  try {
-    const profile = await getUserProfileDetails(currentUser.id, currentUser.employeeId);
-    userDept = profile.defaultDept;
-    userBranch = profile.defaultBranch;
-    if (currentUser.employeeId) {
-      const { teraDb } = await import('@/app/lib/teraDb');
-      const directSub = await teraDb.employees.findFirst({
-        where: {
-          OR: [
-            { supervisor_id: currentUser.employeeId },
-            { secondary_supervisor_id: currentUser.employeeId },
-          ],
-          name: { contains: reqRow.requester_name?.trim() },
-        },
-      });
-      if (directSub) isDirectSupervisor = true;
-    }
-  } catch (e) {
-    console.warn('Error verifying supervisor department / hierarchy:', e);
-  }
-
-  const auth = canSupervisorApproveRequest({
-    userRole: currentUser.role,
-    userDepartment: userDept,
-    userBranch: userBranch,
-    userId: currentUser.id,
-    userFullName: currentUser.fullName,
-    userEmployeeId: currentUser.employeeId,
-    requestRequesterId: reqRow.requester_id,
-    requestRequesterName: reqRow.requester_name,
-    requestDepartment: reqRow.requester_department,
-    requestBranch: reqRow.branch,
-    requestAssignedSupervisorId: reqRow.assigned_supervisor_id,
-    requestAssignedSupervisorName: reqRow.assigned_supervisor_name,
-    isDirectSupervisor,
-  });
+  const auth = await resolveSupervisorAuthorization(currentUser, reqRow);
 
   if (!auth.canApprove) {
     return {
@@ -2255,7 +2490,7 @@ export async function resubmitPaymentRequest(
 
   const pool = getPool();
   const reqRes = await pool.query(
-    'SELECT status, pay_number, requester_id, requester_name, ap_checked_by, supervisor_checked_by FROM payment_requests WHERE id = $1',
+    'SELECT status, pay_number, requester_id, requester_name, ap_checked_by, supervisor_checked_by, assigned_supervisor_id, assigned_supervisor_name FROM payment_requests WHERE id = $1',
     [id]
   );
   if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
@@ -2277,7 +2512,7 @@ export async function resubmitPaymentRequest(
   // If AP had already checked it before returning, it goes back directly to SUBMITTED (AP review)
   // If supervisor approval is needed, it goes to PENDING_SUPERVISOR
   let targetStatus = 'SUBMITTED';
-  if (current.assigned_supervisor_id && !current.supervisor_checked_by) {
+  if ((current.assigned_supervisor_id || current.assigned_supervisor_name) && !current.supervisor_checked_by) {
     targetStatus = 'PENDING_SUPERVISOR';
   } else if (current.ap_checked_by) {
     targetStatus = 'SUBMITTED';
@@ -2447,6 +2682,8 @@ export async function updateFullPaymentRequest(
     credit_card_deduction?: number;
     requester_signature_url?: string | null;
     supervisor_signature_url?: string | null;
+    assigned_supervisor_id?: string | null;
+    assigned_supervisor_name?: string | null;
     resubmit?: boolean;
     resubmitNote?: string | null;
   }
@@ -2456,7 +2693,7 @@ export async function updateFullPaymentRequest(
 
   const pool = getPool();
   const reqRes = await pool.query(
-    'SELECT status, pay_number, requester_id, requester_name, ap_checked_by, supervisor_checked_by, assigned_supervisor_id FROM payment_requests WHERE id = $1',
+    'SELECT status, pay_number, requester_id, requester_name, ap_checked_by, supervisor_checked_by, assigned_supervisor_id, assigned_supervisor_name FROM payment_requests WHERE id = $1',
     [id]
   );
   if (reqRes.rows.length === 0) return { success: false, error: 'Request not found' };
@@ -2509,23 +2746,44 @@ export async function updateFullPaymentRequest(
     };
   }
 
+  const isManagerOrAdmin = isSupervisorOrManager(currentUser.role);
+  const hasSupervisorInput =
+    data.assigned_supervisor_id !== undefined || data.assigned_supervisor_name !== undefined;
+  let nextSupId: string | null = current.assigned_supervisor_id || null;
+  let nextSupName: string | null = current.assigned_supervisor_name || null;
+
+  if (hasSupervisorInput) {
+    const resolved = await resolveAssignedSupervisorInput({
+      suppliedId: data.assigned_supervisor_id,
+      suppliedName: data.assigned_supervisor_name,
+      currentUser,
+      isManagerOrAdmin,
+      allowHrFallback: false,
+    });
+    nextSupId = resolved.id;
+    nextSupName = resolved.name;
+  }
+
+  const hasAssignedSup = Boolean(nextSupId || nextSupName);
   let targetStatus = current.status;
   if (data.resubmit) {
     // If the request was returned to user (RETURN_DOCUMENT), reset back to Step 1 (PENDING_SUPERVISOR)
     // so it requires supervisor approval again, never bypassing supervisor
     if (current.status === 'RETURN_DOCUMENT' || !current.supervisor_checked_by) {
-      if (current.assigned_supervisor_id) {
+      if (hasAssignedSup) {
         targetStatus = 'PENDING_SUPERVISOR';
       } else {
         targetStatus = 'SUBMITTED';
       }
     } else if (current.ap_checked_by) {
       targetStatus = 'SUBMITTED';
-    } else if (current.assigned_supervisor_id && !current.supervisor_checked_by) {
+    } else if (hasAssignedSup && !current.supervisor_checked_by) {
       targetStatus = 'PENDING_SUPERVISOR';
     } else {
       targetStatus = 'SUBMITTED';
     }
+  } else if (current.status === 'SUBMITTED' && hasSupervisorInput && hasAssignedSup && !current.supervisor_checked_by) {
+    targetStatus = 'PENDING_SUPERVISOR';
   }
 
   const attachmentsJson = JSON.stringify(data.attachments || []);
@@ -2565,8 +2823,10 @@ export async function updateFullPaymentRequest(
          requester_signature_url = COALESCE($30, requester_signature_url),
          supervisor_signature_url = COALESCE($31, supervisor_signature_url),
          status = $32,
+         assigned_supervisor_id = $33,
+         assigned_supervisor_name = $34,
          updated_at = NOW()
-     WHERE id = $33`,
+     WHERE id = $35`,
     [
       data.company,
       data.branch,
@@ -2600,6 +2860,8 @@ export async function updateFullPaymentRequest(
       data.requester_signature_url || null,
       data.supervisor_signature_url || null,
       targetStatus,
+      nextSupId,
+      nextSupName,
       id,
     ]
   );
@@ -2684,6 +2946,147 @@ export type SystemBranch = {
   name: string;
 };
 
+export type SupervisorOption = {
+  id: string;
+  userId?: string | null;
+  empId?: string | null;
+  fullName: string;
+  nickname?: string | null;
+  role: string;
+  department?: string | null;
+  branch?: string | null;
+  jobTitle?: string | null;
+  isManagerial: boolean;
+  hasCrmAccount: boolean;
+};
+
+export async function getSupervisorOptions(): Promise<SupervisorOption[]> {
+  try {
+    const [crmUsers, empSales, teraEmployees] = await Promise.all([
+      prisma.user.findMany({
+        where: { isActive: true },
+        select: {
+          id: true,
+          employeeId: true,
+          fullName: true,
+          role: true,
+          position: true,
+        },
+      }),
+      prisma.employeeSale.findMany({
+        select: {
+          userId: true,
+          employeeId: true,
+          fullName: true,
+          nickname: true,
+          branch: true,
+          department: true,
+          position: true,
+        },
+      }),
+      (async () => {
+        try {
+          const { teraDb } = await import('@/app/lib/teraDb');
+          return await teraDb.employees.findMany({
+            where: { is_active: true },
+            select: {
+              emp_id: true,
+              name: true,
+              nickname: true,
+              branch_id: true,
+              departments: { select: { name: true } },
+              job_positions: { select: { title: true, node_type: true } },
+            },
+          });
+        } catch (err) {
+          console.warn('Could not load teraDb employees in getSupervisorOptions:', err);
+          return [];
+        }
+      })(),
+    ]);
+
+    const empSaleByUserId = new Map<string, (typeof empSales)[number]>();
+    const empSaleByEmpId = new Map<string, (typeof empSales)[number]>();
+    const empSaleByNormName = new Map<string, (typeof empSales)[number]>();
+    for (const s of empSales) {
+      if (s.userId) empSaleByUserId.set(s.userId, s);
+      if (s.employeeId) empSaleByEmpId.set(s.employeeId.trim().toUpperCase(), s);
+      const norm = normalizePersonName(s.fullName);
+      if (norm) empSaleByNormName.set(norm, s);
+    }
+
+    const teraByEmpId = new Map<string, (typeof teraEmployees)[number]>();
+    const teraByNormName = new Map<string, (typeof teraEmployees)[number]>();
+    for (const e of teraEmployees) {
+      if (e.emp_id) teraByEmpId.set(e.emp_id.trim().toUpperCase(), e);
+      const norm = normalizePersonName(e.name);
+      if (norm) teraByNormName.set(norm, e);
+    }
+
+    const MANAGERIAL_KEYWORDS = [
+      'supervisor',
+      'manager',
+      'head',
+      'director',
+      'lead',
+      'chief',
+      'executive',
+      'admin',
+      'หัวหน้า',
+      'ผู้จัดการ',
+      'ผู้อำนวยการ',
+      'ผู้บริหาร',
+      'ประธาน',
+    ];
+
+    const options: SupervisorOption[] = crmUsers.map((u) => {
+      const empIdUpper = u.employeeId?.trim().toUpperCase() || '';
+      const normName = normalizePersonName(u.fullName);
+      const teraEmp = (empIdUpper && teraByEmpId.get(empIdUpper)) || (normName && teraByNormName.get(normName)) || null;
+      const saleEmp =
+        empSaleByUserId.get(u.id) ||
+        (empIdUpper && empSaleByEmpId.get(empIdUpper)) ||
+        (normName && empSaleByNormName.get(normName)) ||
+        null;
+
+      const jobTitle = teraEmp?.job_positions?.title?.trim() || saleEmp?.position?.trim() || u.position?.trim() || null;
+      const nodeType = teraEmp?.job_positions?.node_type?.trim().toLowerCase() || '';
+      const department = teraEmp?.departments?.name?.trim() || saleEmp?.department?.trim() || null;
+      const branch = saleEmp?.branch?.trim() || teraEmp?.branch_id?.trim() || null;
+      const nickname = teraEmp?.nickname?.trim() || saleEmp?.nickname?.trim() || null;
+
+      const combinedText = `${u.role || ''} ${jobTitle || ''} ${nodeType}`.toLowerCase();
+      const isManagerial =
+        isSupervisorOrManager(u.role) ||
+        MANAGERIAL_KEYWORDS.some((kw) => combinedText.includes(kw));
+
+      return {
+        id: u.employeeId?.trim() || u.id,
+        userId: u.id,
+        empId: teraEmp?.emp_id || u.employeeId || null,
+        fullName: u.fullName.trim(),
+        nickname,
+        role: u.role,
+        department,
+        branch,
+        jobTitle,
+        isManagerial,
+        hasCrmAccount: true,
+      };
+    });
+
+    options.sort((a, b) => {
+      if (a.isManagerial !== b.isManagerial) return a.isManagerial ? -1 : 1;
+      return a.fullName.localeCompare(b.fullName, 'th');
+    });
+
+    return options;
+  } catch (err) {
+    console.error('Failed to query getSupervisorOptions:', err);
+    return [];
+  }
+}
+
 export async function getSystemBranches(): Promise<SystemBranch[]> {
   try {
     const rawBranches = await prisma.branches.findMany({
@@ -2731,16 +3134,20 @@ export async function getUserProfileDetails(userId: string, employeeId?: string 
         include: { departments: true },
       });
       if (emp) {
-        if (emp.departments?.name) defaultDept = emp.departments.name;
-        if (emp.phone_number) defaultPhone = emp.phone_number;
-        if (emp.branch_id) defaultBranch = emp.branch_id;
-        if (emp.supervisor_id) {
+        if (emp.departments?.name?.trim()) defaultDept = emp.departments.name.trim();
+        if (emp.phone_number?.trim()) defaultPhone = emp.phone_number.trim();
+        if (emp.branch_id?.trim()) defaultBranch = emp.branch_id.trim();
+        const candidateSupIds = [emp.supervisor_id, emp.secondary_supervisor_id].filter(
+          (sid): sid is string => Boolean(sid && sid.trim() && sid !== emp.emp_id)
+        );
+        for (const sid of candidateSupIds) {
           const sup = await teraDb.employees.findUnique({
-            where: { emp_id: emp.supervisor_id },
+            where: { emp_id: sid },
           });
-          if (sup?.name) {
-            supervisorName = sup.name;
+          if (sup && sup.is_active !== false && sup.name?.trim()) {
+            supervisorName = sup.name.trim();
             supervisorEmpId = sup.emp_id;
+            break;
           }
         }
       }
@@ -2757,8 +3164,11 @@ export async function getUserProfileDetails(userId: string, employeeId?: string 
     });
 
     if (empSale) {
-      if (!defaultDept && empSale.department) defaultDept = empSale.department;
-      if (defaultBranch === 'สำนักงานใหญ่' && empSale.branch) defaultBranch = empSale.branch;
+      if (!defaultDept && empSale.department?.trim()) defaultDept = empSale.department.trim();
+      if (defaultBranch === 'สำนักงานใหญ่' && empSale.branch?.trim()) defaultBranch = empSale.branch.trim();
+      if (!supervisorName && empSale.teamLeader?.trim()) {
+        supervisorName = empSale.teamLeader.trim();
+      }
     }
   } catch (err) {
     console.warn('Error querying user profile details for payment request:', err);

@@ -1231,13 +1231,13 @@ export default function EditRepairOrderForm({
                           </span>
                           {(checkedCount > 0 || imgCount > 0) && (
                             <span
-                              className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                              className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
                                 isSelected
                                   ? "bg-red-900/30 text-white"
                                   : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                               }`}
                             >
-                              ✓ {checkedCount}
+                              <Check size={10} /> {checkedCount}
                               {imgCount > 0 ? ` • ${imgCount} รูป` : ""}
                             </span>
                           )}

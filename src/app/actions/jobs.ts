@@ -644,7 +644,7 @@ export async function notifyJobStepUpdate(jobId: string, stepKey: string, stepLa
     
     const accountingMsg = await customAccountingMessage(job);
     const pushPayload = {
-      title: '📝 งานรอตรวจสอบบัญชี',
+      title: 'งานรอตรวจสอบบัญชี',
       body: `งาน ${job.jobNumber} ของลูกค้า ${job.customerName} รอการตรวจสอบบัญชี`,
       url: `/jobs?jobId=${job.id}`,
       category: 'accounting_job'

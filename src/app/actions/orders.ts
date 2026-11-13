@@ -378,7 +378,7 @@ export async function startProductionWorkflow(id: string, payload: {
 
       for (const pUser of targetUsers) {
         await sendPushToUser(pUser.id, {
-          title: "🛒 แจ้งเตือน: กรุณาเปิด PR สำหรับงานผลิต",
+          title: "แจ้งเตือน: กรุณาเปิด PR สำหรับงานผลิต",
           body: `Order ${order.orderNumber} ต้องการจัดซื้อวัสดุ${payload.prNote ? ` — ${payload.prNote}` : ""}`,
           url: `/admin/procurement/pr`,
           category: "PRODUCTION_PR"

@@ -16,6 +16,7 @@ import {
   Calendar,
   Layers,
   ShieldAlert,
+  ArrowLeft,
   ArrowRight,
   User,
   Filter,
@@ -1626,9 +1627,10 @@ export default function ServiceExecutiveCockpit({
             </h2>
             <button
               onClick={() => setViewMode("cockpit")}
-              className="text-xs font-bold text-red-600 hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:underline cursor-pointer"
             >
-              ⬅ กลับสู่ Executive Cockpit
+              <ArrowLeft size={13} />
+              <span>กลับสู่ Executive Cockpit</span>
             </button>
           </div>
 

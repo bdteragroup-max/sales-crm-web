@@ -17,7 +17,8 @@ import {
   Paperclip,
   CheckCircle2,
   Calendar,
-  Package
+  Package,
+  Coins
 } from 'lucide-react';
 import { saveSalesData, updateSalesData, searchCompanies, searchContacts, getPostalInfo } from '@/app/actions/sales';
 import Card from './Card';
@@ -553,7 +554,9 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
       {showCoinModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl scale-in-center border border-slate-200">
-            <div className="text-6xl mb-4">🪙</div>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-200 text-amber-950">
+              <Coins size={34} />
+            </div>
             <h2 className="text-2xl font-black text-amber-600 mb-2">ยินดีด้วย! คุณได้รับเหรียญทอง</h2>
             <p className="text-slate-600 mb-6 font-medium text-sm">{coinModalData.message}</p>
             <button

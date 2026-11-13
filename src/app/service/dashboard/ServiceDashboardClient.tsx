@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Wrench, Clock, CheckCircle, TrendingUp, TrendingDown, Users, AlertTriangle, Package, Activity, DollarSign, FileText } from "lucide-react";
+import { ArrowLeft, Wrench, Clock, CheckCircle, TrendingUp, TrendingDown, Users, AlertTriangle, Package, Activity, DollarSign, FileText } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell, PieChart, Pie } from "recharts";
 import * as XLSX from "xlsx";
 
@@ -316,7 +316,8 @@ export default function ServiceDashboardClient({
             href="/executive/service"
             className="px-3 py-1.5 rounded-xl bg-red-600 text-white font-bold text-xs hover:bg-red-700 transition-colors shadow-2xs inline-flex items-center gap-1.5"
           >
-            <span>⬅ สลับไป Executive Cockpit</span>
+            <ArrowLeft size={13} />
+            <span>สลับไป Executive Cockpit</span>
           </Link>
         </div>
       )}

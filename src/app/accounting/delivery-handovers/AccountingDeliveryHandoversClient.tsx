@@ -619,8 +619,8 @@ export default function AccountingDeliveryHandoversClient({
                               {item.nameSender || item.technician || "-"}
                             </b>{" "}
                             {item.sigSenderUrl ? (
-                              <span className="text-emerald-700 font-bold">
-                                ✓ มีลายเซ็น
+                              <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
+                                <Check size={12} /> มีลายเซ็น
                               </span>
                             ) : null}
                           </div>
@@ -630,8 +630,8 @@ export default function AccountingDeliveryHandoversClient({
                               {item.nameReceiver || item.customer || "-"}
                             </b>{" "}
                             {item.sigReceiverUrl ? (
-                              <span className="text-emerald-700 font-bold">
-                                ✓ มีลายเซ็น
+                              <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
+                                <Check size={12} /> มีลายเซ็น
                               </span>
                             ) : null}
                           </div>
@@ -899,8 +899,8 @@ export default function AccountingDeliveryHandoversClient({
                         key={idx}
                         className="h-full last:odd:sm:col-span-2 p-3 rounded-xl bg-red-50/40 border border-red-200/70"
                       >
-                        <div className="font-bold text-[#ff2301] mb-1">
-                          ✓ {w.label}
+                        <div className="font-bold text-[#ff2301] mb-1 flex items-center gap-1">
+                          <Check size={13} /> {w.label}
                         </div>
                         <p className="text-slate-800 whitespace-pre-wrap">
                           {w.detail || "ดำเนินการเรียบร้อย"}

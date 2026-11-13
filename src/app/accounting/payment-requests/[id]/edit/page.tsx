@@ -7,6 +7,7 @@ import {
   getSystemBranches,
   getUserProfileDetails,
   getPaymentRequests,
+  getSupervisorOptions,
 } from '@/app/actions/paymentRequests';
 import { isAccountingStaff } from '@/app/lib/roleHelper';
 
@@ -23,11 +24,12 @@ export default async function EditPaymentRequestPage({
   }
 
   const { id } = await params;
-  const [request, branches, profile, myRequests] = await Promise.all([
+  const [request, branches, profile, myRequests, supervisorOptions] = await Promise.all([
     getPaymentRequestById(id),
     getSystemBranches(),
     getUserProfileDetails(user.id, user.employeeId),
     getPaymentRequests({ requesterId: user.id, requesterName: user.fullName }),
+    getSupervisorOptions(),
   ]);
 
   if (!request) {
@@ -50,12 +52,15 @@ export default async function EditPaymentRequestPage({
     redirect(`/accounting/payment-requests/${id}`);
   }
 
-  const matchedBranch = (branches as any[]).find(
-    (b: any) =>
-      b.id.toLowerCase() === (request.branch || profile.defaultBranch).toLowerCase() ||
-      b.name.toLowerCase() === (request.branch || profile.defaultBranch).toLowerCase() ||
-      b.name.toLowerCase().includes((request.branch || profile.defaultBranch).toLowerCase())
-  );
+  const branchQuery = (request.branch || profile.defaultBranch || '').trim().toLowerCase();
+  const matchedBranch = branchQuery
+    ? (branches as any[]).find(
+        (b: any) =>
+          b.id.toLowerCase() === branchQuery ||
+          b.name.toLowerCase() === branchQuery ||
+          b.name.toLowerCase().includes(branchQuery)
+      )
+    : undefined;
   const initialBranch = matchedBranch ? matchedBranch.name : (request.branch || branches[0]?.name || 'สำนักงานใหญ่');
 
   return (
@@ -72,12 +77,15 @@ export default async function EditPaymentRequestPage({
             id: user.id,
             fullName: user.fullName,
             role: user.role,
+            employeeId: user.employeeId,
           }}
           branches={branches}
           initialBranch={initialBranch}
           initialDept={request.requester_department || profile.defaultDept}
           initialPhone={request.requester_phone || profile.defaultPhone}
           initialSupervisor={request.assigned_supervisor_name || profile.supervisorName}
+          initialSupervisorId={request.assigned_supervisor_id || profile.supervisorEmpId}
+          supervisorOptions={supervisorOptions}
           initialMyRequests={JSON.parse(JSON.stringify(myRequests || []))}
           isEditMode={true}
           initialData={JSON.parse(JSON.stringify(request))}

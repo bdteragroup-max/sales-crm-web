@@ -548,20 +548,20 @@ export default function CoinsClient({
 
                   if (isTop1) {
                     rankBadge = (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 text-amber-950 font-black text-xs flex items-center justify-center shadow-md shadow-amber-200">
-                        🥇
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 text-amber-950 font-black text-xs flex items-center justify-center shadow-md shadow-amber-200" title="อันดับ 1">
+                        <Award size={15} />
                       </div>
                     );
                   } else if (isTop2) {
                     rankBadge = (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-slate-300 to-slate-200 text-slate-800 font-black text-xs flex items-center justify-center shadow-sm">
-                        🥈
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-slate-300 to-slate-200 text-slate-800 font-black text-xs flex items-center justify-center shadow-sm" title="อันดับ 2">
+                        <Award size={15} />
                       </div>
                     );
                   } else if (isTop3) {
                     rankBadge = (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-700 to-orange-400 text-white font-black text-xs flex items-center justify-center shadow-sm">
-                        🥉
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-700 to-orange-400 text-white font-black text-xs flex items-center justify-center shadow-sm" title="อันดับ 3">
+                        <Award size={15} />
                       </div>
                     );
                   }

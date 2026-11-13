@@ -156,9 +156,8 @@ export default function InverterQcModal({
 
     Swal.fire({
       title: "คัดลอกค่าผลเทสไปยังทุกรายการ?",
-      html: `ต้องการคัดลอกค่าแรงดัน, เวลาเทส, พารามิเตอร์ และผลตรวจเช็คจาก <b>ตัวที่ ${activeItemIndex + 1}</b> ไปยังอีก <b>${
-        targetItems.length - 1
-      } รายการ</b> หรือไม่?<br/><span class="text-xs text-gray-500">(ยี่ห้อ รุ่น และ Serial Number ของแต่ละรายการจะไม่ถูกเขียนทับ)</span>`,
+      html: `ต้องการคัดลอกค่าแรงดัน, เวลาเทส, พารามิเตอร์ และผลตรวจเช็คจาก <b>ตัวที่ ${activeItemIndex + 1}</b> ไปยังอีก <b>${targetItems.length - 1
+        } รายการ</b> หรือไม่?<br/><span class="text-xs text-gray-500">(ยี่ห้อ รุ่น และ Serial Number ของแต่ละรายการจะไม่ถูกเขียนทับ)</span>`,
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#ff2301",
@@ -222,7 +221,7 @@ export default function InverterQcModal({
           try {
             localStorage.setItem("crm_user_signature", dataUrl);
             setHasSavedSig(true);
-          } catch {}
+          } catch { }
         }
       } else {
         updateCommon((prev) => ({ ...prev, reviewerSignatureUrl: dataUrl }));
@@ -286,7 +285,7 @@ export default function InverterQcModal({
           if (updatedCommon.inspectorName) {
             localStorage.setItem("crm_user_inspector_name", updatedCommon.inspectorName);
           }
-        } catch {}
+        } catch { }
       }
 
       setCommon(updatedCommon);
@@ -309,9 +308,8 @@ export default function InverterQcModal({
       if (!silent) {
         await Swal.fire({
           title: "บันทึกผลการตรวจ QC สำเร็จ",
-          text: `บันทึกข้อมูลแบบฟอร์ม QC-EN-01/Rev.00 (${targetItems.length} รายการ) เรียบร้อย${
-            advanceStep ? ' และปรับสถานะเป็น "ตรวจสอบ QC หลังซ่อม"' : ""
-          }`,
+          text: `บันทึกข้อมูลแบบฟอร์ม QC-EN-01/Rev.00 (${targetItems.length} รายการ) เรียบร้อย${advanceStep ? ' และปรับสถานะเป็น "ตรวจสอบ QC หลังซ่อม"' : ""
+            }`,
           icon: "success",
           confirmButtonColor: "#ff2301",
         });
@@ -509,11 +507,10 @@ export default function InverterQcModal({
               <button
                 type="button"
                 onClick={() => setActiveTab("form")}
-                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  activeTab === "form"
+                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${activeTab === "form"
                     ? "bg-white text-gray-900 shadow-sm"
                     : "text-gray-500 hover:text-gray-900"
-                }`}
+                  }`}
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>กรอกข้อมูล QC</span>
@@ -521,11 +518,10 @@ export default function InverterQcModal({
               <button
                 type="button"
                 onClick={() => setActiveTab("preview")}
-                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  activeTab === "preview"
+                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${activeTab === "preview"
                     ? "bg-white text-[#ff2301] shadow-sm"
                     : "text-gray-500 hover:text-gray-900"
-                }`}
+                  }`}
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>
@@ -587,16 +583,14 @@ export default function InverterQcModal({
                           key={target.id || idx}
                           type="button"
                           onClick={() => setActiveItemIndex(idx)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                            isSelected
+                          className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${isSelected
                               ? "bg-[#ff2301] text-white border-[#ff2301] shadow-sm shadow-red-500/20 scale-[1.02]"
                               : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200"
-                          }`}
+                            }`}
                         >
                           <span
-                            className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${
-                              isSelected ? "bg-white text-[#ff2301]" : "bg-gray-200 text-gray-700"
-                            }`}
+                            className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${isSelected ? "bg-white text-[#ff2301]" : "bg-gray-200 text-gray-700"
+                              }`}
                           >
                             {idx + 1}
                           </span>
@@ -606,9 +600,8 @@ export default function InverterQcModal({
                           </span>
                           {hasSerial && (
                             <span
-                              className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                                isSelected ? "bg-red-900/30 text-white" : "bg-gray-200/80 text-gray-600"
-                              }`}
+                              className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${isSelected ? "bg-red-900/30 text-white" : "bg-gray-200/80 text-gray-600"
+                                }`}
                             >
                               {itemsQc[idx]?.serialNumber || target.serial}
                             </span>
@@ -1899,7 +1892,8 @@ export default function InverterQcModal({
           <div className={activeTab === "preview" ? "flex flex-col items-center gap-6" : "hidden"}>
             <div className="w-full max-w-[794px] flex flex-wrap items-center justify-between gap-2 px-1">
               <span className="text-xs text-gray-500 flex items-center gap-1.5">
-                📄 แสดงตัวอย่างแบบฟอร์มขนาด A4 ตรงตามเอกสารทางการ (QC-EN-01/Rev.00)
+                <FileText size={14} className="text-gray-400 shrink-0" />
+                <span>แสดงตัวอย่างแบบฟอร์มขนาด A4 ตรงตามเอกสารทางการ (QC-EN-01/Rev.00)</span>
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-gray-700 bg-white border border-gray-200 px-3 py-1 rounded-xl shadow-2xs">

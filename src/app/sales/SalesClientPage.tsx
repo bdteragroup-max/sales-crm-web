@@ -18,7 +18,8 @@ import {
   User,
   ExternalLink,
   ChevronRight,
-  Wrench
+  Wrench,
+  Coins
 } from 'lucide-react';
 import NewQuotationForm from './components/NewQuotationForm';
 import BulkUploadModal from './components/BulkUploadModal';
@@ -919,7 +920,9 @@ export default function SalesClientPage({
       {showCoinModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl scale-in-center border border-slate-200">
-            <div className="text-6xl mb-4">🪙</div>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-200 text-amber-950">
+              <Coins size={34} />
+            </div>
             <h2 className="text-2xl font-black text-amber-600 mb-2">ยินดีด้วย! คุณได้รับเหรียญรางวัล</h2>
             <p className="text-slate-600 mb-6 font-medium text-sm">{coinModalData.message}</p>
             <button 

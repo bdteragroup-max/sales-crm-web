@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Package, Clock, CheckCircle2, ShieldAlert, FileWarning, Search, ShieldCheck, Activity, Receipt, FileText, TrendingDown } from 'lucide-react';
+import { ArrowLeft, Package, Clock, CheckCircle2, ShieldAlert, FileWarning, Search, ShieldCheck, Activity, Receipt, FileText, TrendingDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import ProductionExecutiveCockpit from './ProductionExecutiveCockpit';
 
@@ -162,7 +162,8 @@ export default function ProductionDashboardClient({
               onClick={() => setViewMode('cockpit')}
               className="px-3 py-1.5 bg-white text-red-600 rounded-xl text-xs font-bold hover:bg-red-50 transition-all cursor-pointer shadow-xs shrink-0 flex items-center gap-1.5"
             >
-              <span>⬅ กลับสู่ Executive Cockpit</span>
+              <ArrowLeft size={13} />
+              <span>กลับสู่ Executive Cockpit</span>
             </button>
           </div>
         )}

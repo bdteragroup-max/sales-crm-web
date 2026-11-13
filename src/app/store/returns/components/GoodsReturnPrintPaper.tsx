@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import { Scissors } from "lucide-react";
 import { parseGoodsReturnData, ReturnItem, getInternalCompanyMeta } from "../types";
 
 interface Props {
@@ -677,7 +678,11 @@ export default function GoodsReturnPrintPaper({ data, mode = "half" }: Props) {
           {/* Dotted Cut Line */}
           <div className="grp-cut-divider">
             <span className="grp-cut-line" />
-            <span>✂ ตัดตามรอยประ (Customer Copy / Company Copy) ✂</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Scissors size={11} />
+              <span>ตัดตามรอยประ (Customer Copy / Company Copy)</span>
+              <Scissors size={11} />
+            </span>
             <span className="grp-cut-line" />
           </div>
 

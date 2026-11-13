@@ -265,6 +265,19 @@ export function matchBranch(branch1?: string | null, branch2?: string | null): b
   return false;
 }
 
+export function stripThaiHonorific(name?: string | null): string {
+  if (!name) return '';
+  return name
+    .trim()
+    .replace(/^(?:นางสาว|น\.ส\.|นาง|นาย|ว่าที่\s*ร\.ต\.|ดร\.)\s*/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function normalizePersonName(name?: string | null): string {
+  return stripThaiHonorific(name).toLowerCase();
+}
+
 export function canSupervisorApproveRequest({
   userRole,
   userDepartment,
@@ -294,15 +307,12 @@ export function canSupervisorApproveRequest({
   requestAssignedSupervisorName?: string | null;
   isDirectSupervisor?: boolean;
 }): { canApprove: boolean; reason?: string } {
-  // 1. Must have supervisor / manager / admin role
-  if (!isSupervisorOrManager(userRole)) {
-    return { canApprove: false, reason: 'ไม่ใช่ระดับหัวหน้างานหรือผู้จัดการฝ่าย' };
-  }
-
-  // 2. Prevent self-approval (Supervisors cannot approve their own requests)
+  // 1. Prevent self-approval (Supervisors cannot approve their own requests)
+  const cleanUserName = normalizePersonName(userFullName);
+  const cleanRequesterName = normalizePersonName(requestRequesterName);
   const isOwner =
-    (userId && requestRequesterId && userId === requestRequesterId) ||
-    (userFullName && requestRequesterName && userFullName.trim().toLowerCase() === requestRequesterName.trim().toLowerCase());
+    Boolean(userId && requestRequesterId && userId === requestRequesterId) ||
+    Boolean(cleanUserName && cleanRequesterName && cleanUserName === cleanRequesterName);
   if (isOwner) {
     return {
       canApprove: false,
@@ -310,39 +320,43 @@ export function canSupervisorApproveRequest({
     };
   }
 
-  // 3. Super Admin, Executive, and Accounting Manager have company-wide authority
+  // 2. Super Admin, Executive, and Accounting Manager have company-wide authority
   if (isSuperUser(userRole) || isReadOnlyExecutive(userRole) || isAccountingManager(userRole)) {
     return { canApprove: true };
   }
 
-  // 4. Exact Assigned Supervisor match (Direct line manager assigned)
+  // 3. Exact Assigned Supervisor match (Direct line manager assigned in HR/request record)
+  // Evaluated before role-keyword check so team leads/supervisors without "manager" in CRM role can approve subordinates
   if (
-    userEmployeeId &&
     requestAssignedSupervisorId &&
-    userEmployeeId.trim().toUpperCase() === requestAssignedSupervisorId.trim().toUpperCase()
+    ((userEmployeeId &&
+      userEmployeeId.trim().toUpperCase() === requestAssignedSupervisorId.trim().toUpperCase()) ||
+      (userId && userId.trim() === requestAssignedSupervisorId.trim()))
   ) {
     return { canApprove: true };
   }
 
-  if (
-    userFullName &&
-    requestAssignedSupervisorName &&
-    userFullName.trim().toLowerCase() === requestAssignedSupervisorName.trim().toLowerCase()
-  ) {
+  const cleanAssignedSupName = normalizePersonName(requestAssignedSupervisorName);
+  if (cleanUserName && cleanAssignedSupName && cleanUserName === cleanAssignedSupName) {
     return { canApprove: true };
   }
 
-  // 5. Direct subordinate line check in HR database
+  // 4. Direct subordinate line check in HR database
   if (isDirectSupervisor) {
     return { canApprove: true };
   }
 
-  // If a specific assigned supervisor is designated and current user does not match, strictly deny
+  // 5. If a specific assigned supervisor is designated and current user does not match, strictly deny
   if (requestAssignedSupervisorId || requestAssignedSupervisorName) {
     return {
       canApprove: false,
       reason: `สิทธิ์นี้สงวนไว้สำหรับหัวหน้างานผู้รับผิดชอบ (${requestAssignedSupervisorName || requestAssignedSupervisorId})`,
     };
+  }
+
+  // 6. Fallback (no assigned supervisor): Must have supervisor / manager / admin role for department & branch matching
+  if (!isSupervisorOrManager(userRole)) {
+    return { canApprove: false, reason: 'ไม่ใช่ระดับหัวหน้างานหรือผู้จัดการฝ่าย' };
   }
 
   // 6. Branch AND Department match (Fallback ONLY when no specific supervisor was assigned)

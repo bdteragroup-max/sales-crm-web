@@ -690,7 +690,7 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any; sales
                     : 'bg-red-50 text-brand-red border-red-100'
                 }`}
               >
-                {isWon ? 'Won' : isTelesaleNotInterested ? '❌ ไม่สนใจ (Lost)' : isLost ? 'Lost' : isContacted ? 'Contacted' : 'Pending'}
+                {isWon ? 'Won' : isTelesaleNotInterested ? <span className="inline-flex items-center gap-1"><XCircle size={12} /> ไม่สนใจ (Lost)</span> : isLost ? 'Lost' : isContacted ? 'Contacted' : 'Pending'}
               </span>
             </div>
 
@@ -743,7 +743,7 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any; sales
                                 : 'bg-white text-gray-600 border-gray-200'
                             }`}
                           >
-                            {isCallNotInterested ? '❌ ไม่สนใจ' : call.callOutcome || call.result || 'โทรติดต่อ'}
+                            {isCallNotInterested ? <span className="inline-flex items-center gap-1"><XCircle size={11} /> ไม่สนใจ</span> : call.callOutcome || call.result || 'โทรติดต่อ'}
                           </span>
                         </div>
                         {call.conversationSummary && (

@@ -16,7 +16,7 @@ import {
   X,
   Loader2,
   GitMerge,
-  Trash2,
+  Trash2, AlertTriangle,
 } from 'lucide-react';
 import MergeCompanyModal from './MergeCompanyModal';
 import { isSalesOrMarketingManager } from '@/app/lib/roleHelper';
@@ -1330,7 +1330,7 @@ export default function ClientsClientPage({
               </div>
               {taxIdWarning && (
                 <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-4 py-3 text-xs mt-1.5 animate-in slide-in-from-top-1 duration-200 shadow-sm shadow-amber-50">
-                  <span className="text-sm">⚠️</span>
+                  <AlertTriangle size={15} className="text-amber-600 shrink-0 mt-0.5" />
                   <span className="font-semibold leading-relaxed">{taxIdWarning}</span>
                 </div>
               )}
@@ -1821,7 +1821,7 @@ export default function ClientsClientPage({
               </div>
               {editTaxIdWarning && (
                 <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-4 py-3 text-xs mt-1.5 animate-in slide-in-from-top-1 duration-200 shadow-sm shadow-amber-50">
-                  <span className="text-sm">⚠️</span>
+                  <AlertTriangle size={15} className="text-amber-600 shrink-0 mt-0.5" />
                   <span className="font-semibold leading-relaxed">{editTaxIdWarning}</span>
                 </div>
               )}

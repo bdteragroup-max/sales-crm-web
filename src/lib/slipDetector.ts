@@ -4,6 +4,8 @@
  * Invariant to camera differences, angles, lighting, and phone models.
  */
 
+import type { ExtractedLineItem } from './attachmentUtils';
+
 export interface SlipDetectionResult {
   qrPayload?: string;
   barcode?: string;
@@ -11,8 +13,29 @@ export interface SlipDetectionResult {
   detected: boolean;
 }
 
+export interface ClientOcrScanResult {
+  qrPayload?: string;
+  barcode?: string;
+  extractedTaxId?: string;
+  extractedInvoiceNo?: string;
+  extractedAmount?: number;
+  extractedDate?: string;
+  extractedSupplier?: string;
+  extractedPhone?: string;
+  extractedDescription?: string;
+  extractedLineItems?: ExtractedLineItem[];
+  rawTextSnippet?: string;
+  distinctiveTokens?: string[];
+}
+
+export function isImageAttachmentFile(file?: Pick<File, 'type' | 'name'> | null): boolean {
+  if (!file) return false;
+  if (file.type?.startsWith('image/')) return true;
+  return /\.(jpe?g|png|webp|gif|bmp)$/i.test(file.name || '');
+}
+
 export async function detectSlipQrAndBarcode(file: File): Promise<SlipDetectionResult> {
-  if (!file || !file.type.startsWith('image/')) {
+  if (!isImageAttachmentFile(file)) {
     return { detected: false };
   }
 
@@ -147,7 +170,7 @@ export async function detectSlipQrAndBarcode(file: File): Promise<SlipDetectionR
  * Reduces multi-megabyte camera photos (5-10MB) to ~60-90KB for instant transfer & OCR in <500ms.
  */
 export async function downscaleImageForScan(file: File, maxDim = 3200): Promise<Blob> {
-  if (!file || !file.type.startsWith('image/')) return file;
+  if (!isImageAttachmentFile(file)) return file;
   // If file is already under 5MB, keep 100% original full resolution for maximum OCR readability
   if (file.size <= 5 * 1024 * 1024) {
     return file;
@@ -219,7 +242,7 @@ function getCanvasDHash(ctx: CanvasRenderingContext2D, w = 9, h = 8): string {
 export async function computeVisualHashes(
   file: File
 ): Promise<{ visualHash: string; coreVisualHash: string } | null> {
-  if (!file || !file.type.startsWith('image/')) return null;
+  if (!isImageAttachmentFile(file)) return null;
   return new Promise((resolve) => {
     try {
       const img = new Image();
@@ -265,6 +288,55 @@ export async function computeVisualHashes(
       resolve(null);
     }
   });
+}
+
+/**
+ * Shared client helper to run server OCR Auto-Scan (/api/scan-document) on an image file.
+ * Preserves up to 3200px resolution for crisp Thai characters while enforcing a timeout guard.
+ */
+export async function scanImageWithOcrApi(
+  file: File,
+  options?: { skipQr?: boolean; timeoutMs?: number }
+): Promise<ClientOcrScanResult | null> {
+  if (!isImageAttachmentFile(file)) return null;
+
+  const { skipQr = true, timeoutMs = 30000 } = options ?? {};
+  try {
+    const downscaledBlob = await downscaleImageForScan(file, 3200);
+    const scanForm = new FormData();
+    scanForm.append('file', downscaledBlob, file.name);
+    if (skipQr) scanForm.append('skipQr', 'true');
+
+    const scanRes = await fetch('/api/scan-document', {
+      method: 'POST',
+      body: scanForm,
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!scanRes.ok) return null;
+
+    const scanData = await scanRes.json();
+    if (!scanData?.success) return null;
+
+    return {
+      qrPayload: scanData.qrPayload || undefined,
+      barcode: scanData.barcode || undefined,
+      extractedTaxId: scanData.extractedTaxId || undefined,
+      extractedInvoiceNo: scanData.extractedInvoiceNo || undefined,
+      extractedAmount: typeof scanData.extractedAmount === 'number' ? scanData.extractedAmount : undefined,
+      extractedDate: scanData.extractedDate || undefined,
+      extractedSupplier: scanData.extractedSupplier || undefined,
+      extractedPhone: scanData.extractedPhone || undefined,
+      extractedDescription: scanData.extractedDescription || undefined,
+      extractedLineItems: Array.isArray(scanData.extractedLineItems) && scanData.extractedLineItems.length > 0
+        ? scanData.extractedLineItems
+        : undefined,
+      rawTextSnippet: scanData.rawTextSnippet || undefined,
+      distinctiveTokens: Array.isArray(scanData.distinctiveTokens) ? scanData.distinctiveTokens : undefined,
+    };
+  } catch (ocrErr) {
+    console.warn('OCR Auto-Scan timed out or skipped:', ocrErr);
+    return null;
+  }
 }
 
 

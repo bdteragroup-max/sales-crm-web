@@ -564,7 +564,7 @@ export default function PRListClient({
         <p>คุณต้องการลบใบขอซื้อเลขที่ <b class="font-mono text-red-600">${pr.prNumber}</b> ใช่หรือไม่?</p>
         ${pr.projectName ? `<p><b>โครงการ:</b> ${pr.projectName}</p>` : ''}
         ${pr.itemList ? `<p class="truncate text-gray-500"><b>รายการ:</b> ${pr.itemList}</p>` : ''}
-        ${hasPO ? `<div class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-medium mt-1">⚠️ ใบขอซื้อนี้มีใบสั่งซื้อ (PO) ที่เกี่ยวข้อง ${pr.purchaseOrders.length} ฉบับ</div>` : ''}
+        ${hasPO ? `<div class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-medium mt-1 flex items-start gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5 text-amber-600"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>ใบขอซื้อนี้มีใบสั่งซื้อ (PO) ที่เกี่ยวข้อง ${pr.purchaseOrders.length} ฉบับ</span></div>` : ''}
         <p class="text-red-500 text-[11px] pt-1">เมื่อลบแล้ว รายการนี้จะถูกลบออกจากทั้งหน้ารายการจัดซื้อ และหน้ารายละเอียดโครงการที่เชื่อมโยงอยู่ทันที</p>
       </div>`,
       icon: 'warning',

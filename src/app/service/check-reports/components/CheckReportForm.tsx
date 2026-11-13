@@ -2342,15 +2342,15 @@ export default function CheckReportForm({
                     <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
                       <span>โครงสร้างตู้คอนโทรล: ตู้นี้มี อินเวอร์เตอร์ / Soft Starter หรือไม่?</span>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                           hasInverterInCabinet
                             ? "bg-blue-50 text-blue-700 border-blue-200"
                             : "bg-slate-100 text-slate-700 border-slate-200"
                         }`}
                       >
                         {hasInverterInCabinet
-                          ? "✓ มี อินเวอร์เตอร์ / Soft Starter"
-                          : "✗ ไม่มี อินเวอร์เตอร์"}
+                          ? <><Check size={11} /> มี อินเวอร์เตอร์ / Soft Starter</>
+                          : <><X size={11} /> ไม่มี อินเวอร์เตอร์</>}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500">

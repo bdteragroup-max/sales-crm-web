@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
 import PaymentRequestDetailClient from './PaymentRequestDetailClient';
 import { getPaymentRequestById, getUserProfileDetails } from '@/app/actions/paymentRequests';
+import { stripThaiHonorific } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,13 +31,14 @@ export default async function PaymentRequestDetailPage({
   if (user.employeeId && request.requester_name) {
     try {
       const { teraDb } = await import('@/app/lib/teraDb');
+      const requesterKeyword = stripThaiHonorific(request.requester_name) || request.requester_name.trim();
       const directSub = await teraDb.employees.findFirst({
         where: {
           OR: [
             { supervisor_id: user.employeeId },
             { secondary_supervisor_id: user.employeeId },
           ],
-          name: { contains: request.requester_name?.trim() },
+          name: { contains: requesterKeyword },
         },
       });
       if (directSub) isDirectSupervisor = true;

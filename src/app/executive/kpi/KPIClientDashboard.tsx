@@ -227,7 +227,7 @@ export default function KPIClientDashboard({ data }: KPIClientDashboardProps) {
 
       if (hasTarget) {
         if (attainment !== null && attainment >= 100) {
-          statusText = 'เกินเป้า 🔥';
+          statusText = 'เกินเป้า';
           statusBadgeClass = 'bg-red-50 text-red-700 border border-red-200 font-bold';
         } else if (attainment !== null && attainment >= 70) {
           statusText = 'ยอดเยี่ยม';
@@ -239,7 +239,7 @@ export default function KPIClientDashboard({ data }: KPIClientDashboardProps) {
       } else {
         // When individual target is not configured in DB
         if (r.sales >= 1_000_000) {
-          statusText = 'ยอดขายสูง 🔥';
+          statusText = 'ยอดขายสูง';
           statusBadgeClass = 'bg-red-50 text-red-700 border border-red-200 font-bold';
         } else if (r.sales >= 300_000) {
           statusText = 'ผลงานดี';
@@ -1374,7 +1374,10 @@ export default function KPIClientDashboard({ data }: KPIClientDashboardProps) {
                               {rep.winRate.toFixed(1)}%
                             </td>
                             <td className="py-1.5 px-2.5 text-center">
-                              <span className={`px-2 py-0.5 rounded-full text-[9px] ${rep.statusBadgeClass}`}>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] ${rep.statusBadgeClass}`}>
+                                {(rep.statusText === 'เกินเป้า' || rep.statusText === 'ยอดขายสูง') && (
+                                  <Flame size={10} className="text-red-600 shrink-0" />
+                                )}
                                 {rep.statusText}
                               </span>
                             </td>
@@ -1466,7 +1469,10 @@ export default function KPIClientDashboard({ data }: KPIClientDashboardProps) {
                       <td className="py-3 px-4 text-center tabular-nums">{rep.calls}</td>
                       <td className="py-3 px-4 text-right font-bold tabular-nums">{rep.winRate.toFixed(1)}%</td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] ${rep.statusBadgeClass}`}>
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] ${rep.statusBadgeClass}`}>
+                          {(rep.statusText === 'เกินเป้า' || rep.statusText === 'ยอดขายสูง') && (
+                            <Flame size={11} className="text-red-600 shrink-0" />
+                          )}
                           {rep.statusText}
                         </span>
                       </td>

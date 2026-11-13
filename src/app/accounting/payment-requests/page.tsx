@@ -8,7 +8,7 @@ import {
   getSystemBranches,
 } from '@/app/actions/paymentRequests';
 
-import { canManageAllPaymentRequests } from '@/app/lib/roleHelper';
+import { canManageAllPaymentRequests, normalizePersonName } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,12 +54,12 @@ export default async function PaymentRequestsPage() {
     branches = fetchedBranches;
 
     if (!isSupervisor && !canManageAllPaymentRequests(user.role)) {
+      const cleanUserFullName = normalizePersonName(user.fullName);
       if (
         requests.some(
           (r: any) =>
-            r.assigned_supervisor_id === user.employeeId ||
-            (user.fullName &&
-              r.assigned_supervisor_name?.trim().toLowerCase() === user.fullName.trim().toLowerCase())
+            (user.employeeId && r.assigned_supervisor_id && r.assigned_supervisor_id.trim().toUpperCase() === user.employeeId.trim().toUpperCase()) ||
+            (cleanUserFullName && normalizePersonName(r.assigned_supervisor_name) === cleanUserFullName)
         )
       ) {
         isSupervisor = true;

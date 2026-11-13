@@ -350,11 +350,45 @@ export function extractDocumentFields(text?: string | null): {
     }
   }
 
-  // 6. Phone number (from stamp e.g. 087-2521158)
+  if (!supplier) {
+    const engSupplierMatch = clean.match(/^([^\n\r]{2,60}?\b(?:Co\.,?\s*Ltd\.?|Company\s+Limited|Corp\.?|Ltd\.?|Inc\.?))\s*$/im);
+    if (engSupplierMatch && !/^(?:tax\s*invoice|invoice|receipt|bill)\b/i.test(engSupplierMatch[1].trim())) {
+      supplier = engSupplierMatch[1].trim();
+    }
+  }
+
+  // 6. Phone number (from stamp e.g. 087-2521158, 02-123-4567; avoid matching substrings of 13-digit Tax IDs or barcodes)
   let phone: string | null = null;
-  const phoneMatch = clean.match(/(?:โทร|Tel|เบอร์โทร)?[\s:：\.]*(0[2-9][0-9][\s\-]?[0-9]{3,4}[\s\-]?[0-9]{3,4})/i);
-  if (phoneMatch) {
-    phone = phoneMatch[1].replace(/[\s\-]/g, '');
+  const thaiPhoneBodyPattern = '0(?:2[\\s\\-]?[0-9]{3,4}[\\s\\-]?[0-9]{4}|[3-9][0-9][\\s\\-]?[0-9]{3,4}[\\s\\-]?[0-9]{3,4})';
+  const parseValidThaiPhone = (raw: string): string | null => {
+    const normalized = raw.replace(/[\s\-]/g, '');
+    if (taxId && taxId.includes(normalized)) return null;
+    const isMobile = /^0[689]\d{8}$/.test(normalized);
+    const isLandline = /^0[2-57]\d{7}$/.test(normalized);
+    return isMobile || isLandline ? normalized : null;
+  };
+
+  const labeledPhoneRegex = new RegExp(
+    `(?:โทร\\.?|Tel\\.?|Telephone|Mobile|เบอร์โทร|เบอร์ติดต่อ|ติดต่อ)[\\s:：\\.\\-]*(${thaiPhoneBodyPattern})(?![0-9])`,
+    'gi'
+  );
+  for (const m of clean.matchAll(labeledPhoneRegex)) {
+    const candidate = parseValidThaiPhone(m[1]);
+    if (candidate) {
+      phone = candidate;
+      break;
+    }
+  }
+
+  if (!phone) {
+    const unlabeledPhoneRegex = new RegExp(`(?:^|[^0-9\\-])(${thaiPhoneBodyPattern})(?![0-9])`, 'g');
+    for (const m of clean.matchAll(unlabeledPhoneRegex)) {
+      const candidate = parseValidThaiPhone(m[1]);
+      if (candidate) {
+        phone = candidate;
+        break;
+      }
+    }
   }
 
   // 7. Distinctive Tokens for fuzzy cross-camera matching
@@ -566,4 +600,119 @@ export function extractDocumentFields(text?: string | null): {
   const itemsSummary = cleanLineItems.length > 0 ? cleanLineItems.map((it) => it.description).join(', ') : null;
 
   return { taxId, invoiceNo, amount, date, supplier, phone, distinctiveTokens, lineItems: cleanLineItems, itemsSummary };
+}
+
+export function escapeHtml(unsafe?: string | null): string {
+  if (!unsafe) return '';
+  return String(unsafe)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+export function formatAttachmentDuplicateReason(
+  match: { matchType?: string; reason?: string; barcode?: string; invoice_number?: string; pay_number?: string },
+  fallbacks?: { barcode?: string; invoiceNo?: string }
+): string {
+  if (match.matchType === 'ATTACHMENT_QR') {
+    return 'ระบบตรวจพบว่ารหัส QR Code บนสลิปโอนเงิน/บิลนี้ (PromptPay Slip Payload) ตรงกับเอกสารที่เคยแนบในระบบกลาง 100% แม้จะถ่ายจากต่างกล้อง ต่างโทรศัพท์ หรือคนละมุม (Separate Cameras)';
+  }
+  if (match.matchType === 'ATTACHMENT_BARCODE') {
+    return `ระบบตรวจพบบาร์โค้ด (${match.barcode || fallbacks?.barcode || '-'}) ตรงกับเอกสารเดิมในระบบกลาง`;
+  }
+  if (match.matchType === 'ATTACHMENT_OCR') {
+    return (
+      match.reason ||
+      `ระบบตรวจพบข้อมูล OCR (เลขที่ใบกำกับภาษี "${match.invoice_number || fallbacks?.invoiceNo || '-'}" หรือเบอร์โทรตรายางร้าน) ตรงกับเอกสารเดิมในระบบ แม้จะถ่ายจากคนละกล้อง`
+    );
+  }
+  if (match.matchType === 'ATTACHMENT_OCR_RECORD') {
+    return `ระบบตรวจพบเลขที่ใบกำกับภาษี "${fallbacks?.invoiceNo || match.invoice_number || '-'}" จากภาพถ่าย ตรงกับคำขอเดิม (${match.pay_number || '-'}) ในระบบ`;
+  }
+  if (match.matchType === 'ATTACHMENT_VISUAL_CONTEXT') {
+    return (
+      match.reason ||
+      'ระบบตรวจพบลักษณะโครงสร้างภาพเอกสารใกล้เคียงกับเอกสารเดิมในระบบกลาง ร่วมกับยอดเงินหรือร้านค้าตรงกัน แม้จะถ่ายจากคนละกล้อง/คนละมุม'
+    );
+  }
+  if (match.matchType === 'ATTACHMENT_VISUAL') {
+    return (
+      match.reason ||
+      'ระบบตรวจพบว่าภาพเอกสารนี้ (Visual Fingerprint / ลายนิ้วมือโครงสร้างภาพ) ตรงกับเอกสารที่เคยแนบในระบบกลาง แม้จะถ่ายจากต่างกล้อง คนละมุม หรือมีสิ่งของวางข้างบิล'
+    );
+  }
+  if (match.matchType === 'ATTACHMENT_NAME_SIMILAR') {
+    return 'ระบบตรวจพบว่าชื่อเอกสารและขนาดไฟล์นี้ตรงกับเอกสารที่เคยแนบในระบบกลาง';
+  }
+  return 'ระบบตรวจพบว่าเนื้อหาดิจิทัลของไฟล์นี้ (SHA-256) ตรงกับเอกสารที่เคยแนบในระบบกลาง';
+}
+
+export function findInFormDuplicateAttachment<T extends AttachmentCheckItem>(
+  candidate: AttachmentCheckItem,
+  existingList: T[]
+): T | undefined {
+  const candNormName = normalizeAttachmentName(candidate.fileName);
+  const candDistinct = isDistinctiveAttachmentName(candNormName);
+
+  return existingList.find((a) => {
+    if (candidate.fileHash && a.fileHash && candidate.fileHash.toLowerCase() === a.fileHash.toLowerCase()) {
+      return true;
+    }
+    if (candidate.qrPayload && a.qrPayload) {
+      const q1 = candidate.qrPayload.trim();
+      const q2 = a.qrPayload.trim();
+      if (q1 === q2 || (q1.length >= 15 && q2.length >= 15 && (q1.includes(q2) || q2.includes(q1)))) {
+        return true;
+      }
+    }
+    if (candidate.barcode && a.barcode && candidate.barcode.trim() === a.barcode.trim()) {
+      return true;
+    }
+
+    const candInv = normalizeInvoiceNo(candidate.extractedInvoiceNo);
+    const attInv = normalizeInvoiceNo(a.extractedInvoiceNo);
+    if (candInv.length >= 4 && candInv === attInv) {
+      return true;
+    }
+
+    // Conflict guard before visual/filename heuristics
+    const candAmt = candidate.extractedAmount ?? candidate.currentAmount;
+    const attAmt = a.extractedAmount ?? a.currentAmount;
+    const diffAmt = !!(candAmt !== undefined && attAmt !== undefined && Math.abs(candAmt - attAmt) >= 1.0);
+    const diffQr = !!(candidate.qrPayload && a.qrPayload && candidate.qrPayload.trim() !== a.qrPayload.trim());
+    const diffInv = !!(candInv.length >= 4 && attInv.length >= 4 && candInv !== attInv);
+    if (diffAmt || diffQr || diffInv) return false;
+
+    let bestDist = 999;
+    if (candidate.visualHash && a.visualHash) {
+      bestDist = Math.min(bestDist, visualHammingDistance(candidate.visualHash, a.visualHash));
+    }
+    if (candidate.coreVisualHash && a.coreVisualHash) {
+      bestDist = Math.min(bestDist, visualHammingDistance(candidate.coreVisualHash, a.coreVisualHash));
+    }
+
+    const amtMatch = !!(candAmt !== undefined && attAmt !== undefined && Math.abs(candAmt - attAmt) < 0.1);
+    const phoneMatch = !!(candidate.extractedPhone && a.extractedPhone && candidate.extractedPhone === a.extractedPhone);
+    const candSupp = (candidate.currentSupplier || candidate.extractedSupplier || '').trim().toLowerCase();
+    const attSupp = (a.currentSupplier || a.extractedSupplier || '').trim().toLowerCase();
+    const suppMatch = !!(candSupp.length >= 3 && attSupp.length >= 3 && (candSupp.includes(attSupp) || attSupp.includes(candSupp)));
+
+    let sharedTokens = 0;
+    if (Array.isArray(candidate.distinctiveTokens) && Array.isArray(a.distinctiveTokens)) {
+      const aSet = new Set(a.distinctiveTokens.map((t) => t.toLowerCase()));
+      sharedTokens = candidate.distinctiveTokens.filter((t) => aSet.has(t.toLowerCase())).length;
+    }
+
+    if (bestDist <= 2) return true;
+    if (bestDist <= 8 && (amtMatch || phoneMatch || (suppMatch && sharedTokens >= 2))) return true;
+    if (phoneMatch && amtMatch) return true;
+
+    if (candDistinct && normalizeAttachmentName(a.fileName) === candNormName) return true;
+    if (candNormName && normalizeAttachmentName(a.fileName) === candNormName && candidate.fileSize && a.fileSize === candidate.fileSize) {
+      return true;
+    }
+    return false;
+  });
 }

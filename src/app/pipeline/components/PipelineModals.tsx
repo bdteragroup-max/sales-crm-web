@@ -4,7 +4,7 @@ import { searchCompanies } from "@/app/actions/sales";
 import { extractCompanyCode } from "@/utils/company-utils";
 import { JOB_TYPES } from "@/constants/job-types";
 import { createClient } from "@/utils/supabase/client";
-import { FileText, AlertCircle, Sparkles, ClipboardCheck, Loader2, Calendar, CalendarDays, Trash2 } from "lucide-react";
+import { FileText, AlertCircle, Sparkles, ClipboardCheck, Loader2, Calendar, CalendarDays, Trash2, Check } from "lucide-react";
 
 export function QuotationTransitionModal({ quotation, onConfirm, onCancel }: { quotation: any, onConfirm: (qt: string) => void, onCancel: () => void }) {
   const [qtNumber, setQtNumber] = useState(quotation.quotationNumber || '')
@@ -834,7 +834,7 @@ export function AppointmentTransitionModal({ quotation, onConfirm, onCancel }: {
             onClick={() => onConfirm({ appointmentDate, appointmentNote })}
             className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-200 text-white font-bold rounded-xl shadow-lg shadow-amber-200 transition-all"
           >
-            ✓ ยืนยันนัดหมาย
+            <span className="inline-flex items-center justify-center gap-1.5"><Check size={16} /> <span>ยืนยันนัดหมาย</span></span>
           </button>
         </div>
       </div>

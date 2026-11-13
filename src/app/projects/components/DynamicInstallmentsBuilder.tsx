@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useId } from 'react';
-import { Plus, Trash2, Calculator, CheckCircle2, AlertTriangle, AlertCircle, Coins, Layers, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, Calculator, CheckCircle2, AlertTriangle, AlertCircle, Coins, Layers, ArrowRight, Check } from 'lucide-react';
 
 export interface DepositConfig {
   hasDeposit: boolean;
@@ -574,7 +574,7 @@ export default function DynamicInstallmentsBuilder({
             </span>
             <span className="font-mono font-bold text-sm">
               {numericProjectValue > 0
-                ? (isBalanced ? '✓ ครบ 100% ตรงตามสัญญา' : Math.abs(remainingAmount).toLocaleString('th-TH', { style: 'currency', currency: 'THB' }))
+                ? (isBalanced ? <span className="inline-flex items-center gap-1"><Check size={13} className="shrink-0" /> ครบ 100% ตรงตามสัญญา</span> : Math.abs(remainingAmount).toLocaleString('th-TH', { style: 'currency', currency: 'THB' }))
                 : '-'}
             </span>
           </div>

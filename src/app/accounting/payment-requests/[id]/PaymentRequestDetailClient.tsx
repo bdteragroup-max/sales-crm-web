@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import SignatureCanvas from 'react-signature-canvas';
 import {
   PaymentRequestRecord,
   PaymentRequestLog,
+  RequisitionItem,
   supervisorApprovePaymentRequest,
   supervisorReturnPaymentRequest,
+  supervisorUpdateSubstituteCertificates,
   apReviewPaymentRequest,
   supervisorReviewPaymentRequest,
   approvePaymentRequest,
@@ -26,8 +29,17 @@ import {
   deletePaymentRequestAttachment,
 } from '@/app/actions/paymentRequests';
 import { calculateItemTaxes, truncate2Decimals } from '../utils/itemTaxes';
-import { ExtractedLineItem } from '@/lib/attachmentUtils';
+import {
+  ExtractedLineItem,
+  escapeHtml,
+  formatAttachmentDuplicateReason,
+} from '@/lib/attachmentUtils';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
+import SubstituteReceiptModal from '../components/SubstituteReceiptModal';
+import {
+  uploadSubstituteReceiptPdf,
+  SubstituteReceiptData,
+} from '../components/SubstituteReceiptCertificate';
 import { THAI_BANKS, PROMPTPAY_TYPES } from '../new/NewPaymentRequestClient';
 import {
   ChevronLeft,
@@ -68,9 +80,16 @@ import {
   Scan,
   QrCode,
   Eye,
+  PenLine,
+  Eraser,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { detectSlipQrAndBarcode, downscaleImageForScan, computeVisualHashes } from '@/lib/slipDetector';
+import {
+  detectSlipQrAndBarcode,
+  computeVisualHashes,
+  isImageAttachmentFile,
+  scanImageWithOcrApi,
+} from '@/lib/slipDetector';
 import {
   isAccountingManager,
   isAccountingStaff,
@@ -227,6 +246,30 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Supervisor signature & Substitute Receipt Certificate (บก.111) Signing State
+  const [deptSupSignatureDraft, setDeptSupSignatureDraft] = useState<string | null>(null);
+  const [cachedDeptSupSig, setCachedDeptSupSig] = useState<string>('');
+  const [localCertPatch, setLocalCertPatch] = useState<{
+    requestId: string;
+    baseItemsRef: unknown;
+    baseAttachmentsRef: unknown;
+    baseSupSig: string | null | undefined;
+    items: RequisitionItem[];
+    attachments: any[];
+    supervisorSignatureUrl?: string;
+  } | null>(null);
+  const [hasDeptSupStroke, setHasDeptSupStroke] = useState<boolean>(false);
+  const [deptSupSigCanvasWidth, setDeptSupSigCanvasWidth] = useState<number>(360);
+  const deptSupSigPadRef = useRef<SignatureCanvas | null>(null);
+  const deptSupSigBoxRef = useRef<HTMLDivElement | null>(null);
+
+  const [subCertModalState, setSubCertModalState] = useState<{
+    isOpen: boolean;
+    initialData: SubstituteReceiptData | null;
+    targetGroupKey?: string;
+    targetItemIndex?: number;
+  }>({ isOpen: false, initialData: null });
+
   const userName = currentUser?.fullName || 'เจ้าหน้าที่';
   const isStaff = isAccountingStaff(currentUser?.role);
   const isManager = isAccountingManager(currentUser?.role);
@@ -279,6 +322,67 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   const currentIncompleteStep = isFullyCompleted ? 8 : ([1, 2, 3, 4, 5, 6, 7].find((s) => !stepDoneMap[s]) || 8);
 
   const canApproveSupervisor = supervisorAuth.canApprove;
+  const isClosedOrPaid = ['PAID', 'POSTED_TO_GL', 'ORIGINAL_RECEIVED', 'CLOSED', 'CANCELLED', 'REJECTED'].includes(request.status);
+  const canSignSubstituteCert =
+    isStaff ||
+    (!isClosedOrPaid && canApproveSupervisor) ||
+    (isOwner && ['PENDING_SUPERVISOR', 'RETURN_DOCUMENT', 'DRAFT', 'SUBMITTED'].includes(request.status));
+
+  const activeCertPatch =
+    localCertPatch &&
+    localCertPatch.requestId === request.id &&
+    localCertPatch.baseItemsRef === request.items &&
+    localCertPatch.baseAttachmentsRef === request.attachments &&
+    localCertPatch.baseSupSig === request.supervisor_signature_url
+      ? localCertPatch
+      : null;
+
+  const displayedItems: RequisitionItem[] = activeCertPatch
+    ? activeCertPatch.items
+    : Array.isArray(request.items)
+    ? request.items
+    : [];
+  const displayedAttachments: any[] = activeCertPatch
+    ? activeCertPatch.attachments
+    : Array.isArray(request.attachments)
+    ? request.attachments
+    : [];
+  const resolvedSupSignatureUrl =
+    activeCertPatch?.supervisorSignatureUrl || request.supervisor_signature_url || '';
+
+  const deptSupSignatureUrl =
+    deptSupSignatureDraft !== null
+      ? deptSupSignatureDraft
+      : resolvedSupSignatureUrl ||
+        (canApproveSupervisor && request.status === 'PENDING_SUPERVISOR' ? cachedDeptSupSig : '');
+  const isDrawingDeptSupSig = !deptSupSignatureUrl;
+
+  useEffect(() => {
+    if (resolvedSupSignatureUrl || !canApproveSupervisor || request.status !== 'PENDING_SUPERVISOR' || !userName) {
+      return;
+    }
+    const raf = requestAnimationFrame(() => {
+      try {
+        const cached = localStorage.getItem(`crm_saved_signature_${userName}`);
+        if (cached) {
+          setCachedDeptSupSig(cached);
+        }
+      } catch {}
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [resolvedSupSignatureUrl, request.status, canApproveSupervisor, userName]);
+
+  useEffect(() => {
+    if (!isDrawingDeptSupSig || !canApproveSupervisor || request.status !== 'PENDING_SUPERVISOR') return;
+    const raf = requestAnimationFrame(() => {
+      const w = deptSupSigBoxRef.current?.clientWidth;
+      if (w && w >= 200 && (!deptSupSigPadRef.current || deptSupSigPadRef.current.isEmpty())) {
+        setDeptSupSigCanvasWidth(Math.floor(w));
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [isDrawingDeptSupSig, canApproveSupervisor, request.status]);
+
   const companyStyle = COMPANY_COLORS[request.company] || COMPANY_COLORS.TG;
   const statusStyle = STATUS_CONFIG[effectiveStatus] || STATUS_CONFIG.SUBMITTED;
   const currentStep = currentIncompleteStep;
@@ -437,11 +541,258 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     }
   };
 
+  // Shared helpers for Substitute Receipt Certificate (บก.111) & Supervisor Signing
+  const resolveCompanyMeta = (code?: string): { companyCode: 'TG' | 'TE' | 'TP'; companyName: string } => {
+    if (code === 'TE') return { companyCode: 'TE', companyName: 'บจก.เทอรา อิเล็กทริค' };
+    if (code === 'TP') return { companyCode: 'TP', companyName: 'บจก.เทอรา พาวเวอร์' };
+    return { companyCode: 'TG', companyName: 'บจก.เทอรา กรุ้ป' };
+  };
+
+  const getActiveDeptSupervisorSignature = (): string => {
+    if (deptSupSignatureUrl) return deptSupSignatureUrl;
+    if (deptSupSigPadRef.current && !deptSupSigPadRef.current.isEmpty()) {
+      return deptSupSigPadRef.current.getTrimmedCanvas().toDataURL('image/png');
+    }
+    return '';
+  };
+
+  const buildSubstituteReceiptData = (
+    groupItems: RequisitionItem[],
+    firstItem: RequisitionItem,
+    overrideApproverSig?: string,
+    overrideApproverName?: string
+  ): SubstituteReceiptData => {
+    const companyMeta = resolveCompanyMeta(request.company);
+    const dates = groupItems.map((it) => it.billDate).filter(Boolean).sort();
+    const totalAmount = groupItems.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+    return {
+      itemId: firstItem.id,
+      companyCode: companyMeta.companyCode,
+      companyName: companyMeta.companyName,
+      documentDate: request.document_date || dates[0] || new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' }),
+      billDate: dates[0] || request.document_date || new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' }),
+      startDate: dates[0] || request.document_date,
+      endDate: dates[dates.length - 1] || request.document_date,
+      supplierName: firstItem.supplierName || request.supplier_name || '',
+      description: groupItems.map((it) => it.description).filter(Boolean).join(', '),
+      quantity: firstItem.quantity,
+      unitPrice: firstItem.unitPrice,
+      amount: totalAmount,
+      requesterName: request.requester_name || '',
+      requesterPosition: request.requester_department || 'พนักงาน',
+      requesterSignatureUrl: firstItem.requesterSignatureUrl || request.requester_signature_url || undefined,
+      approverName: overrideApproverName ?? firstItem.approverName ?? (canApproveSupervisor ? userName : request.assigned_supervisor_name || ''),
+      approverPosition: firstItem.approverPosition || 'หัวหน้างาน',
+      approverSignatureUrl: overrideApproverSig ?? firstItem.approverSignatureUrl ?? (deptSupSignatureUrl || resolvedSupSignatureUrl || undefined),
+      items: groupItems.map((it, gIdx) => ({
+        id: it.id || `item-${gIdx}`,
+        billDate: it.billDate || request.document_date || '',
+        description: it.description || '',
+        quantity: it.quantity,
+        unitPrice: it.unitPrice,
+        amount: Number(it.amount) || 0,
+      })),
+    };
+  };
+
+  const mergeSignedCertificateIntoState = (
+    sourceItems: RequisitionItem[],
+    sourceAttachments: any[],
+    updatedData: SubstituteReceiptData,
+    attachment: { url: string; fileName: string; fileSize: number },
+    matchGroupKey?: string,
+    matchItemIndex?: number
+  ): { nextItems: RequisitionItem[]; nextAttachments: any[] } => {
+    const oldUrls = new Set<string>();
+    const oldNames = new Set<string>();
+
+    const nextItems = sourceItems.map((it, idx) => {
+      const isTarget = matchGroupKey
+        ? it.isIrregularBill && it.substituteGroupKey === matchGroupKey
+        : idx === matchItemIndex;
+      if (!isTarget) return it;
+
+      if (it.substituteCertificateUrl) oldUrls.add(it.substituteCertificateUrl);
+      if (it.substituteCertificateFileName) oldNames.add(it.substituteCertificateFileName);
+
+      const editedLine =
+        updatedData.items?.find((li) => li.id && li.id === it.id) ||
+        updatedData.items?.find((li) => li.description === it.description && Number(li.amount) === Number(it.amount));
+
+      return {
+        ...it,
+        ...(editedLine
+          ? {
+              billDate: editedLine.billDate || it.billDate,
+              description: editedLine.description || it.description,
+              quantity: editedLine.quantity,
+              unitPrice: editedLine.unitPrice,
+              amount: Number(editedLine.amount) || it.amount,
+            }
+          : {}),
+        supplierName: updatedData.supplierName || it.supplierName,
+        substituteCertificateUrl: attachment.url,
+        substituteCertificateFileName: attachment.fileName,
+        requesterSignatureUrl: updatedData.requesterSignatureUrl,
+        approverName: updatedData.approverName,
+        approverPosition: updatedData.approverPosition,
+        approverSignatureUrl: updatedData.approverSignatureUrl,
+      };
+    });
+
+    const filteredAttachments = (Array.isArray(sourceAttachments) ? sourceAttachments : []).filter(
+      (att: any) => !oldUrls.has(att?.url) && (!att?.fileName || !oldNames.has(att.fileName))
+    );
+    const nextAttachments = [
+      ...filteredAttachments,
+      {
+        url: attachment.url,
+        fileName: attachment.fileName,
+        fileType: 'application/pdf',
+        fileSize: attachment.fileSize,
+      },
+    ];
+
+    return { nextItems, nextAttachments };
+  };
+
+  const openSubstituteModalForItem = (item: RequisitionItem, itemIndex: number) => {
+    const allItems = displayedItems;
+    const groupKey = item.substituteGroupKey;
+    const groupItems = groupKey
+      ? allItems.filter((it) => it.isIrregularBill && it.substituteGroupKey === groupKey)
+      : [item];
+    const resolvedGroup = groupItems.length > 0 ? groupItems : [item];
+    const activeSupSig = getActiveDeptSupervisorSignature() || resolvedSupSignatureUrl || undefined;
+    const initialData = buildSubstituteReceiptData(
+      resolvedGroup,
+      resolvedGroup[0],
+      item.approverSignatureUrl || activeSupSig,
+      item.approverName || (canApproveSupervisor ? userName : request.assigned_supervisor_name || '')
+    );
+
+    setSubCertModalState({
+      isOpen: true,
+      initialData,
+      targetGroupKey: groupKey,
+      targetItemIndex: itemIndex,
+    });
+  };
+
+  const handleSaveSubCertFromModal = async (
+    updatedData: SubstituteReceiptData,
+    attachment: { url: string; fileName: string; fileSize: number }
+  ) => {
+    const currentItems = displayedItems;
+    const currentAttachments = displayedAttachments;
+    const { nextItems, nextAttachments } = mergeSignedCertificateIntoState(
+      currentItems,
+      currentAttachments,
+      updatedData,
+      attachment,
+      subCertModalState.targetGroupKey,
+      subCertModalState.targetItemIndex
+    );
+
+    const res = await supervisorUpdateSubstituteCertificates(request.id, {
+      items: nextItems,
+      attachments: nextAttachments,
+      approverSignatureUrl: updatedData.approverSignatureUrl || null,
+      approverName: updatedData.approverName || userName,
+      note: `ลงนาม/อัปเดตใบรับรองแทนใบเสร็จ (${attachment.fileName})`,
+    });
+
+    if (!res.success) {
+      throw new Error(res.error || 'ไม่สามารถบันทึกลายเซ็นลงในคำขอเบิกจ่ายได้');
+    }
+
+    if (updatedData.approverSignatureUrl) {
+      setDeptSupSignatureDraft(updatedData.approverSignatureUrl);
+    }
+    setLocalCertPatch({
+      requestId: request.id,
+      baseItemsRef: request.items,
+      baseAttachmentsRef: request.attachments,
+      baseSupSig: request.supervisor_signature_url,
+      items: nextItems,
+      attachments: nextAttachments,
+      supervisorSignatureUrl: updatedData.approverSignatureUrl || resolvedSupSignatureUrl || undefined,
+    });
+    router.refresh();
+  };
+
+  const renderIrregularBillControls = (item: RequisitionItem, idx: number, compact = false) => {
+    if (!item.isIrregularBill) return null;
+    const textSize = compact ? 'text-[10px]' : '';
+    const padX = compact ? 'px-1.5 py-0.5' : 'px-2 py-0.5';
+    const iconCls = compact ? 'w-2.5 h-2.5' : 'w-3 h-3';
+    return (
+      <div className={`flex flex-wrap items-center ${compact ? 'gap-1' : 'gap-1.5'} ${textSize}`}>
+        {item.substituteCertificateUrl ? (
+          <a
+            href={item.substituteCertificateUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-1 ${padX} rounded font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition`}
+            title="คลิกเพื่อเปิดดูใบรับรองแทนใบเสร็จรับเงิน (PDF)"
+          >
+            <FileText className="w-3 h-3 text-amber-700" />
+            <span>{compact ? 'ใบรับรองแทนใบเสร็จ (PDF)' : 'ใบรับรองแทนใบเสร็จ (บก.111 / PDF)'}</span>
+            <ExternalLink className="w-2.5 h-2.5" />
+          </a>
+        ) : (
+          <span className={`inline-flex items-center gap-1 ${padX} rounded font-bold bg-amber-100 text-amber-900 border border-amber-300`}>
+            <FileText className="w-3 h-3 text-amber-700" />
+            <span>{compact ? 'บิลไม่สมบูรณ์ (ใบรับรองแทนฯ)' : 'บิลไม่สมบูรณ์'}</span>
+          </span>
+        )}
+        {item.approverSignatureUrl ? (
+          <span className={`inline-flex items-center gap-0.5 ${padX} rounded font-bold bg-emerald-100 text-emerald-800 border border-emerald-300`}>
+            <CheckCircle2 className={iconCls} /> หัวหน้าลงนามแล้ว
+          </span>
+        ) : (
+          <span className={`inline-flex items-center gap-0.5 ${padX} rounded font-bold bg-orange-100 text-orange-800 border border-orange-300`}>
+            <Clock className={iconCls} /> รอหัวหน้าเซ็น บก.111
+          </span>
+        )}
+        {canSignSubstituteCert && (
+          <button
+            type="button"
+            onClick={() => openSubstituteModalForItem(item, idx)}
+            className={`inline-flex items-center gap-1 ${compact ? 'px-2' : 'px-2.5'} py-0.5 rounded font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs transition cursor-pointer`}
+          >
+            <PenLine className={iconCls} />
+            <span>{item.approverSignatureUrl ? 'ดู/แก้ไข บก.111' : 'เซ็นใบรับรอง บก.111'}</span>
+          </button>
+        )}
+      </div>
+    );
+  };
+
   // Department Supervisor Approval Handlers
   const handleSupervisorApprove = async () => {
+    const activeSig = getActiveDeptSupervisorSignature();
+    const currentItems = displayedItems;
+    const unsignedIrregularItems = currentItems.filter(
+      (it) => it.isIrregularBill && !it.approverSignatureUrl
+    );
+
+    if (unsignedIrregularItems.length > 0 && !activeSig) {
+      Swal.fire({
+        title: 'กรุณาลงนามลายเซ็นหัวหน้างาน',
+        text: `คำขอนี้มีใบรับรองแทนใบเสร็จ (บก.111) ที่ยังไม่ได้ลงนามผู้อนุมัติ ${unsignedIrregularItems.length} รายการ กรุณาวาดหรืออัปโหลดลายเซ็นหัวหน้างานก่อนกดอนุมัติ`,
+        icon: 'warning',
+        confirmButtonColor: '#d97706',
+      });
+      return;
+    }
+
     const confirm = await Swal.fire({
       title: 'อนุมัติคำขอนี้ส่งต่อบัญชี?',
-      text: `ยืนยันการอนุมัติเอกสารเบิกจ่ายยอดเงิน ${Number(request.net_amount).toLocaleString()} บาท ส่งให้ฝ่ายบัญชี (AP) ตรวจสอบ`,
+      text:
+        unsignedIrregularItems.length > 0 && activeSig
+          ? `ระบบจะฝังลายเซ็นหัวหน้างานลงในใบรับรองแทนใบเสร็จ (${unsignedIrregularItems.length} รายการ) และอนุมัติยอดเงิน ${Number(request.net_amount).toLocaleString()} บาท ส่งต่อฝ่ายบัญชี (AP)`
+          : `ยืนยันการอนุมัติเอกสารเบิกจ่ายยอดเงิน ${Number(request.net_amount).toLocaleString()} บาท ส่งให้ฝ่ายบัญชี (AP) ตรวจสอบ`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#059669',
@@ -453,9 +804,78 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
     setIsProcessing(true);
     try {
+      if (activeSig && typeof window !== 'undefined' && userName) {
+        try {
+          localStorage.setItem(`crm_saved_signature_${userName}`, activeSig);
+        } catch {}
+        setDeptSupSignatureDraft(activeSig);
+      }
+
+      // Auto-sign & re-upload any unsigned บก.111 certificates before approving
+      if (unsignedIrregularItems.length > 0 && activeSig) {
+        let updatedItems = [...currentItems];
+        let updatedAttachments = [...displayedAttachments];
+
+        // Group unsigned items by substituteGroupKey (or individual index) to preserve combined certificates
+        const processedKeys = new Set<string>();
+        for (let idx = 0; idx < updatedItems.length; idx++) {
+          const item = updatedItems[idx];
+          if (!item.isIrregularBill || item.approverSignatureUrl) continue;
+
+          const groupKey = item.substituteGroupKey || `__single_${idx}`;
+          if (processedKeys.has(groupKey)) continue;
+          processedKeys.add(groupKey);
+
+          const groupItems = item.substituteGroupKey
+            ? updatedItems.filter((it) => it.isIrregularBill && it.substituteGroupKey === item.substituteGroupKey)
+            : [item];
+
+          const certData = buildSubstituteReceiptData(
+            groupItems,
+            groupItems[0],
+            activeSig,
+            userName
+          );
+          const uploadedPdf = await uploadSubstituteReceiptPdf(certData);
+          const merged = mergeSignedCertificateIntoState(
+            updatedItems,
+            updatedAttachments,
+            certData,
+            uploadedPdf,
+            item.substituteGroupKey,
+            idx
+          );
+          updatedItems = merged.nextItems;
+          updatedAttachments = merged.nextAttachments;
+        }
+
+        const certSaveRes = await supervisorUpdateSubstituteCertificates(request.id, {
+          items: updatedItems,
+          attachments: updatedAttachments,
+          approverSignatureUrl: activeSig,
+          approverName: userName,
+          note: `หัวหน้างานลงนามในใบรับรองแทนใบเสร็จ (${unsignedIrregularItems.length} รายการ) พร้อมอนุมัติส่งต่อบัญชี`,
+        });
+
+        if (!certSaveRes.success) {
+          Swal.fire({ title: 'เกิดข้อผิดพลาด', text: certSaveRes.error || 'ไม่สามารถบันทึกใบรับรองแทนใบเสร็จได้', icon: 'error' });
+          return;
+        }
+        setLocalCertPatch({
+          requestId: request.id,
+          baseItemsRef: request.items,
+          baseAttachmentsRef: request.attachments,
+          baseSupSig: request.supervisor_signature_url,
+          items: updatedItems,
+          attachments: updatedAttachments,
+          supervisorSignatureUrl: activeSig,
+        });
+      }
+
       const res = await supervisorApprovePaymentRequest(request.id, {
         approvedBy: userName,
         notes: deptSupervisorNotes,
+        signatureUrl: activeSig || undefined,
       });
       if (res.success) {
         Swal.fire({
@@ -469,6 +889,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       } else {
         Swal.fire({ title: 'เกิดข้อผิดพลาด', text: res.error, icon: 'error' });
       }
+    } catch (err: any) {
+      Swal.fire({ title: 'เกิดข้อผิดพลาด', text: err?.message || 'ไม่สามารถดำเนินการได้', icon: 'error' });
     } finally {
       setIsProcessing(false);
     }
@@ -987,7 +1409,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       // 2. Visual hashes (Full dHash + Core Center 70% dHash invariant to camera angle & background clutter)
       let visualHash: string | undefined = undefined;
       let coreVisualHash: string | undefined = undefined;
-      if (file.type.startsWith('image/')) {
+      if (isImageAttachmentFile(file)) {
         try {
           const hashes = await computeVisualHashes(file);
           if (hashes) {
@@ -1002,7 +1424,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       // 3. QR / Barcode detection (<50ms)
       let qrPayload: string | undefined = undefined;
       let barcode: string | undefined = undefined;
-      if (file.type.startsWith('image/')) {
+      if (isImageAttachmentFile(file)) {
         try {
           const slipRes = await detectSlipQrAndBarcode(file);
           if (slipRes.detected) {
@@ -1014,7 +1436,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         }
       }
 
-      // 4. OCR Auto-Scan for invoice/receipt documents (skip if QR slip was already detected!)
+      // 4. OCR Auto-Scan for invoice/receipt documents (including receipts containing e-tax QR codes)
       let extractedTaxId: string | undefined = undefined;
       let extractedInvoiceNo: string | undefined = undefined;
       let extractedAmount: number | undefined = undefined;
@@ -1026,38 +1448,21 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       let rawTextSnippet: string | undefined = undefined;
       let distinctiveTokens: string[] | undefined = undefined;
 
-      if (file.type.startsWith('image/') && !qrPayload) {
-        try {
-          const downscaledBlob = await downscaleImageForScan(file, 3200);
-          const scanForm = new FormData();
-          scanForm.append('file', downscaledBlob, file.name);
-          scanForm.append('skipQr', 'true');
-          const scanRes = await fetch('/api/scan-document', {
-            method: 'POST',
-            body: scanForm,
-            signal: AbortSignal.timeout(30000),
-          });
-          if (scanRes.ok) {
-            const scanData = await scanRes.json();
-            if (scanData.success) {
-              if (scanData.qrPayload && !qrPayload) qrPayload = scanData.qrPayload;
-              if (scanData.barcode && !barcode) barcode = scanData.barcode;
-              if (scanData.extractedTaxId) extractedTaxId = scanData.extractedTaxId;
-              if (scanData.extractedInvoiceNo) extractedInvoiceNo = scanData.extractedInvoiceNo;
-              if (scanData.extractedAmount) extractedAmount = scanData.extractedAmount;
-              if (scanData.extractedDate) extractedDate = scanData.extractedDate;
-              if (scanData.extractedSupplier) extractedSupplier = scanData.extractedSupplier;
-              if (scanData.extractedPhone) extractedPhone = scanData.extractedPhone;
-              if (scanData.extractedDescription) extractedDescription = scanData.extractedDescription;
-              if (Array.isArray(scanData.extractedLineItems) && scanData.extractedLineItems.length > 0) {
-                extractedLineItems = scanData.extractedLineItems;
-              }
-              if (scanData.rawTextSnippet) rawTextSnippet = scanData.rawTextSnippet;
-              if (scanData.distinctiveTokens) distinctiveTokens = scanData.distinctiveTokens;
-            }
-          }
-        } catch (ocrErr) {
-          console.warn('OCR Auto-Scan request timed out or skipped:', ocrErr);
+      if (isImageAttachmentFile(file)) {
+        const scanData = await scanImageWithOcrApi(file, { skipQr: true, timeoutMs: 30000 });
+        if (scanData) {
+          if (scanData.qrPayload && !qrPayload) qrPayload = scanData.qrPayload;
+          if (scanData.barcode && !barcode) barcode = scanData.barcode;
+          extractedTaxId = scanData.extractedTaxId;
+          extractedInvoiceNo = scanData.extractedInvoiceNo;
+          extractedAmount = scanData.extractedAmount;
+          extractedDate = scanData.extractedDate;
+          extractedSupplier = scanData.extractedSupplier;
+          extractedPhone = scanData.extractedPhone;
+          extractedDescription = scanData.extractedDescription;
+          extractedLineItems = scanData.extractedLineItems;
+          rawTextSnippet = scanData.rawTextSnippet;
+          distinctiveTokens = scanData.distinctiveTokens;
         }
       }
 
@@ -1091,28 +1496,22 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
       if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
         const match = dupCheck.matches[0];
-        let explanationText = '';
-        if (match.matchType === 'ATTACHMENT_QR') {
-          explanationText = `รหัส QR Code บนสลิปหรือบิลนี้ (PromptPay Slip Payload) ตรงกับเอกสารที่เคยแนบในระบบกลาง 100% แม้จะถ่ายจากต่างกล้อง (Separate Cameras)`;
-        } else if (match.matchType === 'ATTACHMENT_OCR') {
-          explanationText = `ข้อมูล OCR (เลขที่บิล "${match.invoice_number || extractedInvoiceNo}") ตรงกับเอกสารในระบบกลาง`;
-        } else if (match.matchType === 'ATTACHMENT_VISUAL_CONTEXT') {
-          explanationText = `ตรวจพบเอกสารเดียวกันจากการจับคู่ภาพและบริบท (ความคล้ายคลึงของโครงร่างเอกสาร + ยอดเงิน/ผู้ขาย/เบอร์โทร ตรงกัน)`;
-        } else {
-          explanationText = `เนื้อหาหรือโครงสร้างภาพตรงกับเอกสารที่เคยแนบในระบบกลาง (ตรวจพบจากโครงสร้างภาพแม้ถ่ายต่างมุมหรือต่างกล้อง)`;
-        }
+        const explanationText = formatAttachmentDuplicateReason(match, {
+          barcode,
+          invoiceNo: extractedInvoiceNo,
+        });
 
         await Swal.fire({
           title: 'ตรวจพบเอกสารซ้ำซ้อนในระบบ!',
           html: `
             <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
-              <p class="font-bold text-red-900 text-sm">ไฟล์ "${file.name}" เคยถูกใช้งานแล้ว</p>
-              <p class="text-gray-700">${explanationText}:</p>
+              <p class="font-bold text-red-900 text-sm">ไฟล์ "${escapeHtml(file.name)}" เคยถูกใช้งานแล้ว</p>
+              <p class="text-gray-700">${escapeHtml(explanationText)}:</p>
               <div class="bg-white p-3 rounded-lg border border-red-100 font-mono text-[11px] space-y-1">
-                <p><span class="text-gray-500 font-sans">เลขที่คำขอเดิม:</span> <b class="text-red-700 font-bold">${match.pay_number}</b></p>
-                <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${match.supplier_name}</b></p>
+                <p><span class="text-gray-500 font-sans">เลขที่คำขอเดิม:</span> <b class="text-red-700 font-bold">${escapeHtml(match.pay_number)}</b></p>
+                <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${escapeHtml(match.supplier_name)}</b></p>
                 <p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b>${Number(match.net_amount).toLocaleString()} ฿</b></p>
-                <p><span class="text-gray-500 font-sans">สถานะคำขอเดิม:</span> <b>${match.status}</b></p>
+                <p><span class="text-gray-500 font-sans">สถานะคำขอเดิม:</span> <b>${escapeHtml(match.status)}</b></p>
               </div>
               <p class="text-red-700 font-medium text-[11px]">* ระบบไม่อนุญาตให้แนบเอกสารซ้ำ</p>
             </div>
@@ -1140,7 +1539,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             fileType: file.type,
             fileHash: fileHash || undefined,
             visualHash: visualHash || data.visualHash || undefined,
-            coreVisualHash: coreVisualHash || undefined,
+            coreVisualHash: coreVisualHash || data.coreVisualHash || undefined,
             qrPayload: qrPayload || data.qrPayload || undefined,
             barcode: barcode || undefined,
             fileSize: file.size,
@@ -1255,7 +1654,29 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     }
   };
 
-  const attachmentsList = Array.isArray(request.attachments) ? request.attachments : [];
+  const attachmentsList = displayedAttachments;
+
+  const irregularItemsList = displayedItems.filter((it) => it.isIrregularBill);
+  const unsignedIrregularCount = irregularItemsList.filter((it) => !it.approverSignatureUrl).length;
+  const firstUnsignedIrregularIdx = displayedItems.findIndex((it) => it.isIrregularBill && !it.approverSignatureUrl);
+  const firstIrregularTargetIdx =
+    firstUnsignedIrregularIdx >= 0
+      ? firstUnsignedIrregularIdx
+      : displayedItems.findIndex((it) => it.isIrregularBill);
+  const uniqueIrregularCerts: { url: string; label: string; firstIdx: number; signed: boolean }[] = [];
+  const seenCertUrls = new Set<string>();
+  displayedItems.forEach((it, i) => {
+    if (!it.isIrregularBill) return;
+    const key = it.substituteCertificateUrl || `__pending_${it.substituteGroupKey || i}`;
+    if (seenCertUrls.has(key)) return;
+    seenCertUrls.add(key);
+    uniqueIrregularCerts.push({
+      url: it.substituteCertificateUrl || '',
+      label: it.supplierName ? `บก.111 (${it.supplierName})` : `บก.111 รายการ #${i + 1}`,
+      firstIdx: i,
+      signed: Boolean(it.approverSignatureUrl),
+    });
+  });
 
   // Attachment verification states
   const [isScanningAtt, setIsScanningAtt] = useState(false);
@@ -1759,16 +2180,16 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           </div>
 
           {/* Multi-Item Requisition Table Card (รายการเบิกเงิน) */}
-          {Array.isArray(request.items) && request.items.length > 0 && (
+          {displayedItems.length > 0 && (
             <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <Layers className="w-4 h-4 text-red-600" />
-                  ตารางรายการเบิกเงิน (Requisition Items - {request.items.length} รายการ)
+                  ตารางรายการเบิกเงิน (Requisition Items - {displayedItems.length} รายการ)
                 </h2>
                 <span className="text-[11px] text-slate-500 font-medium">
-                  {Array.from(new Set(request.items.map((i: any) => i.supplierName).filter(Boolean))).length > 1
-                    ? `รวม ${Array.from(new Set(request.items.map((i: any) => i.supplierName).filter(Boolean))).length} ผู้จำหน่าย`
+                  {Array.from(new Set(displayedItems.map((i: any) => i.supplierName).filter(Boolean))).length > 1
+                    ? `รวม ${Array.from(new Set(displayedItems.map((i: any) => i.supplierName).filter(Boolean))).length} ผู้จำหน่าย`
                     : 'ผู้จำหน่ายรายเดียว'}
                 </span>
               </div>
@@ -1796,7 +2217,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {request.items.map((item: any, idx: number) => {
+                    {displayedItems.map((item: any, idx: number) => {
                       const rowTaxes = calculateItemTaxes(item);
                       const isVatIncluded = item.vatType === 'INCLUDED_7%' || item.vatType === 'INCLUDE';
                       const isVatExcluded = item.vatType === '7%' || item.vatType === 'EXCLUDE';
@@ -1822,26 +2243,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                                   จ่ายด้วยบัตรเครดิต
                                 </span>
                               )}
-                              {item.isIrregularBill && (
-                                item.substituteCertificateUrl ? (
-                                  <a
-                                    href={item.substituteCertificateUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition"
-                                    title="คลิกเพื่อเปิดดูใบรับรองแทนใบเสร็จรับเงิน (PDF)"
-                                  >
-                                    <FileText className="w-3 h-3 text-amber-700" />
-                                    <span>ใบรับรองแทนใบเสร็จ (PDF)</span>
-                                    <ExternalLink className="w-2.5 h-2.5" />
-                                  </a>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                                    <FileText className="w-3 h-3 text-amber-700" />
-                                    <span>บิลไม่สมบูรณ์ (ใบรับรองแทนฯ)</span>
-                                  </span>
-                                )
-                              )}
+                              {renderIrregularBillControls(item, idx, true)}
                             </div>
                           </td>
                           <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 border-r border-slate-100 align-top">
@@ -1908,7 +2310,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                         จำนวนเงินรวม (Total Subtotal):
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono text-slate-900 font-bold border-r border-slate-200">
-                        {request.items.reduce((sum: number, it: any) => sum + (Number(it.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {displayedItems.reduce((sum: number, it: any) => sum + (Number(it.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="py-2.5 px-2.5 text-center font-mono font-bold text-blue-700 border-r border-slate-200 text-xs">
                         {Number(request.vat_amount || 0) > 0 ? `+${Number(request.vat_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
@@ -1917,10 +2319,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                         {Number(request.wht_amount || 0) > 0 ? `-${Number(request.wht_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono text-slate-900 font-extrabold border-r border-slate-200">
-                        {request.items.reduce((sum: number, it: any) => sum + (Number(it.netAmount || calculateItemTaxes(it).netAmount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {displayedItems.reduce((sum: number, it: any) => sum + (Number(it.netAmount || calculateItemTaxes(it).netAmount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td colSpan={2} className="text-[10px] text-center text-slate-400">
-                        {request.items.length} รายการ
+                        {displayedItems.length} รายการ
                       </td>
                     </tr>
                     {Number(request.credit_card_deduction || 0) > 0 && (
@@ -1949,7 +2351,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
               {/* Mobile Item Cards View (Visible on screens < md) */}
               <div className="block md:hidden space-y-3">
-                {request.items.map((item: any, idx: number) => {
+                {displayedItems.map((item: any, idx: number) => {
                   const rowTaxes = calculateItemTaxes(item);
                   const isVatIncluded = item.vatType === 'INCLUDED_7%' || item.vatType === 'INCLUDE';
                   const isVatExcluded = item.vatType === '7%' || item.vatType === 'EXCLUDE';
@@ -2032,25 +2434,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                           </span>
                         )}
 
-                        {item.isIrregularBill && (
-                          item.substituteCertificateUrl ? (
-                            <a
-                              href={item.substituteCertificateUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition"
-                            >
-                              <FileText className="w-3 h-3 text-amber-700" />
-                              <span>ใบรับรองแทนใบเสร็จ (บก.111 / PDF)</span>
-                              <ExternalLink className="w-2.5 h-2.5" />
-                            </a>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                              <FileText className="w-3 h-3 text-amber-700" />
-                              <span>บิลไม่สมบูรณ์</span>
-                            </span>
-                          )
-                        )}
+                        {renderIrregularBillControls(item, idx, false)}
                       </div>
 
                       {/* Attachments for item */}
@@ -2093,7 +2477,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   <div className="flex justify-between items-center text-slate-600">
                     <span>จำนวนเงินรวม (Subtotal):</span>
                     <span className="font-mono font-bold text-slate-900">
-                      {request.items.reduce((sum: number, it: any) => sum + (Number(it.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
+                      {displayedItems.reduce((sum: number, it: any) => sum + (Number(it.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                     </span>
                   </div>
                   {Number(request.vat_amount || 0) > 0 && (
@@ -2346,7 +2730,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                                     html: `
                                       <div class="text-left text-xs space-y-2">
                                         <div class="bg-gray-100 p-2.5 rounded-lg border font-mono text-[11px] max-h-60 overflow-y-auto whitespace-pre-wrap text-gray-800">
-                                          ${att.rawTextSnippet}
+                                          ${escapeHtml(att.rawTextSnippet)}
                                         </div>
                                         <p class="text-gray-500 text-[11px]">* ระบบใช้ข้อความนี้ในการตรวจจับความซ้ำซ้อน</p>
                                       </div>
@@ -2395,7 +2779,14 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         </div>
 
         {/* Right Column (1 Col): Role-based Action Panels & Audit Log */}
-        <div className="w-full min-w-0 space-y-4 sm:space-y-6">
+        <div
+          className={`w-full min-w-0 space-y-4 sm:space-y-6 ${
+            (request.status === 'PENDING_SUPERVISOR' && canApproveSupervisor) ||
+            (request.status === 'RETURN_DOCUMENT' && (isOwner || isStaff))
+              ? 'order-first lg:order-none'
+              : ''
+          }`}
+        >
           {/* Action Panel: Return Document (Resubmission Action) */}
           {request.status === 'RETURN_DOCUMENT' && (
             <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-orange-300 shadow-sm space-y-3">
@@ -2466,8 +2857,170 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  โปรดตรวจสอบความจำเป็นและความถูกต้องของรายการขอเบิกจ่าย ก่อนส่งให้ฝ่ายบัญชี (AP) ดำเนินการตรวจสอบเอกสาร
+                  โปรดตรวจสอบความจำเป็นและความถูกต้องของรายการขอเบิกจ่าย และลงนามก่อนส่งให้ฝ่ายบัญชี (AP) ดำเนินการตรวจสอบเอกสาร
                 </p>
+
+                {irregularItemsList.length > 0 && (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2.5 text-[11px]">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                          <span className="w-4 h-4 rounded-full bg-amber-600 text-white text-[10px] font-bold inline-flex items-center justify-center shrink-0">
+                            1
+                          </span>
+                          <span>ตรวจสอบ บก.111 ({irregularItemsList.length} รายการ)</span>
+                          {unsignedIrregularCount > 0 ? (
+                            <span className="text-orange-800 bg-orange-100 px-1.5 py-0.5 rounded border border-orange-300 font-semibold">
+                              รอเซ็น {unsignedIrregularCount}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 font-semibold">
+                              เซ็นครบแล้ว <Check size={11} />
+                            </span>
+                          )}
+                        </span>
+                        {firstIrregularTargetIdx >= 0 && (
+                          <button
+                            type="button"
+                            onClick={() => openSubstituteModalForItem(displayedItems[firstIrregularTargetIdx], firstIrregularTargetIdx)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[11px] font-bold transition cursor-pointer shadow-2xs"
+                          >
+                            <PenLine className="w-3 h-3" /> เปิดดู / เซ็นในเอกสาร
+                          </button>
+                        )}
+                      </div>
+
+                      {uniqueIrregularCerts.some((c) => c.url) && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {uniqueIrregularCerts.map((cert, cIdx) =>
+                            cert.url ? (
+                              <a
+                                key={cIdx}
+                                href={cert.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white hover:bg-amber-100/70 border border-amber-200 text-amber-900 font-semibold text-[10px] transition"
+                              >
+                                <FileText className="w-3 h-3 text-amber-700 shrink-0" />
+                                <span className="truncate max-w-[170px]">{cert.label}</span>
+                                <ExternalLink className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+                              </a>
+                            ) : null
+                          )}
+                        </div>
+                      )}
+
+                      <p className="text-[10px] text-amber-900/80 leading-relaxed">
+                        หรือวาดลายเซ็นด้านล่างครั้งเดียว ระบบจะฝังลงใน PDF บก.111 ให้อัตโนมัติเมื่อกดอนุมัติ
+                      </p>
+                    </div>
+                )}
+
+                {/* Supervisor Signature Box (Multi-stroke safe, Zero extra confirm click needed) */}
+                <div className="p-3 bg-slate-50/90 border border-slate-200 rounded-xl space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
+                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                      {irregularItemsList.length > 0 && (
+                        <span className="w-4 h-4 rounded-full bg-amber-600 text-white text-[10px] font-bold inline-flex items-center justify-center shrink-0">
+                          2
+                        </span>
+                      )}
+                      <PenLine className="w-3.5 h-3.5 text-amber-600" />
+                      <span>ลงนามหัวหน้างาน ({userName})</span>
+                    </span>
+                    {deptSupSignatureUrl && !isDrawingDeptSupSig ? (
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> พร้อมลงนาม (ดึงลายเซ็นเดิม)
+                      </span>
+                    ) : hasDeptSupStroke ? (
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> วาดแล้ว พร้อมกดอนุมัติ
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full font-medium">
+                        วาดหรืออัปโหลดลายเซ็น
+                      </span>
+                    )}
+                  </div>
+
+                  {!isDrawingDeptSupSig && deptSupSignatureUrl ? (
+                    <div className="bg-white border border-emerald-200 rounded-xl p-2.5 flex flex-col items-center gap-2">
+                      <div className="h-[72px] w-full flex items-center justify-center">
+                        <img src={deptSupSignatureUrl} alt="Supervisor Signature" className="max-h-full max-w-full object-contain" />
+                      </div>
+                      <div className="w-full flex items-center justify-between pt-1.5 border-t border-slate-100">
+                        <span className="text-[10px] text-slate-500">ใช้ลงนามใบอนุมัติและฝังใน บก.111 อัตโนมัติ</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDeptSupSignatureDraft('');
+                            setHasDeptSupStroke(false);
+                            setTimeout(() => deptSupSigPadRef.current?.clear(), 50);
+                          }}
+                          className="text-[11px] text-red-600 hover:text-red-700 font-semibold bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md inline-flex items-center gap-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-3 h-3" /> ลบเพื่อเซ็นใหม่
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div ref={deptSupSigBoxRef} className="border-2 border-dashed border-slate-300 rounded-xl overflow-hidden bg-white relative">
+                        <SignatureCanvas
+                          ref={deptSupSigPadRef}
+                          onEnd={() => setHasDeptSupStroke(true)}
+                          canvasProps={{
+                            width: deptSupSigCanvasWidth,
+                            height: 110,
+                            className: 'w-full h-[110px] cursor-crosshair bg-white touch-none',
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            deptSupSigPadRef.current?.clear();
+                            setHasDeptSupStroke(false);
+                          }}
+                          className="absolute top-1.5 right-1.5 p-1 bg-white/90 hover:bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-red-600 transition cursor-pointer"
+                          title="ล้างลายเส้น"
+                        >
+                          <Eraser className="w-3.5 h-3.5" />
+                        </button>
+                        <div className="absolute bottom-1 left-2 pointer-events-none text-[10px] text-slate-400">
+                          วาดลายเซ็นเสร็จแล้วกดปุ่ม &ldquo;อนุมัติ&rdquo; ด้านล่างได้เลย
+                        </div>
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                        <label className="cursor-pointer text-amber-800 hover:text-amber-900 font-semibold inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-200 transition">
+                          <Upload className="w-3 h-3" />
+                          <span>อัปโหลดรูปภาพลายเซ็น</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const reader = new FileReader();
+                              reader.onload = (ev) => {
+                                const url = ev.target?.result as string;
+                                if (url) {
+                                  setDeptSupSignatureDraft(url);
+                                  setHasDeptSupStroke(false);
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }}
+                          />
+                        </label>
+                        {hasDeptSupStroke && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg">
+                            <Check className="w-3 h-3" /> พร้อมส่งแล้ว กดอนุมัติได้เลย
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-700 mb-1">
@@ -2487,7 +3040,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     type="button"
                     disabled={isProcessing}
                     onClick={handleSupervisorReturn}
-                    className="py-2.5 px-3 bg-white hover:bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
+                    className="py-2.5 px-3 bg-white hover:bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> ส่งกลับให้แก้ไข
                   </button>
@@ -2495,9 +3048,14 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     type="button"
                     disabled={isProcessing}
                     onClick={handleSupervisorApprove}
-                    className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center justify-center gap-1.5"
+                    className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5" /> อนุมัติส่งต่อบัญชี
+                    <CheckCircle2 className="w-3.5 h-3.5" />{' '}
+                    {isProcessing
+                      ? 'กำลังบันทึก/ส่ง...'
+                      : irregularItemsList.length > 0 && unsignedIrregularCount > 0
+                      ? 'อนุมัติ + เซ็น บก.111 ส่งต่อบัญชี'
+                      : 'อนุมัติส่งต่อบัญชี'}
                   </button>
                 </div>
               </div>
@@ -2510,6 +3068,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 <p className="text-xs text-amber-800/90 leading-relaxed">
                   คำขอนี้ส่งถึง {request.assigned_supervisor_name ? `คุณ${request.assigned_supervisor_name}` : 'หัวหน้างาน'} (ฝ่าย {request.requester_department || 'ที่เกี่ยวข้อง'} • สาขา {request.branch || 'สำนักงานใหญ่'}) แล้ว ระบบจะส่งเอกสารให้ฝ่ายบัญชี (AP) โดยอัตโนมัติเมื่อหัวหน้างานดำเนินการอนุมัติเรียบร้อย
                 </p>
+                {irregularItemsList.length > 0 && unsignedIrregularCount > 0 && (
+                  <p className="text-[11px] text-amber-900 bg-amber-100/70 border border-amber-200 rounded-lg px-2.5 py-1.5 leading-relaxed">
+                    หมายเหตุ: ใบรับรองแทนใบเสร็จ (บก.111) จะเว้นช่องลายเซ็น <strong>(ผู้อนุมัติ)</strong> ไว้จนกว่าหัวหน้างานจะเข้าสู่ระบบมาเปิดคำขอนี้ แล้วลงนามในส่วน <strong>&ldquo;ส่วนสำหรับหัวหน้างาน&rdquo;</strong> หรือกด <strong>&ldquo;เซ็นใบรับรอง บก.111&rdquo;</strong> (ระบบจะสร้าง PDF ฉบับที่มีครบ 2 ลายเซ็นให้ใหม่อัตโนมัติ)
+                  </p>
+                )}
                 <div className="text-[11px] text-amber-700 flex items-center gap-1.5 pt-1">
                   <ShieldAlert className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                   <span>{supervisorAuth.reason || `สิทธิ์การอนุมัตินี้สงวนไว้เฉพาะหัวหน้างานฝ่าย ${request.requester_department || ''} สาขา ${request.branch || ''}`}</span>
@@ -3669,6 +4232,20 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             Object.assign(request, updated);
             router.refresh();
           }}
+        />
+      )}
+
+      {/* Substitute Receipt Certificate (บก.111) Signing / Preview Modal */}
+      {subCertModalState.isOpen && subCertModalState.initialData && (
+        <SubstituteReceiptModal
+          isOpen={subCertModalState.isOpen}
+          onClose={() => setSubCertModalState({ isOpen: false, initialData: null })}
+          initialData={subCertModalState.initialData}
+          defaultSigTab={canApproveSupervisor ? 'approver' : 'requester'}
+          signingRole={canApproveSupervisor ? 'approver' : 'requester'}
+          defaultApproverName={canApproveSupervisor ? userName : ''}
+          saveButtonLabel={canApproveSupervisor ? 'ลงนามผู้อนุมัติและอัปเดต PDF บก.111' : 'บันทึกและอัปเดต PDF'}
+          onSaveAndAttach={handleSaveSubCertFromModal}
         />
       )}
 

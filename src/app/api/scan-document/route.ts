@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     const skipQr = formData.get('skipQr') === 'true';
     if (formData.get('restart') === 'true') {
-      fastOcrManager.restart();
+      await fastOcrManager.restart();
     }
 
     // 1. Fast QR Code / Barcode detection (only if not already scanned by client)

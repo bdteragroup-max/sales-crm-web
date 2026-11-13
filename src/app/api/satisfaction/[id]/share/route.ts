@@ -28,7 +28,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       for (const user of relatedUsers) {
         if (user.salespersonId) {
           await sendPushToUser(user.salespersonId, {
-            title: "📊 ผลการประเมินความพึงพอใจลูกค้าใหม่",
+            title: "ผลการประเมินความพึงพอใจลูกค้าใหม่",
             body: `${survey.company.companyName}${contactText} — คะแนนเฉลี่ย ${survey.scoreAverage.toFixed(1)}/5`,
             url: `/marketing/satisfaction/${survey.id}`,
             category: "SATISFACTION"
@@ -44,7 +44,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       for (const install of relatedInstalls) {
         if (install.technicianUserId) {
           await sendPushToUser(install.technicianUserId, {
-            title: "📊 ผลการประเมินความพึงพอใจลูกค้าใหม่",
+            title: "ผลการประเมินความพึงพอใจลูกค้าใหม่",
             body: `${survey.company.companyName}${contactText} — คะแนนเฉลี่ย ${survey.scoreAverage.toFixed(1)}/5`,
             url: `/marketing/satisfaction/${survey.id}`,
             category: "SATISFACTION"

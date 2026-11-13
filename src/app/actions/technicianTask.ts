@@ -64,7 +64,7 @@ export async function createTask(data: {
   for (const techId of data.technicianIds) {
     try {
       await sendPushToUser(techId, {
-        title: "📋 งานใหม่ถูกมอบหมาย",
+        title: "งานใหม่ถูกมอบหมาย",
         body: `${data.title} — ${new Date(data.scheduledDate).toLocaleDateString('th-TH')} ${data.startTime ?? ''}`,
         url: `/technician/schedule?task=${task.id}`,
         category: "TASK_ASSIGNED"

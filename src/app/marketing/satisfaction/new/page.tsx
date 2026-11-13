@@ -870,7 +870,7 @@ export default function NewSatisfactionSurvey() {
                                 : 'border-gray-200 text-gray-700 hover:border-gray-300'
                             }`}
                           >
-                            <option value="">👤 เลือกตามชื่อเซลล์ ({salespersonsList.length} คน)...</option>
+                            <option value="">เลือกตามชื่อเซลล์ ({salespersonsList.length} คน)...</option>
                             {salespersonsList.map((sp) => (
                               <option key={sp.name} value={sp.name}>
                                 {sp.name} ({sp.count} บริษัท)

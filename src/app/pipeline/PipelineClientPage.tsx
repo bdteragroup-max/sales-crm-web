@@ -35,7 +35,7 @@ import {
   Calendar,
   CalendarDays,
   Loader2,
-  Upload,
+  Upload, Coins,
 } from 'lucide-react'
 
 interface PipelineClientPageProps {
@@ -982,7 +982,7 @@ export default function PipelineClientPage({
       {showCoinModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl scale-in-center">
-            <div className="text-7xl mb-4">🪙</div>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-200 text-amber-950"><Coins size={34} /></div>
             <h2 className="text-2xl font-black text-yellow-600 mb-2">ยินดีด้วย! คุณได้รับเหรียญทอง</h2>
             <p className="text-gray-600 mb-6 font-medium">{coinModalData.message}</p>
             <button 

@@ -19,6 +19,7 @@ import {
   Search,
   ChevronDown,
   Check,
+  Plus,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import {
@@ -793,13 +794,13 @@ export default function CreateEditBranchContentModal({
                       key={ch}
                       type="button"
                       onClick={() => toggleChannel(ch)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                         selected
                           ? 'bg-red-600 text-white border-red-600 shadow-xs'
                           : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
                       }`}
                     >
-                      {selected ? '✓ ' : '+ '}
+                      {selected ? <Check size={12} /> : <Plus size={12} />}
                       {ch}
                     </button>
                   );

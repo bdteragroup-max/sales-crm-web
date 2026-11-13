@@ -2812,7 +2812,11 @@ export default function CampaignsClient({
                               <th className="px-4 py-3">วันและเวลา</th>
                               <th className="px-3 py-3 text-center">ประเภท</th>
                               <th className="px-4 py-3">กลยุทธ์</th>
-                              <th className="px-4 py-3 text-right">งบประมาณเดิม ➔ ใหม่</th>
+                              <th className="px-4 py-3 text-right">
+                                <span className="inline-flex items-center justify-end gap-1">
+                                  งบประมาณเดิม <ArrowRight size={11} /> ใหม่
+                                </span>
+                              </th>
                               <th className="px-3 py-3 text-center">ประเภทงบ</th>
                               <th className="px-4 py-3">ผู้แก้ไข</th>
                               <th className="px-4 py-3">หมายเหตุ</th>
@@ -2841,10 +2845,14 @@ export default function CampaignsClient({
                                   </span>
                                 </td>
                                 <td className="px-4 py-3 font-semibold text-gray-900">
-                                  {item.prevStrategy || '—'} ➔ {item.newStrategy || '—'}
+                                  <span className="inline-flex items-center gap-1">
+                                    {item.prevStrategy || '—'} <ArrowRight size={11} className="text-gray-400" /> {item.newStrategy || '—'}
+                                  </span>
                                 </td>
                                 <td className="px-4 py-3 text-right font-mono font-bold text-gray-900">
-                                  {item.prevBudget !== null && item.prevBudget !== undefined ? `฿${Number(item.prevBudget).toLocaleString()}` : '—'} ➔ {item.newBudget !== null && item.newBudget !== undefined ? `฿${Number(item.newBudget).toLocaleString()}` : '—'}
+                                  <span className="inline-flex items-center justify-end gap-1">
+                                    {item.prevBudget !== null && item.prevBudget !== undefined ? `฿${Number(item.prevBudget).toLocaleString()}` : '—'} <ArrowRight size={11} className="text-gray-400" /> {item.newBudget !== null && item.newBudget !== undefined ? `฿${Number(item.newBudget).toLocaleString()}` : '—'}
+                                  </span>
                                 </td>
                                 <td className="px-3 py-3 text-center text-gray-600 font-mono text-[11px]">
                                   {item.budgetType || 'DAILY'}

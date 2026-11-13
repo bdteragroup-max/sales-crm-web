@@ -31,7 +31,9 @@ import {
   Square,
   Package,
   X,
-  Layers
+  Layers,
+  User,
+  HardHat
 } from 'lucide-react';
 import { getPOPaymentStatus } from '@/app/lib/supplierPaymentUtils';
 
@@ -1060,11 +1062,11 @@ export default function POListClient({
                 className="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-gray-50/50 text-gray-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
               >
                 <option value="ALL">ทุกสถานะชำระ</option>
-                <option value="PAID">🟢 จ่ายเงินแล้ว</option>
-                <option value="DEFERRED">🟡 เลื่อนนัดชำระ</option>
-                <option value="PENDING">🔵 รอจ่ายเงิน</option>
-                <option value="AWAITING_GR">🟠 รอตรวจรับของ</option>
-                <option value="OVERDUE">🔴 เกินกำหนดชำระ</option>
+                <option value="PAID">จ่ายเงินแล้ว</option>
+                <option value="DEFERRED">เลื่อนนัดชำระ</option>
+                <option value="PENDING">รอจ่ายเงิน</option>
+                <option value="AWAITING_GR">รอตรวจรับของ</option>
+                <option value="OVERDUE">เกินกำหนดชำระ</option>
               </select>
             </div>
 
@@ -2238,24 +2240,24 @@ export default function POListClient({
                     <button
                       type="button"
                       onClick={() => setReceiveForm(prev => ({ ...prev, receivedBy: currentUser.fullName! }))}
-                      className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                      className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
                     >
-                      👤 ฉันเอง ({currentUser.fullName})
+                      <User size={11} /> ฉันเอง ({currentUser.fullName})
                     </button>
                   )}
                   <button
                     type="button"
                     onClick={() => setReceiveForm(prev => ({ ...prev, receivedBy: 'วิศวกร/ผู้ควบคุมงานหน้างาน' }))}
-                    className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                    className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
                   >
-                    👷 วิศวกรหน้างาน
+                    <HardHat size={11} /> วิศวกรหน้างาน
                   </button>
                   <button
                     type="button"
                     onClick={() => setReceiveForm(prev => ({ ...prev, receivedBy: 'ช่างประจำโครงการ' }))}
-                    className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                    className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
                   >
-                    🔧 ช่างประจำโครงการ
+                    <Wrench size={11} /> ช่างประจำโครงการ
                   </button>
                 </div>
               </div>
@@ -2429,17 +2431,17 @@ export default function POListClient({
                     <button
                       type="button"
                       onClick={() => setBatchReceiveForm(prev => ({ ...prev, receivedBy: currentUser.fullName! }))}
-                      className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                      className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
                     >
-                      👤 ฉันเอง ({currentUser.fullName})
+                      <User size={11} /> ฉันเอง ({currentUser.fullName})
                     </button>
                   )}
                   <button
                     type="button"
                     onClick={() => setBatchReceiveForm(prev => ({ ...prev, receivedBy: 'วิศวกร/ผู้ควบคุมงานหน้างาน' }))}
-                    className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
+                    className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-medium transition-colors"
                   >
-                    👷 วิศวกรหน้างาน
+                    <HardHat size={11} /> วิศวกรหน้างาน
                   </button>
                 </div>
               </div>

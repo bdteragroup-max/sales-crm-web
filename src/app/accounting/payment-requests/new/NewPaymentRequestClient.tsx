@@ -12,17 +12,23 @@ import {
   PaymentRequestRecord,
   RequisitionItem,
   ItemAttachment,
+  SupervisorOption,
 } from '@/app/actions/paymentRequests';
+import { isSupervisorOrManager, normalizePersonName } from '@/app/lib/roleHelper';
 import { calculateItemTaxes, truncate2Decimals } from '../utils/itemTaxes';
 import {
-  normalizeAttachmentName,
-  isDistinctiveAttachmentName,
-  visualHammingDistance,
-  normalizeInvoiceNo,
   ExtractedLineItem,
   formatDateToISO,
+  escapeHtml,
+  formatAttachmentDuplicateReason,
+  findInFormDuplicateAttachment,
 } from '@/lib/attachmentUtils';
-import { detectSlipQrAndBarcode, downscaleImageForScan, computeVisualHashes } from '@/lib/slipDetector';
+import {
+  detectSlipQrAndBarcode,
+  computeVisualHashes,
+  isImageAttachmentFile,
+  scanImageWithOcrApi,
+} from '@/lib/slipDetector';
 import PrintablePaymentVoucher from '../components/PrintablePaymentVoucher';
 import SubstituteReceiptModal from '../components/SubstituteReceiptModal';
 import {
@@ -33,6 +39,7 @@ import {
 import { thaiBahtText } from '@/app/lib/thaiBahtText';
 import {
   ChevronLeft,
+  ChevronRight,
   ChevronDown,
   Search,
   X,
@@ -60,6 +67,7 @@ import {
   Clock,
   RefreshCw,
   RotateCcw,
+  Lightbulb,
   Printer,
   Copy,
   ArrowRight,
@@ -75,6 +83,8 @@ import {
   Edit3,
   Save,
   Loader2,
+  PenLine,
+  LayoutList,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -83,12 +93,15 @@ type Props = {
     id: string;
     fullName: string;
     role?: string;
+    employeeId?: string | null;
   } | null;
   branches?: { id: string; name: string }[];
   initialBranch?: string;
   initialDept?: string;
   initialPhone?: string;
   initialSupervisor?: string;
+  initialSupervisorId?: string;
+  supervisorOptions?: SupervisorOption[];
   initialMyRequests?: PaymentRequestRecord[];
   isEditMode?: boolean;
   initialData?: (PaymentRequestRecord & { logs?: any[] }) | null;
@@ -198,6 +211,27 @@ const getTomorrowStr = () => {
   return `${year}-${month}-${day}`;
 };
 
+const buildDefaultRequisitionItem = (overrides: Partial<RequisitionItem> = {}): RequisitionItem => ({
+  id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+  billDate: getTodayStr(),
+  supplierName: '',
+  supplierTaxId: '',
+  invoiceNumber: '',
+  description: '',
+  amount: 0,
+  vatType: 'NO_VAT',
+  vatAmount: 0,
+  whtType: 'NONE',
+  whtPercent: 0,
+  whtAmount: 0,
+  netAmount: 0,
+  remarks: '',
+  paidByCreditCard: false,
+  isIrregularBill: false,
+  attachments: [],
+  ...overrides,
+});
+
 export default function NewPaymentRequestClient({
   currentUser,
   branches,
@@ -205,6 +239,8 @@ export default function NewPaymentRequestClient({
   initialDept,
   initialPhone,
   initialSupervisor,
+  initialSupervisorId = '',
+  supervisorOptions = [],
   initialMyRequests,
   isEditMode = false,
   initialData = null,
@@ -215,6 +251,16 @@ export default function NewPaymentRequestClient({
 
   // Tab State: 'create' for new form, 'my_requests' to view own request statuses
   const [activeTab, setActiveTab] = useState<'create' | 'my_requests'>('create');
+  const [formStep, setFormStep] = useState<1 | 2 | 3 | 4>(1);
+  const [showAllSections, setShowAllSections] = useState<boolean>(Boolean(isEditMode));
+  const [showRequesterEditor, setShowRequesterEditor] = useState<boolean>(false);
+
+  const goToFormStep = (step: 1 | 2 | 3 | 4) => {
+    setFormStep(step);
+    requestAnimationFrame(() => {
+      document.getElementById('payment-request-form-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
   const [myRequests, setMyRequests] = useState<PaymentRequestRecord[]>(initialMyRequests || []);
   const [isLoadingRequests, setIsLoadingRequests] = useState(false);
   const [selectedVoucherRequest, setSelectedVoucherRequest] = useState<PaymentRequestRecord | null>(null);
@@ -327,7 +373,7 @@ export default function NewPaymentRequestClient({
     if (initialData?.items && Array.isArray(initialData.items) && initialData.items.length > 0) {
       return initialData.items.map((it: any, idx: number) => ({
         id: it.id || `item_${Date.now()}_${idx}`,
-        billDate: it.billDate || (initialData?.document_date ? formatDisplayDate(initialData.document_date) : new Date().toISOString().split('T')[0]),
+        billDate: it.billDate || (initialData?.document_date ? formatDisplayDate(initialData.document_date) : getTodayStr()),
         supplierName: it.supplierName || '',
         supplierTaxId: it.supplierTaxId || '',
         invoiceNumber: it.invoiceNumber || '',
@@ -358,7 +404,7 @@ export default function NewPaymentRequestClient({
       const vatT = initialData.vat_type === '7%' ? '7%' : (initialData.vat_type === 'INCLUDED_7%' ? 'INCLUDED_7%' : 'NO_VAT');
       return [{
         id: 'item_1',
-        billDate: initialData.document_date ? formatDisplayDate(initialData.document_date) : new Date().toISOString().split('T')[0],
+        billDate: initialData.document_date ? formatDisplayDate(initialData.document_date) : getTodayStr(),
         supplierName: initialData.supplier_name || '',
         supplierTaxId: initialData.supplier_tax_id || '',
         invoiceNumber: initialData.invoice_number || '',
@@ -372,13 +418,14 @@ export default function NewPaymentRequestClient({
         netAmount: Number(initialData.net_amount) || 0,
         remarks: '',
         paidByCreditCard: false,
+        isIrregularBill: false,
         attachments: [],
       }];
     }
     return [
       {
         id: 'item_1',
-        billDate: new Date().toISOString().split('T')[0],
+        billDate: getTodayStr(),
         supplierName: '',
         supplierTaxId: '',
         invoiceNumber: '',
@@ -392,6 +439,7 @@ export default function NewPaymentRequestClient({
         netAmount: 0,
         remarks: '',
         paidByCreditCard: false,
+        isIrregularBill: false,
         attachments: [],
       },
     ];
@@ -423,26 +471,14 @@ export default function NewPaymentRequestClient({
   const handleAddItem = (copyFromLast = false) => {
     setRequisitionItems((prev) => {
       const last = prev[prev.length - 1];
-      const initialVatType = copyFromLast && last?.vatType ? last.vatType : 'NO_VAT';
-      const initialWhtType = copyFromLast && last?.whtType ? last.whtType : 'NONE';
-      const newItem: RequisitionItem = {
-        id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-        billDate: copyFromLast && last?.billDate ? last.billDate : (documentDate || new Date().toISOString().split('T')[0]),
+      const newItem = buildDefaultRequisitionItem({
+        billDate: copyFromLast && last?.billDate ? last.billDate : (documentDate || getTodayStr()),
         supplierName: copyFromLast && last?.supplierName ? last.supplierName : '',
         supplierTaxId: copyFromLast && last?.supplierTaxId ? last.supplierTaxId : '',
         invoiceNumber: copyFromLast && last?.invoiceNumber ? last.invoiceNumber : '',
-        description: '',
-        amount: 0,
-        vatType: initialVatType,
-        vatAmount: 0,
-        whtType: initialWhtType,
-        whtPercent: 0,
-        whtAmount: 0,
-        netAmount: 0,
-        remarks: '',
-        paidByCreditCard: false,
-        attachments: [],
-      };
+        vatType: copyFromLast && last?.vatType ? last.vatType : 'NO_VAT',
+        whtType: copyFromLast && last?.whtType ? last.whtType : 'NONE',
+      });
       return [...prev, newItem];
     });
   };
@@ -454,24 +490,7 @@ export default function NewPaymentRequestClient({
     setRequisitionItems((prev) => {
       const next = prev.filter((_, i) => i !== index);
       if (next.length === 0) {
-        return [{
-          id: `item_${Date.now()}`,
-          billDate: documentDate || new Date().toISOString().split('T')[0],
-          supplierName: '',
-          supplierTaxId: '',
-          invoiceNumber: '',
-          description: '',
-          amount: 0,
-          vatType: 'NO_VAT',
-          vatAmount: 0,
-          whtType: 'NONE',
-          whtPercent: 0,
-          whtAmount: 0,
-          netAmount: 0,
-          remarks: '',
-          paidByCreditCard: false,
-          isIrregularBill: false,
-        }];
+        return [buildDefaultRequisitionItem({ billDate: documentDate || getTodayStr() })];
       }
       return next;
     });
@@ -626,8 +645,24 @@ export default function NewPaymentRequestClient({
   const syncGroupSubstituteCertificate = async (
     targetGroupKey: string,
     currentItems: RequisitionItem[],
-    silent = false
+    silent = false,
+    overrideCompany?: 'TG' | 'TE' | 'TP',
+    overrideApproverName?: string,
+    overrideApproverId?: string
   ) => {
+    const activeCompany = overrideCompany || company;
+    const effectiveSupName =
+      overrideApproverName !== undefined
+        ? overrideApproverName
+        : supervisorId === '__NONE__'
+        ? ''
+        : supervisorName;
+    const effectiveSupId =
+      overrideApproverId !== undefined
+        ? overrideApproverId
+        : supervisorId === '__NONE__'
+        ? ''
+        : supervisorId;
     if (!targetGroupKey) return;
 
     const groupMatches = currentItems
@@ -672,20 +707,24 @@ export default function NewPaymentRequestClient({
         groupKey: targetGroupKey,
         itemIds: lineItems.map((li) => li.id || ''),
         itemId: lineItems[0]?.id || `item_${groupMatches[0].idx}`,
-        billDate: firstItem.billDate || documentDate || new Date().toISOString().split('T')[0],
+        billDate: firstItem.billDate || documentDate || getTodayStr(),
         supplierName: firstItem.supplierName || 'ร้านค้า/ผู้รับเงิน',
         description: allDescriptions || 'ค่าใช้จ่ายทั่วไป',
         amount: totalAmount,
         items: lineItems,
         requesterName: requesterName || currentUser?.fullName || '',
         requesterPosition: requesterDept || 'พนักงาน',
-        requesterSignatureUrl: firstItem.requesterSignatureUrl,
-        approverName: firstItem.approverName || supervisorName || '',
+        requesterSignatureUrl: firstItem.requesterSignatureUrl || formRequesterSig || undefined,
+        approverId: overrideApproverName !== undefined ? effectiveSupId : effectiveSupId || undefined,
+        approverName:
+          overrideApproverName !== undefined
+            ? overrideApproverName
+            : firstItem.approverName || effectiveSupName || '',
         approverPosition: firstItem.approverPosition || 'หัวหน้างาน',
-        approverSignatureUrl: firstItem.approverSignatureUrl,
-        companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
-        companyCode: company,
-        logoUrl: COMPANY_LOGO_MAP[company] || '/4.png',
+        approverSignatureUrl: firstItem.approverSignatureUrl || formSupervisorSig || undefined,
+        companyName: COMPANY_SHORT_MAP[activeCompany] || 'บจก.เทอรา กรุ้ป',
+        companyCode: activeCompany,
+        logoUrl: COMPANY_LOGO_MAP[activeCompany] || '/4.png',
         startDate: firstItem.billDate || documentDate,
         endDate: firstItem.billDate || documentDate,
         documentDate: documentDate || firstItem.billDate,
@@ -813,7 +852,7 @@ export default function NewPaymentRequestClient({
       groupKey: groupKey || undefined,
       itemIds: lineItems.map((li) => li.id || ''),
       itemId: item.id || `item_${index}`,
-      billDate: item.billDate || documentDate || new Date().toISOString().split('T')[0],
+      billDate: item.billDate || documentDate || getTodayStr(),
       supplierName: item.supplierName || '',
       description: allDescriptions || item.description || '',
       amount: totalAmount > 0 ? totalAmount : (Number(item.amount) || 0),
@@ -823,7 +862,8 @@ export default function NewPaymentRequestClient({
       requesterName: requesterName || currentUser?.fullName || '',
       requesterPosition: requesterDept || 'พนักงาน',
       requesterSignatureUrl: item.requesterSignatureUrl || formRequesterSig || undefined,
-      approverName: item.approverName || supervisorName || '',
+      approverId: supervisorId !== '__NONE__' ? supervisorId : '',
+      approverName: item.approverName || (supervisorId !== '__NONE__' ? supervisorName : '') || '',
       approverPosition: item.approverPosition || 'หัวหน้างาน',
       approverSignatureUrl: item.approverSignatureUrl || formSupervisorSig || undefined,
       companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
@@ -871,7 +911,7 @@ export default function NewPaymentRequestClient({
           try {
             const certData: SubstituteReceiptData = {
               itemId: item.id || `item_${index}`,
-              billDate: item.billDate || documentDate || new Date().toISOString().split('T')[0],
+              billDate: item.billDate || documentDate || getTodayStr(),
               supplierName: item.supplierName || 'ร้านค้า/ผู้รับเงิน',
               description: item.description || 'ค่าใช้จ่ายทั่วไป',
               amount: Number(item.amount) || 0,
@@ -879,10 +919,11 @@ export default function NewPaymentRequestClient({
               unitPrice: item.unitPrice,
               requesterName: requesterName || currentUser?.fullName || '',
               requesterPosition: requesterDept || 'พนักงาน',
-              requesterSignatureUrl: item.requesterSignatureUrl,
-              approverName: item.approverName || supervisorName || '',
+              requesterSignatureUrl: item.requesterSignatureUrl || formRequesterSig || undefined,
+              approverId: supervisorId !== '__NONE__' ? supervisorId : '',
+              approverName: item.approverName || (supervisorId !== '__NONE__' ? supervisorName : '') || '',
               approverPosition: item.approverPosition || 'หัวหน้างาน',
-              approverSignatureUrl: item.approverSignatureUrl,
+              approverSignatureUrl: item.approverSignatureUrl || formSupervisorSig || undefined,
               companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
               companyCode: company,
               logoUrl: COMPANY_LOGO_MAP[company] || '/4.png',
@@ -1052,6 +1093,15 @@ export default function NewPaymentRequestClient({
 
     if (updatedData.approverName) {
       setSupervisorName(updatedData.approverName);
+      if (updatedData.approverId) {
+        setSupervisorId(updatedData.approverId);
+      } else {
+        const cleanNorm = normalizePersonName(updatedData.approverName);
+        const matchedOpt = supervisorOptions.find(
+          (o) => normalizePersonName(o.fullName) === cleanNorm
+        );
+        setSupervisorId(matchedOpt ? matchedOpt.id : '');
+      }
     }
     if (updatedData.requesterSignatureUrl) {
       setFormRequesterSig(updatedData.requesterSignatureUrl);
@@ -1134,11 +1184,102 @@ export default function NewPaymentRequestClient({
     setIsBranchDropdownOpen(false);
   };
 
-  // Requester
+  // Requester & Supervisor Selection
   const [requesterName, setRequesterName] = useState(initialData?.requester_name || currentUser?.fullName || '');
   const [requesterDept, setRequesterDept] = useState(initialData?.requester_department || initialDept || '');
   const [requesterPhone, setRequesterPhone] = useState(initialData?.requester_phone || initialPhone || '');
   const [supervisorName, setSupervisorName] = useState(initialData?.assigned_supervisor_name || initialSupervisor || '');
+  const [supervisorId, setSupervisorId] = useState<string>(() => {
+    const rawId = initialData?.assigned_supervisor_id || initialSupervisorId || '';
+    if (rawId) return rawId;
+    const rawName = initialData?.assigned_supervisor_name || initialSupervisor || '';
+    if (rawName && supervisorOptions.length > 0) {
+      const norm = normalizePersonName(rawName);
+      const matched = supervisorOptions.find((o) => normalizePersonName(o.fullName) === norm);
+      if (matched) return matched.id;
+    }
+    return '';
+  });
+  const [isSupDropdownOpen, setIsSupDropdownOpen] = useState(false);
+  const [supSearchQuery, setSupSearchQuery] = useState('');
+  const supDropdownRef = useRef<HTMLDivElement>(null);
+
+  const isCurrentUserManagerial = isSupervisorOrManager(currentUser?.role);
+
+  useEffect(() => {
+    if (!isSupDropdownOpen) return;
+    const handleClickOutsideSup = (e: MouseEvent) => {
+      if (supDropdownRef.current && !supDropdownRef.current.contains(e.target as Node)) {
+        setIsSupDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutsideSup);
+    return () => document.removeEventListener('mousedown', handleClickOutsideSup);
+  }, [isSupDropdownOpen]);
+
+  const currentUserIdVal = currentUser?.id || '';
+  const currentUserEmpVal = currentUser?.employeeId || '';
+  const cleanReqNormForSup = normalizePersonName(requesterName);
+  const cleanSupSearchQ = supSearchQuery.trim().toLowerCase();
+
+  const selectableSupervisors = supervisorOptions.filter((opt) => {
+    if (currentUserIdVal && opt.userId === currentUserIdVal) return false;
+    if (
+      currentUserEmpVal &&
+      opt.empId &&
+      opt.empId.trim().toUpperCase() === currentUserEmpVal.trim().toUpperCase()
+    ) {
+      return false;
+    }
+    if (cleanReqNormForSup && normalizePersonName(opt.fullName) === cleanReqNormForSup) return false;
+    if (!cleanSupSearchQ) return true;
+    return (
+      opt.fullName.toLowerCase().includes(cleanSupSearchQ) ||
+      (opt.nickname && opt.nickname.toLowerCase().includes(cleanSupSearchQ)) ||
+      (opt.department && opt.department.toLowerCase().includes(cleanSupSearchQ)) ||
+      (opt.branch && opt.branch.toLowerCase().includes(cleanSupSearchQ)) ||
+      (opt.jobTitle && opt.jobTitle.toLowerCase().includes(cleanSupSearchQ)) ||
+      (opt.empId && opt.empId.toLowerCase().includes(cleanSupSearchQ))
+    );
+  });
+
+  const handleSelectSupervisor = (opt: SupervisorOption | null, directBypass = false) => {
+    const nextSupId = directBypass ? '__NONE__' : opt ? opt.id : '';
+    const nextSupName = directBypass ? '' : opt ? opt.fullName : '';
+    const nextSupPos = opt?.jobTitle || 'หัวหน้างาน';
+
+    setSupervisorId(nextSupId);
+    setSupervisorName(nextSupName);
+    setIsSupDropdownOpen(false);
+    setSupSearchQuery('');
+
+    // Sync updated supervisor name onto unsigned irregular bills & regenerate existing PDFs silently
+    const updatedItems = requisitionItems.map((it) => {
+      if (!it.isIrregularBill || it.approverSignatureUrl) return it;
+      return {
+        ...it,
+        approverName: nextSupName,
+        approverPosition: nextSupPos,
+      };
+    });
+    setRequisitionItems(updatedItems);
+
+    const groupKeys = Array.from(
+      new Set(
+        updatedItems
+          .filter((it) => it.isIrregularBill && it.substituteCertificateUrl && !it.approverSignatureUrl)
+          .map((it) => it.substituteGroupKey || getSubstituteGroupKey(it.supplierName, it.billDate))
+          .filter(Boolean)
+      )
+    );
+    if (groupKeys.length > 0) {
+      Promise.all(
+        groupKeys.map((gk) =>
+          syncGroupSubstituteCertificate(gk, updatedItems, true, company, nextSupName, nextSupId)
+        )
+      ).catch((err) => console.warn('Failed to re-sync บก.111 certificates on supervisor change:', err));
+    }
+  };
 
   // Auto-load remembered digital signatures
   useEffect(() => {
@@ -1188,9 +1329,11 @@ export default function NewPaymentRequestClient({
 
   // PromptPay specifics
   const [promptPayType, setPromptPayType] = useState<'PHONE' | 'CITIZEN_ID' | 'TAX_ID' | 'E_WALLET'>(() => {
-    if (initialData?.bank_name?.includes('โทรศัพท์')) return 'PHONE';
-    if (initialData?.bank_name?.includes('บัตรประชาชน')) return 'CITIZEN_ID';
-    if (initialData?.bank_name?.includes('นิติบุคคล')) return 'TAX_ID';
+    const bName = (initialData?.bank_name || '').toLowerCase();
+    if (bName.includes('โทรศัพท์') || bName.includes('มือถือ')) return 'PHONE';
+    if (bName.includes('บัตรประชาชน')) return 'CITIZEN_ID';
+    if (bName.includes('นิติบุคคล') || bName.includes('ผู้เสียภาษี') || bName.includes('tax id')) return 'TAX_ID';
+    if (bName.includes('e-wallet') || bName.includes('กระเป๋าเงิน')) return 'E_WALLET';
     return 'PHONE';
   });
   const [promptPayNumber, setPromptPayNumber] = useState(
@@ -1213,7 +1356,7 @@ export default function NewPaymentRequestClient({
 
   // Document details
   const [documentDate, setDocumentDate] = useState(
-    initialData?.document_date ? formatDisplayDate(initialData.document_date) : new Date().toISOString().split('T')[0]
+    initialData?.document_date ? formatDisplayDate(initialData.document_date) : getTodayStr()
   );
   const [hasNoDocNumber, setHasNoDocNumber] = useState(Boolean(initialData?.has_no_doc_number));
   const [invoiceNumber, setInvoiceNumber] = useState(initialData?.invoice_number || '');
@@ -1597,7 +1740,7 @@ export default function NewPaymentRequestClient({
         // 2. Client-Side Instant QR/Barcode Slip Detection (<50ms)
         let qrPayload: string | undefined = undefined;
         let barcode: string | undefined = undefined;
-        if (file.type.startsWith('image/')) {
+        if (isImageAttachmentFile(file)) {
           try {
             const slipRes = await detectSlipQrAndBarcode(file);
             if (slipRes.detected) {
@@ -1622,62 +1765,49 @@ export default function NewPaymentRequestClient({
         let distinctiveTokens: string[] | undefined = undefined;
 
         // Run OCR Auto-Scan to extract text, amounts, dates, supplier, and line items
-        if (ocrAutoScanEnabled && file.type.startsWith('image/')) {
+        if (ocrAutoScanEnabled && isImageAttachmentFile(file)) {
           setUploadScanStatus(`กำลังสแกนอ่านข้อมูลเอกสารด้วย OCR Auto-Scan (${file.name})...`);
-          try {
-            // Preserve crisp resolution for Thai character and table clarity
-            const downscaledBlob = await downscaleImageForScan(file, 3200);
-            const scanForm = new FormData();
-            scanForm.append('file', downscaledBlob, file.name);
-            scanForm.append('skipQr', 'true');
-
-            const scanRes = await fetch('/api/scan-document', {
-              method: 'POST',
-              body: scanForm,
-              signal: AbortSignal.timeout(30000), // Safe 30s timeout guard for OCR
-            });
-            if (scanRes.ok) {
-              const scanData = await scanRes.json();
-              if (scanData.success) {
-                if (scanData.qrPayload && !qrPayload) qrPayload = scanData.qrPayload;
-                if (scanData.barcode && !barcode) barcode = scanData.barcode;
-                if (scanData.extractedTaxId) extractedTaxId = scanData.extractedTaxId;
-                if (scanData.extractedInvoiceNo) extractedInvoiceNo = scanData.extractedInvoiceNo;
-                if (scanData.extractedAmount) extractedAmount = scanData.extractedAmount;
-                if (scanData.extractedDate) extractedDate = scanData.extractedDate;
-                if (scanData.extractedSupplier) extractedSupplier = scanData.extractedSupplier;
-                if (scanData.extractedPhone) extractedPhone = scanData.extractedPhone;
-                if (scanData.extractedDescription) extractedDescription = scanData.extractedDescription;
-                if (Array.isArray(scanData.extractedLineItems) && scanData.extractedLineItems.length > 0) {
-                  extractedLineItems = scanData.extractedLineItems;
-                }
-                if (scanData.rawTextSnippet) rawTextSnippet = scanData.rawTextSnippet;
-                if (Array.isArray(scanData.distinctiveTokens)) distinctiveTokens = scanData.distinctiveTokens;
-              }
-            }
-          } catch (ocrErr) {
-            console.warn('OCR Auto-Scan timed out or skipped:', ocrErr);
+          const scanData = await scanImageWithOcrApi(file, { skipQr: true, timeoutMs: 30000 });
+          if (scanData) {
+            if (scanData.qrPayload && !qrPayload) qrPayload = scanData.qrPayload;
+            if (scanData.barcode && !barcode) barcode = scanData.barcode;
+            extractedTaxId = scanData.extractedTaxId;
+            extractedInvoiceNo = scanData.extractedInvoiceNo;
+            extractedAmount = scanData.extractedAmount;
+            extractedDate = scanData.extractedDate;
+            extractedSupplier = scanData.extractedSupplier;
+            extractedPhone = scanData.extractedPhone;
+            extractedDescription = scanData.extractedDescription;
+            extractedLineItems = scanData.extractedLineItems;
+            rawTextSnippet = scanData.rawTextSnippet;
+            distinctiveTokens = scanData.distinctiveTokens;
           }
         }
 
-        // Check if file is already in current form's attachments list
-        const normName = normalizeAttachmentName(file.name);
-        const isDistinct = isDistinctiveAttachmentName(normName);
-        const isAlreadyAttached = [...attachments, ...newItems].some((a: any) => {
-          if (a.fileHash && a.fileHash === fileHash) return true;
-          if (qrPayload && a.qrPayload && (a.qrPayload === qrPayload || (qrPayload.length >= 15 && a.qrPayload.includes(qrPayload)))) return true;
-          if (extractedInvoiceNo && a.extractedInvoiceNo && normalizeInvoiceNo(a.extractedInvoiceNo) === normalizeInvoiceNo(extractedInvoiceNo)) return true;
-
-          // Conflict check: if amounts or QRs are clearly different, they are different files
-          const diffAmt = extractedAmount && a.extractedAmount && Math.abs(extractedAmount - a.extractedAmount) >= 1.0;
-          const diffQr = qrPayload && a.qrPayload && qrPayload.trim() !== a.qrPayload.trim();
-          if (diffAmt || diffQr) return false;
-
-          if (visualHash && a.visualHash && visualHammingDistance(visualHash, a.visualHash) <= 2) return true;
-          if (coreVisualHash && a.coreVisualHash && visualHammingDistance(coreVisualHash, a.coreVisualHash) <= 2) return true;
-          if (isDistinct && normalizeAttachmentName(a.fileName) === normName && (!extractedAmount || !a.extractedAmount || Math.abs(extractedAmount - a.extractedAmount) < 0.1)) return true;
-          return false;
-        });
+        // Check if file is already in current form's attachments list (supports separate cameras/angles)
+        const itemLevelAttachments = requisitionItems.flatMap((it) => it.attachments || []);
+        const isAlreadyAttached = Boolean(
+          findInFormDuplicateAttachment(
+            {
+              fileName: file.name,
+              fileHash,
+              visualHash: visualHash || undefined,
+              coreVisualHash: coreVisualHash || undefined,
+              fileSize: file.size,
+              qrPayload,
+              barcode,
+              extractedTaxId,
+              extractedInvoiceNo,
+              extractedAmount,
+              extractedSupplier,
+              extractedPhone,
+              distinctiveTokens,
+              currentAmount: netPayable > 0 ? netPayable : (extractedAmount || undefined),
+              currentSupplier: supplierName.trim() || extractedSupplier || undefined,
+            },
+            [...attachments, ...newItems, ...itemLevelAttachments]
+          )
+        );
 
         if (isAlreadyAttached) {
           await Swal.fire({
@@ -1721,39 +1851,25 @@ export default function NewPaymentRequestClient({
 
         if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
           const match = dupCheck.matches[0];
-          let explanationText = '';
-          if (match.matchType === 'ATTACHMENT_QR') {
-            explanationText = `ระบบตรวจพบว่ารหัส QR Code บนสลิปโอนเงิน/บิลนี้ (PromptPay Slip Payload) ตรงกับเอกสารที่เคยแนบในระบบกลาง 100% แม้จะถ่ายจากต่างกล้อง ต่างโทรศัพท์ หรือคนละมุม (Separate Cameras)`;
-          } else if (match.matchType === 'ATTACHMENT_BARCODE') {
-            explanationText = `ระบบตรวจพบบาร์โค้ด (${match.barcode || barcode}) ตรงกับเอกสารเดิมในระบบกลาง`;
-          } else if (match.matchType === 'ATTACHMENT_OCR') {
-            explanationText = match.reason || `ระบบตรวจพบข้อมูล OCR (เลขที่ใบกำกับภาษี "${match.invoice_number || extractedInvoiceNo}" หรือเบอร์โทรตรายางร้าน) ตรงกับเอกสารเดิมในระบบ แม้จะถ่ายจากคนละกล้อง`;
-          } else if (match.matchType === 'ATTACHMENT_OCR_RECORD') {
-            explanationText = `ระบบตรวจพบเลขที่ใบกำกับภาษี "${extractedInvoiceNo}" จากภาพถ่าย ตรงกับคำขอเดิม (${match.pay_number}) ในระบบ`;
-          } else if (match.matchType === 'ATTACHMENT_VISUAL_CONTEXT') {
-            explanationText = match.reason || `ระบบตรวจพบลักษณะโครงสร้างภาพเอกสารใกล้เคียงกับเอกสารเดิมในระบบกลาง ร่วมกับยอดเงินหรือร้านค้าตรงกัน แม้จะถ่ายจากคนละกล้อง/คนละมุม`;
-          } else if (match.matchType === 'ATTACHMENT_VISUAL') {
-            explanationText = match.reason || `ระบบตรวจพบว่าภาพเอกสารนี้ (Visual Fingerprint / ลายนิ้วมือโครงสร้างภาพ) ตรงกับเอกสารที่เคยแนบในระบบกลาง แม้จะถ่ายจากต่างกล้อง คนละมุม หรือมีสิ่งของวางข้างบิล`;
-          } else if (match.matchType === 'ATTACHMENT_NAME_SIMILAR') {
-            explanationText = `ระบบตรวจพบว่าชื่อเอกสารและขนาดไฟล์นี้ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
-          } else {
-            explanationText = `ระบบตรวจพบว่าเนื้อหาของไฟล์นี้ (Digital Fingerprint) ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
-          }
+          const explanationText = formatAttachmentDuplicateReason(match, {
+            barcode,
+            invoiceNo: extractedInvoiceNo,
+          });
 
-          const result = await Swal.fire({
+          await Swal.fire({
             title: 'ตรวจพบเอกสารซ้ำซ้อนในระบบ!',
             html: `
               <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
-                <p class="font-bold text-red-900 text-sm">ไฟล์ "${file.name}" เคยถูกใช้งานแล้ว</p>
-                <p class="text-gray-700">${explanationText}:</p>
+                <p class="font-bold text-red-900 text-sm">ไฟล์ "${escapeHtml(file.name)}" เคยถูกใช้งานแล้ว</p>
+                <p class="text-gray-700">${escapeHtml(explanationText)}:</p>
                 <div class="bg-white p-3 rounded-lg border border-red-100 font-mono text-[11px] space-y-1">
-                  <p><span class="text-gray-500 font-sans">เลขที่คำขอ:</span> <b class="text-red-700 font-bold">${match.pay_number}</b></p>
-                  <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${match.supplier_name}</b></p>
-                  ${match.invoice_number ? `<p><span class="text-gray-500 font-sans">เลขที่บิล:</span> <b>${match.invoice_number}</b></p>` : ''}
+                  <p><span class="text-gray-500 font-sans">เลขที่คำขอ:</span> <b class="text-red-700 font-bold">${escapeHtml(match.pay_number)}</b></p>
+                  <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${escapeHtml(match.supplier_name)}</b></p>
+                  ${match.invoice_number ? `<p><span class="text-gray-500 font-sans">เลขที่บิล:</span> <b>${escapeHtml(match.invoice_number)}</b></p>` : ''}
                   <p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b>${Number(match.net_amount).toLocaleString()} ฿</b></p>
-                  <p><span class="text-gray-500 font-sans">เอกสารที่ตรวจพบ:</span> <b class="text-gray-800">${match.matchedFileName || file.name}</b></p>
-                  <p><span class="text-gray-500 font-sans">ผู้ขอเบิกเดิม:</span> <b>${match.requester_name || '-'}</b></p>
-                  <p><span class="text-gray-500 font-sans">สถานะคำขอเดิม:</span> <span class="px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded font-semibold">${match.status}</span></p>
+                  <p><span class="text-gray-500 font-sans">เอกสารที่ตรวจพบ:</span> <b class="text-gray-800">${escapeHtml(match.matchedFileName || file.name)}</b></p>
+                  <p><span class="text-gray-500 font-sans">ผู้ขอเบิกเดิม:</span> <b>${escapeHtml(match.requester_name || '-')}</b></p>
+                  <p><span class="text-gray-500 font-sans">สถานะคำขอเดิม:</span> <span class="px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded font-semibold">${escapeHtml(match.status)}</span></p>
                 </div>
                 <p class="text-red-700 font-medium text-[11px]">
                   * ระบบไม่อนุญาตให้อัปโหลดเอกสารซ้ำ กรุณาเปิดดูที่ใบขอจ่ายเดิมหรือตรวจสอบเอกสารใหม่อีกครั้ง
@@ -1779,8 +1895,8 @@ export default function NewPaymentRequestClient({
           method: 'POST',
           body: formData,
         });
-        const data = await res.json();
-        if (data.success && data.url) {
+        const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status}` }));
+        if (res.ok && data.success && data.url) {
           newItems.push({
             url: data.url,
             fileName: file.name,
@@ -1846,7 +1962,7 @@ export default function NewPaymentRequestClient({
               if (extractedSupplier && !supplierName) {
                 setSupplierName(extractedSupplier);
               }
-              if (extractedDate && !documentDate) {
+              if (extractedDate && (!documentDate || documentDate === getTodayStr())) {
                 const isoDate = formatDateToISO(extractedDate) || extractedDate;
                 setDocumentDate(isoDate);
               }
@@ -1860,20 +1976,18 @@ export default function NewPaymentRequestClient({
               }
 
               // Auto-fill into Requisition Items Table
-              const effectiveDate = (extractedDate ? formatDateToISO(extractedDate) : null) || extractedDate || documentDate || new Date().toISOString().split('T')[0];
+              const effectiveDate = (extractedDate ? formatDateToISO(extractedDate) : null) || extractedDate || documentDate || getTodayStr();
               if (extractedLineItems && extractedLineItems.length > 0) {
-                const newRows: RequisitionItem[] = extractedLineItems.map((li, lIdx) => ({
-                  id: `item_${Date.now()}_${lIdx}`,
-                  billDate: effectiveDate,
-                  supplierName: extractedSupplier || supplierName || '',
-                  supplierTaxId: extractedTaxId || supplierTaxId || '',
-                  invoiceNumber: extractedInvoiceNo || invoiceNumber || '',
-                  description: li.description,
-                  amount: li.amount || (extractedLineItems!.length === 1 && extractedAmount ? extractedAmount : 0),
-                  remarks: '',
-                  paidByCreditCard: false,
-                  isIrregularBill: false,
-                }));
+                const newRows: RequisitionItem[] = extractedLineItems.map((li) =>
+                  buildDefaultRequisitionItem({
+                    billDate: effectiveDate,
+                    supplierName: extractedSupplier || supplierName || '',
+                    supplierTaxId: extractedTaxId || supplierTaxId || '',
+                    invoiceNumber: extractedInvoiceNo || invoiceNumber || '',
+                    description: li.description,
+                    amount: li.amount || (extractedLineItems!.length === 1 && extractedAmount ? extractedAmount : 0),
+                  })
+                );
 
                 setRequisitionItems((prev) => {
                   const isFirstEmpty = prev.length === 1 && !prev[0].description && (!prev[0].amount || prev[0].amount === 0);
@@ -1888,18 +2002,15 @@ export default function NewPaymentRequestClient({
                 setRequisitionItems((prev) => {
                   const first = prev[0];
                   const isFirstEmpty = prev.length === 1 && !first.description && (!first.amount || first.amount === 0);
-                  const rowData: RequisitionItem = {
-                    id: isFirstEmpty ? (first.id || `item_${Date.now()}`) : `item_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+                  const rowData = buildDefaultRequisitionItem({
+                    id: isFirstEmpty ? (first.id || `item_${Date.now()}`) : undefined,
                     billDate: effectiveDate,
                     supplierName: extractedSupplier || first?.supplierName || supplierName || '',
                     supplierTaxId: extractedTaxId || first?.supplierTaxId || supplierTaxId || '',
                     invoiceNumber: extractedInvoiceNo || first?.invoiceNumber || invoiceNumber || '',
                     description: cleanDesc || first?.description || '',
                     amount: extractedAmount || first?.amount || 0,
-                    remarks: '',
-                    paidByCreditCard: false,
-                    isIrregularBill: false,
-                  };
+                  });
                   if (isFirstEmpty) {
                     return [rowData];
                   }
@@ -1921,8 +2032,14 @@ export default function NewPaymentRequestClient({
       if (newItems.length > 0) {
         setAttachments((prev) => [...prev, ...newItems]);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Upload error:', err);
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์',
+        text: err?.message || 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์อัปโหลดได้',
+        icon: 'error',
+        confirmButtonColor: '#dc2626',
+      });
     } finally {
       setIsUploading(false);
       setUploadScanStatus(null);
@@ -1944,7 +2061,7 @@ export default function NewPaymentRequestClient({
 
     setItemUploadingIdx(itemIndex);
     try {
-      const newAtts: any[] = [];
+      const newAtts: ItemAttachment[] = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
@@ -1958,7 +2075,7 @@ export default function NewPaymentRequestClient({
         // 2. Client-side QR / Barcode detection for slips
         let qrPayload: string | undefined = undefined;
         let barcode: string | undefined = undefined;
-        if (file.type.startsWith('image/')) {
+        if (isImageAttachmentFile(file)) {
           try {
             const slipRes = await detectSlipQrAndBarcode(file);
             if (slipRes.detected) {
@@ -1970,20 +2087,65 @@ export default function NewPaymentRequestClient({
           }
         }
 
-        // 3. Duplicate check against current form files (both main attachments and all line items)
+        // 3. OCR Auto-Scan (extract Tax ID, Invoice No, Net Amount, Date, Supplier, Stamp Phone, Tokens, Line Items)
+        let extractedTaxId: string | undefined = undefined;
+        let extractedInvoiceNo: string | undefined = undefined;
+        let extractedAmount: number | undefined = undefined;
+        let extractedDate: string | undefined = undefined;
+        let extractedSupplier: string | undefined = undefined;
+        let extractedPhone: string | undefined = undefined;
+        let extractedDescription: string | undefined = undefined;
+        let extractedLineItems: ExtractedLineItem[] | undefined = undefined;
+        let rawTextSnippet: string | undefined = undefined;
+        let distinctiveTokens: string[] | undefined = undefined;
+
+        if (ocrAutoScanEnabled && isImageAttachmentFile(file)) {
+          setUploadScanStatus(`กำลังสแกนอ่านข้อมูลเอกสารด้วย OCR Auto-Scan (${file.name})...`);
+          const scanData = await scanImageWithOcrApi(file, { skipQr: true, timeoutMs: 30000 });
+          if (scanData) {
+            if (scanData.qrPayload && !qrPayload) qrPayload = scanData.qrPayload;
+            if (scanData.barcode && !barcode) barcode = scanData.barcode;
+            extractedTaxId = scanData.extractedTaxId;
+            extractedInvoiceNo = scanData.extractedInvoiceNo;
+            extractedAmount = scanData.extractedAmount;
+            extractedDate = scanData.extractedDate;
+            extractedSupplier = scanData.extractedSupplier;
+            extractedPhone = scanData.extractedPhone;
+            extractedDescription = scanData.extractedDescription;
+            extractedLineItems = scanData.extractedLineItems;
+            rawTextSnippet = scanData.rawTextSnippet;
+            distinctiveTokens = scanData.distinctiveTokens;
+          }
+        }
+
+        // 4. Duplicate check against current form files (both main attachments and all line items across cameras)
         const allCurrentFormAtts = [
           ...attachments,
           ...requisitionItems.flatMap((it) => it.attachments || []),
           ...newAtts,
         ];
-        const isAlreadyAttached = allCurrentFormAtts.some((a: any) => {
-          if (a.fileHash && a.fileHash === fileHash) return true;
-          if (qrPayload && a.qrPayload && (a.qrPayload === qrPayload || (qrPayload.length >= 15 && a.qrPayload.includes(qrPayload)))) return true;
-          if (visualHash && a.visualHash && visualHammingDistance(visualHash, a.visualHash) <= 2) return true;
-          if (coreVisualHash && a.coreVisualHash && visualHammingDistance(coreVisualHash, a.coreVisualHash) <= 2) return true;
-          if (normalizeAttachmentName(a.fileName) === normalizeAttachmentName(file.name) && a.fileSize === file.size) return true;
-          return false;
-        });
+        const isAlreadyAttached = Boolean(
+          findInFormDuplicateAttachment(
+            {
+              fileName: file.name,
+              fileHash,
+              visualHash: visualHash || undefined,
+              coreVisualHash: coreVisualHash || undefined,
+              fileSize: file.size,
+              qrPayload,
+              barcode,
+              extractedTaxId,
+              extractedInvoiceNo,
+              extractedAmount,
+              extractedSupplier,
+              extractedPhone,
+              distinctiveTokens,
+              currentAmount: Number(targetItem.amount) || (extractedAmount || undefined),
+              currentSupplier: targetItem.supplierName?.trim() || supplierName.trim() || extractedSupplier || undefined,
+            },
+            allCurrentFormAtts
+          )
+        );
 
         if (isAlreadyAttached) {
           await Swal.fire({
@@ -1996,7 +2158,7 @@ export default function NewPaymentRequestClient({
           continue;
         }
 
-        // 4. Check duplicate against database active payment requests
+        // 5. Check duplicate against database active payment requests
         setUploadScanStatus(`กำลังตรวจสอบประวัติการใช้เอกสารในระบบกลาง...`);
         const dupCheck = await checkAttachmentDuplicates({
           items: [
@@ -2008,8 +2170,18 @@ export default function NewPaymentRequestClient({
               fileSize: file.size,
               qrPayload,
               barcode,
-              currentAmount: Number(targetItem.amount) || undefined,
-              currentSupplier: (targetItem.supplierName?.trim() || supplierName.trim() || undefined),
+              extractedTaxId,
+              extractedInvoiceNo,
+              extractedAmount,
+              extractedDate,
+              extractedSupplier,
+              extractedPhone,
+              extractedDescription,
+              extractedLineItems,
+              rawTextSnippet,
+              distinctiveTokens,
+              currentAmount: Number(targetItem.amount) || (extractedAmount || undefined),
+              currentSupplier: (targetItem.supplierName?.trim() || supplierName.trim() || extractedSupplier || undefined),
             },
           ],
           fileHashes: [fileHash],
@@ -2018,34 +2190,26 @@ export default function NewPaymentRequestClient({
 
         if (dupCheck.isDuplicate && dupCheck.matches.length > 0) {
           const match = dupCheck.matches[0];
-          let explanationText = '';
-          if (match.matchType === 'ATTACHMENT_QR') {
-            explanationText = `ระบบตรวจพบว่ารหัส QR Code บนสลิป/บิลนี้ตรงกับเอกสารที่เคยแนบในระบบกลาง 100% (PromptPay Transfer Slip Payload ตรงกัน)`;
-          } else if (match.matchType === 'ATTACHMENT_BARCODE') {
-            explanationText = `ระบบตรวจพบบาร์โค้ด (${match.barcode || barcode}) ตรงกับเอกสารเดิมในระบบ`;
-          } else if (match.matchType === 'ATTACHMENT_VISUAL') {
-            explanationText = match.reason || `ระบบตรวจพบว่าลายนิ้วมือโครงสร้างภาพเอกสารนี้ (Visual Fingerprint) ตรงกับเอกสารในระบบกลาง`;
-          } else if (match.matchType === 'ATTACHMENT_NAME_SIMILAR') {
-            explanationText = `ระบบตรวจพบว่าชื่อเอกสารและขนาดไฟล์ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
-          } else {
-            explanationText = `ระบบตรวจพบว่าเนื้อหาดิจิทัลของไฟล์นี้ (SHA-256) ตรงกับเอกสารที่เคยแนบในระบบกลาง`;
-          }
+          const explanationText = formatAttachmentDuplicateReason(match, {
+            barcode,
+            invoiceNo: extractedInvoiceNo,
+          });
 
           await Swal.fire({
             title: 'ตรวจพบเอกสารแนบซ้ำซ้อนในระบบ!',
             html: `
               <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
-                <p class="font-bold text-red-900 text-sm">ไฟล์ "${file.name}" เคยถูกใช้งานในระบบแล้ว</p>
-                <p class="text-gray-700">${explanationText}:</p>
+                <p class="font-bold text-red-900 text-sm">ไฟล์ "${escapeHtml(file.name)}" เคยถูกใช้งานในระบบแล้ว</p>
+                <p class="text-gray-700">${escapeHtml(explanationText)}:</p>
                 <div class="bg-white p-3 rounded-lg border border-red-100 font-mono text-[11px] space-y-1">
-                  <p><span class="text-gray-500 font-sans">เลขที่คำขอเดิม:</span> <b class="text-red-700 font-bold">${match.pay_number}</b></p>
-                  <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${match.supplier_name || '-'}</b></p>
+                  <p><span class="text-gray-500 font-sans">เลขที่คำขอเดิม:</span> <b class="text-red-700 font-bold">${escapeHtml(match.pay_number)}</b></p>
+                  <p><span class="text-gray-500 font-sans">ผู้ขาย:</span> <b>${escapeHtml(match.supplier_name || '-')}</b></p>
                   <p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b>${Number(match.net_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿</b></p>
-                  <p><span class="text-gray-500 font-sans">สถานะปัจจุบัน:</span> <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-800 font-bold">${match.status}</span></p>
-                  <p><span class="text-gray-500 font-sans">ผู้เบิกเดิม:</span> <b>${match.requester_name || '-'}</b></p>
-                  ${match.matchedFileName ? `<p><span class="text-gray-500 font-sans">ชื่อไฟล์เดิม:</span> <b class="text-slate-800">${match.matchedFileName}</b></p>` : ''}
+                  <p><span class="text-gray-500 font-sans">สถานะปัจจุบัน:</span> <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-800 font-bold">${escapeHtml(match.status)}</span></p>
+                  <p><span class="text-gray-500 font-sans">ผู้เบิกเดิม:</span> <b>${escapeHtml(match.requester_name || '-')}</b></p>
+                  ${match.matchedFileName ? `<p><span class="text-gray-500 font-sans">ชื่อไฟล์เดิม:</span> <b class="text-slate-800">${escapeHtml(match.matchedFileName)}</b></p>` : ''}
                 </div>
-                <p class="text-red-600 font-medium">⚠️ ระบบไม่อนุญาตให้ใช้เอกสารซ้ำซ้อนเพื่อป้องกันการเบิกจ่ายซ้ำ</p>
+                <p class="text-red-600 font-medium flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>ระบบไม่อนุญาตให้ใช้เอกสารซ้ำซ้อนเพื่อป้องกันการเบิกจ่ายซ้ำ</span></p>
               </div>
             `,
             icon: 'error',
@@ -2055,7 +2219,7 @@ export default function NewPaymentRequestClient({
           continue; // Skip uploading this duplicate file
         }
 
-        // 5. Upload via API
+        // 6. Upload via API
         setUploadScanStatus(`กำลังอัปโหลดไฟล์ ${file.name}...`);
         const formData = new FormData();
         formData.append('file', file);
@@ -2065,8 +2229,8 @@ export default function NewPaymentRequestClient({
           method: 'POST',
           body: formData,
         });
-        const data = await res.json();
-        if (data.success && data.url) {
+        const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status}` }));
+        if (res.ok && data.success && data.url) {
           newAtts.push({
             id: `item_att_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 6)}`,
             url: data.url,
@@ -2074,23 +2238,57 @@ export default function NewPaymentRequestClient({
             fileType: file.type,
             fileSize: file.size,
             fileHash,
-            visualHash: visualHash || undefined,
-            coreVisualHash: coreVisualHash || undefined,
-            qrPayload: qrPayload || undefined,
+            visualHash: visualHash || data.visualHash || undefined,
+            coreVisualHash: coreVisualHash || data.coreVisualHash || undefined,
+            qrPayload: qrPayload || data.qrPayload || undefined,
             barcode: barcode || undefined,
+            extractedTaxId,
+            extractedInvoiceNo,
+            extractedAmount,
+            extractedDate,
+            extractedSupplier,
+            extractedPhone,
+            extractedDescription,
+            extractedLineItems,
+            rawTextSnippet,
+            distinctiveTokens,
+          });
+        } else {
+          await Swal.fire({
+            title: 'อัปโหลดไฟล์ไม่สำเร็จ',
+            text: data.error || `ไม่สามารถบันทึกไฟล์ "${file.name}" ได้`,
+            icon: 'error',
+            confirmButtonColor: '#dc2626',
           });
         }
       }
 
       if (newAtts.length > 0) {
+        const firstOcr = newAtts.find(
+          (a) => a.extractedSupplier || a.extractedTaxId || a.extractedInvoiceNo || a.extractedAmount || a.extractedDescription
+        );
         setRequisitionItems((prev) => {
           return prev.map((it, idx) => {
             if (idx !== itemIndex) return it;
             const currentAtts = Array.isArray(it.attachments) ? it.attachments : [];
-            return {
+            const nextItem: RequisitionItem = {
               ...it,
+              billDate: !it.billDate && firstOcr?.extractedDate ? firstOcr.extractedDate : it.billDate,
+              supplierName: !it.supplierName?.trim() && firstOcr?.extractedSupplier ? firstOcr.extractedSupplier : it.supplierName,
+              supplierTaxId: !it.supplierTaxId?.trim() && firstOcr?.extractedTaxId ? firstOcr.extractedTaxId : it.supplierTaxId,
+              invoiceNumber: !it.invoiceNumber?.trim() && firstOcr?.extractedInvoiceNo ? firstOcr.extractedInvoiceNo : it.invoiceNumber,
+              description: !it.description?.trim() && firstOcr?.extractedDescription ? firstOcr.extractedDescription : it.description,
+              amount: !(Number(it.amount) > 0) && firstOcr?.extractedAmount ? firstOcr.extractedAmount : it.amount,
               attachments: [...currentAtts, ...newAtts],
             };
+            if (!(Number(it.amount) > 0) && firstOcr?.extractedAmount) {
+              const taxes = calculateItemTaxes(nextItem);
+              nextItem.vatAmount = taxes.vatAmount;
+              nextItem.whtPercent = taxes.whtPercent;
+              nextItem.whtAmount = taxes.whtAmount;
+              nextItem.netAmount = taxes.netAmount;
+            }
+            return nextItem;
           });
         });
       }
@@ -2104,68 +2302,195 @@ export default function NewPaymentRequestClient({
     }
   };
 
-  // Form Submit Handler
-  const handleSubmit = async (e: React.FormEvent, shouldResubmit = true) => {
-    e.preventDefault();
+  const handleOcrAutoScanToggle = (enabled: boolean) => {
+    setOcrAutoScanEnabled(enabled);
+    try {
+      localStorage.setItem('pr_ocr_autoscan_enabled', String(enabled));
+    } catch {}
+  };
 
+  const openOcrRawTextModal = (rawTextSnippet?: string) => {
+    if (!rawTextSnippet) return;
+    Swal.fire({
+      title: 'ข้อความที่ OCR สแกนได้จากเอกสาร',
+      html: `
+        <div class="text-left text-xs space-y-2">
+          <div class="bg-gray-100 p-2.5 rounded-lg border font-mono text-[11px] max-h-60 overflow-y-auto whitespace-pre-wrap text-gray-800">
+            ${escapeHtml(rawTextSnippet)}
+          </div>
+          <p class="text-gray-500 text-[11px]">* ระบบใช้ข้อความนี้ในการตรวจจับความซ้ำซ้อนและการกรอกข้อมูลอัตโนมัติ</p>
+        </div>
+      `,
+      confirmButtonText: 'ปิดหน้าต่าง',
+      confirmButtonColor: '#4b5563',
+    });
+  };
+
+  const renderOcrAutoScanControls = () => (
+    <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+          <QrCode className="w-3.5 h-3.5 text-purple-600" /> ตรวจจับ QR/สลิป โอนเงินอัตโนมัติ (ข้ามกล้อง/ข้ามมุม 100%)
+        </span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> ตรวจจับเอกสารซ้ำอัตโนมัติทุกไฟล์
+        </span>
+      </div>
+      <label className="inline-flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs hover:bg-gray-50 transition">
+        <input
+          type="checkbox"
+          checked={ocrAutoScanEnabled}
+          onChange={(e) => handleOcrAutoScanToggle(e.target.checked)}
+          className="rounded text-red-600 focus:ring-red-500 w-3.5 h-3.5"
+        />
+        <span className="flex items-center gap-1 text-[11px] text-gray-700 font-medium">
+          <Scan className="w-3 h-3 text-blue-600" /> เปิดระบบ OCR Auto-Scan (อ่านบิลและตรวจจับข้ามกล้อง)
+        </span>
+      </label>
+    </div>
+  );
+
+  const renderItemAttachmentBadges = (att: ItemAttachment) => {
+    if (!att.fileHash && !att.visualHash && !att.qrPayload && !att.extractedInvoiceNo && !att.rawTextSnippet) {
+      return null;
+    }
+    return (
+      <div className="flex flex-wrap items-center gap-1 mt-0.5 pl-4">
+        {(att.fileHash || att.visualHash) && (
+          <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
+            <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> ไม่ซ้ำ
+          </span>
+        )}
+        {att.qrPayload && (
+          <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-purple-700 bg-purple-50 px-1 py-0.2 rounded border border-purple-200" title={att.qrPayload}>
+            <QrCode className="w-2.5 h-2.5 text-purple-600" /> QR
+          </span>
+        )}
+        {att.extractedInvoiceNo && (
+          <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-blue-700 bg-white px-1 py-0.2 rounded border border-blue-200 truncate max-w-[100px]" title={`เลขบิลจาก OCR: ${att.extractedInvoiceNo}`}>
+            <Scan className="w-2.5 h-2.5 text-blue-600 shrink-0" /> {att.extractedInvoiceNo}
+          </span>
+        )}
+        {att.rawTextSnippet && (
+          <button
+            type="button"
+            onClick={() => openOcrRawTextModal(att.rawTextSnippet)}
+            className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-gray-600 bg-white hover:bg-gray-100 px-1 py-0.2 rounded border border-gray-300 transition cursor-pointer"
+            title="ดูข้อความ OCR ที่สแกนได้"
+          >
+            <Eye className="w-2.5 h-2.5 text-gray-500" /> OCR
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  // Shared Form Validation before Opening Review Modal or Submitting
+  const validateBeforeSubmit = async (): Promise<boolean> => {
     if (!requesterName.trim()) {
-      Swal.fire({ title: 'กรุณาระบุชื่อผู้ขอเบิก', icon: 'warning', confirmButtonColor: '#dc2626' });
-      return;
+      setShowRequesterEditor(true);
+      setFormStep(1);
+      await Swal.fire({ title: 'กรุณาระบุชื่อผู้ขอเบิก', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return false;
     }
 
-    let finalSupplierName = supplierName.trim();
-    const validItems = requisitionItems.filter((it) => it.description.trim() || Number(it.amount) > 0);
+    if (!isCurrentUserManagerial && !supervisorName.trim()) {
+      setFormStep(1);
+      await Swal.fire({
+        title: 'กรุณาเลือกหัวหน้างานผู้อนุมัติ',
+        text: 'กรุณาเลือกหัวหน้างาน/ผู้จัดการที่จะอนุมัติคำขอเบิกจ่ายในขั้นตอนที่ 1 ก่อนส่งคำขอ',
+        icon: 'warning',
+        confirmButtonColor: '#dc2626',
+      });
+      return false;
+    }
 
+    const resolvedBranch = branch === 'อื่นๆ (ระบุ)' ? customBranch.trim() : branch.trim();
+    if (!resolvedBranch) {
+      setFormStep(1);
+      await Swal.fire({ title: 'กรุณาระบุสาขา/หน้างาน', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return false;
+    }
+
+    if (!documentDate.trim()) {
+      setFormStep(3);
+      await Swal.fire({ title: 'กรุณาระบุวันที่เอกสาร/วันที่จ่ายจริง', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return false;
+    }
+
+    if (requisitionItems.some((it) => Number(it.amount) < 0)) {
+      setFormStep(2);
+      await Swal.fire({
+        title: 'จำนวนเงินไม่ถูกต้อง',
+        text: 'จำนวนเงินในรายการเบิกจ่ายต้องไม่ติดลบ',
+        icon: 'warning',
+        confirmButtonColor: '#dc2626',
+      });
+      return false;
+    }
+
+    const parsedManualCc = creditCardDeduction.trim() === '' ? 0 : parseFloat(creditCardDeduction);
+    if (isNaN(parsedManualCc) || parsedManualCc < 0) {
+      setFormStep(2);
+      await Swal.fire({
+        title: 'ยอดหักบัตรเครดิตไม่ถูกต้อง',
+        text: 'ยอดหักค่าบัตรเครดิตต้องไม่ติดลบ',
+        icon: 'warning',
+        confirmButtonColor: '#dc2626',
+      });
+      return false;
+    }
+
+    const validItems = requisitionItems.filter((it) => it.description.trim() || Number(it.amount) > 0);
     if (validItems.length === 0) {
-      Swal.fire({
+      setFormStep(2);
+      await Swal.fire({
         title: 'กรุณาระบุรายการเบิกเงิน',
         text: 'ต้องมีอย่างน้อย 1 รายการพร้อมระบุชื่อรายการและจำนวนเงิน',
         icon: 'warning',
         confirmButtonColor: '#dc2626',
       });
-      return;
+      return false;
     }
 
     const invalidRow = validItems.find((it) => !it.description.trim() || Number(it.amount) <= 0);
     if (invalidRow) {
-      Swal.fire({
+      setFormStep(2);
+      await Swal.fire({
         title: 'ข้อมูลรายการไม่ครบถ้วน',
         text: 'กรุณาระบุชื่อรายการสินค้า/บริการ และจำนวนเงินที่มากกว่า 0 ให้ถูกต้องทุกแถว',
         icon: 'warning',
         confirmButtonColor: '#dc2626',
       });
-      return;
-    }
-
-    // Auto-assign supplier name if not manually typed
-    if (!finalSupplierName) {
-      const uniqueSuppliers = Array.from(new Set(validItems.map((it) => it.supplierName?.trim()).filter(Boolean)));
-      if (uniqueSuppliers.length === 1) {
-        finalSupplierName = uniqueSuppliers[0] as string;
-      } else if (uniqueSuppliers.length > 1) {
-        finalSupplierName = `${uniqueSuppliers[0]} และอื่นๆ (รวม ${uniqueSuppliers.length} ร้านค้า)`;
-      } else {
-        finalSupplierName = `${requesterName.trim()} (สำรองจ่าย / Reimbursement)`;
-      }
+      return false;
     }
 
     if (effectiveSubtotal <= 0) {
-      Swal.fire({ title: 'กรุณาระบุยอดเงินที่ถูกต้อง', icon: 'warning', confirmButtonColor: '#dc2626' });
-      return;
+      setFormStep(2);
+      await Swal.fire({ title: 'กรุณาระบุยอดเงินที่ถูกต้อง', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return false;
     }
     if (!purpose.trim()) {
-      Swal.fire({ title: 'กรุณาระบุรายละเอียดวัตถุประสงค์การจ่ายเงิน (ชื่องาน)', icon: 'warning', confirmButtonColor: '#dc2626' });
-      return;
+      setFormStep(3);
+      await Swal.fire({ title: 'กรุณาระบุรายละเอียดวัตถุประสงค์การจ่ายเงิน (ชื่องาน)', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return false;
     }
 
     if (urgency === 'EMERGENCY' && !requestedPaymentDate.trim()) {
-      Swal.fire({
+      setFormStep(1);
+      await Swal.fire({
         title: 'กรุณาระบุวันที่ต้องการให้จ่ายเงิน',
         text: 'สำหรับรายการที่เลือก "ด่วนที่สุด" จำเป็นต้องระบุวันที่ต้องการให้การเงินโอนจ่ายเงิน',
         icon: 'warning',
         confirmButtonColor: '#dc2626',
       });
-      return;
+      return false;
+    }
+
+    if (paymentMethod === 'BANK_TRANSFER' && selectedBankCode === 'OTHER' && !customBankName.trim()) {
+      setFormStep(1);
+      await Swal.fire({ title: 'กรุณาระบุชื่อธนาคาร', icon: 'warning', confirmButtonColor: '#dc2626' });
+      return false;
     }
 
     // Exact Duplicate Hard Block (Zero Manual Verification Required)
@@ -2184,14 +2509,14 @@ export default function NewPaymentRequestClient({
         title: 'ไม่อนุญาตให้สร้างรายการซ้ำซ้อน',
         html: `
           <div class="text-left text-xs bg-red-50 p-4 rounded-xl border border-red-200 space-y-2">
-            <p class="font-bold text-red-900 text-sm">ตรวจพบข้อมูลในระบบแล้ว (${match.pay_number})</p>
-            <p class="text-gray-700">ระบบตรวจสอบพบว่า: <b>${matchLabel}</b></p>
+            <p class="font-bold text-red-900 text-sm">ตรวจพบข้อมูลในระบบแล้ว (${escapeHtml(match.pay_number)})</p>
+            <p class="text-gray-700">ระบบตรวจสอบพบว่า: <b>${escapeHtml(matchLabel)}</b></p>
             <div class="bg-white p-3 rounded-lg border border-red-100 font-mono text-[11px] space-y-1">
-              <p><span class="text-gray-500 font-sans">เลขที่คำขอ:</span> <b class="text-red-700 font-bold">${match.pay_number}</b></p>
-              <p><span class="text-gray-500 font-sans">ผู้ขาย/ผู้เบิก:</span> <b>${match.supplier_name}</b></p>
-              ${match.invoice_number ? `<p><span class="text-gray-500 font-sans">เลขที่บิล:</span> <b>${match.invoice_number}</b></p>` : ''}
+              <p><span class="text-gray-500 font-sans">เลขที่คำขอ:</span> <b class="text-red-700 font-bold">${escapeHtml(match.pay_number)}</b></p>
+              <p><span class="text-gray-500 font-sans">ผู้ขาย/ผู้เบิก:</span> <b>${escapeHtml(match.supplier_name)}</b></p>
+              ${match.invoice_number ? `<p><span class="text-gray-500 font-sans">เลขที่บิล:</span> <b>${escapeHtml(match.invoice_number)}</b></p>` : ''}
               <p><span class="text-gray-500 font-sans">ยอดเงิน:</span> <b>${Number(match.net_amount).toLocaleString()} ฿</b></p>
-              <p><span class="text-gray-500 font-sans">สถานะ:</span> <b>${match.status}</b></p>
+              <p><span class="text-gray-500 font-sans">สถานะ:</span> <b>${escapeHtml(match.status)}</b></p>
             </div>
             <p class="text-red-700 font-medium text-[11px] pt-1">
               * ระบบไม่อนุญาตให้ส่งคำขอซ้ำ เพื่อป้องกันการจ่ายเงินซ้ำซ้อนและลดขั้นตอนการตรวจสอบด้วยมือ กรุณาใช้ใบขอจ่ายเดิม
@@ -2202,8 +2527,23 @@ export default function NewPaymentRequestClient({
         confirmButtonText: 'ปิดหน้าต่าง',
         confirmButtonColor: '#64748b',
       });
+      return false;
+    }
+
+    return true;
+  };
+
+  // Form Submit Handler
+  const handleSubmit = async (e: React.FormEvent, shouldResubmit = true) => {
+    e.preventDefault();
+
+    if (!showAllSections && formStep < 4) {
+      goToFormStep((formStep + 1) as 1 | 2 | 3 | 4);
       return;
     }
+
+    const isValid = await validateBeforeSubmit();
+    if (!isValid) return;
 
     // If save only (not resubmitting for approval), proceed directly
     if (isEditMode && !shouldResubmit) {
@@ -2218,6 +2558,9 @@ export default function NewPaymentRequestClient({
 
   // Actually execute payment request create or update
   const executeActualSubmit = async (shouldResubmit = true) => {
+    const isValid = await validateBeforeSubmit();
+    if (!isValid) return;
+
     setIsSubmitting(true);
     setShowPreSubmitReviewModal(false);
 
@@ -2304,6 +2647,8 @@ export default function NewPaymentRequestClient({
           credit_card_deduction: entryMode === 'MULTI_ITEMS' ? effectiveCcDeduction : undefined,
           requester_signature_url: formRequesterSig || undefined,
           supervisor_signature_url: formSupervisorSig || undefined,
+          assigned_supervisor_id: supervisorId || undefined,
+          assigned_supervisor_name: supervisorId === '__NONE__' ? '' : (supervisorName.trim() || undefined),
           resubmit: shouldResubmit,
           resubmitNote: resubmitExplanation.trim() || undefined,
         });
@@ -2340,6 +2685,8 @@ export default function NewPaymentRequestClient({
         requester_name: requesterName.trim(),
         requester_department: requesterDept.trim() || undefined,
         requester_phone: requesterPhone.trim() || undefined,
+        assigned_supervisor_id: supervisorId || undefined,
+        assigned_supervisor_name: supervisorId === '__NONE__' ? '' : (supervisorName.trim() || undefined),
         supplier_name: finalSupplierName,
         supplier_tax_id: supplierTaxId.trim() || undefined,
         payment_method: paymentMethod,
@@ -2532,7 +2879,7 @@ export default function NewPaymentRequestClient({
             )}
           </div>
           <h1 className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2 sm:gap-2.5 mt-1.5">
-            {isEditMode ? <Edit3 className="w-5 h-5 sm:w-6 h-6 text-orange-600 shrink-0" /> : <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 shrink-0" />}
+            {isEditMode ? <Edit3 className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 shrink-0" /> : <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 shrink-0" />}
             <span className="leading-snug">{isEditMode && initialData ? `แก้ไขคำขอเบิกจ่ายเงิน (${initialData.pay_number})` : 'สร้างใบขออนุมัติจ่ายเงิน (New Payment Request)'}</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">
@@ -2607,8 +2954,9 @@ export default function NewPaymentRequestClient({
             </div>
           )}
 
-          <p className="text-[11px] text-orange-900/90 leading-relaxed">
-            💡 ข้อมูลเดิมที่เคยกรอกไว้ทั้งหมดถูกโหลดขึ้นมาแล้ว ท่านสามารถแก้ไขรายการสินค้า/บริการ, ยอดเงิน, ปรับเปลี่ยนหรือแนบเอกสารใบเสร็จเพิ่มเติม จากนั้นกดปุ่ม <b>&ldquo;บันทึกและส่งตรวจอีกครั้ง&rdquo;</b> ด้านล่าง
+          <p className="text-[11px] text-orange-900/90 leading-relaxed flex items-start gap-1.5">
+            <Lightbulb size={13} className="text-orange-600 shrink-0 mt-0.5" />
+            <span>ข้อมูลเดิมที่เคยกรอกไว้ทั้งหมดถูกโหลดขึ้นมาแล้ว ท่านสามารถแก้ไขรายการสินค้า/บริการ, ยอดเงิน, ปรับเปลี่ยนหรือแนบเอกสารใบเสร็จเพิ่มเติม จากนั้นกดปุ่ม <b>&ldquo;บันทึกและส่งตรวจอีกครั้ง&rdquo;</b> ด้านล่าง</span>
           </p>
         </div>
       )}
@@ -2838,9 +3186,141 @@ export default function NewPaymentRequestClient({
       )}
 
       {/* Main Symmetrical Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div id="payment-request-form-top" className="scroll-mt-4" />
+      <form onSubmit={handleSubmit} noValidate className="space-y-5 sm:space-y-6">
+        {/* Intuitive 4-Step Guided Progress Bar + Single-Page View Toggle */}
+        {(() => {
+          const resolvedBranchVal = branch === 'อื่นๆ (ระบุ)' ? customBranch.trim() : branch.trim();
+          const step1Ready = Boolean(requesterName.trim() && resolvedBranchVal);
+          const validItemCount = requisitionItems.filter(
+            (it) => it.description.trim() && Number(it.amount) > 0
+          ).length;
+          const step2Ready = validItemCount > 0;
+          const step3Ready = Boolean(documentDate.trim() && purpose.trim());
+          const irregularCount = requisitionItems.filter((it) => it.isIrregularBill).length;
+          const unsignedIrregularCount = requisitionItems.filter(
+            (it) => it.isIrregularBill && (!it.substituteCertificateUrl || (!it.requesterSignatureUrl && !formRequesterSig))
+          ).length;
+          const totalFilesCount =
+            attachments.length + requisitionItems.reduce((acc, it) => acc + (it.attachments?.length || 0), 0);
 
-        {/* Row 1: Two Symmetrical Cards (Card 1: Organization & Channel | Card 2: Requester & Payee) */}
+          const steps = [
+            { id: 1 as const, title: 'บริษัท & ผู้รับเงิน', sub: `${company} • ${supplierName.trim() || 'ระบุผู้รับ'}`, done: step1Ready },
+            { id: 2 as const, title: 'รายการ & บก.111', sub: `${requisitionItems.length} รายการ • ${netPayable.toLocaleString()} ฿`, done: step2Ready, badge: unsignedIrregularCount > 0 ? `บก.111 (${unsignedIrregularCount})` : irregularCount > 0 ? 'บก.111 ครบ' : undefined, badgeDone: unsignedIrregularCount === 0 && irregularCount > 0, badgeWarn: unsignedIrregularCount > 0 },
+            { id: 3 as const, title: 'วัตถุประสงค์ & แนบไฟล์', sub: `${totalFilesCount} ไฟล์แนบ / OCR`, done: step3Ready },
+            { id: 4 as const, title: 'ตรวจทาน & ส่งคำขอ', sub: 'สรุปยอดพร้อมส่ง', done: step1Ready && step2Ready && step3Ready },
+          ];
+
+          return (
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-xs p-3 sm:p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-gray-100">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-700 font-bold border border-red-200">
+                    {showAllSections ? 'แสดงทั้งหมดหน้าเดียว' : `ขั้นตอนที่ ${formStep} / 4`}
+                  </span>
+                  <span className="text-gray-600 font-medium hidden sm:inline">
+                    {showAllSections
+                      ? 'เลื่อนกรอกข้อมูลครบทุกส่วนในหน้าเดียว'
+                      : steps[formStep - 1]?.title}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {!showAllSections && formStep === 1 && (
+                    <button
+                      type="button"
+                      onClick={() => goToFormStep(3)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[11px] font-bold transition cursor-pointer"
+                      title="ข้ามไปอัปโหลดรูปบิลให้ AI อ่านข้อมูลอัตโนมัติ"
+                    >
+                      <Scan className="w-3 h-3" />
+                      <span>สแกนบิลด้วย OCR ก่อน</span>
+                    </button>
+                  )}
+
+                  <div className="inline-flex items-center bg-gray-100 p-0.5 rounded-xl border border-gray-200/80 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => setShowAllSections(false)}
+                      className={`px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+                        !showAllSections ? 'bg-white text-red-600 shadow-2xs' : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      ทีละขั้น (แนะนำ)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllSections(true)}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+                        showAllSections ? 'bg-white text-red-600 shadow-2xs' : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <LayoutList className="w-3 h-3" />
+                      <span>หน้าเดียวยาว</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {!showAllSections && (
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                  {steps.map((s) => {
+                    const isCurrent = formStep === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => goToFormStep(s.id)}
+                        className={`text-left p-2.5 rounded-xl border transition flex items-start gap-2.5 cursor-pointer ${
+                          isCurrent
+                            ? 'bg-red-50/70 border-red-400 ring-2 ring-red-100 shadow-2xs'
+                            : s.done
+                            ? 'bg-emerald-50/40 border-emerald-200 hover:border-emerald-300'
+                            : 'bg-gray-50/70 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
+                            isCurrent
+                              ? 'bg-red-600 text-white'
+                              : s.done
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-white text-gray-500 border border-gray-300'
+                          }`}
+                        >
+                          {s.done && !isCurrent ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : s.id}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className={`text-xs font-bold truncate ${isCurrent ? 'text-red-900' : 'text-gray-900'}`}>
+                              {s.title}
+                            </span>
+                            {s.badge && (
+                              <span
+                                className={`inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded shrink-0 ${
+                                  s.badgeWarn
+                                    ? 'bg-amber-200 text-amber-950'
+                                    : 'bg-emerald-100 text-emerald-800'
+                                }`}
+                              >
+                                {s.badge}
+                                {'badgeDone' in s && s.badgeDone && <Check className="w-2.5 h-2.5 stroke-[2.5]" />}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-gray-500 truncate block mt-0.5">{s.sub}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* STEP 1: Organization, Branch & Payee Details */}
+        {(showAllSections || formStep === 1) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Card 1: สังกัดบริษัท & ข้อมูลการส่ง */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 flex flex-col justify-between">
@@ -2868,17 +3348,24 @@ export default function NewPaymentRequestClient({
                           key={c}
                           type="button"
                           onClick={() => {
+                            if (c === company) return;
                             setCompany(c);
-                            // Keep any existing substitute receipt items synced with the newly selected company
-                            setRequisitionItems((prev) =>
-                              prev.map((it) =>
-                                it.isIrregularBill
-                                  ? {
-                                      ...it,
-                                    }
-                                  : it
+                            // Regenerate any existing substitute receipt certificates for the newly selected company
+                            const irregularGroupKeys = Array.from(
+                              new Set(
+                                requisitionItems
+                                  .filter((it) => it.isIrregularBill && it.substituteCertificateUrl)
+                                  .map((it) => it.substituteGroupKey || getSubstituteGroupKey(it.supplierName, it.billDate))
+                                  .filter(Boolean)
                               )
                             );
+                            if (irregularGroupKeys.length > 0) {
+                              Promise.all(
+                                irregularGroupKeys.map((gk) =>
+                                  syncGroupSubstituteCertificate(gk, requisitionItems, true, c)
+                                )
+                              ).catch((err) => console.warn('Failed to re-sync certificates on company change:', err));
+                            }
                           }}
                           className={`py-2 px-2 sm:px-3 text-xs font-bold rounded-xl border transition text-center flex flex-col items-center justify-center gap-1.5 cursor-pointer ${
                             isSelected
@@ -3210,45 +3697,247 @@ export default function NewPaymentRequestClient({
               </div>
 
               <div className="space-y-4">
-                {/* Requester Group */}
-                <div className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200 space-y-3">
-                  <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider block">
-                    ข้อมูลผู้ขอเบิก / ผู้รับผิดชอบ
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
-                        ชื่อ-นามสกุล <span className="text-red-600">*</span>
-                      </label>
+                {/* Requester Group (Compact 1-line summary when pre-filled) */}
+                <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 space-y-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 shrink-0">
+                        <User className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">
+                          ผู้ขอเบิก (ดึงจากระบบอัตโนมัติ)
+                        </span>
+                        <span className="text-xs font-bold text-gray-900 truncate block">
+                          {requesterName || 'กรุณาระบุชื่อผู้ขอเบิก'}
+                          {requesterDept ? ` • ${requesterDept}` : ''}
+                          {requesterPhone ? ` • ${requesterPhone}` : ''}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowRequesterEditor((prev) => !prev)}
+                      className="text-[11px] font-semibold text-gray-600 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 px-2.5 py-1 rounded-lg transition shrink-0 cursor-pointer inline-flex items-center gap-1"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                      <span>{showRequesterEditor || !requesterName.trim() ? 'ซ่อน' : 'แก้ไขข้อมูลผู้ขอ'}</span>
+                    </button>
+                  </div>
+
+                  {(showRequesterEditor || !requesterName.trim()) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-gray-200/80">
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-600 mb-0.5">
+                          ชื่อ-นามสกุล <span className="text-red-600">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={requesterName}
+                          onChange={(e) => setRequesterName(e.target.value)}
+                          placeholder="ชื่อผู้ขอเบิก"
+                          className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-600 mb-0.5">แผนก/ฝ่าย</label>
+                        <input
+                          type="text"
+                          value={requesterDept}
+                          onChange={(e) => setRequesterDept(e.target.value)}
+                          placeholder="เช่น จัดซื้อ, ช่าง"
+                          className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-600 mb-0.5">เบอร์โทรศัพท์</label>
+                        <input
+                          type="text"
+                          value={requesterPhone}
+                          onChange={(e) => setRequesterPhone(e.target.value)}
+                          placeholder="08X-XXX-XXXX"
+                          className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Selectable Supervisor / Approver Row */}
+                  <div className="pt-2.5 border-t border-gray-200/80 relative" ref={supDropdownRef}>
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                      <span className="text-[11px] font-bold text-gray-700 flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
+                        <span>หัวหน้างานผู้อนุมัติ (Approver) {!isCurrentUserManagerial && <span className="text-red-600">*</span>}</span>
+                        {supervisorId === '__NONE__' ? (
+                          <span className="text-[10px] bg-slate-200 text-slate-800 px-2 py-0.5 rounded-full font-semibold">
+                            ส่งบัญชีโดยตรง (ไม่ผ่านหัวหน้า)
+                          </span>
+                        ) : initialSupervisor &&
+                          supervisorName &&
+                          normalizePersonName(supervisorName) !== normalizePersonName(initialSupervisor) ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-semibold border border-indigo-200">
+                            เลือกหัวหน้าเองแล้ว <Check size={10} />
+                          </span>
+                        ) : supervisorName ? (
+                          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">
+                            จับคู่จากระบบ
+                          </span>
+                        ) : (
+                          <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold border border-amber-200">
+                            กรุณาเลือกหัวหน้างาน
+                          </span>
+                        )}
+                      </span>
+
+                      {initialSupervisor &&
+                        (supervisorId === '__NONE__' ||
+                          normalizePersonName(supervisorName) !== normalizePersonName(initialSupervisor)) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const matchedOrig = supervisorOptions.find(
+                                (o) =>
+                                  (initialSupervisorId && o.id === initialSupervisorId) ||
+                                  normalizePersonName(o.fullName) === normalizePersonName(initialSupervisor)
+                              );
+                              if (matchedOrig) {
+                                handleSelectSupervisor(matchedOrig);
+                              } else {
+                                handleSelectSupervisor({
+                                  id: initialSupervisorId || '',
+                                  fullName: initialSupervisor,
+                                  role: '',
+                                  isManagerial: true,
+                                  hasCrmAccount: true,
+                                });
+                              }
+                            }}
+                            className="text-[10px] font-semibold text-sky-700 hover:text-sky-900 inline-flex items-center gap-1 cursor-pointer underline"
+                          >
+                            <RotateCcw className="w-3 h-3" /> คืนค่าเดิม ({initialSupervisor})
+                          </button>
+                        )}
+                    </div>
+
+                    {supervisorOptions.length > 0 ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setIsSupDropdownOpen((prev) => !prev)}
+                          className="w-full text-left text-xs rounded-xl border border-gray-300 hover:border-sky-500 bg-white py-2 px-3 flex items-center justify-between gap-2 transition cursor-pointer shadow-2xs"
+                        >
+                          <div className="min-w-0 flex items-center gap-2">
+                            <span className="font-bold text-gray-900 truncate">
+                              {supervisorId === '__NONE__'
+                                ? 'ส่งเข้าฝ่ายบัญชีโดยตรง (ไม่ผ่านหัวหน้างาน — เฉพาะระดับผู้จัดการ)'
+                                : supervisorName || 'คลิกค้นหาและเลือกหัวหน้างานผู้อนุมัติ...'}
+                            </span>
+                            {supervisorId !== '__NONE__' && supervisorName && (
+                              <span className="text-[10px] text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200 shrink-0 hidden sm:inline">
+                                คลิกเปลี่ยนได้
+                              </span>
+                            )}
+                          </div>
+                          <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                        </button>
+
+                        {isSupDropdownOpen && (
+                          <div className="absolute left-0 right-0 mt-1 z-30 bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden">
+                            <div className="p-2 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                              <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                              <input
+                                type="text"
+                                autoFocus
+                                value={supSearchQuery}
+                                onChange={(e) => setSupSearchQuery(e.target.value)}
+                                placeholder="ค้นหาชื่อหัวหน้า, ชื่อเล่น, แผนก หรือสาขา..."
+                                className="w-full text-xs bg-transparent focus:outline-none text-gray-800"
+                              />
+                            </div>
+
+                            <div className="max-h-56 overflow-y-auto divide-y divide-gray-50">
+                              {isCurrentUserManagerial && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelectSupervisor(null, true)}
+                                  className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-50 transition flex items-center justify-between gap-2 cursor-pointer ${
+                                    supervisorId === '__NONE__' ? 'bg-slate-100 font-bold' : ''
+                                  }`}
+                                >
+                                  <div>
+                                    <span className="font-bold text-slate-800 block">
+                                      ส่งเข้าฝ่ายบัญชีโดยตรง (ไม่ต้องผ่านหัวหน้างาน)
+                                    </span>
+                                    <span className="text-[10px] text-slate-500">
+                                      ใช้สิทธิ์ระดับหัวหน้างาน/ผู้จัดการในการยื่นเบิกโดยตรง
+                                    </span>
+                                  </div>
+                                  {supervisorId === '__NONE__' && <Check className="w-4 h-4 text-slate-700 shrink-0" />}
+                                </button>
+                              )}
+
+                              {selectableSupervisors.length === 0 ? (
+                                <div className="p-3 text-center text-[11px] text-gray-500">
+                                  ไม่พบรายชื่อที่ตรงกับ &quot;{supSearchQuery}&quot;
+                                </div>
+                              ) : (
+                                selectableSupervisors.map((opt) => {
+                                  const isSelected =
+                                    supervisorId !== '__NONE__' &&
+                                    ((supervisorId && supervisorId === opt.id) ||
+                                      (supervisorName &&
+                                        normalizePersonName(supervisorName) === normalizePersonName(opt.fullName)));
+                                  return (
+                                    <button
+                                      key={`${opt.id}_${opt.fullName}`}
+                                      type="button"
+                                      onClick={() => handleSelectSupervisor(opt)}
+                                      className={`w-full text-left px-3 py-2 text-xs hover:bg-sky-50 transition flex items-start justify-between gap-2 cursor-pointer ${
+                                        isSelected ? 'bg-sky-50/90' : ''
+                                      }`}
+                                    >
+                                      <div className="min-w-0">
+                                        <div className="font-bold text-gray-900 truncate flex items-center gap-1.5">
+                                          <span>{opt.fullName}</span>
+                                          {opt.nickname && (
+                                            <span className="text-[10px] text-gray-500 font-normal">({opt.nickname})</span>
+                                          )}
+                                          {opt.isManagerial && (
+                                            <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-bold shrink-0">
+                                              หัวหน้า/ผู้จัดการ
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="text-[10px] text-gray-500 truncate mt-0.5">
+                                          {[opt.jobTitle || opt.role, opt.department, opt.branch].filter(Boolean).join(' • ')}
+                                        </div>
+                                      </div>
+                                      {isSelected && <Check className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />}
+                                    </button>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
                       <input
                         type="text"
-                        required
-                        value={requesterName}
-                        onChange={(e) => setRequesterName(e.target.value)}
-                        placeholder="ชื่อผู้ขอเบิก"
+                        value={supervisorName}
+                        onChange={(e) => {
+                          setSupervisorName(e.target.value);
+                          setSupervisorId('');
+                        }}
+                        placeholder="ระบุชื่อหัวหน้างานผู้อนุมัติ"
                         className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">แผนก/ฝ่าย</label>
-                      <input
-                        type="text"
-                        value={requesterDept}
-                        onChange={(e) => setRequesterDept(e.target.value)}
-                        placeholder="เช่น จัดซื้อ, ช่าง"
-                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">เบอร์โทรศัพท์</label>
-                      <input
-                        type="text"
-                        value={requesterPhone}
-                        onChange={(e) => setRequesterPhone(e.target.value)}
-                        placeholder="08X-XXX-XXXX"
-                        className="w-full text-xs rounded-lg border border-gray-300 py-1.5 px-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
-                      />
-                    </div>
+                    )}
+
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      หากระบบจับคู่หัวหน้าผิด สามารถเลือกเปลี่ยนหัวหน้าได้ทันที (ชื่อในใบ บก.111 และสิทธิ์อนุมัติจะอัปเดตตาม)
+                    </p>
                   </div>
                 </div>
 
@@ -3716,9 +4405,10 @@ export default function NewPaymentRequestClient({
             </div>
           </div>
         </div>
+        )}
 
-        {/* Multi-Item Requisition Table (Shown when in MULTI_ITEMS mode) */}
-        {entryMode === 'MULTI_ITEMS' && (
+        {/* STEP 2: Requisition Items & บก.111 Management */}
+        {(showAllSections || formStep === 2) && entryMode === 'MULTI_ITEMS' && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4 animate-in fade-in duration-150">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
               <div className="flex items-center gap-2.5">
@@ -3814,6 +4504,19 @@ export default function NewPaymentRequestClient({
               </div>
             </div>
 
+            {/* OCR Auto-Scan & Cross-Camera Duplicate Controls for Item Attachments */}
+            <div className="p-2.5 bg-blue-50/40 rounded-xl border border-blue-200/80 space-y-2">
+              {renderOcrAutoScanControls()}
+              {itemUploadingIdx !== null && (
+                <div className="p-2.5 bg-sky-50 border border-sky-200 rounded-xl flex items-center gap-2 text-xs text-sky-800 animate-pulse">
+                  <RefreshCw className="w-4 h-4 animate-spin text-sky-600 shrink-0" />
+                  <span className="font-medium">
+                    {uploadScanStatus || `กำลังสแกน OCR และตรวจสอบความซ้ำซ้อนรายการที่ ${itemUploadingIdx + 1}...`}
+                  </span>
+                </div>
+              )}
+            </div>
+
             {/* Interactive Items Table (Desktop / Tablet view >= md) */}
             <div className="hidden md:block border border-gray-200 rounded-xl overflow-x-auto text-xs shadow-2xs">
               <table className="w-full text-left border-collapse">
@@ -3832,11 +4535,14 @@ export default function NewPaymentRequestClient({
                     <th className="py-2.5 px-2 w-32 text-center border-r border-gray-200" title="ติ๊กเลือกเมื่อไม่มีใบเสร็จรับเงิน เพื่อสร้างใบรับรองแทนใบเสร็จรับเงิน (บก.111 / Certification of Payment) แนบอัตโนมัติ">
                       บิลไม่สมบูรณ์ / ใบรับรองแทน
                     </th>
-                    <th className="py-2.5 px-2.5 min-w-[140px] text-center border-r border-gray-200">
+                    <th className="py-2.5 px-2.5 min-w-[155px] text-center border-r border-gray-200">
                       <div className="flex items-center justify-center gap-1 text-blue-700 font-bold">
                         <Paperclip className="w-3.5 h-3.5" />
                         <span>เอกสารแนบประจำบิล</span>
                       </div>
+                      <span className="block text-[9px] font-medium text-blue-600/90 mt-0.5">
+                        {ocrAutoScanEnabled ? 'ตรวจซ้ำ + OCR อัตโนมัติ' : 'ตรวจซ้ำอัตโนมัติ'}
+                      </span>
                     </th>
                     <th className="py-2.5 px-2.5 min-w-[110px] text-left border-r border-gray-200">หมายเหตุ</th>
                     <th className="py-2.5 px-2 w-10 text-center">ลบ</th>
@@ -3980,6 +4686,7 @@ export default function NewPaymentRequestClient({
                         <td className="py-1.5 px-2 border-r border-gray-100 align-top">
                           <input
                             type="number"
+                            min="0"
                             step="0.01"
                             required
                             value={item.amount === 0 ? '' : item.amount}
@@ -4155,7 +4862,7 @@ export default function NewPaymentRequestClient({
                               {itemUploadingIdx === idx ? (
                                 <>
                                   <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
-                                  <span>กำลังอัปโหลด...</span>
+                                  <span>กำลังตรวจ/สแกน...</span>
                                 </>
                               ) : (
                                 <>
@@ -4179,26 +4886,29 @@ export default function NewPaymentRequestClient({
                                 {item.attachments.map((att: ItemAttachment, aIdx: number) => (
                                   <div
                                     key={att.id || aIdx}
-                                    className="flex items-center justify-between gap-1 p-1 px-1.5 rounded-md bg-blue-50/90 border border-blue-200 text-[10px] text-blue-900 shadow-2xs"
+                                    className="p-1 px-1.5 rounded-md bg-blue-50/90 border border-blue-200 text-[10px] text-blue-900 shadow-2xs"
                                   >
-                                    <a
-                                      href={att.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center gap-1 min-w-0 flex-1 hover:underline text-blue-700 font-semibold truncate"
-                                      title={att.fileName}
-                                    >
-                                      <FileText className="w-3 h-3 shrink-0 text-blue-600" />
-                                      <span className="truncate">{att.fileName}</span>
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemoveItemAttachment(idx, aIdx)}
-                                      className="text-gray-400 hover:text-red-600 p-0.5 rounded transition shrink-0 ml-1"
-                                      title="ลบไฟล์นี้"
-                                    >
-                                      <Trash2 className="w-3 h-3" />
-                                    </button>
+                                    <div className="flex items-center justify-between gap-1">
+                                      <a
+                                        href={att.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 min-w-0 flex-1 hover:underline text-blue-700 font-semibold truncate"
+                                        title={att.fileName}
+                                      >
+                                        <FileText className="w-3 h-3 shrink-0 text-blue-600" />
+                                        <span className="truncate">{att.fileName}</span>
+                                      </a>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRemoveItemAttachment(idx, aIdx)}
+                                        className="text-gray-400 hover:text-red-600 p-0.5 rounded transition shrink-0 ml-1"
+                                        title="ลบไฟล์นี้"
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                    {renderItemAttachmentBadges(att)}
                                   </div>
                                 ))}
                               </div>
@@ -4437,6 +5147,7 @@ export default function NewPaymentRequestClient({
                         </label>
                         <input
                           type="number"
+                          min="0"
                           step="0.01"
                           required
                           value={item.amount === 0 ? '' : item.amount}
@@ -4605,11 +5316,14 @@ export default function NewPaymentRequestClient({
 
                     {/* Attachment Upload for this Bill */}
                     <div className="space-y-1.5 pt-0.5">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <label className="text-[11px] font-bold text-gray-700 flex items-center gap-1">
                           <Paperclip className="w-3 h-3 text-blue-600" />
                           <span>เอกสารแนบประจำบิลนี้ ({item.attachments?.length || 0})</span>
                         </label>
+                        <span className="text-[9px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
+                          {ocrAutoScanEnabled ? 'ตรวจซ้ำ + OCR ข้ามกล้อง' : 'ตรวจซ้ำ'}
+                        </span>
                       </div>
 
                       <label className={`flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl border border-dashed text-xs font-bold transition cursor-pointer ${
@@ -4620,7 +5334,7 @@ export default function NewPaymentRequestClient({
                         {itemUploadingIdx === idx ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
-                            <span>กำลังอัปโหลด...</span>
+                            <span>กำลังตรวจ/สแกน...</span>
                           </>
                         ) : (
                           <>
@@ -4643,26 +5357,29 @@ export default function NewPaymentRequestClient({
                           {item.attachments.map((att: ItemAttachment, aIdx: number) => (
                             <div
                               key={att.id || aIdx}
-                              className="flex items-center justify-between gap-1 p-1.5 px-2 rounded-lg bg-blue-50/90 border border-blue-200 text-[11px] text-blue-900"
+                              className="p-1.5 px-2 rounded-lg bg-blue-50/90 border border-blue-200 text-[11px] text-blue-900"
                             >
-                              <a
-                                href={att.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 min-w-0 flex-1 hover:underline text-blue-700 font-semibold truncate"
-                                title={att.fileName}
-                              >
-                                <FileText className="w-3 h-3 shrink-0 text-blue-600" />
-                                <span className="truncate">{att.fileName}</span>
-                              </a>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveItemAttachment(idx, aIdx)}
-                                className="text-gray-400 hover:text-red-600 p-0.5 rounded transition shrink-0 ml-1"
-                                title="ลบไฟล์นี้"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              <div className="flex items-center justify-between gap-1">
+                                <a
+                                  href={att.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1.5 min-w-0 flex-1 hover:underline text-blue-700 font-semibold truncate"
+                                  title={att.fileName}
+                                >
+                                  <FileText className="w-3 h-3 shrink-0 text-blue-600" />
+                                  <span className="truncate">{att.fileName}</span>
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveItemAttachment(idx, aIdx)}
+                                  className="text-gray-400 hover:text-red-600 p-0.5 rounded transition shrink-0 ml-1"
+                                  title="ลบไฟล์นี้"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              {renderItemAttachmentBadges(att)}
                             </div>
                           ))}
                         </div>
@@ -4754,33 +5471,31 @@ export default function NewPaymentRequestClient({
                     onClick={() => {
                       const allExtracted: RequisitionItem[] = [];
                       attachments.forEach((att) => {
-                        const effectiveDate = (att.extractedDate ? formatDateToISO(att.extractedDate) : null) || att.extractedDate || documentDate || new Date().toISOString().split('T')[0];
+                        const effectiveDate = (att.extractedDate ? formatDateToISO(att.extractedDate) : null) || att.extractedDate || documentDate || getTodayStr();
                         if (att.extractedLineItems && att.extractedLineItems.length > 0) {
-                          att.extractedLineItems.forEach((li: any, lIdx: number) => {
-                            allExtracted.push({
-                              id: `item_${Date.now()}_${lIdx}_${Math.random().toString(36).slice(2, 5)}`,
+                          att.extractedLineItems.forEach((li: any) => {
+                            allExtracted.push(
+                              buildDefaultRequisitionItem({
+                                billDate: effectiveDate,
+                                supplierName: att.extractedSupplier || supplierName || '',
+                                supplierTaxId: att.extractedTaxId || supplierTaxId || '',
+                                invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
+                                description: li.description,
+                                amount: li.amount || 0,
+                              })
+                            );
+                          });
+                        } else if (att.extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(att.extractedDescription)) {
+                          allExtracted.push(
+                            buildDefaultRequisitionItem({
                               billDate: effectiveDate,
                               supplierName: att.extractedSupplier || supplierName || '',
                               supplierTaxId: att.extractedTaxId || supplierTaxId || '',
                               invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
-                              description: li.description,
-                              amount: li.amount || 0,
-                              remarks: '',
-                              paidByCreditCard: false,
-                            });
-                          });
-                        } else if (att.extractedDescription && !/(?:ต้นฉบับ|สำเนา|ด้นฉบับ)?\s*(?:ใบกำกับภาษี|ใบเสร็จรับเงิน|ใบเสร็จ|ใบส่งของ|ใบแจ้งหนี้|บิลเงินสด|TAX\s*INVOICE|RECEIPT)/i.test(att.extractedDescription)) {
-                          allExtracted.push({
-                            id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
-                            billDate: effectiveDate,
-                            supplierName: att.extractedSupplier || supplierName || '',
-                            supplierTaxId: att.extractedTaxId || supplierTaxId || '',
-                            invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
-                            description: att.extractedDescription,
-                            amount: att.extractedAmount || 0,
-                            remarks: '',
-                            paidByCreditCard: false,
-                          });
+                              description: att.extractedDescription,
+                              amount: att.extractedAmount || 0,
+                            })
+                          );
                         }
                       });
 
@@ -4816,6 +5531,180 @@ export default function NewPaymentRequestClient({
                 * หากซื้อสินค้าจากร้านเดียวกันหลายรายการ สามารถกดปุ่ม &quot;เพิ่มรายการในบิลเดิม&quot; ได้ทันที
               </span>
             </div>
+
+            {/* Unified บก.111 (Substitute Receipt) Hub */}
+            {(() => {
+              const irregularWithIdx = requisitionItems
+                .map((it, idx) => ({ item: it, idx }))
+                .filter(({ item }) => item.isIrregularBill);
+
+              if (irregularWithIdx.length === 0) {
+                return (
+                  <div className="p-3 bg-slate-50/90 border border-slate-200 rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>
+                        <b>ไม่มีใบเสร็จรับเงิน?</b> ติ๊กช่อง{' '}
+                        <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-[11px]">
+                          ไม่มีใบเสร็จ
+                        </span>{' '}
+                        ในรายการด้านบน เพื่อสร้างใบรับรองแทนใบเสร็จ (<b>บก.111</b>) อัตโนมัติ
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+
+              const groupsMap = new Map<
+                string,
+                {
+                  groupKey: string;
+                  firstIdx: number;
+                  supplier: string;
+                  billDate: string;
+                  total: number;
+                  count: number;
+                  hasPdf: boolean;
+                  hasMergedAll: boolean;
+                  hasRequesterSig: boolean;
+                  pdfUrl?: string;
+                  isGenerating: boolean;
+                }
+              >();
+
+              irregularWithIdx.forEach(({ item, idx }) => {
+                const gk = getSubstituteGroupKey(item.supplierName, item.billDate);
+                const mapKey = gk || `__single_${idx}`;
+                const existing = groupsMap.get(mapKey);
+                const amt = Number(item.amount) || 0;
+                const isGen = Boolean(isGeneratingCertMap[idx]);
+                if (!existing) {
+                  groupsMap.set(mapKey, {
+                    groupKey: gk,
+                    firstIdx: idx,
+                    supplier: item.supplierName?.trim() || `รายการ #${idx + 1} (ยังไม่ระบุชื่อร้านค้า)`,
+                    billDate: item.billDate || '-',
+                    total: amt,
+                    count: 1,
+                    hasPdf: Boolean(item.substituteCertificateUrl),
+                    hasMergedAll: Boolean(item.substituteCertificateUrl),
+                    hasRequesterSig: Boolean(item.requesterSignatureUrl || formRequesterSig),
+                    pdfUrl: item.substituteCertificateUrl,
+                    isGenerating: isGen,
+                  });
+                } else {
+                  existing.total += amt;
+                  existing.count += 1;
+                  existing.hasMergedAll =
+                    existing.hasMergedAll &&
+                    Boolean(item.substituteCertificateUrl) &&
+                    item.substituteCertificateUrl === existing.pdfUrl;
+                  existing.hasPdf = existing.hasPdf && Boolean(item.substituteCertificateUrl);
+                  existing.isGenerating = existing.isGenerating || isGen;
+                }
+              });
+
+              const groups = Array.from(groupsMap.values());
+              const readyCount = groups.filter((g) => g.hasPdf && g.hasMergedAll && g.hasRequesterSig).length;
+
+              return (
+                <div className="p-3.5 sm:p-4 bg-gradient-to-r from-amber-50/90 via-orange-50/40 to-white border-2 border-amber-200 rounded-2xl space-y-3 shadow-2xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-xs sm:text-sm font-bold text-amber-950">
+                          ศูนย์จัดการใบรับรองแทนใบเสร็จ (บก.111) — {groups.length} ฉบับ
+                        </h3>
+                        <p className="text-[11px] text-amber-900/80">
+                          ผู้เบิกลงนามเฉพาะช่อง <b>ผู้เบิกจ่าย</b> ให้เรียบร้อย (ช่องหัวหน้างานจะส่งให้หัวหน้าเซ็นตอนอนุมัติ)
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${
+                        readyCount === groups.length
+                          ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                          : 'bg-amber-100 text-amber-900 border-amber-300'
+                      }`}
+                    >
+                      {readyCount === groups.length
+                        ? (<>เตรียมเอกสารครบแล้ว <Check size={12} /></>)
+                        : `พร้อมแล้ว ${readyCount}/${groups.length} ฉบับ`}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {groups.map((g, gIdx) => (
+                      <div
+                        key={gIdx}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white p-3 rounded-xl border border-amber-200/80 text-xs"
+                      >
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="font-bold text-gray-900 truncate">{g.supplier}</span>
+                            <span className="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                              วันที่ {g.billDate}
+                            </span>
+                            <span className="text-[10px] bg-amber-50 text-amber-900 border border-amber-200 px-1.5 py-0.5 rounded font-semibold">
+                              {g.count} รายการ • {g.total.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                            </span>
+                          </div>
+                          <div>
+                            {g.hasPdf && g.hasMergedAll && g.hasRequesterSig ? (
+                              <span className="text-[11px] text-emerald-700 font-semibold inline-flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> สร้าง PDF และเซ็นชื่อผู้เบิกแล้ว
+                              </span>
+                            ) : g.hasPdf && g.hasMergedAll ? (
+                              <span className="text-[11px] text-amber-700 font-semibold inline-flex items-center gap-1">
+                                <PenLine className="w-3.5 h-3.5 text-amber-600" /> สร้าง PDF แล้ว (กดปุ่มขวาเพื่อตรวจสอบ/วาดลายเซ็นผู้เบิก)
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-orange-700 font-semibold inline-flex items-center gap-1">
+                                <AlertCircle className="w-3.5 h-3.5 text-orange-600" /> ยังไม่รวม / ยังไม่ได้สร้างไฟล์ บก.111
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                          {g.count > 1 && g.groupKey && !g.hasMergedAll && (
+                            <button
+                              type="button"
+                              disabled={g.isGenerating}
+                              onClick={() => syncGroupSubstituteCertificate(g.groupKey, requisitionItems)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-amber-500 hover:bg-amber-600 text-white transition shadow-2xs cursor-pointer disabled:opacity-50"
+                            >
+                              <Sparkles className="w-3 h-3" /> รวม PDF ({g.count} รายการ)
+                            </button>
+                          )}
+                          {g.pdfUrl && (
+                            <a
+                              href={g.pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 transition"
+                            >
+                              <Eye className="w-3 h-3" /> ดู PDF
+                            </a>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSubstituteModal(g.firstIdx)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-red-600 hover:bg-red-700 text-white transition shadow-2xs cursor-pointer"
+                          >
+                            <PenLine className="w-3 h-3" />
+                            <span>{g.hasPdf ? 'แก้ไข / เซ็น บก.111' : 'สร้าง & เซ็น บก.111'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Integrated Financial Breakdown for Requisition Items */}
             <div className="pt-4 border-t border-gray-200 space-y-4">
@@ -4913,6 +5802,7 @@ export default function NewPaymentRequestClient({
                     <div className="relative mt-1">
                       <input
                         type="number"
+                        min="0"
                         step="0.01"
                         value={creditCardDeduction}
                         onChange={(e) => setCreditCardDeduction(e.target.value)}
@@ -4962,19 +5852,16 @@ export default function NewPaymentRequestClient({
                 <div className="pt-2 border-t border-white/20 flex flex-wrap items-center justify-between gap-2 text-[11px] text-red-100/90 font-mono">
                   <div className="flex flex-wrap items-center gap-3">
                     <span>
-                      {vatType === 'INCLUDED_7%' ? 'ยอดรวม (รวม VAT): ' : 'ยอดรวมบิล: '}
-                      {effectiveSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                      ยอดก่อน VAT: {effectiveSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿
                     </span>
-                    {vatType === 'INCLUDED_7%' ? (
-                      <span>VAT (ในตัว 7%): {calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                    ) : calculatedVat > 0 ? (
-                      <span>VAT: +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
-                    ) : null}
+                    {calculatedVat > 0 && (
+                      <span>VAT: +{calculatedVat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿</span>
+                    )}
                     {calculatedWht > 0 && (
-                      <span>WHT: -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                      <span>WHT: -{calculatedWht.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿</span>
                     )}
                     {effectiveCcDeduction > 0 && (
-                      <span>หักบัตร: -{effectiveCcDeduction.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿</span>
+                      <span>หักบัตร: -{effectiveCcDeduction.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿</span>
                     )}
                   </div>
                   <div className="inline-flex items-center gap-1 text-[11px] bg-white/15 px-2 py-0.5 rounded-lg text-white font-sans">
@@ -4987,6 +5874,9 @@ export default function NewPaymentRequestClient({
           </div>
         )}
 
+        {/* STEP 3: Document Details, Purpose & Supporting Evidence */}
+        {(showAllSections || formStep === 3) && (
+        <div className="space-y-6">
         {/* Row 2: Card 3 (Document & Purpose) */}
         <div className="grid grid-cols-1 gap-6">
           {/* Card 3: รายละเอียดเอกสาร & วัตถุประสงค์ */}
@@ -5154,30 +6044,7 @@ export default function NewPaymentRequestClient({
           </div>
 
           {/* Upload Area Controls */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-2 px-1">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
-                <QrCode className="w-3.5 h-3.5 text-purple-600" /> ตรวจจับ QR/สลิป โอนเงินอัตโนมัติ (ข้ามกล้อง/ข้ามมุม 100%)
-              </span>
-            </div>
-            <label className="inline-flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs hover:bg-gray-50 transition">
-              <input
-                type="checkbox"
-                checked={ocrAutoScanEnabled}
-                onChange={(e) => {
-                  const val = e.target.checked;
-                  setOcrAutoScanEnabled(val);
-                  try {
-                    localStorage.setItem('pr_ocr_autoscan_enabled', String(val));
-                  } catch {}
-                }}
-                className="rounded text-red-600 focus:ring-red-500 w-3.5 h-3.5"
-              />
-              <span className="flex items-center gap-1 text-[11px] text-gray-700 font-medium">
-                <Scan className="w-3 h-3 text-blue-600" /> เปิดระบบ OCR Auto-Scan (อ่านบิลและตรวจจับข้ามกล้อง)
-              </span>
-            </label>
-          </div>
+          <div className="mb-2">{renderOcrAutoScanControls()}</div>
 
           {/* Upload Area */}
           <div className="border-2 border-dashed border-gray-300 hover:border-red-400 bg-gray-50/60 hover:bg-red-50/20 rounded-2xl p-6 text-center transition">
@@ -5291,21 +6158,7 @@ export default function NewPaymentRequestClient({
                         {att.rawTextSnippet && (
                           <button
                             type="button"
-                            onClick={() => {
-                              Swal.fire({
-                                title: 'ข้อความที่ OCR สแกนได้จากเอกสาร',
-                                html: `
-                                  <div class="text-left text-xs space-y-2">
-                                    <div class="bg-gray-100 p-2.5 rounded-lg border font-mono text-[11px] max-h-60 overflow-y-auto whitespace-pre-wrap text-gray-800">
-                                      ${att.rawTextSnippet}
-                                    </div>
-                                    <p class="text-gray-500 text-[11px]">* ระบบใช้ข้อความนี้ในการตรวจจับความซ้ำซ้อนและการกรอกข้อมูลอัตโนมัติ</p>
-                                  </div>
-                                `,
-                                confirmButtonText: 'ปิดหน้าต่าง',
-                                confirmButtonColor: '#4b5563',
-                              });
-                            }}
+                            onClick={() => openOcrRawTextModal(att.rawTextSnippet)}
                             className="inline-flex items-center gap-1 text-[9px] font-semibold text-gray-600 bg-white hover:bg-gray-100 px-1.5 py-0.5 rounded border border-gray-300 transition cursor-pointer shadow-2xs"
                             title="คลิกเพื่อดูข้อความที่ OCR อ่านได้ทั้งหมด"
                           >
@@ -5319,30 +6172,33 @@ export default function NewPaymentRequestClient({
                           <button
                             type="button"
                             onClick={() => {
+                              const normalizedExtractedDate = att.extractedDate
+                                ? (formatDateToISO(att.extractedDate) || att.extractedDate)
+                                : '';
                               if (att.extractedInvoiceNo) setInvoiceNumber(att.extractedInvoiceNo);
                               if (att.extractedSupplier) setSupplierName(att.extractedSupplier);
                               if (att.extractedAmount) setSubtotalAmount(String(att.extractedAmount));
                               if (att.extractedTaxId) setSupplierTaxId(att.extractedTaxId);
-                              if (att.extractedDate) setDocumentDate(att.extractedDate);
+                              if (normalizedExtractedDate) setDocumentDate(normalizedExtractedDate);
                               if (att.extractedDescription) setPurpose(att.extractedDescription);
 
+                              const effectiveDate = normalizedExtractedDate || documentDate || getTodayStr();
                               // If in MULTI_ITEMS mode or table exists, populate requisition items
                               if (att.extractedLineItems && att.extractedLineItems.length > 0) {
-                                const newRows: RequisitionItem[] = att.extractedLineItems.map((li: any, lIdx: number) => ({
-                                  id: `item_${Date.now()}_${lIdx}`,
-                                  billDate: att.extractedDate || documentDate || new Date().toISOString().split('T')[0],
-                                  supplierName: att.extractedSupplier || supplierName || '',
-                                  supplierTaxId: att.extractedTaxId || supplierTaxId || '',
-                                  invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
-                                  description: li.description,
-                                  amount:
-                                    li.amount ||
-                                    (att.extractedLineItems!.length === 1 && att.extractedAmount
-                                      ? att.extractedAmount
-                                      : 0),
-                                  remarks: '',
-                                  paidByCreditCard: false,
-                                }));
+                                const newRows: RequisitionItem[] = att.extractedLineItems.map((li: any) =>
+                                  buildDefaultRequisitionItem({
+                                    billDate: effectiveDate,
+                                    supplierName: att.extractedSupplier || supplierName || '',
+                                    supplierTaxId: att.extractedTaxId || supplierTaxId || '',
+                                    invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
+                                    description: li.description,
+                                    amount:
+                                      li.amount ||
+                                      (att.extractedLineItems!.length === 1 && att.extractedAmount
+                                        ? att.extractedAmount
+                                        : 0),
+                                  })
+                                );
                                 if (requisitionItems.length === 1 && !requisitionItems[0].description) {
                                   setRequisitionItems(newRows);
                                 } else {
@@ -5356,10 +6212,10 @@ export default function NewPaymentRequestClient({
                                       {
                                         ...first,
                                         billDate:
-                                          att.extractedDate ||
+                                          normalizedExtractedDate ||
                                           first.billDate ||
                                           documentDate ||
-                                          new Date().toISOString().split('T')[0],
+                                          getTodayStr(),
                                         supplierName: att.extractedSupplier || first.supplierName || supplierName || '',
                                         supplierTaxId: att.extractedTaxId || first.supplierTaxId || supplierTaxId || '',
                                         invoiceNumber: att.extractedInvoiceNo || first.invoiceNumber || invoiceNumber || '',
@@ -5370,20 +6226,14 @@ export default function NewPaymentRequestClient({
                                   }
                                   return [
                                     ...prev,
-                                    {
-                                      id: `item_${Date.now()}`,
-                                      billDate:
-                                        att.extractedDate ||
-                                        documentDate ||
-                                        new Date().toISOString().split('T')[0],
+                                    buildDefaultRequisitionItem({
+                                      billDate: effectiveDate,
                                       supplierName: att.extractedSupplier || supplierName || '',
                                       supplierTaxId: att.extractedTaxId || supplierTaxId || '',
                                       invoiceNumber: att.extractedInvoiceNo || invoiceNumber || '',
                                       description: att.extractedDescription!,
                                       amount: att.extractedAmount || 0,
-                                      remarks: '',
-                                      paidByCreditCard: false,
-                                    },
+                                    }),
                                   ];
                                 });
                               }
@@ -5415,7 +6265,200 @@ export default function NewPaymentRequestClient({
             </div>
           )}
         </div>
+        </div>
+        )}
 
+        {/* STEP 4: Final Review Checklist & Submit */}
+        {!showAllSections && formStep === 4 && (() => {
+          const resolvedBranchVal = branch === 'อื่นๆ (ระบุ)' ? customBranch.trim() : branch.trim();
+          const validRows = requisitionItems.filter((it) => it.description.trim() && Number(it.amount) > 0);
+          const irregularRows = requisitionItems.filter((it) => it.isIrregularBill);
+          const pendingSubCertRows = irregularRows.filter(
+            (it) => !it.substituteCertificateUrl || (!it.requesterSignatureUrl && !formRequesterSig)
+          );
+          const totalFilesCount =
+            attachments.length + requisitionItems.reduce((acc, it) => acc + (it.attachments?.length || 0), 0);
+
+          const payeeAccountSummary =
+            paymentMethod === 'PROMPTPAY'
+              ? `พร้อมเพย์: ${promptPayNumber || 'ยังไม่ระบุ'}`
+              : paymentMethod === 'CASH_CHEQUE'
+              ? `เงินสด/เช็ค${cashChequeNote ? `: ${cashChequeNote}` : ''}`
+              : `${bankName} ${bankAccountNo ? `(${bankAccountNo})` : '(ยังไม่ระบุเลขบัญชี)'}`;
+
+          const checks = [
+            {
+              step: 1 as const,
+              title: '1. บริษัท ผู้รับเงิน & หัวหน้าผู้อนุมัติ',
+              ok: Boolean(
+                requesterName.trim() &&
+                  resolvedBranchVal &&
+                  (isCurrentUserManagerial || supervisorName.trim())
+              ),
+              detail: `${company} • ${resolvedBranchVal || 'ยังไม่เลือกสาขา'} • โอนให้: ${supplierName.trim() || requesterName || '-'} (${payeeAccountSummary}) • หัวหน้างาน: ${
+                supervisorId === '__NONE__'
+                  ? 'ส่งบัญชีโดยตรง'
+                  : supervisorName.trim() || 'ยังไม่เลือกหัวหน้างาน'
+              }`,
+            },
+            {
+              step: 2 as const,
+              title: '2. รายการเบิกจ่าย',
+              ok: validRows.length > 0 && effectiveSubtotal > 0,
+              detail:
+                validRows.length > 0
+                  ? `${validRows.length} รายการ • ยอดสุทธิ ${netPayable.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿`
+                  : 'กรุณาระบุชื่อรายการและจำนวนเงินอย่างน้อย 1 รายการ',
+            },
+            {
+              step: 3 as const,
+              title: '3. วัตถุประสงค์ & เอกสารแนบ',
+              ok: Boolean(documentDate.trim() && purpose.trim()),
+              detail: purpose.trim()
+                ? `"${purpose.trim()}" • เอกสารแนบ ${totalFilesCount} ไฟล์`
+                : 'กรุณาระบุวัตถุประสงค์การขอเบิก',
+            },
+            ...(irregularRows.length > 0
+              ? [
+                  {
+                    step: 2 as const,
+                    title: 'ใบรับรองแทนใบเสร็จ (บก.111)',
+                    ok: pendingSubCertRows.length === 0,
+                    detail:
+                      pendingSubCertRows.length === 0
+                        ? `สร้างและเซ็นผู้เบิกครบ ${irregularRows.length} รายการแล้ว (พร้อมส่งให้หัวหน้าเซ็นตอนอนุมัติ)`
+                        : `ยังมี ${pendingSubCertRows.length} รายการที่รอสร้าง PDF หรือเซ็นผู้เบิก`,
+                  },
+                ]
+              : []),
+          ];
+
+          return (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 space-y-5 animate-in fade-in duration-150">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                    4
+                  </span>
+                  <div>
+                    <h2 className="text-sm font-bold text-gray-900">
+                      ตรวจทานความครบถ้วนก่อนส่งคำขอ (Final Checklist)
+                    </h2>
+                    <p className="text-xs text-gray-500">
+                      ตรวจสอบยอดเงินปลายทาง เอกสารแนบ และ บก.111 ให้เรียบร้อยก่อนกดส่งอนุมัติ
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-700">
+                  {checks.filter((c) => c.ok).length}/{checks.length} รายการพร้อม
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                {/* Checklist Cards */}
+                <div className="lg:col-span-7 space-y-2.5">
+                  {checks.map((c, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-xl border flex items-start justify-between gap-3 ${
+                        c.ok ? 'bg-emerald-50/40 border-emerald-200' : 'bg-amber-50/70 border-amber-300'
+                      }`}
+                    >
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        {c.ok ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                        )}
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold text-gray-900 block">{c.title}</span>
+                          <span className="text-[11px] text-gray-600 block break-words">{c.detail}</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => goToFormStep(c.step)}
+                        className="text-[11px] font-bold text-red-600 hover:text-red-700 bg-white border border-gray-200 hover:border-red-300 px-2.5 py-1 rounded-lg transition shrink-0 cursor-pointer"
+                      >
+                        {c.ok ? 'แก้ไข' : 'ไปกรอก'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Right Net Summary Box */}
+                <div className="lg:col-span-5 bg-gradient-to-br from-red-600 to-red-700 text-white rounded-2xl p-4 sm:p-5 space-y-3 shadow-sm">
+                  <div className="flex items-center justify-between text-[11px] text-red-100 font-bold uppercase">
+                    <span>ยอดชำระสุทธิทั้งหมด</span>
+                    <span className="bg-white/20 text-white px-2 py-0.5 rounded-full font-mono">{company}</span>
+                  </div>
+                  <div className="text-3xl font-mono font-extrabold">
+                    {netPayable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{' '}
+                    <span className="text-sm font-normal text-red-100">บาท</span>
+                  </div>
+                  <p className="text-xs bg-black/15 p-2 rounded-xl text-white/95 font-medium truncate">
+                    ({bahtText})
+                  </p>
+                  <div className="pt-2 border-t border-white/20 text-[11px] text-red-100 space-y-1">
+                    <div className="flex justify-between">
+                      <span>ความเร่งด่วน:</span>
+                      <span className="font-bold text-white">
+                        {urgency === 'EMERGENCY' ? `ด่วนที่สุด (${requestedPaymentDate || '-'})` : 'ปกติ'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>ระดับอนุมัติ:</span>
+                      <span className="font-bold text-white truncate max-w-[190px]">{approvalTier}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Quick Prev / Next Step Bar for Steps 1–3 */}
+        {!showAllSections && formStep < 4 && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-4 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="flex items-center justify-between sm:justify-start gap-3 text-xs">
+              {formStep > 1 && (
+                <button
+                  type="button"
+                  onClick={() => goToFormStep((formStep - 1) as 1 | 2 | 3 | 4)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold transition cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>ย้อนกลับ</span>
+                </button>
+              )}
+              <div className="text-gray-600">
+                <span className="text-[11px] text-gray-400 block">ยอดรวมปัจจุบัน</span>
+                <span className="font-mono font-bold text-red-600 text-sm">
+                  {netPayable.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
+                </span>
+                <span className="text-[11px] text-gray-400 ml-1.5">({requisitionItems.length} รายการ)</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => goToFormStep((formStep + 1) as 1 | 2 | 3 | 4)}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-sm transition cursor-pointer"
+            >
+              <span>
+                {formStep === 1
+                  ? 'ถัดไป: กรอกรายการเบิก & บก.111'
+                  : formStep === 2
+                  ? 'ถัดไป: วัตถุประสงค์ & แนบไฟล์'
+                  : 'ถัดไป: ตรวจทานก่อนส่ง'}
+              </span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {(showAllSections || formStep === 4) && (
+        <>
         {/* Resubmission Note / Explanation in Edit Mode */}
         {isEditMode && initialData?.status === 'RETURN_DOCUMENT' && (
           <div className="bg-orange-50/90 border border-orange-200 rounded-2xl p-5 shadow-sm space-y-3">
@@ -5444,7 +6487,7 @@ export default function NewPaymentRequestClient({
                     ? 'bg-orange-100 text-orange-900 border-orange-300'
                     : 'bg-gray-100 text-gray-700 border-gray-200'
                 }`}>
-                  สถานะ: {initialData.status}
+                  สถานะ: {getStatusMeta(initialData.status).label}
                 </span>
                 <span className="text-center sm:text-left">
                   กำลังแก้ไขเอกสารเลขที่ <b className="font-mono text-gray-900">{initialData.pay_number}</b>
@@ -5452,8 +6495,10 @@ export default function NewPaymentRequestClient({
               </>
             ) : (
               <>
-                <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-bold border border-gray-200 inline-block text-center sm:text-left">
-                  สถานะเริ่มต้น: SUBMITTED
+                <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 font-bold border border-amber-200 inline-block text-center sm:text-left">
+                  {supervisorId === '__NONE__' || (isCurrentUserManagerial && !supervisorName.trim())
+                    ? 'สถานะเริ่มต้น: ส่งตรงฝ่ายบัญชีตรวจสอบ (SUBMITTED)'
+                    : `สถานะเริ่มต้น: รอหัวหน้างานอนุมัติ${supervisorName ? ` (${supervisorName})` : ''}`}
                 </span>
                 <span className="text-center sm:text-left">
                   ระบบจะสร้างเลขที่ <b className="font-mono text-gray-900">PAY-{company}-YYMM-XXXXX</b> อัตโนมัติ
@@ -5553,6 +6598,8 @@ export default function NewPaymentRequestClient({
             )}
           </div>
         </div>
+        </>
+        )}
       </form>
         </>
       ) : (
@@ -5821,9 +6868,9 @@ export default function NewPaymentRequestClient({
                             </span>
                           </div>
                           <div className="text-[10px] text-gray-400 flex items-center justify-between border-t border-gray-200/60 pt-1 mt-1">
-                            <span>ก่อนภาษี: {Number(req.subtotal_amount || 0).toLocaleString()} ฿</span>
-                            {Number(req.vat_amount || 0) > 0 && <span>VAT: +{Number(req.vat_amount).toLocaleString()}</span>}
-                            {Number(req.wht_amount || 0) > 0 && <span>WHT: -{Number(req.wht_amount).toLocaleString()}</span>}
+                            <span>ก่อนภาษี: {Number(req.subtotal_amount || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿</span>
+                            {Number(req.vat_amount || 0) > 0 && <span>VAT: +{Number(req.vat_amount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>}
+                            {Number(req.wht_amount || 0) > 0 && <span>WHT: -{Number(req.wht_amount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>}
                           </div>
                         </div>
                       </div>
@@ -5994,6 +7041,14 @@ export default function NewPaymentRequestClient({
         <SubstituteReceiptModal
           isOpen={substituteModalOpen}
           initialData={substituteModalData}
+          signingRole="requester"
+          defaultSigTab="requester"
+          defaultApproverName={supervisorId !== '__NONE__' ? supervisorName : ''}
+          defaultApproverId={supervisorId !== '__NONE__' ? supervisorId : ''}
+          supervisorOptions={supervisorOptions}
+          currentUserId={currentUser?.id || ''}
+          currentUserEmpId={currentUser?.employeeId || null}
+          saveButtonLabel="บันทึกลายเซ็นผู้เบิกและแนบ PDF บก.111"
           onClose={() => {
             setSubstituteModalOpen(false);
             setActiveSubstituteItemIdx(null);
@@ -6188,6 +7243,13 @@ export default function NewPaymentRequestClient({
               </div>
             </div>
 
+            {dupResult?.isExactDuplicate && (
+              <div className="mx-4 sm:mx-6 mb-3 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 font-semibold flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>ตรวจพบเอกสารซ้ำซ้อนในระบบ ({dupResult.exactMatches?.[0]?.pay_number || 'Duplicate'}) จึงปิดการส่งคำขอนี้ไว้</span>
+              </div>
+            )}
+
             {/* Modal Footer */}
             <div className="p-4 sm:px-6 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <button
@@ -6201,8 +7263,8 @@ export default function NewPaymentRequestClient({
               <button
                 type="button"
                 onClick={() => executeActualSubmit(pendingShouldResubmit)}
-                disabled={isSubmitting}
-                className="w-full sm:w-auto px-6 py-3 sm:py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-xl shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                disabled={isSubmitting || Boolean(dupResult?.isExactDuplicate)}
+                className="w-full sm:w-auto px-6 py-3 sm:py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-xl shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

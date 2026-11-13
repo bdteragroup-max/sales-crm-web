@@ -1122,12 +1122,20 @@ export default function ProjectExecutiveCockpit({
                             บริหาร: <strong className="text-slate-800 font-mono">{pm.count} โครงการ</strong> (
                             {share.toFixed(1)}% ของพอร์ต)
                           </span>
-                          <span className="font-semibold text-slate-600">
-                            {isOverloaded
-                              ? "⚠️ ควรชะลอการมอบหมายงานใหม่"
-                              : isModerate
-                              ? "พร้อมรับงานขนาดกลาง"
-                              : "✅ มีความจุรับโครงการใหญ่ได้"}
+                          <span className="font-semibold text-slate-600 inline-flex items-center gap-1">
+                            {isOverloaded ? (
+                              <>
+                                <AlertTriangle size={11} className="text-amber-600 shrink-0" />
+                                <span>ควรชะลอการมอบหมายงานใหม่</span>
+                              </>
+                            ) : isModerate ? (
+                              <span>พร้อมรับงานขนาดกลาง</span>
+                            ) : (
+                              <>
+                                <CheckCircle2 size={11} className="text-emerald-600 shrink-0" />
+                                <span>มีความจุรับโครงการใหญ่ได้</span>
+                              </>
+                            )}
                           </span>
                         </div>
                       </div>

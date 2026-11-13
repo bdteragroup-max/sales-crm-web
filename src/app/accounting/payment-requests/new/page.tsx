@@ -2,7 +2,12 @@ import { getUser } from '@/app/lib/dal';
 import { redirect } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
 import NewPaymentRequestClient from './NewPaymentRequestClient';
-import { getSystemBranches, getUserProfileDetails, getPaymentRequests } from '@/app/actions/paymentRequests';
+import {
+  getSystemBranches,
+  getUserProfileDetails,
+  getPaymentRequests,
+  getSupervisorOptions,
+} from '@/app/actions/paymentRequests';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,19 +17,23 @@ export default async function NewPaymentRequestPage() {
     redirect('/');
   }
 
-  const [branches, profile, myRequests] = await Promise.all([
+  const [branches, profile, myRequests, supervisorOptions] = await Promise.all([
     getSystemBranches(),
     getUserProfileDetails(user.id, user.employeeId),
     getPaymentRequests({ requesterId: user.id, requesterName: user.fullName }),
+    getSupervisorOptions(),
   ]);
 
-  const matchedBranch = (branches as any[]).find(
-    (b: any) =>
-      b.id.toLowerCase() === profile.defaultBranch.toLowerCase() ||
-      b.name.toLowerCase() === profile.defaultBranch.toLowerCase() ||
-      b.name.toLowerCase().includes(profile.defaultBranch.toLowerCase()) ||
-      profile.defaultBranch.toLowerCase().includes(b.id.toLowerCase())
-  );
+  const branchQuery = (profile.defaultBranch || '').trim().toLowerCase();
+  const matchedBranch = branchQuery
+    ? (branches as any[]).find(
+        (b: any) =>
+          b.id.toLowerCase() === branchQuery ||
+          b.name.toLowerCase() === branchQuery ||
+          b.name.toLowerCase().includes(branchQuery) ||
+          branchQuery.includes(b.id.toLowerCase())
+      )
+    : undefined;
   const initialBranch = matchedBranch ? matchedBranch.name : (branches[0]?.name || 'สำนักงานใหญ่');
 
   return (
@@ -41,12 +50,15 @@ export default async function NewPaymentRequestPage() {
             id: user.id,
             fullName: user.fullName,
             role: user.role,
+            employeeId: user.employeeId,
           }}
           branches={branches}
           initialBranch={initialBranch}
           initialDept={profile.defaultDept}
           initialPhone={profile.defaultPhone}
           initialSupervisor={profile.supervisorName}
+          initialSupervisorId={profile.supervisorEmpId}
+          supervisorOptions={supervisorOptions}
           initialMyRequests={JSON.parse(JSON.stringify(myRequests || []))}
         />
       </main>

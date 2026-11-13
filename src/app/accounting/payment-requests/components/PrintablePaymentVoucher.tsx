@@ -1555,7 +1555,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                               <div className="mt-1 pt-1 border-t border-dotted border-gray-300 text-[10px] space-y-0.5 font-sans">
                                 {itemAtts.length > 0 && (
                                   <div className="flex items-center gap-1 text-blue-900">
-                                    <span className="font-bold shrink-0">📎 เอกสารแนบ ({itemAtts.length}):</span>
+                                    <span className="font-bold shrink-0 inline-flex items-center gap-1"><Paperclip size={11} /> เอกสารแนบ ({itemAtts.length}):</span>
                                     <span className="text-gray-700 truncate max-w-[280px]" title={itemAtts.map((a: any) => a.fileName || a.name || 'ไฟล์แนบ').join(', ')}>
                                       {itemAtts.map((a: any) => a.fileName || a.name || 'ไฟล์แนบ').join(', ')}
                                     </span>
@@ -1563,7 +1563,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                                 )}
                                 {hasCert && (
                                   <div className="flex items-center gap-1 text-amber-900">
-                                    <span className="font-bold shrink-0">📄 ใบรับรองแทนใบเสร็จ:</span>
+                                    <span className="font-bold shrink-0 inline-flex items-center gap-1"><FileText size={11} /> ใบรับรองแทนใบเสร็จ:</span>
                                     <span className="text-amber-800">มีแนบในชุดเอกสาร</span>
                                   </div>
                                 )}

@@ -29,6 +29,9 @@ import {
   RefreshCw,
   Trash2,
   Edit3,
+  PenLine,
+  ShieldCheck,
+  ArrowRight,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
@@ -199,8 +202,29 @@ export default function PaymentRequestsClient({
     return list;
   }, [branches, initialRequests]);
 
+  // Pending supervisor queue summary (surfaces pending บก.111 signing & supervisor approvals)
+  const pendingSupervisorRequests = useMemo(
+    () => requests.filter((r) => r.status === 'PENDING_SUPERVISOR'),
+    [requests]
+  );
+  const pendingSupCertCount = useMemo(
+    () =>
+      pendingSupervisorRequests.filter(
+        (r) =>
+          Array.isArray(r.items) &&
+          r.items.some((it) => it?.isIrregularBill && !it?.approverSignatureUrl)
+      ).length,
+    [pendingSupervisorRequests]
+  );
+
   // Filters
-  const [activeTab, setActiveTab] = useState<string>('ALL');
+  const [activeTab, setActiveTab] = useState<string>(() =>
+    !isAccountingUser &&
+    isSupervisor &&
+    initialRequests.some((r) => r.status === 'PENDING_SUPERVISOR')
+      ? 'PENDING_SUPERVISOR'
+      : 'ALL'
+  );
   const [selectedCompany, setSelectedCompany] = useState<string>('ALL');
   const [selectedBranch, setSelectedBranch] = useState<string>('ALL');
   const [selectedClassification, setSelectedClassification] = useState<string>('ALL');
@@ -506,6 +530,61 @@ export default function PaymentRequestsClient({
         </div>
       </div>
 
+      {/* Supervisor Action Queue Callout Banner */}
+      {(isSupervisor || isManager) && pendingSupervisorRequests.length > 0 && (
+        <div
+          className={`rounded-2xl border p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition shadow-2xs ${
+            activeTab === 'PENDING_SUPERVISOR'
+              ? 'bg-gradient-to-r from-amber-50 via-orange-50/70 to-white border-amber-300'
+              : 'bg-gradient-to-r from-amber-50 to-orange-50/50 border-amber-300'
+          }`}
+        >
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <PenLine className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-xs sm:text-sm font-bold text-amber-950">
+                  มีรายการรอหัวหน้างานตรวจสอบ / ลงนาม ({pendingSupervisorRequests.length} รายการ)
+                </h2>
+                {pendingSupCertCount > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200/80 text-amber-950 border border-amber-300">
+                    <FileText className="w-3 h-3 text-amber-800" /> มี บก.111 รอเซ็น {pendingSupCertCount} ฉบับ
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-amber-900/80 mt-0.5 leading-relaxed">
+                {activeTab === 'PENDING_SUPERVISOR'
+                  ? 'กำลังแสดงเฉพาะคิวงานรออนุมัติ • กดปุ่ม "ตรวจ / เซ็นอนุมัติ" ที่รายการเพื่อตรวจดูและลงนาม บก.111 ได้ทันที'
+                  : 'กดเปิดดูคิวรออนุมัติเพื่อตรวจสอบคำขอและลงนามใบรับรองแทนใบเสร็จ (บก.111) ของทีม'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {activeTab !== 'PENDING_SUPERVISOR' ? (
+              <button
+                type="button"
+                onClick={() => setActiveTab('PENDING_SUPERVISOR')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer"
+              >
+                <span>เปิดคิวรออนุมัติทันที ({pendingSupervisorRequests.length})</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setActiveTab('ALL')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 text-xs font-semibold rounded-xl transition cursor-pointer"
+              >
+                <span>ดูคำขอทั้งหมด ({requests.length})</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Tabs Navigation */}
       <div className="w-full min-w-0 max-w-full overflow-x-auto pb-2 border-b border-gray-200">
         <div className="flex items-center gap-1.5 sm:gap-2 w-max">
@@ -696,6 +775,12 @@ export default function PaymentRequestsClient({
                 filteredRequests.map((r) => {
                   const companyStyle = COMPANY_COLORS[r.company] || COMPANY_COLORS.TG;
                   const statusStyle = STATUS_CONFIG[r.status] || STATUS_CONFIG.SUBMITTED;
+                  const hasAnySubCert =
+                    Array.isArray(r.items) && r.items.some((it) => it?.isIrregularBill);
+                  const hasUnsignedSubCert =
+                    r.status === 'PENDING_SUPERVISOR' &&
+                    Array.isArray(r.items) &&
+                    r.items.some((it) => it?.isIrregularBill && !it?.approverSignatureUrl);
 
                   return (
                     <tr
@@ -740,6 +825,17 @@ export default function PaymentRequestsClient({
                         >
                           {statusStyle.label}
                         </span>
+                        {hasUnsignedSubCert ? (
+                          <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                            <PenLine className="w-2.5 h-2.5 shrink-0" />
+                            <span>มี บก.111 รอหัวหน้าเซ็น</span>
+                          </span>
+                        ) : hasAnySubCert ? (
+                          <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            <ShieldCheck className="w-2.5 h-2.5 shrink-0" />
+                            <span>แนบ บก.111</span>
+                          </span>
+                        ) : null}
                         {r.is_possible_duplicate && r.status !== 'HOLD_DUPLICATE' && (
                           <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-red-700">
                             <AlertTriangle className="w-3 h-3 text-red-600 shrink-0" />
@@ -835,13 +931,23 @@ export default function PaymentRequestsClient({
                               <Edit3 className="w-4 h-4" />
                             </Link>
                           )}
-                          <Link
-                            href={`/accounting/payment-requests/${r.id}`}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-red-600 text-gray-700 hover:text-white font-semibold rounded-lg text-xs transition shadow-2xs"
-                          >
-                            <span>ดูรายการ</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </Link>
+                          {r.status === 'PENDING_SUPERVISOR' && (isSupervisor || isManager) ? (
+                            <Link
+                              href={`/accounting/payment-requests/${r.id}`}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg text-xs transition shadow-2xs"
+                            >
+                              <PenLine className="w-3 h-3" />
+                              <span>{hasUnsignedSubCert ? 'เซ็น บก.111 / อนุมัติ' : 'ตรวจ / เซ็นอนุมัติ'}</span>
+                            </Link>
+                          ) : (
+                            <Link
+                              href={`/accounting/payment-requests/${r.id}`}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-red-600 text-gray-700 hover:text-white font-semibold rounded-lg text-xs transition shadow-2xs"
+                            >
+                              <span>ดูรายการ</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </Link>
+                          )}
                           {isManager && (
                             <button
                               onClick={() => handleDelete(r)}
@@ -873,6 +979,12 @@ export default function PaymentRequestsClient({
             filteredRequests.map((r) => {
               const companyStyle = COMPANY_COLORS[r.company] || COMPANY_COLORS.TG;
               const statusStyle = STATUS_CONFIG[r.status] || STATUS_CONFIG.SUBMITTED;
+              const hasAnySubCert =
+                Array.isArray(r.items) && r.items.some((it) => it?.isIrregularBill);
+              const hasUnsignedSubCert =
+                r.status === 'PENDING_SUPERVISOR' &&
+                Array.isArray(r.items) &&
+                r.items.some((it) => it?.isIrregularBill && !it?.approverSignatureUrl);
 
               return (
                 <div
@@ -992,6 +1104,18 @@ export default function PaymentRequestsClient({
                   </div>
 
                   {/* Alerts if any */}
+                  {hasUnsignedSubCert && (
+                    <div className="p-2 bg-amber-50 border border-amber-300 rounded-xl flex items-center gap-1.5 text-[11px] text-amber-900 font-bold">
+                      <PenLine className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                      <span>มีใบรับรองแทนใบเสร็จ (บก.111) รอหัวหน้างานลงนาม</span>
+                    </div>
+                  )}
+                  {!hasUnsignedSubCert && hasAnySubCert && (
+                    <div className="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl inline-flex items-center gap-1.5 text-[10px] text-emerald-800 font-semibold">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+                      <span>แนบ บก.111</span>
+                    </div>
+                  )}
                   {r.is_possible_duplicate && r.status !== 'HOLD_DUPLICATE' && (
                     <div className="p-2 bg-red-50 border border-red-200 rounded-xl flex items-center gap-1.5 text-[11px] text-red-700 font-bold">
                       <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
@@ -1007,13 +1131,23 @@ export default function PaymentRequestsClient({
 
                   {/* Action Buttons */}
                   <div className="flex items-center gap-2 pt-1 border-t border-gray-100">
-                    <Link
-                      href={`/accounting/payment-requests/${r.id}`}
-                      className="flex-1 inline-flex items-center justify-center gap-1 py-2.5 px-3 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white font-bold rounded-xl text-xs transition active:scale-[0.99]"
-                    >
-                      <span>ดูรายการคำขอ</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
+                    {r.status === 'PENDING_SUPERVISOR' && (isSupervisor || isManager) ? (
+                      <Link
+                        href={`/accounting/payment-requests/${r.id}`}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition shadow-2xs active:scale-[0.99]"
+                      >
+                        <PenLine className="w-3.5 h-3.5" />
+                        <span>{hasUnsignedSubCert ? 'เปิดเซ็น บก.111 / อนุมัติ' : 'ตรวจสอบ / เซ็นอนุมัติ'}</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/accounting/payment-requests/${r.id}`}
+                        className="flex-1 inline-flex items-center justify-center gap-1 py-2.5 px-3 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white font-bold rounded-xl text-xs transition active:scale-[0.99]"
+                      >
+                        <span>ดูรายการคำขอ</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
 
                     <button
                       onClick={() => setVoucherModalItem(r)}

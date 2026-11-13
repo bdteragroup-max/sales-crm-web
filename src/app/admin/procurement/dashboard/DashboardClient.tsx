@@ -817,7 +817,6 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5">
             {topVendors.map((vendor, idx) => {
-              const medals = ['🥇', '🥈', '🥉', '4', '5'];
               return (
                 <div 
                   key={vendor.name} 

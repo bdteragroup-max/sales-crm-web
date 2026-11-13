@@ -27,6 +27,7 @@ export type SubstituteReceiptData = {
   requesterName: string;
   requesterPosition?: string;
   requesterSignatureUrl?: string;
+  approverId?: string;
   approverName?: string;
   approverPosition?: string;
   approverSignatureUrl?: string;
@@ -117,13 +118,31 @@ export function getSubstituteCertificateFileName(data: SubstituteReceiptData): s
   return `ใบรับรองแทนใบเสร็จ_${shop}${countSuffix}_${desc}.pdf`;
 }
 
+function escapeHtmlText(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function sanitizeImageUrl(url?: string): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (/^(data:image\/|https?:\/\/|\/)/i.test(trimmed)) {
+    return escapeHtmlText(trimmed);
+  }
+  return '';
+}
+
 /**
  * Render raw HTML string for the Certificate of Payment (ใบรับรองแทนใบเสร็จรับเงิน)
  * Styled exactly according to the Thai Revenue Department template provided in the image.
  */
 export function renderSubstituteReceiptHtml(data: SubstituteReceiptData): string {
-  const formattedDate = formatThaiBuddhistDate(data.documentDate || data.billDate || new Date());
-  const supplierName = (data.supplierName || '').trim();
+  const formattedDate = escapeHtmlText(formatThaiBuddhistDate(data.documentDate || data.billDate || new Date()));
+  const supplierName = escapeHtmlText((data.supplierName || '').trim());
 
   // Prepare line items (either from data.items array or single item fallback)
   const lineItems: SubstituteReceiptLineItem[] =
@@ -143,19 +162,21 @@ export function renderSubstituteReceiptHtml(data: SubstituteReceiptData): string
   // Calculate total amount across all items
   const totalAmount = lineItems.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
   const bahtTextFormatted = totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const thaiText = thaiBahtText(totalAmount);
-  const requester = (data.requesterName || '').trim();
-  const position = (data.requesterPosition || '').trim();
-  const approver = (data.approverName || '').trim();
-  const approverPos = (data.approverPosition || 'หัวหน้างาน').trim();
-  const company = (data.companyName || 'บจก.เทอรา พาวเวอร์').trim();
-  const startDate = formatThaiBuddhistDate(data.startDate || data.billDate || new Date());
-  const endDate = formatThaiBuddhistDate(data.endDate || data.billDate || new Date());
+  const thaiText = escapeHtmlText(thaiBahtText(totalAmount));
+  const requester = escapeHtmlText((data.requesterName || '').trim());
+  const position = escapeHtmlText((data.requesterPosition || '').trim());
+  const approver = escapeHtmlText((data.approverName || '').trim());
+  const approverPos = escapeHtmlText((data.approverPosition || 'หัวหน้างาน').trim());
+  const company = escapeHtmlText((data.companyName || 'บจก.เทอรา พาวเวอร์').trim());
+  const startDate = escapeHtmlText(formatThaiBuddhistDate(data.startDate || data.billDate || new Date()));
+  const endDate = escapeHtmlText(formatThaiBuddhistDate(data.endDate || data.billDate || new Date()));
+  const approverSigSafe = sanitizeImageUrl(data.approverSignatureUrl);
+  const requesterSigSafe = sanitizeImageUrl(data.requesterSignatureUrl);
 
   // Render rows for each line item (5 columns matching the clean header)
   const itemRowsHtml = lineItems
     .map((li) => {
-      const rowDate = formatThaiBuddhistDate(li.billDate || data.billDate || new Date());
+      const rowDate = escapeHtmlText(formatThaiBuddhistDate(li.billDate || data.billDate || new Date()));
       const qtyPrice = parseDescriptionQtyAndPrice(li.description, li.amount);
       const rowQty = li.quantity !== undefined && li.quantity > 0 ? li.quantity : qtyPrice.quantity;
       const rowUnitPrice = li.unitPrice !== undefined && li.unitPrice > 0 ? li.unitPrice : qtyPrice.unitPrice;
@@ -168,7 +189,7 @@ export function renderSubstituteReceiptHtml(data: SubstituteReceiptData): string
             ${rowDate}
           </td>
           <td style="border-right: 1px solid #000000; text-align: left; padding: 6px 10px; font-weight: 500; vertical-align: middle; font-size: 13px;">
-            ${li.description || ''}
+            ${escapeHtmlText(li.description || '')}
           </td>
           <td style="border-right: 1px solid #000000; padding: 6px 4px; font-weight: 500; vertical-align: middle; text-align: center; font-size: 13px;">
             ${rowQty}
@@ -309,8 +330,8 @@ export function renderSubstituteReceiptHtml(data: SubstituteReceiptData): string
               <span style="margin-right: 6px; padding-bottom: 4px; font-weight: 500;">ลงชื่อ</span>
               <div style="position: relative; display: inline-block; width: 160px; border-bottom: 1px dotted #000000; height: 28px;">
                 ${
-                  data.approverSignatureUrl
-                    ? `<img src="${data.approverSignatureUrl}" alt="ลายเซ็นผู้อนุมัติ" style="position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); max-height: 48px; max-width: 140px; object-fit: contain;" />`
+                  approverSigSafe
+                    ? `<img src="${approverSigSafe}" alt="ลายเซ็นผู้อนุมัติ" style="position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); max-height: 48px; max-width: 140px; object-fit: contain;" />`
                     : ''
                 }
               </div>
@@ -330,8 +351,8 @@ export function renderSubstituteReceiptHtml(data: SubstituteReceiptData): string
               <span style="margin-right: 6px; padding-bottom: 4px; font-weight: 500;">ลงชื่อ</span>
               <div style="position: relative; display: inline-block; width: 160px; border-bottom: 1px dotted #000000; height: 28px;">
                 ${
-                  data.requesterSignatureUrl
-                    ? `<img src="${data.requesterSignatureUrl}" alt="ลายเซ็นผู้เบิกจ่าย" style="position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); max-height: 48px; max-width: 140px; object-fit: contain;" />`
+                  requesterSigSafe
+                    ? `<img src="${requesterSigSafe}" alt="ลายเซ็นผู้เบิกจ่าย" style="position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); max-height: 48px; max-width: 140px; object-fit: contain;" />`
                     : ''
                 }
               </div>
@@ -460,37 +481,35 @@ export async function uploadSubstituteReceiptPdf(data: SubstituteReceiptData): P
   fileSize: number;
   dataUrl?: string;
 }> {
-  const { blob, file, fileName, dataUrl } = await generateSubstituteReceiptPdfBlob(data);
+  const { file, fileName, dataUrl } = await generateSubstituteReceiptPdfBlob(data);
 
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('bucket', 'uploadsService');
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('bucket', 'uploadsService');
 
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData,
+  });
 
-    if (res.ok) {
-      const result = await res.json();
-      if (result.success && result.url) {
-        return {
-          url: result.url,
-          fileName,
-          fileSize: file.size,
-          dataUrl,
-        };
-      }
+  if (!res.ok) {
+    let errMsg = `อัปโหลดไฟล์ PDF ใบรับรองไม่สำเร็จ (HTTP ${res.status})`;
+    try {
+      const errBody = await res.json();
+      if (errBody?.error) errMsg = errBody.error;
+    } catch {
+      // ignore non-JSON error body
     }
-  } catch (err) {
-    console.warn('Upload to /api/upload failed, using local blob fallback:', err);
+    throw new Error(errMsg);
   }
 
-  // Fallback to local Object URL / Data URL if backend upload fails
-  const localUrl = URL.createObjectURL(blob);
+  const result = await res.json();
+  if (!result.success || !result.url) {
+    throw new Error(result.error || 'เซิร์ฟเวอร์ไม่ได้ส่ง URL ของไฟล์ PDF กลับมา');
+  }
+
   return {
-    url: localUrl,
+    url: result.url,
     fileName,
     fileSize: file.size,
     dataUrl,

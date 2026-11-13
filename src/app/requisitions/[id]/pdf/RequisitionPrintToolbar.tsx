@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { Printer, ArrowLeft, FileText } from "lucide-react"
+import { Printer, ArrowLeft, FileText, Lightbulb } from "lucide-react"
 
 interface RequisitionPrintToolbarProps {
   requisitionId: string
@@ -98,8 +98,9 @@ export default function RequisitionPrintToolbar({
       </div>
 
       {/* Helpful Hint Bar */}
-      <div className="bg-slate-950/80 px-4 py-1 border-t border-slate-800 text-[11px] text-slate-400 text-center">
-        💡 แนะนำการพิมพ์: เลือกกระดาษ <strong>{orientation === "portrait" ? "A4 แนวตั้ง (Portrait)" : "A4 แนวนอน (Landscape)"}</strong> • เปิดตัวเลือก <strong>&quot;กราฟิกพื้นหลัง (Background graphics)&quot;</strong> ในกล่องพิมพ์
+      <div className="bg-slate-950/80 px-4 py-1 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+        <Lightbulb size={12} className="text-amber-400 shrink-0" />
+        <span>แนะนำการพิมพ์: เลือกกระดาษ <strong>{orientation === "portrait" ? "A4 แนวตั้ง (Portrait)" : "A4 แนวนอน (Landscape)"}</strong> • เปิดตัวเลือก <strong>&quot;กราฟิกพื้นหลัง (Background graphics)&quot;</strong> ในกล่องพิมพ์</span>
       </div>
     </div>
   )

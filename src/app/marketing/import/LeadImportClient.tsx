@@ -200,16 +200,14 @@ function SearchableSalesRepSelect({
                       setIsOpen(false)
                       setSearch('')
                     }}
-                    className={`w-full flex items-center justify-between p-3 text-left transition-colors ${
-                      isSelected
+                    className={`w-full flex items-center justify-between p-3 text-left transition-colors ${isSelected
                         ? 'bg-red-50/70 text-brand-red font-bold'
                         : 'hover:bg-slate-50 text-slate-700'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2.5 truncate">
-                      <div className={`w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center shrink-0 ${
-                        isSelected ? 'bg-brand-red text-white' : 'bg-slate-100 text-slate-700'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center shrink-0 ${isSelected ? 'bg-brand-red text-white' : 'bg-slate-100 text-slate-700'
+                        }`}>
                         {getInitials(rep.fullName)}
                       </div>
                       <div className="truncate">
@@ -667,11 +665,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
           <div className="flex items-center bg-slate-100 p-1 rounded-xl self-start sm:self-auto border border-slate-200/80">
             <button
               onClick={() => setActiveTab('import')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                activeTab === 'import'
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'import'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
-              }`}
+                }`}
             >
               <Upload size={14} className={activeTab === 'import' ? 'text-brand-red' : ''} />
               นำเข้าและตรวจสอบ
@@ -681,11 +678,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                 setActiveTab('history')
                 handleRefreshHistory()
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                activeTab === 'history'
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'history'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
-              }`}
+                }`}
             >
               <History size={14} className={activeTab === 'history' ? 'text-brand-red' : ''} />
               ประวัติการนำเข้า ({historyList.length})
@@ -701,16 +697,14 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* Step 1 */}
               <div
-                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                  rows.length === 0
+                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${rows.length === 0
                     ? 'bg-red-50/70 border-red-200 text-brand-red shadow-xs'
                     : 'bg-emerald-50/60 border-emerald-200 text-emerald-800'
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
-                    rows.length === 0 ? 'bg-brand-red text-white' : 'bg-emerald-600 text-white'
-                  }`}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${rows.length === 0 ? 'bg-brand-red text-white' : 'bg-emerald-600 text-white'
+                    }`}
                 >
                   {rows.length === 0 ? '1' : <Check size={16} />}
                 </div>
@@ -724,16 +718,14 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
 
               {/* Step 2 */}
               <div
-                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                  rows.length > 0
+                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${rows.length > 0
                     ? 'bg-blue-50/70 border-blue-200 text-blue-900 shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-400'
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
-                    rows.length > 0 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'
-                  }`}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${rows.length > 0 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'
+                    }`}
                 >
                   2
                 </div>
@@ -749,16 +741,14 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
 
               {/* Step 3 */}
               <div
-                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                  rows.length > 0 && selectedCount > 0
+                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${rows.length > 0 && selectedCount > 0
                     ? 'bg-purple-50/70 border-purple-200 text-purple-900 shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-400'
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
-                    rows.length > 0 && selectedCount > 0 ? 'bg-purple-600 text-white' : 'bg-slate-200 text-slate-500'
-                  }`}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${rows.length > 0 && selectedCount > 0 ? 'bg-purple-600 text-white' : 'bg-slate-200 text-slate-500'
+                    }`}
                 >
                   3
                 </div>
@@ -915,11 +905,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                       const file = e.dataTransfer.files?.[0]
                       if (file) processUploadedFile(file)
                     }}
-                    className={`flex-1 border-2 border-dashed rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-all ${
-                      isDragOver
+                    className={`flex-1 border-2 border-dashed rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-all ${isDragOver
                         ? 'border-brand-red bg-red-50/50 scale-[0.99]'
                         : 'border-slate-300 hover:border-slate-400 bg-slate-50/50'
-                    }`}
+                      }`}
                   >
                     <div className="w-16 h-16 rounded-2xl bg-white shadow-xs border border-slate-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                       {isValidating ? (
@@ -943,9 +932,8 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                     </div>
 
                     <label
-                      className={`mt-5 px-6 py-2.5 bg-gradient-to-r from-brand-red to-red-600 hover:from-red-700 hover:to-red-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md shadow-red-500/20 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-2 ${
-                        isValidating ? 'opacity-50 pointer-events-none' : ''
-                      }`}
+                      className={`mt-5 px-6 py-2.5 bg-gradient-to-r from-brand-red to-red-600 hover:from-red-700 hover:to-red-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md shadow-red-500/20 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-2 ${isValidating ? 'opacity-50 pointer-events-none' : ''
+                        }`}
                     >
                       {isValidating ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
                       เลือกไฟล์จากคอมพิวเตอร์
@@ -1019,11 +1007,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                   {/* Card 1: Total Leads */}
                   <div
                     onClick={() => setStatusFilter('ALL')}
-                    className={`cursor-pointer bg-white rounded-2xl p-4 sm:p-5 border transition-all relative overflow-hidden group shadow-xs hover:shadow-md ${
-                      statusFilter === 'ALL'
+                    className={`cursor-pointer bg-white rounded-2xl p-4 sm:p-5 border transition-all relative overflow-hidden group shadow-xs hover:shadow-md ${statusFilter === 'ALL'
                         ? 'border-slate-900 ring-2 ring-slate-900/15'
                         : 'border-slate-200 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     <div className="h-1 bg-slate-400 absolute top-0 left-0 right-0" />
                     <div className="flex items-center justify-between">
@@ -1047,11 +1034,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                   {/* Card 2: New Leads */}
                   <div
                     onClick={() => setStatusFilter('NEW')}
-                    className={`cursor-pointer bg-white rounded-2xl p-4 sm:p-5 border transition-all relative overflow-hidden group shadow-xs hover:shadow-md ${
-                      statusFilter === 'NEW'
+                    className={`cursor-pointer bg-white rounded-2xl p-4 sm:p-5 border transition-all relative overflow-hidden group shadow-xs hover:shadow-md ${statusFilter === 'NEW'
                         ? 'border-emerald-500 ring-2 ring-emerald-500/25'
                         : 'border-slate-200 hover:border-emerald-300'
-                    }`}
+                      }`}
                   >
                     <div className="h-1 bg-emerald-500 absolute top-0 left-0 right-0" />
                     <div className="flex items-center justify-between">
@@ -1080,11 +1066,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                   {/* Card 3: Duplicates */}
                   <div
                     onClick={() => setStatusFilter('DUPLICATE')}
-                    className={`cursor-pointer bg-white rounded-2xl p-4 sm:p-5 border transition-all relative overflow-hidden group shadow-xs hover:shadow-md ${
-                      statusFilter === 'DUPLICATE'
+                    className={`cursor-pointer bg-white rounded-2xl p-4 sm:p-5 border transition-all relative overflow-hidden group shadow-xs hover:shadow-md ${statusFilter === 'DUPLICATE'
                         ? 'border-amber-500 ring-2 ring-amber-500/25'
                         : 'border-slate-200 hover:border-amber-300'
-                    }`}
+                      }`}
                   >
                     <div className="h-1 bg-amber-500 absolute top-0 left-0 right-0" />
                     <div className="flex items-center justify-between">
@@ -1113,11 +1098,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                   {/* Card 4: Review Required */}
                   <div
                     onClick={() => setStatusFilter('REVIEW_REQUIRED')}
-                    className={`cursor-pointer bg-white rounded-2xl p-4 sm:p-5 border transition-all relative overflow-hidden group shadow-xs hover:shadow-md ${
-                      statusFilter === 'REVIEW_REQUIRED'
+                    className={`cursor-pointer bg-white rounded-2xl p-4 sm:p-5 border transition-all relative overflow-hidden group shadow-xs hover:shadow-md ${statusFilter === 'REVIEW_REQUIRED'
                         ? 'border-purple-500 ring-2 ring-purple-500/25'
                         : 'border-slate-200 hover:border-purple-300'
-                    }`}
+                      }`}
                   >
                     <div className="h-1 bg-purple-500 absolute top-0 left-0 right-0" />
                     <div className="flex items-center justify-between">
@@ -1181,27 +1165,24 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                         <button
                           type="button"
                           onClick={() => setRoutingType('unassigned')}
-                          className={`px-3.5 py-1.5 rounded-lg transition-all ${
-                            routingType === 'unassigned' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                          }`}
+                          className={`px-3.5 py-1.5 rounded-lg transition-all ${routingType === 'unassigned' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            }`}
                         >
                           ส่งเข้าส่วนกลาง (Unassigned)
                         </button>
                         <button
                           type="button"
                           onClick={() => setRoutingType('specific_sales')}
-                          className={`px-3.5 py-1.5 rounded-lg transition-all ${
-                            routingType === 'specific_sales' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                          }`}
+                          className={`px-3.5 py-1.5 rounded-lg transition-all ${routingType === 'specific_sales' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            }`}
                         >
                           ระบุพนักงานขาย
                         </button>
                         <button
                           type="button"
                           onClick={() => setRoutingType('round_robin')}
-                          className={`px-3.5 py-1.5 rounded-lg transition-all ${
-                            routingType === 'round_robin' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                          }`}
+                          className={`px-3.5 py-1.5 rounded-lg transition-all ${routingType === 'round_robin' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            }`}
                         >
                           สุ่มแบ่งงานเท่าๆ กัน (Round-Robin)
                         </button>
@@ -1305,35 +1286,31 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                     <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
                       <button
                         onClick={() => setStatusFilter('ALL')}
-                        className={`px-3 py-1.5 rounded-lg transition-all ${
-                          statusFilter === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
-                        }`}
+                        className={`px-3 py-1.5 rounded-lg transition-all ${statusFilter === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                          }`}
                       >
                         ทั้งหมด ({rows.length})
                       </button>
                       <button
                         onClick={() => setStatusFilter('NEW')}
-                        className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                          statusFilter === 'NEW' ? 'bg-emerald-500 text-white shadow-xs' : 'text-emerald-700 hover:bg-emerald-50'
-                        }`}
+                        className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${statusFilter === 'NEW' ? 'bg-emerald-500 text-white shadow-xs' : 'text-emerald-700 hover:bg-emerald-50'
+                          }`}
                       >
                         <CheckCircle2 size={12} />
                         New Leads ({stats.newLeads})
                       </button>
                       <button
                         onClick={() => setStatusFilter('DUPLICATE')}
-                        className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                          statusFilter === 'DUPLICATE' ? 'bg-amber-500 text-white shadow-xs' : 'text-amber-700 hover:bg-amber-50'
-                        }`}
+                        className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${statusFilter === 'DUPLICATE' ? 'bg-amber-500 text-white shadow-xs' : 'text-amber-700 hover:bg-amber-50'
+                          }`}
                       >
                         <Copy size={12} />
                         ข้อมูลซ้ำในระบบ ({stats.duplicates})
                       </button>
                       <button
                         onClick={() => setStatusFilter('REVIEW_REQUIRED')}
-                        className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                          statusFilter === 'REVIEW_REQUIRED' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-700 hover:bg-purple-50'
-                        }`}
+                        className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${statusFilter === 'REVIEW_REQUIRED' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-700 hover:bg-purple-50'
+                          }`}
                       >
                         <AlertTriangle size={12} />
                         ต้องตรวจสอบ ({stats.reviewRequired})
@@ -1341,9 +1318,8 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                       {stats.invalid > 0 && (
                         <button
                           onClick={() => setStatusFilter('INVALID')}
-                          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                            statusFilter === 'INVALID' ? 'bg-red-500 text-white shadow-xs' : 'text-red-700 hover:bg-red-50'
-                          }`}
+                          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${statusFilter === 'INVALID' ? 'bg-red-500 text-white shadow-xs' : 'text-red-700 hover:bg-red-50'
+                            }`}
                         >
                           <XCircle size={12} />
                           ไม่สมบูรณ์ ({stats.invalid})
@@ -1382,11 +1358,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                           filteredRows.map((row) => (
                             <tr
                               key={row.index}
-                              className={`transition-colors ${
-                                row.action === 'SKIP'
+                              className={`transition-colors ${row.action === 'SKIP'
                                   ? 'bg-slate-50/50 opacity-60'
                                   : 'hover:bg-slate-50/80'
-                              }`}
+                                }`}
                             >
                               {/* Row Index */}
                               <td className="px-4 py-3 text-center text-xs font-bold text-slate-400">
@@ -1550,28 +1525,27 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                                   value={row.action}
                                   disabled={row.status === 'INVALID'}
                                   onChange={(e) => handleActionChange(row.index, e.target.value as any)}
-                                  className={`text-xs font-bold rounded-xl border px-3 py-2 w-full transition-all cursor-pointer ${
-                                    row.action === 'CREATE'
+                                  className={`text-xs font-bold rounded-xl border px-3 py-2 w-full transition-all cursor-pointer ${row.action === 'CREATE'
                                       ? 'bg-emerald-50 text-emerald-800 border-emerald-300 ring-1 ring-emerald-400/30'
                                       : 'bg-slate-100 text-slate-500 border-slate-200'
-                                  }`}
+                                    }`}
                                 >
                                   {row.status === 'INVALID' ? (
                                     <option value="SKIP">ข้าม (ข้อมูลไม่ถูกต้อง)</option>
                                   ) : row.status === 'NEW' ? (
                                     <>
-                                      <option value="CREATE">✓ สร้าง Lead ใหม่</option>
-                                      <option value="SKIP">✕ ข้าม (ไม่นำเข้า)</option>
+                                      <option value="CREATE">สร้าง Lead ใหม่</option>
+                                      <option value="SKIP">ข้าม (ไม่นำเข้า)</option>
                                     </>
                                   ) : row.status === 'DUPLICATE' ? (
                                     <>
-                                      <option value="SKIP">✕ ข้าม (ซ้ำในระบบ - แนะนำ)</option>
-                                      <option value="CREATE">⚠ สร้างทับซ้อน (Lead ใหม่)</option>
+                                      <option value="SKIP">ข้าม (ซ้ำในระบบ - แนะนำ)</option>
+                                      <option value="CREATE">สร้างทับซ้อน (Lead ใหม่)</option>
                                     </>
                                   ) : (
                                     <>
-                                      <option value="CREATE">✓ ยืนยันเป็น Lead ใหม่</option>
-                                      <option value="SKIP">✕ ข้าม (ไม่นำเข้า)</option>
+                                      <option value="CREATE">ยืนยันเป็น Lead ใหม่</option>
+                                      <option value="SKIP">ข้าม (ไม่นำเข้า)</option>
                                     </>
                                   )}
                                 </select>
@@ -1701,9 +1675,8 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
             <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                    inspectRow.status === 'DUPLICATE' ? 'bg-amber-100 text-amber-800' : 'bg-purple-100 text-purple-800'
-                  }`}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center ${inspectRow.status === 'DUPLICATE' ? 'bg-amber-100 text-amber-800' : 'bg-purple-100 text-purple-800'
+                    }`}
                 >
                   {inspectRow.status === 'DUPLICATE' ? <Copy size={18} /> : <AlertTriangle size={18} />}
                 </div>
@@ -1726,11 +1699,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
             <div className="p-6 space-y-4">
               {/* Diagnosis Alert */}
               <div
-                className={`p-4 rounded-2xl border text-xs leading-relaxed ${
-                  inspectRow.status === 'DUPLICATE'
+                className={`p-4 rounded-2xl border text-xs leading-relaxed ${inspectRow.status === 'DUPLICATE'
                     ? 'bg-amber-50 border-amber-200 text-amber-900'
                     : 'bg-purple-50 border-purple-200 text-purple-900'
-                }`}
+                  }`}
               >
                 <div className="font-bold mb-1 flex items-center gap-1.5">
                   <AlertCircle size={14} /> เหตุผลที่ตรวจพบ:
@@ -1826,9 +1798,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                   handleActionChange(inspectRow.index, 'SKIP')
                   setInspectRow(null)
                 }}
-                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition-all active:scale-95"
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition-all active:scale-95 inline-flex items-center gap-1.5"
               >
-                ✕ ข้ามรายการนี้ (ไม่นำเข้า)
+                <X size={14} />
+                <span>ข้ามรายการนี้ (ไม่นำเข้า)</span>
               </button>
 
               <button
