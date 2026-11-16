@@ -20,6 +20,13 @@ import { getUnreadMarketingBoardCount } from '@/app/actions/marketingBoard';
 import { getBranchContentSidebarAccess } from '@/app/actions/branchContent';
 import { getPendingServiceClaimCount } from '@/app/actions/serviceClaims';
 import { getOpenServiceCallCount, getPendingServiceHandoverCount } from '@/app/actions/service-calls';
+import { getPendingProjectSurveyCount } from '@/app/actions/siteSurveys';
+import { getPendingSolarCleaningSignCount } from '@/app/actions/solarCleaning';
+import { canEstimateSurveyRole } from '@/app/lib/surveyMetadata';
+import {
+  canSignSolarCleaningAsProjectMgr,
+  canSignSolarCleaningAsServiceMgr,
+} from '@/app/lib/solarCleaningConfig';
 import CoinMiniWidget from './CoinMiniWidget';
 import NotificationBell from './NotificationBell'; // HMR flush
 
@@ -134,6 +141,7 @@ const serviceNav = [
 
 const serviceMgrNav = [
   { icon: LayoutDashboard, label: 'MGR Dashboard & Import', href: '/service-mgr/calls' },
+  { icon: ClipboardCheck, label: 'ล้างแผง & ตรวจเช็คระบบ (Inspection)', href: '/projects/solar-cleaning' },
 ];
 
 const technicianNav = [
@@ -184,6 +192,7 @@ const storeAndPurchasingNav = [
 
 const projectNav = [
   { icon: FolderOpen, label: 'โครงการของฉัน', href: '/projects' },
+  { icon: ClipboardCheck, label: 'ล้างแผง & ตรวจเช็คระบบ (Inspection)', href: '/projects/solar-cleaning' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
   { icon: Calculator, label: 'ประเมินราคางานซ่อม/ประกอบ', href: '/service/estimations' },
@@ -211,6 +220,7 @@ const marketingManagerNav = [
 const projectAdminNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมโครงการ', href: '/projects/dashboard' },
   { icon: FolderOpen, label: 'จัดการโครงการ', href: '/projects' },
+  { icon: ClipboardCheck, label: 'ล้างแผง & ตรวจเช็คระบบ (Inspection)', href: '/projects/solar-cleaning' },
   { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
 ];
@@ -299,10 +309,10 @@ export default function SidebarClient(props: SidebarProps) {
     const managerWithOpsNav =
       surveyIdx !== -1
         ? [
-            ...managerNav.slice(0, surveyIdx + 1),
-            ...headOfSalesOpsNav,
-            ...managerNav.slice(surveyIdx + 1),
-          ]
+          ...managerNav.slice(0, surveyIdx + 1),
+          ...headOfSalesOpsNav,
+          ...managerNav.slice(surveyIdx + 1),
+        ]
         : [...managerNav, ...headOfSalesOpsNav];
     nav = Array.from(
       new Map([...managerWithOpsNav, ...marketingNav, ...marketingManagerNav].map(item => [item.href, item])).values()
@@ -318,7 +328,12 @@ export default function SidebarClient(props: SidebarProps) {
   } else if (roleStr.includes('admin project') || roleStr.includes('project admin')) {
     nav = projectAdminNav;
   } else if (isTechnician) {
-    nav = technicianNav;
+    nav = canSignSolarCleaningAsServiceMgr(props.userRole)
+      ? [
+        ...technicianNav,
+        { icon: ClipboardCheck, label: 'ล้างแผง & ตรวจเช็คระบบ (Inspection)', href: '/projects/solar-cleaning' },
+      ]
+      : technicianNav;
   } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม')) {
     nav = serviceNav; // Service / non-sales departments see repair orders
     if (roleStr.includes('mgr') || roleStr.includes('manager')) {
@@ -326,8 +341,8 @@ export default function SidebarClient(props: SidebarProps) {
     }
   } else if (['accounting', 'บัญชี', 'finance', 'การเงิน'].some(r => roleStr.includes(r))) {
     nav = accountingNav;
-  } else if (['project', 'โปรเจค', 'โปรเจกต์'].some(r => roleStr.includes(r))) {
-    nav = projectNav; // Project users see their projects
+  } else if (['project', 'โปรเจค', 'โปรเจกต์', 'engineering'].some(r => roleStr.includes(r))) {
+    nav = projectNav; // Project & Engineering users see their projects & solar cleaning module
   } else if (roleStr === 'ผู้จัดการคลังสินค้าและจัดซื้อ' || (roleStr.includes('คลังสินค้า') && roleStr.includes('จัดซื้อ'))) {
     nav = storeAndPurchasingNav;
   } else if (roleStr.includes('production') || roleStr.includes('ผลิต')) {
@@ -494,6 +509,8 @@ function ResponsiveSidebar({
   const [pendingServiceHandoverCount, setPendingServiceHandoverCount] = useState(0);
   const [pendingSalesDeliveryAckCount, setPendingSalesDeliveryAckCount] = useState(0);
   const [pendingAccountingDeliveryCount, setPendingAccountingDeliveryCount] = useState(0);
+  const [pendingProjectSurveyCount, setPendingProjectSurveyCount] = useState(0);
+  const [pendingSolarCleaningCount, setPendingSolarCleaningCount] = useState(0);
 
   const [selectedContext, setSelectedContext] = useState<string>('All (Default)');
   const [isContextSwitcherOpen, setIsContextSwitcherOpen] = useState(false);
@@ -623,6 +640,34 @@ function ResponsiveSidebar({
     getPendingServiceHandoverCount().then(setPendingServiceHandoverCount).catch(() => { });
     getPendingSalesDeliveryAckCount().then(setPendingSalesDeliveryAckCount).catch(() => { });
     getPendingAccountingDeliveryCount().then(setPendingAccountingDeliveryCount).catch(() => { });
+
+    const refreshProjectSurveyCount = () => {
+      if (canEstimateSurveyRole(userRole)) {
+        getPendingProjectSurveyCount().then(setPendingProjectSurveyCount).catch(() => { });
+      } else {
+        setPendingProjectSurveyCount(0);
+      }
+      if (canSignSolarCleaningAsProjectMgr(userRole) || canSignSolarCleaningAsServiceMgr(userRole)) {
+        getPendingSolarCleaningSignCount().then(setPendingSolarCleaningCount).catch(() => { });
+      } else {
+        setPendingSolarCleaningCount(0);
+      }
+    };
+    refreshProjectSurveyCount();
+
+    const handleSurveyUpdated = () => refreshProjectSurveyCount();
+    window.addEventListener('site-survey-updated', handleSurveyUpdated);
+    const surveyInterval =
+      canEstimateSurveyRole(userRole) ||
+      canSignSolarCleaningAsProjectMgr(userRole) ||
+      canSignSolarCleaningAsServiceMgr(userRole)
+        ? setInterval(refreshProjectSurveyCount, 60000)
+        : null;
+
+    return () => {
+      window.removeEventListener('site-survey-updated', handleSurveyUpdated);
+      if (surveyInterval) clearInterval(surveyInterval);
+    };
   }, [router, baseNav, userRole, userId]);
 
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -713,6 +758,12 @@ function ResponsiveSidebar({
     if (href === '/accounting/delivery-handovers' && pendingAccountingDeliveryCount > 0) {
       return { count: pendingAccountingDeliveryCount, color: 'bg-[#ff2301] text-white', pulse: true };
     }
+    if (href === '/sales/surveys' && pendingProjectSurveyCount > 0) {
+      return { count: pendingProjectSurveyCount, color: 'bg-[#ff2301] text-white', pulse: true };
+    }
+    if (href === '/projects/solar-cleaning' && pendingSolarCleaningCount > 0) {
+      return { count: pendingSolarCleaningCount, color: 'bg-[#ff2301] text-white', pulse: true };
+    }
     return null;
   };
 
@@ -727,10 +778,10 @@ function ResponsiveSidebar({
   const homeHref = isReadOnlyExecutive(userRole)
     ? '/executive/kpi'
     : userRole === 'อื่นๆ'
-    ? '/department'
-    : (userRole || '').toLowerCase().includes('project')
-    ? '/jobs'
-    : '/dashboard';
+      ? '/department'
+      : (userRole || '').toLowerCase().includes('project')
+        ? '/jobs'
+        : '/dashboard';
 
   if (pathname === '/bd/tickets/tv') return null;
 
@@ -738,9 +789,8 @@ function ResponsiveSidebar({
     <>
       {/* ─── DESKTOP SIDEBAR (Expandable / Collapsible for All Roles) ─── */}
       <aside
-        className={`hidden md:flex ${
-          isExpanded ? 'w-[264px]' : 'w-[76px]'
-        } h-screen bg-white flex-col shrink-0 justify-between border-r border-slate-200/80 relative z-40 select-none transition-all duration-300 ease-in-out print:hidden`}
+        className={`hidden md:flex ${isExpanded ? 'w-[264px]' : 'w-[76px]'
+          } h-screen bg-white flex-col shrink-0 justify-between border-r border-slate-200/80 relative z-40 select-none transition-all duration-300 ease-in-out print:hidden`}
       >
         {/* Top Fixed Brand Header + Search + Context Switcher */}
         <div className="flex flex-col w-full shrink-0 pt-5 px-3">
@@ -832,11 +882,10 @@ function ResponsiveSidebar({
                 <button
                   type="button"
                   onClick={() => setIsContextSwitcherOpen(!isContextSwitcherOpen)}
-                  className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-xs font-bold border transition-all ${
-                    isContextSwitcherOpen
-                      ? `${colors.lightBg} ${colors.text} ${colors.border}`
-                      : 'bg-slate-50/80 text-slate-700 border-slate-200/80 hover:bg-slate-100'
-                  }`}
+                  className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-xs font-bold border transition-all ${isContextSwitcherOpen
+                    ? `${colors.lightBg} ${colors.text} ${colors.border}`
+                    : 'bg-slate-50/80 text-slate-700 border-slate-200/80 hover:bg-slate-100'
+                    }`}
                 >
                   <span className="flex items-center gap-2 truncate">
                     <Layers size={15} className="text-[#ff2301] shrink-0" />
@@ -855,11 +904,10 @@ function ResponsiveSidebar({
                     showTooltip(`View Context: ${selectedContext}`, e)
                   }
                   onMouseLeave={hideTooltip}
-                  className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
-                    isContextSwitcherOpen
-                      ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
-                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                  className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${isContextSwitcherOpen
+                    ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
+                    : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
                 >
                   <Layers
                     size={19}
@@ -871,9 +919,8 @@ function ResponsiveSidebar({
 
               {isContextSwitcherOpen && (
                 <div
-                  className={`absolute ${
-                    isExpanded ? 'left-0 right-0 top-full mt-1.5' : 'left-[68px] top-0 w-56'
-                  } bg-white border border-slate-200 shadow-xl rounded-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1`}
+                  className={`absolute ${isExpanded ? 'left-0 right-0 top-full mt-1.5' : 'left-[68px] top-0 w-56'
+                    } bg-white border border-slate-200 shadow-xl rounded-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1`}
                 >
                   <div className="px-3.5 py-1.5 border-b border-slate-100 mb-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -889,11 +936,10 @@ function ResponsiveSidebar({
                         localStorage.setItem('superAdminViewContext', ctx);
                         setIsContextSwitcherOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-bold transition-colors ${
-                        selectedContext === ctx
-                          ? `${colors.text} ${colors.lightBg}`
-                          : 'text-slate-600 hover:bg-slate-50'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-bold transition-colors ${selectedContext === ctx
+                        ? `${colors.text} ${colors.lightBg}`
+                        : 'text-slate-600 hover:bg-slate-50'
+                        }`}
                     >
                       <span className="truncate">{ctx}</span>
                       {selectedContext === ctx && <Check size={14} strokeWidth={2.5} />}
@@ -930,11 +976,10 @@ function ResponsiveSidebar({
                         setLoadingHref(href);
                       }
                     }}
-                    className={`w-full min-h-[42px] py-2 px-3 rounded-xl flex items-center gap-3 transition-all duration-150 relative group border ${
-                      isActive
-                        ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold shadow-2xs`
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50/90 border-transparent font-semibold'
-                    }`}
+                    className={`w-full min-h-[42px] py-2 px-3 rounded-xl flex items-center gap-3 transition-all duration-150 relative group border ${isActive
+                      ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold shadow-2xs`
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50/90 border-transparent font-semibold'
+                      }`}
                   >
                     <div className="shrink-0 relative flex items-center justify-center w-5 h-5">
                       {isLoading ? (
@@ -943,9 +988,8 @@ function ResponsiveSidebar({
                         <Icon
                           size={18}
                           strokeWidth={isActive ? 2.5 : 2}
-                          className={`transition-transform duration-150 group-hover:scale-105 ${
-                            isActive ? colors.text : 'text-slate-400 group-hover:text-slate-700'
-                          }`}
+                          className={`transition-transform duration-150 group-hover:scale-105 ${isActive ? colors.text : 'text-slate-400 group-hover:text-slate-700'
+                            }`}
                         />
                       )}
                     </div>
@@ -956,9 +1000,8 @@ function ResponsiveSidebar({
 
                     {badge && (
                       <span
-                        className={`min-w-[20px] h-5 px-1.5 ${badge.color} text-[10px] font-black rounded-full flex items-center justify-center shadow-2xs shrink-0 ${
-                          badge.pulse ? 'animate-pulse' : ''
-                        }`}
+                        className={`min-w-[20px] h-5 px-1.5 ${badge.color} text-[10px] font-black rounded-full flex items-center justify-center shadow-2xs shrink-0 ${badge.pulse ? 'animate-pulse' : ''
+                          }`}
                       >
                         {badge.count > 99 ? '99+' : badge.count}
                       </span>
@@ -979,11 +1022,10 @@ function ResponsiveSidebar({
                       setLoadingHref(href);
                     }
                   }}
-                  className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
-                    isActive
-                      ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
-                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                  className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${isActive
+                    ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
+                    : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
                 >
                   {isLoading ? (
                     <Loader2 size={19} className={`animate-spin ${colors.text}`} />
@@ -1001,9 +1043,8 @@ function ResponsiveSidebar({
                   )}
                   {badge && (
                     <span
-                      className={`absolute -top-1 -right-1 min-w-[18px] h-4.5 px-1 ${badge.color} text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10 ${
-                        badge.pulse ? 'animate-pulse' : ''
-                      }`}
+                      className={`absolute -top-1 -right-1 min-w-[18px] h-4.5 px-1 ${badge.color} text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10 ${badge.pulse ? 'animate-pulse' : ''
+                        }`}
                     >
                       {badge.count > 99 ? '99+' : badge.count}
                     </span>
@@ -1035,11 +1076,10 @@ function ResponsiveSidebar({
                   setLoadingHref(target);
                 }
               }}
-              className={`w-full py-2 px-3 rounded-xl flex items-center gap-3 transition-all duration-150 border ${
-                activeRoute === '/jobs' || activeRoute === '/department'
-                  ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-transparent font-semibold'
-              }`}
+              className={`w-full py-2 px-3 rounded-xl flex items-center gap-3 transition-all duration-150 border ${activeRoute === '/jobs' || activeRoute === '/department'
+                ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-transparent font-semibold'
+                }`}
             >
               <div className="shrink-0 w-5 h-5 flex items-center justify-center">
                 {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
@@ -1076,11 +1116,10 @@ function ResponsiveSidebar({
                     setLoadingHref(target);
                   }
                 }}
-                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
-                  activeRoute === '/jobs' || activeRoute === '/department'
-                    ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
-                    : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
-                }`}
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${activeRoute === '/jobs' || activeRoute === '/department'
+                  ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
+                  : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
               >
                 {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
                   <Loader2 size={19} className={`animate-spin ${colors.text}`} />
@@ -1112,11 +1151,10 @@ function ResponsiveSidebar({
                     setIsSettingsLoading(true);
                   }
                 }}
-                className={`flex-1 min-w-0 p-2 rounded-xl flex items-center gap-2.5 transition-all duration-200 border ${
-                  activeRoute === '/settings'
-                    ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
-                    : 'bg-slate-50/70 hover:bg-slate-100 text-slate-700 border-slate-200/70'
-                }`}
+                className={`flex-1 min-w-0 p-2 rounded-xl flex items-center gap-2.5 transition-all duration-200 border ${activeRoute === '/settings'
+                  ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
+                  : 'bg-slate-50/70 hover:bg-slate-100 text-slate-700 border-slate-200/70'
+                  }`}
               >
                 <div
                   className={`w-8 h-8 rounded-lg ${colors.lightBg} ${colors.text} border ${colors.border} font-black text-xs flex items-center justify-center uppercase shrink-0`}
@@ -1353,6 +1391,11 @@ function ResponsiveSidebar({
                     {href === '/accounting/delivery-handovers' && pendingAccountingDeliveryCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
                         {pendingAccountingDeliveryCount > 99 ? '99+' : pendingAccountingDeliveryCount}
+                      </span>
+                    )}
+                    {href === '/sales/surveys' && pendingProjectSurveyCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10 animate-pulse">
+                        {pendingProjectSurveyCount > 99 ? '99+' : pendingProjectSurveyCount}
                       </span>
                     )}
                   </div>

@@ -76,6 +76,7 @@ interface ProjectDetailClientProps {
   prs?: any[];
   searchKeywords?: string[];
   primarySearchKeyword?: string;
+  initialTab?: string;
 }
 
 export default function ProjectDetailClient({
@@ -87,18 +88,17 @@ export default function ProjectDetailClient({
   prs = [],
   searchKeywords = [],
   primarySearchKeyword = "",
+  initialTab,
 }: ProjectDetailClientProps) {
   const router = useRouter();
 
   // Navigation State
-  const [activeTab, setActiveTab] = useState<
-    | "dashboard"
-    | "tasks"
-    | "team_equipment"
-    | "procurement"
-    | "reports"
-    | "checklist"
-  >("dashboard");
+  const validTabs = ["dashboard", "tasks", "team_equipment", "procurement", "reports", "checklist"] as const;
+  type ProjectTabKey = (typeof validTabs)[number];
+  const initialActiveTab: ProjectTabKey = validTabs.includes(initialTab as ProjectTabKey)
+    ? (initialTab as ProjectTabKey)
+    : "dashboard";
+  const [activeTab, setActiveTab] = useState<ProjectTabKey>(initialActiveTab);
 
   // Task View & Filter States
   const [tasks, setTasks] = useState(project.tasks || []);
@@ -463,13 +463,21 @@ export default function ProjectDetailClient({
     project.projectCategory === "Solar" ||
     (project.job?.item && project.job.item.toLowerCase().includes("solar"));
 
+  const canCompleteProject = isManager && project.status !== "Completed";
+  const headerActionCount =
+    (project.pathFolder ? 1 : 0) +
+    2 + // + เบิกของโครงการ, แดชบอร์ดบัญชี
+    (isManager ? 1 : 0) +
+    (canCompleteProject ? 1 : 0);
+  const isOddHeaderActionCount = headerActionCount % 2 === 1;
+
   return (
-    <div className="p-4 md:p-8 pb-24 max-w-[1680px] w-full mx-auto space-y-6">
+    <div className="p-3 sm:p-5 md:p-8 pb-24 max-w-[1680px] w-full mx-auto space-y-5 sm:space-y-6">
       {/* ── 1. Symmetrical Executive Header Bar ── */}
-      <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-xs space-y-4 sm:space-y-5">
         {/* Navigation Breadcrumbs & Top Meta (Symmetrically Balanced) */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs border-b border-gray-100 pb-3.5">
-          <div className="flex items-center gap-2 text-gray-400 font-semibold">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs border-b border-gray-100 pb-3.5">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-gray-400 font-semibold">
             <Link
               href="/projects"
               className="hover:text-red-600 transition-colors inline-flex items-center gap-1.5 font-bold text-gray-700 bg-gray-50 hover:bg-red-50 px-2.5 py-1 rounded-lg border border-gray-200/80"
@@ -482,14 +490,14 @@ export default function ProjectDetailClient({
               {project.projectNumber}
             </span>
             {(project.projectCategory || project.job?.jobType) && (
-              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
                 <Tag size={11} className="text-gray-400" />
                 {project.projectCategory || project.job?.jobType}
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border ${
                 project.status === "Completed"
@@ -518,194 +526,204 @@ export default function ProjectDetailClient({
           </div>
         </div>
 
-        {/* Project Title, Badges & Action Buttons (Symmetrical 2-Column Grid) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch pt-1">
-          {/* Left Column: Project Identity & Key Metadata */}
-          <div className="flex flex-col justify-between space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="w-13 h-13 rounded-2xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-red-200 mt-0.5">
-                <Briefcase size={24} />
-              </div>
+        {/* Project Title & Symmetrical 2x2 Action Control Matrix */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
+          {/* Left: Project Identity */}
+          <div className="flex items-start gap-3.5 sm:gap-4 flex-1 min-w-0">
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-red-200 mt-0.5">
+              <Briefcase size={22} />
+            </div>
 
-              <div className="space-y-1.5 flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono font-black text-xs px-2.5 py-0.5 rounded-md bg-gray-900 text-white">
-                    {project.projectNumber}
+            <div className="space-y-1.5 flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-mono font-black text-xs px-2.5 py-0.5 rounded-md bg-gray-900 text-white">
+                  {project.projectNumber}
+                </span>
+                {project.province && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                    <MapPin size={11} className="text-red-600" />
+                    {project.province} {project.district ? `(${project.district})` : ""}
                   </span>
-                  {project.province && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
-                      <MapPin size={11} className="text-red-600" />
-                      {project.province} {project.district ? `(${project.district})` : ""}
-                    </span>
-                  )}
-                </div>
-
-                <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-snug">
-                  {project.name}
-                </h1>
-              </div>
-            </div>
-
-            {/* Symmetrical 2-Tile Metadata Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs pt-0.5">
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-gray-50 border border-gray-200/80">
-                <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 shrink-0">
-                  <Building2 size={14} />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 block uppercase">ลูกค้า (Client)</span>
-                  <p className="font-bold text-gray-900 truncate" title={project.clientName || project.job?.customerName || "-"}>
-                    {project.clientName || project.job?.customerName || "-"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-gray-50 border border-gray-200/80">
-                <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 shrink-0">
-                  <User size={14} />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 block uppercase">ผู้ขาย (Sales Rep)</span>
-                  <p className="font-bold text-gray-900 truncate" title={project.job?.sellerName || "-"}>
-                    {project.job?.sellerName || "-"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Symmetrical Action Buttons & Quick Summary Tile */}
-          <div className="flex flex-col justify-between space-y-4">
-            {/* Top: Symmetrical Action Buttons Row */}
-            <div className="flex flex-wrap items-center justify-start lg:justify-end gap-2">
-              {/* Folder link / copy if exists */}
-              {project.pathFolder && (
-                <div className="flex items-center">
-                  <a
-                    href={project.pathFolder}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-10 inline-flex items-center gap-2 px-3.5 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-l-xl transition-all shadow-xs"
-                    title="เปิดโฟลเดอร์"
-                  >
-                    <FolderOpen size={14} className="text-gray-600" />
-                    <span>โฟลเดอร์</span>
-                    <ExternalLink size={11} className="text-gray-400" />
-                  </a>
-                  <button
-                    onClick={() => handleCopyFolderPath(project.pathFolder)}
-                    className="h-10 px-2.5 bg-gray-50 border-y border-r border-gray-200 hover:bg-gray-100 text-gray-600 text-xs font-bold rounded-r-xl transition-all"
-                    title="คัดลอกที่อยู่โฟลเดอร์ (Windows Explorer)"
-                  >
-                    {copiedFolder ? <Check size={14} className="text-emerald-600" /> : <Copy size={13} />}
-                  </button>
-                </div>
-              )}
-
-              {/* Quick Project Material Requisition Button */}
-              <Link
-                href={`/requisitions/new?projectId=${project.id}&type=PROJECT`}
-                className="h-10 inline-flex items-center gap-2 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs"
-                title="สร้างใบเบิกของเข้าโครงการนี้ (ระบบจะดึงข้อมูลโครงการและสาขาให้อัตโนมัติ)"
-              >
-                <Package size={14} />
-                <span>+ เบิกของโครงการ</span>
-              </Link>
-
-              {/* Link to Accounting Dashboard */}
-              <Link
-                href="/accounting/dashboard"
-                className="h-10 inline-flex items-center gap-2 px-3.5 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-xl transition-all shadow-xs"
-                title="ดูภาพรวมการเงินและกำไรในแดชบอร์ดบัญชี"
-              >
-                <TrendingUp size={14} className="text-gray-600" />
-                <span>แดชบอร์ดบัญชี</span>
-                <ExternalLink size={12} className="text-gray-400" />
-              </Link>
-
-              {/* Manager: Edit Project */}
-              {isManager && (
-                <Link
-                  href={`/projects/${project.id}/edit`}
-                  className="h-10 inline-flex items-center gap-2 px-4 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold rounded-xl transition-all shadow-xs"
-                >
-                  <Pencil size={14} />
-                  <span>แก้ไขข้อมูล</span>
-                </Link>
-              )}
-
-              {/* Manager: Complete Project */}
-              {isManager && project.status !== "Completed" && (
-                <button
-                  onClick={() => setShowCompleteModal(true)}
-                  disabled={isUpdatingStatus}
-                  className="h-10 inline-flex items-center gap-2 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm shadow-red-200 disabled:opacity-50"
-                >
-                  {isUpdatingStatus ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <CheckCircle2 size={14} />
-                  )}
-                  <span>จบโครงการ</span>
-                </button>
-              )}
-            </div>
-
-            {/* Bottom: Symmetrical Quick Context Tile (Balances Left Metadata Tiles) */}
-            <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-gray-50 border border-gray-200/80 text-xs">
-              <div className="p-1 text-center sm:text-left border-r border-gray-200/80 pr-2">
-                <span className="text-[10px] font-bold text-gray-400 block uppercase">รหัส Job</span>
-                {project.job?.jobNumber ? (
-                  <Link
-                    href={`/jobs?search=${project.job.jobNumber}`}
-                    className="font-mono font-bold text-gray-900 hover:text-red-600 truncate block transition-colors"
-                  >
-                    {project.job.jobNumber}
-                  </Link>
-                ) : (
-                  <span className="font-mono text-gray-400">-</span>
                 )}
               </div>
 
-              <div className="p-1 text-center sm:text-left border-r border-gray-200/80 pr-2">
-                <span className="text-[10px] font-bold text-gray-400 block uppercase">ใบเสนอราคา</span>
-                <span className="font-mono font-bold text-gray-900 truncate block" title={project.job?.quotationNumber || project.contractNumber || "-"}>
-                  {project.job?.quotationNumber || project.contractNumber || "-"}
-                </span>
-              </div>
+              <h1 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight leading-snug break-words">
+                {project.name}
+              </h1>
+            </div>
+          </div>
 
-              <div className="p-1 text-center sm:text-left">
-                <span className="text-[10px] font-bold text-gray-400 block uppercase">กำหนดส่งมอบ</span>
-                <span className="font-mono font-bold text-red-600 truncate block">
-                  {effectiveDeliveryDate
-                    ? formatThaiDate(effectiveDeliveryDate, {
-                        day: "numeric",
-                        month: "short",
-                        year: "2-digit",
-                      })
-                    : "-"}
-                </span>
+          {/* Right: Balanced 2-Column Action Buttons Grid (zero orphan buttons on mobile & desktop) */}
+          <div className="grid grid-cols-2 gap-2 w-full lg:w-[340px] xl:w-[360px] shrink-0">
+            {project.pathFolder && (
+              <div className="flex items-center w-full">
+                <a
+                  href={project.pathFolder}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-10 flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-l-xl transition-all shadow-2xs whitespace-nowrap"
+                  title="เปิดโฟลเดอร์"
+                >
+                  <FolderOpen size={14} className="text-gray-600 shrink-0" />
+                  <span>โฟลเดอร์</span>
+                  <ExternalLink size={11} className="text-gray-400 shrink-0" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => handleCopyFolderPath(project.pathFolder)}
+                  className="h-10 px-2.5 bg-gray-50 border-y border-r border-gray-200 hover:bg-gray-100 text-gray-600 text-xs font-bold rounded-r-xl transition-all shrink-0 cursor-pointer"
+                  title="คัดลอกที่อยู่โฟลเดอร์ (Windows Explorer)"
+                >
+                  {copiedFolder ? <Check size={14} className="text-emerald-600" /> : <Copy size={13} />}
+                </button>
               </div>
+            )}
+
+            <Link
+              href={`/requisitions/new?projectId=${project.id}&type=PROJECT`}
+              className="h-10 w-full inline-flex items-center justify-center gap-1.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-2xs whitespace-nowrap"
+              title="สร้างใบเบิกของเข้าโครงการนี้ (ระบบจะดึงข้อมูลโครงการและสาขาให้อัตโนมัติ)"
+            >
+              <Package size={14} className="shrink-0" />
+              <span>+ เบิกของโครงการ</span>
+            </Link>
+
+            <Link
+              href="/accounting/dashboard"
+              className={`h-10 w-full inline-flex items-center justify-center gap-1.5 px-3 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-xl transition-all shadow-2xs whitespace-nowrap ${
+                !isManager && isOddHeaderActionCount ? "col-span-2" : ""
+              }`}
+              title="ดูภาพรวมการเงินและกำไรในแดชบอร์ดบัญชี"
+            >
+              <TrendingUp size={14} className="text-gray-600 shrink-0" />
+              <span>แดชบอร์ดบัญชี</span>
+              <ExternalLink size={11} className="text-gray-400 shrink-0" />
+            </Link>
+
+            {isManager && (
+              <Link
+                href={`/projects/${project.id}/edit`}
+                className={`h-10 w-full inline-flex items-center justify-center gap-1.5 px-3 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold rounded-xl transition-all shadow-2xs whitespace-nowrap ${
+                  !canCompleteProject && isOddHeaderActionCount ? "col-span-2" : ""
+                }`}
+              >
+                <Pencil size={14} className="shrink-0" />
+                <span>แก้ไขข้อมูล</span>
+              </Link>
+            )}
+
+            {canCompleteProject && (
+              <button
+                type="button"
+                onClick={() => setShowCompleteModal(true)}
+                disabled={isUpdatingStatus}
+                className={`h-10 w-full inline-flex items-center justify-center gap-1.5 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm shadow-red-200 disabled:opacity-50 cursor-pointer whitespace-nowrap ${
+                  isOddHeaderActionCount ? "col-span-2" : ""
+                }`}
+              >
+                {isUpdatingStatus ? (
+                  <Loader2 size={14} className="animate-spin shrink-0" />
+                ) : (
+                  <CheckCircle2 size={14} className="shrink-0" />
+                )}
+                <span>จบโครงการ</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Unified 5-Tile Metadata Strip (Balanced across Mobile 2-col / Tablet 6-grid / Desktop 5-col) */}
+        <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-5 gap-2.5 pt-3 border-t border-gray-100 text-xs">
+          <div className="col-span-2 md:col-span-3 lg:col-span-1 flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl bg-gray-50 border border-gray-200/80 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 shrink-0">
+              <Building2 size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] font-bold text-gray-400 block uppercase">ลูกค้า (Client)</span>
+              <p className="font-bold text-gray-900 truncate" title={project.clientName || project.job?.customerName || "-"}>
+                {project.clientName || project.job?.customerName || "-"}
+              </p>
+            </div>
+          </div>
+
+          <div className="md:col-span-3 lg:col-span-1 flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl bg-gray-50 border border-gray-200/80 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 shrink-0">
+              <User size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] font-bold text-gray-400 block uppercase">ผู้ขาย (Sales Rep)</span>
+              <p className="font-bold text-gray-900 truncate" title={project.job?.sellerName || "-"}>
+                {project.job?.sellerName || "-"}
+              </p>
+            </div>
+          </div>
+
+          <div className="md:col-span-2 lg:col-span-1 flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl bg-gray-50 border border-gray-200/80 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 shrink-0">
+              <Briefcase size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] font-bold text-gray-400 block uppercase">รหัส Job</span>
+              {project.job?.jobNumber ? (
+                <Link
+                  href={`/jobs?search=${project.job.jobNumber}`}
+                  className="font-mono font-bold text-gray-900 hover:text-red-600 truncate block transition-colors"
+                >
+                  {project.job.jobNumber}
+                </Link>
+              ) : (
+                <span className="font-mono font-bold text-gray-400 block">-</span>
+              )}
+            </div>
+          </div>
+
+          <div className="md:col-span-2 lg:col-span-1 flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl bg-gray-50 border border-gray-200/80 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 shrink-0">
+              <FileText size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] font-bold text-gray-400 block uppercase">ใบเสนอราคา</span>
+              <span className="font-mono font-bold text-gray-900 truncate block" title={project.job?.quotationNumber || project.contractNumber || "-"}>
+                {project.job?.quotationNumber || project.contractNumber || "-"}
+              </span>
+            </div>
+          </div>
+
+          <div className="col-span-2 sm:col-span-1 md:col-span-2 lg:col-span-1 flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl bg-gray-50 border border-gray-200/80 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-red-500 shrink-0">
+              <Calendar size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] font-bold text-gray-400 block uppercase">กำหนดส่งมอบ</span>
+              <span className="font-mono font-bold text-red-600 truncate block">
+                {effectiveDeliveryDate
+                  ? formatThaiDate(effectiveDeliveryDate, {
+                      day: "numeric",
+                      month: "short",
+                      year: "2-digit",
+                    })
+                  : "-"}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── 2. Symmetrical 4-Card Hero Metrics Bar ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
-        {/* Metric 1: Profit / Loss (กำไร / ขาดทุนที่คาดการณ์) */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between space-y-3 h-full">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+      {/* ── 2. Symmetrical 4-Card Hero Metrics Bar (Uniform Height & Footer Baseline) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
+        {/* Metric 1: Profit / Loss */}
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between gap-3 h-full">
+          <div className="flex items-center justify-between gap-2 min-h-[24px]">
+            <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5 truncate">
               {profit >= 0 ? (
-                <TrendingUp size={13} className="text-red-600" />
+                <TrendingUp size={13} className="text-red-600 shrink-0" />
               ) : (
-                <TrendingDown size={13} className="text-rose-600" />
+                <TrendingDown size={13} className="text-rose-600 shrink-0" />
               )}
-              {profit >= 0 ? "กำไรที่คาดการณ์" : "ขาดทุนที่คาดการณ์"}
+              <span className="truncate">{profit >= 0 ? "กำไรที่คาดการณ์" : "ขาดทุนที่คาดการณ์"}</span>
             </span>
             <span
-              className={`text-xs font-black px-2 py-0.5 rounded-full font-mono border ${
+              className={`text-xs font-black px-2 py-0.5 rounded-full font-mono border shrink-0 ${
                 profit >= 0
                   ? "bg-red-50 text-red-700 border-red-200"
                   : "bg-rose-50 text-rose-800 border-rose-200"
@@ -715,13 +733,13 @@ export default function ProjectDetailClient({
             </span>
           </div>
           <p
-            className={`text-xl font-black font-mono tracking-tight ${
+            className={`text-xl font-black font-mono tracking-tight tabular-nums ${
               profit >= 0 ? "text-gray-900" : "text-rose-600"
             }`}
           >
             {profit >= 0 ? "+" : "-"}฿{Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-          <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium pt-0.5 border-t border-gray-100">
+          <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium pt-2.5 border-t border-gray-100">
             <span>อัตรากำไร (Margin):</span>
             <span className="font-bold text-gray-900 font-mono">
               {profitMargin}% ของมูลค่า
@@ -730,31 +748,31 @@ export default function ProjectDetailClient({
         </div>
 
         {/* Metric 2: Timeline & Handover Countdown */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between space-y-3 h-full">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Calendar size={13} className="text-gray-500" />
-              กำหนดส่งมอบงาน
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between gap-3 h-full">
+          <div className="flex items-center justify-between gap-2 min-h-[24px]">
+            <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5 truncate">
+              <Calendar size={13} className="text-gray-500 shrink-0" />
+              <span className="truncate">กำหนดส่งมอบงาน</span>
             </span>
             {deadlineInfo ? (
               deadlineInfo.isOverdue ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 font-mono">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 font-mono shrink-0">
                   <AlertTriangle size={10} /> เกิน {Math.abs(deadlineInfo.diffDays)} วัน
                 </span>
               ) : deadlineInfo.isNear ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 font-mono">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 font-mono shrink-0">
                   <Clock size={10} /> เหลือ {deadlineInfo.diffDays} วัน
                 </span>
               ) : (
-                <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">
+                <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200 shrink-0">
                   ตามแผน
                 </span>
               )
             ) : (
-              <span className="text-gray-400 text-xs">ยังไม่กำหนด</span>
+              <span className="text-gray-400 text-xs shrink-0">ยังไม่กำหนด</span>
             )}
           </div>
-          <p className="text-lg font-black text-gray-900 tracking-tight font-mono">
+          <p className="text-xl font-black text-gray-900 tracking-tight font-mono truncate">
             {effectiveDeliveryDate
               ? formatThaiDate(effectiveDeliveryDate, {
                   day: "numeric",
@@ -763,63 +781,60 @@ export default function ProjectDetailClient({
                 })
               : "ยังไม่กำหนดวันส่งมอบ"}
           </p>
-          <p className="text-[11px] text-gray-500 font-medium flex items-center justify-between">
+          <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium pt-2.5 border-t border-gray-100">
             <span>
               เริ่ม: {effectiveStartDate ? formatThaiDate(effectiveStartDate) : "-"}
             </span>
             <span className="font-bold text-gray-700 font-mono">
               {project.projectDuration ? `${project.projectDuration} ${project.projectDurationUnit || "วัน"}` : "-"}
             </span>
-          </p>
+          </div>
         </div>
 
         {/* Metric 3: Project Value & Revenue */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between space-y-3 h-full">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Receipt size={13} className="text-red-600" />
-              มูลค่าโครงการ (รวม VAT)
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between gap-3 h-full">
+          <div className="flex items-center justify-between gap-2 min-h-[24px]">
+            <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5 truncate">
+              <Receipt size={13} className="text-red-600 shrink-0" />
+              <span className="truncate">มูลค่าโครงการ (รวม VAT)</span>
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono shrink-0">
               VAT 7%
             </span>
           </div>
-          <p className="text-xl font-black text-gray-900 font-mono">
+          <p className="text-xl font-black text-gray-900 font-mono tabular-nums">
             {projectRevenue > 0
               ? `฿${projectRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
               : "ไม่ระบุ"}
           </p>
-          <div className="pt-1.5 border-t border-gray-100 space-y-0.5 text-[11px]">
-            <div className="flex items-center justify-between text-gray-500 font-medium">
-              <span>ก่อน VAT:</span>
-              <span className="font-bold text-gray-900 font-mono">
-                {revenueExVat > 0 ? `฿${revenueExVat.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "-"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-gray-400 font-medium">
-              <span>ภาษี 7%:</span>
-              <span className="font-semibold text-emerald-700 font-mono">
-                {vatAmount > 0 ? `+฿${vatAmount.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "-"}
-              </span>
-            </div>
+          <div className="flex items-center justify-between gap-2 text-[11px] text-gray-500 font-medium pt-2.5 border-t border-gray-100">
+            <span className="truncate">
+              ก่อน VAT:{" "}
+              <strong className="text-gray-900 font-mono">
+                {revenueExVat > 0 ? `฿${revenueExVat.toLocaleString("th-TH", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` : "-"}
+              </strong>
+            </span>
+            <span className="font-semibold text-emerald-700 font-mono shrink-0">
+              {vatAmount > 0 ? `VAT +฿${vatAmount.toLocaleString("th-TH", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` : "-"}
+            </span>
           </div>
         </div>
 
         {/* Metric 4: Purchase Expenditures & Cost Ratio */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between space-y-3 h-full">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-              <DollarSign size={13} className="text-red-600" />
-              ยอดจัดซื้อสะสม (POs)
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between gap-3 h-full">
+          <div className="flex items-center justify-between gap-2 min-h-[24px]">
+            <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5 truncate">
+              <DollarSign size={13} className="text-red-600 shrink-0" />
+              <span className="truncate">ยอดจัดซื้อสะสม (POs)</span>
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
               {pos.length} ฉบับ
             </span>
           </div>
-          <p className="text-xl font-black text-red-600 font-mono">
+          <p className="text-xl font-black text-red-600 font-mono tabular-nums">
             ฿{totalExpenditures.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
-          <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium pt-0.5 border-t border-gray-100">
+          <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium pt-2.5 border-t border-gray-100">
             <span>สัดส่วนต้นทุน:</span>
             <span className="font-bold text-gray-700 font-mono">
               {projectRevenue > 0 ? Math.round((totalExpenditures / projectRevenue) * 100) : 0}% ของมูลค่า
@@ -828,33 +843,45 @@ export default function ProjectDetailClient({
         </div>
       </div>
 
-      {/* ── 3. Symmetrical Tab Navigation Bar ── */}
-      <div className="flex items-center gap-2 border-b border-gray-200 overflow-x-auto custom-scrollbar pt-1">
+      {/* ── 3. Symmetrical Mobile-Ready Grid Tab Bar (Zero Horizontal Clipping) ── */}
+      <div
+        className={`bg-gray-100/85 p-1.5 rounded-2xl border border-gray-200/80 grid gap-1.5 ${
+          isSolar
+            ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
+            : "grid-cols-2 sm:grid-cols-6 lg:grid-cols-5"
+        }`}
+      >
         <button
+          type="button"
           onClick={() => setActiveTab("dashboard")}
-          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 min-h-[42px] text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            !isSolar ? "col-span-2 sm:col-span-3 lg:col-span-1" : ""
+          } ${
             activeTab === "dashboard"
-              ? "border-red-600 text-red-600 bg-white rounded-t-xl shadow-xs"
-              : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+              ? "bg-white text-[#ff2301] border border-red-200/80 shadow-xs"
+              : "text-gray-600 hover:text-gray-900 hover:bg-white/60 border border-transparent"
           }`}
         >
-          <LayoutDashboard size={16} />
-          <span>ภาพรวม & สัญญา</span>
+          <LayoutDashboard size={15} className="shrink-0" />
+          <span className="truncate">ภาพรวม & สัญญา</span>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab("tasks")}
-          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 min-h-[42px] text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            !isSolar ? "sm:col-span-3 lg:col-span-1" : ""
+          } ${
             activeTab === "tasks"
-              ? "border-red-600 text-red-600 bg-white rounded-t-xl shadow-xs"
-              : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+              ? "bg-white text-[#ff2301] border border-red-200/80 shadow-xs"
+              : "text-gray-600 hover:text-gray-900 hover:bg-white/60 border border-transparent"
           }`}
         >
-          <ListTodo size={16} />
-          <span>แผนงานและงานย่อย</span>
+          <ListTodo size={15} className="shrink-0" />
+          <span className="truncate">แผนงาน & งานย่อย</span>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              activeTab === "tasks" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"
+            className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold shrink-0 ${
+              activeTab === "tasks" ? "bg-red-100 text-red-700" : "bg-gray-200/80 text-gray-600"
             }`}
           >
             {tasks.length}
@@ -862,37 +889,43 @@ export default function ProjectDetailClient({
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab("team_equipment")}
-          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 min-h-[42px] text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            !isSolar ? "sm:col-span-2 lg:col-span-1" : ""
+          } ${
             activeTab === "team_equipment"
-              ? "border-red-600 text-red-600 bg-white rounded-t-xl shadow-xs"
-              : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+              ? "bg-white text-[#ff2301] border border-red-200/80 shadow-xs"
+              : "text-gray-600 hover:text-gray-900 hover:bg-white/60 border border-transparent"
           }`}
         >
-          <Users size={16} />
-          <span>ทีมงาน & อุปกรณ์</span>
+          <Users size={15} className="shrink-0" />
+          <span className="truncate">ทีมงาน & อุปกรณ์</span>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              activeTab === "team_equipment" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"
+            className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold shrink-0 ${
+              activeTab === "team_equipment" ? "bg-red-100 text-red-700" : "bg-gray-200/80 text-gray-600"
             }`}
           >
-            {(project.members?.length || 0)}
+            {project.members?.length || 0}
           </span>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab("procurement")}
-          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 min-h-[42px] text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            !isSolar ? "sm:col-span-2 lg:col-span-1" : ""
+          } ${
             activeTab === "procurement"
-              ? "border-red-600 text-red-600 bg-white rounded-t-xl shadow-xs"
-              : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+              ? "bg-white text-[#ff2301] border border-red-200/80 shadow-xs"
+              : "text-gray-600 hover:text-gray-900 hover:bg-white/60 border border-transparent"
           }`}
         >
-          <DollarSign size={16} />
-          <span>การจัดซื้อ & PO</span>
+          <DollarSign size={15} className="shrink-0" />
+          <span className="truncate">จัดซื้อ & PO</span>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              activeTab === "procurement" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"
+            className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold shrink-0 ${
+              activeTab === "procurement" ? "bg-red-100 text-red-700" : "bg-gray-200/80 text-gray-600"
             }`}
           >
             {pos.length}
@@ -900,28 +933,32 @@ export default function ProjectDetailClient({
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab("reports")}
-          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 min-h-[42px] text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            !isSolar ? "sm:col-span-2 lg:col-span-1" : ""
+          } ${
             activeTab === "reports"
-              ? "border-red-600 text-red-600 bg-white rounded-t-xl shadow-xs"
-              : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+              ? "bg-white text-[#ff2301] border border-red-200/80 shadow-xs"
+              : "text-gray-600 hover:text-gray-900 hover:bg-white/60 border border-transparent"
           }`}
         >
-          <ClipboardList size={16} />
-          <span>บันทึก & รายงานสนาม</span>
+          <ClipboardList size={15} className="shrink-0" />
+          <span className="truncate">รายงานสนาม</span>
         </button>
 
         {isSolar && (
           <button
+            type="button"
             onClick={() => setActiveTab("checklist")}
-            className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 min-h-[42px] text-xs font-bold rounded-xl transition-all cursor-pointer ${
               activeTab === "checklist"
-                ? "border-red-600 text-red-600 bg-white rounded-t-xl shadow-xs"
-                : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                ? "bg-white text-[#ff2301] border border-red-200/80 shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-white/60 border border-transparent"
             }`}
           >
-            <FileCheck size={16} />
-            <span>แบบฟอร์มโซลาร์</span>
+            <FileCheck size={15} className="shrink-0" />
+            <span className="truncate">แบบฟอร์มโซลาร์</span>
           </button>
         )}
       </div>
@@ -930,9 +967,9 @@ export default function ProjectDetailClient({
       {activeTab === "dashboard" && (
         <div className="space-y-6">
           {/* Symmetrical 4-Card Balanced Architecture (2x2 Grid) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
             {/* Card 1: ข้อมูลทั่วไปและสถานที่ตั้ง (General & Site Information) */}
-            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5">
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5 h-full">
               <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3.5">
                 <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center border border-red-200">
                   <Building2 size={16} />
@@ -1021,7 +1058,7 @@ export default function ProjectDetailClient({
             </div>
 
             {/* Card 2: สัญญาและเงื่อนไขการเงิน (Contract Terms & Security Deposit) */}
-            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5">
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5 h-full">
               <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3.5">
                 <div className="w-8 h-8 rounded-lg bg-gray-100 text-gray-800 flex items-center justify-center border border-gray-200">
                   <FileText size={16} />
@@ -1105,7 +1142,7 @@ export default function ProjectDetailClient({
                   </p>
                 </div>
 
-                <div className="space-y-1 p-3 rounded-xl bg-gray-50/70 border border-gray-100">
+                <div className="space-y-1 p-3 rounded-xl bg-gray-50/70 border border-gray-100 sm:col-span-2">
                   <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
                     สถานะการคืนสัญญา (Return Status)
                   </span>
@@ -1140,7 +1177,7 @@ export default function ProjectDetailClient({
             </div>
 
             {/* Card 3: แผนการชำระเงินค่างวดและเงินมัดจำ (Payment Milestones & Deposit) */}
-            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5">
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5 h-full">
               <div className="flex items-center justify-between border-b border-gray-100 pb-3.5">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center border border-red-200">
@@ -1332,7 +1369,7 @@ export default function ProjectDetailClient({
             </div>
 
             {/* Card 4: กำหนดส่งมอบและเอกสารราชการ (Timeline & Handover Milestones) */}
-            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5">
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-5 h-full">
               <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3.5">
                 <div className="w-8 h-8 rounded-lg bg-gray-100 text-gray-800 flex items-center justify-center border border-gray-200">
                   <Calendar size={16} />
@@ -1443,7 +1480,7 @@ export default function ProjectDetailClient({
 
             {/* Card 5: ข้อมูลเชื่อมโยงกับ Job และใบสั่งขาย (Linked Job & Sales Order Information) */}
             {project.job && (
-              <div className="sm:col-span-2 bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-4">
+              <div className="lg:col-span-2 bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3.5">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center">
@@ -1550,12 +1587,12 @@ export default function ProjectDetailClient({
                   placeholder="ค้นหางาน, หมวดหมู่, ผู้รับผิดชอบ..."
                   value={taskSearch}
                   onChange={(e) => setTaskSearch(e.target.value)}
-                  className="w-full pl-9 pr-3.5 py-2 text-xs bg-gray-50/60 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/10 focus:border-red-500 font-medium transition-all text-gray-900"
+                  className="w-full pl-9 pr-3.5 py-2 text-base sm:text-xs bg-gray-50/60 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/10 focus:border-red-500 font-medium transition-all text-gray-900"
                 />
               </div>
 
               {/* Status Filter Pills */}
-              <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar py-1">
+              <div className="flex flex-wrap items-center gap-1.5 py-1">
                 {[
                   { id: "all", label: "ทั้งหมด" },
                   { id: "Pending", label: "รอทำ" },
@@ -2161,7 +2198,7 @@ export default function ProjectDetailClient({
                     placeholder="ค้นหาเลขที่ PO, ชื่องาน, ผู้จำหน่าย..."
                     value={poSearch}
                     onChange={(e) => setPoSearch(e.target.value)}
-                    className="w-full pl-9 pr-8 py-2 bg-gray-50/60 border border-gray-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:border-red-500 transition-all text-gray-900"
+                    className="w-full pl-9 pr-8 py-2 bg-gray-50/60 border border-gray-200 rounded-xl text-base sm:text-xs font-medium focus:bg-white focus:outline-none focus:border-red-500 transition-all text-gray-900"
                   />
                   {poSearch && (
                     <button
@@ -2287,7 +2324,7 @@ export default function ProjectDetailClient({
                     placeholder="ค้นหาเลขที่ PR, โครงการ, ผู้ขอ..."
                     value={prSearch}
                     onChange={(e) => setPrSearch(e.target.value)}
-                    className="w-full pl-9 pr-8 py-2 bg-gray-50/60 border border-gray-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:border-gray-900 transition-all text-gray-900"
+                    className="w-full pl-9 pr-8 py-2 bg-gray-50/60 border border-gray-200 rounded-xl text-base sm:text-xs font-medium focus:bg-white focus:outline-none focus:border-gray-900 transition-all text-gray-900"
                   />
                   {prSearch && (
                     <button
@@ -2434,9 +2471,7 @@ export default function ProjectDetailClient({
 
       {/* ── 9. TAB 6: แบบฟอร์มโซลาร์ (Solar Checklist) ── */}
       {activeTab === "checklist" && isSolar && (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-xs p-4 sm:p-6">
-          <SolarChecklistTab project={project} />
-        </div>
+        <SolarChecklistTab project={project} currentUser={currentUser} />
       )}
 
       {/* ── MODAL: Complete Project Confirmation ── */}
@@ -2544,11 +2579,11 @@ export default function ProjectDetailClient({
                   onChange={(e) =>
                     setNewTaskData({ ...newTaskData, title: e.target.value })
                   }
-                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none font-medium transition-all"
+                  className="w-full px-3.5 py-2.5 text-base sm:text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none font-medium transition-all"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="font-bold text-gray-700">
                     หมวดหมู่งาน (Category)
@@ -2560,7 +2595,7 @@ export default function ProjectDetailClient({
                     onChange={(e) =>
                       setNewTaskData({ ...newTaskData, category: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none font-medium transition-all"
+                    className="w-full px-3.5 py-2.5 text-base sm:text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none font-medium transition-all"
                   />
                 </div>
 
@@ -2576,7 +2611,7 @@ export default function ProjectDetailClient({
                         assigneeId: e.target.value,
                       })
                     }
-                    className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none cursor-pointer font-medium transition-all"
+                    className="w-full px-3.5 py-2.5 text-base sm:text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none cursor-pointer font-medium transition-all"
                   >
                     <option value="">-- เลือกผู้รับผิดชอบ --</option>
                     {allUsers.map((u) => (
@@ -2588,7 +2623,7 @@ export default function ProjectDetailClient({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="font-bold text-gray-700">
                     วันที่เริ่มตามแผน
@@ -2602,7 +2637,7 @@ export default function ProjectDetailClient({
                         planStart: e.target.value,
                       })
                     }
-                    className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none cursor-pointer font-medium transition-all"
+                    className="w-full px-3.5 py-2.5 text-base sm:text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none cursor-pointer font-medium transition-all"
                   />
                 </div>
 
@@ -2616,7 +2651,7 @@ export default function ProjectDetailClient({
                     onChange={(e) =>
                       setNewTaskData({ ...newTaskData, planEnd: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none cursor-pointer font-medium transition-all"
+                    className="w-full px-3.5 py-2.5 text-base sm:text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none cursor-pointer font-medium transition-all"
                   />
                 </div>
               </div>

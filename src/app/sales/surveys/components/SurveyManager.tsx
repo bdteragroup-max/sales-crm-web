@@ -42,6 +42,7 @@ type SurveyManagerProps = {
   companies: any[];
   salesReps: any[];
   currentUser: any;
+  initialSurveyId?: string | null;
 };
 
 type QuickBucket = 'ALL' | 'IN_DRAFT' | 'PENDING_ESTIMATE' | 'ESTIMATED_DONE';
@@ -51,6 +52,7 @@ export default function SurveyManager({
   companies,
   salesReps,
   currentUser,
+  initialSurveyId = null,
 }: SurveyManagerProps) {
   const router = useRouter();
   const [prevInitialSurveys, setPrevInitialSurveys] = useState(initialSurveys);
@@ -61,8 +63,8 @@ export default function SurveyManager({
     setSurveys(initialSurveys);
   }
 
-  const [view, setView] = useState<'list' | 'form'>('list');
-  const [editingSurveyId, setEditingSurveyId] = useState<string | null>(null);
+  const [view, setView] = useState<'list' | 'form'>(initialSurveyId ? 'form' : 'list');
+  const [editingSurveyId, setEditingSurveyId] = useState<string | null>(initialSurveyId || null);
   const [searchTerm, setSearchTerm] = useState('');
   const [quickBucket, setQuickBucket] = useState<QuickBucket>('ALL');
   const [companyFilter, setCompanyFilter] = useState<string>('ALL');
@@ -119,6 +121,9 @@ export default function SurveyManager({
         setSurveys((prev) => prev.filter((s) => s.id !== surveyToDelete.id));
         setSurveyToDelete(null);
         router.refresh();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('site-survey-updated'));
+        }
       } else {
         alert('ลบแบบสำรวจไม่สำเร็จ: ' + res.error);
       }

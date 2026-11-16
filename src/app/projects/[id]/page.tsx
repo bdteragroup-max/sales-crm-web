@@ -8,8 +8,12 @@ import { isSuperUser, isReadOnlyExecutive, isHeadOfSalesAndMarketing } from '@/a
 
 export const dynamic = 'force-dynamic';
 
-export default async function ProjectDetailPage(props: { params: Promise<{ id: string }> }) { 
+export default async function ProjectDetailPage(props: {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ tab?: string }>;
+}) {
   const params = await props.params;
+  const resolvedSearchParams = props.searchParams ? await props.searchParams : {};
   const session = (await cookies()).get('session')?.value
   const payload = await decrypt(session)
   
@@ -74,7 +78,13 @@ export default async function ProjectDetailPage(props: { params: Promise<{ id: s
     select: { id: true, fullName: true, role: true }
   });
 
-function extractSearchKeywords(project: any): { keywords: string[]; primaryKeyword: string } {
+function extractSearchKeywords(project: {
+  projectNumber?: string | null;
+  contractNumber?: string | null;
+  name?: string | null;
+  clientName?: string | null;
+  job?: { jobNumber?: string | null } | null;
+}): { keywords: string[]; primaryKeyword: string } {
   const terms = new Set<string>();
   let primaryKeyword = "";
 
@@ -227,6 +237,7 @@ function extractSearchKeywords(project: any): { keywords: string[]; primaryKeywo
             prs={serializedPrs}
             searchKeywords={searchTerms}
             primarySearchKeyword={primaryKeyword}
+            initialTab={resolvedSearchParams?.tab}
           />
         </div>
       </main>

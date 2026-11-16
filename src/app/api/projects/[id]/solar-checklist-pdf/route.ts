@@ -1,243 +1,262 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import fs from 'node:fs';
+import path from 'node:path';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import prisma from '@/app/lib/db';
+import { getUser } from '@/app/lib/dal';
+import type { SurveyCompanyCode } from '@/app/lib/surveyMetadata';
+import {
+  collectSolarChecklistPhotos,
+  generateSolarChecklistHTML,
+  type SolarPdfAssets,
+} from './pdfTemplate';
 
-const PRE_WORK_CHECKLIST = [
-  { key: 'verify_site', label: '1. ตรวจสอบพื้นที่ทำงานตรงตามแบบติดตั้ง' },
-  { key: 'photos_before', label: '2. ถ่ายรูปสถานที่ก่อนทำการติดตั้ง' },
-  { key: 'ppe_check', label: '3. ตรวจสอบชุดทำงาน PPE ครบถ้วน' },
-  { key: 'toolbox_talk', label: '4. ประชุม Toolbox Talk ก่อนเริ่มงาน' },
-  { key: 'tools_crane', label: '5. ตรวจสอบเครื่องมือ / รถเครน / นั่งร้าน' },
-];
+const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
+let cachedStaticAssets: SolarPdfAssets | null = null;
 
-const POST_INSTALL_PHOTOS = [
-  { key: 'install_site', label: '1. รูปสถานที่ติดตั้ง' },
-  { key: 'pv_panel', label: '2. แผง PV (Nameplate + มุมกว้าง)' },
-  { key: 'inverter', label: '3. อินเวอร์เตอร์ (Nameplate + จุดติดตั้ง)' },
-  { key: 'ac_cabinet', label: '4. ตู้ AC (เบรกเกอร์, SPD)' },
-  { key: 'connection_points', label: '5. จุดเชื่อมต่อ (เบรกเกอร์, CT)' },
-  { key: 'zero_export', label: '6. อุปกรณ์กันย้อน (Zero Export)' },
-  { key: 'protection_devices', label: '7. อุปกรณ์กันไฟรั่ว (RCCB, RCBO, CB)' },
-  { key: 'overall', label: '8. รูปภาพรวมจุดติดตั้ง (มุมกว้าง)' },
-];
+function loadStaticPdfAssets(): SolarPdfAssets {
+  if (cachedStaticAssets) return cachedStaticAssets;
 
-const HV_CHECKLIST = [
-  { key: 'main_bus_bar', label: '1. จุดต่อเข้า Main Bus Bar / MDB' },
-  { key: 'zero_export_hv', label: '2. กันย้อน High Voltage' },
-  { key: 'transformer', label: '3. หม้อแปลง (Nameplate + kVA)' },
-  { key: 'relay_breaker', label: '4. Relay + Circuit Breaker + CT/PT/UPS' },
-];
+  const publicDir = path.join(process.cwd(), 'public');
+  const readBase64 = (relPath: string): string | null => {
+    try {
+      const fullPath = path.join(publicDir, relPath);
+      if (fs.existsSync(fullPath)) {
+        return fs.readFileSync(fullPath).toString('base64');
+      }
+    } catch (err) {
+      console.warn(`Unable to load Solar PDF asset ${relPath}:`, err);
+    }
+    return null;
+  };
 
-function renderPhotoChecklist(photoChecklist: any, checklistImages: any, checklistDefinition: any[]) {
-  if (!photoChecklist) return '';
-  let html = '<table style="margin-top: 10px;">';
-  checklistDefinition.forEach(item => {
-    const isChecked = photoChecklist[item.key];
-    const images = (checklistImages?.[item.key] || []).filter(Boolean);
-    let imagesHtml = '';
+  const toPngDataUri = (relPath: string): string | null => {
+    const b64 = readBase64(relPath);
+    return b64 ? `data:image/png;base64,${b64}` : null;
+  };
 
-    if (images.length > 0) {
-      imagesHtml = `<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">`;
-      images.forEach((img: string) => {
-        imagesHtml += `<img src="${img}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;"/>`;
-      });
-      imagesHtml += `</div>`;
+  const companyLogos: Partial<Record<SurveyCompanyCode, string | null>> = {
+    TP: toPngDataUri('7.png'),
+    TG: toPngDataUri('4.png'),
+    TE: toPngDataUri('6.png'),
+  };
+
+  cachedStaticAssets = {
+    logoDataUri: companyLogos.TE || companyLogos.TG || companyLogos.TP || null,
+    companyLogos,
+    fontRegularBase64: readBase64('Sarabun-Regular.woff2'),
+    fontBoldBase64: readBase64('Sarabun-Bold.woff2'),
+  };
+
+  return cachedStaticAssets;
+}
+
+function guessMimeFromExt(filePath: string): string {
+  const ext = path.extname(filePath.split('?')[0].split('#')[0]).toLowerCase();
+  if (ext === '.png') return 'image/png';
+  if (ext === '.webp') return 'image/webp';
+  if (ext === '.gif') return 'image/gif';
+  if (ext === '.svg') return 'image/svg+xml';
+  return 'image/jpeg';
+}
+
+async function resolveImagesToDataUris(
+  urls: (string | null | undefined)[]
+): Promise<Record<string, string>> {
+  const resolved: Record<string, string> = {};
+  const uniqueUrls = Array.from(
+    new Set(urls.map((u) => (u || '').trim()).filter((u) => Boolean(u) && !u.startsWith('data:')))
+  );
+
+  if (uniqueUrls.length === 0) return resolved;
+  const publicDir = path.resolve(process.cwd(), 'public');
+
+  await Promise.allSettled(
+    uniqueUrls.map(async (rawUrl) => {
+      try {
+        if (rawUrl.startsWith('/') && !rawUrl.startsWith('//')) {
+          const rel = rawUrl.split('?')[0].split('#')[0].replace(/^\/+/, '');
+          const fullPath = path.resolve(publicDir, rel);
+          if (!fullPath.startsWith(publicDir) || !fs.existsSync(fullPath)) return;
+          const stat = fs.statSync(fullPath);
+          if (stat.size > MAX_IMAGE_BYTES) return;
+          const mime = guessMimeFromExt(fullPath);
+          resolved[rawUrl] = `data:${mime};base64,${fs.readFileSync(fullPath).toString('base64')}`;
+          return;
+        }
+
+        if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+          return;
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 8000);
+        try {
+          const res = await fetch(rawUrl, { signal: controller.signal });
+          if (!res.ok) return;
+          const lenHdr = Number(res.headers.get('content-length') || 0);
+          if (lenHdr > MAX_IMAGE_BYTES) return;
+
+          const arrBuf = await res.arrayBuffer();
+          if (arrBuf.byteLength === 0 || arrBuf.byteLength > MAX_IMAGE_BYTES) return;
+
+          const ctHeader = (res.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+          const mime = ctHeader.startsWith('image/') ? ctHeader : guessMimeFromExt(rawUrl);
+          resolved[rawUrl] = `data:${mime};base64,${Buffer.from(arrBuf).toString('base64')}`;
+        } finally {
+          clearTimeout(timer);
+        }
+      } catch {
+        // Fallback to rawUrl in HTML if server pre-fetch fails
+      }
+    })
+  );
+
+  return resolved;
+}
+
+export async function GET(
+  req: NextRequest,
+  props: { params: Promise<{ id: string }> | { id: string } }
+) {
+  let browser: Awaited<ReturnType<typeof puppeteer.launch>> | null = null;
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    html += `
-      <tr>
-        <td style="border: none; border-bottom: 1px dashed #eee; padding: 12px 0;">
-          <div style="font-weight: bold; margin-bottom: 8px;">
-            <span class="checkbox ${isChecked ? 'checked' : ''}"></span> ${item.label}
-          </div>
-          ${imagesHtml}
-        </td>
-      </tr>
-    `;
-  });
-  html += '</table>';
-  return html;
-}
-
-function renderList(list: any) {
-  if (!list || !Array.isArray(list) || list.length === 0) return '-';
-  return '<ul style="margin:0; padding-left:20px;">' + list.map((item: string) => `<li>${item}</li>`).join('') + '</ul>';
-}
-
-function generateSolarChecklistHTML(project: any): string {
-  return `
-  <!DOCTYPE html>
-  <html lang="th">
-  <head> 
-    <meta charset="UTF-8"/> 
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
-    <style> 
-      body { font-family: 'Sarabun', sans-serif; font-size: 14px; color: #000; } 
-      .header { text-align: center; margin-bottom: 20px; } 
-      .section-title { background: #f5e6d3; padding: 8px 12px; font-weight: bold; border-left: 4px solid #e07b39; margin: 16px 0 8px; } 
-      table { width: 100%; border-collapse: collapse; } 
-      td { border: 1px solid #ccc; padding: 8px; } 
-      .checkbox { display: inline-block; width: 14px; height: 14px; border: 1px solid #333; margin-right: 8px; text-align: center; line-height: 14px; }
-      .checked::after { content: "✓"; font-size: 12px; }
-      .signature-box { border: 1px solid #ccc; height: 80px; margin-top: 8px; }
-      img.sig { width: 100%; height: 80px; object-fit: contain; }
-      
-      /* Better printing */
-      @media print {
-        .page-break { page-break-before: always; }
-        .avoid-break { page-break-inside: avoid; }
-      }
-    </style>
-  </head>
-  <body>
-
-  <!-- Header -->
-  <div class="header">
-    <strong>บริษัท เทอรา อิเล็กทริค จำกัด (TERA Electric Co., Ltd.)</strong><br/>
-    39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250<br/>
-    โทร: +66(0) 23280801-3 แฟกซ์: +66(2) 23280804<br/>
-    เลขประจำตัวผู้เสียภาษี: 0105557159958
-    <h3 style="margin-top: 15px;">เอกสารการเข้าหน้างานติดตั้งแผงโซลาร์เซลล์ (Site Entry & Photo Checklist)</h3>
-  </div>
-
-  <!-- Project Information -->
-  <table>
-    <tr><td width="250">ชื่อโครงการ/ลูกค้า (Project Name/Customer)</td><td>${project.clientName ?? ""}</td></tr>
-    <tr><td>สถานที่ติดตั้ง (Installation Location)</td><td>${project.siteAddress ?? ""}</td></tr>
-    <tr><td>เลขที่ใบเสนอราคา/JB (Quotation/JB No.)</td><td>${project.jbNumber ?? ""}</td></tr>
-    <tr><td>วันที่เริ่มงาน (Work Start Date)</td><td>${project.siteCheckInTime ? new Date(project.siteCheckInTime).toLocaleDateString("th-TH") : ""}</td></tr>
-  </table>
-
-  <!-- Section 1 -->
-  <div class="section-title">1. ข้อมูลการเข้างาน (Check-in)</div>
-  <table>
-    <tr><td width="250">เวลาเข้างาน (Time of arrival)</td><td>${project.siteCheckInTime ? new Date(project.siteCheckInTime).toLocaleTimeString("th-TH") : ""}</td></tr>
-    <tr><td>รายชื่อทีมงาน (Staff/Team members)</td><td>${project.siteTeamMembers || ((project as any)._formattedTeamMembers ?? "")}</td></tr>
-    <tr><td>หัวหน้าทีม (Supervisor/Team Leader)</td><td>${project.siteSupervisor || project.manager?.fullName || ""}</td></tr>
-  </table>
-
-  <!-- Section 2 -->
-  <div class="avoid-break">
-    <div class="section-title">2. รายการตรวจสอบก่อนเริ่มงาน (Pre-Work Checklist)</div>
-    ${renderPhotoChecklist(project.preChecklist, project.checklistImages, PRE_WORK_CHECKLIST)}
-  </div>
-
-  <!-- Section 3 -->
-  <div class="section-title page-break">3. รูปถ่ายหน้างานหลังติดตั้ง (Post-Installation Site Photos)</div>
-  ${renderPhotoChecklist(project.photoChecklist, project.checklistImages, POST_INSTALL_PHOTOS)}
-
-  <!-- Section 4 (conditional) -->
-  ${project.isHighVoltage ? `
-  <div class="section-title page-break">4. รูปถ่ายจุดเชื่อมต่อ High Voltage (22-33-115 kVA)</div>
-  ${renderPhotoChecklist(project.hvChecklist, project.checklistImages, HV_CHECKLIST)}
-  ` : ""}
-
-  <!-- Section 5 -->
-  <div class="avoid-break">
-    <div class="section-title">5. การตรวจสอบหลังจบงาน (Site Checkout)</div>
-    <table>
-      <tr><td width="250">เวลาออกหน้างาน (Check-out Time)</td><td>${project.siteCheckOutTime ? new Date(project.siteCheckOutTime).toLocaleTimeString("th-TH") : ""}</td></tr>
-      <tr><td>สรุปงานที่ทำเสร็จวันนี้ (Work completed today)</td><td>${renderList(project.workSummary)}</td></tr>
-      <tr><td>ปัญหา/อุปสรรคหน้างาน (Problems/Obstacles)</td><td>${renderList(project.siteProblems)}</td></tr>
-      <tr><td>งานที่เหลือ/นัดหมายครั้งถัดไป (Remaining work)</td><td>${project.remainingWork ?? ""}</td></tr>
-    </table>
-  </div>
-
-  <!-- Signatures -->
-  <div class="avoid-break" style="display:flex; justify-content:space-between; margin-top:40px;">
-    <div style="width:45%; text-align:center;"> 
-      ${project.supervisorSignUrl ? `<img class="sig" src="${project.supervisorSignUrl}"/>` : '<div class="signature-box"></div>'}
-      <div style="margin-top:8px;">ลงชื่อ (Signature) ............................................</div>
-      <div>ผู้ควบคุมงาน (Project Supervisor / Team Leader)<br/>${project.siteSupervisor || project.manager?.fullName || ""}</div>
-    </div>
-    <div style="width:45%; text-align:center;">
-      ${project.customerSignUrl ? `<img class="sig" src="${project.customerSignUrl}"/>` : '<div class="signature-box"></div>'}
-      <div style="margin-top:8px;">ลงชื่อ (Signature) ............................................</div>
-      <div>ตัวแทนลูกค้า / ผู้รับมอบงาน (Customer Representative)</div>
-    </div>
-  </div>
-
-  </body>
-  </html>`;
-}
-
-export async function GET(req: Request, props: { params: Promise<{ id: string }> | { id: string } }) {
-  try {
     const params = await props.params;
-    const project = await prisma.project.findUnique({ 
+    const isInline = req.nextUrl.searchParams.get('mode') === 'inline';
+
+    const project = await prisma.project.findUnique({
       where: { id: params.id },
       include: {
         manager: true,
         members: {
           include: {
-            user: true
-          }
-        }
-      }
-    }); 
+            user: true,
+          },
+        },
+        job: {
+          select: {
+            jobNumber: true,
+            quotationNumber: true,
+            companyCode: true,
+            sellerName: true,
+          },
+        },
+      },
+    });
 
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    // Format team members
     const teamMembersList = project.members
-      .map((m: any) => `${m.user.fullName} (${m.role === 'admin' ? 'Project Admin' : 'Engineer'})`)
+      .map((m) => `${m.user?.fullName || ''} (${m.role === 'admin' ? 'Project Admin' : 'Engineer'})`)
+      .filter(Boolean)
       .join(', ');
     const allMembers = [
-      teamMembersList, 
-      project.externalTechnicians ? `${project.externalTechnicians} (ช่างภายนอก)` : ''
-    ].filter(Boolean).join(', ');
-    (project as any)._formattedTeamMembers = allMembers;
+      teamMembersList,
+      project.externalTechnicians ? `${project.externalTechnicians} (ช่างภายนอก)` : '',
+    ]
+      .filter(Boolean)
+      .join(', ');
 
-    // render HTML template 
-    const html = generateSolarChecklistHTML(project);
+    const enrichedProject = {
+      ...project,
+      _formattedTeamMembers: allMembers,
+    };
+
+    const checklistPhotos = collectSolarChecklistPhotos(enrichedProject);
+    const resolvedImageDataUris = await resolveImagesToDataUris([
+      ...checklistPhotos.map((p) => p.url),
+      project.supervisorSignUrl,
+      project.customerSignUrl,
+    ]);
+
+    const assets: SolarPdfAssets = {
+      ...loadStaticPdfAssets(),
+      resolvedImageDataUris,
+    };
+
+    const html = generateSolarChecklistHTML(enrichedProject, assets);
 
     const isLocal = process.env.NODE_ENV === 'development';
-    
-    const browser = await puppeteer.launch({ 
-      args: isLocal ? [] : chromium.args, 
-      executablePath: isLocal 
-        ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' 
-        : await chromium.executablePath(), 
+    browser = await puppeteer.launch({
+      args: isLocal ? ['--no-sandbox', '--disable-setuid-sandbox'] : chromium.args,
+      executablePath: isLocal
+        ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+        : await chromium.executablePath(),
       headless: true,
     });
 
-    const page = await browser.newPage(); 
-    await page.setContent(html, { waitUntil: "load" }); 
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'load', timeout: 30000 });
 
-    // Explicitly wait for fonts to load
     await page.evaluate(() => document.fonts.ready);
-    
-    // Explicitly wait for all images (photos and signatures) to finish loading
+
     await page.evaluate(async () => {
       const images = Array.from(document.querySelectorAll('img'));
-      await Promise.all(images.map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
-      }));
+      await Promise.all(
+        images.map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise<void>((resolve) => {
+            const timer = setTimeout(() => resolve(), 8000);
+            img.onload = () => {
+              clearTimeout(timer);
+              resolve();
+            };
+            img.onerror = () => {
+              clearTimeout(timer);
+              resolve();
+            };
+          });
+        })
+      );
     });
 
-    const pdf = await page.pdf({
-      format: "A4",
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
       printBackground: true,
-      margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" }
+      preferCSSPageSize: true,
+      displayHeaderFooter: true,
+      headerTemplate: '<span></span>',
+      footerTemplate:
+        '<div style="width:100%;font-size:9px;color:#6b7280;text-align:right;padding:0 12mm 4mm 12mm;font-family:Sarabun,sans-serif;">หน้า <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+      margin: {
+        top: '11mm',
+        bottom: '14mm',
+        left: '12mm',
+        right: '12mm',
+      },
     });
 
     await browser.close();
+    browser = null;
 
-    return new NextResponse(pdf as any, {
+    const disposition = isInline ? 'inline' : 'attachment';
+    const safeFileCode = (project.projectNumber || project.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+
+    return new NextResponse(Buffer.from(pdfBuffer), {
+      status: 200,
       headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="solar-checklist-${project.id}.pdf"`
-      }
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `${disposition}; filename="SolarChecklist_${safeFileCode}.pdf"`,
+        'Cache-Control': 'no-store',
+      },
     });
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
+  } catch (error: unknown) {
+    console.error('Error generating Solar Checklist PDF:', error);
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
+    const details = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      { error: 'Failed to generate PDF', details },
+      { status: 500 }
+    );
   }
 }

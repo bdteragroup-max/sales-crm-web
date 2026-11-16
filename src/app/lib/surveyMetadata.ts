@@ -773,3 +773,11 @@ export function computeSurveyCompleteness(survey: any) {
   return { checks, completedCount, total: checks.length, percent, missing };
 }
 
+export function isSurveyPendingForProject(
+  status?: string | null,
+  estimationStatus?: string | null
+): boolean {
+  return status === 'Pending Estimate' && estimationStatus !== 'Estimated';
+}
+
+

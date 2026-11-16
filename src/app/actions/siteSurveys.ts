@@ -1,6 +1,8 @@
 'use server';
 
 import prisma from '@/app/lib/db';
+import { getUser } from '@/app/lib/dal';
+import { canEstimateSurveyRole } from '@/app/lib/surveyMetadata';
 import { decryptString } from '@/utils/crypto';
 import { revalidatePath } from 'next/cache';
 import { hydrateSurveySignaturesFallback } from '@/app/lib/surveySignaturesDb';
@@ -90,5 +92,25 @@ export async function deleteSiteSurvey(id: string) {
   } catch (error: any) {
     console.error('Error deleting site survey:', error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function getPendingProjectSurveyCount(): Promise<number> {
+  try {
+    const user = await getUser();
+    if (!user || !canEstimateSurveyRole(user.role)) return 0;
+
+    return await prisma.siteSurvey.count({
+      where: {
+        status: 'Pending Estimate',
+        OR: [
+          { estimationStatus: null },
+          { estimationStatus: { not: 'Estimated' } },
+        ],
+      },
+    });
+  } catch (error) {
+    console.error('Error counting pending project surveys:', error);
+    return 0;
   }
 }

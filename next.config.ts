@@ -2,6 +2,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'uvbnlqwcdzlygykbhwhv.supabase.co',
+      },
+    ],
+  },
   serverExternalPackages: ['@sparticuz/chromium', 'puppeteer-core', 'tesseract.js', 'sharp'],
   outputFileTracingIncludes: {
     '/api/**/*': ['./node_modules/@sparticuz/chromium/**/*'],

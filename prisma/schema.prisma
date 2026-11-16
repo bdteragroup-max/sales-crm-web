@@ -74,6 +74,9 @@ model User {
   marketingRequestsAssignedBy MarketingRequest[]      @relation("MarketingRequestAssigner")
   marketingRequestComments    MarketingRequestComment[]
   marketingRequestLogs        MarketingRequestLog[]
+  solarCleaningCreated        SolarCleaningInspection[] @relation("SolarCleaningCreator")
+  solarCleaningProjectSigned  SolarCleaningInspection[] @relation("SolarCleaningProjectMgr")
+  solarCleaningServiceSigned  SolarCleaningInspection[] @relation("SolarCleaningServiceMgr")
 }
 
 model MonthlyTarget {
@@ -1806,6 +1809,7 @@ model Project {
   members                   ProjectMember[]
   tasks                     ProjectTask[]
   technicianTasks           TechnicianTask[]
+  solarCleaningInspections  SolarCleaningInspection[]
 }
 
 model ProjectEquipment {
@@ -4232,4 +4236,64 @@ model StockTransaction {
   @@index([batchCode], map: "idx_stock_tx_batch")
   @@index([requesterUserId], map: "idx_stock_tx_requester_uid")
   @@map("stock_transactions")
+}
+
+model SolarCleaningInspection {
+  id                      String    @id @default(cuid())
+  docNumber               String    @unique @map("doc_number") @db.VarChar(40)
+  companyCode             String    @default("TE") @map("company_code") @db.VarChar(10)
+  status                  String    @default("Draft") @db.VarChar(40)
+  projectId               String?   @map("project_id")
+  projectName             String    @map("project_name")
+  location                String?   @db.Text
+  customerName            String    @map("customer_name")
+  customerPhone           String?   @map("customer_phone") @db.VarChar(60)
+  inspectorNames          String?   @map("inspector_names") @db.Text
+  systemSizeKwp           String?   @map("system_size_kwp") @db.VarChar(60)
+  inspectionRound         String?   @map("inspection_round") @db.VarChar(120)
+  inspectionDate          DateTime  @default(now()) @map("inspection_date") @db.Timestamptz(6)
+  reportDate              DateTime? @map("report_date") @db.Timestamptz(6)
+
+  projectTypes            String[]  @default([]) @map("project_types")
+  projectTypeOther        String?   @map("project_type_other") @db.VarChar(255)
+  jobTypes                String[]  @default([]) @map("job_types")
+  jobTypeOther            String?   @map("job_type_other") @db.VarChar(255)
+  workItems               Json?     @map("work_items")
+  additionalDetail        String?   @map("additional_detail") @db.Text
+  checkInCustomerSignUrl  String?   @map("checkin_customer_sign_url") @db.Text
+  checkInCustomerName     String?   @map("checkin_customer_name") @db.VarChar(200)
+  checkInAt               DateTime? @map("checkin_at") @db.Timestamptz(6)
+  checkOutCustomerSignUrl String?   @map("checkout_customer_sign_url") @db.Text
+  checkOutCustomerName    String?   @map("checkout_customer_name") @db.VarChar(200)
+  checkOutAt              DateTime? @map("checkout_at") @db.Timestamptz(6)
+  inspectorSignUrl        String?   @map("inspector_sign_url") @db.Text
+  inspectorSignerName     String?   @map("inspector_signer_name") @db.VarChar(200)
+
+  reportTitle             String?   @map("report_title") @db.VarChar(255)
+  reportData              Json?     @map("report_data")
+  overallResult           String    @default("PASS") @map("overall_result") @db.VarChar(20)
+  projectMgrSignUrl       String?   @map("project_mgr_sign_url") @db.Text
+  projectMgrId            String?   @map("project_mgr_id")
+  projectMgrName          String?   @map("project_mgr_name") @db.VarChar(200)
+  projectMgrSignedAt      DateTime? @map("project_mgr_signed_at") @db.Timestamptz(6)
+  serviceMgrSignUrl       String?   @map("service_mgr_sign_url") @db.Text
+  serviceMgrId            String?   @map("service_mgr_id")
+  serviceMgrName          String?   @map("service_mgr_name") @db.VarChar(200)
+  serviceMgrSignedAt      DateTime? @map("service_mgr_signed_at") @db.Timestamptz(6)
+
+  createdById             String    @map("created_by_id")
+  updatedById             String?   @map("updated_by_id")
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  project                 Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdBy               User      @relation("SolarCleaningCreator", fields: [createdById], references: [id])
+  projectMgrUser          User?     @relation("SolarCleaningProjectMgr", fields: [projectMgrId], references: [id], onDelete: SetNull)
+  serviceMgrUser          User?     @relation("SolarCleaningServiceMgr", fields: [serviceMgrId], references: [id], onDelete: SetNull)
+
+  @@index([status], map: "idx_solar_cleaning_status")
+  @@index([projectId], map: "idx_solar_cleaning_project_id")
+  @@index([inspectionDate(sort: Desc)], map: "idx_solar_cleaning_date")
+  @@index([createdAt(sort: Desc)], map: "idx_solar_cleaning_created")
+  @@map("solar_cleaning_inspections")
 }

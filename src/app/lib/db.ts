@@ -55,15 +55,20 @@ const prismaClientSingleton = () => {
 }
 
 declare global {
-  var prisma_instance_v36: undefined | ReturnType<typeof prismaClientSingleton>
+  var prisma_instance_v37: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-const cachedPrisma = globalThis.prisma_instance_v36;
+const cachedPrisma = globalThis.prisma_instance_v37;
 const hasStockModels =
   cachedPrisma &&
   typeof (cachedPrisma as unknown as Record<string, unknown>).stockCategory !== 'undefined';
+const hasSolarCleaningModel =
+  cachedPrisma &&
+  typeof (cachedPrisma as unknown as Record<string, unknown>).solarCleaningInspection !== 'undefined';
 const isCacheCompatible =
-  Boolean(hasStockModels) && hasSurveyExtendedFieldsInRuntime(cachedPrisma);
+  Boolean(hasStockModels) &&
+  Boolean(hasSolarCleaningModel) &&
+  hasSurveyExtendedFieldsInRuntime(cachedPrisma);
 
 if (cachedPrisma && !isCacheCompatible) {
   cachedPrisma.$disconnect?.().catch(() => {});
@@ -73,5 +78,5 @@ const prisma = isCacheCompatible ? cachedPrisma! : prismaClientSingleton();
 
 export default prisma
 
-globalThis.prisma_instance_v36 = prisma
+globalThis.prisma_instance_v37 = prisma
 

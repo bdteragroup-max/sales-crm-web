@@ -10,7 +10,12 @@ export const metadata = {
   title: 'Site Surveys | Sales CRM',
 };
 
-export default async function SurveysPage() {
+export default async function SurveysPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ surveyId?: string }>;
+}) {
+  const params = await searchParams;
   const user = await getUser();
   if (!user) {
     redirect('/login');
@@ -116,13 +121,17 @@ export default async function SurveysPage() {
     ? rawSurveys
     : await hydrateSurveyListCompanyCodesFallback(prisma, rawSurveys);
 
+  const initialSurveyId = params?.surveyId || null;
+
   return (
     <main className="flex-1 overflow-y-auto bg-gray-50 pb-20 md:pb-10 relative custom-scrollbar h-full">
-      <SurveyManager 
+      <SurveyManager
+        key={initialSurveyId || 'list'}
         initialSurveys={surveys}
         companies={companies}
         salesReps={salesReps}
         currentUser={user}
+        initialSurveyId={initialSurveyId}
       />
     </main>
   );

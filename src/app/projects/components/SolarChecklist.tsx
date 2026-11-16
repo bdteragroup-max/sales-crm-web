@@ -1,341 +1,650 @@
 "use client";
 
 import React, { useRef, useState } from 'react';
-import { Camera, Trash2, X } from 'lucide-react';
-import Card from '@/app/sales/components/Card';
+import Image from 'next/image';
+import {
+  Camera,
+  Check,
+  CheckCircle2,
+  ClipboardCheck,
+  Clock,
+  Loader2,
+  PenTool,
+  Plus,
+  Trash2,
+  Users,
+  Wrench,
+  X,
+  Zap,
+} from 'lucide-react';
+import {
+  HV_CHECKLIST,
+  POST_INSTALL_PHOTOS,
+  PRE_WORK_CHECKLIST,
+  toBkkDateTimeLocalValue,
+  type SolarChecklistFormState,
+  type SolarChecklistItemDef,
+  type SolarUserBasic,
+} from '@/app/lib/solarChecklistConfig';
+import SurveySignatureBox from '@/app/sales/surveys/components/SurveySignatureBox';
 
-const PRE_WORK_CHECKLIST = [
-  { key: 'verify_site', label: '1. ตรวจสอบพื้นที่ทำงานตรงตามแบบติดตั้ง' },
-  { key: 'photos_before', label: '2. ถ่ายรูปสถานที่ก่อนทำการติดตั้ง' },
-  { key: 'ppe_check', label: '3. ตรวจสอบชุดทำงาน PPE ครบถ้วน' },
-  { key: 'toolbox_talk', label: '4. ประชุม Toolbox Talk ก่อนเริ่มงาน' },
-  { key: 'tools_crane', label: '5. ตรวจสอบเครื่องมือ / รถเครน / นั่งร้าน' },
-];
+type ChecklistSectionKey = 'preChecklist' | 'photoChecklist' | 'hvChecklist';
+type ChecklistListField = 'workSummary' | 'siteProblems';
 
-const POST_INSTALL_PHOTOS = [
-  { key: 'install_site', label: '1. รูปสถานที่ติดตั้ง' },
-  { key: 'pv_panel', label: '2. แผง PV (Nameplate + มุมกว้าง)' },
-  { key: 'inverter', label: '3. อินเวอร์เตอร์ (Nameplate + จุดติดตั้ง)' },
-  { key: 'ac_cabinet', label: '4. ตู้ AC (เบรกเกอร์, SPD)' },
-  { key: 'connection_points', label: '5. จุดเชื่อมต่อ (เบรกเกอร์, CT)' },
-  { key: 'zero_export', label: '6. อุปกรณ์กันย้อน (Zero Export)' },
-  { key: 'protection_devices', label: '7. อุปกรณ์กันไฟรั่ว (RCCB, RCBO, CB)' },
-  { key: 'overall', label: '8. รูปภาพรวมจุดติดตั้ง (มุมกว้าง)' },
-];
-
-const HV_CHECKLIST = [
-  { key: 'main_bus_bar', label: '1. จุดต่อเข้า Main Bus Bar / MDB' },
-  { key: 'zero_export_hv', label: '2. กันย้อน High Voltage' },
-  { key: 'transformer', label: '3. หม้อแปลง (Nameplate + kVA)' },
-  { key: 'relay_breaker', label: '4. Relay + Circuit Breaker + CT/PT/UPS' },
-];
-
-interface SolarChecklistProps {
-  formData: any;
-  setFormData: React.Dispatch<React.SetStateAction<any>>;
+interface SolarChecklistProps<T extends SolarChecklistFormState = SolarChecklistFormState> {
+  formData: T;
+  setFormData: React.Dispatch<React.SetStateAction<T>>;
+  currentUser?: SolarUserBasic | null;
 }
 
-export default function SolarChecklist({ formData, setFormData }: SolarChecklistProps) {
+export default function SolarChecklist<T extends SolarChecklistFormState = SolarChecklistFormState>({
+  formData,
+  setFormData,
+  currentUser,
+}: SolarChecklistProps<T>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadTarget, setUploadTarget] = useState<{ key: string, index: number } | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [uploadKey, setUploadKey] = useState<{ section: ChecklistSectionKey; key: string } | null>(null);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (section: string, key: string) => {
-    setFormData((prev: any) => {
+  const setNowTimestamp = (field: 'siteCheckInTime' | 'siteCheckOutTime') => {
+    const formatted = toBkkDateTimeLocalValue(new Date());
+    setFormData((prev) => ({ ...prev, [field]: formatted }));
+  };
+
+  const handleCheckboxChange = (section: ChecklistSectionKey, key: string) => {
+    setFormData((prev) => {
       const sectionData = prev[section] || {};
       return {
         ...prev,
-        [section]: { ...sectionData, [key]: !sectionData[key] }
+        [section]: { ...sectionData, [key]: !sectionData[key] },
       };
     });
   };
 
-  // Generic JSON string array updates for Summary/Problems
-  const handleListChange = (field: string, index: number, value: string) => {
-    setFormData((prev: any) => {
+  const handleToggleAllSection = (
+    section: ChecklistSectionKey,
+    items: SolarChecklistItemDef[],
+    markChecked: boolean
+  ) => {
+    setFormData((prev) => {
+      const nextSection = { ...(prev[section] || {}) };
+      items.forEach((item) => {
+        nextSection[item.key] = markChecked;
+      });
+      return { ...prev, [section]: nextSection };
+    });
+  };
+
+  const handleListChange = (field: ChecklistListField, index: number, value: string) => {
+    setFormData((prev) => {
       const arr = Array.isArray(prev[field]) ? [...prev[field]] : [];
       arr[index] = value;
       return { ...prev, [field]: arr };
     });
   };
 
-  const addListItem = (field: string) => {
-    setFormData((prev: any) => {
+  const addListItem = (field: ChecklistListField) => {
+    setFormData((prev) => {
       const arr = Array.isArray(prev[field]) ? [...prev[field]] : [];
-      return { ...prev, [field]: [...arr, ""] };
+      return { ...prev, [field]: [...arr, ''] };
     });
   };
 
-  const removeListItem = (field: string, index: number) => {
-    setFormData((prev: any) => {
+  const removeListItem = (field: ChecklistListField, index: number) => {
+    setFormData((prev) => {
       const arr = Array.isArray(prev[field]) ? [...prev[field]] : [];
       arr.splice(index, 1);
       return { ...prev, [field]: arr };
     });
   };
 
-  // Upload Images
-  const triggerUpload = (key: string, index: number) => {
-    setUploadTarget({ key, index });
+  const triggerUpload = (section: ChecklistSectionKey, key: string) => {
+    setUploadKey({ section, key });
     if (fileInputRef.current) fileInputRef.current.click();
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !uploadTarget) return;
+  const uploadSingleFile = async (file: File): Promise<string> => {
+    let publicUrl = '';
+    try {
+      const supabase = (await import('@supabase/supabase-js')).createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { auth: { persistSession: false } }
+      );
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
 
-    if (file.size > 50 * 1024 * 1024) {
-      alert(`ไฟล์ขนาดใหญ่เกินไป (สูงสุด 50MB)`);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('uploadsService')
+        .upload(filename, file, { contentType: file.type, upsert: false });
+
+      if (!uploadError && uploadData?.path) {
+        const { data: urlData } = supabase.storage
+          .from('uploadsService')
+          .getPublicUrl(uploadData.path);
+        publicUrl = urlData.publicUrl;
+      }
+    } catch {
+      // Fallback to /api/upload below
+    }
+
+    if (!publicUrl) {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('bucket', 'uploadsService');
+
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.success || !json?.url) {
+        throw new Error(json?.error || 'อัปโหลดรูปภาพไม่สำเร็จ');
+      }
+      publicUrl = json.url;
+    }
+
+    return publicUrl;
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (files.length === 0 || !uploadKey) return;
+
+    const oversized = files.find((f) => f.size > 50 * 1024 * 1024);
+    if (oversized) {
+      alert(`ไฟล์ "${oversized.name}" ขนาดใหญ่เกิน 50MB`);
+      setUploadKey(null);
       return;
     }
 
-    setUploading(true);
+    const { section, key } = uploadKey;
+    setUploadingKey(key);
     try {
-      let publicUrl = '';
-
-      try {
-        // Dynamic import to avoid SSR issues
-        const supabase = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          { auth: { persistSession: false } }
-        );
-        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-
-        const { data: uploadData, error: uploadError } = await supabase
-          .storage
-          .from('uploadsService')
-          .upload(filename, file, { contentType: file.type, upsert: false });
-
-        if (!uploadError && uploadData?.path) {
-          const { data: urlData } = supabase.storage.from('uploadsService').getPublicUrl(uploadData.path);
-          publicUrl = urlData.publicUrl;
-        } else if (uploadError) {
-          console.warn('Direct Supabase upload error in SolarChecklist, falling back to /api/upload:', uploadError.message);
-        }
-      } catch (directErr) {
-        console.warn('Direct upload exception in SolarChecklist, falling back to /api/upload:', directErr);
+      const uploadedUrls: string[] = [];
+      for (const file of files) {
+        const url = await uploadSingleFile(file);
+        if (url) uploadedUrls.push(url);
       }
 
-      if (!publicUrl) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('bucket', 'uploadsService');
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
+      if (uploadedUrls.length > 0) {
+        setFormData((prev) => {
+          const existingImages = Array.isArray(prev.checklistImages?.[key])
+            ? prev.checklistImages[key].filter(Boolean)
+            : [];
+          return {
+            ...prev,
+            [section]: { ...(prev[section] || {}), [key]: true },
+            checklistImages: {
+              ...(prev.checklistImages || {}),
+              [key]: [...existingImages, ...uploadedUrls],
+            },
+          };
         });
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData?.error || 'อัปโหลดรูปภาพไม่สำเร็จ');
-        }
-
-        const json = await res.json();
-        if (!json?.success || !json?.url) {
-          throw new Error(json?.error || 'อัปโหลดรูปภาพไม่สำเร็จ');
-        }
-        publicUrl = json.url;
       }
-
-      const { key, index } = uploadTarget;
-      setFormData((prev: any) => {
-        const newImages = { ...(prev.checklistImages || {}) };
-        if (!newImages[key]) newImages[key] = [];
-        while (newImages[key].length <= index) newImages[key].push("");
-        newImages[key][index] = publicUrl;
-        return { ...prev, checklistImages: newImages };
-      });
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      alert("Error uploading file.");
+      alert(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
     } finally {
-      setUploading(false);
-      setUploadTarget(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setUploadingKey(null);
+      setUploadKey(null);
     }
   };
 
   const removeImage = (key: string, index: number) => {
-    setFormData((prev: any) => {
-      const newImages = { ...(prev.checklistImages || {}) };
-      if (newImages[key]) {
-        const arr = [...newImages[key]];
-        arr[index] = "";
-        newImages[key] = arr;
-      }
-      return { ...prev, checklistImages: newImages };
+    setFormData((prev) => {
+      const existingImages = Array.isArray(prev.checklistImages?.[key])
+        ? prev.checklistImages[key].filter(Boolean)
+        : [];
+      const nextArr = existingImages.filter((_: string, idx: number) => idx !== index);
+      return {
+        ...prev,
+        checklistImages: {
+          ...(prev.checklistImages || {}),
+          [key]: nextArr,
+        },
+      };
     });
   };
 
-  // (Signatures removed)
-
-  const renderPhotoGrid = (items: typeof POST_INSTALL_PHOTOS, sectionKey: string) => {
+  const renderChecklistSection = (
+    items: SolarChecklistItemDef[],
+    sectionKey: ChecklistSectionKey,
+    oddFullWidth = false
+  ) => {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-        {items.map((item) => (
-          <div key={item.key} className="flex flex-col gap-2 p-3 bg-white rounded-lg border border-gray-200">
-            <label className="flex items-start gap-2 cursor-pointer text-sm font-medium text-slate-700">
-              <input
-                type="checkbox"
-                checked={!!(formData[sectionKey] && formData[sectionKey][item.key])}
-                onChange={() => handleCheckboxChange(sectionKey, item.key)}
-                className="w-4 h-4 text-brand-red rounded border-gray-300 focus:ring-brand-red mt-0.5"
-              />
-              {item.label}
-            </label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-stretch">
+        {items.map((item, idx) => {
+          const checked = Boolean(formData[sectionKey]?.[item.key]);
+          const itemImages: string[] = (formData.checklistImages?.[item.key] || []).filter(
+            Boolean
+          );
+          const isLastOdd = oddFullWidth && items.length % 2 === 1 && idx === items.length - 1;
 
-            {/* Show image upload only if checked */}
-            {formData[sectionKey] && formData[sectionKey][item.key] && (
-              <div className="pl-6 flex gap-2">
-                {[0, 1].map(pIdx => {
-                  const imgUrl = formData.checklistImages?.[item.key]?.[pIdx];
-                  return (
-                    <div key={pIdx} className="relative flex flex-col items-center w-[80px] group">
-                      <div
-                        onClick={() => triggerUpload(item.key, pIdx)}
-                        className={`w-[80px] h-[80px] rounded-xl border flex items-center justify-center cursor-pointer overflow-hidden transition-all ${!imgUrl ? 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-500' : 'bg-white border-solid border-slate-200'}`}
-                      >
-                        {imgUrl ? (
-                          <img src={imgUrl} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="text-slate-400">
-                            {uploading && uploadTarget?.key === item.key && uploadTarget?.index === pIdx ? (
-                              <span className="text-xs animate-pulse">...</span>
-                            ) : (
-                              <Camera size={20} />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      {imgUrl && (
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); removeImage(item.key, pIdx); }}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={12} />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
+          return (
+            <div
+              key={item.key}
+              className={`rounded-xl border p-3.5 flex flex-col justify-between gap-3 transition-all ${
+                checked
+                  ? 'bg-emerald-50/35 border-emerald-200'
+                  : 'bg-gray-50/60 border-gray-200'
+              } ${isLastOdd ? 'md:col-span-2' : ''}`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <label className="flex items-start gap-2.5 cursor-pointer select-none flex-1">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => handleCheckboxChange(sectionKey, item.key)}
+                    className="w-4 h-4 rounded border-gray-300 text-[#ff2301] focus:ring-[#ff2301] mt-0.5 cursor-pointer shrink-0"
+                  />
+                  <span className="text-xs sm:text-sm font-bold text-gray-800 leading-snug">
+                    {item.label}
+                  </span>
+                </label>
+                <span className="text-[11px] font-mono font-bold text-gray-500 shrink-0">
+                  {itemImages.length} รูป
+                </span>
               </div>
-            )}
-          </div>
-        ))}
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {itemImages.map((imgUrl, pIdx) => (
+                  <div
+                    key={`${item.key}-edit-${pIdx}`}
+                    className="relative w-20 h-20 rounded-xl border border-gray-200 overflow-hidden bg-white shrink-0"
+                  >
+                    <Image
+                      src={imgUrl}
+                      alt={`${item.label} #${pIdx + 1}`}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(item.key, pIdx)}
+                      aria-label="ลบรูปภาพ"
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/95 hover:bg-red-600 text-red-600 hover:text-white border border-red-200 flex items-center justify-center shadow-xs transition cursor-pointer"
+                    >
+                      <X size={11} />
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  disabled={uploadingKey === item.key}
+                  onClick={() => triggerUpload(sectionKey, item.key)}
+                  className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 hover:border-[#ff2301] bg-white hover:bg-red-50/40 text-gray-500 hover:text-[#ff2301] flex flex-col items-center justify-center gap-1 transition cursor-pointer disabled:opacity-50 shrink-0"
+                >
+                  {uploadingKey === item.key ? (
+                    <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+                  ) : (
+                    <>
+                      <Camera size={17} />
+                      <span className="text-[10px] font-bold">+ เพิ่มรูป</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     );
   };
 
   return (
-    <div className="space-y-6">
-      <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+    <div className="space-y-5">
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
 
-      {/* Section 1: Check-in */}
-      <Card title="Section 1: Check-in (เริ่มเข้างาน)">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-gray-700">เวลาเริ่มงาน (Check-in Time)</label>
-            <input type="datetime-local" name="siteCheckInTime" value={formData.siteCheckInTime ? new Date(new Date(formData.siteCheckInTime).getTime() - new Date(formData.siteCheckInTime).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-gray-700">หัวหน้าทีม (Team Leader / Supervisor)</label>
-            <input type="text" name="siteSupervisor" value={formData.siteSupervisor || ''} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" placeholder="ปล่อยว่างเพื่อดึงชื่อ Project Manager อัตโนมัติ" />
-          </div>
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-sm font-bold text-gray-700">รายชื่อทีมงาน (Team Members)</label>
-            <textarea name="siteTeamMembers" rows={2} value={formData.siteTeamMembers || ''} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" placeholder="ปล่อยว่างเพื่อดึงรายชื่อทีมงานหลักอัตโนมัติ (นาย A, นาย B, ...)" />
-          </div>
+      {/* ── Section 1: Check-in / Check-out & Team ── */}
+      <section className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        <div className="px-4 sm:px-5 py-3.5 bg-gray-50/70 border-b border-gray-200 flex items-center gap-2">
+          <Users size={16} className="text-[#ff2301]" />
+          <h3 className="font-black text-sm text-gray-900">
+            1. ข้อมูลการเข้า-ออกหน้างาน และทีมงาน (Check-in & Team)
+          </h3>
         </div>
-      </Card>
 
-      {/* Section 2: Pre-work checklist */}
-      <Card title="Section 2: Pre-work Checklist (ก่อนเริ่มงาน)">
-        {renderPhotoGrid(PRE_WORK_CHECKLIST, 'preChecklist')}
-      </Card>
-
-      {/* Section 3: Post-install photos */}
-      <Card title="Section 3: Post-Installation Photos (ภาพถ่ายหลังติดตั้ง)">
-        {renderPhotoGrid(POST_INSTALL_PHOTOS, 'photoChecklist')}
-      </Card>
-
-      {/* Section 4: High voltage */}
-      <Card title="Section 4: High Voltage 22-33-115 kVA">
-        <div className="space-y-4">
-          <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-900 bg-red-50 p-3 rounded-lg border border-red-100">
+        <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-xs font-bold text-gray-700">
+                เวลาเริ่มงาน (Check-in Time)
+              </label>
+              <button
+                type="button"
+                onClick={() => setNowTimestamp('siteCheckInTime')}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:text-red-700 cursor-pointer"
+              >
+                <Clock size={11} /> ใช้เวลาตอนนี้
+              </button>
+            </div>
             <input
-              type="checkbox"
-              checked={!!formData.isHighVoltage}
-              onChange={() => setFormData((prev: any) => ({ ...prev, isHighVoltage: !prev.isHighVoltage }))}
-              className="w-5 h-5 text-brand-red rounded border-red-300 focus:ring-brand-red"
+              type="datetime-local"
+              name="siteCheckInTime"
+              value={
+                typeof formData.siteCheckInTime === 'string' && formData.siteCheckInTime.includes('T') && formData.siteCheckInTime.length === 16
+                  ? formData.siteCheckInTime
+                  : toBkkDateTimeLocalValue(formData.siteCheckInTime)
+              }
+              onChange={handleInputChange}
+              className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-base sm:text-sm focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none"
             />
-            มีระบบ High Voltage (Enable High Voltage Checklist)
-          </label>
-
-          {formData.isHighVoltage && renderPhotoGrid(HV_CHECKLIST, 'hvChecklist')}
-        </div>
-      </Card>
-
-      {/* Section 5: Check-out */}
-      <Card title="Section 5: Check-out & Summary (จบงาน)">
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">เวลาจบงาน (Check-out Time)</label>
-              <input type="datetime-local" name="siteCheckOutTime" value={formData.siteCheckOutTime ? new Date(new Date(formData.siteCheckOutTime).getTime() - new Date(formData.siteCheckOutTime).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">งานที่เหลือ (Remaining Work)</label>
-              <input type="text" name="remainingWork" value={formData.remainingWork || ''} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
-            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Work Summary Array */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-bold text-gray-700">สรุปงานที่ทำ (Work Summary)</label>
-                <button type="button" onClick={() => addListItem('workSummary')} className="text-xs text-brand-red font-bold">+ เพิ่มรายการ</button>
-              </div>
-              {(Array.isArray(formData.workSummary) ? formData.workSummary : []).map((item: string, idx: number) => (
-                <div key={`work-${idx}`} className="flex gap-2">
-                  <input type="text" value={item} onChange={(e) => handleListChange('workSummary', idx, e.target.value)} className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-red/20 outline-none" />
-                  <button type="button" onClick={() => removeListItem('workSummary', idx)} className="text-red-400 hover:text-red-600"><Trash2 size={16} /></button>
-                </div>
-              ))}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-xs font-bold text-gray-700">
+                เวลาจบงาน (Check-out Time)
+              </label>
+              <button
+                type="button"
+                onClick={() => setNowTimestamp('siteCheckOutTime')}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#ff2301] hover:text-red-700 cursor-pointer"
+              >
+                <Clock size={11} /> ใช้เวลาตอนนี้
+              </button>
+            </div>
+            <input
+              type="datetime-local"
+              name="siteCheckOutTime"
+              value={
+                typeof formData.siteCheckOutTime === 'string' && formData.siteCheckOutTime.includes('T') && formData.siteCheckOutTime.length === 16
+                  ? formData.siteCheckOutTime
+                  : toBkkDateTimeLocalValue(formData.siteCheckOutTime)
+              }
+              onChange={handleInputChange}
+              className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-base sm:text-sm focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-gray-700">
+              หัวหน้าทีม (Team Leader / Supervisor)
+            </label>
+            <input
+              type="text"
+              name="siteSupervisor"
+              value={formData.siteSupervisor || ''}
+              onChange={handleInputChange}
+              placeholder="ระบุชื่อหัวหน้าทีมคุมงาน"
+              className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-base sm:text-sm focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-gray-700">
+              ประเภทระบบไฟฟ้า (Voltage System)
+            </label>
+            <label className="flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl border border-orange-200 bg-orange-50/50 cursor-pointer min-h-[42px] sm:min-h-[38px]">
+              <span className="flex items-center gap-2 text-xs sm:text-sm font-bold text-orange-900">
+                <Zap size={15} className="text-orange-600 shrink-0" />
+                มีระบบ High Voltage (22-33-115 kVA)
+              </span>
+              <input
+                type="checkbox"
+                checked={Boolean(formData.isHighVoltage)}
+                onChange={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isHighVoltage: !prev.isHighVoltage,
+                  }))
+                }
+                className="w-4 h-4 rounded border-orange-300 text-[#ff2301] focus:ring-[#ff2301] cursor-pointer"
+              />
+            </label>
+          </div>
+
+          <div className="space-y-1.5 md:col-span-2">
+            <label className="block text-xs font-bold text-gray-700">
+              รายชื่อทีมงาน (Team Members)
+            </label>
+            <textarea
+              name="siteTeamMembers"
+              rows={2}
+              value={formData.siteTeamMembers || ''}
+              onChange={handleInputChange}
+              placeholder="รายชื่อทีมวิศวกร / ช่างผู้ร่วมปฏิบัติงาน"
+              className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-base sm:text-sm focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 2: Pre-work Checklist ── */}
+      <section className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        <div className="px-4 sm:px-5 py-3.5 bg-gray-50/70 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <ClipboardCheck size={16} className="text-[#ff2301]" />
+            <h3 className="font-black text-sm text-gray-900">
+              2. รายการตรวจสอบก่อนเริ่มงาน (Pre-work Checklist)
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleToggleAllSection('preChecklist', PRE_WORK_CHECKLIST, true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold cursor-pointer"
+            >
+              <Check size={12} /> ติ๊กครบทั้งหมด
+            </button>
+          </div>
+        </div>
+        <div className="p-4 sm:p-5">
+          {renderChecklistSection(PRE_WORK_CHECKLIST, 'preChecklist', true)}
+        </div>
+      </section>
+
+      {/* ── Section 3: Post-Install Photos ── */}
+      <section className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        <div className="px-4 sm:px-5 py-3.5 bg-gray-50/70 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Camera size={16} className="text-[#ff2301]" />
+            <h3 className="font-black text-sm text-gray-900">
+              3. รูปถ่ายหลังติดตั้ง (Post-Installation Photos)
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleToggleAllSection('photoChecklist', POST_INSTALL_PHOTOS, true)}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold cursor-pointer"
+          >
+            <Check size={12} /> ติ๊กครบทั้งหมด
+          </button>
+        </div>
+        <div className="p-4 sm:p-5">
+          {renderChecklistSection(POST_INSTALL_PHOTOS, 'photoChecklist', false)}
+        </div>
+      </section>
+
+      {/* ── Section 4: High Voltage Checklist (Conditional) ── */}
+      {formData.isHighVoltage && (
+        <section className="bg-white rounded-2xl border border-orange-200 shadow-xs overflow-hidden">
+          <div className="px-4 sm:px-5 py-3.5 bg-orange-50/70 border-b border-orange-200 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Zap size={16} className="text-orange-600" />
+              <h3 className="font-black text-sm text-orange-900">
+                4. ตรวจสอบระบบไฟฟ้าแรงสูง (High Voltage Checklist)
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleToggleAllSection('hvChecklist', HV_CHECKLIST, true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white hover:bg-orange-100 text-orange-800 border border-orange-200 text-xs font-bold cursor-pointer"
+            >
+              <CheckCircle2 size={12} /> ติ๊กครบทั้งหมด
+            </button>
+          </div>
+          <div className="p-4 sm:p-5">
+            {renderChecklistSection(HV_CHECKLIST, 'hvChecklist', false)}
+          </div>
+        </section>
+      )}
+
+      {/* ── Section 5: Work Summary, Problems & Remaining Work ── */}
+      <section className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        <div className="px-4 sm:px-5 py-3.5 bg-gray-50/70 border-b border-gray-200 flex items-center gap-2">
+          <Wrench size={16} className="text-emerald-600" />
+          <h3 className="font-black text-sm text-gray-900">
+            5. สรุปผลการปฏิบัติงาน ปัญหาหน้างาน และงานค้าง
+          </h3>
+        </div>
+
+        <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="space-y-2.5 bg-gray-50/60 p-3.5 rounded-xl border border-gray-200/80">
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-gray-800">
+                สรุปงานที่ทำสำเร็จ (Work Summary)
+              </label>
+              <button
+                type="button"
+                onClick={() => addListItem('workSummary')}
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#ff2301] hover:text-red-700 cursor-pointer"
+              >
+                <Plus size={13} /> เพิ่มรายการ
+              </button>
+            </div>
+            <div className="space-y-2">
+              {(Array.isArray(formData.workSummary) ? formData.workSummary : []).map(
+                (item: string, idx: number) => (
+                  <div key={`work-${idx}`} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => handleListChange('workSummary', idx, e.target.value)}
+                      placeholder={`รายการงานที่ ${idx + 1}`}
+                      className="flex-1 px-3 py-2 bg-white text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeListItem('workSummary', idx)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-xl border border-gray-200 bg-white cursor-pointer"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                )
+              )}
               {(!formData.workSummary || formData.workSummary.length === 0) && (
-                <button type="button" onClick={() => addListItem('workSummary')} className="w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-400 hover:text-gray-600">เพิ่มรายการงานแรก</button>
-              )}
-            </div>
-
-            {/* Site Problems Array */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-bold text-gray-700">ปัญหาอุปสรรค (Problems/Issues)</label>
-                <button type="button" onClick={() => addListItem('siteProblems')} className="text-xs text-brand-red font-bold">+ เพิ่มรายการ</button>
-              </div>
-              {(Array.isArray(formData.siteProblems) ? formData.siteProblems : []).map((item: string, idx: number) => (
-                <div key={`prob-${idx}`} className="flex gap-2">
-                  <input type="text" value={item} onChange={(e) => handleListChange('siteProblems', idx, e.target.value)} className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-red/20 outline-none" />
-                  <button type="button" onClick={() => removeListItem('siteProblems', idx)} className="text-red-400 hover:text-red-600"><Trash2 size={16} /></button>
-                </div>
-              ))}
-              {(!formData.siteProblems || formData.siteProblems.length === 0) && (
-                <button type="button" onClick={() => addListItem('siteProblems')} className="w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-400 hover:text-gray-600">เพิ่มรายการปัญหาแรก</button>
+                <button
+                  type="button"
+                  onClick={() => addListItem('workSummary')}
+                  className="w-full py-2.5 border-2 border-dashed border-gray-300 bg-white rounded-xl text-xs font-semibold text-gray-500 hover:text-gray-800 hover:border-gray-400 cursor-pointer"
+                >
+                  + เพิ่มรายการงานที่ทำเสร็จแล้ว
+                </button>
               )}
             </div>
           </div>
+
+          <div className="space-y-2.5 bg-gray-50/60 p-3.5 rounded-xl border border-gray-200/80">
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-gray-800">
+                ปัญหา / อุปสรรคหน้างาน (Site Problems)
+              </label>
+              <button
+                type="button"
+                onClick={() => addListItem('siteProblems')}
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#ff2301] hover:text-red-700 cursor-pointer"
+              >
+                <Plus size={13} /> เพิ่มรายการ
+              </button>
+            </div>
+            <div className="space-y-2">
+              {(Array.isArray(formData.siteProblems) ? formData.siteProblems : []).map(
+                (item: string, idx: number) => (
+                  <div key={`prob-${idx}`} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => handleListChange('siteProblems', idx, e.target.value)}
+                      placeholder={`ปัญหาที่พบข้อที่ ${idx + 1}`}
+                      className="flex-1 px-3 py-2 bg-white text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeListItem('siteProblems', idx)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-xl border border-gray-200 bg-white cursor-pointer"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                )
+              )}
+              {(!formData.siteProblems || formData.siteProblems.length === 0) && (
+                <button
+                  type="button"
+                  onClick={() => addListItem('siteProblems')}
+                  className="w-full py-2.5 border-2 border-dashed border-gray-300 bg-white rounded-xl text-xs font-semibold text-gray-500 hover:text-gray-800 hover:border-gray-400 cursor-pointer"
+                >
+                  + เพิ่มรายการปัญหาหน้างาน
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-1.5 md:col-span-2">
+            <label className="block text-xs font-bold text-gray-700">
+              งานที่เหลือ / นัดหมายครั้งถัดไป (Remaining Work)
+            </label>
+            <textarea
+              name="remainingWork"
+              rows={2}
+              value={formData.remainingWork || ''}
+              onChange={handleInputChange}
+              placeholder="ระบุรายละเอียดงานที่ต้องดำเนินการต่อหรือรายการตรวจสอบเพิ่มเติม"
+              className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-base sm:text-sm focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none"
+            />
+          </div>
         </div>
-      </Card>
+      </section>
+
+      {/* ── Section 6: Digital Signatures ── */}
+      <section className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        <div className="px-4 sm:px-5 py-3.5 bg-gray-50/70 border-b border-gray-200 flex items-center gap-2">
+          <PenTool size={16} className="text-[#ff2301]" />
+          <h3 className="font-black text-sm text-gray-900">
+            6. ลายเซ็นรับรองการเข้างาน / ส่งมอบงาน (Digital Signatures)
+          </h3>
+        </div>
+        <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SurveySignatureBox
+            title="ผู้ควบคุมงาน (Project Supervisor)"
+            subtitle="วาดลายเซ็นหรืออัปโหลดรูปภาพลายเซ็น"
+            signerName={formData.siteSupervisor || currentUser?.fullName}
+            value={formData.supervisorSignUrl || null}
+            savedKeyName={formData.siteSupervisor || currentUser?.fullName}
+            accentColor="slate"
+            onChange={(nextUrl) =>
+              setFormData((prev) => ({ ...prev, supervisorSignUrl: nextUrl }))
+            }
+          />
+          <SurveySignatureBox
+            title="ตัวแทนลูกค้า / ผู้รับมอบงาน (Customer)"
+            subtitle="วาดลายเซ็นหรืออัปโหลดรูปภาพลายเซ็น"
+            signerName="ตัวแทนลูกค้า"
+            value={formData.customerSignUrl || null}
+            accentColor="red"
+            onChange={(nextUrl) =>
+              setFormData((prev) => ({ ...prev, customerSignUrl: nextUrl }))
+            }
+          />
+        </div>
+      </section>
     </div>
   );
 }

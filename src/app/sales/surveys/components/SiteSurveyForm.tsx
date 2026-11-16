@@ -373,6 +373,9 @@ export default function SiteSurveyForm({
       setIsDirty(false);
       onSaved?.(hydrated);
       router.refresh();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('site-survey-updated'));
+      }
 
       if (options.successMessage) {
         showToast(options.successMessage);

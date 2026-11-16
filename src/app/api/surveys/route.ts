@@ -5,12 +5,75 @@ import { format } from 'date-fns';
 import { encryptString, decryptString } from '@/utils/crypto';
 import { siteSurveySchema } from '@/app/lib/surveySchema';
 import { getUser } from '@/app/lib/dal';
-import { normalizeSurveyCompanyCode } from '@/app/lib/surveyMetadata';
+import { isSurveyProjectRole, normalizeSurveyCompanyCode } from '@/app/lib/surveyMetadata';
+import { notifyUsers } from '@/app/lib/pushNotification';
 import {
   hasSurveyExtendedFieldsInRuntime,
   hydrateSurveySignaturesFallback,
   persistSurveySignaturesFallback,
 } from '@/app/lib/surveySignaturesDb';
+
+async function notifySurveyWorkflowTransition(params: {
+  survey: {
+    id: string;
+    surveyNumber: string;
+    customerName?: string | null;
+    projectName?: string | null;
+    status?: string | null;
+    salespersonId?: string | null;
+  };
+  previousStatus?: string | null;
+  actorUserId: string;
+  actorName: string;
+}) {
+  const { survey, previousStatus, actorUserId, actorName } = params;
+  const nextStatus = survey.status;
+  if (!nextStatus || nextStatus === previousStatus) return;
+
+  try {
+    const targetLabel = `${survey.customerName || 'ลูกค้า'}${
+      survey.projectName ? ` • ${survey.projectName}` : ''
+    }`;
+
+    if (nextStatus === 'Pending Estimate') {
+      const activeUsers = await prisma.user.findMany({
+        where: { isActive: true },
+        select: { id: true, role: true },
+      });
+      const projectUserIds = activeUsers
+        .filter((u) => isSurveyProjectRole(u.role) && u.id !== actorUserId)
+        .map((u) => u.id);
+
+      if (projectUserIds.length > 0) {
+        await notifyUsers(projectUserIds, {
+          title: `แบบสำรวจไซต์งานส่งต่อประเมินราคา (${survey.surveyNumber})`,
+          body: `${targetLabel} ส่งต่อให้ทีมโปรเจคโดย ${actorName}`,
+          url: `/sales/surveys?surveyId=${survey.id}`,
+          category: 'SURVEY_PENDING_ESTIMATE',
+        });
+      }
+      return;
+    }
+
+    if (
+      (nextStatus === 'Estimated' || nextStatus === 'Need Info') &&
+      survey.salespersonId &&
+      survey.salespersonId !== actorUserId
+    ) {
+      const isEstimated = nextStatus === 'Estimated';
+      await notifyUsers([survey.salespersonId], {
+        title: isEstimated
+          ? `ทีมโปรเจคประเมินราคาแล้ว (${survey.surveyNumber})`
+          : `ทีมโปรเจคขอข้อมูลสำรวจเพิ่มเติม (${survey.surveyNumber})`,
+        body: `${targetLabel} อัปเดตโดย ${actorName}`,
+        url: `/sales/surveys?surveyId=${survey.id}`,
+        category: isEstimated ? 'SURVEY_ESTIMATED' : 'SURVEY_NEED_INFO',
+      });
+    }
+  } catch (notifyErr) {
+    console.warn('[POST /api/surveys] Failed to send notification:', notifyErr);
+  }
+}
 
 async function getHydratedSurvey(id: string) {
   const survey = await prisma.siteSurvey.findUnique({
@@ -204,7 +267,7 @@ export async function POST(req: Request) {
     if (id) {
       const existing = await prisma.siteSurvey.findUnique({
         where: { id },
-        select: { version: true },
+        select: { version: true, status: true },
       });
 
       if (!existing) {
@@ -358,6 +421,12 @@ export async function POST(req: Request) {
       });
 
       revalidatePath('/sales/surveys');
+      await notifySurveyWorkflowTransition({
+        survey: updatedSurvey,
+        previousStatus: existing.status,
+        actorUserId: user.id,
+        actorName: user.fullName || 'ผู้ใช้งาน',
+      });
       const hydrated = await getHydratedSurvey(updatedSurvey.id);
       return NextResponse.json(hydrated || updatedSurvey);
     }
@@ -461,6 +530,12 @@ export async function POST(req: Request) {
     });
 
     revalidatePath('/sales/surveys');
+    await notifySurveyWorkflowTransition({
+      survey: newSurvey,
+      previousStatus: null,
+      actorUserId: user.id,
+      actorName: user.fullName || 'ผู้ใช้งาน',
+    });
     const hydrated = await getHydratedSurvey(newSurvey.id);
     return NextResponse.json(hydrated || newSurvey, { status: 201 });
   } catch (error: any) {
