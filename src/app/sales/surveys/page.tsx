@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
+import { hasSurveyExtendedFieldsInRuntime, hydrateSurveyListCompanyCodesFallback } from '@/app/lib/surveySignaturesDb';
 import { redirect } from 'next/navigation';
 import SurveyManager from './components/SurveyManager';
 
@@ -45,20 +46,75 @@ export default async function SurveysPage() {
     orderBy: { fullName: 'asc' },
   });
 
+  const canSelectCompanyCode = hasSurveyExtendedFieldsInRuntime(prisma);
+
   // Fetch surveys summary for list
-  const surveys = await prisma.siteSurvey.findMany({
+  const rawSurveys = await prisma.siteSurvey.findMany({
     select: {
       id: true,
       surveyNumber: true,
       surveyDate: true,
+      ...(canSelectCompanyCode ? { companyCode: true } : {}),
       customerName: true,
       projectName: true,
+      projectLocation: true,
+      coordinatorName: true,
+      coordinatorPhone: true,
+      surveyorName: true,
       status: true,
-      salesperson: { select: { fullName: true } },
+      version: true,
+      estimationStatus: true,
+      estimatedPrice: true,
+      estimatedAt: true,
+      updatedAt: true,
+      requiredInfoChecklist: true,
+      salesperson: { select: { id: true, fullName: true } },
+      estimatedByUser: { select: { id: true, fullName: true } },
+      usageBehavior: {
+        select: {
+          avgBillThbPerMonth: true,
+          workingHours: true,
+          dayNightRatio: true,
+        },
+      },
+      electricalProfile: {
+        select: {
+          gridProvider: true,
+          voltageLevel: true,
+          transformerKva: true,
+        },
+      },
+      tariffSelection: {
+        select: {
+          tariffCategory: true,
+        },
+      },
+      structure: {
+        select: {
+          roofType: true,
+          roofDimWxlM: true,
+        },
+      },
+      electricityBill: {
+        select: {
+          id: true,
+          fileUrl: true,
+        },
+      },
+      _count: {
+        select: {
+          photos: true,
+          documents: true,
+        },
+      },
       createdAt: true
     },
     orderBy: { createdAt: 'desc' }
   });
+
+  const surveys = canSelectCompanyCode
+    ? rawSurveys
+    : await hydrateSurveyListCompanyCodesFallback(prisma, rawSurveys);
 
   return (
     <main className="flex-1 overflow-y-auto bg-gray-50 pb-20 md:pb-10 relative custom-scrollbar h-full">

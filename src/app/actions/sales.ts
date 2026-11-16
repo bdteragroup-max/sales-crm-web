@@ -11,6 +11,7 @@ import {
   ensureQuotationOrder,
   handleQuotationExitFromClosedStatus,
 } from "@/app/actions/jobs";
+import { canClaimServiceHandoverForQuotation } from "@/app/lib/serviceHandoverPermissions";
 
 async function findCompanyByNormalizedName(companyName: string) {
   const normalizedName = companyName.trim();
@@ -588,6 +589,24 @@ export async function saveSalesData(formData: FormData) {
       return { success: false, error: "กรุณาระบุวันเปิด P/O (Please enter PO Date)" };
     }
 
+    const serviceCallIdRaw = (formData.get("serviceCallId") as string)?.trim() || "";
+    if (serviceCallIdRaw) {
+      const { ensureServiceCallExtendedSchema } = await import("@/app/actions/service-calls");
+      await ensureServiceCallExtendedSchema();
+      const scRows: Array<{ caseNumber: string; assignedSalesId: string | null; assignedSalesName: string | null }> =
+        await prisma.$queryRawUnsafe(
+          `SELECT "caseNumber", "assignedSalesId", "assignedSalesName" FROM "ServiceCallLog" WHERE "id" = $1 LIMIT 1`,
+          serviceCallIdRaw
+        );
+      const sc = scRows[0];
+      if (sc && !canClaimServiceHandoverForQuotation(sc.assignedSalesId, user.id)) {
+        return {
+          success: false,
+          error: `ไม่สามารถสร้างใบเสนอราคาจากเคส ${sc.caseNumber} ได้ เนื่องจากงานนี้ส่งต่อให้ "${sc.assignedSalesName || 'เซลล์ท่านอื่น'}" แล้ว`,
+        };
+      }
+    }
+
     const newQuotation = await prisma.quotation.create({
       data: {
         companyId: company.id,
@@ -671,7 +690,6 @@ export async function saveSalesData(formData: FormData) {
     // If this Quotation was opened from a ServiceCallLog, automatically create/update RepairDelivery (ใบส่งมอบงาน) with photos & signatures
     let repairDeliveryId: string | undefined = undefined;
     let deliveryNumber: string | undefined = undefined;
-    const serviceCallIdRaw = (formData.get("serviceCallId") as string)?.trim() || "";
     if (serviceCallIdRaw) {
       try {
         const { syncRepairDeliveryFromServiceCall } = await import("@/app/actions/service-calls");
@@ -963,6 +981,28 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         }
       }
       if (targetServiceCallId) {
+        const scRows: Array<{
+          caseNumber: string;
+          assignedSalesId: string | null;
+          assignedSalesName: string | null;
+          linkedQuotationId: string | null;
+        }> = await prisma.$queryRawUnsafe(
+          `SELECT "caseNumber", "assignedSalesId", "assignedSalesName", "linkedQuotationId" FROM "ServiceCallLog" WHERE "id" = $1 LIMIT 1`,
+          targetServiceCallId
+        );
+        const sc = scRows[0];
+        const isAlreadyLinkedToThisQuotation = sc?.linkedQuotationId === updatedQuotation.id;
+        if (
+          sc &&
+          !isAlreadyLinkedToThisQuotation &&
+          !canClaimServiceHandoverForQuotation(sc.assignedSalesId, user.id)
+        ) {
+          return {
+            success: false,
+            error: `ไม่สามารถเชื่อมโยงเคสเซอร์วิส ${sc.caseNumber} ได้ เนื่องจากงานนี้ส่งต่อให้ "${sc.assignedSalesName || 'เซลล์ท่านอื่น'}" แล้ว`,
+          };
+        }
+
         const syncRes = await syncRepairDeliveryFromServiceCall(
           targetServiceCallId,
           updatedQuotation.id

@@ -2193,6 +2193,7 @@ model SiteSurvey {
   id                        String                   @id @default(cuid())
   surveyNumber              String                   @unique
   surveyDate                DateTime                 @db.Date
+  companyCode               String?                  @default("TE")
   companyId                 String?
   customerName              String?
   projectName               String?
@@ -2221,6 +2222,10 @@ model SiteSurvey {
   electricalCabinetFileUrl  String?
   loadProfileFileUrl        String?
   roofStructureFileUrl      String?
+  salesSignatureUrl         String?
+  salesSignedAt             DateTime?
+  projectSignatureUrl       String?
+  projectSignedAt           DateTime?
   quotations                Quotation[]
   company                   Company?                 @relation(fields: [companyId], references: [id])
   estimatedByUser           User?                    @relation("SurveyEstimator", fields: [estimatedByUserId], references: [id])

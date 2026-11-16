@@ -25,7 +25,9 @@ import {
   Check,
   Sparkles,
   Calendar,
+  AlertTriangle,
 } from "lucide-react";
+import { isServiceHandoverAssignedToUser } from "@/app/lib/serviceHandoverPermissions";
 
 const ONSITE_RESULT_LABELS: Record<string, string> = {
   RESOLVED_ONSITE: "แก้ไขสำเร็จหน้างาน ระบบทำงานปกติ",
@@ -38,6 +40,7 @@ interface ServiceHandoversClientProps {
   initialHandovers: any[];
   currentUser: any;
   initialCaseId?: string | null;
+  requestedMissingCase?: boolean;
   initialTab?: "pending" | "completed" | "all";
 }
 
@@ -45,6 +48,7 @@ export default function ServiceHandoversClient({
   initialHandovers = [],
   currentUser,
   initialCaseId = null,
+  requestedMissingCase = false,
   initialTab = "pending",
 }: ServiceHandoversClientProps) {
   const [activeTab, setActiveTab] = useState<"pending" | "completed" | "all">(
@@ -54,10 +58,19 @@ export default function ServiceHandoversClient({
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [showMissingBanner, setShowMissingBanner] = useState(requestedMissingCase);
+
+  const currentUserId = currentUser?.id;
+  const visibleHandovers = useMemo(() => {
+    if (!currentUserId) return [];
+    return initialHandovers.filter((h) =>
+      isServiceHandoverAssignedToUser(h.assignedSalesId, currentUserId)
+    );
+  }, [initialHandovers, currentUserId]);
 
   useEffect(() => {
-    if (initialCaseId && initialHandovers.length > 0) {
-      const found = initialHandovers.find((h) => h.id === initialCaseId);
+    if (initialCaseId && visibleHandovers.length > 0) {
+      const found = visibleHandovers.find((h) => h.id === initialCaseId);
       if (found) {
         setSelectedItem(found);
         if (found.linkedQuotationId) {
@@ -65,15 +78,15 @@ export default function ServiceHandoversClient({
         }
       }
     }
-  }, [initialCaseId, initialHandovers]);
+  }, [initialCaseId, visibleHandovers]);
 
   const pendingItems = useMemo(
-    () => initialHandovers.filter((h) => !h.linkedQuotationId),
-    [initialHandovers]
+    () => visibleHandovers.filter((h) => !h.linkedQuotationId),
+    [visibleHandovers]
   );
   const completedItems = useMemo(
-    () => initialHandovers.filter((h) => Boolean(h.linkedQuotationId)),
-    [initialHandovers]
+    () => visibleHandovers.filter((h) => Boolean(h.linkedQuotationId)),
+    [visibleHandovers]
   );
 
   const filteredItems = useMemo(() => {
@@ -82,7 +95,7 @@ export default function ServiceHandoversClient({
         ? pendingItems
         : activeTab === "completed"
         ? completedItems
-        : initialHandovers;
+        : visibleHandovers;
 
     const q = searchTerm.trim().toLowerCase();
     if (!q) return base;
@@ -104,7 +117,7 @@ export default function ServiceHandoversClient({
       ];
       return fields.some((f) => String(f || "").toLowerCase().includes(q));
     });
-  }, [activeTab, pendingItems, completedItems, initialHandovers, searchTerm]);
+  }, [activeTab, pendingItems, completedItems, visibleHandovers, searchTerm]);
 
   const formatThaiDate = (dateVal?: string | Date | null) => {
     if (!dateVal) return "-";
@@ -223,7 +236,7 @@ export default function ServiceHandoversClient({
               งานส่งต่อจากเซอร์วิสทั้งหมด
             </p>
             <p className="text-xl xl:text-2xl font-black text-slate-900 font-mono leading-tight">
-              {initialHandovers.length.toLocaleString()}
+              {visibleHandovers.length.toLocaleString()}
             </p>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
               Total Assigned Handovers
@@ -300,7 +313,7 @@ export default function ServiceHandoversClient({
                   : "bg-slate-200 text-slate-700"
               }`}
             >
-              {initialHandovers.length}
+              {visibleHandovers.length}
             </span>
           </button>
         </div>
@@ -332,6 +345,24 @@ export default function ServiceHandoversClient({
 
       {/* ── Main Content List ── */}
       <div className="flex-1 overflow-y-auto px-5 md:px-8 py-5 space-y-4 bg-slate-50/40">
+        {showMissingBanner && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 text-xs font-bold">
+            <div className="flex items-center gap-2 min-w-0">
+              <AlertTriangle size={16} className="text-amber-600 shrink-0" />
+              <span>
+                ไม่พบงานส่งต่อที่ระบุในบัญชีของคุณ หรือเคสนี้ถูกทีมเซอร์วิสมอบหมายให้เซลล์ท่านอื่นดูแลอยู่
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowMissingBanner(false)}
+              className="text-amber-700 hover:text-amber-950 p-1 rounded-lg hover:bg-amber-100 shrink-0"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
         {filteredItems.length === 0 ? (
           <div className="min-h-[260px] bg-white rounded-2xl border border-slate-200/80 p-10 text-center flex flex-col items-center justify-center gap-3">
             <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
@@ -339,10 +370,10 @@ export default function ServiceHandoversClient({
             </div>
             <div className="space-y-1">
               <h3 className="text-base font-black text-slate-800">
-                ไม่พบรายการงานที่ส่งต่อจากเซอร์วิส
+                ไม่พบรายการงานที่ส่งต่อถึงคุณ ({currentUser?.fullName || "บัญชีปัจจุบัน"})
               </h3>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                เมื่อทีมเซอร์วิสปิดงานหน้างานและเลือกส่งต่อให้เซลล์ รายการจะปรากฏในหน้านี้พร้อมข้อมูลอะไหล่ รูปถ่ายหน้างาน และลายเซ็นลูกค้าทันที
+                ระบบจะแสดงเฉพาะงานที่ทีมเซอร์วิสระบุส่งต่อมาที่ชื่อของคุณโดยตรง เพื่อป้องกันการรับงานซ้ำซ้อนข้ามเซลล์
               </p>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import fs from 'fs'
 import path from 'path'
+import { hasSurveyExtendedFieldsInRuntime } from './surveySignaturesDb'
 
 const originalEmitWarning = process.emitWarning;
 process.emitWarning = function(warning: any, ...args: any[]) {
@@ -54,17 +55,23 @@ const prismaClientSingleton = () => {
 }
 
 declare global {
-  var prisma_instance_v34: undefined | ReturnType<typeof prismaClientSingleton>
+  var prisma_instance_v36: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-const cachedPrisma = globalThis.prisma_instance_v34;
+const cachedPrisma = globalThis.prisma_instance_v36;
 const hasStockModels =
   cachedPrisma &&
   typeof (cachedPrisma as unknown as Record<string, unknown>).stockCategory !== 'undefined';
+const isCacheCompatible =
+  Boolean(hasStockModels) && hasSurveyExtendedFieldsInRuntime(cachedPrisma);
 
-const prisma = hasStockModels ? cachedPrisma : prismaClientSingleton();
+if (cachedPrisma && !isCacheCompatible) {
+  cachedPrisma.$disconnect?.().catch(() => {});
+}
+
+const prisma = isCacheCompatible ? cachedPrisma! : prismaClientSingleton();
 
 export default prisma
 
-globalThis.prisma_instance_v34 = prisma
+globalThis.prisma_instance_v36 = prisma
 

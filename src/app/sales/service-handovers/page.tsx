@@ -1,7 +1,6 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { getUser } from "@/app/lib/dal";
-import { isSuperUser, isSalesOrMarketingManager } from "@/app/lib/roleHelper";
 import { getServiceHandoversForSales } from "@/app/actions/service-calls";
 import ServiceHandoversClient from "./ServiceHandoversClient";
 
@@ -19,18 +18,9 @@ export default async function ServiceHandoversPage({ searchParams }: PageProps) 
   const user = await getUser();
   if (!user) redirect("/login");
 
-  const roleStr = (user.role || "").toLowerCase();
-  const isSuperAdmin = isSuperUser(user.role);
-  const isManager =
-    isSalesOrMarketingManager(user.role) ||
-    user.role === "ผู้จัดการ" ||
-    roleStr.includes("manager") ||
-    roleStr.includes("ผู้จัดการ") ||
-    roleStr.includes("mgr");
-
-  const handovers = await getServiceHandoversForSales(
-    user.id,
-    isSuperAdmin || isManager
+  const handovers = await getServiceHandoversForSales();
+  const requestedMissingCase = Boolean(
+    params.caseId && !handovers.some((h) => h.id === params.caseId)
   );
 
   return (
@@ -39,6 +29,7 @@ export default async function ServiceHandoversPage({ searchParams }: PageProps) 
         initialHandovers={JSON.parse(JSON.stringify(handovers || []))}
         currentUser={user}
         initialCaseId={params.caseId || null}
+        requestedMissingCase={requestedMissingCase}
         initialTab={
           params.tab === "completed" || params.tab === "all"
             ? params.tab
@@ -48,4 +39,3 @@ export default async function ServiceHandoversPage({ searchParams }: PageProps) 
     </main>
   );
 }
-

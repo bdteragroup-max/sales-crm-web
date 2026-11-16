@@ -2,7 +2,8 @@
 
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
-import { canViewAllServiceCalls, isSuperUser, isSalesOrMarketingManager } from "@/app/lib/roleHelper";
+import { canViewAllServiceCalls } from "@/app/lib/roleHelper";
+import { isServiceHandoverAssignedToUser } from "@/app/lib/serviceHandoverPermissions";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { notifyUsers } from "@/app/lib/pushNotification";
@@ -754,10 +755,15 @@ export async function syncRepairDeliveryFromServiceCall(
   }
 }
 
-export async function getServiceHandoversForSales(userId?: string, isManagerOrAdmin?: boolean) {
+export async function getServiceHandoversForSales() {
   try {
+    const sessionUser = await getUser();
+    const targetUserId = sessionUser?.id;
+    if (!targetUserId) return [];
+
     await ensureServiceCallExtendedSchema();
-    const rows: any[] = await prisma.$queryRawUnsafe(`
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      `
       SELECT
         s."id",
         s."caseNumber",
@@ -796,13 +802,15 @@ export async function getServiceHandoversForSales(userId?: string, isManagerOrAd
         s."linkedDeliveryId",
         s."linkedDeliveryNo"
       FROM "ServiceCallLog" s
-      WHERE s."assignedSalesId" IS NOT NULL
+      WHERE s."assignedSalesId" = $1
       ORDER BY
         CASE WHEN s."linkedQuotationId" IS NULL THEN 0 ELSE 1 END ASC,
         s."assignedSalesAt" DESC NULLS LAST,
         s."updatedAt" DESC
       LIMIT 100
-    `);
+    `,
+      targetUserId
+    );
 
     const parseJsonArray = (val: any) => {
       if (Array.isArray(val)) return val;
@@ -817,43 +825,40 @@ export async function getServiceHandoversForSales(userId?: string, isManagerOrAd
       return [];
     };
 
-    const normalized = rows.map((r) => ({
-      ...r,
-      partsUsed: parseJsonArray(r.partsUsed),
-      photosBefore: parseJsonArray(r.photosBefore),
-      photosAfter: parseJsonArray(r.photosAfter),
-    }));
+    const normalized = rows
+      .filter((r) => isServiceHandoverAssignedToUser(r.assignedSalesId, targetUserId))
+      .map((r) => ({
+        ...r,
+        partsUsed: parseJsonArray(r.partsUsed),
+        photosBefore: parseJsonArray(r.photosBefore),
+        photosAfter: parseJsonArray(r.photosAfter),
+      }));
 
-    if (isManagerOrAdmin || !userId) {
-      return normalized;
-    }
-    return normalized.filter((r) => r.assignedSalesId === userId);
+    return normalized;
   } catch (err) {
     console.warn("[getServiceHandoversForSales] warning:", err);
     return [];
   }
 }
 
-export async function getPendingServiceCallsForSales(userId?: string, isManagerOrAdmin?: boolean) {
-  const all = await getServiceHandoversForSales(userId, isManagerOrAdmin);
-  return all.filter((r) => !r.linkedQuotationId).slice(0, 25);
+export async function getPendingServiceCallsForSales() {
+  const ownHandovers = await getServiceHandoversForSales();
+  return ownHandovers.filter((r) => !r.linkedQuotationId).slice(0, 25);
 }
 
 export async function getPendingServiceHandoverCount(): Promise<number> {
   try {
     const user = await getUser();
-    if (!user) return 0;
-    const roleStr = (user.role || "").toLowerCase();
-    const isSuperOrMgr =
-      isSuperUser(user.role) ||
-      isSalesOrMarketingManager(user.role) ||
-      user.role === "SUPER_ADMIN" ||
-      user.role === "ผู้จัดการ" ||
-      roleStr.includes("manager") ||
-      roleStr.includes("ผู้จัดการ") ||
-      roleStr.includes("mgr");
-    const pending = await getPendingServiceCallsForSales(user.id, isSuperOrMgr);
-    return pending.length;
+    if (!user?.id) return 0;
+    await ensureServiceCallExtendedSchema();
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      `SELECT COUNT(*)::int AS cnt
+       FROM "ServiceCallLog"
+       WHERE "assignedSalesId" = $1
+         AND "linkedQuotationId" IS NULL`,
+      user.id
+    );
+    return Number(rows[0]?.cnt || 0);
   } catch {
     return 0;
   }

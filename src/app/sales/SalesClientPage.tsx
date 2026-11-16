@@ -19,7 +19,8 @@ import {
   ExternalLink,
   ChevronRight,
   Wrench,
-  Coins
+  Coins,
+  AlertCircle,
 } from 'lucide-react';
 import NewQuotationForm from './components/NewQuotationForm';
 import BulkUploadModal from './components/BulkUploadModal';
@@ -70,6 +71,7 @@ interface SalesClientPageProps {
   } | null;
   editingQuotation?: any | null;
   pendingServiceCalls?: any[];
+  serviceCallAccessError?: string | null;
 }
 
 const STATUS_MAP: Record<string, { label: string; badgeCls: string; dotCls: string }> = {
@@ -114,9 +116,11 @@ export default function SalesClientPage({
   prefillData, 
   editingQuotation,
   pendingServiceCalls = [],
+  serviceCallAccessError = null,
 }: SalesClientPageProps) {
   const router = useRouter();
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+  const [accessBannerError, setAccessBannerError] = useState<string | null>(serviceCallAccessError);
 
   // If coming from pipeline edit, default to edit tab
   const [activeTab, setActiveTab] = useState<'new' | 'list' | 'expired'>(editingQuotation ? 'new' : 'new');
@@ -315,6 +319,23 @@ export default function SalesClientPage({
           </button>
         </div>
       </header>
+
+      {/* ── Service Handover Ownership Notice ── */}
+      {accessBannerError && (
+        <div className="shrink-0 px-4 md:px-8 py-3 bg-red-50 border-b border-red-200 flex items-center justify-between gap-3 text-xs font-bold text-red-800">
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle size={16} className="text-red-600 shrink-0" />
+            <span>{accessBannerError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAccessBannerError(null)}
+            className="text-red-500 hover:text-red-800 px-2 py-0.5 rounded-lg hover:bg-red-100 shrink-0"
+          >
+            ปิด
+          </button>
+        </div>
+      )}
 
       {/* ── Pending Service Calls Handover Queue Banner ── */}
       {pendingServiceCalls.length > 0 && (

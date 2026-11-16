@@ -90,21 +90,21 @@ export const surveyQASchema = z.object({
 });
 
 export const surveyPhotoSchema = z.object({
-  photoType: z.string(),
-  fileUrl: z.string(),
+  photoType: z.string().optional().default(''),
+  fileUrl: z.string().optional().default(''),
   photoDesc: z.string().optional().nullable(),
 });
 
 export const surveyDocumentSchema = z.object({
-  documentType: z.string(),
-  customerProvided: z.boolean().optional(),
-  fileUrl: z.string(),
+  documentType: z.string().optional().default(''),
+  customerProvided: z.boolean().optional().default(false),
+  fileUrl: z.string().optional().default(''),
   note: z.string().optional().nullable(),
 });
 
 export const surveyBillSchema = z.object({
   billCount: z.number().int().optional().nullable(),
-  fileUrl: z.string(),
+  fileUrl: z.string().optional().nullable(),
   note: z.string().optional().nullable(),
 });
 
@@ -112,6 +112,7 @@ export const siteSurveySchema = z.object({
   id: z.string().optional(),
   surveyNumber: z.string().min(1, "surveyNumber is required"),
   surveyDate: z.string().min(1, "surveyDate is required"),
+  companyCode: z.string().optional().nullable(),
   companyId: z.string().optional().nullable(),
   customerName: z.string().optional().nullable(),
   projectName: z.string().optional().nullable(),
@@ -139,6 +140,10 @@ export const siteSurveySchema = z.object({
   estimatedByUserId: z.string().optional().nullable(),
   estimatedAt: z.string().optional().nullable(),
   estimationStatus: z.string().optional().nullable(),
+  salesSignatureUrl: z.string().nullable().optional(),
+  salesSignedAt: z.string().nullable().optional(),
+  projectSignatureUrl: z.string().nullable().optional(),
+  projectSignedAt: z.string().nullable().optional(),
 
   usageBehavior: surveyUsageBehaviorSchema.optional().nullable(),
   electricalProfile: surveyElectricalProfileSchema.optional().nullable(),

@@ -2,12 +2,27 @@
 
 import prisma from '@/app/lib/db';
 import { decryptString } from '@/utils/crypto';
+import { revalidatePath } from 'next/cache';
+import { hydrateSurveySignaturesFallback } from '@/app/lib/surveySignaturesDb';
 
 export async function getSiteSurveyById(id: string) {
   try {
     const survey = await prisma.siteSurvey.findUnique({
       where: { id },
       include: {
+        salesperson: { select: { id: true, fullName: true } },
+        estimatedByUser: { select: { id: true, fullName: true } },
+        company: {
+          select: {
+            id: true,
+            companyName: true,
+            address: true,
+            subDistrict: true,
+            district: true,
+            province: true,
+            postalCode: true,
+          },
+        },
         usageBehavior: true,
         electricalProfile: true,
         tariffSelection: {
@@ -33,7 +48,8 @@ export async function getSiteSurveyById(id: string) {
       }
     }
     
-    return { success: true, data: survey };
+    const hydratedSurvey = await hydrateSurveySignaturesFallback(prisma, survey);
+    return { success: true, data: hydratedSurvey };
   } catch (error: any) {
     console.error('Error fetching site survey:', error);
     return { success: false, error: error.message };
@@ -69,6 +85,7 @@ export async function createCompanyForSurvey(companyName: string) {
 export async function deleteSiteSurvey(id: string) {
   try {
     await prisma.siteSurvey.delete({ where: { id } });
+    revalidatePath('/sales/surveys');
     return { success: true };
   } catch (error: any) {
     console.error('Error deleting site survey:', error);

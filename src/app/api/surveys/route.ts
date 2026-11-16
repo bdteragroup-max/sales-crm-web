@@ -1,11 +1,67 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import prisma from '@/app/lib/db';
 import { format } from 'date-fns';
-import { encryptString } from '@/utils/crypto';
+import { encryptString, decryptString } from '@/utils/crypto';
 import { siteSurveySchema } from '@/app/lib/surveySchema';
+import { getUser } from '@/app/lib/dal';
+import { normalizeSurveyCompanyCode } from '@/app/lib/surveyMetadata';
+import {
+  hasSurveyExtendedFieldsInRuntime,
+  hydrateSurveySignaturesFallback,
+  persistSurveySignaturesFallback,
+} from '@/app/lib/surveySignaturesDb';
+
+async function getHydratedSurvey(id: string) {
+  const survey = await prisma.siteSurvey.findUnique({
+    where: { id },
+    include: {
+      salesperson: { select: { id: true, fullName: true } },
+      estimatedByUser: { select: { id: true, fullName: true } },
+      company: {
+        select: {
+          id: true,
+          companyName: true,
+          address: true,
+          subDistrict: true,
+          district: true,
+          province: true,
+          postalCode: true,
+        },
+      },
+      usageBehavior: true,
+      electricalProfile: true,
+      tariffSelection: {
+        include: { tiers: true },
+      },
+      structure: {
+        include: { roofAges: true },
+      },
+      qa: true,
+      photos: true,
+      documents: true,
+      electricityBill: true,
+    },
+  });
+
+  if (survey?.electricalProfile) {
+    if (survey.electricalProfile.amrUsernameEncrypted) {
+      (survey.electricalProfile as any).amrUsernamePlain = decryptString(survey.electricalProfile.amrUsernameEncrypted);
+    }
+    if (survey.electricalProfile.amrPasswordEncrypted) {
+      (survey.electricalProfile as any).amrPasswordPlain = decryptString(survey.electricalProfile.amrPasswordEncrypted);
+    }
+  }
+  return hydrateSurveySignaturesFallback(prisma, survey);
+}
 
 export async function POST(req: Request) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const rawBody = await req.json();
 
     // Validate request body against Zod schema
@@ -22,6 +78,7 @@ export async function POST(req: Request) {
       id,
       surveyNumber,
       surveyDate,
+      companyCode,
       companyId,
       customerName,
       projectName,
@@ -50,6 +107,11 @@ export async function POST(req: Request) {
       estimatedAt,
       estimationStatus,
 
+      salesSignatureUrl,
+      salesSignedAt,
+      projectSignatureUrl,
+      projectSignedAt,
+
       usageBehavior,
       electricalProfile,
       tariffSelection,
@@ -58,26 +120,91 @@ export async function POST(req: Request) {
 
       photos,
       documents,
-      electricityBill
+      electricityBill,
     } = body;
 
-    // Encrypt AMR credentials if provided
+    const cleanCompanyId = companyId && companyId.trim() !== '' ? companyId.trim() : null;
+    const cleanEstimatedByUserId =
+      estimatedByUserId && estimatedByUserId.trim() !== '' ? estimatedByUserId.trim() : null;
+    const cleanSalesSigUrl =
+      salesSignatureUrl && salesSignatureUrl.trim() !== '' ? salesSignatureUrl.trim() : null;
+    const cleanProjectSigUrl =
+      projectSignatureUrl && projectSignatureUrl.trim() !== '' ? projectSignatureUrl.trim() : null;
+    const parseOptDate = (d?: string | null) => {
+      if (!d) return null;
+      const dt = new Date(d);
+      return Number.isNaN(dt.getTime()) ? null : dt;
+    };
+    const canWriteSigViaPrisma = hasSurveyExtendedFieldsInRuntime(prisma);
+    const normalizedCompanyCode = normalizeSurveyCompanyCode(companyCode);
+    const updateSignaturePatch = {
+      ...(companyCode !== undefined ? { companyCode: normalizedCompanyCode } : {}),
+      ...(salesSignatureUrl !== undefined ? { salesSignatureUrl: cleanSalesSigUrl } : {}),
+      ...(salesSignedAt !== undefined ? { salesSignedAt: parseOptDate(salesSignedAt) } : {}),
+      ...(projectSignatureUrl !== undefined ? { projectSignatureUrl: cleanProjectSigUrl } : {}),
+      ...(projectSignedAt !== undefined ? { projectSignedAt: parseOptDate(projectSignedAt) } : {}),
+    };
+    const createSignatureFields = {
+      companyCode: normalizedCompanyCode,
+      salesSignatureUrl: cleanSalesSigUrl,
+      salesSignedAt: parseOptDate(salesSignedAt),
+      projectSignatureUrl: cleanProjectSigUrl,
+      projectSignedAt: parseOptDate(projectSignedAt),
+    };
+
+    // Filter out totally blank rows before persisting
+    const validPhotos = Array.isArray(photos)
+      ? photos
+          .filter((p) => (p.fileUrl && p.fileUrl.trim() !== '') || (p.photoType && p.photoType.trim() !== '') || (p.photoDesc && p.photoDesc.trim() !== ''))
+          .map((p) => ({
+            photoType: (p.photoType || '').trim(),
+            fileUrl: (p.fileUrl || '').trim(),
+            photoDesc: p.photoDesc || null,
+          }))
+      : undefined;
+
+    const validDocuments = Array.isArray(documents)
+      ? documents
+          .filter((d) => (d.fileUrl && d.fileUrl.trim() !== '') || (d.documentType && d.documentType.trim() !== '') || (d.note && d.note.trim() !== ''))
+          .map((d) => ({
+            documentType: (d.documentType || '').trim(),
+            customerProvided: Boolean(d.customerProvided),
+            fileUrl: (d.fileUrl || '').trim(),
+            note: d.note || null,
+          }))
+      : undefined;
+
+    const billObj =
+      electricityBill && typeof electricityBill === 'string'
+        ? { fileUrl: electricityBill.trim(), billCount: null, note: null }
+        : electricityBill && typeof electricityBill === 'object'
+        ? {
+            fileUrl: (electricityBill.fileUrl || '').trim(),
+            billCount: electricityBill.billCount ?? null,
+            note: electricityBill.note || null,
+          }
+        : null;
+
+    // Encrypt AMR credentials if provided (or clear if explicitly emptied)
     let amrUsernameEncrypted = electricalProfile?.amrUsernameEncrypted || null;
     let amrPasswordEncrypted = electricalProfile?.amrPasswordEncrypted || null;
 
-    if (electricalProfile?.amrPasswordPlain) {
-      amrPasswordEncrypted = encryptString(electricalProfile.amrPasswordPlain);
+    if (electricalProfile?.amrPasswordPlain !== undefined) {
+      amrPasswordEncrypted = electricalProfile.amrPasswordPlain
+        ? encryptString(electricalProfile.amrPasswordPlain)
+        : null;
     }
-    if (electricalProfile?.amrUsernamePlain) {
-      amrUsernameEncrypted = encryptString(electricalProfile.amrUsernamePlain);
+    if (electricalProfile?.amrUsernamePlain !== undefined) {
+      amrUsernameEncrypted = electricalProfile.amrUsernamePlain
+        ? encryptString(electricalProfile.amrUsernamePlain)
+        : null;
     }
 
     // If ID is provided, perform update with Optimistic Locking
     if (id) {
-      // First check version to prevent last-write-wins
       const existing = await prisma.siteSurvey.findUnique({
         where: { id },
-        select: { version: true }
+        select: { version: true },
       });
 
       if (!existing) {
@@ -91,15 +218,13 @@ export async function POST(req: Request) {
         );
       }
 
-      // Update with transaction
       const updatedSurvey = await prisma.$transaction(async (tx: any) => {
-        // 1. Update the main SiteSurvey
         const survey = await tx.siteSurvey.update({
           where: { id },
           data: {
             surveyNumber,
             surveyDate: new Date(surveyDate),
-            companyId,
+            companyId: cleanCompanyId,
             customerName,
             projectName,
             projectLocation,
@@ -108,7 +233,7 @@ export async function POST(req: Request) {
             salespersonId,
             surveyorName,
             status,
-            version: version + 1, // Increment version
+            version: (version || existing.version) + 1,
             latitude,
             longitude,
             hasSingleLineDiagram,
@@ -122,22 +247,25 @@ export async function POST(req: Request) {
             additionalRemark,
             estimatedPrice,
             estimationNote,
-            estimatedByUserId,
+            estimatedByUserId: cleanEstimatedByUserId,
             estimatedAt: estimatedAt ? new Date(estimatedAt) : null,
             estimationStatus,
-          }
+            ...(canWriteSigViaPrisma ? updateSignaturePatch : {}),
+          },
         });
 
-        // 2. Upsert Section 1: Usage Behavior
+        if (!canWriteSigViaPrisma) {
+          await persistSurveySignaturesFallback(tx, id, updateSignaturePatch);
+        }
+
         if (usageBehavior) {
           await tx.surveyUsageBehavior.upsert({
             where: { surveyId: id },
             update: usageBehavior,
-            create: { ...usageBehavior, surveyId: id }
+            create: { ...usageBehavior, surveyId: id },
           });
         }
 
-        // 3. Upsert Section 2: Electrical Profile
         if (electricalProfile) {
           const profileData = {
             ...electricalProfile,
@@ -150,184 +278,191 @@ export async function POST(req: Request) {
           await tx.surveyElectricalProfile.upsert({
             where: { surveyId: id },
             update: profileData,
-            create: { ...profileData, surveyId: id }
+            create: { ...profileData, surveyId: id },
           });
         }
 
-        // 4. Upsert Section 2.3: Tariff Selection & Tiers
         if (tariffSelection) {
           const { tiers, ...selectionData } = tariffSelection;
           const selection = await tx.surveyTariffSelection.upsert({
             where: { surveyId: id },
             update: selectionData,
-            create: { ...selectionData, surveyId: id }
+            create: { ...selectionData, surveyId: id },
           });
 
           if (tiers) {
             await tx.surveyTariffTier.deleteMany({ where: { selectionId: selection.id } });
             if (tiers.length > 0) {
               await tx.surveyTariffTier.createMany({
-                data: tiers.map((t: any) => ({ ...t, selectionId: selection.id }))
+                data: tiers.map((t: any) => ({ ...t, selectionId: selection.id })),
               });
             }
           }
         }
 
-        // 5. Upsert Section 3: Structure
         if (structure) {
           const { roofAges, ...structureData } = structure;
           const updatedStructure = await tx.surveyStructure.upsert({
             where: { surveyId: id },
             update: structureData,
-            create: { ...structureData, surveyId: id }
+            create: { ...structureData, surveyId: id },
           });
 
           if (roofAges) {
             await tx.surveyRoofAge.deleteMany({ where: { structureId: updatedStructure.id } });
             if (roofAges.length > 0) {
               await tx.surveyRoofAge.createMany({
-                data: roofAges.map((r: any) => ({ ...r, structureId: updatedStructure.id }))
+                data: roofAges.map((r: any) => ({ ...r, structureId: updatedStructure.id })),
               });
             }
           }
         }
 
-        // 6. Upsert Section 6: QA
         if (qa) {
           await tx.surveyQA.upsert({
             where: { surveyId: id },
             update: qa,
-            create: { ...qa, surveyId: id }
+            create: { ...qa, surveyId: id },
           });
         }
 
-        // 7. Update Media & Docs (Replace all for simplicity, or handle diff)
-        if (photos) {
+        if (validPhotos !== undefined) {
           await tx.surveyPhoto.deleteMany({ where: { surveyId: id } });
-          if (photos.length > 0) {
+          if (validPhotos.length > 0) {
             await tx.surveyPhoto.createMany({
-              data: photos.map((p: any) => ({ ...p, surveyId: id }))
+              data: validPhotos.map((p) => ({ ...p, surveyId: id })),
             });
           }
         }
 
-        if (documents) {
+        if (validDocuments !== undefined) {
           await tx.surveyDocument.deleteMany({ where: { surveyId: id } });
-          if (documents.length > 0) {
+          if (validDocuments.length > 0) {
             await tx.surveyDocument.createMany({
-              data: documents.map((d: any) => ({ ...d, surveyId: id }))
+              data: validDocuments.map((d) => ({ ...d, surveyId: id })),
             });
           }
         }
 
-        if (electricityBill) {
-          const billData = typeof electricityBill === 'string' ? { fileUrl: electricityBill } : electricityBill;
+        if (billObj && billObj.fileUrl) {
           await tx.surveyBill.upsert({
             where: { surveyId: id },
-            update: billData,
-            create: { ...billData, surveyId: id }
+            update: billObj,
+            create: { ...billObj, surveyId: id },
           });
+        } else if (electricityBill === null || (billObj && !billObj.fileUrl)) {
+          await tx.surveyBill.deleteMany({ where: { surveyId: id } });
         }
 
         return survey;
       });
 
-      return NextResponse.json(updatedSurvey);
+      revalidatePath('/sales/surveys');
+      const hydrated = await getHydratedSurvey(updatedSurvey.id);
+      return NextResponse.json(hydrated || updatedSurvey);
     }
 
     // Create new Survey
-    else {
-      // Generate Sequential Survey Number
-      const datePrefix = `SV${format(new Date(), 'yyyyMMdd')}-`;
-      const todaySurveys = await prisma.siteSurvey.findMany({
-        where: {
-          surveyNumber: { startsWith: datePrefix }
+    const datePrefix = `SV${format(new Date(), 'yyyyMMdd')}-`;
+    const todaySurveys = await prisma.siteSurvey.findMany({
+      where: {
+        surveyNumber: { startsWith: datePrefix },
+      },
+      orderBy: { surveyNumber: 'desc' },
+      take: 1,
+    });
+
+    let finalSurveyNumber = `${datePrefix}001`;
+    if (todaySurveys.length > 0) {
+      const lastNum = parseInt(todaySurveys[0].surveyNumber.split('-')[1] || '0', 10);
+      finalSurveyNumber = `${datePrefix}${(lastNum + 1).toString().padStart(3, '0')}`;
+    }
+
+    const newSurvey = await prisma.$transaction(async (tx: any) => {
+      const survey = await tx.siteSurvey.create({
+        data: {
+          surveyNumber: finalSurveyNumber,
+          surveyDate: new Date(surveyDate),
+          companyId: cleanCompanyId,
+          customerName,
+          projectName,
+          projectLocation,
+          coordinatorName,
+          coordinatorPhone,
+          salespersonId,
+          surveyorName,
+          status: status || 'Draft',
+          version: 1,
+          latitude,
+          longitude,
+          hasSingleLineDiagram,
+          requiredInfoChecklist,
+          loadProfileFileUrl,
+          amrCustomerCode,
+          roofStructureFileUrl,
+          buildingPlanFileUrl,
+          buildingElectricalFileUrl,
+          electricalCabinetFileUrl,
+          additionalRemark,
+          estimatedPrice,
+          estimationNote,
+          estimatedByUserId: cleanEstimatedByUserId,
+          estimatedAt: estimatedAt ? new Date(estimatedAt) : null,
+          estimationStatus,
+          ...(canWriteSigViaPrisma ? createSignatureFields : {}),
         },
-        orderBy: { surveyNumber: 'desc' },
-        take: 1
       });
 
-      let finalSurveyNumber = `${datePrefix}001`;
-      if (todaySurveys.length > 0) {
-        const lastNum = parseInt(todaySurveys[0].surveyNumber.split('-')[1] || '0', 10);
-        finalSurveyNumber = `${datePrefix}${(lastNum + 1).toString().padStart(3, '0')}`;
+      const sId = survey.id;
+
+      if (!canWriteSigViaPrisma) {
+        await persistSurveySignaturesFallback(tx, sId, createSignatureFields);
       }
 
-      const newSurvey = await prisma.$transaction(async (tx: any) => {
-        const survey = await tx.siteSurvey.create({
-          data: {
-            surveyNumber: finalSurveyNumber,
-            surveyDate: new Date(surveyDate),
-            companyId,
-            customerName,
-            projectName,
-            projectLocation,
-            coordinatorName,
-            coordinatorPhone,
-            salespersonId,
-            surveyorName,
-            status,
-            version: 1,
-            latitude,
-            longitude,
-            hasSingleLineDiagram,
-            requiredInfoChecklist,
-            loadProfileFileUrl,
-            amrCustomerCode,
-            roofStructureFileUrl,
-            buildingPlanFileUrl,
-            buildingElectricalFileUrl,
-            electricalCabinetFileUrl,
-            additionalRemark,
-            estimatedPrice,
-            estimationNote,
-            estimatedByUserId,
-            estimatedAt: estimatedAt ? new Date(estimatedAt) : null,
-            estimationStatus,
-          }
-        });
+      if (usageBehavior) await tx.surveyUsageBehavior.create({ data: { ...usageBehavior, surveyId: sId } });
 
-        const sId = survey.id;
+      if (electricalProfile) {
+        const profileData = { ...electricalProfile, amrUsernameEncrypted, amrPasswordEncrypted };
+        delete profileData.amrUsernamePlain;
+        delete profileData.amrPasswordPlain;
+        await tx.surveyElectricalProfile.create({ data: { ...profileData, surveyId: sId } });
+      }
 
-        if (usageBehavior) await tx.surveyUsageBehavior.create({ data: { ...usageBehavior, surveyId: sId } });
-
-        if (electricalProfile) {
-          const profileData = { ...electricalProfile, amrUsernameEncrypted, amrPasswordEncrypted };
-          delete profileData.amrUsernamePlain;
-          delete profileData.amrPasswordPlain;
-          await tx.surveyElectricalProfile.create({ data: { ...profileData, surveyId: sId } });
+      if (tariffSelection) {
+        const { tiers, ...selectionData } = tariffSelection;
+        const selection = await tx.surveyTariffSelection.create({ data: { ...selectionData, surveyId: sId } });
+        if (tiers && tiers.length > 0) {
+          await tx.surveyTariffTier.createMany({ data: tiers.map((t: any) => ({ ...t, selectionId: selection.id })) });
         }
+      }
 
-        if (tariffSelection) {
-          const { tiers, ...selectionData } = tariffSelection;
-          const selection = await tx.surveyTariffSelection.create({ data: { ...selectionData, surveyId: sId } });
-          if (tiers && tiers.length > 0) {
-            await tx.surveyTariffTier.createMany({ data: tiers.map((t: any) => ({ ...t, selectionId: selection.id })) });
-          }
+      if (structure) {
+        const { roofAges, ...structureData } = structure;
+        const createdStructure = await tx.surveyStructure.create({ data: { ...structureData, surveyId: sId } });
+        if (roofAges && roofAges.length > 0) {
+          await tx.surveyRoofAge.createMany({
+            data: roofAges.map((r: any) => ({ ...r, structureId: createdStructure.id })),
+          });
         }
+      }
 
-        if (structure) {
-          const { roofAges, ...structureData } = structure;
-          const createdStructure = await tx.surveyStructure.create({ data: { ...structureData, surveyId: sId } });
-          if (roofAges && roofAges.length > 0) {
-            await tx.surveyRoofAge.createMany({
-              data: roofAges.map((r: any) => ({ ...r, structureId: createdStructure.id }))
-            });
-          }
-        }
-        if (qa) await tx.surveyQA.create({ data: { ...qa, surveyId: sId } });
-        if (photos && photos.length > 0) await tx.surveyPhoto.createMany({ data: photos.map((p: any) => ({ ...p, surveyId: sId })) });
-        if (documents && documents.length > 0) await tx.surveyDocument.createMany({ data: documents.map((d: any) => ({ ...d, surveyId: sId })) });
-        if (electricityBill) {
-          const billData = typeof electricityBill === 'string' ? { fileUrl: electricityBill } : electricityBill;
-          await tx.surveyBill.create({ data: { ...billData, surveyId: sId } });
-        }
+      if (qa) await tx.surveyQA.create({ data: { ...qa, surveyId: sId } });
+      if (validPhotos && validPhotos.length > 0) {
+        await tx.surveyPhoto.createMany({ data: validPhotos.map((p) => ({ ...p, surveyId: sId })) });
+      }
+      if (validDocuments && validDocuments.length > 0) {
+        await tx.surveyDocument.createMany({ data: validDocuments.map((d) => ({ ...d, surveyId: sId })) });
+      }
+      if (billObj && billObj.fileUrl) {
+        await tx.surveyBill.create({ data: { ...billObj, surveyId: sId } });
+      }
 
-        return survey;
-      });
+      return survey;
+    });
 
-      return NextResponse.json(newSurvey, { status: 201 });
-    }
+    revalidatePath('/sales/surveys');
+    const hydrated = await getHydratedSurvey(newSurvey.id);
+    return NextResponse.json(hydrated || newSurvey, { status: 201 });
   } catch (error: any) {
     console.error('Error in POST /api/surveys:', error);
     return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });

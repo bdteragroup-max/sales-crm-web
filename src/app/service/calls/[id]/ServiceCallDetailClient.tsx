@@ -49,6 +49,7 @@ import {
   SearchableSalesSelect,
 } from "../ServiceCallSignatureModal";
 import MobileSafeSelect from "@/app/components/MobileSafeSelect";
+import { canClaimServiceHandoverForQuotation } from "@/app/lib/serviceHandoverPermissions";
 
 interface UserOption {
   id: string;
@@ -1287,17 +1288,38 @@ export default function ServiceCallDetailClient({
                       <span className="truncate">ปิดงาน + ส่งต่อเซลล์</span>
                     </button>
 
-                    <Link
-                      href={`/sales?serviceCallId=${initialData.id}`}
-                      className="h-10 px-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition-all"
-                    >
-                      <FileText className="w-3.5 h-3.5 shrink-0" />
-                      <span className="truncate">
-                        {initialData.linkedQuotationNo
-                          ? `ใบเสนอราคา (${initialData.linkedQuotationNo})`
-                          : "เปิดใบเสนอราคาทันที"}
-                      </span>
-                    </Link>
+                    {initialData.linkedQuotationId ? (
+                      <Link
+                        href={`/sales?editId=${initialData.linkedQuotationId}`}
+                        className="h-10 px-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition-all"
+                      >
+                        <FileText className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">
+                          {`ใบเสนอราคา (${initialData.linkedQuotationNo || "เปิดดู"})`}
+                        </span>
+                      </Link>
+                    ) : canClaimServiceHandoverForQuotation(
+                        initialData.assignedSalesId,
+                        currentUser?.id
+                      ) ? (
+                      <Link
+                        href={`/sales?serviceCallId=${initialData.id}`}
+                        className="h-10 px-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition-all"
+                      >
+                        <FileText className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">เปิดใบเสนอราคาทันที</span>
+                      </Link>
+                    ) : (
+                      <div
+                        className="h-10 px-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gray-100 text-gray-500 border border-gray-200 text-xs font-bold"
+                        title={`งานนี้ส่งต่อให้ ${initialData.assignedSalesName || "เซลล์ผู้รับเรื่อง"} แล้ว`}
+                      >
+                        <Lock className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">
+                          สงวนสิทธิ์ให้ {initialData.assignedSalesName || "เซลล์ผู้รับเรื่อง"}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Linked Quotation & Linked Repair Delivery Status Box */}

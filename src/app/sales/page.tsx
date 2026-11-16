@@ -8,6 +8,7 @@ import { isSuperUser, isMarketingManager as checkMarketingManager, isSalesOrMark
 import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
 import { getServiceCallLogById, getPendingServiceCallsForSales } from '@/app/actions/service-calls';
+import { canClaimServiceHandoverForQuotation } from '@/app/lib/serviceHandoverPermissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -210,10 +211,13 @@ export default async function SalesPage({ searchParams }: PageProps) {
   }
 
   // ── Handle serviceCallId: load ServiceCallLog for a fresh quotation linked to RepairDelivery ──
+  let serviceCallAccessError: string | null = null;
   if (!editingData && params.serviceCallId) {
     try {
       const sc: any = await getServiceCallLogById(params.serviceCallId);
-      if (sc) {
+      if (sc && !canClaimServiceHandoverForQuotation(sc.assignedSalesId, user.id)) {
+        serviceCallAccessError = `เคสเซอร์วิส ${sc.caseNumber} ถูกส่งต่อให้ "${sc.assignedSalesName || 'เซลล์ผู้รับเรื่อง'}" แล้ว ระบบสงวนสิทธิ์เปิดใบเสนอราคาให้เฉพาะเซลล์ที่ได้รับมอบหมายเท่านั้น`;
+      } else if (sc) {
         const company = sc.companyName
           ? await prisma.company.findFirst({
               where: { companyName: { equals: sc.companyName, mode: 'insensitive' } },
@@ -306,7 +310,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
       where: { emp_id: user.employeeId },
       include: { supervisor: true },
     }) : Promise.resolve(null),
-    getPendingServiceCallsForSales(user.id, isSuperAdmin || isManager),
+    getPendingServiceCallsForSales(),
   ]);
 
   const businessTypes = businessTypesData.map(bt => bt.name);
@@ -349,6 +353,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
         prefillData={prefillData}
         editingQuotation={editingData}
         pendingServiceCalls={JSON.parse(JSON.stringify(pendingServiceCalls || []))}
+        serviceCallAccessError={serviceCallAccessError}
       />
     </main>
   );
