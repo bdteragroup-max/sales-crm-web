@@ -194,7 +194,27 @@ export async function deleteInstallationOrder(id: string) {
   }
 }
 
-export async function updateInstallationPlan(orderId: string, data: any) {
+interface UpdateInstallationPlanInput {
+  plannedStartDate?: string | Date | null;
+  plannedEndDate?: string | Date | null;
+  workLocation?: string | null;
+  workPlan?: string | null;
+  technicianNote?: string | null;
+}
+
+function normalizePlanLines(value?: string | null): string {
+  if (typeof value !== "string") return "";
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+export async function updateInstallationPlan(
+  orderId: string,
+  data: UpdateInstallationPlanInput
+) {
   try {
     const session = await getUser();
     if (!session) {
@@ -217,14 +237,34 @@ export async function updateInstallationPlan(orderId: string, data: any) {
 
     const { plannedStartDate, plannedEndDate, workLocation, workPlan, technicianNote } = data;
 
+    if (!plannedStartDate || !plannedEndDate) {
+      return { success: false, error: "กรุณาระบุวันและเวลาเริ่มงาน และวันและเวลาเสร็จสิ้น" };
+    }
+
+    const parsedStart = new Date(plannedStartDate);
+    const parsedEnd = new Date(plannedEndDate);
+    if (Number.isNaN(parsedStart.getTime()) || Number.isNaN(parsedEnd.getTime())) {
+      return { success: false, error: "รูปแบบวันและเวลาไม่ถูกต้อง" };
+    }
+    if (parsedEnd.getTime() <= parsedStart.getTime()) {
+      return { success: false, error: "วันและเวลาเสร็จสิ้นต้องอยู่หลังวันและเวลาเริ่มงาน" };
+    }
+
+    const cleanedWorkPlan = normalizePlanLines(workPlan);
+    if (!cleanedWorkPlan) {
+      return { success: false, error: "กรุณาระบุขั้นตอนการทำงาน (Work Plan) อย่างน้อย 1 ขั้นตอน" };
+    }
+
+    const cleanedNote = normalizePlanLines(technicianNote) || null;
+
     const updatedOrder = await prisma.installationOrder.update({
       where: { id: orderId },
       data: {
-        plannedStartDate: plannedStartDate ? new Date(plannedStartDate) : null,
-        plannedEndDate: plannedEndDate ? new Date(plannedEndDate) : null,
-        workLocation,
-        workPlan,
-        technicianNote,
+        plannedStartDate: parsedStart,
+        plannedEndDate: parsedEnd,
+        workLocation: typeof workLocation === "string" ? workLocation.trim() : workLocation,
+        workPlan: cleanedWorkPlan,
+        technicianNote: cleanedNote,
         planUpdatedAt: new Date(),
         planUpdatedBy: session.id,
       },
@@ -247,10 +287,17 @@ export async function updateInstallationPlan(orderId: string, data: any) {
     }
 
     revalidatePath("/jobs");
+    revalidatePath("/service/installation");
+    revalidatePath("/service/my-tasks");
+    if (updatedOrder.jobId) {
+      revalidatePath(`/jobs/${updatedOrder.jobId}/installation-plan`);
+      revalidatePath(`/jobs/${updatedOrder.jobId}/installation-schedule`);
+    }
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to update installation plan:", error);
-    return { success: false, error: error.message };
+    const message = error instanceof Error ? error.message : "Failed to update installation plan";
+    return { success: false, error: message };
   }
 }
 

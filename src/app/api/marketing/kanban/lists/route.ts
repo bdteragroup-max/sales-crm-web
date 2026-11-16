@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
 
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    revalidatePath('/marketing/kanban');
     return NextResponse.json(list);
   } catch (error: any) {
     console.error('Error in POST /api/marketing/kanban/lists:', error);
@@ -49,7 +51,21 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { id, name, position, color } = data;
+    const { id, name, position, color, orderedListIds } = data;
+
+    if (Array.isArray(orderedListIds) && orderedListIds.length > 0) {
+      const validIds = orderedListIds.filter((lid: unknown): lid is string => typeof lid === 'string' && lid.length > 0);
+      await prisma.$transaction(
+        validIds.map((listId, idx) =>
+          prisma.kanbanList.update({
+            where: { id: listId },
+            data: { position: (idx + 1) * 1000 }
+          })
+        )
+      );
+      revalidatePath('/marketing/kanban');
+      return NextResponse.json({ success: true, orderedListIds: validIds });
+    }
 
     if (!id) {
       return NextResponse.json({ error: 'Missing list ID' }, { status: 400 });
@@ -64,6 +80,7 @@ export async function PUT(request: NextRequest) {
       }
     });
 
+    revalidatePath('/marketing/kanban');
     return NextResponse.json(list);
   } catch (error: any) {
     console.error('Error in PUT /api/marketing/kanban/lists:', error);
@@ -89,6 +106,7 @@ export async function DELETE(request: NextRequest) {
       where: { id }
     });
 
+    revalidatePath('/marketing/kanban');
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Error in DELETE /api/marketing/kanban/lists:', error);

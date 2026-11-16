@@ -9,9 +9,10 @@ type Props = {
   users: any[];
   onClick: () => void;
   onCompleteCard?: (id: string, isCompleted: boolean) => void;
+  isOverlay?: boolean;
 };
 
-export default function KanbanCard({ card, users, onClick, onCompleteCard }: Props) {
+export default function KanbanCard({ card, users, onClick, onCompleteCard, isOverlay = false }: Props) {
   const sortableData = React.useMemo(() => ({
     type: 'Card',
     card
@@ -25,14 +26,17 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard }: Pro
     transition,
     isDragging
   } = useSortable({
-    id: card.id,
-    data: sortableData
+    id: isOverlay ? `overlay-${card.id}` : card.id,
+    data: sortableData,
+    disabled: isOverlay
   });
 
-  const style = {
-    transition,
-    transform: CSS.Transform.toString(transform),
-  };
+  const style = isOverlay
+    ? undefined
+    : {
+        transition,
+        transform: CSS.Transform.toString(transform),
+      };
 
   const hasComments = card.comments && card.comments.length > 0;
   const hasAttachments = card.attachments && card.attachments.length > 0;
@@ -73,11 +77,15 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard }: Pro
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
+      {...(isOverlay ? {} : attributes)}
+      {...(isOverlay ? {} : listeners)}
       onClick={onClick}
-      className={`shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 cursor-grab active:cursor-grabbing hover:border-red-200 hover:shadow-md transition-all group relative overflow-hidden ${card.color ? 'pl-4 pr-3 py-3' : 'p-3'} ${
-        isDragging ? 'opacity-50 ring-2 ring-red-500 scale-105 z-50' : ''
+      className={`shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-[border-color,box-shadow,opacity] group relative overflow-hidden ${card.color ? 'pl-4 pr-3 py-3' : 'p-3'} ${
+        isOverlay
+          ? 'cursor-grabbing shadow-2xl ring-2 ring-[#ff2301] rotate-1 opacity-95 w-72'
+          : isDragging
+          ? 'cursor-grab opacity-25 ring-2 ring-dashed ring-red-400 bg-red-50/40'
+          : 'cursor-grab active:cursor-grabbing'
       }`}
     >
       {card.color && (
@@ -196,9 +204,11 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard }: Pro
       {/* Cover Image */}
       {coverImage && (
         <div className="w-[calc(100%+1.5rem)] h-32 mt-3 -mx-3 -mb-3 rounded-b-xl overflow-hidden shrink-0 border-t border-gray-100">
-          <img 
-            src={coverImage.fileUrl} 
-            alt={coverImage.fileName || 'Cover image'} 
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={coverImage.fileUrl}
+            alt={coverImage.fileName || 'Cover image'}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         </div>

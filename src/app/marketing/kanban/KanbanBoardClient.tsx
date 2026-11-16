@@ -1,9 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   DndContext,
+  DragOverlay,
   closestCenter,
+  closestCorners,
+  pointerWithin,
+  rectIntersection,
+  CollisionDetection,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -11,8 +17,6 @@ import {
   DragStartEvent,
   DragOverEvent,
   DragEndEvent,
-  Active,
-  Over
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -20,8 +24,9 @@ import {
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Loader2, Plus, KanbanSquare, PanelRightClose, PanelRightOpen, Filter, Activity, X, Check } from 'lucide-react';
+import { Loader2, Plus, KanbanSquare, PanelRightClose, PanelRightOpen, Filter, Activity, X, Check, RefreshCw, AlertCircle } from 'lucide-react';
 import KanbanList from '@/app/marketing/kanban/KanbanList';
+import KanbanCard from '@/app/marketing/kanban/KanbanCard';
 import CardModal from '@/app/marketing/kanban/CardModal';
 import CalendarViewClient from '@/app/marketing/kanban/CalendarViewClient';
 import { Calendar as CalendarIcon } from 'lucide-react';
@@ -67,15 +72,62 @@ export default function KanbanBoardClient({
   initialBoard?: any;
   initialUsers?: any[];
 }) {
+  const router = useRouter();
+  const [prevInitialBoard, setPrevInitialBoard] = useState<any>(initialBoard);
   const [board, setBoard] = useState<any>(initialBoard || null);
   const [lists, setLists] = useState<TKanbanList[]>(initialBoard?.lists || []);
+  const listsRef = useRef<TKanbanList[]>(initialBoard?.lists || []);
   const [users, setUsers] = useState<any[]>(initialUsers || []);
   const [loading, setLoading] = useState(!initialBoard);
+  const [isRefreshingBoard, setIsRefreshingBoard] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [viewType, setViewType] = useState<'board' | 'calendar'>('board');
 
   const [activeCard, setActiveCard] = useState<TKanbanCard | null>(null);
   const [activeList, setActiveList] = useState<TKanbanList | null>(null);
+  const isDragging = Boolean(activeCard || activeList);
+
+  if (initialBoard && initialBoard !== prevInitialBoard) {
+    setPrevInitialBoard(initialBoard);
+    if (!isDragging) {
+      setBoard(initialBoard);
+      setLists(initialBoard.lists || []);
+    }
+  }
+
+  useEffect(() => {
+    listsRef.current = lists;
+  }, [lists]);
+
+  const dragStateRef = useRef<{
+    type: 'Card' | 'List';
+    activeId: string;
+    originListId?: string;
+    originIndex: number;
+    originLists: TKanbanList[];
+  } | null>(null);
+
+  const updateLists = useCallback(
+    (updater: TKanbanList[] | ((prev: TKanbanList[]) => TKanbanList[])) => {
+      setLists((prev) => {
+        const next = typeof updater === 'function' ? updater(prev) : updater;
+        listsRef.current = next;
+        return next;
+      });
+    },
+    []
+  );
+
+  const showBoardError = useCallback((msg: string) => {
+    setActionError(msg);
+  }, []);
+
+  useEffect(() => {
+    if (!actionError) return;
+    const t = setTimeout(() => setActionError(null), 5000);
+    return () => clearTimeout(t);
+  }, [actionError]);
 
   // For Card Modal
   const [editingCard, setEditingCard] = useState<TKanbanCard | null>(null);
@@ -94,10 +146,11 @@ export default function KanbanBoardClient({
   const [filterLabel, setFilterLabel] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
 
-  const fetchBoard = useCallback(async () => {
+  const fetchBoard = useCallback(async (isSilent = false) => {
     try {
       setLoadError(null);
-      const res = await fetch('/api/marketing/kanban/boards');
+      if (isSilent) setIsRefreshingBoard(true);
+      const res = await fetch('/api/marketing/kanban/boards', { cache: 'no-store' });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || 'Failed to fetch board');
@@ -105,24 +158,60 @@ export default function KanbanBoardClient({
       const data = await res.json();
       if (data.board) {
         setBoard(data.board);
-        setLists(data.board.lists || []);
+        updateLists(data.board.lists || []);
       }
       if (data.users) {
         setUsers(data.users || []);
       }
     } catch (error: any) {
       console.error(error);
-      setLoadError(error.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลบอร์ด');
+      if (isSilent) {
+        showBoardError(error.message || 'รีเฟรชข้อมูลบอร์ดไม่สำเร็จ');
+      } else {
+        setLoadError(error.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลบอร์ด');
+      }
     } finally {
       setLoading(false);
+      setIsRefreshingBoard(false);
     }
-  }, []);
+  }, [showBoardError, updateLists]);
 
   useEffect(() => {
-    if (!initialBoard) {
-      fetchBoard();
-    }
-  }, [fetchBoard, initialBoard]);
+    if (initialBoard) return;
+    let cancelled = false;
+    fetch('/api/marketing/kanban/boards', { cache: 'no-store' })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to fetch board');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        if (data.board) {
+          setBoard(data.board);
+          updateLists(data.board.lists || []);
+        }
+        if (data.users) {
+          setUsers(data.users || []);
+        }
+      })
+      .catch((error: any) => {
+        console.error(error);
+        if (!cancelled) {
+          setLoadError(error.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลบอร์ด');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [initialBoard, updateLists]);
 
   // Trigger resize event for dnd-kit when sidebar opens/closes to recalculate droppables
   useEffect(() => {
@@ -147,20 +236,120 @@ export default function KanbanBoardClient({
     useSensor(KeyboardSensor, keyboardSensorOptions)
   );
 
+  const kanbanCollisionDetection: CollisionDetection = useCallback((args) => {
+    const activeType = args.active?.data?.current?.type;
+
+    if (activeType === 'List') {
+      const listContainers = args.droppableContainers.filter(
+        (c) => c.data?.current?.type === 'List'
+      );
+      return closestCenter({ ...args, droppableContainers: listContainers });
+    }
+
+    const pointerCollisions = pointerWithin(args);
+    const intersections =
+      pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
+
+    if (intersections.length > 0) {
+      const containerById = new Map(args.droppableContainers.map((c) => [c.id, c]));
+
+      const nonActiveCardHit = intersections.find((hit) => {
+        const container = containerById.get(hit.id);
+        return (
+          container?.data?.current?.type === 'Card' &&
+          hit.id !== args.active.id
+        );
+      });
+      if (nonActiveCardHit) {
+        return [nonActiveCardHit];
+      }
+
+      const listHit = intersections.find((hit) => {
+        const container = containerById.get(hit.id);
+        return container?.data?.current?.type === 'List';
+      });
+
+      if (listHit) {
+        const targetListId = String(listHit.id);
+        const cardContainersInList = args.droppableContainers.filter((c) => {
+          if (c.data?.current?.type !== 'Card') return false;
+          const card = c.data?.current?.card as TKanbanCard | undefined;
+          return card?.listId === targetListId && c.id !== args.active.id;
+        });
+
+        if (cardContainersInList.length === 0) {
+          return [listHit];
+        }
+
+        if (args.pointerCoordinates) {
+          const pointerY = args.pointerCoordinates.y;
+          const bottoms = cardContainersInList
+            .map((c) => c.rect.current?.bottom)
+            .filter((b): b is number => typeof b === 'number');
+          const tops = cardContainersInList
+            .map((c) => c.rect.current?.top)
+            .filter((t): t is number => typeof t === 'number');
+
+          if (bottoms.length > 0 && pointerY > Math.max(...bottoms)) {
+            return [listHit];
+          }
+          if (tops.length > 0 && pointerY < Math.min(...tops)) {
+            const topCard = cardContainersInList.reduce((best, curr) => {
+              const bestTop = best.rect.current?.top ?? Infinity;
+              const currTop = curr.rect.current?.top ?? Infinity;
+              return currTop < bestTop ? curr : best;
+            });
+            return [{ id: topCard.id, data: { droppableContainer: topCard } }];
+          }
+        }
+
+        return closestCorners({
+          ...args,
+          droppableContainers: cardContainersInList,
+        });
+      }
+
+      const selfHit = intersections.find((hit) => hit.id === args.active.id);
+      if (selfHit) {
+        return [selfHit];
+      }
+    }
+
+    return closestCorners(args);
+  }, []);
+
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    const { id } = active;
+    const id = String(active.id);
+    const snapshot = listsRef.current.map((l) => ({ ...l, cards: [...l.cards] }));
 
-    // Find if we're dragging a list or a card
-    const list = lists.find((l) => l.id === id);
-    if (list) {
-      setActiveList(list);
+    const listIdx = listsRef.current.findIndex((l) => l.id === id);
+    if (listIdx !== -1) {
+      dragStateRef.current = {
+        type: 'List',
+        activeId: id,
+        originIndex: listIdx,
+        originLists: snapshot,
+      };
+      setActiveList(listsRef.current[listIdx]);
+      setActiveCard(null);
       return;
     }
 
-    const card = lists.flatMap((l) => l.cards).find((c) => c.id === id);
-    if (card) {
-      setActiveCard(card);
+    for (const l of listsRef.current) {
+      const cIdx = l.cards.findIndex((c) => c.id === id);
+      if (cIdx !== -1) {
+        dragStateRef.current = {
+          type: 'Card',
+          activeId: id,
+          originListId: l.id,
+          originIndex: cIdx,
+          originLists: snapshot,
+        };
+        setActiveCard(l.cards[cIdx]);
+        setActiveList(null);
+        return;
+      }
     }
   };
 
@@ -168,165 +357,301 @@ export default function KanbanBoardClient({
     const { active, over } = event;
     if (!over) return;
 
-    const activeId = active.id;
-    const overId = over.id;
-
+    const activeId = String(active.id);
+    const overId = String(over.id);
     if (activeId === overId) return;
 
-    // Are we dragging a card?
     const isActiveCard = active.data?.current?.type === 'Card';
+    if (!isActiveCard) return;
+
     const isOverCard = over.data?.current?.type === 'Card';
     const isOverList = over.data?.current?.type === 'List';
 
-    if (!isActiveCard) return;
-
-    setLists((prev) => {
+    updateLists((prev) => {
       const activeListIndex = prev.findIndex((l) => l.cards.some((c) => c.id === activeId));
       const overListIndex = isOverList
         ? prev.findIndex((l) => l.id === overId)
         : prev.findIndex((l) => l.cards.some((c) => c.id === overId));
 
       if (activeListIndex === -1 || overListIndex === -1) return prev;
+      if (activeListIndex === overListIndex) return prev;
 
-      const activeList = prev[activeListIndex];
-      const overList = prev[overListIndex];
+      const srcList = prev[activeListIndex];
+      const dstList = prev[overListIndex];
+      const activeCardIndex = srcList.cards.findIndex((c) => c.id === activeId);
+      if (activeCardIndex === -1) return prev;
 
-      const activeCardIndex = activeList.cards.findIndex((c) => c.id === activeId);
+      const movedCard: TKanbanCard = {
+        ...srcList.cards[activeCardIndex],
+        listId: dstList.id,
+      };
 
-      // If moving within the same list, handle in DragEnd
-      if (activeList.id === overList.id) {
-        return prev;
+      const newSrcCards = srcList.cards.filter((_, i) => i !== activeCardIndex);
+      let insertIndex = dstList.cards.length;
+
+      if (isOverCard) {
+        const overCardIndex = dstList.cards.findIndex((c) => c.id === overId);
+        if (overCardIndex !== -1) {
+          const isBelowOverItem =
+            Boolean(active.rect.current.translated) &&
+            active.rect.current.translated!.top > over.rect.top + over.rect.height / 2;
+          insertIndex = isBelowOverItem ? overCardIndex + 1 : overCardIndex;
+        }
       }
 
-      // Moving to a different list (optimistic UI update during drag over)
-      const overCardIndex = isOverCard
-        ? overList.cards.findIndex((c) => c.id === overId)
-        : overList.cards.length;
+      const newDstCards = [...dstList.cards];
+      newDstCards.splice(insertIndex, 0, movedCard);
 
-      const newLists = [...prev];
-      const newActiveCards = [...activeList.cards];
-      const [movedCard] = newActiveCards.splice(activeCardIndex, 1);
-
-      // Mutate the dragged card to conceptually belong to the new list immediately for UI
-      movedCard.listId = overList.id;
-
-      const newOverCards = [...overList.cards];
-      newOverCards.splice(overCardIndex, 0, movedCard);
-
-      newLists[activeListIndex] = { ...activeList, cards: newActiveCards };
-      newLists[overListIndex] = { ...overList, cards: newOverCards };
-
-      return newLists;
+      const nextLists = [...prev];
+      nextLists[activeListIndex] = { ...srcList, cards: newSrcCards };
+      nextLists[overListIndex] = { ...dstList, cards: newDstCards };
+      return nextLists;
     });
+  };
+
+  const handleDragCancel = () => {
+    setActiveCard(null);
+    setActiveList(null);
+    const dragMeta = dragStateRef.current;
+    dragStateRef.current = null;
+    if (dragMeta?.originLists) {
+      updateLists(dragMeta.originLists);
+    }
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     setActiveCard(null);
     setActiveList(null);
 
+    const dragMeta = dragStateRef.current;
+    dragStateRef.current = null;
+
     const { active, over } = event;
-    if (!over) return;
+    const activeId = String(active.id);
 
-    const activeId = active.id as string;
-    const overId = over.id as string;
+    if (!dragMeta) return;
 
-    if (activeId === overId) return;
+    // Handle List Reordering & persist to DB
+    if (dragMeta.type === 'List') {
+      if (!over || activeId === String(over.id)) return;
+      const overId = String(over.id);
+      const currLists = listsRef.current;
+      const oldIndex = currLists.findIndex((l) => l.id === activeId);
+      const newIndex = currLists.findIndex((l) => l.id === overId);
+      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
 
-    const isActiveList = active.data?.current?.type === 'List';
+      const reorderedLists = arrayMove(currLists, oldIndex, newIndex).map((l, idx) => ({
+        ...l,
+        position: (idx + 1) * 1000,
+      }));
+      updateLists(reorderedLists);
 
-    // Handle List Reordering (omitted API call for brevity in MVP, but state updates)
-    if (isActiveList) {
-      setLists((prev) => {
-        const oldIndex = prev.findIndex((l) => l.id === activeId);
-        const newIndex = prev.findIndex((l) => l.id === overId);
-        return arrayMove(prev, oldIndex, newIndex);
-      });
+      try {
+        const res = await fetch('/api/marketing/kanban/lists', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedListIds: reorderedLists.map((l) => l.id) }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'ย้ายลำดับรายการไม่สำเร็จ');
+        }
+        router.refresh();
+      } catch (e: any) {
+        console.error('Failed to save list reorder', e);
+        updateLists(dragMeta.originLists);
+        showBoardError(e?.message || 'ย้ายลำดับคอลัมน์ไม่สำเร็จ ระบบคืนค่าเดิมให้แล้ว');
+      }
       return;
     }
 
-    // Handle Card Reordering
-    const isActiveCard = active.data?.current?.type === 'Card';
-    if (!isActiveCard) return;
-
-    // Find final lists
-    const activeListIndex = lists.findIndex((l) => l.cards.some((c) => c.id === activeId));
-    let overListIndex = lists.findIndex((l) => l.cards.some((c) => c.id === overId));
-    if (overListIndex === -1) {
-      overListIndex = lists.findIndex((l) => l.id === overId);
+    // Drag dropped outside any valid droppable: rollback optimistic dragOver move
+    if (!over) {
+      updateLists(dragMeta.originLists);
+      return;
     }
 
-    if (activeListIndex === -1 || overListIndex === -1) return;
+    const overId = String(over.id);
+    const currentLists = listsRef.current;
+    const currentListIndex = currentLists.findIndex((l) =>
+      l.cards.some((c) => c.id === activeId)
+    );
+    if (currentListIndex === -1) {
+      updateLists(dragMeta.originLists);
+      return;
+    }
 
-    const activeListObj = lists[activeListIndex];
-    const overListObj = lists[overListIndex];
+    // If overId === activeId, user dropped on the previewed slot created during handleDragOver
+    let targetListIndex =
+      overId === activeId
+        ? currentListIndex
+        : over.data?.current?.type === 'List'
+        ? currentLists.findIndex((l) => l.id === overId)
+        : currentLists.findIndex((l) => l.cards.some((c) => c.id === overId));
 
-    const oldIndex = activeListObj.cards.findIndex((c) => c.id === activeId);
-    const newIndex = overListObj.cards.findIndex((c) => c.id === overId);
+    if (targetListIndex === -1 && over.data?.current?.card?.listId) {
+      targetListIndex = currentLists.findIndex(
+        (l) => l.id === over.data?.current?.card?.listId
+      );
+    }
 
-    let newPosition = 1000;
+    if (targetListIndex === -1) {
+      updateLists(dragMeta.originLists);
+      return;
+    }
 
-    // Calculate new position float
-    if (activeListObj.id === overListObj.id) {
-      // Same list reorder
-      const reorderedCards = arrayMove(activeListObj.cards, oldIndex, newIndex);
-      const prevCard = reorderedCards[newIndex - 1];
-      const nextCard = reorderedCards[newIndex + 1];
+    const sourceListObj = currentLists[currentListIndex];
+    const targetListObj = currentLists[targetListIndex];
+    const oldIndexInSource = sourceListObj.cards.findIndex((c) => c.id === activeId);
+    if (oldIndexInSource === -1) {
+      updateLists(dragMeta.originLists);
+      return;
+    }
 
-      if (prevCard && nextCard) {
-        newPosition = (prevCard.position + nextCard.position) / 2;
-      } else if (prevCard) {
-        newPosition = prevCard.position + 1000;
-      } else if (nextCard) {
-        newPosition = nextCard.position / 2;
+    let finalTargetCards: TKanbanCard[];
+    let finalCardIndex: number;
+
+    if (sourceListObj.id === targetListObj.id) {
+      if (overId === activeId || overId === targetListObj.id) {
+        finalTargetCards = [...targetListObj.cards];
+        finalCardIndex = oldIndexInSource;
+      } else {
+        const overIdx = targetListObj.cards.findIndex((c) => c.id === overId);
+        if (overIdx === -1) {
+          finalTargetCards = [...targetListObj.cards];
+          finalCardIndex = oldIndexInSource;
+        } else {
+          finalTargetCards = arrayMove(targetListObj.cards, oldIndexInSource, overIdx);
+          finalCardIndex = overIdx;
+        }
       }
-
-      setLists((prev) => {
-        const updatedLists = [...prev];
-        updatedLists[activeListIndex] = {
-          ...activeListObj,
-          cards: reorderedCards.map(c => c.id === activeId ? { ...c, position: newPosition } : c)
-        };
-        return updatedLists;
-      });
     } else {
-      // Different list move - already partially handled in dragOver for UI, but let's recalculate position
-      const prevCard = overListObj.cards[newIndex - 1];
-      const nextCard = overListObj.cards[newIndex + 1];
-
-      if (prevCard && nextCard) {
-        newPosition = (prevCard.position + nextCard.position) / 2;
-      } else if (prevCard) {
-        newPosition = prevCard.position + 1000;
-      } else if (nextCard) {
-        newPosition = nextCard.position / 2;
-      } else if (overListObj.cards.length > 0) {
-        // It was dropped on the list itself or an empty list
-        newPosition = 1000;
+      const movedCard: TKanbanCard = {
+        ...sourceListObj.cards[oldIndexInSource],
+        listId: targetListObj.id,
+      };
+      const isOverCard = over.data?.current?.type === 'Card';
+      let insertIdx = targetListObj.cards.length;
+      if (isOverCard) {
+        const overIdx = targetListObj.cards.findIndex((c) => c.id === overId);
+        if (overIdx !== -1) {
+          const isBelowOverItem =
+            Boolean(active.rect.current.translated) &&
+            active.rect.current.translated!.top > over.rect.top + over.rect.height / 2;
+          insertIdx = isBelowOverItem ? overIdx + 1 : overIdx;
+        }
       }
-
-      setLists((prev) => {
-        const newLists = [...prev];
-        const cList = newLists[overListIndex];
-        cList.cards = cList.cards.map(c => c.id === activeId ? { ...c, position: newPosition, listId: overListObj.id } : c);
-        // Sort cards by position just in case
-        cList.cards.sort((a, b) => a.position - b.position);
-        return newLists;
-      });
+      finalTargetCards = [...targetListObj.cards];
+      finalTargetCards.splice(insertIdx, 0, movedCard);
+      finalCardIndex = insertIdx;
     }
 
-    // Call API to persist
+    // Skip save if card stayed in exact original list and index
+    if (
+      targetListObj.id === dragMeta.originListId &&
+      finalCardIndex === dragMeta.originIndex
+    ) {
+      return;
+    }
+
+    // Compute clean position (rebalance locally if neighboring float gap < 2 or invalid)
+    const prevCard = finalTargetCards[finalCardIndex - 1];
+    const nextCard = finalTargetCards[finalCardIndex + 1];
+    let newPosition = 1000;
+    let shouldLocalRebalance = false;
+
+    if (prevCard && nextCard) {
+      const gap = nextCard.position - prevCard.position;
+      if (!Number.isFinite(gap) || gap < 2 || prevCard.position <= 0) {
+        shouldLocalRebalance = true;
+      } else {
+        newPosition = (prevCard.position + nextCard.position) / 2;
+      }
+    } else if (prevCard) {
+      if (!Number.isFinite(prevCard.position) || prevCard.position <= 0) {
+        shouldLocalRebalance = true;
+      } else {
+        newPosition = prevCard.position + 1000;
+      }
+    } else if (nextCard) {
+      if (!Number.isFinite(nextCard.position) || nextCard.position < 2) {
+        shouldLocalRebalance = true;
+      } else {
+        newPosition = nextCard.position / 2;
+      }
+    }
+
+    const updatedTargetCards = shouldLocalRebalance
+      ? finalTargetCards.map((c, idx) => ({
+          ...c,
+          listId: targetListObj.id,
+          position: (idx + 1) * 1000,
+        }))
+      : finalTargetCards.map((c) =>
+          c.id === activeId ? { ...c, listId: targetListObj.id, position: newPosition } : c
+        );
+
+    if (shouldLocalRebalance) {
+      newPosition = (finalCardIndex + 1) * 1000;
+    }
+
+    const orderedCardIds = updatedTargetCards.map((c) => c.id);
+
+    updateLists((prev) =>
+      prev.map((l) => {
+        if (sourceListObj.id !== targetListObj.id && l.id === sourceListObj.id) {
+          return {
+            ...l,
+            cards: l.cards.filter((c) => c.id !== activeId),
+          };
+        }
+        if (l.id === targetListObj.id) {
+          return {
+            ...l,
+            cards: updatedTargetCards,
+          };
+        }
+        return l;
+      })
+    );
+
     try {
-      await fetch('/api/marketing/kanban/cards', {
+      const res = await fetch('/api/marketing/kanban/cards', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: activeId,
-          listId: overListObj.id,
-          position: newPosition
-        })
+          listId: targetListObj.id,
+          position: newPosition,
+          orderedCardIds,
+        }),
       });
-    } catch (e) {
-      console.error("Failed to save card move", e);
+      const saved = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(saved.error || `บันทึกการย้ายการ์ดไม่สำเร็จ (HTTP ${res.status})`);
+      }
+
+      if (saved.listPositions && typeof saved.listPositions === 'object') {
+        const posMap = saved.listPositions as Record<string, number>;
+        updateLists((prev) =>
+          prev.map((l) => {
+            if (l.id !== targetListObj.id) return l;
+            return {
+              ...l,
+              cards: l.cards
+                .map((c) =>
+                  posMap[c.id] !== undefined ? { ...c, position: posMap[c.id] } : c
+                )
+                .sort((a, b) => a.position - b.position),
+            };
+          })
+        );
+      }
+      router.refresh();
+    } catch (e: any) {
+      console.error('Failed to save card move', e);
+      updateLists(dragMeta.originLists);
+      showBoardError(e?.message || 'ย้ายงานไม่สำเร็จ ระบบคืนตำแหน่งเดิมให้แล้ว');
     }
   };
 
@@ -337,31 +662,44 @@ export default function KanbanBoardClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ listId, title })
       });
-      const newCard = await res.json();
+      const newCard = await res.json().catch(() => ({}));
+      if (!res.ok || !newCard?.id) {
+        throw new Error(newCard?.error || 'เพิ่มงานใหม่ไม่สำเร็จ');
+      }
 
-      setLists(prev => prev.map(list => {
-        if (list.id === listId) {
-          return { ...list, cards: [...list.cards, newCard] };
-        }
-        return list;
-      }));
-    } catch (e) {
+      updateLists((prev) =>
+        prev.map((list) => {
+          if (list.id === listId) {
+            return { ...list, cards: [...list.cards, newCard] };
+          }
+          return list;
+        })
+      );
+      router.refresh();
+    } catch (e: any) {
       console.error(e);
+      showBoardError(e?.message || 'เพิ่มงานใหม่ไม่สำเร็จ');
     }
   };
 
   const handleUpdateList = async (listId: string, updates: Partial<TKanbanList>) => {
+    const prevLists = listsRef.current;
+    updateLists((prev) => prev.map((l) => (l.id === listId ? { ...l, ...updates } : l)));
     try {
       const res = await fetch('/api/marketing/kanban/lists', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: listId, ...updates })
       });
-      if (res.ok) {
-        setLists(prev => prev.map(l => l.id === listId ? { ...l, ...updates } : l));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'อัปเดตรายการไม่สำเร็จ');
       }
-    } catch (e) {
+      router.refresh();
+    } catch (e: any) {
       console.error(e);
+      updateLists(prevLists);
+      showBoardError(e?.message || 'อัปเดตรายการไม่สำเร็จ');
     }
   };
 
@@ -372,12 +710,16 @@ export default function KanbanBoardClient({
       const res = await fetch(`/api/marketing/kanban/lists?id=${listId}`, {
         method: 'DELETE'
       });
-      if (res.ok) {
-        setLists(prev => prev.filter(l => l.id !== listId));
-        setListToDelete(null);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'ลบรายการไม่สำเร็จ');
       }
-    } catch (e) {
+      updateLists((prev) => prev.filter((l) => l.id !== listId));
+      setListToDelete(null);
+      router.refresh();
+    } catch (e: any) {
       console.error(e);
+      showBoardError(e?.message || 'ลบรายการไม่สำเร็จ');
     }
   };
 
@@ -391,61 +733,89 @@ export default function KanbanBoardClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ boardId: board.id, name: newListTitle.trim() })
       });
-      if (res.ok) {
-        const newList = await res.json();
-        setLists([...lists, newList]);
-        setNewListTitle('');
-        setIsAddingList(false);
+      const newList = await res.json().catch(() => ({}));
+      if (!res.ok || !newList?.id) {
+        throw new Error(newList?.error || 'เพิ่มรายการใหม่ไม่สำเร็จ');
       }
-    } catch (e) {
+      updateLists((prev) => [...prev, newList]);
+      setNewListTitle('');
+      setIsAddingList(false);
+      router.refresh();
+    } catch (e: any) {
       console.error(e);
+      showBoardError(e?.message || 'เพิ่มรายการใหม่ไม่สำเร็จ');
     }
   };
 
-  const handleCardUpdate = (updatedCard: TKanbanCard) => {
-    setLists(prev => prev.map(list => {
-      const cardExists = list.cards.some(c => c.id === updatedCard.id);
-      if (cardExists && list.id === updatedCard.listId) {
-        return {
-          ...list,
-          cards: list.cards.map(c => c.id === updatedCard.id ? updatedCard : c)
-        };
-      } else if (cardExists && list.id !== updatedCard.listId) {
-        return {
-          ...list,
-          cards: list.cards.filter(c => c.id !== updatedCard.id)
-        };
-      } else if (!cardExists && list.id === updatedCard.listId) {
-        return {
-          ...list,
-          cards: [...list.cards, updatedCard].sort((a, b) => a.position - b.position)
-        };
-      }
-      return list;
-    }));
+  const handleCardUpdate = (updatedCard: TKanbanCard & { listPositions?: Record<string, number> }) => {
+    if (!updatedCard?.id) return;
+    const { listPositions, ...cardData } = updatedCard;
+
+    updateLists((prev) =>
+      prev.map((list) => {
+        const cardExists = list.cards.some((c) => c.id === cardData.id);
+        let nextCards = list.cards;
+
+        if (cardExists && list.id === cardData.listId) {
+          nextCards = list.cards.map((c) => (c.id === cardData.id ? cardData : c));
+        } else if (cardExists && list.id !== cardData.listId) {
+          nextCards = list.cards.filter((c) => c.id !== cardData.id);
+        } else if (!cardExists && list.id === cardData.listId) {
+          nextCards = [...list.cards, cardData];
+        }
+
+        if (list.id === cardData.listId && listPositions) {
+          nextCards = nextCards.map((c) =>
+            listPositions[c.id] !== undefined ? { ...c, position: listPositions[c.id] } : c
+          );
+        }
+
+        if (nextCards !== list.cards) {
+          nextCards = [...nextCards].sort((a, b) => a.position - b.position);
+        }
+
+        return nextCards !== list.cards ? { ...list, cards: nextCards } : list;
+      })
+    );
+
+    setEditingCard((prev) => (prev && prev.id === cardData.id ? cardData : prev));
+    router.refresh();
   };
 
   const handleDeleteCard = (cardId: string) => {
-    setLists(prevLists => prevLists.map(list => ({
-      ...list,
-      cards: list.cards.filter(c => c.id !== cardId)
-    })));
+    updateLists((prevLists) =>
+      prevLists.map((list) => ({
+        ...list,
+        cards: list.cards.filter((c) => c.id !== cardId),
+      }))
+    );
     setEditingCard(null);
+    router.refresh();
   };
 
   const handleCompleteCard = async (cardId: string, isCompleted: boolean) => {
-    setLists(prev => prev.map(list => ({
-      ...list,
-      cards: list.cards.map(c => c.id === cardId ? { ...c, isCompleted } : c)
-    })));
+    const prevLists = listsRef.current;
+    updateLists((prev) =>
+      prev.map((list) => ({
+        ...list,
+        cards: list.cards.map((c) => (c.id === cardId ? { ...c, isCompleted } : c)),
+      }))
+    );
     try {
-      await fetch('/api/marketing/kanban/cards', {
+      const res = await fetch('/api/marketing/kanban/cards', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: cardId, isCompleted })
       });
-    } catch (e) {
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'อัปเดตสถานะงานไม่สำเร็จ');
+      }
+      router.refresh();
+    } catch (e: any) {
       console.error("Failed to update card completion", e);
+      updateLists(prevLists);
+      showBoardError(e?.message || 'อัปเดตสถานะงานไม่สำเร็จ');
     }
   };
   const allActivities = React.useMemo(() => {
@@ -545,14 +915,36 @@ export default function KanbanBoardClient({
             <p className="text-[10px] md:text-xs text-gray-500 font-medium truncate">ระบบจัดการงาน (Task Management System)</p>
           </div>
         </div>
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isSidebarOpen ? 'bg-red-50 text-[#ff2301]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-            }`}
-        >
-          {isSidebarOpen ? <PanelRightClose size={20} /> : <PanelRightOpen size={20} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fetchBoard(true)}
+            disabled={isRefreshingBoard}
+            title="รีเฟรชข้อมูลบอร์ดล่าสุด"
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={18} className={isRefreshingBoard ? 'animate-spin' : ''} />
+          </button>
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isSidebarOpen ? 'bg-red-50 text-[#ff2301]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+          >
+            {isSidebarOpen ? <PanelRightClose size={20} /> : <PanelRightOpen size={20} />}
+          </button>
+        </div>
       </header>
+
+      {actionError && (
+        <div className="bg-red-50 border-b border-red-200 px-6 py-2.5 flex items-center justify-between gap-3 text-xs font-bold text-red-700 z-10">
+          <div className="flex items-center gap-2">
+            <AlertCircle size={15} className="shrink-0 text-red-600" />
+            <span>{actionError}</span>
+          </div>
+          <button onClick={() => setActionError(null)} className="text-red-500 hover:text-red-700">
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       <div className="flex-1 flex min-h-0 overflow-hidden relative">
         {viewType === 'calendar' ? (
@@ -561,16 +953,21 @@ export default function KanbanBoardClient({
             users={users} 
             lists={lists} 
             currentUser={currentUser} 
-            onUpdateCard={handleCardUpdate} 
+            onUpdateCard={handleCardUpdate}
+            onCardClick={(card) => {
+              const latest = lists.flatMap((l) => l.cards).find((c) => c.id === card.id) || card;
+              setEditingCard(latest);
+            }}
           />
         ) : (
           <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 custom-scrollbar transition-all duration-300">
             <DndContext
               sensors={sensors}
-              collisionDetection={closestCenter}
+              collisionDetection={kanbanCollisionDetection}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
               onDragEnd={handleDragEnd}
+              onDragCancel={handleDragCancel}
             >
               <div className="flex gap-6 h-full items-start">
                 <SortableContext items={lists.map(l => l.id)} strategy={horizontalListSortingStrategy}>
@@ -644,6 +1041,24 @@ export default function KanbanBoardClient({
                   </button>
                 )}
               </div>
+              <DragOverlay dropAnimation={null}>
+                {activeCard ? (
+                  <KanbanCard
+                    card={activeCard}
+                    users={users}
+                    onClick={() => {}}
+                    isOverlay
+                  />
+                ) : activeList ? (
+                  <KanbanList
+                    list={activeList}
+                    users={users}
+                    onAddCard={() => {}}
+                    onCardClick={() => {}}
+                    isOverlay
+                  />
+                ) : null}
+              </DragOverlay>
             </DndContext>
           </div>
         )}
@@ -788,12 +1203,16 @@ export default function KanbanBoardClient({
                             <p className="text-sm text-gray-800 break-words">
                               <span className="font-semibold">{user ? user.fullName.split(' ')[0] : 'ระบบ'}</span>
                               {' '}
-                              {log.actionType === 'create' ? 'สร้างงาน' :
-                                log.actionType === 'move' ? 'ย้ายงาน' :
-                                  log.actionType === 'update' ? 'อัปเดตงาน' :
-                                    log.actionType === 'comment' ? 'แสดงความเห็น' :
-                                      log.actionType === 'upload' ? 'อัปโหลดไฟล์' :
-                                        log.actionType === 'delete' ? 'ลบงาน' : log.actionType}
+                              {(() => {
+                                const act = (log.actionType || '').toUpperCase();
+                                if (act === 'CREATE' || act === 'CREATED') return 'สร้างงาน';
+                                if (act === 'MOVE' || act === 'MOVED') return 'ย้ายงาน';
+                                if (act === 'UPDATE' || act === 'STATUS_CHANGE') return 'อัปเดตงาน';
+                                if (act === 'COMMENT' || act === 'COMMENTED') return 'แสดงความเห็น';
+                                if (act === 'UPLOAD' || act === 'ATTACHED') return 'อัปโหลดไฟล์';
+                                if (act === 'DELETE' || act === 'DELETED ATTACHMENT') return 'ลบข้อมูล';
+                                return log.actionType;
+                              })()}
                               {' '}
                               <span className="font-medium text-gray-600">"{log.cardTitle}"</span>
                             </p>
@@ -821,6 +1240,7 @@ export default function KanbanBoardClient({
 
       {editingCard && (
         <CardModal
+          key={editingCard.id}
           card={editingCard}
           users={users}
           lists={lists}

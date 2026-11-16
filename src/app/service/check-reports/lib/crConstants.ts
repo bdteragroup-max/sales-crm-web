@@ -44,11 +44,71 @@ export const STATUS_CONFIG: Record<
   },
 };
 
-export const WARRANTY_STATUS_OPTIONS = [
-  { value: "IN_WARRANTY", label: "อยู่ในประกัน (In Warranty)" },
-  { value: "OUT_OF_WARRANTY", label: "นอกประกัน (Out of Warranty)" },
-  { value: "PENDING", label: "รอตรวจสอบระยะประกัน" },
+export type WarrantyStatusCode =
+  | "IN_WARRANTY"
+  | "OUT_OF_WARRANTY"
+  | "NOT_COVERED"
+  | "PENDING";
+
+export const WARRANTY_STATUS_OPTIONS: { value: WarrantyStatusCode; label: string }[] = [
+  { value: "IN_WARRANTY", label: "รับประกัน (In Warranty)" },
+  { value: "OUT_OF_WARRANTY", label: "หมดประกัน (Out of Warranty)" },
+  { value: "PENDING", label: "รอตรวจสอบ (Pending)" },
+  { value: "NOT_COVERED", label: "ไม่อยู่ในเงื่อนไขการรับประกัน (Not Covered)" },
 ];
+
+export function normalizeWarrantyStatusCode(val?: string | null): WarrantyStatusCode {
+  const raw = String(val || "").trim();
+  if (!raw) return "PENDING";
+  const upper = raw.toUpperCase();
+  if (
+    upper === "IN_WARRANTY" ||
+    upper === "VALID" ||
+    raw === "รับประกัน" ||
+    raw === "อยู่ในประกัน"
+  ) {
+    return "IN_WARRANTY";
+  }
+  if (
+    upper === "OUT_OF_WARRANTY" ||
+    upper === "EXPIRED" ||
+    raw === "หมดประกัน" ||
+    raw === "นอกประกัน" ||
+    raw === "ไม่รับประกัน"
+  ) {
+    return "OUT_OF_WARRANTY";
+  }
+  if (
+    upper === "NOT_COVERED" ||
+    upper === "NOT COVERED" ||
+    raw.includes("ไม่อยู่ในเงื่อนไข")
+  ) {
+    return "NOT_COVERED";
+  }
+  if (upper === "PENDING" || raw === "รอตรวจสอบ" || raw === "รอตรวจสอบระยะประกัน") {
+    return "PENDING";
+  }
+  return "PENDING";
+}
+
+export function getWarrantyStatusLabel(
+  val?: string | null,
+  lang: "TH" | "EN" = "TH"
+): string {
+  const code = normalizeWarrantyStatusCode(val);
+  const isEn = lang === "EN";
+  switch (code) {
+    case "IN_WARRANTY":
+      return isEn ? "In Warranty" : "อยู่ในประกัน";
+    case "OUT_OF_WARRANTY":
+      return isEn ? "Out of Warranty" : "หมดประกัน";
+    case "NOT_COVERED":
+      return isEn ? "Not Covered" : "ไม่อยู่ในเงื่อนไขการรับประกัน";
+    case "PENDING":
+    default:
+      return isEn ? "Pending Check" : "รอตรวจสอบ";
+  }
+}
 
 export const COMPANY_OPTIONS = [
   { value: "TG", label: "TERA GROUP (TG)", full: "บริษัท เทอรา กรุ้ป จำกัด" },

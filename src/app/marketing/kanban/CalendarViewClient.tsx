@@ -11,6 +11,7 @@ type Props = {
   lists: TKanbanList[];
   currentUser: any;
   onUpdateCard: (card: TKanbanCard) => void;
+  onCardClick?: (card: TKanbanCard) => void;
 };
 
 // Helper to reliably get Day/Month/Year in Bangkok timezone from an ISO string
@@ -49,32 +50,41 @@ const getUserColorClass = (userId: string | null | undefined) => {
   return USER_COLORS[Math.abs(hash) % USER_COLORS.length];
 };
 
-export default function CalendarViewClient({ boardId, users, lists, currentUser, onUpdateCard }: Props) {
+export default function CalendarViewClient({ boardId, users, lists, currentUser, onUpdateCard, onCardClick }: Props) {
   const [currentDate, setCurrentDate] = useState(() => new Date()); // Local time is fine for current month navigation
   const [cards, setCards] = useState<TKanbanCard[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [settledKey, setSettledKey] = useState<string>('');
   const [selectedChannels, setSelectedChannels] = useState<PostingChannel[]>([]);
 
-  const fetchCardsForMonth = async (month: number, year: number) => {
-    if (!boardId) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/marketing/kanban/calendar?boardId=${boardId}&month=${month}&year=${year}`);
-      const data = await res.json();
-      if (data.cards) {
-        setCards(data.cards);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const targetMonth = currentDate.getMonth() + 1;
+  const targetYear = currentDate.getFullYear();
+  const requestKey = `${boardId || ''}:${targetYear}:${targetMonth}`;
+  const loading = Boolean(boardId) && settledKey !== requestKey;
 
   useEffect(() => {
-    // JS getMonth() is 0-indexed, so we add 1 for our API
-    fetchCardsForMonth(currentDate.getMonth() + 1, currentDate.getFullYear());
-  }, [currentDate.getMonth(), currentDate.getFullYear(), boardId]);
+    if (!boardId) return;
+    let cancelled = false;
+    fetch(`/api/marketing/kanban/calendar?boardId=${boardId}&month=${targetMonth}&year=${targetYear}`, {
+      cache: 'no-store'
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!cancelled && res.ok && data.cards) {
+          setCards(data.cards);
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setSettledKey(requestKey);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [boardId, targetMonth, targetYear, requestKey]);
 
   const handlePrevMonth = () => {
     setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -136,8 +146,9 @@ export default function CalendarViewClient({ boardId, users, lists, currentUser,
           
           return (
             <div 
-              key={card.id} 
-              className={`text-[10px] sm:text-xs truncate rounded px-1.5 py-1 border flex items-center justify-between group ${colorClass}`}
+              key={card.id}
+              onClick={() => onCardClick?.(card)}
+              className={`text-[10px] sm:text-xs truncate rounded px-1.5 py-1 border flex items-center justify-between group ${onCardClick ? 'cursor-pointer hover:opacity-85' : ''} ${colorClass}`}
               title={`${card.title}${assignee ? ` (ผู้รับผิดชอบ: ${assignee.fullName})` : ''}`}
             >
               <span className="truncate flex-1 font-medium">{card.title}</span>

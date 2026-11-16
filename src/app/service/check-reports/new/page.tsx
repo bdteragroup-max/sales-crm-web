@@ -33,6 +33,7 @@ export default async function NewCheckReportPage({ searchParams }: NewCheckRepor
   ]);
 
   let initialData: any = null;
+  let initialRepairOrder: Record<string, unknown> | null = null;
   let initialBatchItems: BatchCrItemDraft[] | undefined = undefined;
   let initialActiveBatchIdx = 0;
 
@@ -40,6 +41,7 @@ export default async function NewCheckReportPage({ searchParams }: NewCheckRepor
     const res = await getRepairOrderForCheckReport(targetId);
     if (res.success && res.data) {
       const order: any = res.data;
+      initialRepairOrder = JSON.parse(JSON.stringify(order));
       const batchItems = buildBatchItemsFromRepairOrder(
         order,
         order.existingReports || []
@@ -85,6 +87,7 @@ export default async function NewCheckReportPage({ searchParams }: NewCheckRepor
     <main className="flex-1 flex flex-col overflow-y-auto bg-slate-50/80 min-h-0 custom-scrollbar">
       <CheckReportForm
         initialData={initialData}
+        initialRepairOrder={initialRepairOrder}
         initialBatchItems={initialBatchItems}
         initialActiveBatchIdx={initialActiveBatchIdx}
         users={users}

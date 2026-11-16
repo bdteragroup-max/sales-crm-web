@@ -72,6 +72,7 @@ import {
   DEFAULT_PANEL_COMPONENTS,
   COMPANY_OPTIONS,
   WARRANTY_STATUS_OPTIONS,
+  normalizeWarrantyStatusCode,
   STATUS_CONFIG,
   EquipmentType,
   EQUIPMENT_TYPE_CONFIG,
@@ -82,6 +83,12 @@ import {
   createEmptyBatchCrItem,
   buildBatchItemsFromRepairOrder,
   buildPreviewBatchCrNumbers,
+  CHECK_REPORT_PHOTO_KEYS,
+  splitCrPhotosAcrossUnits,
+  extractRoPhotoPool,
+  resolveAutoPhotosForCheckReport,
+  RoPhotoPoolEntry,
+  CheckReportPhotoKey,
 } from "../lib/multiItemCrHelpers";
 
 export type PhotoKey =
@@ -400,21 +407,8 @@ function generateUploadSuffix(): string {
 }
 
 export function normalizeWarrantyStatus(val?: string | null): string {
-  if (!val) return "IN_WARRANTY";
-  const s = String(val).trim().toUpperCase();
-  if (s === "IN_WARRANTY" || s === "VALID" || val === "รับประกัน" || val === "อยู่ในประกัน") {
-    return "IN_WARRANTY";
-  }
-  if (s === "OUT_OF_WARRANTY" || s === "EXPIRED" || val === "หมดประกัน" || val === "นอกประกัน") {
-    return "OUT_OF_WARRANTY";
-  }
-  if (val === "ไม่อยู่ในเงื่อนไข" || s === "NOT_COVERED") {
-    return "NOT_COVERED";
-  }
-  if (s === "PENDING" || val === "รอตรวจสอบ") {
-    return "PENDING";
-  }
-  return val;
+  if (!val || !String(val).trim()) return "IN_WARRANTY";
+  return normalizeWarrantyStatusCode(val);
 }
 
 function normalizeCheckReportPhotos(rawInput: any): CheckReportPhotos {
@@ -456,6 +450,7 @@ function countItemPhotos(p?: CheckReportPhotos): number {
 
 interface CheckReportFormProps {
   initialData?: any;
+  initialRepairOrder?: Record<string, unknown> | null;
   initialBatchItems?: BatchCrItemDraft[];
   initialActiveBatchIdx?: number;
   users?: any[];
@@ -466,6 +461,7 @@ interface CheckReportFormProps {
 
 export default function CheckReportForm({
   initialData,
+  initialRepairOrder,
   initialBatchItems,
   initialActiveBatchIdx = 0,
   users = [],
@@ -486,6 +482,17 @@ export default function CheckReportForm({
     index?: number;
   } | null>(null);
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
+  const [linkedRoOrder, setLinkedRoOrder] = useState<Record<string, unknown> | null>(
+    initialRepairOrder || null
+  );
+  const [isLoadingRoPhotos, setIsLoadingRoPhotos] = useState(false);
+  const [roPhotoModal, setRoPhotoModal] = useState<{
+    entries: RoPhotoPoolEntry[];
+    recommendedUrls: Set<string>;
+    selectedIds: Set<string>;
+    applyMode: "merge" | "replace";
+    matchedUnitLabel: string;
+  } | null>(null);
 
   // Equipment Type Selection
   const [equipmentType, setEquipmentType] = useState<EquipmentType>(
@@ -1263,6 +1270,7 @@ export default function CheckReportForm({
   };
 
   const selectRepairOrder = (order: any) => {
+    setLinkedRoOrder(order || null);
     setConvertedJobNumber(order.job?.jobNumber || "");
     setConvertedJobId(order.jobId || "");
     setConvertedRepairOrderId(order.id || "");
@@ -1608,6 +1616,257 @@ export default function CheckReportForm({
       ...prev,
       [category]: 0,
     }));
+  };
+
+  const transferPhotoToBatchItem = (
+    category: PhotoKey,
+    photoIdx: number,
+    targetIdx: number,
+    mode: "move" | "copy" = "move"
+  ) => {
+    if (isEdit || targetIdx === activeBatchIdx || targetIdx < 0 || targetIdx >= batchItems.length) {
+      return;
+    }
+    const sourceList = photos[category] || [];
+    const targetUrl = sourceList[photoIdx];
+    if (!targetUrl) return;
+
+    const updatedActiveList =
+      mode === "move" ? sourceList.filter((_, i) => i !== photoIdx) : sourceList;
+    const nextActivePhotos: CheckReportPhotos = {
+      ...photos,
+      [category]: updatedActiveList,
+    };
+
+    if (mode === "move") {
+      setPhotos(nextActivePhotos);
+      setSelectedPhotoIndex((prev) => ({
+        ...prev,
+        [category]: Math.max(0, Math.min(prev[category] || 0, updatedActiveList.length - 1)),
+      }));
+    }
+
+    setBatchItems((prev) =>
+      prev.map((it, i) => {
+        if (i === activeBatchIdx) {
+          return {
+            ...getCurrentItemSnapshot(it),
+            photos: normalizeCheckReportPhotos(nextActivePhotos),
+          };
+        }
+        if (i === targetIdx) {
+          const targetExisting = it.photos?.[category] || [];
+          const nextTargetList = targetExisting.includes(targetUrl)
+            ? targetExisting
+            : [...targetExisting, targetUrl];
+          return {
+            ...it,
+            photos: {
+              ...(it.photos || {}),
+              [category]: nextTargetList,
+            },
+          };
+        }
+        return it;
+      })
+    );
+
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: `${mode === "move" ? "ย้ายรูป" : "คัดลอกรูป"}ไปเครื่องที่ ${targetIdx + 1} แล้ว`,
+      timer: 1400,
+      showConfirmButton: false,
+    });
+  };
+
+  const distributePhotosFromSourceBatchItem = (sourceIdx: number) => {
+    if (isEdit || batchItems.length <= 1 || sourceIdx < 0 || sourceIdx >= batchItems.length) {
+      return;
+    }
+    const currentSnap = getCurrentItemSnapshot(batchItems[activeBatchIdx]);
+    const synced = batchItems.map((it, i) => (i === activeBatchIdx ? currentSnap : it));
+    const sourcePhotos = synced[sourceIdx]?.photos;
+    if (countItemPhotos(sourcePhotos) === 0) return;
+
+    const splitPerUnit = splitCrPhotosAcrossUnits(sourcePhotos, synced.length);
+    const nextItems = synced.map((it, idx) => {
+      const assigned = splitPerUnit[idx] || {};
+      const merged: CheckReportPhotos = {};
+      CHECK_REPORT_PHOTO_KEYS.forEach((k) => {
+        const splitUrls = assigned[k] || [];
+        if (idx === sourceIdx) {
+          merged[k] = splitUrls;
+        } else {
+          const existing = it.photos?.[k] || [];
+          merged[k] = Array.from(new Set([...existing, ...splitUrls]));
+        }
+      });
+      return { ...it, photos: merged };
+    });
+
+    setBatchItems(nextItems);
+    setPhotos(normalizeCheckReportPhotos(nextItems[activeBatchIdx]?.photos));
+    setSelectedPhotoIndex({});
+
+    Swal.fire({
+      icon: "success",
+      title: "กระจายรูปไปยังทุกเครื่องเรียบร้อย",
+      text: `แบ่งรูปจากเครื่องที่ ${sourceIdx + 1} ไปยังเครื่องที่มีหลายรูปต่อช่องเรียบร้อยแล้ว`,
+      timer: 1600,
+      showConfirmButton: false,
+    });
+  };
+
+  const openRoPhotoPicker = async () => {
+    const targetRo = convertedRepairOrderId || convertedJobNumber;
+    if (!targetRo) {
+      Swal.fire({
+        icon: "info",
+        title: "ยังไม่ได้เชื่อมโยงกับใบรับซ่อม",
+        text: "กรุณาเลือกอ้างอิงใบรับซ่อม (RO) ในแท็บข้อมูลลูกค้าก่อน",
+      });
+      return;
+    }
+
+    let orderData = linkedRoOrder;
+    if (
+      !orderData ||
+      (convertedRepairOrderId && orderData.id !== convertedRepairOrderId)
+    ) {
+      setIsLoadingRoPhotos(true);
+      try {
+        const res = await getRepairOrderForCheckReport(targetRo);
+        if (!res?.success || !res.data) {
+          Swal.fire({
+            icon: "error",
+            title: "ไม่พบข้อมูลใบรับซ่อม",
+            text: res?.error || "ไม่สามารถโหลดรูปจากใบรับซ่อมได้",
+          });
+          return;
+        }
+        orderData = res.data as Record<string, unknown>;
+        setLinkedRoOrder(orderData);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "ไม่สามารถโหลดรูปจากใบรับซ่อมได้";
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: message,
+        });
+        return;
+      } finally {
+        setIsLoadingRoPhotos(false);
+      }
+    }
+
+    const entries = extractRoPhotoPool(orderData);
+    if (entries.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "ไม่พบรูปภาพในใบรับซ่อม",
+        text: "ใบรับซ่อมนี้ยังไม่มีการแนบรูปภาพสินค้าไว้",
+      });
+      return;
+    }
+
+    const dm = (diodeMeasurement || {}) as Record<string, unknown>;
+    const initDm = (initialData?.diodeMeasurement || {}) as Record<string, unknown>;
+    const currentRoItemKey =
+      (!isEdit ? batchItems[activeBatchIdx]?.roItemKey : undefined) ||
+      (typeof dm.roItemKey === "string" ? dm.roItemKey : undefined) ||
+      (typeof initDm.roItemKey === "string" ? initDm.roItemKey : undefined);
+
+    const autoMatch = resolveAutoPhotosForCheckReport(orderData, {
+      roItemKey: currentRoItemKey,
+      serialNumber,
+      fallbackIndex: activeBatchIdx,
+    });
+
+    const recommendedUrls = new Set<string>();
+    CHECK_REPORT_PHOTO_KEYS.forEach((k) => {
+      (autoMatch.photos[k] || []).forEach((u) => {
+        if (u) recommendedUrls.add(u);
+      });
+    });
+
+    const preselectedIds = new Set<string>();
+    entries.forEach((entry) => {
+      if (recommendedUrls.has(entry.url)) {
+        preselectedIds.add(entry.id);
+      }
+    });
+    if (preselectedIds.size === 0) {
+      entries.forEach((entry) => preselectedIds.add(entry.id));
+    }
+
+    setRoPhotoModal({
+      entries,
+      recommendedUrls,
+      selectedIds: preselectedIds,
+      applyMode: countItemPhotos(photos) > 0 ? "merge" : "replace",
+      matchedUnitLabel:
+        autoMatch.totalUnits > 1
+          ? `เครื่องที่ ${autoMatch.matchedIndex + 1} / ${autoMatch.totalUnits}`
+          : "เครื่องที่ 1",
+    });
+  };
+
+  const applySelectedRoPhotos = () => {
+    if (!roPhotoModal) return;
+    const selectedEntries = roPhotoModal.entries.filter((e) =>
+      roPhotoModal.selectedIds.has(e.id)
+    );
+    if (selectedEntries.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาเลือกรูปภาพอย่างน้อย 1 รูป",
+      });
+      return;
+    }
+
+    const byKey: Partial<Record<CheckReportPhotoKey, string[]>> = {};
+    selectedEntries.forEach((entry) => {
+      if (!byKey[entry.crKey]) byKey[entry.crKey] = [];
+      if (!byKey[entry.crKey]!.includes(entry.url)) {
+        byKey[entry.crKey]!.push(entry.url);
+      }
+    });
+
+    const nextPhotos: CheckReportPhotos = { ...photos };
+    CHECK_REPORT_PHOTO_KEYS.forEach((k) => {
+      const incoming = byKey[k] || [];
+      if (roPhotoModal.applyMode === "replace") {
+        if (incoming.length > 0) {
+          nextPhotos[k] = incoming;
+        }
+      } else if (incoming.length > 0) {
+        const existing = nextPhotos[k] || [];
+        nextPhotos[k] = Array.from(new Set([...existing, ...incoming]));
+      }
+    });
+
+    setPhotos(nextPhotos);
+    setSelectedPhotoIndex({});
+    if (!isEdit && batchItems.length > 0) {
+      setBatchItems((prev) =>
+        prev.map((it, i) =>
+          i === activeBatchIdx
+            ? { ...getCurrentItemSnapshot(it), photos: normalizeCheckReportPhotos(nextPhotos) }
+            : it
+        )
+      );
+    }
+
+    const importedCount = selectedEntries.length;
+    setRoPhotoModal(null);
+    Swal.fire({
+      icon: "success",
+      title: `นำเข้ารูปจากใบรับซ่อม ${importedCount} รูปแล้ว`,
+      timer: 1500,
+      showConfirmButton: false,
+    });
   };
 
   // Submit Handler
@@ -2556,6 +2815,7 @@ export default function CheckReportForm({
                       setConvertedJobNumber("");
                       setConvertedJobId("");
                       setConvertedRepairOrderId("");
+                      setLinkedRoOrder(null);
                     }}
                     className="px-2.5 py-1.5 rounded-lg text-xs text-slate-500 hover:text-red-600 bg-white border border-slate-200 hover:border-red-200 transition-colors cursor-pointer"
                     title="เปลี่ยนการเชื่อมโยงใบรับซ่อม"
@@ -3134,10 +3394,11 @@ export default function CheckReportForm({
                   onChange={(e) => setWarrantyStatus(e.target.value)}
                   className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] font-semibold"
                 >
-                  <option value="IN_WARRANTY">รับประกัน (In Warranty)</option>
-                  <option value="OUT_OF_WARRANTY">หมดประกัน (Out of Warranty)</option>
-                  <option value="PENDING">รอตรวจสอบ (Pending)</option>
-                  <option value="NOT_COVERED">ไม่อยู่ในเงื่อนไขการรับประกัน (Not Covered)</option>
+                  {WARRANTY_STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -3528,15 +3789,92 @@ export default function CheckReportForm({
                     </p>
                   </div>
                 </div>
-                {isUploading && (
-                  <span className="text-xs font-semibold text-teal-600 flex items-center gap-1.5 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    {uploadProgress
-                      ? `กำลังอัปโหลดรูปภาพ (${uploadProgress.current}/${uploadProgress.total})...`
-                      : "กำลังอัปโหลดรูปภาพ..."}
-                  </span>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {(convertedRepairOrderId || convertedJobNumber) && (
+                    <button
+                      type="button"
+                      onClick={openRoPhotoPicker}
+                      disabled={isLoadingRoPhotos}
+                      className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-[#ff2301] border border-red-200 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                      title="เปิดดูและเลือกรูปภาพจากใบรับซ่อม (RO) ที่เชื่อมโยงไว้"
+                    >
+                      {isLoadingRoPhotos ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <ImageIcon className="w-3.5 h-3.5" />
+                      )}
+                      <span>ดึงรูปจากใบรับซ่อม (RO)</span>
+                    </button>
+                  )}
+                  {isUploading && (
+                    <span className="text-xs font-semibold text-teal-600 flex items-center gap-1.5 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      {uploadProgress
+                        ? `กำลังอัปโหลดรูปภาพ (${uploadProgress.current}/${uploadProgress.total})...`
+                        : "กำลังอัปโหลดรูปภาพ..."}
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {/* Multi-Unit Photo Distribution Helper Banner */}
+              {!isEdit && displayBatchItems.length > 1 && (() => {
+                const otherSource = displayBatchItems
+                  .map((it, idx) => ({
+                    idx,
+                    count: countItemPhotos(it.photos),
+                    hasMultiPerSlot: CHECK_REPORT_PHOTO_KEYS.some(
+                      (k) => (it.photos?.[k]?.length || 0) >= displayBatchItems.length
+                    ),
+                  }))
+                  .find(
+                    (x) =>
+                      x.idx !== activeBatchIdx &&
+                      (x.hasMultiPerSlot || (totalPhotosCount === 0 && x.count > 0))
+                  );
+                if (!otherSource) return null;
+
+                return (
+                  <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5 text-indigo-900">
+                      <Layers className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <div>
+                        <span className="font-bold">
+                          เครื่องที่ {otherSource.idx + 1} มีรูปภาพอยู่ {otherSource.count} รูป
+                        </span>
+                        <span className="text-indigo-700 ml-1.5">
+                          {otherSource.hasMultiPerSlot
+                            ? "(พบหลายรูปในช่องเดียวกัน สามารถกดแบ่งไปทุกเครื่องอัตโนมัติ หรือย้ายทีละรูปที่มุมล่างของแต่ละช่องได้)"
+                            : "(สามารถดึงรูปจากใบรับซ่อม หรือสลับไปที่เครื่องนั้นเพื่อกดย้ายมาเครื่องนี้ได้)"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {otherSource.hasMultiPerSlot && (
+                        <button
+                          type="button"
+                          onClick={() => distributePhotosFromSourceBatchItem(otherSource.idx)}
+                          className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>กระจายรูปจากเครื่องที่ {otherSource.idx + 1} ไปทุกเครื่อง</span>
+                        </button>
+                      )}
+                      {(convertedRepairOrderId || convertedJobNumber) && (
+                        <button
+                          type="button"
+                          onClick={openRoPhotoPicker}
+                          disabled={isLoadingRoPhotos}
+                          className="px-3 py-1.5 rounded-lg bg-white hover:bg-red-50 text-[#ff2301] border border-red-200 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Wrench className="w-3.5 h-3.5" />
+                          <span>เลือกรูปจาก RO</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Pump Special Callout Box Input */}
               {isPump && (
@@ -3761,17 +4099,59 @@ export default function CheckReportForm({
                               <span className="font-semibold text-slate-700 truncate text-[11px]" title={slot.title}>
                                 {slot.title.replace(/^\d+\.\s*/, "")}
                               </span>
-                              <label className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-600 hover:text-teal-700 hover:underline cursor-pointer shrink-0">
-                                <Plus className="w-3 h-3" /> เพิ่มรูป
-                                <input
-                                  type="file"
-                                  multiple
-                                  accept="image/*"
-                                  className="hidden"
-                                  disabled={isUploading}
-                                  onChange={(e) => handlePhotoUpload(slot.key, e.target.files)}
-                                />
-                              </label>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {!isEdit && displayBatchItems.length > 1 && (
+                                  displayBatchItems.length === 2 ? (
+                                    (() => {
+                                      const otherIdx = activeBatchIdx === 0 ? 1 : 0;
+                                      return (
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            transferPhotoToBatchItem(slot.key, activeIdx, otherIdx, "move")
+                                          }
+                                          className="inline-flex items-center gap-0.5 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer"
+                                          title={`ย้ายรูปที่ ${activeIdx + 1} ในช่องนี้ไปเครื่องที่ ${otherIdx + 1}`}
+                                        >
+                                          <ArrowRight className="w-3 h-3" /> เครื่อง {otherIdx + 1}
+                                        </button>
+                                      );
+                                    })()
+                                  ) : (
+                                    <select
+                                      value=""
+                                      onChange={(e) => {
+                                        const targetIdx = parseInt(e.target.value, 10);
+                                        if (!Number.isNaN(targetIdx)) {
+                                          transferPhotoToBatchItem(slot.key, activeIdx, targetIdx, "move");
+                                        }
+                                      }}
+                                      className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded px-1 py-0.5 cursor-pointer focus:outline-none"
+                                      title={`ย้ายรูปที่ ${activeIdx + 1} ในช่องนี้ไปเครื่องอื่น`}
+                                    >
+                                      <option value="">ย้าย → ...</option>
+                                      {displayBatchItems.map((_, tIdx) =>
+                                        tIdx !== activeBatchIdx ? (
+                                          <option key={tIdx} value={tIdx}>
+                                            เครื่อง {tIdx + 1}
+                                          </option>
+                                        ) : null
+                                      )}
+                                    </select>
+                                  )
+                                )}
+                                <label className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-600 hover:text-teal-700 hover:underline cursor-pointer shrink-0">
+                                  <Plus className="w-3 h-3" /> เพิ่มรูป
+                                  <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    className="hidden"
+                                    disabled={isUploading}
+                                    onChange={(e) => handlePhotoUpload(slot.key, e.target.files)}
+                                  />
+                                </label>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -4094,6 +4474,63 @@ export default function CheckReportForm({
                       <span className="hidden sm:inline">ตั้งเป็นรูปหลัก</span>
                     </button>
                   )}
+                {!isEdit &&
+                  displayBatchItems.length > 1 &&
+                  previewModal.category &&
+                  previewModal.index !== undefined && (
+                    <div className="flex items-center gap-1">
+                      {displayBatchItems.length === 2 ? (
+                        (() => {
+                          const otherIdx = activeBatchIdx === 0 ? 1 : 0;
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                transferPhotoToBatchItem(
+                                  previewModal.category as PhotoKey,
+                                  previewModal.index!,
+                                  otherIdx,
+                                  "move"
+                                );
+                                setPreviewModal(null);
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors flex items-center gap-1 text-xs font-semibold cursor-pointer shadow-xs"
+                              title={`ย้ายรูปนี้ไปเครื่องที่ ${otherIdx + 1}`}
+                            >
+                              <ArrowRight className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">ย้าย → เครื่อง {otherIdx + 1}</span>
+                            </button>
+                          );
+                        })()
+                      ) : (
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            const tIdx = parseInt(e.target.value, 10);
+                            if (!Number.isNaN(tIdx)) {
+                              transferPhotoToBatchItem(
+                                previewModal.category as PhotoKey,
+                                previewModal.index!,
+                                tIdx,
+                                "move"
+                              );
+                              setPreviewModal(null);
+                            }
+                          }}
+                          className="px-2 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold cursor-pointer"
+                        >
+                          <option value="">ย้ายไปเครื่อง...</option>
+                          {displayBatchItems.map((_, tIdx) =>
+                            tIdx !== activeBatchIdx ? (
+                              <option key={tIdx} value={tIdx} className="text-slate-900">
+                                เครื่อง {tIdx + 1}
+                              </option>
+                            ) : null
+                          )}
+                        </select>
+                      )}
+                    </div>
+                  )}
                 {previewModal.category && previewModal.index !== undefined && (
                   <button
                     type="button"
@@ -4168,6 +4605,238 @@ export default function CheckReportForm({
                     </button>
                   </>
                 )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= RO PHOTO PICKER MODAL ================= */}
+      {roPhotoModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setRoPhotoModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-red-50 border border-red-200 text-[#ff2301] flex items-center justify-center shrink-0">
+                  <Wrench className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                    <span>ดึงรูปภาพจากใบรับซ่อม ({convertedJobNumber || "RO"})</span>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">
+                      สำหรับ: {roPhotoModal.matchedUnitLabel}
+                    </span>
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    พบรูปภาพในใบรับซ่อมทั้งหมด {roPhotoModal.entries.length} รูป — ระบบเลือกชุดที่แนะนำสำหรับเครื่องนี้ให้เบื้องต้น สามารถติ๊กปรับเพิ่ม/ลดได้
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRoPhotoModal(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick Select Bar */}
+            <div className="px-5 py-2.5 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = new Set<string>();
+                    roPhotoModal.entries.forEach((e) => {
+                      if (roPhotoModal.recommendedUrls.has(e.url)) next.add(e.id);
+                    });
+                    setRoPhotoModal((prev) => (prev ? { ...prev, selectedIds: next } : null));
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold transition-colors cursor-pointer"
+                >
+                  เลือกชุดแนะนำ ({roPhotoModal.matchedUnitLabel})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = new Set(roPhotoModal.entries.map((e) => e.id));
+                    setRoPhotoModal((prev) => (prev ? { ...prev, selectedIds: next } : null));
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition-colors cursor-pointer"
+                >
+                  เลือกทั้งหมด ({roPhotoModal.entries.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setRoPhotoModal((prev) => (prev ? { ...prev, selectedIds: new Set() } : null))
+                  }
+                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-500 border border-slate-200 font-semibold transition-colors cursor-pointer"
+                >
+                  ล้างการเลือก
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3 text-[11px]">
+                <label className="inline-flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700">
+                  <input
+                    type="radio"
+                    name="roPhotoApplyMode"
+                    checked={roPhotoModal.applyMode === "replace"}
+                    onChange={() =>
+                      setRoPhotoModal((prev) => (prev ? { ...prev, applyMode: "replace" } : null))
+                    }
+                    className="text-[#ff2301] focus:ring-[#ff2301]"
+                  />
+                  <span>แทนที่เฉพาะช่องที่เลือก</span>
+                </label>
+                <label className="inline-flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700">
+                  <input
+                    type="radio"
+                    name="roPhotoApplyMode"
+                    checked={roPhotoModal.applyMode === "merge"}
+                    onChange={() =>
+                      setRoPhotoModal((prev) => (prev ? { ...prev, applyMode: "merge" } : null))
+                    }
+                    className="text-[#ff2301] focus:ring-[#ff2301]"
+                  />
+                  <span>เพิ่มต่อท้าย (ไม่ซ้ำ)</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Grouped Photos Grid */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
+              {(() => {
+                const slotDefs =
+                  equipmentType === "INVERTER"
+                    ? INVERTER_PHOTO_SLOTS
+                    : equipmentType === "PUMP"
+                    ? PUMP_PHOTO_SLOTS
+                    : equipmentType === "MOTOR"
+                    ? MOTOR_PHOTO_SLOTS
+                    : equipmentType === "CONTROL_CABINET"
+                    ? CABINET_PHOTO_SLOTS
+                    : PHOTO_SLOTS;
+
+                const grouped = new Map<CheckReportPhotoKey, RoPhotoPoolEntry[]>();
+                roPhotoModal.entries.forEach((entry) => {
+                  const arr = grouped.get(entry.crKey) || [];
+                  arr.push(entry);
+                  grouped.set(entry.crKey, arr);
+                });
+
+                return Array.from(grouped.entries()).map(([crKey, items]) => {
+                  const slotMeta =
+                    slotDefs.find((s) => s.key === crKey) ||
+                    PHOTO_SLOTS.find((s) => s.key === crKey);
+                  return (
+                    <div key={crKey} className="space-y-2">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                        <span className="text-xs font-bold text-slate-800">
+                          {slotMeta?.title || crKey}
+                          <span className="text-slate-400 font-normal ml-1.5">
+                            ({items.length} รูปใน RO)
+                          </span>
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                        {items.map((entry, idxInGroup) => {
+                          const isSelected = roPhotoModal.selectedIds.has(entry.id);
+                          const isRecommended = roPhotoModal.recommendedUrls.has(entry.url);
+                          const alreadyInReport = (photos[entry.crKey] || []).includes(entry.url);
+                          return (
+                            <button
+                              key={entry.id}
+                              type="button"
+                              onClick={() => {
+                                setRoPhotoModal((prev) => {
+                                  if (!prev) return null;
+                                  const next = new Set(prev.selectedIds);
+                                  if (next.has(entry.id)) next.delete(entry.id);
+                                  else next.add(entry.id);
+                                  return { ...prev, selectedIds: next };
+                                });
+                              }}
+                              className={`relative rounded-xl border-2 p-1.5 text-left transition-all cursor-pointer flex flex-col gap-1.5 ${
+                                isSelected
+                                  ? "border-[#ff2301] bg-red-50/40 ring-2 ring-red-500/20"
+                                  : "border-slate-200 bg-white hover:border-slate-300"
+                              }`}
+                            >
+                              <div className="relative h-28 w-full rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={entry.url}
+                                  alt={`${entry.roKey} #${idxInGroup + 1}`}
+                                  className="w-full h-full object-contain"
+                                />
+                                <span
+                                  className={`absolute top-1.5 left-1.5 w-5 h-5 rounded-md flex items-center justify-center text-white font-bold shadow ${
+                                    isSelected ? "bg-[#ff2301]" : "bg-black/40 border border-white/60"
+                                  }`}
+                                >
+                                  {isSelected && <Check className="w-3.5 h-3.5" />}
+                                </span>
+                                <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/65 text-white text-[9px] font-mono">
+                                  #{idxInGroup + 1}
+                                </span>
+                                {isRecommended && (
+                                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded bg-indigo-600 text-white text-[9px] font-bold shadow">
+                                    แนะนำ
+                                  </span>
+                                )}
+                              </div>
+                              <div className="px-0.5 space-y-0.5">
+                                <div className="text-[10px] font-semibold text-slate-600 truncate" title={entry.sourceLabel}>
+                                  {entry.sourceLabel}
+                                </div>
+                                {alreadyInReport && (
+                                  <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    มีในรายงานนี้แล้ว
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-3.5 border-t border-slate-100 bg-slate-50/80 flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xs font-semibold text-slate-600">
+                เลือกแล้ว <span className="text-[#ff2301] font-bold">{roPhotoModal.selectedIds.size}</span> รูป
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRoPhotoModal(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="button"
+                  onClick={applySelectedRoPhotos}
+                  disabled={roPhotoModal.selectedIds.size === 0}
+                  className="px-4 py-2 rounded-xl bg-[#ff2301] hover:bg-[#e01f01] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>นำเข้ารูปที่เลือก ({roPhotoModal.selectedIds.size} รูป)</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

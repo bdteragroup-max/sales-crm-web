@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { translateReportData } from "@/app/actions/translateReport";
 import { Sparkles, Loader2 } from "lucide-react";
+import { getWarrantyStatusLabel } from "../lib/crConstants";
 
 interface InverterFaultReportPaperProps {
   report: any;
@@ -154,30 +155,7 @@ export default function InverterFaultReportPaper({
         ? "บริษัท เทอรา อิเล็คทริค จำกัด"
         : "บริษัท เทอรา กรุ้ป จำกัด";
 
-  const rawWarranty = String(report?.warrantyStatus || "").trim().toUpperCase();
-  const isWarrantyValid =
-    rawWarranty === "IN_WARRANTY" ||
-    rawWarranty === "VALID" ||
-    report?.warrantyStatus === "รับประกัน" ||
-    report?.warrantyStatus === "อยู่ในประกัน";
-
-  const isWarrantyExpired =
-    rawWarranty === "OUT_OF_WARRANTY" ||
-    rawWarranty === "EXPIRED" ||
-    report?.warrantyStatus === "หมดประกัน" ||
-    report?.warrantyStatus === "นอกประกัน";
-
-  const warrantyText = isEn
-    ? isWarrantyValid
-      ? "In Warranty"
-      : isWarrantyExpired
-        ? "Out of Warranty"
-        : report?.warrantyStatus || "In Warranty"
-    : isWarrantyValid
-      ? "รับประกัน"
-      : isWarrantyExpired
-        ? "หมดประกัน"
-        : report?.warrantyStatus || "รับประกัน";
+  const warrantyText = getWarrantyStatusLabel(report?.warrantyStatus, lang);
 
   const photos = report?.photos || {};
   const diode = report?.diodeMeasurement || {};

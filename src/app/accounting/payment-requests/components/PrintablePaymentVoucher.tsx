@@ -1479,6 +1479,12 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                 <span className="font-bold">เลขที่ PO/PR อ้างอิง: </span>
                 <span>{request.po_pr_number || ''}</span>
               </div>
+
+              {/* Line 11: Purpose */}
+              <div>
+                <span className="font-bold">วัตถุประสงค์และรายละเอียดค่าใช้จ่าย (Purpose): </span>
+                <span className="whitespace-pre-wrap break-words">{request.purpose || '-'}</span>
+              </div>
             </div>
 
             {/* 4. Financial Details Table */}

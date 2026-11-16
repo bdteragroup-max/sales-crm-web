@@ -1,7 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+
+function normalizeTechName(name: string): string {
+  return name
+    .replace(/^(นาย|นางสาว|นาง|น\.ส\.)\s*/g, "")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+}
+
+function toBkkDateKey(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Bangkok",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+function toBkkTime(date: Date): string {
+  const formatted = new Intl.DateTimeFormat("th-TH", {
+    timeZone: "Asia/Bangkok",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+  return formatted === "24:00" ? "00:00" : formatted;
+}
+
+function expandDateKeysWithinRange(
+  startKey: string,
+  endKey: string,
+  minKey: string,
+  maxKey: string
+): string[] {
+  const clampedStart = startKey < minKey ? minKey : startKey;
+  const clampedEnd = endKey > maxKey ? maxKey : endKey;
+  if (clampedStart > clampedEnd) return [];
+
+  const keys: string[] = [];
+  const cur = new Date(`${clampedStart}T00:00:00Z`);
+  const end = new Date(`${clampedEnd}T00:00:00Z`);
+  let guard = 0;
+
+  while (cur <= end && guard < 62) {
+    keys.push(cur.toISOString().slice(0, 10));
+    cur.setUTCDate(cur.getUTCDate() + 1);
+    guard += 1;
+  }
+  return keys;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,9 +68,10 @@ export async function GET(request: NextRequest) {
 
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
+    const bkkRangeStart = new Date(`${startDateStr}T00:00:00+07:00`);
+    const bkkRangeEnd = new Date(`${endDateStr}T23:59:59.999+07:00`);
 
     // Fetch users with service-related roles
-    // Fetch users with exactly the requested service roles
     const serviceUsers = await prisma.user.findMany({
       where: {
         isActive: true,
@@ -94,7 +143,117 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ users: usersWithNicknames, holidays, leaveRequests });
+    // Fetch installation orders overlapping the BKK date range
+    const rawInstallations = await prisma.installationOrder.findMany({
+      where: {
+        status: { not: 'ยกเลิก - PO' },
+        OR: [
+          {
+            plannedStartDate: { not: null, lte: bkkRangeEnd },
+            OR: [
+              { plannedEndDate: { gte: bkkRangeStart } },
+              { plannedEndDate: null, plannedStartDate: { gte: bkkRangeStart } },
+            ],
+          },
+          {
+            plannedStartDate: null,
+            installationDate: { gte: bkkRangeStart, lte: bkkRangeEnd },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        installationNo: true,
+        jobId: true,
+        company: true,
+        customer: true,
+        jobName: true,
+        technician: true,
+        technicianUserId: true,
+        technicianPhone: true,
+        installationDate: true,
+        plannedStartDate: true,
+        plannedEndDate: true,
+        workLocation: true,
+        siteAddress: true,
+        workPlan: true,
+        technicianNote: true,
+        status: true,
+        job: {
+          select: {
+            jobNumber: true,
+            sellerName: true,
+          },
+        },
+      },
+      orderBy: [{ plannedStartDate: 'asc' }, { installationDate: 'asc' }],
+    });
+
+    const userIdsSet = new Set(usersWithNicknames.map(u => u.id));
+    const userByNormalizedName = new Map<string, string>();
+    for (const u of usersWithNicknames) {
+      const norm = normalizeTechName(u.fullName);
+      if (norm) userByNormalizedName.set(norm, u.id);
+    }
+
+    const installationOrders = rawInstallations
+      .map(order => {
+        const isPlanned = Boolean(order.plannedStartDate);
+        const effectiveStart = order.plannedStartDate || order.installationDate;
+        if (!effectiveStart) return null;
+
+        const effectiveEnd = isPlanned ? (order.plannedEndDate || order.plannedStartDate) : order.installationDate;
+        const startDateKey = toBkkDateKey(effectiveStart);
+        const endDateKey = effectiveEnd ? toBkkDateKey(effectiveEnd) : startDateKey;
+        const dateKeys = expandDateKeysWithinRange(startDateKey, endDateKey, startDateStr, endDateStr);
+        if (dateKeys.length === 0) return null;
+
+        const matchedSet = new Set<string>();
+        if (order.technicianUserId && userIdsSet.has(order.technicianUserId)) {
+          matchedSet.add(order.technicianUserId);
+        }
+        if (order.technician) {
+          const parts = order.technician.split(/[,/]/).map(s => s.trim()).filter(Boolean);
+          for (const part of parts) {
+            const matchedId = userByNormalizedName.get(normalizeTechName(part));
+            if (matchedId) matchedSet.add(matchedId);
+          }
+        }
+
+        return {
+          id: order.id,
+          installationNo: order.installationNo,
+          jobId: order.jobId,
+          jobNumber: order.job?.jobNumber || null,
+          sellerName: order.job?.sellerName || null,
+          company: order.company || order.customer || '-',
+          jobName: order.jobName || '-',
+          technician: order.technician || null,
+          technicianPhone: order.technicianPhone || null,
+          status: order.status,
+          isPlanned,
+          plannedStartDate: order.plannedStartDate ? order.plannedStartDate.toISOString() : null,
+          plannedEndDate: order.plannedEndDate ? order.plannedEndDate.toISOString() : null,
+          installationDate: order.installationDate ? order.installationDate.toISOString() : null,
+          startDateKey,
+          endDateKey,
+          dateKeys,
+          startTimeBkk: toBkkTime(effectiveStart),
+          endTimeBkk: effectiveEnd && isPlanned ? toBkkTime(effectiveEnd) : null,
+          workLocation: order.workLocation || order.siteAddress || null,
+          workPlan: order.workPlan || null,
+          technicianNote: order.technicianNote || null,
+          matchedUserIds: Array.from(matchedSet),
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    return NextResponse.json({
+      users: usersWithNicknames,
+      holidays,
+      leaveRequests,
+      installationOrders,
+    });
   } catch (error) {
     console.error("Error fetching service schedules:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

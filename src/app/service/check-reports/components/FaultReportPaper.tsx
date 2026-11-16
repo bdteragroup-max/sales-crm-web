@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { EQUIPMENT_TYPE_CONFIG } from "../lib/crConstants";
+import { EQUIPMENT_TYPE_CONFIG, getWarrantyStatusLabel } from "../lib/crConstants";
 import { translateReportData } from "@/app/actions/translateReport";
 import { Sparkles, Loader2 } from "lucide-react";
 
@@ -300,23 +300,7 @@ export default function FaultReportPaper({
                 {isEn ? "Status" : "สถานะการรับประกัน"}
               </td>
               <td className="border border-black p-1.5 font-semibold">
-                {(() => {
-                  const raw = String(report?.warrantyStatus || "").trim().toUpperCase();
-                  const isValid =
-                    raw === "IN_WARRANTY" ||
-                    raw === "VALID" ||
-                    report?.warrantyStatus === "รับประกัน" ||
-                    report?.warrantyStatus === "อยู่ในประกัน";
-                  const isExpired =
-                    raw === "OUT_OF_WARRANTY" ||
-                    raw === "EXPIRED" ||
-                    report?.warrantyStatus === "หมดประกัน" ||
-                    report?.warrantyStatus === "นอกประกัน";
-
-                  if (isValid) return isEn ? "In warranty" : "อยู่ในประกัน";
-                  if (isExpired) return isEn ? "Out of warranty" : "หมดประกัน";
-                  return isEn ? "Pending check" : "รอตรวจสอบ";
-                })()}
+                {getWarrantyStatusLabel(report?.warrantyStatus, lang)}
               </td>
             </tr>
             {!isCabinet && (

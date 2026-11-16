@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Plus, MoreHorizontal } from 'lucide-react';
@@ -8,19 +8,32 @@ import type { TKanbanList, TKanbanCard } from './KanbanBoardClient';
 type Props = {
   list: TKanbanList;
   users: any[];
-  onAddCard: (listId: string, title: string) => void;
+  onAddCard: (listId: string, title: string) => void | Promise<void>;
   onCardClick: (card: TKanbanCard) => void;
-  onUpdateList?: (listId: string, updates: Partial<TKanbanList>) => void;
+  onUpdateList?: (listId: string, updates: Partial<TKanbanList>) => void | Promise<void>;
   onDeleteList?: (listId: string) => void;
   onCompleteCard?: (id: string, isCompleted: boolean) => void;
+  isOverlay?: boolean;
 };
 
-export default function KanbanList({ list, users, onAddCard, onCardClick, onUpdateList, onDeleteList, onCompleteCard }: Props) {
+export default function KanbanList({ list, users, onAddCard, onCardClick, onUpdateList, onDeleteList, onCompleteCard, isOverlay = false }: Props) {
   const [isAdding, setIsAdding] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [showMenu, setShowMenu] = useState(false);
   const [isRenamingList, setIsRenamingList] = useState(false);
   const [editListName, setEditListName] = useState(list.name);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMenu]);
 
   const sortableData = React.useMemo(() => ({
     type: 'List',
@@ -35,14 +48,17 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
     transition,
     isDragging
   } = useSortable({
-    id: list.id,
-    data: sortableData
+    id: isOverlay ? `overlay-list-${list.id}` : list.id,
+    data: sortableData,
+    disabled: isOverlay
   });
 
-  const style = {
-    transition,
-    transform: CSS.Transform.toString(transform),
-  };
+  const style = isOverlay
+    ? undefined
+    : {
+        transition,
+        transform: CSS.Transform.toString(transform),
+      };
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,12 +85,17 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex-shrink-0 w-72 flex flex-col ${currentBgClass} border ${currentBorderClass} rounded-2xl max-h-full shadow-sm transition-colors ${isDragging ? 'opacity-50 ring-2 ring-red-500' : ''
-        }`}
+      className={`flex-shrink-0 w-72 flex flex-col ${currentBgClass} border ${currentBorderClass} rounded-2xl max-h-full shadow-sm transition-colors ${
+        isOverlay
+          ? 'ring-2 ring-[#ff2301] shadow-2xl opacity-95 rotate-1'
+          : isDragging
+          ? 'opacity-40 ring-2 ring-dashed ring-red-400'
+          : ''
+      }`}
     >
       <div
-        {...attributes}
-        {...listeners}
+        {...(isOverlay ? {} : attributes)}
+        {...(isOverlay ? {} : listeners)}
         className="p-4 flex items-center justify-between cursor-grab active:cursor-grabbing group relative"
       >
         {isRenamingList ? (
@@ -120,12 +141,12 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
           </>
         )}
 
-        <div className="relative">
+        <div className="relative" ref={menuRef}>
           <button
+            type="button"
             onPointerDown={(e) => e.stopPropagation()} // Prevent drag start when interacting with menu
-            onClick={() => setShowMenu(!showMenu)}
-            onBlur={() => setTimeout(() => setShowMenu(false), 200)}
-            className="text-gray-400 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-gray-200"
+            onClick={() => setShowMenu((prev) => !prev)}
+            className="text-gray-400 hover:text-gray-700 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded hover:bg-gray-200"
           >
             <MoreHorizontal size={18} />
           </button>
@@ -188,7 +209,7 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 pb-3 custom-scrollbar flex flex-col gap-3 min-h-[10px]">
+      <div className="flex-1 overflow-y-auto px-3 pb-3 custom-scrollbar flex flex-col gap-3 min-h-[56px]">
         <SortableContext
           items={list.cards.map(c => c.id)}
           strategy={verticalListSortingStrategy}

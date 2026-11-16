@@ -340,12 +340,20 @@ export async function exportPaymentVoucherToExcel(
       label2: 'เลขที่ PO/PR อ้างอิง:',
       val2: request.po_pr_number || '-',
     },
+    {
+      label1: 'วัตถุประสงค์และรายละเอียดค่าใช้จ่าย (Purpose):',
+      val1: request.purpose || '-',
+      label2: '',
+      val2: '',
+      fullWidth: true,
+    },
   ];
 
-  let metaStartRow = 8;
+  const metaStartRow = 8;
   metaRowsData.forEach((item, index) => {
     const r = metaStartRow + index;
-    sheet.getRow(r).height = 19;
+    const isLongFullWidth = item.fullWidth && String(item.val1 || '').length > 75;
+    sheet.getRow(r).height = isLongFullWidth ? 32 : 19;
 
     if (item.fullWidth) {
       sheet.mergeCells(`A${r}:B${r}`);
@@ -358,7 +366,7 @@ export async function exportPaymentVoucherToExcel(
       const cC = sheet.getCell(`C${r}`);
       cC.value = item.val1;
       cC.font = { name: 'TH Sarabun New', size: 10.5, color: { argb: 'FF111827' } };
-      cC.alignment = { horizontal: 'left', vertical: 'middle' };
+      cC.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
     } else {
       sheet.mergeCells(`A${r}:B${r}`);
       const cA = sheet.getCell(`A${r}`);

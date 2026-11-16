@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
 
@@ -24,6 +25,7 @@ export async function DELETE(
       where: { id }
     });
 
+    revalidatePath('/marketing/kanban');
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Error in DELETE /api/marketing/kanban/cards/[id]:', error);

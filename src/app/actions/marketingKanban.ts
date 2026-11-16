@@ -7,10 +7,10 @@ export async function getMarketingBoardData(userId?: string) {
     let board = await prisma.kanbanBoard.findFirst({
       include: {
         lists: {
-          orderBy: { position: "asc" },
+          orderBy: [{ position: "asc" }, { createdAt: "asc" }, { id: "asc" }],
           include: {
             cards: {
-              orderBy: { position: "asc" },
+              orderBy: [{ position: "asc" }, { createdAt: "asc" }, { id: "asc" }],
               include: {
                 attachments: true,
                 comments: {
@@ -45,10 +45,10 @@ export async function getMarketingBoardData(userId?: string) {
         },
         include: {
           lists: {
-            orderBy: { position: "asc" },
+            orderBy: [{ position: "asc" }, { createdAt: "asc" }, { id: "asc" }],
             include: {
               cards: {
-                orderBy: { position: "asc" },
+                orderBy: [{ position: "asc" }, { createdAt: "asc" }, { id: "asc" }],
                 include: {
                   attachments: true,
                   comments: true,

@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import {
   format,
   startOfWeek,
   endOfWeek,
-  addDays,
   subWeeks,
   addWeeks,
   startOfMonth,
@@ -13,12 +13,28 @@ import {
   subMonths,
   addMonths,
   eachDayOfInterval,
-  isSameDay,
   isToday,
-  parseISO
 } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calendar, User, MapPin, Edit3, X, Save, Clock, Briefcase, CheckCircle2, Download, AlertCircle } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  User,
+  MapPin,
+  Edit3,
+  X,
+  Save,
+  Clock,
+  Briefcase,
+  CheckCircle2,
+  Download,
+  AlertCircle,
+  Wrench,
+  ExternalLink,
+  ClipboardList,
+  Phone,
+} from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface UserData {
@@ -59,9 +75,72 @@ interface ServiceUser extends UserData {
   serviceSchedules: ServiceSchedule[];
 }
 
+interface InstallationScheduleOrder {
+  id: string;
+  installationNo: string;
+  jobId: string | null;
+  jobNumber: string | null;
+  sellerName: string | null;
+  company: string;
+  jobName: string;
+  technician: string | null;
+  technicianPhone: string | null;
+  status: string;
+  isPlanned: boolean;
+  plannedStartDate: string | null;
+  plannedEndDate: string | null;
+  installationDate: string | null;
+  startDateKey: string;
+  endDateKey: string;
+  dateKeys: string[];
+  startTimeBkk: string;
+  endTimeBkk: string | null;
+  workLocation: string | null;
+  workPlan: string | null;
+  technicianNote: string | null;
+  matchedUserIds: string[];
+}
+
 interface SchedulesClientProps {
   currentUser: UserData;
   provinces: string[];
+}
+
+function formatBkkDateTimeLabel(iso: string | null): string {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '-';
+  const datePart = new Intl.DateTimeFormat('th-TH', {
+    timeZone: 'Asia/Bangkok',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(d);
+  const timePart = new Intl.DateTimeFormat('th-TH', {
+    timeZone: 'Asia/Bangkok',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(d);
+  return `${datePart} • ${timePart === '24:00' ? '00:00' : timePart} น.`;
+}
+
+function getInstallationDayTimeLabel(order: InstallationScheduleOrder, dayKey: string): string {
+  if (!order.isPlanned) {
+    return 'รอลงเวลาแผน';
+  }
+  if (order.startDateKey === order.endDateKey) {
+    return order.endTimeBkk
+      ? `${order.startTimeBkk}-${order.endTimeBkk} น.`
+      : `${order.startTimeBkk} น.`;
+  }
+  if (dayKey === order.startDateKey) {
+    return `เริ่ม ${order.startTimeBkk} น.`;
+  }
+  if (dayKey === order.endDateKey) {
+    return `ถึง ${order.endTimeBkk || order.startTimeBkk} น.`;
+  }
+  return 'ต่อเนื่องทั้งวัน';
 }
 
 export default function SchedulesClient({ currentUser, provinces }: SchedulesClientProps) {
@@ -70,6 +149,10 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
   const [users, setUsers] = useState<ServiceUser[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [installationOrders, setInstallationOrders] = useState<InstallationScheduleOrder[]>([]);
+  const [showInstallations, setShowInstallations] = useState(true);
+  const [showUnplannedInstallations, setShowUnplannedInstallations] = useState(true);
+  const [selectedInstallation, setSelectedInstallation] = useState<InstallationScheduleOrder | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Modal state
@@ -130,6 +213,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
       setUsers(data.users || []);
       setHolidays(data.holidays || []);
       setLeaveRequests(data.leaveRequests || []);
+      setInstallationOrders(data.installationOrders || []);
     } catch (error) {
       console.error(error);
       showToast('โหลดข้อมูลล้มเหลว', 'error');
@@ -138,9 +222,57 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
     }
   };
 
+  const visibleInstallations = useMemo(() => {
+    if (!showInstallations) return [];
+    if (showUnplannedInstallations) return installationOrders;
+    return installationOrders.filter((o) => o.isPlanned);
+  }, [installationOrders, showInstallations, showUnplannedInstallations]);
+
+  const installationsByUserDay = useMemo(() => {
+    const map: Record<string, Record<string, InstallationScheduleOrder[]>> = {};
+    for (const order of visibleInstallations) {
+      for (const uid of order.matchedUserIds) {
+        if (!map[uid]) map[uid] = {};
+        for (const dayKey of order.dateKeys) {
+          if (!map[uid][dayKey]) map[uid][dayKey] = [];
+          map[uid][dayKey].push(order);
+        }
+      }
+    }
+    return map;
+  }, [visibleInstallations]);
+
+  const unmatchedInstallations = useMemo(
+    () => visibleInstallations.filter((o) => o.matchedUserIds.length === 0),
+    [visibleInstallations]
+  );
+
   useEffect(() => {
-    fetchSchedules();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let active = true;
+    const startStr = format(dateRange.start, 'yyyy-MM-dd');
+    const endStr = format(dateRange.end, 'yyyy-MM-dd');
+    fetch(`/api/service/schedules?startDate=${startStr}&endDate=${endStr}`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch schedules');
+        return res.json();
+      })
+      .then((data) => {
+        if (!active) return;
+        setUsers(data.users || []);
+        setHolidays(data.holidays || []);
+        setLeaveRequests(data.leaveRequests || []);
+        setInstallationOrders(data.installationOrders || []);
+      })
+      .catch((error) => {
+        console.error(error);
+        if (active) showToast('โหลดข้อมูลล้มเหลว', 'error');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [dateRange]);
 
   const expandLeaveToDays = (leave: LeaveRequest): string[] => {
@@ -273,8 +405,8 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
       showToast('บันทึกข้อมูลเรียบร้อย', 'success');
       setIsModalOpen(false);
       fetchSchedules(); // refresh
-    } catch (error: any) {
-      showToast(error.message || 'บันทึกล้มเหลว', 'error');
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'บันทึกล้มเหลว', 'error');
     } finally {
       setSaving(false);
     }
@@ -291,8 +423,8 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
       setShowDeleteConfirm(false);
       setIsModalOpen(false);
       fetchSchedules();
-    } catch (error: any) {
-      showToast(error.message || 'ลบล้มเหลว', 'error');
+    } catch (error: unknown) {
+      showToast(error instanceof Error ? error.message : 'ลบล้มเหลว', 'error');
     } finally {
       setSaving(false);
     }
@@ -309,15 +441,16 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
   };
 
   const exportToExcel = () => {
-    const data: any[] = [];
+    const data: Record<string, string>[] = [];
     const days = eachDayOfInterval(dateRange);
 
     users.forEach(user => {
       days.forEach(day => {
-        if (day.getDay() === 0) return; // Skip Sunday
-
         const dateKey = format(day, 'yyyy-MM-dd');
         const schedule = user.serviceSchedules.find(s => s.date.substring(0, 10) === dateKey);
+        const dayInstallations = installationsByUserDay[user.id]?.[dateKey] || [];
+        if (day.getDay() === 0 && !schedule && dayInstallations.length === 0) return;
+
         const leave = userLeavesMap[user.employeeId]?.[dateKey];
         const holiday = holidays.find(h => h.date.substring(0, 10) === dateKey);
 
@@ -349,6 +482,10 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
           statusStr = 'ยังไม่ระบุ';
         }
 
+        const installationStr = dayInstallations
+          .map(o => `${o.installationNo} (${getInstallationDayTimeLabel(o, dateKey)}) ${o.company}`)
+          .join(' | ');
+
         data.push({
           'ชื่อพนักงาน': user.fullName,
           'วันที่': format(day, 'dd/MM/yyyy', { locale: th }),
@@ -356,7 +493,8 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
           'จังหวัด': provinceStr,
           'ประเภทงาน': jobTypeStr,
           'รายละเอียด': descStr,
-          'ช่วงเวลา': durationStr
+          'ช่วงเวลา': durationStr,
+          'งานติดตั้ง (/service/installation)': installationStr,
         });
       });
     });
@@ -405,8 +543,8 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col flex-1 min-h-[500px]">
         {/* Toolbar */}
-        <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 bg-white rounded-t-xl z-10">
-          <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
+        <div className="p-4 border-b border-gray-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3 sticky top-0 bg-white rounded-t-xl z-10">
+          <div className="flex items-center justify-between sm:justify-start gap-2 w-full lg:w-auto">
             <button onClick={handlePrev} className="p-1.5 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
@@ -421,12 +559,42 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
             </button>
           </div>
 
-          <button
-            onClick={() => setCurrentDate(new Date())}
-            className="text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-          >
-            วันนี้
-          </button>
+          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setShowInstallations(prev => !prev)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                showInstallations
+                  ? 'bg-sky-50 border-sky-200 text-sky-800 hover:bg-sky-100'
+                  : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
+              }`}
+            >
+              <Wrench className="w-3.5 h-3.5" />
+              <span>งานติดตั้ง ({installationOrders.length})</span>
+            </button>
+
+            {showInstallations && (
+              <button
+                type="button"
+                onClick={() => setShowUnplannedInstallations(prev => !prev)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                  showUnplannedInstallations
+                    ? 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
+                    : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                <span>{showUnplannedInstallations ? '✓ รวมใบงานรอลงเวลา' : 'เฉพาะที่มีเวลาแผน'}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setCurrentDate(new Date())}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+            >
+              วันนี้
+            </button>
+          </div>
         </div>
 
         {/* Table Container */}
@@ -447,7 +615,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                     return (
                       <th
                         key={day.toISOString()}
-                        className={`p-3 text-center min-w-[140px] border-b-2 border-r border-gray-200 font-semibold shadow-[0_2px_0_white]
+                        className={`p-3 text-center min-w-[155px] border-b-2 border-r border-gray-200 font-semibold shadow-[0_2px_0_white]
                           ${isWknd ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-900'}
                           ${isToday(day) ? 'ring-2 ring-blue-500 ring-inset' : ''}
                         `}
@@ -487,6 +655,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                         const holiday = holidays.find(h => h.date.substring(0, 10) === dayIsoLocal);
                         const leave = userLeavesMap[user.employeeId]?.[dayIsoLocal];
                         const schedules = user.serviceSchedules.filter(s => s.date.substring(0, 10) === dayIsoLocal);
+                        const dayInstallations = installationsByUserDay[user.id]?.[dayIsoLocal] || [];
 
                         const isHoliday = !!holiday;
                         const editable = canEdit(user.id) && !isHoliday;
@@ -494,7 +663,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                         return (
                           <td
                             key={day.toISOString()}
-                            className={`p-2 border-r border-b border-gray-200 relative ${editable ? 'hover:bg-blue-50/50' : ''}`}
+                            className={`p-2 border-r border-b border-gray-200 relative align-top max-w-[190px] ${editable ? 'hover:bg-blue-50/50' : ''}`}
                             onClick={(e) => {
                               if (editable && e.target === e.currentTarget) {
                                 openModal(user, day);
@@ -507,7 +676,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                                 <span className="text-xs opacity-90 mt-1">{holiday.name}</span>
                               </div>
                             ) : (
-                              <div className="w-full h-full min-h-[4rem] flex flex-col gap-1 p-1 pointer-events-none">
+                              <div className="w-full h-full min-h-[4rem] flex flex-col gap-1.5 p-0.5 pointer-events-none">
                                 {leave && (
                                   <div className={`flex items-center justify-center gap-1 text-xs px-2 py-1 rounded-md text-center font-bold pointer-events-auto ${leave.status === 'approved' ? 'bg-red-100 text-red-700 border-red-300 border' : 'bg-yellow-100 text-yellow-700 border-yellow-300 border opacity-90'}`}>
                                     {leave.status === 'approved' ? (
@@ -518,54 +687,85 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                                   </div>
                                 )}
 
-                                {schedules.length > 0 ? (
-                                  schedules.map(schedule => (
-                                    <div
-                                      key={schedule.id}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (editable) openModal(user, day, schedule);
-                                      }}
-                                      className={`flex-1 flex flex-col gap-1 items-center justify-center rounded-md border p-1 text-sm transition-transform pointer-events-auto ${editable ? 'cursor-pointer hover:scale-[1.02]' : ''} ${getStatusColor(schedule.status)}`}
-                                    >
-                                      <span className="font-bold flex items-center gap-1">
-                                        {schedule.status}
-                                        {schedule.duration && schedule.duration !== 'เต็มวัน' && <span className="text-[10px] bg-white/50 px-1 rounded">{schedule.duration}</span>}
+                                {schedules.length > 0 && schedules.map(schedule => (
+                                  <div
+                                    key={schedule.id}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (editable) openModal(user, day, schedule);
+                                    }}
+                                    className={`flex flex-col gap-0.5 items-center justify-center rounded-md border p-1.5 text-xs transition-transform pointer-events-auto ${editable ? 'cursor-pointer hover:scale-[1.02]' : ''} ${getStatusColor(schedule.status)}`}
+                                  >
+                                    <span className="font-bold flex items-center gap-1">
+                                      {schedule.status}
+                                      {schedule.duration && schedule.duration !== 'เต็มวัน' && <span className="text-[10px] bg-white/50 px-1 rounded">{schedule.duration}</span>}
+                                    </span>
+                                    {schedule.province && (
+                                      <span className="text-[11px] opacity-90 flex items-center gap-1 justify-center">
+                                        <MapPin className="w-3 h-3 shrink-0" />
+                                        {schedule.province}
                                       </span>
-                                      {schedule.province && (
-                                        <span className="text-xs opacity-90 flex items-center gap-1 justify-center">
-                                          <MapPin className="w-3 h-3" />
-                                          {schedule.province}
-                                        </span>
-                                      )}
-                                      {schedule.jobType && (
-                                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-black/10 mt-1">
-                                          {schedule.jobType === 'installation' ? 'ติดตั้ง' :
-                                            schedule.jobType === 'repair' ? 'ซ่อม/PM' :
-                                              schedule.jobType === 'survey' ? 'ดูหน้างาน' :
-                                                schedule.jobType === 'meeting' ? 'ประชุม' :
-                                                  schedule.jobType === 'training' ? 'อบรม' :
-                                                    schedule.jobType === 'other' ? 'อื่นๆ' : schedule.jobType}
-                                        </span>
-                                      )}
+                                    )}
+                                    {schedule.jobType && (
+                                      <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-black/10 mt-0.5">
+                                        {schedule.jobType === 'installation' ? 'ติดตั้ง' :
+                                          schedule.jobType === 'repair' ? 'ซ่อม/PM' :
+                                            schedule.jobType === 'survey' ? 'ดูหน้างาน' :
+                                              schedule.jobType === 'meeting' ? 'ประชุม' :
+                                                schedule.jobType === 'training' ? 'อบรม' :
+                                                  schedule.jobType === 'other' ? 'อื่นๆ' : schedule.jobType}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+
+                                {/* Synced Installation Orders from /service/installation */}
+                                {dayInstallations.map(order => (
+                                  <button
+                                    key={`${order.id}-${dayIsoLocal}`}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedInstallation(order);
+                                    }}
+                                    title={`${order.installationNo} • ${order.company}`}
+                                    className={`w-full text-left rounded-md border p-1.5 text-[11px] transition-all pointer-events-auto cursor-pointer shadow-2xs ${
+                                      order.isPlanned
+                                        ? 'bg-sky-50 border-sky-300 text-sky-950 hover:bg-sky-100'
+                                        : 'bg-amber-50/90 border-amber-200 text-amber-950 hover:bg-amber-100'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between gap-1 font-bold">
+                                      <span className="inline-flex items-center gap-1 truncate">
+                                        <Wrench className={`w-3 h-3 shrink-0 ${order.isPlanned ? 'text-sky-600' : 'text-amber-600'}`} />
+                                        <span className="truncate">{getInstallationDayTimeLabel(order, dayIsoLocal)}</span>
+                                      </span>
                                     </div>
-                                  ))
-                                ) : (
-                                  !leave && (
-                                    <div className="flex-1 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                      {editable && (
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            openModal(user, day);
-                                          }}
-                                          className="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded-md border border-blue-200 flex items-center gap-1 pointer-events-auto cursor-pointer"
-                                        >
-                                          <Edit3 className="w-3 h-3" /> เพิ่ม
-                                        </button>
-                                      )}
+                                    <div className="font-semibold text-[11px] truncate mt-0.5 text-slate-900">
+                                      {order.company}
                                     </div>
-                                  )
+                                    <div className="flex items-center justify-between gap-1 text-[10px] text-slate-600 mt-0.5">
+                                      <span className="font-mono truncate">{order.installationNo}</span>
+                                      <span className="truncate opacity-80">{order.status}</span>
+                                    </div>
+                                  </button>
+                                ))}
+
+                                {schedules.length === 0 && !leave && (
+                                  <div className="flex-1 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                    {editable && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          openModal(user, day);
+                                        }}
+                                        className="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded-md border border-blue-200 flex items-center gap-1 pointer-events-auto cursor-pointer"
+                                      >
+                                        <Edit3 className="w-3 h-3" /> เพิ่ม
+                                      </button>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             )}
@@ -580,6 +780,44 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
           )}
         </div>
       </div>
+
+      {/* Installation orders in range whose assignee isn't in serviceUsers */}
+      {unmatchedInstallations.length > 0 && (
+        <div className="mt-4 bg-white rounded-xl border border-amber-200/80 shadow-xs p-4 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-xs sm:text-sm font-bold text-amber-900 flex items-center gap-2">
+              <Wrench className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>งานติดตั้งจาก /service/installation ที่ผู้รับผิดชอบไม่อยู่ในตารางทีมเซอร์วิส ({unmatchedInstallations.length} งาน)</span>
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {unmatchedInstallations.map(order => (
+              <button
+                key={order.id}
+                type="button"
+                onClick={() => setSelectedInstallation(order)}
+                className="text-left p-3 rounded-xl border border-amber-200/80 bg-amber-50/40 hover:bg-amber-50 transition-colors cursor-pointer space-y-1"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-mono font-bold text-red-600">{order.installationNo}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white border border-amber-200 text-amber-800">
+                    {order.isPlanned ? `${order.startTimeBkk}${order.endTimeBkk ? `-${order.endTimeBkk}` : ''} น.` : 'รอลงเวลา'}
+                  </span>
+                </div>
+                <div className="text-xs font-bold text-slate-900 truncate">{order.company}</div>
+                <div className="text-[11px] text-slate-600 truncate">
+                  ช่าง: <strong className="text-slate-900">{order.technician || 'ยังไม่ระบุช่าง'}</strong>
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  {order.isPlanned
+                    ? formatBkkDateTimeLabel(order.plannedStartDate)
+                    : `วันที่ใบงาน: ${formatBkkDateTimeLabel(order.installationDate)}`}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Modal */}
       {isModalOpen && selectedUser && selectedDate && (
@@ -774,6 +1012,176 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
               >
                 {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'ลบ'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Installation Detail Modal */}
+      {selectedInstallation && (
+        <div
+          className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4"
+          onClick={() => setSelectedInstallation(null)}
+        >
+          <div
+            className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl border border-gray-200 max-h-[90vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-3 bg-slate-50">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <Wrench className="w-4 h-4 text-red-600 shrink-0" />
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                    รายละเอียดงานติดตั้ง (/service/installation)
+                  </h3>
+                </div>
+                <p className="text-xs font-mono text-slate-500 mt-0.5">
+                  {selectedInstallation.installationNo}
+                  {selectedInstallation.jobNumber ? ` • ${selectedInstallation.jobNumber}` : ''}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedInstallation(null)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition-colors shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-5 overflow-y-auto space-y-4 text-sm">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="text-xs text-slate-400">ลูกค้า</div>
+                  <div className="font-bold text-slate-900">{selectedInstallation.company}</div>
+                  <div className="text-xs text-slate-600 mt-0.5">{selectedInstallation.jobName}</div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-800 border border-slate-200 shrink-0">
+                  {selectedInstallation.status}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-xs">
+                <div className="space-y-0.5">
+                  <div className="text-slate-400 flex items-center gap-1">
+                    <User className="w-3.5 h-3.5" />
+                    ช่างผู้รับผิดชอบ
+                  </div>
+                  <div className="font-bold text-slate-900">
+                    {selectedInstallation.technician || 'ยังไม่ระบุช่าง'}
+                  </div>
+                  {selectedInstallation.technicianPhone && (
+                    <a
+                      href={`tel:${selectedInstallation.technicianPhone}`}
+                      className="inline-flex items-center gap-1 text-red-600 hover:underline font-medium"
+                    >
+                      <Phone className="w-3 h-3" />
+                      {selectedInstallation.technicianPhone}
+                    </a>
+                  )}
+                </div>
+
+                <div className="space-y-0.5">
+                  <div className="text-slate-400 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    {selectedInstallation.isPlanned ? 'วัน-เวลาติดตั้งตามแผน' : 'วันที่ใบงานติดตั้ง'}
+                  </div>
+                  {selectedInstallation.isPlanned ? (
+                    <div className="space-y-0.5 font-semibold text-slate-900">
+                      <div>เริ่ม: {formatBkkDateTimeLabel(selectedInstallation.plannedStartDate)}</div>
+                      {selectedInstallation.plannedEndDate && (
+                        <div>สิ้นสุด: {formatBkkDateTimeLabel(selectedInstallation.plannedEndDate)}</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-0.5">
+                      <div className="font-semibold text-amber-800">
+                        {formatBkkDateTimeLabel(selectedInstallation.installationDate)}
+                      </div>
+                      <div className="text-[11px] text-amber-700">ยังไม่ได้กำหนดเวลาแผนติดตั้ง</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {selectedInstallation.workLocation && (
+                <div className="p-3 rounded-xl bg-red-50/50 border border-red-200/70 text-xs space-y-1.5">
+                  <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                    <span>สถานที่หน้างาน</span>
+                  </div>
+                  {/^https?:\/\//i.test(selectedInstallation.workLocation.trim()) ? (
+                    <>
+                      <a
+                        href={selectedInstallation.workLocation.trim()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        เปิดแผนที่ Google Maps
+                      </a>
+                      <p className="text-[11px] text-slate-500 break-all">
+                        {selectedInstallation.workLocation.trim()}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-slate-700 break-words">{selectedInstallation.workLocation}</p>
+                  )}
+                </div>
+              )}
+
+              {selectedInstallation.workPlan && (
+                <div className="space-y-1.5 text-xs">
+                  <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <ClipboardList className="w-3.5 h-3.5 text-slate-600" />
+                    <span>ขั้นตอนการทำงาน</span>
+                  </div>
+                  <ol className="list-decimal pl-5 space-y-1 text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200/70">
+                    {selectedInstallation.workPlan
+                      .split('\n')
+                      .map(s => s.trim())
+                      .filter(Boolean)
+                      .map((step, idx) => (
+                        <li key={idx}>{step}</li>
+                      ))}
+                  </ol>
+                </div>
+              )}
+
+              {selectedInstallation.technicianNote && (
+                <div className="text-xs bg-slate-50 p-3 rounded-xl border border-slate-200/70 space-y-1">
+                  <div className="font-bold text-slate-700">อุปกรณ์ / หมายเหตุช่าง</div>
+                  <p className="text-slate-600 whitespace-pre-wrap">{selectedInstallation.technicianNote}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="px-5 py-3.5 border-t border-gray-100 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
+              <Link
+                href="/service/installation"
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 hover:underline"
+              >
+                ไปหน้างานติดตั้งรวม →
+              </Link>
+              <div className="flex flex-wrap items-center gap-2">
+                {selectedInstallation.jobId && (
+                  <>
+                    <Link
+                      href={`/jobs/${selectedInstallation.jobId}/installation-schedule`}
+                      className="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors"
+                    >
+                      {selectedInstallation.isPlanned ? 'แก้ไขแผน/เวลา' : 'กำหนดวัน-เวลา'}
+                    </Link>
+                    <Link
+                      href={`/jobs/${selectedInstallation.jobId}/installation-plan`}
+                      className="px-3.5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors"
+                    >
+                      ดูหน้าแผนงาน
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

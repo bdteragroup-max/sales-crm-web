@@ -3,7 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { translateReportData } from "@/app/actions/translateReport";
 import { Sparkles, Loader2 } from "lucide-react";
-import { EQUIPMENT_TYPE_CONFIG, STATUS_CONFIG, DEFAULT_PANEL_COMPONENTS } from "../lib/crConstants";
+import {
+  EQUIPMENT_TYPE_CONFIG,
+  STATUS_CONFIG,
+  DEFAULT_PANEL_COMPONENTS,
+  normalizeWarrantyStatusCode,
+} from "../lib/crConstants";
 
 interface CheckReportClaimPaperProps {
   report: any;
@@ -220,20 +225,11 @@ export default function CheckReportClaimPaper({
   );
 
   // Warranty status
-  const rawWarranty = String(report?.warrantyStatus || "").trim().toUpperCase();
-  const isWarrantyValid =
-    rawWarranty === "IN_WARRANTY" ||
-    rawWarranty === "VALID" ||
-    report?.warrantyStatus === "รับประกัน" ||
-    report?.warrantyStatus === "อยู่ในประกัน";
-
-  const isWarrantyExpired =
-    rawWarranty === "OUT_OF_WARRANTY" ||
-    rawWarranty === "EXPIRED" ||
-    report?.warrantyStatus === "หมดประกัน" ||
-    report?.warrantyStatus === "นอกประกัน";
-
-  const isWarrantyPending = !isWarrantyValid && !isWarrantyExpired;
+  const warrantyCode = normalizeWarrantyStatusCode(report?.warrantyStatus);
+  const isWarrantyValid = warrantyCode === "IN_WARRANTY";
+  const isWarrantyExpired = warrantyCode === "OUT_OF_WARRANTY";
+  const isWarrantyNotCovered = warrantyCode === "NOT_COVERED";
+  const isWarrantyPending = warrantyCode === "PENDING";
 
   // Equipment Label
   const equipmentLabel = isEn ? eqConfig.labelEn : eqConfig.label;
@@ -381,28 +377,36 @@ export default function CheckReportClaimPaper({
                 {isEn ? "Warranty Status" : "สถานะการรับประกัน"}
               </td>
               <td className="px-2.5 py-1.5 border border-black font-bold w-[32%]">
-                <span className="inline-flex items-center gap-3">
-                  <span className="inline-flex items-center gap-1">
-                    <span className="inline-block w-3.5 h-3.5 border border-black text-center text-[10px] leading-3 font-bold bg-white">
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] leading-tight">
+                  <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                    <span className="inline-block w-3.5 h-3.5 border border-black text-center text-[10px] leading-3 font-bold bg-white shrink-0">
                       {isWarrantyValid ? "✓" : ""}
                     </span>
                     <span>{isEn ? "In Warranty" : "อยู่ในประกัน"}</span>
                   </span>
-                  <span className="inline-flex items-center gap-1">
-                    <span className="inline-block w-3.5 h-3.5 border border-black text-center text-[10px] leading-3 font-bold bg-white">
+                  <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                    <span className="inline-block w-3.5 h-3.5 border border-black text-center text-[10px] leading-3 font-bold bg-white shrink-0">
                       {isWarrantyExpired ? "✓" : ""}
                     </span>
                     <span className={isWarrantyExpired ? "text-red-700" : ""}>
                       {isEn ? "Out of Warranty" : "หมดประกัน"}
                     </span>
                   </span>
-                  <span className="inline-flex items-center gap-1">
-                    <span className="inline-block w-3.5 h-3.5 border border-black text-center text-[10px] leading-3 font-bold bg-white">
+                  <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                    <span className="inline-block w-3.5 h-3.5 border border-black text-center text-[10px] leading-3 font-bold bg-white shrink-0">
+                      {isWarrantyNotCovered ? "✓" : ""}
+                    </span>
+                    <span className={isWarrantyNotCovered ? "text-red-700" : ""}>
+                      {isEn ? "Not Covered" : "ไม่อยู่ในเงื่อนไข"}
+                    </span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                    <span className="inline-block w-3.5 h-3.5 border border-black text-center text-[10px] leading-3 font-bold bg-white shrink-0">
                       {isWarrantyPending ? "✓" : ""}
                     </span>
                     <span className="text-gray-600">{isEn ? "Pending" : "รอตรวจสอบ"}</span>
                   </span>
-                </span>
+                </div>
               </td>
             </tr>
             <tr>

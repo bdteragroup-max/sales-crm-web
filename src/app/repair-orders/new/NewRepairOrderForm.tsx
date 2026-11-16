@@ -1276,6 +1276,14 @@ export default function NewRepairOrderForm({
                     );
                   })}
                 </div>
+                <div className="text-[11px] font-semibold text-[#ff2301] bg-white/90 px-2.5 py-1 rounded-lg border border-red-200 flex items-center justify-between gap-2">
+                  <span>
+                    กำลังติ๊กและแนบรูปสำหรับ: {safeActiveItemIdx + 1}. {formatRepairItemShortTitle(items[safeActiveItemIdx], safeActiveItemIdx)}
+                  </span>
+                  <span className="text-[10px] text-gray-500 font-normal">
+                    อย่าลืมกดสลับรายการด้านบนก่อนแนบรูปเครื่องถัดไป
+                  </span>
+                </div>
               </div>
             )}
 

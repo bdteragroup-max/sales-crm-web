@@ -17,6 +17,7 @@ type Props = {
 
 export default function CardModal({ card, users, lists, currentUser, onClose, onUpdate, onDeleteCard }: Props) {
   const [title, setTitle] = useState(card.title);
+  const [currentListId, setCurrentListId] = useState(card.listId);
   const [description, setDescription] = useState(card.description || '');
   const [assignedToId, setAssignedToId] = useState(card.assignedToId || '');
   const [startDate, setStartDate] = useState(card.startDate ? new Date(card.startDate).toISOString().split('T')[0] : '');
@@ -49,10 +50,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   const [isDragOverDropzone, setIsDragOverDropzone] = useState(false);
 
   const [attachments, setAttachments] = useState<any[]>(card.attachments || []);
-
-  useEffect(() => {
-    setAttachments(card.attachments || []);
-  }, [card.attachments]);
+  const attachmentsRef = useRef<any[]>(card.attachments || []);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -90,18 +88,28 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSave = async (updates: Partial<TKanbanCard>) => {
+  const handleSave = async (updates: Partial<TKanbanCard>): Promise<boolean> => {
     setIsSaving(true);
+    setErrorMsg(null);
     try {
       const res = await fetch('/api/marketing/kanban/cards', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: card.id, ...updates })
       });
-      const updated = await res.json();
-      onUpdate(updated);
-    } catch (e) {
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(payload.error || `บันทึกไม่สำเร็จ (HTTP ${res.status})`);
+      }
+      if (payload.listId) {
+        setCurrentListId(payload.listId);
+      }
+      onUpdate(payload);
+      return true;
+    } catch (e: any) {
       console.error(e);
+      setErrorMsg(e?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -119,36 +127,43 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
       await handleAddComment();
     }
 
-    // Find the "To Revise" list
-    const reviseList = lists.find(l => l.name.toLowerCase().includes('revise'));
+    // Prefer exact 'Revise' list over compound 'Approval / Revise'
+    const reviseList =
+      lists.find(l => l.name.trim().toLowerCase() === 'revise') ||
+      lists.find(l => l.name.toLowerCase().includes('revise'));
     if (!reviseList) {
-      setErrorMsg("ไม่พบรายการ 'To Revise' บนกระดาน");
+      setErrorMsg("ไม่พบรายการ 'Revise' บนกระดาน");
       return;
     }
 
-    handleSave({
+    const ok = await handleSave({
       revisionStatus: 'needs_revision',
       listId: reviseList.id
     });
 
-    onClose();
+    if (ok) {
+      onClose();
+    }
   };
 
   const handleResubmit = async () => {
     setErrorMsg(null);
-    // Find the "Review" list
-    const reviewList = lists.find(l => l.name.toLowerCase().includes('review'));
+    const reviewList =
+      lists.find(l => l.name.toLowerCase().includes('review')) ||
+      lists.find(l => l.name.toLowerCase().includes('approval'));
     if (!reviewList) {
-      setErrorMsg("ไม่พบรายการ 'Review' บนกระดาน");
+      setErrorMsg("ไม่พบรายการสำหรับส่งตรวจ (Review / Approval) บนกระดาน");
       return;
     }
 
-    handleSave({
+    const ok = await handleSave({
       revisionStatus: 'pending_review',
       listId: reviewList.id
     });
 
-    onClose();
+    if (ok) {
+      onClose();
+    }
   };
 
   const handleAddComment = async () => {
@@ -493,8 +508,12 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
       if (!res.ok) throw new Error(attachment.error || 'บันทึกข้อมูลไฟล์แนบล้มเหลว');
 
       newlyAddedAttachments.push(attachment);
-      // Immediately update local attachments state so user sees cards dynamically
-      setAttachments(prev => [...prev, attachment]);
+      // Immediately update local attachments state & ref so user sees cards dynamically
+      setAttachments((prev) => {
+        const next = [...prev, attachment];
+        attachmentsRef.current = next;
+        return next;
+      });
       completedCount++;
       setUploadProgress({
         current: completedCount,
@@ -530,9 +549,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
     // Sync full attachments list with parent card & board
     if (newlyAddedAttachments.length > 0) {
-      const finalAttachments = [...attachments, ...newlyAddedAttachments];
-      setAttachments(finalAttachments);
-      onUpdate({ ...card, attachments: finalAttachments });
+      onUpdate({ ...card, attachments: [...attachmentsRef.current] });
     }
 
     setIsUploading(false);
@@ -714,6 +731,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
         throw new Error(data.error || 'Failed to delete');
       }
       const updatedAttachments = attachments.filter(att => att.id !== attachmentToDelete.id);
+      attachmentsRef.current = updatedAttachments;
       setAttachments(updatedAttachments);
       onUpdate({ ...card, attachments: updatedAttachments });
       setAttachmentToDelete(null);
@@ -762,7 +780,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
     handleSave({ checklist: newList });
   };
 
-  const listName = lists.find(l => l.id === card.listId)?.name || 'รายการที่ไม่รู้จัก';
+  const listName = lists.find(l => l.id === currentListId)?.name || 'รายการที่ไม่รู้จัก';
   const filteredMentionUsers = users.filter(u => u.fullName?.toLowerCase().includes(mentionFilter));
 
   const renderCommentText = (text: string) => {
@@ -823,25 +841,79 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              onBlur={() => title !== card.title && handleSave({ title })}
+              onBlur={() => {
+                if (title.trim() && title !== (card.title || '')) {
+                  handleSave({ title: title.trim() });
+                }
+              }}
               className="font-bold text-2xl text-gray-900 w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-red-100 rounded-lg px-2 py-1 -ml-2"
             />
-            <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-              ในรายการ <span className="font-semibold text-gray-700 underline underline-offset-2">{listName}</span>
+            <div className="text-sm text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
+              <span>ในรายการ</span>
+              <select
+                value={currentListId}
+                disabled={isSaving}
+                onChange={async (e) => {
+                  const nextListId = e.target.value;
+                  if (!nextListId || nextListId === currentListId) return;
+                  const prevListId = currentListId;
+                  setCurrentListId(nextListId);
+                  const ok = await handleSave({ listId: nextListId });
+                  if (!ok) {
+                    setCurrentListId(prevListId);
+                  }
+                }}
+                aria-label="ย้ายไปรายการ"
+                className="font-semibold text-gray-800 bg-white border border-gray-200 hover:border-red-300 focus:border-[#ff2301] focus:ring-2 focus:ring-red-100 rounded-lg px-2.5 py-1 text-xs outline-none cursor-pointer disabled:opacity-50"
+                title={`รายการปัจจุบัน: ${listName}`}
+              >
+                {lists.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.name}
+                  </option>
+                ))}
+              </select>
+              {isSaving && (
+                <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                  <Loader2 size={12} className="animate-spin" /> กำลังบันทึก...
+                </span>
+              )}
               {card.revisionStatus === 'needs_revision' && (
                 <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-black rounded-full uppercase tracking-wider">ต้องแก้ไข</span>
               )}
-            </p>
+            </div>
+            {errorMsg && (
+              <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-semibold flex items-center gap-2">
+                <AlertCircle size={14} className="shrink-0 text-red-600" />
+                <span className="flex-1">{errorMsg}</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3 mt-1">
             <button
-              onClick={() => {
-                handleSave({ title, description, assignedToId, engineeringReviewers, startDate, dueDate, color: cardColor, salespersonId });
-                onClose();
+              disabled={isSaving}
+              onClick={async () => {
+                if (!title.trim()) {
+                  setErrorMsg('กรุณาระบุชื่องาน');
+                  return;
+                }
+                const ok = await handleSave({
+                  title: title.trim(),
+                  description,
+                  assignedToId: assignedToId || null,
+                  engineeringReviewers,
+                  startDate: startDate || null,
+                  dueDate: dueDate || null,
+                  color: cardColor || null,
+                  salespersonId: salespersonId || null,
+                });
+                if (ok) {
+                  onClose();
+                }
               }}
-              className="flex items-center gap-2 bg-[#ff2301] hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all"
+              className="flex items-center gap-2 bg-[#ff2301] hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all disabled:opacity-50"
             >
-              <CheckSquare size={16} />
+              {isSaving ? <Loader2 size={16} className="animate-spin" /> : <CheckSquare size={16} />}
               บันทึก (Save)
             </button>
             <button
@@ -869,7 +941,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                onBlur={() => description !== card.description && handleSave({ description })}
+                onBlur={() => description !== (card.description || '') && handleSave({ description })}
                 placeholder="เพิ่มรายละเอียด..."
                 className="w-full bg-gray-50 hover:bg-gray-100 focus:bg-white border-2 border-transparent focus:border-red-200 outline-none rounded-xl p-4 text-sm text-gray-700 min-h-[120px] transition-colors resize-y"
               />
