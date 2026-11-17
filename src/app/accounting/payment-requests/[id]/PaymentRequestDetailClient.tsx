@@ -8,6 +8,7 @@ import {
   PaymentRequestRecord,
   PaymentRequestLog,
   RequisitionItem,
+  SupervisorOption,
   supervisorApprovePaymentRequest,
   supervisorReturnPaymentRequest,
   supervisorUpdateSubstituteCertificates,
@@ -95,10 +96,14 @@ import {
   isAccountingStaff,
   isSupervisorOrManager,
   canSupervisorApproveRequest,
+  normalizePersonName,
 } from '@/app/lib/roleHelper';
+
+const EMPTY_SUPERVISOR_OPTIONS: SupervisorOption[] = [];
 
 type Props = {
   request: PaymentRequestRecord & { logs: PaymentRequestLog[] };
+  supervisorOptions?: SupervisorOption[];
   currentUser?: {
     id: string;
     fullName: string;
@@ -211,7 +216,7 @@ function getStepIndex(status: string, apCheckedBy?: string | null): number {
   }
 }
 
-export default function PaymentRequestDetailClient({ request, currentUser }: Props) {
+export default function PaymentRequestDetailClient({ request, supervisorOptions = EMPTY_SUPERVISOR_OPTIONS, currentUser }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
@@ -254,9 +259,13 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     baseItemsRef: unknown;
     baseAttachmentsRef: unknown;
     baseSupSig: string | null | undefined;
+    baseAssignedSupId: string | null | undefined;
+    baseAssignedSupName: string | null | undefined;
     items: RequisitionItem[];
     attachments: any[];
     supervisorSignatureUrl?: string;
+    assignedSupervisorId?: string | null;
+    assignedSupervisorName?: string | null;
   } | null>(null);
   const [hasDeptSupStroke, setHasDeptSupStroke] = useState<boolean>(false);
   const [deptSupSigCanvasWidth, setDeptSupSigCanvasWidth] = useState<number>(360);
@@ -279,6 +288,54 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     (currentUser?.id && request.requester_id && currentUser.id === request.requester_id) ||
     (currentUser?.fullName && request.requester_name && currentUser.fullName.trim().toLowerCase() === request.requester_name.trim().toLowerCase());
 
+  const activeCertPatch =
+    localCertPatch &&
+      localCertPatch.requestId === request.id &&
+      localCertPatch.baseItemsRef === request.items &&
+      localCertPatch.baseAttachmentsRef === request.attachments &&
+      localCertPatch.baseSupSig === request.supervisor_signature_url &&
+      localCertPatch.baseAssignedSupId === request.assigned_supervisor_id &&
+      localCertPatch.baseAssignedSupName === request.assigned_supervisor_name
+      ? localCertPatch
+      : null;
+
+  const displayedItems: RequisitionItem[] = activeCertPatch
+    ? activeCertPatch.items
+    : Array.isArray(request.items)
+      ? request.items
+      : [];
+  const displayedAttachments: any[] = activeCertPatch
+    ? activeCertPatch.attachments
+    : Array.isArray(request.attachments)
+      ? request.attachments
+      : [];
+  const resolvedSupSignatureUrl =
+    activeCertPatch?.supervisorSignatureUrl || request.supervisor_signature_url || '';
+
+  let itemApproverFallbackId: string | null = null;
+  let itemApproverFallbackName: string | null = null;
+  for (const it of displayedItems) {
+    const name = it?.approverName?.trim() || '';
+    const id = it?.approverId?.trim() || '';
+    if (name || id) {
+      itemApproverFallbackId = id || null;
+      itemApproverFallbackName = name || null;
+      break;
+    }
+  }
+
+  const rawPatchSupId =
+    activeCertPatch && activeCertPatch.assignedSupervisorId !== undefined
+      ? activeCertPatch.assignedSupervisorId
+      : request.assigned_supervisor_id;
+  const rawPatchSupName =
+    activeCertPatch && activeCertPatch.assignedSupervisorName !== undefined
+      ? activeCertPatch.assignedSupervisorName
+      : request.assigned_supervisor_name;
+
+  const resolvedAssignedSupId = rawPatchSupId || (!rawPatchSupName ? itemApproverFallbackId : null) || null;
+  const resolvedAssignedSupName = rawPatchSupName || (!rawPatchSupId ? itemApproverFallbackName : null) || null;
+
   // Department & Branch-scoped supervisor approval guard
   const supervisorAuth = useMemo(() => {
     return canSupervisorApproveRequest({
@@ -292,11 +349,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       requestRequesterName: request.requester_name,
       requestDepartment: request.requester_department,
       requestBranch: request.branch,
-      requestAssignedSupervisorId: request.assigned_supervisor_id,
-      requestAssignedSupervisorName: request.assigned_supervisor_name,
+      requestAssignedSupervisorId: resolvedAssignedSupId,
+      requestAssignedSupervisorName: resolvedAssignedSupName,
       isDirectSupervisor: currentUser?.isDirectSupervisor,
     });
-  }, [currentUser, request]);
+  }, [currentUser, request, resolvedAssignedSupId, resolvedAssignedSupName]);
   // Data-driven milestone checks for stepper
   const isStep1Done = !!request.supervisor_checked_by || !['PENDING_SUPERVISOR', 'DRAFT'].includes(request.status);
   const isStep2Done = !!request.ap_checked_by || ['ACCOUNTING_CHECKED', 'APPROVED', 'READY_TO_PAY', 'PAID', 'POSTED_TO_GL', 'ORIGINAL_RECEIVED', 'CLOSED'].includes(request.status);
@@ -328,33 +385,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     (!isClosedOrPaid && canApproveSupervisor) ||
     (isOwner && ['PENDING_SUPERVISOR', 'RETURN_DOCUMENT', 'DRAFT', 'SUBMITTED'].includes(request.status));
 
-  const activeCertPatch =
-    localCertPatch &&
-    localCertPatch.requestId === request.id &&
-    localCertPatch.baseItemsRef === request.items &&
-    localCertPatch.baseAttachmentsRef === request.attachments &&
-    localCertPatch.baseSupSig === request.supervisor_signature_url
-      ? localCertPatch
-      : null;
-
-  const displayedItems: RequisitionItem[] = activeCertPatch
-    ? activeCertPatch.items
-    : Array.isArray(request.items)
-    ? request.items
-    : [];
-  const displayedAttachments: any[] = activeCertPatch
-    ? activeCertPatch.attachments
-    : Array.isArray(request.attachments)
-    ? request.attachments
-    : [];
-  const resolvedSupSignatureUrl =
-    activeCertPatch?.supervisorSignatureUrl || request.supervisor_signature_url || '';
-
   const deptSupSignatureUrl =
     deptSupSignatureDraft !== null
       ? deptSupSignatureDraft
       : resolvedSupSignatureUrl ||
-        (canApproveSupervisor && request.status === 'PENDING_SUPERVISOR' ? cachedDeptSupSig : '');
+      (canApproveSupervisor && request.status === 'PENDING_SUPERVISOR' ? cachedDeptSupSig : '');
   const isDrawingDeptSupSig = !deptSupSignatureUrl;
 
   useEffect(() => {
@@ -367,7 +402,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         if (cached) {
           setCachedDeptSupSig(cached);
         }
-      } catch {}
+      } catch { }
     });
     return () => cancelAnimationFrame(raf);
   }, [resolvedSupSignatureUrl, request.status, canApproveSupervisor, userName]);
@@ -407,17 +442,17 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
   const returnedAt = returnLog?.created_at
     ? new Date(returnLog.created_at).toLocaleString('th-TH', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-        timeZone: 'Asia/Bangkok',
-      })
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: 'Asia/Bangkok',
+    })
     : request.ap_checked_at
-    ? new Date(request.ap_checked_at).toLocaleString('th-TH', {
+      ? new Date(request.ap_checked_at).toLocaleString('th-TH', {
         dateStyle: 'medium',
         timeStyle: 'short',
         timeZone: 'Asia/Bangkok',
       })
-    : '';
+      : '';
 
   const returnedStepIndex = request.ap_checked_by ? 2 : 1;
 
@@ -565,7 +600,28 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
     const companyMeta = resolveCompanyMeta(request.company);
     const dates = groupItems.map((it) => it.billDate).filter(Boolean).sort();
     const totalAmount = groupItems.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+    const fallbackAppName = canApproveSupervisor ? userName : (resolvedAssignedSupName || '');
+    const effectiveApproverName =
+      overrideApproverName !== undefined
+        ? overrideApproverName
+        : firstItem.approverName?.trim() || fallbackAppName;
+    const matchedOpt =
+      effectiveApproverName && supervisorOptions.length > 0
+        ? supervisorOptions.find(
+          (o) => normalizePersonName(o.fullName) === normalizePersonName(effectiveApproverName)
+        )
+        : undefined;
+    const effectiveApproverId =
+      firstItem.approverId?.trim() ||
+      matchedOpt?.id ||
+      (effectiveApproverName && resolvedAssignedSupName && normalizePersonName(effectiveApproverName) === normalizePersonName(resolvedAssignedSupName)
+        ? resolvedAssignedSupId || ''
+        : '') ||
+      '';
+
     return {
+      groupKey: firstItem.substituteGroupKey || undefined,
+      itemIds: groupItems.map((it, gIdx) => it.id || `item-${gIdx}`),
       itemId: firstItem.id,
       companyCode: companyMeta.companyCode,
       companyName: companyMeta.companyName,
@@ -581,8 +637,9 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       requesterName: request.requester_name || '',
       requesterPosition: request.requester_department || 'พนักงาน',
       requesterSignatureUrl: firstItem.requesterSignatureUrl || request.requester_signature_url || undefined,
-      approverName: overrideApproverName ?? firstItem.approverName ?? (canApproveSupervisor ? userName : request.assigned_supervisor_name || ''),
-      approverPosition: firstItem.approverPosition || 'หัวหน้างาน',
+      approverId: effectiveApproverId || undefined,
+      approverName: effectiveApproverName,
+      approverPosition: firstItem.approverPosition || matchedOpt?.jobTitle || 'หัวหน้างาน',
       approverSignatureUrl: overrideApproverSig ?? firstItem.approverSignatureUrl ?? (deptSupSignatureUrl || resolvedSupSignatureUrl || undefined),
       items: groupItems.map((it, gIdx) => ({
         id: it.id || `item-${gIdx}`,
@@ -610,7 +667,22 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       const isTarget = matchGroupKey
         ? it.isIrregularBill && it.substituteGroupKey === matchGroupKey
         : idx === matchItemIndex;
-      if (!isTarget) return it;
+      if (!isTarget) {
+        if (
+          !canApproveSupervisor &&
+          updatedData.approverName?.trim() &&
+          it.isIrregularBill &&
+          !it.approverSignatureUrl
+        ) {
+          return {
+            ...it,
+            approverId: updatedData.approverId || undefined,
+            approverName: updatedData.approverName,
+            approverPosition: updatedData.approverPosition || it.approverPosition,
+          };
+        }
+        return it;
+      }
 
       if (it.substituteCertificateUrl) oldUrls.add(it.substituteCertificateUrl);
       if (it.substituteCertificateFileName) oldNames.add(it.substituteCertificateFileName);
@@ -623,17 +695,18 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
         ...it,
         ...(editedLine
           ? {
-              billDate: editedLine.billDate || it.billDate,
-              description: editedLine.description || it.description,
-              quantity: editedLine.quantity,
-              unitPrice: editedLine.unitPrice,
-              amount: Number(editedLine.amount) || it.amount,
-            }
+            billDate: editedLine.billDate || it.billDate,
+            description: editedLine.description || it.description,
+            quantity: editedLine.quantity,
+            unitPrice: editedLine.unitPrice,
+            amount: Number(editedLine.amount) || it.amount,
+          }
           : {}),
         supplierName: updatedData.supplierName || it.supplierName,
         substituteCertificateUrl: attachment.url,
         substituteCertificateFileName: attachment.fileName,
         requesterSignatureUrl: updatedData.requesterSignatureUrl,
+        approverId: updatedData.approverId || it.approverId,
         approverName: updatedData.approverName,
         approverPosition: updatedData.approverPosition,
         approverSignatureUrl: updatedData.approverSignatureUrl,
@@ -668,7 +741,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       resolvedGroup,
       resolvedGroup[0],
       item.approverSignatureUrl || activeSupSig,
-      item.approverName || (canApproveSupervisor ? userName : request.assigned_supervisor_name || '')
+      item.approverName?.trim() || (canApproveSupervisor ? userName : resolvedAssignedSupName || '')
     );
 
     setSubCertModalState({
@@ -694,11 +767,16 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       subCertModalState.targetItemIndex
     );
 
+    const shouldSyncSupervisor =
+      !canApproveSupervisor || (!request.assigned_supervisor_id && !request.assigned_supervisor_name);
+
     const res = await supervisorUpdateSubstituteCertificates(request.id, {
       items: nextItems,
       attachments: nextAttachments,
       approverSignatureUrl: updatedData.approverSignatureUrl || null,
-      approverName: updatedData.approverName || userName,
+      approverId: updatedData.approverId || null,
+      approverName: updatedData.approverName?.trim() || (canApproveSupervisor ? userName : undefined),
+      syncAssignedSupervisor: shouldSyncSupervisor,
       note: `ลงนาม/อัปเดตใบรับรองแทนใบเสร็จ (${attachment.fileName})`,
     });
 
@@ -714,9 +792,15 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       baseItemsRef: request.items,
       baseAttachmentsRef: request.attachments,
       baseSupSig: request.supervisor_signature_url,
+      baseAssignedSupId: request.assigned_supervisor_id,
+      baseAssignedSupName: request.assigned_supervisor_name,
       items: nextItems,
       attachments: nextAttachments,
       supervisorSignatureUrl: updatedData.approverSignatureUrl || resolvedSupSignatureUrl || undefined,
+      assignedSupervisorId:
+        res.assigned_supervisor_id !== undefined ? res.assigned_supervisor_id : resolvedAssignedSupId,
+      assignedSupervisorName:
+        res.assigned_supervisor_name !== undefined ? res.assigned_supervisor_name : resolvedAssignedSupName,
     });
     router.refresh();
   };
@@ -807,7 +891,7 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
       if (activeSig && typeof window !== 'undefined' && userName) {
         try {
           localStorage.setItem(`crm_saved_signature_${userName}`, activeSig);
-        } catch {}
+        } catch { }
         setDeptSupSignatureDraft(activeSig);
       }
 
@@ -866,6 +950,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           baseItemsRef: request.items,
           baseAttachmentsRef: request.attachments,
           baseSupSig: request.supervisor_signature_url,
+          baseAssignedSupId: request.assigned_supervisor_id,
+          baseAssignedSupName: request.assigned_supervisor_name,
           items: updatedItems,
           attachments: updatedAttachments,
           supervisorSignatureUrl: activeSig,
@@ -941,8 +1027,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
   const calcEditVat = (editVatType === 'EXCLUDE' || editVatType === '7%')
     ? truncate2Decimals(editSubtotal * 0.07)
     : isIncludedVat
-    ? truncate2Decimals((editSubtotal * 7) / 107)
-    : 0;
+      ? truncate2Decimals((editSubtotal * 7) / 107)
+      : 0;
   const editPreVatBase = isIncludedVat ? Math.max(0, truncate2Decimals(editSubtotal - calcEditVat)) : editSubtotal;
   const calcEditWht = truncate2Decimals((editPreVatBase * editWhtPercent) / 100);
   const calcEditNet = Math.max(0, truncate2Decimals((isIncludedVat ? editSubtotal : editSubtotal + calcEditVat) - calcEditWht));
@@ -1963,15 +2049,14 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
             return (
               <div key={step.key} className="flex flex-col items-center relative z-10 bg-white px-2">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition ${
-                    isReturnedCurrent
-                      ? 'bg-orange-500 text-white border-orange-500 ring-4 ring-orange-100 animate-pulse'
-                      : isCompleted
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition ${isReturnedCurrent
+                    ? 'bg-orange-500 text-white border-orange-500 ring-4 ring-orange-100 animate-pulse'
+                    : isCompleted
                       ? 'bg-emerald-600 text-white border-emerald-600'
                       : isCurrent
-                      ? 'bg-red-600 text-white border-red-600 ring-4 ring-red-100'
-                      : 'bg-white text-gray-400 border-gray-300'
-                  }`}
+                        ? 'bg-red-600 text-white border-red-600 ring-4 ring-red-100'
+                        : 'bg-white text-gray-400 border-gray-300'
+                    }`}
                 >
                   {isReturnedCurrent ? (
                     <Undo2 className="w-4 h-4" />
@@ -1982,15 +2067,14 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                   )}
                 </div>
                 <span
-                  className={`text-[11px] mt-1.5 font-medium whitespace-nowrap ${
-                    isReturnedCurrent
-                      ? 'text-orange-950 font-bold'
-                      : isCurrent
+                  className={`text-[11px] mt-1.5 font-medium whitespace-nowrap ${isReturnedCurrent
+                    ? 'text-orange-950 font-bold'
+                    : isCurrent
                       ? 'text-red-900 font-bold'
                       : isCompleted
-                      ? 'text-gray-800'
-                      : 'text-gray-400'
-                  }`}
+                        ? 'text-gray-800'
+                        : 'text-gray-400'
+                    }`}
                 >
                   {isReturnedCurrent ? `${step.label} (ส่งคืน)` : step.label}
                 </span>
@@ -2066,11 +2150,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 </div>
 
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                    request.payment_method === 'PROMPTPAY' || request.bank_name?.includes('พร้อมเพย์')
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-emerald-100 text-emerald-800'
-                  }`}>
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${request.payment_method === 'PROMPTPAY' || request.bank_name?.includes('พร้อมเพย์')
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-emerald-100 text-emerald-800'
+                    }`}>
                     {request.payment_method === 'PROMPTPAY' || request.bank_name?.includes('พร้อมเพย์') ? 'พร้อมเพย์' : 'บัญชีธนาคาร'}
                   </span>
                   <span className="font-semibold text-slate-800">
@@ -2554,9 +2637,9 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     <td className="py-2.5 px-4 text-right font-mono text-red-600">
                       {Number(request.wht_amount) > 0
                         ? `-${Number(request.wht_amount).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })} ฿`
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })} ฿`
                         : '0.00 ฿'}
                     </td>
                   </tr>
@@ -2580,10 +2663,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               {Number(request.net_amount) <= 3000
                 ? 'วงเงินไม่เกิน 3,000 บาท (เงินสดย่อย / หัวหน้างาน)'
                 : Number(request.net_amount) <= 10000
-                ? 'วงเงิน 3,001 - 10,000 บาท (หัวหน้าสาขา/หัวหน้าแผนก + AP ตรวจสอบ)'
-                : Number(request.net_amount) <= 30000
-                ? 'วงเงิน 10,001 - 30,000 บาท (ผู้จัดการฝ่ายที่เกี่ยวข้อง)'
-                : 'วงเงินเกิน 30,000 บาท (ฝ่ายการเงินส่วนกลาง / ผู้บริหารระดับสูง)'}
+                  ? 'วงเงิน 3,001 - 10,000 บาท (หัวหน้าสาขา/หัวหน้าแผนก + AP ตรวจสอบ)'
+                  : Number(request.net_amount) <= 30000
+                    ? 'วงเงิน 10,001 - 30,000 บาท (ผู้จัดการฝ่ายที่เกี่ยวข้อง)'
+                    : 'วงเงินเกิน 30,000 บาท (ฝ่ายการเงินส่วนกลาง / ผู้บริหารระดับสูง)'}
             </div>
           </div>
 
@@ -2780,12 +2863,11 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
         {/* Right Column (1 Col): Role-based Action Panels & Audit Log */}
         <div
-          className={`w-full min-w-0 space-y-4 sm:space-y-6 ${
-            (request.status === 'PENDING_SUPERVISOR' && canApproveSupervisor) ||
+          className={`w-full min-w-0 space-y-4 sm:space-y-6 ${(request.status === 'PENDING_SUPERVISOR' && canApproveSupervisor) ||
             (request.status === 'RETURN_DOCUMENT' && (isOwner || isStaff))
-              ? 'order-first lg:order-none'
-              : ''
-          }`}
+            ? 'order-first lg:order-none'
+            : ''
+            }`}
         >
           {/* Action Panel: Return Document (Resubmission Action) */}
           {request.status === 'RETURN_DOCUMENT' && (
@@ -2861,58 +2943,58 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 </p>
 
                 {irregularItemsList.length > 0 && (
-                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2.5 text-[11px]">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="font-bold text-amber-950 flex items-center gap-1.5">
-                          <span className="w-4 h-4 rounded-full bg-amber-600 text-white text-[10px] font-bold inline-flex items-center justify-center shrink-0">
-                            1
-                          </span>
-                          <span>ตรวจสอบ บก.111 ({irregularItemsList.length} รายการ)</span>
-                          {unsignedIrregularCount > 0 ? (
-                            <span className="text-orange-800 bg-orange-100 px-1.5 py-0.5 rounded border border-orange-300 font-semibold">
-                              รอเซ็น {unsignedIrregularCount}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 font-semibold">
-                              เซ็นครบแล้ว <Check size={11} />
-                            </span>
-                          )}
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2.5 text-[11px]">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                        <span className="w-4 h-4 rounded-full bg-amber-600 text-white text-[10px] font-bold inline-flex items-center justify-center shrink-0">
+                          1
                         </span>
-                        {firstIrregularTargetIdx >= 0 && (
-                          <button
-                            type="button"
-                            onClick={() => openSubstituteModalForItem(displayedItems[firstIrregularTargetIdx], firstIrregularTargetIdx)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[11px] font-bold transition cursor-pointer shadow-2xs"
-                          >
-                            <PenLine className="w-3 h-3" /> เปิดดู / เซ็นในเอกสาร
-                          </button>
+                        <span>ตรวจสอบ บก.111 ({irregularItemsList.length} รายการ)</span>
+                        {unsignedIrregularCount > 0 ? (
+                          <span className="text-orange-800 bg-orange-100 px-1.5 py-0.5 rounded border border-orange-300 font-semibold">
+                            รอเซ็น {unsignedIrregularCount}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 font-semibold">
+                            เซ็นครบแล้ว <Check size={11} />
+                          </span>
+                        )}
+                      </span>
+                      {firstIrregularTargetIdx >= 0 && (
+                        <button
+                          type="button"
+                          onClick={() => openSubstituteModalForItem(displayedItems[firstIrregularTargetIdx], firstIrregularTargetIdx)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[11px] font-bold transition cursor-pointer shadow-2xs"
+                        >
+                          <PenLine className="w-3 h-3" /> เปิดดู / เซ็นในเอกสาร
+                        </button>
+                      )}
+                    </div>
+
+                    {uniqueIrregularCerts.some((c) => c.url) && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {uniqueIrregularCerts.map((cert, cIdx) =>
+                          cert.url ? (
+                            <a
+                              key={cIdx}
+                              href={cert.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white hover:bg-amber-100/70 border border-amber-200 text-amber-900 font-semibold text-[10px] transition"
+                            >
+                              <FileText className="w-3 h-3 text-amber-700 shrink-0" />
+                              <span className="truncate max-w-[170px]">{cert.label}</span>
+                              <ExternalLink className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+                            </a>
+                          ) : null
                         )}
                       </div>
+                    )}
 
-                      {uniqueIrregularCerts.some((c) => c.url) && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {uniqueIrregularCerts.map((cert, cIdx) =>
-                            cert.url ? (
-                              <a
-                                key={cIdx}
-                                href={cert.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white hover:bg-amber-100/70 border border-amber-200 text-amber-900 font-semibold text-[10px] transition"
-                              >
-                                <FileText className="w-3 h-3 text-amber-700 shrink-0" />
-                                <span className="truncate max-w-[170px]">{cert.label}</span>
-                                <ExternalLink className="w-2.5 h-2.5 text-amber-600 shrink-0" />
-                              </a>
-                            ) : null
-                          )}
-                        </div>
-                      )}
-
-                      <p className="text-[10px] text-amber-900/80 leading-relaxed">
-                        หรือวาดลายเซ็นด้านล่างครั้งเดียว ระบบจะฝังลงใน PDF บก.111 ให้อัตโนมัติเมื่อกดอนุมัติ
-                      </p>
-                    </div>
+                    <p className="text-[10px] text-amber-900/80 leading-relaxed">
+                      หรือวาดลายเซ็นด้านล่างครั้งเดียว ระบบจะฝังลงใน PDF บก.111 ให้อัตโนมัติเมื่อกดอนุมัติ
+                    </p>
+                  </div>
                 )}
 
                 {/* Supervisor Signature Box (Multi-stroke safe, Zero extra confirm click needed) */}
@@ -3054,8 +3136,8 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                     {isProcessing
                       ? 'กำลังบันทึก/ส่ง...'
                       : irregularItemsList.length > 0 && unsignedIrregularCount > 0
-                      ? 'อนุมัติ + เซ็น บก.111 ส่งต่อบัญชี'
-                      : 'อนุมัติส่งต่อบัญชี'}
+                        ? 'อนุมัติ + เซ็น บก.111 ส่งต่อบัญชี'
+                        : 'อนุมัติส่งต่อบัญชี'}
                   </button>
                 </div>
               </div>
@@ -3063,10 +3145,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
               <div className="bg-amber-50/60 p-4 sm:p-5 rounded-2xl border border-amber-200 shadow-2xs space-y-2">
                 <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wide">
                   <Clock className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>อยู่ระหว่างรอหัวหน้างานอนุมัติ: {request.assigned_supervisor_name || `ฝ่าย ${request.requester_department || 'ที่เกี่ยวข้อง'}`}</span>
+                  <span>อยู่ระหว่างรอหัวหน้างานอนุมัติ: {resolvedAssignedSupName || `ฝ่าย ${request.requester_department || 'ที่เกี่ยวข้อง'}`}</span>
                 </div>
                 <p className="text-xs text-amber-800/90 leading-relaxed">
-                  คำขอนี้ส่งถึง {request.assigned_supervisor_name ? `คุณ${request.assigned_supervisor_name}` : 'หัวหน้างาน'} (ฝ่าย {request.requester_department || 'ที่เกี่ยวข้อง'} • สาขา {request.branch || 'สำนักงานใหญ่'}) แล้ว ระบบจะส่งเอกสารให้ฝ่ายบัญชี (AP) โดยอัตโนมัติเมื่อหัวหน้างานดำเนินการอนุมัติเรียบร้อย
+                  คำขอนี้ส่งถึง {resolvedAssignedSupName ? `คุณ${resolvedAssignedSupName}` : 'หัวหน้างาน'} (ฝ่าย {request.requester_department || 'ที่เกี่ยวข้อง'} • สาขา {request.branch || 'สำนักงานใหญ่'}) แล้ว ระบบจะส่งเอกสารให้ฝ่ายบัญชี (AP) โดยอัตโนมัติเมื่อหัวหน้างานดำเนินการอนุมัติเรียบร้อย
                 </p>
                 {irregularItemsList.length > 0 && unsignedIrregularCount > 0 && (
                   <p className="text-[11px] text-amber-900 bg-amber-100/70 border border-amber-200 rounded-lg px-2.5 py-1.5 leading-relaxed">
@@ -3688,11 +3770,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                         setEditBankName('ธนาคารกสิกรไทย (KBANK)');
                       }
                     }}
-                    className={`py-2 px-3 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
-                      editPaymentMethod === 'BANK_TRANSFER'
-                        ? 'bg-indigo-50 text-indigo-700 border-indigo-300 shadow-2xs'
-                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                    }`}
+                    className={`py-2 px-3 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${editPaymentMethod === 'BANK_TRANSFER'
+                      ? 'bg-indigo-50 text-indigo-700 border-indigo-300 shadow-2xs'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      }`}
                   >
                     <Building2 className="w-3.5 h-3.5 text-indigo-600" />
                     <span>บัญชีธนาคาร</span>
@@ -3705,11 +3786,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                         setEditBankName('พร้อมเพย์ (เบอร์โทรศัพท์ (Mobile))');
                       }
                     }}
-                    className={`py-2 px-3 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
-                      editPaymentMethod === 'PROMPTPAY'
-                        ? 'bg-blue-50 text-blue-700 border-blue-300 shadow-2xs'
-                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                    }`}
+                    className={`py-2 px-3 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${editPaymentMethod === 'PROMPTPAY'
+                      ? 'bg-blue-50 text-blue-700 border-blue-300 shadow-2xs'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      }`}
                   >
                     <Zap className="w-3.5 h-3.5 text-blue-600" />
                     <span>พร้อมเพย์</span>
@@ -4243,7 +4323,15 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
           initialData={subCertModalState.initialData}
           defaultSigTab={canApproveSupervisor ? 'approver' : 'requester'}
           signingRole={canApproveSupervisor ? 'approver' : 'requester'}
-          defaultApproverName={canApproveSupervisor ? userName : ''}
+          defaultApproverName={canApproveSupervisor ? userName : (resolvedAssignedSupName || '')}
+          defaultApproverId={
+            canApproveSupervisor
+              ? (currentUser?.employeeId || currentUser?.id || '')
+              : (resolvedAssignedSupId || '')
+          }
+          supervisorOptions={supervisorOptions}
+          currentUserId={currentUser?.id || ''}
+          currentUserEmpId={currentUser?.employeeId || null}
           saveButtonLabel={canApproveSupervisor ? 'ลงนามผู้อนุมัติและอัปเดต PDF บก.111' : 'บันทึกและอัปเดต PDF'}
           onSaveAndAttach={handleSaveSubCertFromModal}
         />
@@ -4287,11 +4375,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
                 <div className="space-y-2.5">
                   {/* Option 1: Requester */}
                   <label
-                    className={`block p-3.5 rounded-xl border-2 cursor-pointer transition ${
-                      returnRecipient === 'REQUESTER'
-                        ? 'border-orange-500 bg-orange-50/60 ring-2 ring-orange-100'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                    }`}
+                    className={`block p-3.5 rounded-xl border-2 cursor-pointer transition ${returnRecipient === 'REQUESTER'
+                      ? 'border-orange-500 bg-orange-50/60 ring-2 ring-orange-100'
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
                   >
                     <div className="flex items-start gap-2.5">
                       <input
@@ -4320,11 +4407,10 @@ export default function PaymentRequestDetailClient({ request, currentUser }: Pro
 
                   {/* Option 2: Supervisor */}
                   <label
-                    className={`block p-3.5 rounded-xl border-2 cursor-pointer transition ${
-                      returnRecipient === 'SUPERVISOR'
-                        ? 'border-blue-500 bg-blue-50/60 ring-2 ring-blue-100'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                    }`}
+                    className={`block p-3.5 rounded-xl border-2 cursor-pointer transition ${returnRecipient === 'SUPERVISOR'
+                      ? 'border-blue-500 bg-blue-50/60 ring-2 ring-blue-100'
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
                   >
                     <div className="flex items-start gap-2.5">
                       <input

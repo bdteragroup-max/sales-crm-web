@@ -2,7 +2,7 @@ import { getUser } from '@/app/lib/dal';
 import { redirect, notFound } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
 import PaymentRequestDetailClient from './PaymentRequestDetailClient';
-import { getPaymentRequestById, getUserProfileDetails } from '@/app/actions/paymentRequests';
+import { getPaymentRequestById, getUserProfileDetails, getSupervisorOptions } from '@/app/actions/paymentRequests';
 import { stripThaiHonorific } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
@@ -18,9 +18,10 @@ export default async function PaymentRequestDetailPage({
   }
 
   const { id } = await params;
-  const [request, profile] = await Promise.all([
+  const [request, profile, supervisorOptions] = await Promise.all([
     getPaymentRequestById(id),
     getUserProfileDetails(user.id, user.employeeId),
+    getSupervisorOptions(),
   ]);
 
   if (!request) {
@@ -58,6 +59,7 @@ export default async function PaymentRequestDetailPage({
       <main className="flex-1 flex flex-col min-w-0 w-full overflow-y-auto overflow-x-hidden bg-[#fafbfc]">
         <PaymentRequestDetailClient
           request={JSON.parse(JSON.stringify(request))}
+          supervisorOptions={supervisorOptions}
           currentUser={{
             id: user.id,
             fullName: user.fullName,

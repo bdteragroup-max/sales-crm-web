@@ -743,6 +743,7 @@ export default function NewPaymentRequestClient({
               substituteCertificateFileName: uploadRes.fileName,
               substituteGroupKey: targetGroupKey,
               requesterSignatureUrl: certData.requesterSignatureUrl,
+              approverId: certData.approverId,
               approverName: certData.approverName,
               approverPosition: certData.approverPosition,
               approverSignatureUrl: certData.approverSignatureUrl,
@@ -862,8 +863,11 @@ export default function NewPaymentRequestClient({
       requesterName: requesterName || currentUser?.fullName || '',
       requesterPosition: requesterDept || 'พนักงาน',
       requesterSignatureUrl: item.requesterSignatureUrl || formRequesterSig || undefined,
-      approverId: supervisorId !== '__NONE__' ? supervisorId : '',
-      approverName: item.approverName || (supervisorId !== '__NONE__' ? supervisorName : '') || '',
+      approverId: !item.approverSignatureUrl && supervisorId !== '__NONE__' ? (supervisorId || item.approverId || '') : (item.approverId || ''),
+      approverName:
+        !item.approverSignatureUrl && supervisorId !== '__NONE__' && supervisorName
+          ? supervisorName
+          : (item.approverName || (supervisorId !== '__NONE__' ? supervisorName : '') || ''),
       approverPosition: item.approverPosition || 'หัวหน้างาน',
       approverSignatureUrl: item.approverSignatureUrl || formSupervisorSig || undefined,
       companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
@@ -920,8 +924,11 @@ export default function NewPaymentRequestClient({
               requesterName: requesterName || currentUser?.fullName || '',
               requesterPosition: requesterDept || 'พนักงาน',
               requesterSignatureUrl: item.requesterSignatureUrl || formRequesterSig || undefined,
-              approverId: supervisorId !== '__NONE__' ? supervisorId : '',
-              approverName: item.approverName || (supervisorId !== '__NONE__' ? supervisorName : '') || '',
+              approverId: !item.approverSignatureUrl && supervisorId !== '__NONE__' ? (supervisorId || item.approverId || '') : (item.approverId || ''),
+              approverName:
+                !item.approverSignatureUrl && supervisorId !== '__NONE__' && supervisorName
+                  ? supervisorName
+                  : (item.approverName || (supervisorId !== '__NONE__' ? supervisorName : '') || ''),
               approverPosition: item.approverPosition || 'หัวหน้างาน',
               approverSignatureUrl: item.approverSignatureUrl || formSupervisorSig || undefined,
               companyName: COMPANY_SHORT_MAP[company] || 'บจก.เทอรา กรุ้ป',
@@ -943,6 +950,7 @@ export default function NewPaymentRequestClient({
                   substituteCertificateUrl: uploadRes.url,
                   substituteCertificateFileName: uploadRes.fileName,
                   requesterSignatureUrl: certData.requesterSignatureUrl,
+                  approverId: certData.approverId,
                   approverName: certData.approverName,
                   approverPosition: certData.approverPosition,
                   approverSignatureUrl: certData.approverSignatureUrl,
@@ -1058,50 +1066,62 @@ export default function NewPaymentRequestClient({
   ) => {
     const groupKey = updatedData.groupKey;
     const targetItemIds = updatedData.itemIds || (updatedData.itemId ? [updatedData.itemId] : []);
+    const nextSupName = updatedData.approverName?.trim() || '';
+    const matchedOpt = nextSupName
+      ? supervisorOptions.find(
+          (o) => normalizePersonName(o.fullName) === normalizePersonName(nextSupName)
+        )
+      : undefined;
+    const nextSupId = updatedData.approverId?.trim() || matchedOpt?.id || '';
+    const nextSupPos = updatedData.approverPosition?.trim() || matchedOpt?.jobTitle || 'หัวหน้างาน';
 
-    setRequisitionItems((prev) => {
-      return prev.map((it, idx) => {
-        const currentItemId = it.id || `item_${idx}`;
-        const isMatched =
-          (groupKey && it.isIrregularBill && getSubstituteGroupKey(it.supplierName, it.billDate) === groupKey) ||
-          targetItemIds.includes(currentItemId) ||
-          (activeSubstituteItemIdx !== null && idx === activeSubstituteItemIdx);
+    const nextItems = requisitionItems.map((it, idx) => {
+      const currentItemId = it.id || `item_${idx}`;
+      const isMatched =
+        (groupKey && it.isIrregularBill && getSubstituteGroupKey(it.supplierName, it.billDate) === groupKey) ||
+        targetItemIds.includes(currentItemId) ||
+        (activeSubstituteItemIdx !== null && idx === activeSubstituteItemIdx);
 
-        if (isMatched) {
-          const matchedLine = updatedData.items?.find((li) => li.id === currentItemId);
-          return {
-            ...it,
-            isIrregularBill: true,
-            supplierName: updatedData.supplierName || it.supplierName,
-            billDate: updatedData.billDate || it.billDate,
-            description: matchedLine?.description || (updatedData.items && updatedData.items.length > 1 ? it.description : (updatedData.description || it.description)),
-            amount: matchedLine?.amount !== undefined ? matchedLine.amount : (updatedData.items && updatedData.items.length > 1 ? it.amount : (updatedData.amount || it.amount)),
-            quantity: matchedLine?.quantity !== undefined ? matchedLine.quantity : it.quantity,
-            unitPrice: matchedLine?.unitPrice !== undefined ? matchedLine.unitPrice : it.unitPrice,
-            substituteCertificateUrl: result.url,
-            substituteCertificateFileName: result.fileName,
-            substituteGroupKey: groupKey || undefined,
-            requesterSignatureUrl: updatedData.requesterSignatureUrl,
-            approverName: updatedData.approverName,
-            approverPosition: updatedData.approverPosition,
-            approverSignatureUrl: updatedData.approverSignatureUrl,
-          };
-        }
-        return it;
-      });
-    });
-
-    if (updatedData.approverName) {
-      setSupervisorName(updatedData.approverName);
-      if (updatedData.approverId) {
-        setSupervisorId(updatedData.approverId);
-      } else {
-        const cleanNorm = normalizePersonName(updatedData.approverName);
-        const matchedOpt = supervisorOptions.find(
-          (o) => normalizePersonName(o.fullName) === cleanNorm
-        );
-        setSupervisorId(matchedOpt ? matchedOpt.id : '');
+      if (isMatched) {
+        const matchedLine = updatedData.items?.find((li) => li.id === currentItemId);
+        return {
+          ...it,
+          isIrregularBill: true,
+          supplierName: updatedData.supplierName || it.supplierName,
+          billDate: updatedData.billDate || it.billDate,
+          description: matchedLine?.description || (updatedData.items && updatedData.items.length > 1 ? it.description : (updatedData.description || it.description)),
+          amount: matchedLine?.amount !== undefined ? matchedLine.amount : (updatedData.items && updatedData.items.length > 1 ? it.amount : (updatedData.amount || it.amount)),
+          quantity: matchedLine?.quantity !== undefined ? matchedLine.quantity : it.quantity,
+          unitPrice: matchedLine?.unitPrice !== undefined ? matchedLine.unitPrice : it.unitPrice,
+          substituteCertificateUrl: result.url,
+          substituteCertificateFileName: result.fileName,
+          substituteGroupKey: groupKey || undefined,
+          requesterSignatureUrl: updatedData.requesterSignatureUrl,
+          approverId: nextSupId || it.approverId,
+          approverName: updatedData.approverName,
+          approverPosition: updatedData.approverPosition,
+          approverSignatureUrl: updatedData.approverSignatureUrl,
+        };
       }
+      if (nextSupName && it.isIrregularBill && !it.approverSignatureUrl) {
+        return {
+          ...it,
+          approverId: nextSupId || it.approverId,
+          approverName: nextSupName,
+          approverPosition: nextSupPos,
+        };
+      }
+      return it;
+    });
+    setRequisitionItems(nextItems);
+
+    const approverChanged =
+      Boolean(nextSupName) &&
+      normalizePersonName(nextSupName) !== normalizePersonName(supervisorName);
+
+    if (nextSupName) {
+      setSupervisorName(nextSupName);
+      setSupervisorId(nextSupId);
     }
     if (updatedData.requesterSignatureUrl) {
       setFormRequesterSig(updatedData.requesterSignatureUrl);
@@ -1135,6 +1155,24 @@ export default function NewPaymentRequestClient({
         },
       ];
     });
+
+    if (approverChanged) {
+      const otherGroupKeys = Array.from(
+        new Set(
+          nextItems
+            .filter((it) => it.isIrregularBill && it.substituteCertificateUrl && !it.approverSignatureUrl)
+            .map((it) => it.substituteGroupKey || getSubstituteGroupKey(it.supplierName, it.billDate))
+            .filter((gk): gk is string => Boolean(gk) && gk !== groupKey)
+        )
+      );
+      if (otherGroupKeys.length > 0) {
+        Promise.all(
+          otherGroupKeys.map((gk) =>
+            syncGroupSubstituteCertificate(gk, nextItems, true, company, nextSupName, nextSupId)
+          )
+        ).catch((err) => console.warn('Failed to re-sync other บก.111 certificates after modal approver change:', err));
+      }
+    }
   };
 
   // Searchable Branch Combobox State
@@ -1188,11 +1226,18 @@ export default function NewPaymentRequestClient({
   const [requesterName, setRequesterName] = useState(initialData?.requester_name || currentUser?.fullName || '');
   const [requesterDept, setRequesterDept] = useState(initialData?.requester_department || initialDept || '');
   const [requesterPhone, setRequesterPhone] = useState(initialData?.requester_phone || initialPhone || '');
-  const [supervisorName, setSupervisorName] = useState(initialData?.assigned_supervisor_name || initialSupervisor || '');
+  const firstIrregularApprover = Array.isArray(initialData?.items)
+    ? initialData.items.find((it) => it?.isIrregularBill && (it?.approverName?.trim() || it?.approverId?.trim()))
+    : undefined;
+  const initialItemApproverId = firstIrregularApprover?.approverId?.trim() || '';
+  const initialItemApproverName = firstIrregularApprover?.approverName?.trim() || '';
+  const [supervisorName, setSupervisorName] = useState(
+    initialData?.assigned_supervisor_name || initialItemApproverName || initialSupervisor || ''
+  );
   const [supervisorId, setSupervisorId] = useState<string>(() => {
-    const rawId = initialData?.assigned_supervisor_id || initialSupervisorId || '';
+    const rawId = initialData?.assigned_supervisor_id || initialItemApproverId || (initialData?.assigned_supervisor_name || initialItemApproverName ? '' : initialSupervisorId) || '';
     if (rawId) return rawId;
-    const rawName = initialData?.assigned_supervisor_name || initialSupervisor || '';
+    const rawName = initialData?.assigned_supervisor_name || initialItemApproverName || initialSupervisor || '';
     if (rawName && supervisorOptions.length > 0) {
       const norm = normalizePersonName(rawName);
       const matched = supervisorOptions.find((o) => normalizePersonName(o.fullName) === norm);
@@ -1258,6 +1303,7 @@ export default function NewPaymentRequestClient({
       if (!it.isIrregularBill || it.approverSignatureUrl) return it;
       return {
         ...it,
+        approverId: nextSupId !== '__NONE__' ? (nextSupId || undefined) : undefined,
         approverName: nextSupName,
         approverPosition: nextSupPos,
       };
@@ -2394,7 +2440,11 @@ export default function NewPaymentRequestClient({
       return false;
     }
 
-    if (!isCurrentUserManagerial && !supervisorName.trim()) {
+    const hasEffectiveSupName =
+      Boolean(supervisorName.trim()) ||
+      (supervisorId !== '__NONE__' &&
+        requisitionItems.some((it) => it.isIrregularBill && Boolean(it.approverName?.trim())));
+    if (!isCurrentUserManagerial && !hasEffectiveSupName) {
       setFormStep(1);
       await Swal.fire({
         title: 'กรุณาเลือกหัวหน้างานผู้อนุมัติ',
@@ -2600,6 +2650,22 @@ export default function NewPaymentRequestClient({
         finalAccountName = finalSupplierName;
       }
 
+      const itemApproverItem = validItems.find((it) => it.isIrregularBill && (it.approverName?.trim() || it.approverId?.trim()));
+      const effectiveSupNameForSubmit =
+        supervisorId === '__NONE__'
+          ? ''
+          : (supervisorName.trim() || itemApproverItem?.approverName?.trim() || '');
+      const matchedOptForSubmit =
+        effectiveSupNameForSubmit && supervisorOptions.length > 0
+          ? supervisorOptions.find(
+              (o) => normalizePersonName(o.fullName) === normalizePersonName(effectiveSupNameForSubmit)
+            )
+          : undefined;
+      const effectiveSupIdForSubmit =
+        supervisorId === '__NONE__'
+          ? '__NONE__'
+          : (supervisorId || itemApproverItem?.approverId?.trim() || matchedOptForSubmit?.id || undefined);
+
       if (isEditMode && initialData?.id) {
         const res = await updateFullPaymentRequest(initialData.id, {
           company,
@@ -2647,8 +2713,8 @@ export default function NewPaymentRequestClient({
           credit_card_deduction: entryMode === 'MULTI_ITEMS' ? effectiveCcDeduction : undefined,
           requester_signature_url: formRequesterSig || undefined,
           supervisor_signature_url: formSupervisorSig || undefined,
-          assigned_supervisor_id: supervisorId || undefined,
-          assigned_supervisor_name: supervisorId === '__NONE__' ? '' : (supervisorName.trim() || undefined),
+          assigned_supervisor_id: effectiveSupIdForSubmit,
+          assigned_supervisor_name: supervisorId === '__NONE__' ? '' : (effectiveSupNameForSubmit || undefined),
           resubmit: shouldResubmit,
           resubmitNote: resubmitExplanation.trim() || undefined,
         });
@@ -2685,8 +2751,8 @@ export default function NewPaymentRequestClient({
         requester_name: requesterName.trim(),
         requester_department: requesterDept.trim() || undefined,
         requester_phone: requesterPhone.trim() || undefined,
-        assigned_supervisor_id: supervisorId || undefined,
-        assigned_supervisor_name: supervisorId === '__NONE__' ? '' : (supervisorName.trim() || undefined),
+        assigned_supervisor_id: effectiveSupIdForSubmit,
+        assigned_supervisor_name: supervisorId === '__NONE__' ? '' : (effectiveSupNameForSubmit || undefined),
         supplier_name: finalSupplierName,
         supplier_tax_id: supplierTaxId.trim() || undefined,
         payment_method: paymentMethod,

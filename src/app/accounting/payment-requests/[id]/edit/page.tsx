@@ -63,6 +63,10 @@ export default async function EditPaymentRequestPage({
     : undefined;
   const initialBranch = matchedBranch ? matchedBranch.name : (request.branch || branches[0]?.name || 'สำนักงานใหญ่');
 
+  const itemApprover = Array.isArray(request.items)
+    ? (request.items as any[]).find((it) => it?.isIrregularBill && (it?.approverName?.trim?.() || it?.approverId?.trim?.()))
+    : null;
+
   return (
     <div className="flex h-screen bg-slate-50 text-gray-900 font-sans overflow-hidden">
       <Sidebar
@@ -83,8 +87,8 @@ export default async function EditPaymentRequestPage({
           initialBranch={initialBranch}
           initialDept={request.requester_department || profile.defaultDept}
           initialPhone={request.requester_phone || profile.defaultPhone}
-          initialSupervisor={request.assigned_supervisor_name || profile.supervisorName}
-          initialSupervisorId={request.assigned_supervisor_id || profile.supervisorEmpId}
+          initialSupervisor={request.assigned_supervisor_name || itemApprover?.approverName || profile.supervisorName}
+          initialSupervisorId={request.assigned_supervisor_id || itemApprover?.approverId || (request.assigned_supervisor_name || itemApprover?.approverName ? '' : profile.supervisorEmpId)}
           supervisorOptions={supervisorOptions}
           initialMyRequests={JSON.parse(JSON.stringify(myRequests || []))}
           isEditMode={true}

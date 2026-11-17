@@ -41,6 +41,8 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
+const EMPTY_SUPERVISOR_OPTIONS: SupervisorOption[] = [];
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -71,7 +73,7 @@ export default function SubstituteReceiptModal({
   defaultSigTab = 'requester',
   defaultApproverName = '',
   defaultApproverId = '',
-  supervisorOptions = [],
+  supervisorOptions = EMPTY_SUPERVISOR_OPTIONS,
   currentUserId = '',
   currentUserEmpId = null,
   signingRole = 'both',
@@ -112,7 +114,20 @@ export default function SubstituteReceiptModal({
       setIsManualApproverInput(false);
       setActiveSigTab(defaultSigTab);
       const resolvedApproverName = initialData.approverName || defaultApproverName || '';
-      const resolvedApproverId = initialData.approverId || defaultApproverId || '';
+      const matchedOptByName =
+        resolvedApproverName && supervisorOptions.length > 0
+          ? supervisorOptions.find(
+              (o) => normalizePersonName(o.fullName) === normalizePersonName(resolvedApproverName)
+            )
+          : undefined;
+      const isSameAsDefaultName =
+        Boolean(resolvedApproverName && defaultApproverName) &&
+        normalizePersonName(resolvedApproverName) === normalizePersonName(defaultApproverName);
+      const resolvedApproverId =
+        initialData.approverId ||
+        matchedOptByName?.id ||
+        ((!initialData.approverName || isSameAsDefaultName) ? defaultApproverId : '') ||
+        '';
 
       // 1. Look up cached signatures from localStorage for zero-touch auto-filling
       let cachedRequester = initialData.requesterSignatureUrl;
@@ -185,7 +200,7 @@ export default function SubstituteReceiptModal({
       }
     });
     return () => cancelAnimationFrame(raf);
-  }, [isOpen, initialData, defaultSigTab, defaultApproverName, defaultApproverId]);
+  }, [isOpen, initialData, defaultSigTab, defaultApproverName, defaultApproverId, supervisorOptions]);
 
   // Close supervisor dropdown on outside click
   useEffect(() => {
@@ -344,6 +359,13 @@ export default function SubstituteReceiptModal({
 
   const prepareDataForPdf = (): SubstituteReceiptData => {
     const data = { ...formData };
+    if (data.approverName?.trim() && !data.approverId && supervisorOptions.length > 0) {
+      const cleanApp = normalizePersonName(data.approverName);
+      const matchedOpt = supervisorOptions.find((o) => normalizePersonName(o.fullName) === cleanApp);
+      if (matchedOpt) {
+        data.approverId = matchedOpt.id;
+      }
+    }
     if (sigPadRequester.current && !sigPadRequester.current.isEmpty()) {
       data.requesterSignatureUrl = sigPadRequester.current.getTrimmedCanvas().toDataURL('image/png');
     }
@@ -962,7 +984,7 @@ export default function SubstituteReceiptModal({
                     </div>
                   </div>
 
-                  {signingRole !== 'approver' && supervisorOptions.length > 0 && (
+                  {signingRole !== 'approver' && (
                     <p className="text-[10px] text-sky-800 leading-relaxed flex items-start gap-1.5">
                       <Lightbulb size={12} className="text-sky-600 shrink-0 mt-0.5" />
                       <span>หากระบบจับคู่หัวหน้าไม่ตรง กดเลือกหัวหน้างานที่ถูกต้องได้เลย ระบบจะอัปเดตสิทธิ์อนุมัติคำขอนี้ให้คนที่เลือกทันที</span>

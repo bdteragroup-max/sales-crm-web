@@ -56,11 +56,20 @@ export default async function PaymentRequestsPage() {
     if (!isSupervisor && !canManageAllPaymentRequests(user.role)) {
       const cleanUserFullName = normalizePersonName(user.fullName);
       if (
-        requests.some(
-          (r: any) =>
-            (user.employeeId && r.assigned_supervisor_id && r.assigned_supervisor_id.trim().toUpperCase() === user.employeeId.trim().toUpperCase()) ||
-            (cleanUserFullName && normalizePersonName(r.assigned_supervisor_name) === cleanUserFullName)
-        )
+        requests.some((r: any) => {
+          const itemApp =
+            !r.assigned_supervisor_id &&
+            !r.assigned_supervisor_name &&
+            Array.isArray(r.items)
+              ? r.items.find((it: any) => it?.approverId?.trim?.() || it?.approverName?.trim?.())
+              : null;
+          const supId = r.assigned_supervisor_id || itemApp?.approverId || '';
+          const supName = r.assigned_supervisor_name || itemApp?.approverName || '';
+          return (
+            (user.employeeId && supId && supId.trim().toUpperCase() === user.employeeId.trim().toUpperCase()) ||
+            (cleanUserFullName && normalizePersonName(supName) === cleanUserFullName)
+          );
+        })
       ) {
         isSupervisor = true;
       }

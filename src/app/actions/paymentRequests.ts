@@ -154,6 +154,7 @@ export type RequisitionItem = {
   quantity?: number;
   unitPrice?: number;
   requesterSignatureUrl?: string;
+  approverId?: string;
   approverName?: string;
   approverPosition?: string;
   approverSignatureUrl?: string;
@@ -1070,23 +1071,31 @@ function buildUserScopeClause(
   values.push(currentUser.id);
 
   if (cleanUserFullName) {
-    conditions.push(`requester_name ILIKE $${idx++}`);
+    conditions.push(`REGEXP_REPLACE(TRIM(requester_name), '\\s+', ' ', 'g') ILIKE $${idx++}`);
     values.push(`%${cleanUserFullName}%`);
   }
 
-  // 2. Assigned supervisor
+  // 2. Assigned supervisor (explicit column or un-synced item-level approver fallback)
   if (currentUser.employeeId) {
-    conditions.push(`assigned_supervisor_id = $${idx++}`);
+    conditions.push(`UPPER(TRIM(assigned_supervisor_id)) = UPPER($${idx++})`);
     values.push(currentUser.employeeId.trim());
   }
 
   if (currentUser.id) {
-    conditions.push(`assigned_supervisor_id = $${idx++}`);
+    conditions.push(`TRIM(assigned_supervisor_id) = $${idx++}`);
     values.push(currentUser.id);
   }
 
   if (cleanUserFullName) {
-    conditions.push(`assigned_supervisor_name ILIKE $${idx++}`);
+    conditions.push(`REGEXP_REPLACE(TRIM(assigned_supervisor_name), '\\s+', ' ', 'g') ILIKE $${idx++}`);
+    values.push(`%${cleanUserFullName}%`);
+
+    conditions.push(
+      `(assigned_supervisor_id IS NULL AND assigned_supervisor_name IS NULL AND EXISTS (
+        SELECT 1 FROM jsonb_array_elements(COALESCE(items, '[]'::jsonb)) AS it
+        WHERE REGEXP_REPLACE(TRIM(COALESCE(it->>'approverName', '')), '\\s+', ' ', 'g') ILIKE $${idx++}
+      ))`
+    );
     values.push(`%${cleanUserFullName}%`);
   }
 
@@ -1102,7 +1111,7 @@ function buildUserScopeClause(
       .filter(Boolean)
       .map((n: string) => `%${n}%`);
     if (cleanSubPatterns.length > 0) {
-      conditions.push(`requester_name ILIKE ANY($${idx++})`);
+      conditions.push(`REGEXP_REPLACE(TRIM(requester_name), '\\s+', ' ', 'g') ILIKE ANY($${idx++})`);
       values.push(cleanSubPatterns);
     }
   }
@@ -1303,12 +1312,28 @@ export async function getPaymentRequestById(id: string) {
       (row.requester_id && row.requester_id === currentUser.id) ||
       Boolean(cleanCurrentName && normalizePersonName(row.requester_name) === cleanCurrentName);
 
+    const isItemFallbackApprover =
+      !row.assigned_supervisor_id &&
+      !row.assigned_supervisor_name &&
+      Array.isArray(row.items) &&
+      row.items.some((it: any) => {
+        const itemAppId = it?.approverId?.trim?.() || '';
+        const itemAppName = normalizePersonName(it?.approverName);
+        return (
+          (itemAppId &&
+            ((currentUser.employeeId && currentUser.employeeId.trim().toUpperCase() === itemAppId.toUpperCase()) ||
+              (currentUser.id && currentUser.id.trim() === itemAppId))) ||
+          Boolean(cleanCurrentName && itemAppName && itemAppName === cleanCurrentName)
+        );
+      });
+
     const isAssignedSup =
       (row.assigned_supervisor_id &&
         ((currentUser.employeeId &&
           currentUser.employeeId.trim().toUpperCase() === row.assigned_supervisor_id.trim().toUpperCase()) ||
           (currentUser.id && currentUser.id.trim() === row.assigned_supervisor_id.trim()))) ||
-      Boolean(cleanCurrentName && normalizePersonName(row.assigned_supervisor_name) === cleanCurrentName);
+      Boolean(cleanCurrentName && normalizePersonName(row.assigned_supervisor_name) === cleanCurrentName) ||
+      isItemFallbackApprover;
 
     const cleanRowReqName = normalizePersonName(row.requester_name);
     const isSubordinate =
@@ -1340,12 +1365,27 @@ export async function getPaymentRequestById(id: string) {
 }
 
 // Create new Payment Request
+function extractApproverFromItems(
+  items?: RequisitionItem[] | null
+): { id: string | null; name: string | null } {
+  if (!Array.isArray(items)) return { id: null, name: null };
+  for (const it of items) {
+    const rawName = (it as any)?.approverName?.trim?.() || '';
+    const rawId = (it as any)?.approverId?.trim?.() || '';
+    if (rawName || rawId) {
+      return { id: rawId || null, name: rawName || null };
+    }
+  }
+  return { id: null, name: null };
+}
+
 async function resolveAssignedSupervisorInput(params: {
   suppliedId?: string | null;
   suppliedName?: string | null;
   currentUser: Awaited<ReturnType<typeof getUser>>;
   isManagerOrAdmin: boolean;
   allowHrFallback: boolean;
+  extraBlockedName?: string | null;
 }): Promise<{ id: string | null; name: string | null }> {
   const cleanSuppliedId = params.suppliedId?.trim() || '';
   const cleanSuppliedName = params.suppliedName?.trim() || '';
@@ -1355,8 +1395,11 @@ async function resolveAssignedSupervisorInput(params: {
     return { id: null, name: null };
   }
 
+  let wasSelfRejected = false;
   if ((cleanSuppliedId && cleanSuppliedId !== '__NONE__') || cleanSuppliedName) {
     const cleanUserNorm = normalizePersonName(user?.fullName);
+    const cleanBlockedNorm = normalizePersonName(params.extraBlockedName);
+    const cleanSupNorm = normalizePersonName(cleanSuppliedName);
     const isSelfId = Boolean(
       cleanSuppliedId &&
         user &&
@@ -1364,7 +1407,9 @@ async function resolveAssignedSupervisorInput(params: {
           cleanSuppliedId === user.id)
     );
     const isSelfName = Boolean(
-      cleanSuppliedName && cleanUserNorm && normalizePersonName(cleanSuppliedName) === cleanUserNorm
+      cleanSupNorm &&
+        ((cleanUserNorm && cleanSupNorm === cleanUserNorm) ||
+          (cleanBlockedNorm && cleanSupNorm === cleanBlockedNorm))
     );
 
     if (!isSelfId && !isSelfName) {
@@ -1382,37 +1427,75 @@ async function resolveAssignedSupervisorInput(params: {
             (u) => normalizePersonName(u.fullName) === cleanTarget
           );
           if (matchedUser) {
-            resolvedId = matchedUser.employeeId || matchedUser.id;
-            resolvedName = matchedUser.fullName;
+            resolvedId = matchedUser.employeeId?.trim() || matchedUser.id;
+            resolvedName = matchedUser.fullName.trim();
+          }
+          if (!matchedUser || !matchedUser.employeeId) {
+            try {
+              const { teraDb } = await import('@/app/lib/teraDb');
+              const activeEmps = await teraDb.employees.findMany({
+                where: { is_active: true },
+                select: { emp_id: true, name: true },
+              });
+              const matchedEmp = activeEmps.find(
+                (e) => normalizePersonName(e.name) === cleanTarget
+              );
+              if (matchedEmp) {
+                resolvedId = matchedEmp.emp_id?.trim() || resolvedId;
+                if (!matchedUser && matchedEmp.name?.trim()) {
+                  resolvedName = matchedEmp.name.trim();
+                }
+              }
+            } catch (teraErr) {
+              console.warn('Error looking up supervisor in teraDb by name:', teraErr);
+            }
           }
         } else if (resolvedId && !resolvedName) {
           const matchedUser = await prisma.user.findFirst({
             where: {
               isActive: true,
-              OR: [{ employeeId: resolvedId }, { id: resolvedId }],
+              OR: [
+                { employeeId: { equals: resolvedId, mode: 'insensitive' } },
+                { id: resolvedId },
+              ],
             },
-            select: { fullName: true },
+            select: { id: true, employeeId: true, fullName: true },
           });
           if (matchedUser?.fullName) {
-            resolvedName = matchedUser.fullName;
+            resolvedId = matchedUser.employeeId?.trim() || matchedUser.id;
+            resolvedName = matchedUser.fullName.trim();
           } else {
             const { teraDb } = await import('@/app/lib/teraDb');
-            const matchedEmp = await teraDb.employees.findUnique({
-              where: { emp_id: resolvedId },
-              select: { name: true },
+            const matchedEmp = await teraDb.employees.findFirst({
+              where: { emp_id: { equals: resolvedId, mode: 'insensitive' } },
+              select: { emp_id: true, name: true },
             });
-            if (matchedEmp?.name) resolvedName = matchedEmp.name;
+            if (matchedEmp?.name) {
+              resolvedId = matchedEmp.emp_id?.trim() || resolvedId;
+              resolvedName = matchedEmp.name.trim();
+            }
           }
         }
       } catch (e) {
         console.warn('Error enriching manually chosen supervisor:', e);
       }
 
-      return { id: resolvedId, name: resolvedName };
+      // Guard again after enrichment in case suppliedId resolved to creator/requester name
+      const postNorm = normalizePersonName(resolvedName);
+      if (
+        (cleanUserNorm && postNorm && postNorm === cleanUserNorm) ||
+        (cleanBlockedNorm && postNorm && postNorm === cleanBlockedNorm)
+      ) {
+        wasSelfRejected = true;
+      } else {
+        return { id: resolvedId, name: resolvedName };
+      }
+    } else {
+      wasSelfRejected = true;
     }
   }
 
-  if (params.allowHrFallback && user?.employeeId) {
+  if ((params.allowHrFallback || (wasSelfRejected && !params.isManagerOrAdmin)) && user?.employeeId) {
     try {
       const { teraDb } = await import('@/app/lib/teraDb');
       const emp = await teraDb.employees.findUnique({
@@ -1508,12 +1591,23 @@ export async function createPaymentRequest(data: {
 
     const currentUser = await getUser();
     const isManagerOrAdmin = currentUser ? isSupervisorOrManager(currentUser.role) : false;
+    const isDirectBypass = data.assigned_supervisor_id === '__NONE__' && isManagerOrAdmin;
+    const itemApprover = extractApproverFromItems(data.items);
+    const effectiveSuppliedId = isDirectBypass
+      ? '__NONE__'
+      : (data.assigned_supervisor_id && data.assigned_supervisor_id !== '__NONE__'
+          ? data.assigned_supervisor_id
+          : itemApprover.id);
+    const effectiveSuppliedName = isDirectBypass
+      ? ''
+      : (data.assigned_supervisor_name?.trim() || itemApprover.name || undefined);
+
     const resolvedSup = await resolveAssignedSupervisorInput({
-      suppliedId: data.assigned_supervisor_id,
-      suppliedName: data.assigned_supervisor_name,
+      suppliedId: effectiveSuppliedId,
+      suppliedName: effectiveSuppliedName,
       currentUser,
       isManagerOrAdmin,
-      allowHrFallback: data.assigned_supervisor_id !== '__NONE__' && !data.assigned_supervisor_name?.trim(),
+      allowHrFallback: !isDirectBypass && !effectiveSuppliedName,
     });
     const assignedSupId = resolvedSup.id;
     const assignedSupName = resolvedSup.name;
@@ -1689,6 +1783,7 @@ async function resolveSupervisorAuthorization(
     branch?: string | null;
     assigned_supervisor_id?: string | null;
     assigned_supervisor_name?: string | null;
+    items?: RequisitionItem[] | null;
   }
 ) {
   let userDept = '';
@@ -1716,6 +1811,11 @@ async function resolveSupervisorAuthorization(
     console.warn('Error verifying supervisor department / hierarchy:', e);
   }
 
+  const itemApprover =
+    !reqRow.assigned_supervisor_id && !reqRow.assigned_supervisor_name
+      ? extractApproverFromItems(reqRow.items)
+      : { id: null, name: null };
+
   return canSupervisorApproveRequest({
     userRole: currentUser.role,
     userDepartment: userDept,
@@ -1727,8 +1827,8 @@ async function resolveSupervisorAuthorization(
     requestRequesterName: reqRow.requester_name,
     requestDepartment: reqRow.requester_department,
     requestBranch: reqRow.branch,
-    requestAssignedSupervisorId: reqRow.assigned_supervisor_id,
-    requestAssignedSupervisorName: reqRow.assigned_supervisor_name,
+    requestAssignedSupervisorId: reqRow.assigned_supervisor_id || itemApprover.id,
+    requestAssignedSupervisorName: reqRow.assigned_supervisor_name || itemApprover.name,
     isDirectSupervisor,
   });
 }
@@ -1752,7 +1852,7 @@ export async function supervisorApprovePaymentRequest(
 
   const pool = getPool();
   const currentReq = await pool.query(
-    'SELECT status, pay_number, company, branch, requester_id, requester_name, requester_department, assigned_supervisor_id, assigned_supervisor_name FROM payment_requests WHERE id = $1',
+    'SELECT status, pay_number, company, branch, requester_id, requester_name, requester_department, assigned_supervisor_id, assigned_supervisor_name, items FROM payment_requests WHERE id = $1',
     [id]
   );
   if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
@@ -1800,7 +1900,9 @@ export async function supervisorUpdateSubstituteCertificates(
     items: RequisitionItem[];
     attachments?: any[];
     approverSignatureUrl?: string | null;
+    approverId?: string | null;
     approverName?: string;
+    syncAssignedSupervisor?: boolean;
     note?: string;
   }
 ) {
@@ -1811,7 +1913,7 @@ export async function supervisorUpdateSubstituteCertificates(
 
   const pool = getPool();
   const currentReq = await pool.query(
-    'SELECT status, requester_id, requester_name, requester_department, branch, assigned_supervisor_id, assigned_supervisor_name FROM payment_requests WHERE id = $1',
+    'SELECT status, requester_id, requester_name, requester_department, branch, assigned_supervisor_id, assigned_supervisor_name, supervisor_checked_by, ap_checked_by, items FROM payment_requests WHERE id = $1',
     [id]
   );
   if (currentReq.rows.length === 0) return { success: false, error: 'ไม่พบคำขอเบิกจ่ายนี้' };
@@ -1840,34 +1942,98 @@ export async function supervisorUpdateSubstituteCertificates(
     };
   }
 
+  let nextSupId: string | null = reqRow.assigned_supervisor_id || null;
+  let nextSupName: string | null = reqRow.assigned_supervisor_name || null;
+  let nextStatus: string = reqRow.status;
+
+  const canReassignSupervisor =
+    !reqRow.supervisor_checked_by &&
+    (isOwner || isStaff) &&
+    ['PENDING_SUPERVISOR', 'RETURN_DOCUMENT', 'DRAFT', 'SUBMITTED', 'HOLD_DUPLICATE', 'DOCUMENT_CHECK', 'DUPLICATE_CHECK'].includes(
+      reqRow.status
+    );
+
+  const itemApprover = extractApproverFromItems(data.items);
+  const candidateApproverId =
+    data.approverId && data.approverId !== '__NONE__' ? data.approverId.trim() : itemApprover.id;
+  const candidateApproverName = data.approverName?.trim() || itemApprover.name || '';
+  const shouldSyncSupervisor =
+    canReassignSupervisor &&
+    Boolean(data.syncAssignedSupervisor || (!reqRow.assigned_supervisor_id && !reqRow.assigned_supervisor_name)) &&
+    Boolean(candidateApproverId || candidateApproverName);
+
+  if (shouldSyncSupervisor) {
+    const isManagerOrAdmin = isSupervisorOrManager(currentUser.role);
+    const resolvedSup = await resolveAssignedSupervisorInput({
+      suppliedId: candidateApproverId,
+      suppliedName: candidateApproverName,
+      currentUser,
+      isManagerOrAdmin,
+      allowHrFallback: !reqRow.assigned_supervisor_id && !reqRow.assigned_supervisor_name,
+      extraBlockedName: reqRow.requester_name,
+    });
+    if (resolvedSup.id || resolvedSup.name) {
+      nextSupId = resolvedSup.id;
+      nextSupName = resolvedSup.name;
+      if (reqRow.status === 'SUBMITTED' && !reqRow.ap_checked_by && !reqRow.supervisor_checked_by) {
+        nextStatus = 'PENDING_SUPERVISOR';
+      }
+    }
+  }
+
   const itemsJson = JSON.stringify(data.items || []);
   const attachmentsJson = data.attachments ? JSON.stringify(data.attachments) : null;
-  const signerName = data.approverName || currentUser.fullName;
+  const supChanged =
+    nextSupId !== (reqRow.assigned_supervisor_id || null) ||
+    nextSupName !== (reqRow.assigned_supervisor_name || null);
+  const performedByName =
+    !isOwner && !data.syncAssignedSupervisor && data.approverSignatureUrl
+      ? (data.approverName?.trim() || currentUser.fullName)
+      : (currentUser.fullName || data.approverName?.trim() || 'ผู้ใช้งาน');
 
   await pool.query(
     `UPDATE payment_requests
      SET items = $1::jsonb,
          attachments = COALESCE($2::jsonb, attachments),
          supervisor_signature_url = COALESCE($3, supervisor_signature_url),
+         assigned_supervisor_id = $4,
+         assigned_supervisor_name = $5,
+         status = $6,
          updated_at = NOW()
-     WHERE id = $4`,
-    [itemsJson, attachmentsJson, data.approverSignatureUrl || null, id]
+     WHERE id = $7`,
+    [itemsJson, attachmentsJson, data.approverSignatureUrl || null, nextSupId, nextSupName, nextStatus, id]
   );
+
+  const defaultLogNote = supChanged && nextSupName
+    ? `อัปเดตเอกสาร บก.111 และตั้งหัวหน้างานผู้อนุมัติเป็น ${nextSupName}`
+    : 'ลงนามและอัปเดตเอกสารใบรับรองแทนใบเสร็จ (บก.111)';
+  const logNote = supChanged && nextSupName && data.note && !data.note.includes(nextSupName)
+    ? `${data.note} (ผู้อนุมัติ: ${nextSupName})`
+    : (data.note || defaultLogNote);
 
   await pool.query(
     `INSERT INTO payment_request_logs (payment_request_id, action, performed_by, from_status, to_status, notes)
-     VALUES ($1, 'SUPERVISOR_SIGNED_CERT', $2, $3, $3, $4)`,
+     VALUES ($1, $2, $3, $4, $5, $6)`,
     [
       id,
-      signerName,
+      !isOwner && !data.syncAssignedSupervisor && data.approverSignatureUrl
+        ? 'SUPERVISOR_SIGNED_CERT'
+        : 'UPDATED_SUBSTITUTE_CERT',
+      performedByName,
       reqRow.status,
-      data.note || 'ลงนามและอัปเดตเอกสารใบรับรองแทนใบเสร็จ (บก.111)',
+      nextStatus,
+      logNote,
     ]
   );
 
   revalidatePath('/accounting/payment-requests');
   revalidatePath(`/accounting/payment-requests/${id}`);
-  return { success: true };
+  return {
+    success: true,
+    assigned_supervisor_id: nextSupId,
+    assigned_supervisor_name: nextSupName,
+    status: nextStatus,
+  };
 }
 
 // Department Supervisor Return (Send back to Requester for revision)
@@ -1888,7 +2054,7 @@ export async function supervisorReturnPaymentRequest(
 
   const pool = getPool();
   const currentReq = await pool.query(
-    'SELECT status, pay_number, company, branch, requester_id, requester_name, requester_department, assigned_supervisor_id, assigned_supervisor_name FROM payment_requests WHERE id = $1',
+    'SELECT status, pay_number, company, branch, requester_id, requester_name, requester_department, assigned_supervisor_id, assigned_supervisor_name, items FROM payment_requests WHERE id = $1',
     [id]
   );
   if (currentReq.rows.length === 0) return { success: false, error: 'Request not found' };
@@ -2747,21 +2913,36 @@ export async function updateFullPaymentRequest(
   }
 
   const isManagerOrAdmin = isSupervisorOrManager(currentUser.role);
+  const itemApprover = extractApproverFromItems(data.items);
+  const isDirectBypass = data.assigned_supervisor_id === '__NONE__' && isManagerOrAdmin;
   const hasSupervisorInput =
-    data.assigned_supervisor_id !== undefined || data.assigned_supervisor_name !== undefined;
+    data.assigned_supervisor_id !== undefined ||
+    data.assigned_supervisor_name !== undefined ||
+    Boolean(itemApprover.id || itemApprover.name);
   let nextSupId: string | null = current.assigned_supervisor_id || null;
   let nextSupName: string | null = current.assigned_supervisor_name || null;
 
   if (hasSupervisorInput) {
+    const effectiveSuppliedId = isDirectBypass
+      ? '__NONE__'
+      : (data.assigned_supervisor_id && data.assigned_supervisor_id !== '__NONE__'
+          ? data.assigned_supervisor_id
+          : itemApprover.id);
+    const effectiveSuppliedName = isDirectBypass
+      ? ''
+      : (data.assigned_supervisor_name?.trim() || itemApprover.name || undefined);
+
     const resolved = await resolveAssignedSupervisorInput({
-      suppliedId: data.assigned_supervisor_id,
-      suppliedName: data.assigned_supervisor_name,
+      suppliedId: effectiveSuppliedId,
+      suppliedName: effectiveSuppliedName,
       currentUser,
       isManagerOrAdmin,
-      allowHrFallback: false,
+      allowHrFallback: !isDirectBypass && !effectiveSuppliedName && !current.assigned_supervisor_name,
     });
-    nextSupId = resolved.id;
-    nextSupName = resolved.name;
+    if (isDirectBypass || resolved.id || resolved.name) {
+      nextSupId = resolved.id;
+      nextSupName = resolved.name;
+    }
   }
 
   const hasAssignedSup = Boolean(nextSupId || nextSupName);
