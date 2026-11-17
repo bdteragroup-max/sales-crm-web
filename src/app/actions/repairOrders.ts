@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { getUser } from "@/app/lib/dal";
 import { checkAndAwardServiceGold } from "@/app/actions/coins";
 import { nonEmptyTrimmed, stringToAdvisoryLockIds } from "@/app/lib/job-utils";
+import { buildThaiPersonNameVariants } from "@/app/lib/personName";
 
 type DbTxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
@@ -292,7 +293,15 @@ export async function updateRepairOrderStatus(jobId: string, newStep: string) {
     if (newStep === "closed" && job.sellerName) {
       try {
         const { getLineUserIdByEmpId, pushLineMessage, customRepairClosedMessage } = await import('@/app/lib/lineNotify');
-        const user = await prisma.user.findFirst({ where: { fullName: job.sellerName } });
+        const sellerVariants = buildThaiPersonNameVariants(job.sellerName);
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { fullName: { in: sellerVariants } },
+              { employeeSale: { fullName: { in: sellerVariants } } },
+            ],
+          },
+        });
         
         if (user) {
           try {

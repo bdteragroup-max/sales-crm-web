@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { isSuperUser, isReadOnlyExecutive, isMarketingManager as checkMarketingManager, isSalesOrMarketingManager, isSalesRepOrSalesManagerRole } from '@/app/lib/roleHelper';
 import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
+import { buildThaiPersonNameVariants } from '@/app/lib/personName';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
 
 export const dynamic = 'force-dynamic';
@@ -151,6 +152,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         employeeId: true,
         employeeSale: {
           select: {
+            fullName: true,
             branch: true,
             position: true,
             department: true
@@ -644,14 +646,29 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
                     prisma.job.groupBy({
                       by: ['currentStep'],
                       _count: { id: true },
-                      where: {
-                        OR: [
-                          { sellerName: { in: salesReps.map((r: any) => r.fullName).filter(Boolean) } },
-                          { sellerName: user.fullName ?? "" },
-                          { sellerName: null },
-                          { sellerName: "" }]
-
-                      }
+                      where: (() => {
+                        const jobOwnerNames = buildThaiPersonNameVariants(
+                          user.fullName,
+                          user.employeeSale?.fullName,
+                          ...salesReps.flatMap(
+                            (r: { fullName?: string | null; employeeSale?: { fullName?: string | null } | null }) => [
+                              r.fullName,
+                              r.employeeSale?.fullName,
+                            ]
+                          )
+                        );
+                        const jobOwnerIds = isManager || isSuper
+                          ? Array.from(new Set([...subordinateIds, user.id]))
+                          : [user.id];
+                        return {
+                          OR: [
+                            ...(jobOwnerNames.length > 0 ? [{ sellerName: { in: jobOwnerNames } }] : []),
+                            ...(jobOwnerIds.length > 0 ? [{ quotation: { salespersonId: { in: jobOwnerIds } } }] : []),
+                            { sellerName: null },
+                            { sellerName: "" },
+                          ],
+                        };
+                      })()
                     }); const allActiveQuotations = await
                       // 25. All Active Quotations (for Aging Deals, independent of date filter)
                       prisma.quotation.findMany({

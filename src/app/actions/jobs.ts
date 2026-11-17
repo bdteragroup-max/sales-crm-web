@@ -20,6 +20,7 @@ import {
   pushLineMessage,
 } from "@/app/lib/lineNotify";
 import { isCompleted } from "@/app/lib/job-workflow";
+import { buildThaiPersonNameVariants } from "@/app/lib/personName";
 import { getUser } from "@/app/lib/dal";
 import {
   computeDefaultDueDateByPaymentMethod,
@@ -928,8 +929,15 @@ export async function confirmJobStep(payload: {
       
       const salesIncluded = nextStep.department.includes('sales');
       if (salesIncluded && job.sellerName) {
+         const sellerVariants = buildThaiPersonNameVariants(job.sellerName);
          const seller = await prisma.user.findFirst({
-           where: { fullName: job.sellerName, isActive: true }
+           where: {
+             isActive: true,
+             OR: [
+               { fullName: { in: sellerVariants } },
+               { employeeSale: { fullName: { in: sellerVariants } } },
+             ],
+           },
          });
          if (seller && !targetUsers.find(u => u.id === seller.id)) {
            targetUsers.push(seller);

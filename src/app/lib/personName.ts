@@ -133,46 +133,49 @@ export function isSamePersonName(
 }
 
 /**
- * Generates common stored string variants of a Thai full name for Prisma `in` queries
- * so historical records with/without prefix spaces or title changes remain accessible.
+ * Generates common stored string variants of one or more Thai full names for Prisma `in` queries
+ * so historical records with single/double spaces, missing prefix spaces, or title changes remain accessible.
  */
 export function buildThaiPersonNameVariants(
-  fullName: string | null | undefined
+  ...fullNames: Array<string | null | undefined>
 ): string[] {
-  if (!fullName) return [];
-  const trimmed = fullName.trim();
-  if (!trimmed) return [];
+  const variants = new Set<string>();
 
-  const singleSpace = trimmed.replace(/\s+/g, " ");
-  const variants = new Set<string>([
-    fullName,
-    trimmed,
-    singleSpace,
-    singleSpace.replace(/\s+/g, "  "),
-  ]);
+  for (const fullName of fullNames) {
+    if (!fullName) continue;
+    const trimmed = fullName.trim();
+    if (!trimmed) continue;
 
-  // Core name without leading honorific or trailing nickname
-  let core = singleSpace.replace(LEADING_HONORIFIC_REGEX, "").trim();
-  const coreNoParen = core.replace(/\s*\([^)]*\)\s*$/, "").trim();
-  if (/\S+\s+\S+/.test(coreNoParen)) {
-    core = coreNoParen;
-  }
+    const singleSpace = trimmed.replace(/\s+/g, " ");
+    variants.add(fullName);
+    variants.add(trimmed);
+    variants.add(singleSpace);
+    variants.add(singleSpace.replace(/\s+/g, "  "));
 
-  if (core) {
-    variants.add(core);
-    const isMale = /^นาย(?:\s|$|[\u0E01-\u0E2E\u0E40-\u0E44])/.test(singleSpace) && !/^นาง/.test(singleSpace);
-    if (isMale) {
-      variants.add(`นาย${core}`);
-      variants.add(`นาย ${core}`);
-    } else {
-      variants.add(`นางสาว${core}`);
-      variants.add(`นางสาว ${core}`);
-      variants.add(`นาง${core}`);
-      variants.add(`นาง ${core}`);
-      variants.add(`น.ส.${core}`);
-      variants.add(`น.ส. ${core}`);
-      variants.add(`นาย${core}`);
-      variants.add(`นาย ${core}`);
+    // Core name without leading honorific or trailing nickname
+    let core = singleSpace.replace(LEADING_HONORIFIC_REGEX, "").trim();
+    const coreNoParen = core.replace(/\s*\([^)]*\)\s*$/, "").trim();
+    if (/\S+\s+\S+/.test(coreNoParen)) {
+      core = coreNoParen;
+    }
+
+    if (core) {
+      const coreVariants = Array.from(
+        new Set([core, core.replace(/\s+/g, "  ")])
+      );
+      const isMale =
+        /^นาย(?:\s|$|[\u0E01-\u0E2E\u0E40-\u0E44])/.test(singleSpace) &&
+        !/^นาง/.test(singleSpace);
+      const prefixes = isMale ? ["นาย"] : ["นางสาว", "นาง", "น.ส.", "นาย"];
+
+      for (const c of coreVariants) {
+        variants.add(c);
+        for (const prefix of prefixes) {
+          variants.add(`${prefix}${c}`);
+          variants.add(`${prefix} ${c}`);
+          variants.add(`${prefix}  ${c}`);
+        }
+      }
     }
   }
 

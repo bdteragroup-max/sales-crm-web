@@ -69,30 +69,39 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
     const teamUsers = await prisma.user.findMany({
       where: { employeeId: { in: subEmpIds }, isActive: true },
-      select: { fullName: true }
+      select: {
+        id: true,
+        fullName: true,
+        employeeSale: { select: { fullName: true } },
+      }
     });
-    const teamFullNames = Array.from(
-      new Set(
-        teamUsers.flatMap((u) => buildThaiPersonNameVariants(u.fullName))
-      )
+    const teamUserIds = Array.from(new Set([user.id, ...teamUsers.map((u) => u.id)]));
+    const teamFullNames = buildThaiPersonNameVariants(
+      user.fullName,
+      user.employeeSale?.fullName,
+      teraEmployee?.name,
+      ...teamUsers.flatMap((u) => [u.fullName, u.employeeSale?.fullName])
     );
-
-    const userNames = buildThaiPersonNameVariants(user.fullName);
 
     whereClause = {
       OR: [
-        { sellerName: { in: teamFullNames } },
-        ...userNames.map((name) => ({ sellerName: name })),
+        ...(teamFullNames.length > 0 ? [{ sellerName: { in: teamFullNames } }] : []),
+        { quotation: { salespersonId: { in: teamUserIds } } },
         { sellerName: null },
         { sellerName: "" },
       ],
     };
   } else if (isSales && !isServiceManager) {
-    const userNames = buildThaiPersonNameVariants(user.fullName);
+    const userNames = buildThaiPersonNameVariants(
+      user.fullName,
+      user.employeeSale?.fullName,
+      teraEmployee?.name
+    );
 
     whereClause = {
       OR: [
-        ...userNames.map((name) => ({ sellerName: name })),
+        ...(userNames.length > 0 ? [{ sellerName: { in: userNames } }] : []),
+        { quotation: { salespersonId: user.id } },
         { sellerName: null },
         { sellerName: "" },
       ],
