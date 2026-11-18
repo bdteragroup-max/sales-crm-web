@@ -17,8 +17,8 @@ export interface SurveyCompanyMeta {
 export const SURVEY_COMPANY_OPTIONS: SurveyCompanyMeta[] = [
   {
     code: 'TP',
-    shortName: 'เทอรา เพาเวอร์',
-    thName: 'บริษัท เทอรา เพาเวอร์ จำกัด',
+    shortName: 'เทอรา พาวเวอร์',
+    thName: 'บริษัท เทอรา พาวเวอร์ จำกัด',
     enName: 'TERA Power Co., Ltd.',
     address: '39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250',
     phone: '+66(0) 2328-0801-3',

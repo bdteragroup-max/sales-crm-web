@@ -156,6 +156,27 @@ export default function SubstituteReceiptModal({
       setIsDrawingRequester(!cachedRequester);
       setIsDrawingApprover(!cachedApprover);
 
+      const resolvedCompanyName = (initialData.companyName || 'บจก.เทอรา กรุ้ป')
+        .replace(/เพาเวอร์/g, 'พาวเวอร์');
+      const resolvedCompanyCode =
+        initialData.companyCode ||
+        (resolvedCompanyName.includes('อิเล็กทริค')
+          ? 'TE'
+          : resolvedCompanyName.includes('พาวเวอร์')
+          ? 'TP'
+          : 'TG');
+      const sharedFormFields: Partial<SubstituteReceiptData> = {
+        startDate: initialData.startDate || initialData.billDate,
+        endDate: initialData.endDate || initialData.billDate,
+        companyName: resolvedCompanyName,
+        companyCode: resolvedCompanyCode,
+        approverId: resolvedApproverId,
+        approverName: resolvedApproverName,
+        approverPosition: initialData.approverPosition || 'หัวหน้างาน',
+        requesterSignatureUrl: cachedRequester,
+        approverSignatureUrl: cachedApprover,
+      };
+
       if (initialData.items && initialData.items.length > 0) {
         const lineItems = initialData.items.map((it) => {
           const parsed = parseDescriptionQtyAndPrice(it.description || '', it.amount);
@@ -171,15 +192,7 @@ export default function SubstituteReceiptModal({
           ...initialData,
           items: lineItems,
           amount: total,
-          startDate: initialData.startDate || initialData.billDate,
-          endDate: initialData.endDate || initialData.billDate,
-          companyName: initialData.companyName || 'บจก.เทอรา กรุ้ป',
-          companyCode: initialData.companyCode || (initialData.companyName?.includes('อิเล็กทริค') ? 'TE' : initialData.companyName?.includes('พาวเวอร์') ? 'TP' : 'TG'),
-          approverId: resolvedApproverId,
-          approverName: resolvedApproverName,
-          approverPosition: initialData.approverPosition || 'หัวหน้างาน',
-          requesterSignatureUrl: cachedRequester,
-          approverSignatureUrl: cachedApprover,
+          ...sharedFormFields,
         });
       } else {
         const parsed = parseDescriptionQtyAndPrice(initialData.description || '', initialData.amount);
@@ -187,15 +200,7 @@ export default function SubstituteReceiptModal({
           ...initialData,
           quantity: initialData.quantity !== undefined && initialData.quantity > 0 ? initialData.quantity : parsed.quantity,
           unitPrice: initialData.unitPrice !== undefined && initialData.unitPrice > 0 ? initialData.unitPrice : parsed.unitPrice,
-          startDate: initialData.startDate || initialData.billDate,
-          endDate: initialData.endDate || initialData.billDate,
-          companyName: initialData.companyName || 'บจก.เทอรา กรุ้ป',
-          companyCode: initialData.companyCode || (initialData.companyName?.includes('อิเล็กทริค') ? 'TE' : initialData.companyName?.includes('พาวเวอร์') ? 'TP' : 'TG'),
-          approverId: resolvedApproverId,
-          approverName: resolvedApproverName,
-          approverPosition: initialData.approverPosition || 'หัวหน้างาน',
-          requesterSignatureUrl: cachedRequester,
-          approverSignatureUrl: cachedApprover,
+          ...sharedFormFields,
         });
       }
     });

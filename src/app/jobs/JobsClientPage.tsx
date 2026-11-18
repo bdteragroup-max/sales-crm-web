@@ -173,7 +173,7 @@ const COMPANY_CODES = ["TP", "TG", "TE"] as const;
 export function normalizeCompanyCode(code?: string | null): "TP" | "TG" | "TE" {
   if (!code) return "TG";
   const clean = code.trim().toUpperCase();
-  if (clean === "TP" || clean.startsWith("TP") || clean.includes("POWER") || clean.includes("เพาเวอร์")) return "TP";
+  if (clean === "TP" || clean.startsWith("TP") || clean.includes("POWER") || clean.includes("เพาเวอร์") || clean.includes("พาวเวอร์")) return "TP";
   if (clean === "TE" || clean.startsWith("TE ") || clean.startsWith("TE-") || clean.includes("ELECTRIC") || clean.includes("อิเล็คทริค") || clean.includes("อิเล็กทริค")) return "TE";
   return "TG";
 }

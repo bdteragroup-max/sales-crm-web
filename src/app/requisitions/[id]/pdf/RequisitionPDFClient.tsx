@@ -55,9 +55,9 @@ const companyInfoMap: Record<
     logoUrl: "/6.png",
   },
   TP: {
-    th: "บริษัท เทอรา เพาเวอร์ จำกัด",
+    th: "บริษัท เทอรา พาวเวอร์ จำกัด",
     en: "TERA POWER CO., LTD.",
-    short: "เทอรา เพาเวอร์ (TP)",
+    short: "เทอรา พาวเวอร์ (TP)",
     taxId: "0105564011223",
     address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซอย 28 แขวงดอกไม้ เขตประเวศ กรุงเทพมหานคร 10250",
     telFax: "โทรศัพท์: 02-328-0801-3  โทรสาร: 02-328-0804",
@@ -685,7 +685,7 @@ export default function RequisitionPDFClient({
           >
             {isPower ? "✓" : ""}
           </span>
-          <span style={{ fontWeight: isPower ? "bold" : "normal" }}>เทอรา เพาเวอร์ (TP)</span>
+          <span style={{ fontWeight: isPower ? "bold" : "normal" }}>เทอรา พาวเวอร์ (TP)</span>
         </div>
       </div>
     </div>

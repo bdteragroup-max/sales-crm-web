@@ -167,7 +167,9 @@ export function renderSubstituteReceiptHtml(data: SubstituteReceiptData): string
   const position = escapeHtmlText((data.requesterPosition || '').trim());
   const approver = escapeHtmlText((data.approverName || '').trim());
   const approverPos = escapeHtmlText((data.approverPosition || 'หัวหน้างาน').trim());
-  const company = escapeHtmlText((data.companyName || 'บจก.เทอรา พาวเวอร์').trim());
+  const company = escapeHtmlText(
+    (data.companyName || 'บจก.เทอรา พาวเวอร์').trim().replace(/เพาเวอร์/g, 'พาวเวอร์')
+  );
   const startDate = escapeHtmlText(formatThaiBuddhistDate(data.startDate || data.billDate || new Date()));
   const endDate = escapeHtmlText(formatThaiBuddhistDate(data.endDate || data.billDate || new Date()));
   const approverSigSafe = sanitizeImageUrl(data.approverSignatureUrl);
