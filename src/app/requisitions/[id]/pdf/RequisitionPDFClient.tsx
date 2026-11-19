@@ -2,6 +2,11 @@
 
 import React, { useState, useEffect } from "react"
 import RequisitionPrintToolbar from "./RequisitionPrintToolbar"
+import {
+  formatTransportRoleSubtitle,
+  getRequisitionCompanyCodes,
+  type RequisitionCompanyCode,
+} from "@/app/lib/requisitionUtils"
 
 interface RequisitionItem {
   detail?: string
@@ -112,10 +117,11 @@ function chunkRequisitionItems(
   //   Available for rows: ~784px in Portrait (up to 30 single-line items or 12 multi-line items)
   // - Middle Page: Continuation Header + Table + Continuation Notice + Footer
   //   Available for rows: ~940px in Portrait (up to 38 single-line items)
-  const maxSingleWeight = isPortrait ? 28.0 : 13.5
-  const maxSingleItems = isPortrait ? 28 : 11
+  // - Single Page: Header + Options + Info + Table + Total + Terms + 6 Signatures + Footer
+  const maxSingleWeight = isPortrait ? 24.5 : 13.5
+  const maxSingleItems = isPortrait ? 24 : 11
   const maxPage1Weight = isPortrait ? 32.0 : 17.0
-  const maxLastPageWeight = isPortrait ? 30.0 : 15.5
+  const maxLastPageWeight = isPortrait ? 26.5 : 15.5
   const maxMiddleWeight = isPortrait ? 38.0 : 22.0
 
   const weights = items.map(getItemWeight)
@@ -213,26 +219,23 @@ export default function RequisitionPDFClient({
     ? (requisition.returnRequestPhotos as string[])
     : []
 
-  // Company detection
-  const compRaw = (requisition.company || "").trim().toLowerCase()
-  const isPower =
-    compRaw === "power" ||
-    compRaw === "tp" ||
-    compRaw.includes("power") ||
-    compRaw.includes("เพาเวอร์") ||
-    compRaw.includes("พาวเวอร์")
+  // Company detection (supports 1 to 3 affiliated companies)
+  const parsedCompanyCodes = getRequisitionCompanyCodes(requisition.company)
+  const selectedCompanyCodes: RequisitionCompanyCode[] =
+    parsedCompanyCodes.length > 0 ? parsedCompanyCodes : ["TG"]
 
-  const isElectric =
-    compRaw === "electric" ||
-    compRaw === "te" ||
-    compRaw.includes("electric") ||
-    compRaw.includes("อิเล็คทริค") ||
-    compRaw.includes("อิเล็กทริค")
+  const isPower = selectedCompanyCodes.includes("TP")
+  const isElectric = selectedCompanyCodes.includes("TE")
+  const isGroup = selectedCompanyCodes.includes("TG")
 
-  const isGroup = !isPower && !isElectric
-
-  const currentCompanyKey = isPower ? "TP" : isElectric ? "TE" : "TG"
-  const currentCompany = companyInfoMap[currentCompanyKey]
+  const selectedCompanies = selectedCompanyCodes.map((code) => companyInfoMap[code])
+  const currentCompany = selectedCompanies[0]
+  const isMultiCompany = selectedCompanies.length > 1
+  const combinedCompanyTh = selectedCompanies.map((c) => c.th).join(" / ")
+  const combinedCompanyEn = selectedCompanies.map((c) => c.en).join(" / ")
+  const combinedTaxId = isMultiCompany
+    ? selectedCompanyCodes.map((code) => `${code} ${companyInfoMap[code].taxId}`).join(" • ")
+    : currentCompany.taxId
 
   // Date formatting helpers
   const formatThaiDate = (dateVal?: Date | string | null) => {
@@ -389,44 +392,56 @@ export default function RequisitionPDFClient({
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
+            gap: isMultiCompany ? "4px" : "0px",
             flexShrink: 0,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={currentCompany.logoUrl}
-            alt={currentCompany.en}
-            className="page1-logo-img"
-            style={{
-              maxHeight: isPortrait ? "42px" : "46px",
-              maxWidth: isPortrait ? "80px" : "90px",
-              width: "auto",
-              height: "auto",
-              objectFit: "contain",
-            }}
-          />
+          {selectedCompanies.map((comp) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={comp.short}
+              src={comp.logoUrl}
+              alt={comp.en}
+              className="page1-logo-img"
+              style={{
+                maxHeight: isMultiCompany
+                  ? (isPortrait ? "30px" : "34px")
+                  : (isPortrait ? "42px" : "46px"),
+                maxWidth: isMultiCompany
+                  ? (isPortrait ? "48px" : "54px")
+                  : (isPortrait ? "80px" : "90px"),
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          ))}
         </div>
 
         <div style={{ lineHeight: 1.2 }}>
           <div
             style={{
-              fontSize: isPortrait ? "14px" : "15px",
+              fontSize: isMultiCompany
+                ? (isPortrait ? "11px" : "12px")
+                : (isPortrait ? "14px" : "15px"),
               fontWeight: "bold",
               color: "#000000",
               letterSpacing: "-0.2px",
             }}
           >
-            {currentCompany.th}
+            {combinedCompanyTh}
           </div>
           <div
             style={{
-              fontSize: isPortrait ? "9.5px" : "10px",
+              fontSize: isMultiCompany
+                ? (isPortrait ? "8px" : "8.5px")
+                : (isPortrait ? "9.5px" : "10px"),
               fontWeight: 600,
               color: "#333333",
               marginBottom: "1px",
             }}
           >
-            {currentCompany.en}
+            {combinedCompanyEn}
           </div>
           <div style={{ fontSize: isPortrait ? "8px" : "8.5px", color: "#444444" }}>
             {currentCompany.address}
@@ -435,7 +450,7 @@ export default function RequisitionPDFClient({
             {currentCompany.telFax}
           </div>
           <div style={{ fontSize: isPortrait ? "8px" : "8.5px", color: "#000000", fontWeight: 600, marginTop: "1px" }}>
-            เลขประจำตัวผู้เสียภาษีอากร: <span>{currentCompany.taxId}</span> ({currentCompany.branchTitle})
+            เลขประจำตัวผู้เสียภาษีอากร: <span>{combinedTaxId}</span> ({currentCompany.branchTitle})
           </div>
         </div>
       </div>
@@ -954,34 +969,38 @@ export default function RequisitionPDFClient({
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <div
             style={{
-              width: "48px",
+              minWidth: "48px",
               height: isPortrait ? "30px" : "28px",
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-start",
+              gap: isMultiCompany ? "3px" : "0px",
               flexShrink: 0,
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={currentCompany.logoUrl}
-              alt={currentCompany.en}
-              className="continuation-logo-img"
-              style={{
-                maxHeight: isPortrait ? "30px" : "28px",
-                maxWidth: "48px",
-                width: "auto",
-                height: "auto",
-                objectFit: "contain",
-              }}
-            />
+            {selectedCompanies.map((comp) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={comp.short}
+                src={comp.logoUrl}
+                alt={comp.en}
+                className="continuation-logo-img"
+                style={{
+                  maxHeight: isMultiCompany ? "22px" : (isPortrait ? "30px" : "28px"),
+                  maxWidth: isMultiCompany ? "32px" : "48px",
+                  width: "auto",
+                  height: "auto",
+                  objectFit: "contain",
+                }}
+              />
+            ))}
           </div>
           <div>
-            <div style={{ fontSize: isPortrait ? "12px" : "13px", fontWeight: "bold", color: "#000000", lineHeight: 1.15 }}>
-              {currentCompany.th}
+            <div style={{ fontSize: isMultiCompany ? (isPortrait ? "10px" : "11px") : (isPortrait ? "12px" : "13px"), fontWeight: "bold", color: "#000000", lineHeight: 1.15 }}>
+              {combinedCompanyTh}
             </div>
             <div style={{ fontSize: "8px", color: "#555555" }}>
-              {currentCompany.branchTitle} • เลขประจำตัวผู้เสียภาษี: {currentCompany.taxId}
+              {currentCompany.branchTitle} • เลขประจำตัวผู้เสียภาษี: {combinedTaxId}
             </div>
           </div>
         </div>
@@ -1290,10 +1309,13 @@ export default function RequisitionPDFClient({
     </div>
   )
 
-  // 7. FORMAL SIGNATURES AUDIT SECTION
+  // 7. FORMAL SIGNATURES AUDIT SECTION (6-PARTY: Requester, Approver, Store, Accounting, Transport, Site Receiver)
   const renderSignatures = () => {
     const hasHandoverSigs = Boolean(
-      requisition.storeStaffSignatureUrl || requisition.receiverSignatureUrl
+      requisition.storeStaffSignatureUrl ||
+        requisition.accountingSignatureUrl ||
+        requisition.transportSignatureUrl ||
+        requisition.receiverSignatureUrl
     )
     if (isBorrow && !hasHandoverSigs) {
       return (
@@ -1430,258 +1452,173 @@ export default function RequisitionPDFClient({
       )
     }
 
+    const sixParties = [
+      {
+        title: isBorrow ? "1. ผู้ขอยืม (Borrower)" : "1. ผู้ขอเบิก (Requester)",
+        sigUrl: requisition.requesterSignatureUrl,
+        alt: "Requester Signature",
+        name: requisition.requester?.fullName || "....................................",
+        position:
+          requisition.requester?.position ||
+          (isBorrow ? "พนักงานขอยืมอุปกรณ์" : "พนักงานขอเบิก"),
+        dateLabel: `วันที่: ${requisitionDateStr}`,
+      },
+      {
+        title: "2. ผู้อนุมัติ (Approver)",
+        sigUrl: requisition.approverSignatureUrl,
+        alt: "Approver Signature",
+        name: requisition.approver?.fullName || "....................................",
+        position:
+          requisition.approver?.position ||
+          requisition.approver?.role ||
+          "ผู้จัดการ / ผู้อนุมัติ",
+        dateLabel: `วันที่: ${
+          requisition.approverSignatureUrl
+            ? formatThaiDate(requisition.updatedAt)
+            : "...../...../........."
+        }`,
+      },
+      {
+        title: "3. ผู้จ่ายของ (Storekeeper)",
+        sigUrl: requisition.storeStaffSignatureUrl,
+        alt: "Store Staff Signature",
+        name: requisition.storeStaffName || "....................................",
+        position: "เจ้าหน้าที่คลังสินค้า",
+        dateLabel: `วันที่จ่าย: ${
+          requisition.dispensedAt
+            ? formatThaiDate(requisition.dispensedAt)
+            : "...../...../........."
+        }`,
+      },
+      {
+        title: "4. บัญชีรับทราบ (Accounting)",
+        sigUrl: requisition.accountingSignatureUrl,
+        alt: "Accounting Signature",
+        name: requisition.accountingName || "....................................",
+        position: "แผนกบัญชี (รับทราบปล่อยของออก)",
+        dateLabel: `วันที่: ${
+          requisition.accountingSignedAt
+            ? formatThaiDate(requisition.accountingSignedAt)
+            : "...../...../........."
+        }`,
+      },
+      {
+        title: "5. ขนส่งรับสินค้า (Transport)",
+        sigUrl: requisition.transportSignatureUrl,
+        alt: "Transport Signature",
+        name: requisition.transportName || "....................................",
+        position: requisition.transportSignatureUrl
+          ? formatTransportRoleSubtitle(
+              requisition.transportType,
+              requisition.transportCompany
+            )
+          : "ขนส่งบริษัท / ขนส่งนอก",
+        dateLabel: `วันที่รับ: ${
+          requisition.transportSignedAt
+            ? formatThaiDate(requisition.transportSignedAt)
+            : "...../...../........."
+        }`,
+      },
+      {
+        title: isBorrow
+          ? "6. ผู้รับมอบอุปกรณ์ (Receiver)"
+          : "6. ผู้รับหน้างาน (Site Receiver)",
+        sigUrl: requisition.receiverSignatureUrl,
+        alt: "Site Receiver Signature",
+        name: requisition.receiverName || "....................................",
+        position: isBorrow
+          ? "ผู้รับมอบเครื่องมือและอุปกรณ์"
+          : requisition.receiverName
+          ? "ผู้ตรวจรับสินค้าหน้างาน"
+          : "ผู้รับมอบสินค้าหน้างาน",
+        dateLabel: `วันที่รับ: ${
+          requisition.receivedAt
+            ? formatThaiDate(requisition.receivedAt)
+            : "...../...../........."
+        }`,
+      },
+    ]
+
     return (
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: isPortrait ? "repeat(3, 1fr)" : "repeat(6, 1fr)",
           gap: "4px",
           marginTop: "1px",
         }}
       >
-        {/* Box 1: ผู้ขอเบิก */}
-        <div
-          style={{
-            border: "1px solid #000000",
-            backgroundColor: "#ffffff",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
+        {sixParties.map((box) => (
           <div
+            key={box.title}
             style={{
-              backgroundColor: "#f1f5f9",
-              padding: "1.5px 3px",
-              fontSize: isPortrait ? "8.5px" : "9px",
-              fontWeight: "bold",
-              color: "#000000",
-              borderBottom: "1px solid #000000",
-            }}
-          >
-            {isBorrow ? "1. ผู้ขอยืม (Borrower)" : "1. ผู้ขอเบิก (Requester)"}
-          </div>
-
-          <div
-            style={{
-              height: isPortrait ? "34px" : "38px",
+              border: "1px solid #000000",
+              backgroundColor: "#ffffff",
+              textAlign: "center",
               display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-              margin: "1px 0",
+              flexDirection: "column",
+              justifyContent: "space-between",
             }}
           >
-            {requisition.requesterSignatureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={requisition.requesterSignatureUrl}
-                alt="Requester Signature"
-                className="signature-img"
-                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", width: "auto", height: "auto", objectFit: "contain" }}
-              />
-            ) : (
-              <div style={{ height: "14px" }}></div>
-            )}
-          </div>
-
-          <div style={{ borderBottom: "1px dotted #000000", width: "88%", margin: "0 auto 1.5px" }}></div>
-
-          <div style={{ padding: "0 2px 2px" }}>
-            <div style={{ fontSize: isPortrait ? "8.5px" : "9px", fontWeight: "bold", color: "#000000" }}>
-              ( {requisition.requester?.fullName || "...................................."} )
+            <div
+              style={{
+                backgroundColor: "#f1f5f9",
+                padding: "1.5px 3px",
+                fontSize: isPortrait ? "8px" : "8px",
+                fontWeight: "bold",
+                color: "#000000",
+                borderBottom: "1px solid #000000",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {box.title}
             </div>
-            <div style={{ fontSize: "7.5px", color: "#444444", marginTop: "0.5px" }}>
-              ตำแหน่ง: {requisition.requester?.position || (isBorrow ? "พนักงานขอยืมอุปกรณ์" : "พนักงานขอเบิก")}
-            </div>
-            <div style={{ fontSize: "7.5px", color: "#444444" }}>
-              วันที่: {requisitionDateStr}
-            </div>
-          </div>
-        </div>
 
-        {/* Box 2: ผู้อนุมัติ */}
-        <div
-          style={{
-            border: "1px solid #000000",
-            backgroundColor: "#ffffff",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#f1f5f9",
-              padding: "1.5px 3px",
-              fontSize: isPortrait ? "8.5px" : "9px",
-              fontWeight: "bold",
-              color: "#000000",
-              borderBottom: "1px solid #000000",
-            }}
-          >
-            2. ผู้อนุมัติ (Approver)
-          </div>
-
-          <div
-            style={{
-              height: isPortrait ? "34px" : "38px",
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-              margin: "1px 0",
-            }}
-          >
-            {requisition.approverSignatureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={requisition.approverSignatureUrl}
-                alt="Approver Signature"
-                className="signature-img"
-                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", width: "auto", height: "auto", objectFit: "contain" }}
-              />
-            ) : (
-              <div style={{ height: "14px" }}></div>
-            )}
-          </div>
-
-          <div style={{ borderBottom: "1px dotted #000000", width: "88%", margin: "0 auto 1.5px" }}></div>
-
-          <div style={{ padding: "0 2px 2px" }}>
-            <div style={{ fontSize: isPortrait ? "8.5px" : "9px", fontWeight: "bold", color: "#000000" }}>
-              ( {requisition.approver?.fullName || "...................................."} )
+            <div
+              style={{
+                height: isPortrait ? "28px" : "34px",
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
+                margin: "1px 0",
+              }}
+            >
+              {box.sigUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={box.sigUrl}
+                  alt={box.alt}
+                  className="signature-img"
+                  style={{
+                    maxHeight: isPortrait ? "26px" : "32px",
+                    maxWidth: "85px",
+                    width: "auto",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+              ) : (
+                <div style={{ height: "12px" }}></div>
+              )}
             </div>
-            <div style={{ fontSize: "7.5px", color: "#444444", marginTop: "0.5px" }}>
-              ตำแหน่ง: {requisition.approver?.position || requisition.approver?.role || "ผู้จัดการ / ผู้อนุมัติ"}
-            </div>
-            <div style={{ fontSize: "7.5px", color: "#444444" }}>
-              วันที่: {requisition.approverSignatureUrl ? formatThaiDate(requisition.updatedAt) : "...../...../........."}
+
+            <div style={{ borderBottom: "1px dotted #000000", width: "88%", margin: "0 auto 1.5px" }}></div>
+
+            <div style={{ padding: "0 2px 2px" }}>
+              <div style={{ fontSize: isPortrait ? "8px" : "8px", fontWeight: "bold", color: "#000000" }}>
+                ( {box.name} )
+              </div>
+              <div style={{ fontSize: "7px", color: "#444444", marginTop: "0.5px" }}>
+                ตำแหน่ง: {box.position}
+              </div>
+              <div style={{ fontSize: "7px", color: "#444444" }}>
+                {box.dateLabel}
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Box 3: ผู้จ่ายของ ฝ่ายคลัง */}
-        <div
-          style={{
-            border: "1px solid #000000",
-            backgroundColor: "#ffffff",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#f1f5f9",
-              padding: "1.5px 3px",
-              fontSize: isPortrait ? "8.5px" : "9px",
-              fontWeight: "bold",
-              color: "#000000",
-              borderBottom: "1px solid #000000",
-            }}
-          >
-            3. ผู้จ่ายของ (Storekeeper)
-          </div>
-
-          <div
-            style={{
-              height: isPortrait ? "34px" : "38px",
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-              margin: "1px 0",
-            }}
-          >
-            {requisition.storeStaffSignatureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={requisition.storeStaffSignatureUrl}
-                alt="Store Staff Signature"
-                className="signature-img"
-                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", width: "auto", height: "auto", objectFit: "contain" }}
-              />
-            ) : (
-              <div style={{ height: "14px" }}></div>
-            )}
-          </div>
-
-          <div style={{ borderBottom: "1px dotted #000000", width: "88%", margin: "0 auto 1.5px" }}></div>
-
-          <div style={{ padding: "0 2px 2px" }}>
-            <div style={{ fontSize: isPortrait ? "8.5px" : "9px", fontWeight: "bold", color: "#000000" }}>
-              ( {requisition.storeStaffName || "...................................."} )
-            </div>
-            <div style={{ fontSize: "7.5px", color: "#444444", marginTop: "0.5px" }}>
-              ตำแหน่ง: เจ้าหน้าที่คลังสินค้า
-            </div>
-            <div style={{ fontSize: "7.5px", color: "#444444" }}>
-              วันที่จ่าย: {requisition.dispensedAt ? formatThaiDate(requisition.dispensedAt) : "...../...../........."}
-            </div>
-          </div>
-        </div>
-
-        {/* Box 4: ผู้รับของ / ผู้รับมอบอุปกรณ์ */}
-        <div
-          style={{
-            border: "1px solid #000000",
-            backgroundColor: "#ffffff",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#f1f5f9",
-              padding: "1.5px 3px",
-              fontSize: isPortrait ? "8.5px" : "9px",
-              fontWeight: "bold",
-              color: "#000000",
-              borderBottom: "1px solid #000000",
-            }}
-          >
-            {isBorrow ? "4. ผู้รับมอบอุปกรณ์ (Receiver)" : "4. ผู้รับของหน้างาน (Site Receiver)"}
-          </div>
-
-          <div
-            style={{
-              height: isPortrait ? "34px" : "38px",
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-              margin: "1px 0",
-            }}
-          >
-            {requisition.receiverSignatureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={requisition.receiverSignatureUrl}
-                alt="Site Receiver Signature"
-                className="signature-img"
-                style={{ maxHeight: isPortrait ? "32px" : "36px", maxWidth: "90px", width: "auto", height: "auto", objectFit: "contain" }}
-              />
-            ) : (
-              <div style={{ height: "14px" }}></div>
-            )}
-          </div>
-
-          <div style={{ borderBottom: "1px dotted #000000", width: "88%", margin: "0 auto 1.5px" }}></div>
-
-          <div style={{ padding: "0 2px 2px" }}>
-            <div style={{ fontSize: isPortrait ? "8.5px" : "9px", fontWeight: "bold", color: "#000000" }}>
-              ( {requisition.receiverName || "...................................................."} )
-            </div>
-            <div style={{ fontSize: "7.5px", color: "#444444", marginTop: "0.5px" }}>
-              ตำแหน่ง: {isBorrow ? "ผู้รับมอบเครื่องมือและอุปกรณ์" : requisition.receiverName ? "ผู้ตรวจรับสินค้าหน้างานโครงการ" : "ผู้รับมอบสินค้าหน้างาน"}
-            </div>
-            <div style={{ fontSize: "7.5px", color: "#444444" }}>
-              วันที่รับ: {requisition.receivedAt ? formatThaiDate(requisition.receivedAt) : "...../...../........."}
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     )
   }
@@ -1699,7 +1636,7 @@ export default function RequisitionPDFClient({
         paddingTop: "2px",
       }}
     >
-      <span>{formCode} | เอกสารควบคุมภายใน {currentCompany.th}</span>
+      <span>{formCode} | เอกสารควบคุมภายใน {combinedCompanyTh}</span>
       <span>
         {printDateStr ? `พิมพ์เมื่อ: ${printDateStr} | ` : ""}หน้า {pageNumber} จาก {totalPagesCount}
       </span>
@@ -1971,9 +1908,23 @@ export default function RequisitionPDFClient({
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div style={{ width: "48px", height: "28px", display: "flex", alignItems: "center", flexShrink: 0 }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={currentCompany.logoUrl} alt={currentCompany.en} className="continuation-logo-img" style={{ maxHeight: "28px", maxWidth: "48px", width: "auto", height: "auto", objectFit: "contain" }} />
+                    <div style={{ minWidth: "48px", height: "28px", display: "flex", alignItems: "center", gap: isMultiCompany ? "3px" : "0px", flexShrink: 0 }}>
+                      {selectedCompanies.map((comp) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={comp.short}
+                          src={comp.logoUrl}
+                          alt={comp.en}
+                          className="continuation-logo-img"
+                          style={{
+                            maxHeight: isMultiCompany ? "22px" : "28px",
+                            maxWidth: isMultiCompany ? "32px" : "48px",
+                            width: "auto",
+                            height: "auto",
+                            objectFit: "contain",
+                          }}
+                        />
+                      ))}
                     </div>
                     <div>
                       <div style={{ fontSize: isPortrait ? "12.5px" : "13.5px", fontWeight: "bold", color: "#000000" }}>
@@ -1982,7 +1933,7 @@ export default function RequisitionPDFClient({
                           : "เอกสารแนบ: ภาพถ่ายการส่งมอบและตรวจรับวัสดุอุปกรณ์ (ATTACHMENT: PROOF OF DELIVERY)"}
                       </div>
                       <div style={{ fontSize: "8.5px", color: "#555555" }}>
-                        {currentCompany.th} — แผนกคลังสินค้าและจัดส่งอุปกรณ์
+                        {combinedCompanyTh} — แผนกคลังสินค้าและจัดส่งอุปกรณ์
                       </div>
                     </div>
                   </div>
@@ -2155,11 +2106,11 @@ export default function RequisitionPDFClient({
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "8px",
+                    gridTemplateColumns: "1fr 1fr 1fr",
+                    gap: "6px",
                   }}
                 >
-                  {/* Left: ผู้ส่งมอบสินค้า / ฝ่ายจัดส่ง */}
+                  {/* 1. ผู้ส่งมอบสินค้า / คลังสินค้า */}
                   <div
                     style={{
                       border: "1px solid #000000",
@@ -2171,12 +2122,12 @@ export default function RequisitionPDFClient({
                       justifyContent: "space-between",
                     }}
                   >
-                    <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#000000" }}>
-                      1. ผู้ส่งมอบสินค้า / เจ้าหน้าที่จัดส่ง (Delivered by)
+                    <div style={{ fontSize: "8px", fontWeight: "bold", color: "#000000" }}>
+                      1. ผู้จ่ายของ / คลังสินค้า (Delivered by)
                     </div>
                     <div
                       style={{
-                        height: "32px",
+                        height: "30px",
                         display: "flex",
                         alignItems: "flex-end",
                         justifyContent: "center",
@@ -2188,25 +2139,25 @@ export default function RequisitionPDFClient({
                         <img
                           src={requisition.storeStaffSignatureUrl}
                           alt="Delivered By Signature"
-                          style={{ maxHeight: "30px", maxWidth: "110px", objectFit: "contain" }}
+                          style={{ maxHeight: "28px", maxWidth: "95px", objectFit: "contain" }}
                         />
                       ) : (
                         <div style={{ height: "14px" }}></div>
                       )}
                     </div>
-                    <div style={{ borderBottom: "1px dotted #000000", width: "80%", margin: "0 auto 1.5px" }}></div>
-                    <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#000000" }}>
-                      ( {requisition.storeStaffName || "...................................................."} )
+                    <div style={{ borderBottom: "1px dotted #000000", width: "85%", margin: "0 auto 1.5px" }}></div>
+                    <div style={{ fontSize: "8px", fontWeight: "bold", color: "#000000" }}>
+                      ( {requisition.storeStaffName || "........................................"} )
                     </div>
-                    <div style={{ fontSize: "7.5px", color: "#444444" }}>
-                      เจ้าหน้าที่คลังสินค้า / ผู้จัดส่ง
+                    <div style={{ fontSize: "7px", color: "#444444" }}>
+                      เจ้าหน้าที่คลังสินค้า
                     </div>
-                    <div style={{ fontSize: "7.5px", color: "#444444" }}>
-                      วันที่ส่งมอบ: {requisition.dispensedAt ? formatThaiDateTime(requisition.dispensedAt) : "...../...../........."}
+                    <div style={{ fontSize: "7px", color: "#444444" }}>
+                      วันที่จ่าย: {requisition.dispensedAt ? formatThaiDateTime(requisition.dispensedAt) : "...../...../........."}
                     </div>
                   </div>
 
-                  {/* Right: ผู้ตรวจรับสินค้าหน้างานโครงการ */}
+                  {/* 2. ขนส่ง / ขนส่งนอกเข้ารับสินค้า */}
                   <div
                     style={{
                       border: "1px solid #000000",
@@ -2218,12 +2169,61 @@ export default function RequisitionPDFClient({
                       justifyContent: "space-between",
                     }}
                   >
-                    <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#000000" }}>
-                      2. ผู้ตรวจรับสินค้าหน้างานโครงการ (Site Receiver / Inspector)
+                    <div style={{ fontSize: "8px", fontWeight: "bold", color: "#000000" }}>
+                      2. ขนส่งรับสินค้า (Transport / Courier)
                     </div>
                     <div
                       style={{
-                        height: "32px",
+                        height: "30px",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "center",
+                        margin: "1px 0",
+                      }}
+                    >
+                      {requisition.transportSignatureUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={requisition.transportSignatureUrl}
+                          alt="Transport Signature"
+                          style={{ maxHeight: "28px", maxWidth: "95px", objectFit: "contain" }}
+                        />
+                      ) : (
+                        <div style={{ height: "14px" }}></div>
+                      )}
+                    </div>
+                    <div style={{ borderBottom: "1px dotted #000000", width: "85%", margin: "0 auto 1.5px" }}></div>
+                    <div style={{ fontSize: "8px", fontWeight: "bold", color: "#000000" }}>
+                      ( {requisition.transportName || "........................................"} )
+                    </div>
+                    <div style={{ fontSize: "7px", color: "#444444" }}>
+                      {requisition.transportSignatureUrl
+                        ? formatTransportRoleSubtitle(requisition.transportType, requisition.transportCompany)
+                        : "ขนส่งบริษัท / ขนส่งนอก"}
+                    </div>
+                    <div style={{ fontSize: "7px", color: "#444444" }}>
+                      วันที่รับ: {requisition.transportSignedAt ? formatThaiDateTime(requisition.transportSignedAt) : "...../...../........."}
+                    </div>
+                  </div>
+
+                  {/* 3. ผู้ตรวจรับสินค้าหน้างานโครงการ */}
+                  <div
+                    style={{
+                      border: "1px solid #000000",
+                      backgroundColor: "#fafafa",
+                      textAlign: "center",
+                      padding: "3px 4px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div style={{ fontSize: "8px", fontWeight: "bold", color: "#000000" }}>
+                      3. ผู้ตรวจรับหน้างาน (Site Receiver)
+                    </div>
+                    <div
+                      style={{
+                        height: "30px",
                         display: "flex",
                         alignItems: "flex-end",
                         justifyContent: "center",
@@ -2235,20 +2235,20 @@ export default function RequisitionPDFClient({
                         <img
                           src={requisition.receiverSignatureUrl}
                           alt="Site Receiver Signature"
-                          style={{ maxHeight: "30px", maxWidth: "110px", objectFit: "contain" }}
+                          style={{ maxHeight: "28px", maxWidth: "95px", objectFit: "contain" }}
                         />
                       ) : (
                         <div style={{ height: "14px" }}></div>
                       )}
                     </div>
-                    <div style={{ borderBottom: "1px dotted #000000", width: "80%", margin: "0 auto 1.5px" }}></div>
-                    <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#000000" }}>
-                      ( {requisition.receiverName || "...................................................."} )
+                    <div style={{ borderBottom: "1px dotted #000000", width: "85%", margin: "0 auto 1.5px" }}></div>
+                    <div style={{ fontSize: "8px", fontWeight: "bold", color: "#000000" }}>
+                      ( {requisition.receiverName || "........................................"} )
                     </div>
-                    <div style={{ fontSize: "7.5px", color: "#444444" }}>
+                    <div style={{ fontSize: "7px", color: "#444444" }}>
                       ตำแหน่ง: ผู้ตรวจรับสินค้าหน้างานโครงการ
                     </div>
-                    <div style={{ fontSize: "7.5px", color: "#444444" }}>
+                    <div style={{ fontSize: "7px", color: "#444444" }}>
                       วันที่ตรวจรับ: {requisition.receivedAt ? formatThaiDateTime(requisition.receivedAt) : "...../...../........."}
                     </div>
                   </div>
@@ -2267,7 +2267,7 @@ export default function RequisitionPDFClient({
                   marginTop: "3px",
                 }}
               >
-                <span>ระบบบริหารจัดการคลังสินค้าและใบเบิก-ยืม — {currentCompany.th}</span>
+                <span>ระบบบริหารจัดการคลังสินค้าและใบเบิก-ยืม — {combinedCompanyTh}</span>
                 <span>
                   {printDateStr ? `พิมพ์เมื่อ: ${printDateStr} | ` : ""}หน้า {totalPages} จาก {totalPages}
                 </span>

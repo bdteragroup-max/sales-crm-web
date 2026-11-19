@@ -1475,6 +1475,7 @@ export function customMarketingLeadMessage(lead: any, salespersonName: string) {
         contents: [
           { type: 'text', text: `ลูกค้า: ${lead.customerName || 'ไม่ระบุ'}`, weight: 'bold', size: 'md' },
           { type: 'text', text: `เบอร์โทร: ${lead.phoneNumber || '-'}`, size: 'sm', color: '#666666' },
+          ...(lead.province ? [{ type: 'text' as const, text: `จังหวัด: ${lead.province}`, size: 'sm' as const, color: '#0369a1', weight: 'bold' as const }] : []),
           { type: 'text', text: `ความสนใจ: ${lead.productType || ''} ${lead.productOfInterest || ''}`, size: 'xs', color: '#666666', wrap: true, margin: 'sm' },
           { type: 'separator', margin: 'md' },
           { type: 'text', text: `บันทึกการสนทนา:`, size: 'xs', color: '#ff2301', weight: 'bold', margin: 'md' },

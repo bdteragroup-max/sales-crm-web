@@ -1,9 +1,17 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import SignatureCanvas from 'react-signature-canvas';
 import { updateMaterialRequisition } from '@/app/actions/requisitions';
+import {
+  type RequisitionCompanyName,
+  parseRequisitionCompanies,
+  formatRequisitionCompanyValue,
+  canSelfApproveRequisition,
+} from '@/app/lib/requisitionUtils';
+import RequisitionCompanySelector from './components/RequisitionCompanySelector';
+import RequisitionApproverSelector from './components/RequisitionApproverSelector';
 import { Plus, Trash2, Save, Loader2, Eraser, Building2, Wrench, ShieldCheck } from 'lucide-react';
 
 interface UserOption {
@@ -25,7 +33,11 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
   const sigPad = useRef<any>(null);
 
   const [date, setDate] = useState(req.date ? new Date(req.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
-  const [company, setCompany] = useState(req.company || 'Group');
+  const [selectedCompanies, setSelectedCompanies] = useState<RequisitionCompanyName[]>(() => {
+    const parsed = parseRequisitionCompanies(req.company);
+    return parsed.length > 0 ? parsed : ['Group'];
+  });
+  const company = formatRequisitionCompanyValue(selectedCompanies);
   const [requisitionType, setRequisitionType] = useState<string>(req.requisitionType || 'BORROW_EQUIPMENT');
   const [projectName, setProjectName] = useState<string>(req.projectName || '');
   const [destinationSite, setDestinationSite] = useState<string>(req.destinationSite || '');
@@ -33,24 +45,12 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
   const [approverId, setApproverId] = useState(req.approverId || '');
 
   const [approverSearch, setApproverSearch] = useState(users.find(u => u.id === req.approverId)?.fullName || '');
-  const [isApproverOpen, setIsApproverOpen] = useState(false);
-  const approverRef = useRef<HTMLDivElement>(null);
-  
+  const [selfApproveWithRequesterSignature, setSelfApproveWithRequesterSignature] = useState(
+    Boolean(req.requesterId && currentUser?.id && req.requesterId === currentUser.id && req.approverId === currentUser.id)
+  );
   const [showResignPad, setShowResignPad] = useState(false);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (approverRef.current && !approverRef.current.contains(event.target as Node)) {
-        setIsApproverOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const filteredApprovers = users.filter(u => 
-    u.fullName.toLowerCase().includes(approverSearch.toLowerCase())
-  );
+  const allowSelfApprove = Boolean(req.requesterId && currentUser?.id && req.requesterId === currentUser.id);
 
   const [items, setItems] = useState<RequisitionItem[]>(req.items && req.items.length > 0 ? req.items : [
     { detail: '', quantity: 1, unit: '', job: '', remark: '' }
@@ -97,6 +97,11 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
       signatureDataUrl = sigPad.current.getTrimmedCanvas().toDataURL('image/png');
     }
 
+    const isSelfApproveSubmit =
+      allowSelfApprove &&
+      selfApproveWithRequesterSignature &&
+      canSelfApproveRequisition(currentUser?.id, approverId);
+
     const res = await updateMaterialRequisition(req.id, {
       date,
       company,
@@ -107,6 +112,7 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
       destinationSite: destinationSite || null,
       deliveryNote: deliveryNote || null,
       ...(signatureDataUrl && { requesterSignatureUrl: signatureDataUrl }),
+      ...(isSelfApproveSubmit ? { selfApproveWithRequesterSignature: true } : {}),
     });
 
     if (res.success) {
@@ -186,24 +192,10 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
             className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
           />
         </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">บริษัท</label>
-          <div className="flex items-center gap-6 mt-3">
-            {['Group', 'Electric', 'Power'].map((c) => (
-              <label key={c} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="company"
-                  value={c}
-                  checked={company === c}
-                  onChange={(e) => setCompany(e.target.value)}
-                  className="w-5 h-5 text-red-600 border-gray-300 focus:ring-red-500"
-                />
-                <span className="font-medium text-gray-700">{c}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+        <RequisitionCompanySelector
+          selectedCompanies={selectedCompanies}
+          onChange={setSelectedCompanies}
+        />
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             {requisitionType === 'CLAIM' ? 'ชื่องานเคลม / ลูกค้า / เลขอ้างอิง' : 'โครงการ / ชื่องานที่เกี่ยวข้อง'}
@@ -341,47 +333,24 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
       <hr className="border-gray-100" />
 
       {/* Approver Selection */}
-      <div className="max-w-md" ref={approverRef}>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">ผู้อนุมัติ</label>
-        <div className="relative">
-          <input
-            type="text"
-            value={approverSearch}
-            onChange={(e) => {
-              setApproverSearch(e.target.value);
-              setIsApproverOpen(true);
-              if (approverId) setApproverId('');
-            }}
-            onFocus={() => setIsApproverOpen(true)}
-            placeholder="พิมพ์เพื่อค้นหาผู้อนุมัติ..."
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
-            required={!approverId}
-          />
-          {isApproverOpen && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-              {filteredApprovers.length > 0 ? (
-                filteredApprovers.map(u => (
-                  <div
-                    key={u.id}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-50 text-gray-700"
-                    onClick={() => {
-                      setApproverId(u.id);
-                      setApproverSearch(u.fullName);
-                      setIsApproverOpen(false);
-                    }}
-                  >
-                    {u.fullName}
-                  </div>
-                ))
-              ) : (
-                <div className="px-4 py-2 text-gray-500 text-sm">ไม่พบผู้อนุมัติ</div>
-              )}
-            </div>
-          )}
-        </div>
-        <p className="text-xs text-gray-500 mt-2">
-          ระบบจะแจ้งเตือนไปยังผู้อนุมัติที่เลือกผ่านหน้าเว็บ
-        </p>
+      <div>
+        <h3 className="text-sm font-bold text-gray-800 mb-2">ผู้อนุมัติ</h3>
+        <RequisitionApproverSelector
+          users={users}
+          currentUserId={currentUser?.id}
+          currentUserName={currentUser?.fullName}
+          approverId={approverId}
+          approverSearch={approverSearch}
+          onApproverChange={(id, fullName) => {
+            setApproverId(id);
+            setApproverSearch(fullName);
+          }}
+          onSearchChange={setApproverSearch}
+          selfApproveChecked={selfApproveWithRequesterSignature}
+          onSelfApproveChange={setSelfApproveWithRequesterSignature}
+          allowSelfApprove={allowSelfApprove}
+          fieldClassName="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all text-sm"
+        />
       </div>
 
       {/* Signature Section */}
@@ -430,7 +399,14 @@ export default function RequisitionEditForm({ req, users, currentUser }: { req: 
         )}
         <div className="mt-3 text-center">
           <p className="text-gray-900 font-medium">({currentUser.fullName})</p>
-          <p className="text-gray-500 text-xs">ผู้ขอเบิก</p>
+          <p className="text-gray-500 text-xs">
+            ผู้ขอเบิก
+            {allowSelfApprove &&
+            selfApproveWithRequesterSignature &&
+            canSelfApproveRequisition(currentUser?.id, approverId)
+              ? ' และผู้อนุมัติ (ใช้ลายเซ็นเดียวกัน)'
+              : ''}
+          </p>
         </div>
       </div>
 

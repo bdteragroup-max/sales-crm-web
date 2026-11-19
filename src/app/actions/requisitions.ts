@@ -8,7 +8,60 @@ import { isSuperUser, canViewAll } from "@/app/lib/roleHelper";
 import {
   isNonReturnableRequisitionType,
   getNonReturnableErrorMessage,
+  isStoreOrPurchasingRole,
+  isTransportRole,
+  isAccountingRequisitionRole,
+  canSignAccountingRequisitionRole,
+  normalizeRequisitionTransportType,
+  sanitizeRequisitionItemsForSave,
+  normalizeRequisitionCompanyForSave,
+  canSelfApproveRequisition,
 } from "@/app/lib/requisitionUtils";
+import {
+  hydrateRequisitionExtendedList,
+  hydrateRequisitionExtendedSingle,
+  persistRequisitionAccountingSignature,
+  persistRequisitionTransportSignature,
+} from "@/app/lib/requisitionSignaturesDb";
+
+function revalidateRequisitionRoutes(id: string) {
+  revalidatePath("/requisitions");
+  revalidatePath(`/requisitions/${id}`);
+  revalidatePath("/store/requisitions");
+  revalidatePath(`/store/requisitions/${id}`);
+  revalidatePath("/store/dashboard");
+}
+
+async function notifyWarehouseUsersForApprovedRequisition(
+  requisitionId: string,
+  requisitionNumber: string
+) {
+  const warehouseUsers = await prisma.user.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        { role: { contains: 'warehouse', mode: 'insensitive' } },
+        { role: { contains: 'คลังสินค้า', mode: 'insensitive' } },
+        { role: { contains: 'store', mode: 'insensitive' } },
+        { role: { contains: 'สโตร์', mode: 'insensitive' } },
+      ],
+    },
+    select: { id: true },
+  });
+
+  if (warehouseUsers.length > 0) {
+    Promise.all(
+      warehouseUsers.map((u) =>
+        sendPushToUser(u.id, {
+          title: 'ใบเบิก/ยืมของรอจัดเตรียม',
+          body: `มีใบเบิก/ยืมของหมายเลข ${requisitionNumber} ได้รับการอนุมัติแล้ว รอการจัดเตรียมของ`,
+          url: `/store/requisitions/${requisitionId}`,
+          category: 'REQUISITION_FULFILL',
+        })
+      )
+    ).catch(console.error);
+  }
+}
 
 export async function createMaterialRequisition(data: any) {
   try {
@@ -21,6 +74,12 @@ export async function createMaterialRequisition(data: any) {
     const year2Digit = yearBe.toString().slice(-2);
     const month = now.getMonth() + 1;
     const monthStr = month.toString().padStart(2, '0');
+
+    // Only allow auto-approval with requester signature when requester === approver (self-approval)
+    const isSelfApprove =
+      Boolean(data.selfApproveWithRequesterSignature) &&
+      canSelfApproveRequisition(session.id, data.approverId) &&
+      Boolean(data.requesterSignatureUrl);
 
     // Run transaction to get next running number safely
     const requisition = await prisma.$transaction(async (tx) => {
@@ -48,12 +107,13 @@ export async function createMaterialRequisition(data: any) {
         data: {
           requisitionNumber: reqNumber,
           date: new Date(data.date),
-          company: data.company,
+          company: normalizeRequisitionCompanyForSave(data.company),
           items: data.items,
           ...(session.id ? { requester: { connect: { id: session.id } } } : {}),
           ...(data.approverId ? { approver: { connect: { id: data.approverId } } } : {}),
           requesterSignatureUrl: data.requesterSignatureUrl,
-          status: "PENDING_APPROVAL",
+          ...(isSelfApprove ? { approverSignatureUrl: data.requesterSignatureUrl } : {}),
+          status: isSelfApprove ? "APPROVED" : "PENDING_APPROVAL",
           requisitionType: data.requisitionType || "BORROW_EQUIPMENT",
           projectId: data.projectId || null,
           projectName: data.projectName || null,
@@ -65,7 +125,13 @@ export async function createMaterialRequisition(data: any) {
       });
     });
 
-    if (data.approverId) {
+    if (isSelfApprove) {
+      await notifyWarehouseUsersForApprovedRequisition(
+        requisition.id,
+        requisition.requisitionNumber
+      );
+      revalidatePath("/store/requisitions");
+    } else if (data.approverId) {
       const typeLabel =
         data.requisitionType === 'CLAIM'
           ? 'ใบเบิกเคลมสินค้า'
@@ -82,7 +148,7 @@ export async function createMaterialRequisition(data: any) {
     }
 
     revalidatePath("/requisitions");
-    return { success: true, id: requisition.id };
+    return { success: true, id: requisition.id, autoApproved: isSelfApprove };
   } catch (error: any) {
     console.error("Error creating material requisition:", error);
     return { success: false, error: error.message || "Failed to create requisition" };
@@ -96,7 +162,13 @@ export async function updateMaterialRequisition(id: string, data: any) {
 
     const existingReq = await prisma.materialRequisition.findUnique({
       where: { id },
-      select: { requesterId: true, status: true, approverId: true, requisitionNumber: true },
+      select: {
+        requesterId: true,
+        status: true,
+        approverId: true,
+        requisitionNumber: true,
+        requesterSignatureUrl: true,
+      },
     });
 
     if (!existingReq) return { success: false, error: "Requisition not found" };
@@ -104,11 +176,19 @@ export async function updateMaterialRequisition(id: string, data: any) {
     if (!isSuper && existingReq.requesterId !== session.id) return { success: false, error: "Forbidden" };
     if (!isSuper && existingReq.status !== "PENDING_APPROVAL") return { success: false, error: "Cannot edit approved/completed requisition" };
 
+    const effectiveRequesterSig = data.requesterSignatureUrl || existingReq.requesterSignatureUrl || "";
+    const isSelfApprove =
+      existingReq.status === "PENDING_APPROVAL" &&
+      Boolean(data.selfApproveWithRequesterSignature) &&
+      canSelfApproveRequisition(existingReq.requesterId, data.approverId) &&
+      session.id === existingReq.requesterId &&
+      Boolean(effectiveRequesterSig);
+
     const updated = await prisma.materialRequisition.update({
       where: { id },
       data: {
         date: new Date(data.date),
-        company: data.company,
+        company: normalizeRequisitionCompanyForSave(data.company),
         items: data.items,
         ...(data.approverId !== undefined
           ? data.approverId
@@ -116,6 +196,12 @@ export async function updateMaterialRequisition(id: string, data: any) {
             : { approver: { disconnect: true } }
           : {}),
         ...(data.requesterSignatureUrl ? { requesterSignatureUrl: data.requesterSignatureUrl } : {}),
+        ...(isSelfApprove
+          ? {
+              approverSignatureUrl: effectiveRequesterSig,
+              status: "APPROVED",
+            }
+          : {}),
         requisitionType: data.requisitionType || undefined,
         projectId: data.projectId !== undefined ? data.projectId : undefined,
         projectName: data.projectName !== undefined ? data.projectName : undefined,
@@ -126,8 +212,22 @@ export async function updateMaterialRequisition(id: string, data: any) {
       },
     });
 
-    // If approver changed, delete old notification and create new one
-    if (data.approverId && data.approverId !== existingReq.approverId) {
+    if (isSelfApprove) {
+      if (existingReq.approverId) {
+        await prisma.notification.deleteMany({
+          where: {
+            userId: existingReq.approverId,
+            type: 'REQUISITION_APPROVAL',
+            linkUrl: `/requisitions/${id}/approve`,
+          },
+        });
+      }
+      await notifyWarehouseUsersForApprovedRequisition(
+        updated.id,
+        existingReq.requisitionNumber
+      );
+      revalidatePath("/store/requisitions");
+    } else if (data.approverId && data.approverId !== existingReq.approverId) {
       if (existingReq.approverId) {
         await prisma.notification.deleteMany({
           where: {
@@ -147,7 +247,7 @@ export async function updateMaterialRequisition(id: string, data: any) {
     }
 
     revalidatePath("/requisitions");
-    return { success: true, id: updated.id };
+    return { success: true, id: updated.id, autoApproved: isSelfApprove };
   } catch (error: any) {
     console.error("Error updating material requisition:", error);
     return { success: false, error: error.message || "Failed to update requisition" };
@@ -205,34 +305,13 @@ export async function approveMaterialRequisition(id: string, signatureUrl: strin
       },
     });
 
-    // Notify Warehouse users
-    const warehouseUsers = await prisma.user.findMany({
-      where: {
-        isActive: true,
-        OR: [
-          { role: { contains: 'warehouse', mode: 'insensitive' } },
-          { role: { contains: 'คลังสินค้า', mode: 'insensitive' } },
-          { role: { contains: 'store', mode: 'insensitive' } },
-          { role: { contains: 'สโตร์', mode: 'insensitive' } },
-        ]
-      },
-      select: { id: true }
-    });
-
-    if (warehouseUsers.length > 0) {
-      Promise.all(
-        warehouseUsers.map((u) =>
-          sendPushToUser(u.id, {
-            title: 'ใบเบิก/ยืมของรอจัดเตรียม',
-            body: `มีใบเบิก/ยืมของหมายเลข ${requisition.requisitionNumber} ได้รับการอนุมัติแล้ว รอการจัดเตรียมของ`,
-            url: `/store/requisitions/${requisition.id}`,
-            category: 'REQUISITION_FULFILL',
-          })
-        )
-      ).catch(console.error);
-    }
+    await notifyWarehouseUsersForApprovedRequisition(
+      requisition.id,
+      requisition.requisitionNumber
+    );
 
     revalidatePath("/requisitions");
+    revalidatePath(`/requisitions/${id}`);
     revalidatePath("/store/requisitions");
     return { success: true, id: requisition.id };
   } catch (error: any) {
@@ -246,7 +325,7 @@ export async function getMaterialRequisitions(filters?: any) {
     const session = await getUser();
     if (!session) return { success: false, error: "Unauthorized" };
 
-    const data = await prisma.materialRequisition.findMany({
+    const raw = await prisma.materialRequisition.findMany({
       where: filters,
       include: {
         requester: {
@@ -258,6 +337,7 @@ export async function getMaterialRequisitions(filters?: any) {
       },
       orderBy: { createdAt: 'desc' }
     });
+    const data = await hydrateRequisitionExtendedList(prisma, raw);
     return { success: true, data };
   } catch (error: any) {
     console.error("Error fetching material requisitions:", error);
@@ -270,23 +350,33 @@ export async function getMyRequisitions() {
     const session = await getUser();
     if (!session) return { success: false, error: "Unauthorized" };
 
-    const data = await prisma.materialRequisition.findMany({
-      where: {
-        OR: [
-          { requesterId: session.id },
-          { approverId: session.id }
-        ]
-      },
+    const canSeeAllInRequisitions =
+      isSuperUser(session.role) ||
+      canViewAll(session.role) ||
+      isTransportRole(session.role) ||
+      isAccountingRequisitionRole(session.role);
+
+    const raw = await prisma.materialRequisition.findMany({
+      where: canSeeAllInRequisitions
+        ? {}
+        : {
+            OR: [
+              { requesterId: session.id },
+              { approverId: session.id },
+            ],
+          },
       include: {
         requester: {
-          select: { fullName: true }
+          select: { fullName: true },
         },
         approver: {
-          select: { fullName: true }
-        }
+          select: { fullName: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      ...(canSeeAllInRequisitions ? { take: 1000 } : {}),
     });
+    const data = await hydrateRequisitionExtendedList(prisma, raw);
     return { success: true, data };
   } catch (error: any) {
     console.error("Error fetching my requisitions:", error);
@@ -523,7 +613,7 @@ export async function getRequisitionById(id: string) {
     const session = await getUser();
     if (!session) return { success: false, error: "Unauthorized" };
 
-    const data = await prisma.materialRequisition.findUnique({
+    const raw = await prisma.materialRequisition.findUnique({
       where: { id },
       include: {
         requester: {
@@ -534,6 +624,7 @@ export async function getRequisitionById(id: string) {
         }
       }
     });
+    const data = await hydrateRequisitionExtendedSingle(prisma, raw);
     return { success: true, data };
   } catch (error: any) {
     console.error("Error fetching requisition:", error);
@@ -623,15 +714,220 @@ export async function recordSiteHandover(
       }).catch(console.error);
     }
 
-    revalidatePath("/requisitions");
-    revalidatePath(`/requisitions/${id}`);
-    revalidatePath("/store/requisitions");
-    revalidatePath(`/store/requisitions/${id}`);
-    revalidatePath("/store/dashboard");
+    revalidateRequisitionRoutes(id);
     return { success: true, id: requisition.id };
   } catch (error: any) {
     console.error("Error recording site handover:", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function recordTransportPickup(
+  id: string,
+  data: {
+    transportName: string;
+    transportType?: 'INTERNAL' | 'EXTERNAL' | string;
+    transportCompany?: string;
+    transportSignatureUrl: string;
+    storeStaffName?: string;
+    storeStaffSignatureUrl?: string;
+  }
+) {
+  try {
+    const session = await getUser();
+    if (!session) return { success: false, error: "Unauthorized" };
+
+    const cleanName = (data.transportName || '').trim();
+    const cleanSig = (data.transportSignatureUrl || '').trim();
+    if (!cleanName) {
+      return { success: false, error: "กรุณาระบุชื่อผู้รับสินค้า (ขนส่ง / คนขับรถ)" };
+    }
+    if (!cleanSig) {
+      return { success: false, error: "กรุณาลงลายเซ็นขนส่งผู้รับสินค้า" };
+    }
+
+    const existing = await prisma.materialRequisition.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        requisitionNumber: true,
+        status: true,
+        requesterId: true,
+        approverId: true,
+        storeStaffId: true,
+        storeStaffName: true,
+        storeStaffSignatureUrl: true,
+        dispensedAt: true,
+      },
+    });
+    if (!existing) {
+      return { success: false, error: "ไม่พบข้อมูลใบเบิก" };
+    }
+
+    const hasAccess =
+      !isAccountingRequisitionRole(session.role) &&
+      (isSuperUser(session.role) ||
+        canViewAll(session.role) ||
+        isStoreOrPurchasingRole(session.role) ||
+        isTransportRole(session.role) ||
+        existing.requesterId === session.id ||
+        existing.approverId === session.id);
+    if (!hasAccess) {
+      return { success: false, error: "คุณไม่มีสิทธิ์บันทึกลายเซ็นขนส่งในใบเบิกนี้" };
+    }
+
+    if (existing.status === "PENDING_APPROVAL" || existing.status === "REJECTED") {
+      return {
+        success: false,
+        error: "ใบเบิกยังไม่ได้รับการอนุมัติหรือถูกปฏิเสธ ไม่สามารถเซ็นรับสินค้าได้",
+      };
+    }
+
+    const mode = normalizeRequisitionTransportType(data.transportType);
+    const cleanCompany = (data.transportCompany || '').trim() || null;
+    const now = new Date();
+    const transportUserId = mode === 'EXTERNAL' ? null : session.id;
+    const shouldApplyStoreSig = Boolean(
+      data.storeStaffSignatureUrl && !existing.storeStaffSignatureUrl
+    );
+    const nextStoreStaffId = shouldApplyStoreSig
+      ? existing.storeStaffId || session.id
+      : undefined;
+    const nextStoreStaffName = shouldApplyStoreSig
+      ? (data.storeStaffName || '').trim() ||
+        existing.storeStaffName ||
+        session.fullName ||
+        "เจ้าหน้าที่สโตร์"
+      : undefined;
+    const nextDispensedAt = shouldApplyStoreSig
+      ? existing.dispensedAt || now
+      : undefined;
+
+    await persistRequisitionTransportSignature(prisma, id, {
+      transportId: transportUserId,
+      transportName: cleanName,
+      transportType: mode,
+      transportCompany: cleanCompany,
+      transportSignatureUrl: cleanSig,
+      transportSignedAt: now,
+      storeStaffId: nextStoreStaffId,
+      storeStaffName: nextStoreStaffName,
+      storeStaffSignatureUrl: shouldApplyStoreSig
+        ? data.storeStaffSignatureUrl
+        : undefined,
+      dispensedAt: nextDispensedAt,
+    });
+
+    if (existing.requesterId && existing.requesterId !== session.id) {
+      sendPushToUser(existing.requesterId, {
+        title: 'ขนส่งเซ็นรับสินค้าออกจากสโตร์แล้ว',
+        body: `ใบเบิก ${existing.requisitionNumber} (${mode === 'EXTERNAL' ? 'ขนส่งนอก' : 'ขนส่ง'}: ${cleanName})`,
+        url: `/requisitions/${id}`,
+        category: 'REQUISITION_UPDATE',
+      }).catch(console.error);
+    }
+
+    revalidateRequisitionRoutes(id);
+    return {
+      success: true,
+      id,
+      data: {
+        transportId: transportUserId,
+        transportName: cleanName,
+        transportType: mode,
+        transportCompany: cleanCompany,
+        transportSignatureUrl: cleanSig,
+        transportSignedAt: now.toISOString(),
+        storeStaffSignatureUrl: shouldApplyStoreSig
+          ? data.storeStaffSignatureUrl
+          : existing.storeStaffSignatureUrl,
+        storeStaffName: nextStoreStaffName ?? existing.storeStaffName,
+        dispensedAt: (nextDispensedAt ?? existing.dispensedAt)?.toISOString() ?? null,
+      },
+    };
+  } catch (error: any) {
+    console.error("Error recording transport pickup signature:", error);
+    return { success: false, error: error.message || "Failed to record transport signature" };
+  }
+}
+
+export async function recordAccountingRelease(
+  id: string,
+  data: {
+    accountingName?: string;
+    accountingSignatureUrl: string;
+  }
+) {
+  try {
+    const session = await getUser();
+    if (!session) return { success: false, error: "Unauthorized" };
+
+    const canSignAccounting = canSignAccountingRequisitionRole(session.role);
+    if (!canSignAccounting) {
+      return {
+        success: false,
+        error: "สงวนสิทธิ์การเซ็นรับทราบปล่อยของเฉพาะเจ้าหน้าที่แผนกบัญชีเท่านั้น",
+      };
+    }
+
+    const cleanSig = (data.accountingSignatureUrl || '').trim();
+    if (!cleanSig) {
+      return { success: false, error: "กรุณาลงลายเซ็นรับทราบของแผนกบัญชี" };
+    }
+    const cleanName =
+      (data.accountingName || '').trim() || session.fullName || "แผนกบัญชี";
+
+    const existing = await prisma.materialRequisition.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        requisitionNumber: true,
+        status: true,
+        requesterId: true,
+      },
+    });
+    if (!existing) {
+      return { success: false, error: "ไม่พบข้อมูลใบเบิก" };
+    }
+
+    if (existing.status === "PENDING_APPROVAL" || existing.status === "REJECTED") {
+      return {
+        success: false,
+        error: "ใบเบิกยังไม่ได้รับการอนุมัติหรือถูกปฏิเสธ ไม่สามารถเซ็นรับทราบปล่อยของได้",
+      };
+    }
+
+    const now = new Date();
+    await persistRequisitionAccountingSignature(prisma, id, {
+      accountingId: session.id,
+      accountingName: cleanName,
+      accountingSignatureUrl: cleanSig,
+      accountingSignedAt: now,
+    });
+
+    if (existing.requesterId && existing.requesterId !== session.id) {
+      sendPushToUser(existing.requesterId, {
+        title: 'แผนกบัญชีรับทราบการปล่อยของออกแล้ว',
+        body: `ใบเบิก ${existing.requisitionNumber} รับทราบโดย ${cleanName}`,
+        url: `/requisitions/${id}`,
+        category: 'REQUISITION_UPDATE',
+      }).catch(console.error);
+    }
+
+    revalidateRequisitionRoutes(id);
+    return {
+      success: true,
+      id,
+      data: {
+        accountingId: session.id,
+        accountingName: cleanName,
+        accountingSignatureUrl: cleanSig,
+        accountingSignedAt: now.toISOString(),
+      },
+    };
+  } catch (error: any) {
+    console.error("Error recording accounting release signature:", error);
+    return { success: false, error: error.message || "Failed to record accounting signature" };
   }
 }
 
@@ -647,11 +943,8 @@ export async function confirmUsedRequisitionItems(
     const session = await getUser();
     if (!session) return { success: false, error: "Unauthorized" };
 
-    const userRoleStr = (session.role || "").toLowerCase();
     const isSuper = isSuperUser(session.role) || canViewAll(session.role);
-    const isStoreRole = ["store", "สโตร์", "คลังสินค้า", "warehouse", "admin", "ซุปเปอร์แอดมิน"].some((r) =>
-      userRoleStr.includes(r)
-    );
+    const isStoreOrPurchasing = isStoreOrPurchasingRole(session.role);
 
     const existingReq = await prisma.materialRequisition.findUnique({
       where: { id },
@@ -674,7 +967,7 @@ export async function confirmUsedRequisitionItems(
 
     const canModify =
       isSuper ||
-      isStoreRole ||
+      isStoreOrPurchasing ||
       existingReq.requesterId === session.id ||
       existingReq.approverId === session.id;
 
@@ -689,15 +982,16 @@ export async function confirmUsedRequisitionItems(
       };
     }
 
-    if (!Array.isArray(data.keptItems) || data.keptItems.length === 0) {
+    const sanitizedItems = sanitizeRequisitionItemsForSave(data.keptItems);
+    if (sanitizedItems.length === 0) {
       return {
         success: false,
-        error: "กรุณาติ๊กเลือกรายการที่ใช้จริงอย่างน้อย 1 รายการ",
+        error: "กรุณาระบุและติ๊กเลือกรายการที่ใช้จริงอย่างน้อย 1 รายการ",
       };
     }
 
     const updatePayload: any = {
-      items: data.keptItems,
+      items: sanitizedItems,
     };
 
     if (data.storeStaffSignatureUrl && !existingReq.storeStaffSignatureUrl) {
@@ -726,7 +1020,7 @@ export async function confirmUsedRequisitionItems(
     if (data.markCompleted && existingReq.status === "APPROVED" && updated.requesterId) {
       sendPushToUser(updated.requesterId, {
         title: "อัปเดตสถานะใบเบิก/ยืมของ",
-        body: `ใบเบิก/ยืมของหมายเลข ${updated.requisitionNumber} จัดเตรียมและส่งมอบของเรียบร้อยแล้ว (${data.keptItems.length} รายการ)`,
+        body: `ใบเบิก/ยืมของหมายเลข ${updated.requisitionNumber} จัดเตรียมและส่งมอบของเรียบร้อยแล้ว (${sanitizedItems.length} รายการ)`,
         url: `/requisitions/${id}`,
         category: "REQUISITION_UPDATE",
       }).catch(console.error);
@@ -743,7 +1037,7 @@ export async function confirmUsedRequisitionItems(
       success: true,
       id: updated.id,
       status: updated.status,
-      items: data.keptItems,
+      items: sanitizedItems,
       storeStaffSignatureUrl: updated.storeStaffSignatureUrl,
       storeStaffName: updated.storeStaffName,
       dispensedAt: updated.dispensedAt ? updated.dispensedAt.toISOString() : null,
@@ -780,7 +1074,7 @@ export async function getActiveProjectsForRequisition() {
 
 export async function getRequisitionsByProject(projectId: string) {
   try {
-    const data = await prisma.materialRequisition.findMany({
+    const raw = await prisma.materialRequisition.findMany({
       where: {
         OR: [
           { projectId: projectId },
@@ -793,6 +1087,7 @@ export async function getRequisitionsByProject(projectId: string) {
       },
       orderBy: { createdAt: 'desc' }
     });
+    const data = await hydrateRequisitionExtendedList(prisma, raw);
     return { success: true, data };
   } catch (error: any) {
     console.error("Error fetching requisitions by project:", error);

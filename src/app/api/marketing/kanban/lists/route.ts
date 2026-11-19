@@ -37,9 +37,10 @@ export async function POST(request: NextRequest) {
 
     revalidatePath('/marketing/kanban');
     return NextResponse.json(list);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/marketing/kanban/lists:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to create list';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -55,14 +56,17 @@ export async function PUT(request: NextRequest) {
 
     if (Array.isArray(orderedListIds) && orderedListIds.length > 0) {
       const validIds = orderedListIds.filter((lid: unknown): lid is string => typeof lid === 'string' && lid.length > 0);
-      await prisma.$transaction(
-        validIds.map((listId, idx) =>
-          prisma.kanbanList.update({
-            where: { id: listId },
-            data: { position: (idx + 1) * 1000 }
-          })
-        )
-      );
+      if (validIds.length > 0) {
+        const listPosJson = JSON.stringify(
+          validIds.map((listId, idx) => ({ id: listId, pos: (idx + 1) * 1000 }))
+        );
+        await prisma.$executeRaw`
+          UPDATE "KanbanList" AS l
+          SET "position" = v.pos
+          FROM jsonb_to_recordset(${listPosJson}::jsonb) AS v(id text, pos double precision)
+          WHERE l.id = v.id
+        `;
+      }
       revalidatePath('/marketing/kanban');
       return NextResponse.json({ success: true, orderedListIds: validIds });
     }
@@ -82,9 +86,10 @@ export async function PUT(request: NextRequest) {
 
     revalidatePath('/marketing/kanban');
     return NextResponse.json(list);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in PUT /api/marketing/kanban/lists:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to update list';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -108,8 +113,9 @@ export async function DELETE(request: NextRequest) {
 
     revalidatePath('/marketing/kanban');
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in DELETE /api/marketing/kanban/lists:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to delete list';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

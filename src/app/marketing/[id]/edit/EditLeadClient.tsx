@@ -3,13 +3,15 @@
 import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateMarketingLead } from '@/app/actions/marketing'
-import { Loader2, Save, ArrowLeft, CheckCircle2, Radio, Megaphone, Layers, Briefcase } from 'lucide-react'
+import { Loader2, Save, ArrowLeft, CheckCircle2, Radio, Megaphone, Layers, Briefcase, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import {
   PRODUCT_GROUPS,
   getOccupationsForProductGroup,
   normalizeProductGroup
 } from '@/app/marketing/constants/productOccupations'
+import { toProvinceFormOptions } from '@/app/marketing/constants/thaiProvinces'
+import ProvinceCombobox from '@/app/marketing/components/ProvinceCombobox'
 
 export default function EditLeadClient({ 
   lead, 
@@ -25,9 +27,10 @@ export default function EditLeadClient({
   const [error, setError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
-  // Product and Occupation state
+  // Product, Occupation and Province state
   const [productType, setProductType] = useState(lead.productType || '')
   const [occupation, setOccupation] = useState(lead.occupation || lead.businessType || '')
+  const [province, setProvince] = useState(lead.province || '')
 
   // Attribution state
   const [selectedChannel, setSelectedChannel] = useState(
@@ -76,6 +79,7 @@ export default function EditLeadClient({
     const result = await updateMarketingLead(lead.id, {
       customerName: formData.get('customerName') as string,
       phoneNumber: formData.get('phoneNumber') as string,
+      province: province || null,
       productOfInterest: formData.get('productOfInterest') as string,
       productType: productType || undefined,
       occupation: occupation || null,
@@ -259,6 +263,21 @@ export default function EditLeadClient({
             defaultValue={lead.phoneNumber || ''} 
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all text-sm font-medium"
             placeholder="08X-XXX-XXXX"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+            <MapPin size={13} className="text-sky-600" />
+            <span>จังหวัด (สำหรับสาขาติดต่อกลับ)</span>
+          </label>
+          <ProvinceCombobox
+            name="province"
+            value={province}
+            onChange={setProvince}
+            options={toProvinceFormOptions(province)}
+            emptyLabel="-- เลือกจังหวัด --"
+            variant="form"
           />
         </div>
 

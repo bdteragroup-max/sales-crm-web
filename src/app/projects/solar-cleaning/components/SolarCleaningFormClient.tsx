@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
+  AlertTriangle,
   ArrowLeft,
   Camera,
   CheckCircle2,
@@ -13,11 +14,13 @@ import {
   Save,
   Send,
   Trash2,
+  X,
 } from 'lucide-react';
 import {
   DEFAULT_REPORT_TITLE,
   REPORT_OVERALL_REMARK_ELEMENT_ID,
   canEditSolarCleaningRole,
+  canManageSolarCleaningRecord,
   canSignSolarCleaningAsProjectMgr,
   canSignSolarCleaningAsServiceMgr,
   countReportPhotos,
@@ -26,7 +29,6 @@ import {
   findMissingReportPhotoNotes,
   getSolarCleaningStatusMeta,
   isOverallRemarkMissing,
-  isSuperAdminRole,
   normalizeReportData,
   normalizeWorkItems,
   resolveManagerSignConfig,
@@ -99,20 +101,28 @@ export default function SolarCleaningFormClient({
   const [isSaving, setIsSaving] = useState(false);
   const [isSigningMgr, setIsSigningMgr] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [pdfPreviewType, setPdfPreviewType] = useState<'system-check' | 'inspection-report' | null>(null);
   const [pdfCacheKey, setPdfCacheKey] = useState(() => Date.now());
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showRemarkErrors, setShowRemarkErrors] = useState(false);
 
-  const canEdit = canEditSolarCleaningRole(currentUser.role);
+  const canEdit = initialRecord
+    ? canManageSolarCleaningRecord({
+        userId: currentUser.id,
+        userRole: currentUser.role,
+        createdById: initialRecord.createdById,
+      })
+    : canEditSolarCleaningRole(currentUser.role);
   const canSignPm = canSignSolarCleaningAsProjectMgr(currentUser.role);
   const canSignSm = canSignSolarCleaningAsServiceMgr(currentUser.role);
   const canDelete =
     Boolean(initialRecord) &&
-    (isSuperAdminRole(currentUser.role) ||
-      canSignPm ||
-      currentUser.role.toLowerCase().includes('admin project') ||
-      initialRecord?.createdById === currentUser.id);
+    canManageSolarCleaningRecord({
+      userId: currentUser.id,
+      userRole: currentUser.role,
+      createdById: initialRecord?.createdById,
+    });
 
   const [status, setStatus] = useState<string>(initialRecord?.status || 'Draft');
 
@@ -362,12 +372,12 @@ export default function SolarCleaningFormClient({
 
   const handleDelete = async () => {
     if (!initialRecord?.id) return;
-    if (!window.confirm(`ยืนยันการลบเอกสาร ${initialRecord.docNumber} ?`)) return;
     setIsDeleting(true);
     try {
       const res = await deleteSolarCleaningInspection(initialRecord.id);
       if (!res.success) {
-        alert(res.error || 'ลบไม่สำเร็จ');
+        setIsDeleteConfirmOpen(false);
+        setFeedback({ type: 'error', text: res.error || 'ลบไม่สำเร็จ' });
         return;
       }
       router.push('/projects/solar-cleaning');
@@ -417,6 +427,9 @@ export default function SolarCleaningFormClient({
             </h1>
             <p className="text-xs text-gray-500 truncate">
               ลูกค้า: {precheck.customerName || '-'} • รูปถ่าย Report {totalPhotos} รูป
+              {initialRecord?.createdBy?.fullName
+                ? ` • ผู้สร้าง: ${initialRecord.createdBy.fullName}`
+                : ''}
             </p>
           </div>
 
@@ -443,7 +456,7 @@ export default function SolarCleaningFormClient({
               <button
                 type="button"
                 disabled={isDeleting}
-                onClick={handleDelete}
+                onClick={() => setIsDeleteConfirmOpen(true)}
                 className="h-10 inline-flex items-center justify-center gap-1.5 px-3 bg-white hover:bg-red-50 border border-red-200 text-red-600 text-xs font-bold rounded-xl transition cursor-pointer"
               >
                 <Trash2 size={14} />
@@ -642,6 +655,53 @@ export default function SolarCleaningFormClient({
               {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกเอกสารทั้งหมด'}</span>
             </button>
+          </div>
+        </div>
+      )}
+
+      {isDeleteConfirmOpen && initialRecord?.id && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-xl w-full max-w-md p-5 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 border border-red-200 flex items-center justify-center shrink-0">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-gray-900">ยืนยันการลบเอกสาร</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    ต้องการลบเอกสาร {initialRecord.docNumber} ใช่หรือไม่ การลบจะไม่สามารถกู้คืนได้
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setIsDeleteConfirmOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setIsDeleteConfirmOpen(false)}
+                className="h-10 px-4 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleDelete}
+                className="h-10 inline-flex items-center gap-1.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                <span>{isDeleting ? 'กำลังลบ...' : 'ยืนยันลบเอกสาร'}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

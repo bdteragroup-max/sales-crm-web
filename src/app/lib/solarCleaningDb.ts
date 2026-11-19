@@ -287,10 +287,12 @@ const RAW_SELECT_JOIN = `
 `;
 
 export async function dbListSolarCleaningInspections(
+  filters?: { createdById?: string },
   client: PrismaDelegateClient = prisma
 ): Promise<SolarCleaningRecord[]> {
   if (hasDelegate(client)) {
     const rows = await client.solarCleaningInspection.findMany({
+      where: filters?.createdById ? { createdById: filters.createdById } : undefined,
       include: {
         createdBy: { select: { id: true, fullName: true, role: true } },
         projectMgrUser: { select: { id: true, fullName: true, role: true } },
@@ -310,9 +312,14 @@ export async function dbListSolarCleaningInspections(
     return rows.map(serializePrismaRow);
   }
 
-  const rows = await client.$queryRawUnsafe<RawInspectionRow[]>(
-    `${RAW_SELECT_JOIN} ORDER BY s."inspection_date" DESC, s."created_at" DESC`
-  );
+  const rows = filters?.createdById
+    ? await client.$queryRawUnsafe<RawInspectionRow[]>(
+        `${RAW_SELECT_JOIN} WHERE s."created_by_id" = $1 ORDER BY s."inspection_date" DESC, s."created_at" DESC`,
+        filters.createdById
+      )
+    : await client.$queryRawUnsafe<RawInspectionRow[]>(
+        `${RAW_SELECT_JOIN} ORDER BY s."inspection_date" DESC, s."created_at" DESC`
+      );
   return rows.map(mapRawRowToRecord);
 }
 

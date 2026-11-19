@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/app/lib/dal';
-import { canAccessSolarCleaningRole } from '@/app/lib/solarCleaningConfig';
+import {
+  canAccessSolarCleaningRole,
+  canManageSolarCleaningRecord,
+} from '@/app/lib/solarCleaningConfig';
 import { dbGetSolarCleaningById } from '@/app/lib/solarCleaningDb';
 import {
   loadCommonSolarPdfAssets,
@@ -28,6 +31,15 @@ export async function GET(
     const record = await dbGetSolarCleaningById(params.id);
     if (!record) {
       return NextResponse.json({ error: 'Record not found' }, { status: 404 });
+    }
+    if (
+      !canManageSolarCleaningRecord({
+        userId: user.id,
+        userRole: user.role,
+        createdById: record.createdById,
+      })
+    ) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const resolvedImageDataUris = await resolveSolarImagesToDataUris([

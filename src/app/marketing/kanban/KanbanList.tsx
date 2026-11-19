@@ -3,11 +3,11 @@ import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { Plus, MoreHorizontal } from 'lucide-react';
 import KanbanCard from './KanbanCard';
-import type { TKanbanList, TKanbanCard } from './KanbanBoardClient';
+import type { TKanbanList, TKanbanCard, TKanbanUser } from './kanbanDndHelpers';
 
 type Props = {
   list: TKanbanList;
-  users: any[];
+  users: TKanbanUser[];
   onAddCard: (listId: string, title: string) => void | Promise<void>;
   onCardClick: (card: TKanbanCard) => void;
   onUpdateList?: (listId: string, updates: Partial<TKanbanList>) => void | Promise<void>;
@@ -16,7 +16,7 @@ type Props = {
   isOverlay?: boolean;
 };
 
-export default function KanbanList({ list, users, onAddCard, onCardClick, onUpdateList, onDeleteList, onCompleteCard, isOverlay = false }: Props) {
+const KanbanList = React.memo(function KanbanList({ list, users, onAddCard, onCardClick, onUpdateList, onDeleteList, onCompleteCard, isOverlay = false }: Props) {
   const [isAdding, setIsAdding] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [showMenu, setShowMenu] = useState(false);
@@ -37,8 +37,10 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
 
   const sortableData = React.useMemo(() => ({
     type: 'List',
-    list
-  }), [list]);
+    listId: list.id
+  }), [list.id]);
+
+  const cardIds = React.useMemo(() => list.cards.map((c) => c.id), [list.cards]);
 
   const {
     attributes,
@@ -209,13 +211,13 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 pb-3 custom-scrollbar flex flex-col gap-3 min-h-[56px]">
+      <div className="flex-1 overflow-y-auto px-3 pb-3 custom-scrollbar flex flex-col gap-3 min-h-[100px]">
         <SortableContext
-          items={list.cards.map(c => c.id)}
+          items={cardIds}
           strategy={verticalListSortingStrategy}
         >
           {list.cards.map((card) => (
-            <KanbanCard key={card.id} card={card} users={users} onClick={() => onCardClick(card)} onCompleteCard={onCompleteCard} />
+            <KanbanCard key={card.id} card={card} users={users} onCardSelect={onCardClick} onCompleteCard={onCompleteCard} />
           ))}
         </SortableContext>
 
@@ -264,4 +266,6 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
       </div>
     </div>
   );
-}
+});
+
+export default KanbanList;

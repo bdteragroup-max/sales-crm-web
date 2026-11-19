@@ -2,17 +2,18 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MessageSquare, Paperclip, AlignLeft, Calendar, Check, Send } from 'lucide-react';
-import type { TKanbanCard } from './KanbanBoardClient';
+import type { TKanbanCard, TKanbanUser } from './kanbanDndHelpers';
 
 type Props = {
   card: TKanbanCard;
-  users: any[];
-  onClick: () => void;
+  users: TKanbanUser[];
+  onClick?: () => void;
+  onCardSelect?: (card: TKanbanCard) => void;
   onCompleteCard?: (id: string, isCompleted: boolean) => void;
   isOverlay?: boolean;
 };
 
-export default function KanbanCard({ card, users, onClick, onCompleteCard, isOverlay = false }: Props) {
+const KanbanCard = React.memo(function KanbanCard({ card, users, onClick, onCardSelect, onCompleteCard, isOverlay = false }: Props) {
   const sortableData = React.useMemo(() => ({
     type: 'Card',
     card
@@ -42,23 +43,24 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard, isOve
   const hasAttachments = card.attachments && card.attachments.length > 0;
   const hasDescription = !!card.description;
   const hasChecklist = card.checklist && Array.isArray(card.checklist) && card.checklist.length > 0;
-  const hasDueDate = !!card.dueDate;
 
   let checklistProgress = 0;
-  if (hasChecklist) {
-    const completed = card.checklist.filter((i: any) => i.completed).length;
+  if (hasChecklist && card.checklist) {
+    const completed = card.checklist.filter((i) => i.completed).length;
     checklistProgress = completed / card.checklist.length;
   }
 
   // Find cover image (first image attachment)
-  const coverImage = card.attachments?.find((att: any) =>
+  const coverImage = card.attachments?.find((att) =>
     att.fileType?.startsWith('image/') ||
     att.attachmentType === 'image' ||
     /\.(jpe?g|png|gif|webp|svg|bmp)$/i.test(att.fileName || '')
   );
 
   const assignedUser = users.find(u => u.id === card.assignedToId);
-  const serviceReviewers = (card.engineeringReviewers || []).map(id => users.find(u => u.id === id)).filter(Boolean);
+  const serviceReviewers = (card.engineeringReviewers || [])
+    .map(id => users.find(u => u.id === id))
+    .filter((u): u is TKanbanUser => Boolean(u));
 
   const getRevisionBadge = () => {
     switch (card.revisionStatus) {
@@ -79,7 +81,13 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard, isOve
       style={style}
       {...(isOverlay ? {} : attributes)}
       {...(isOverlay ? {} : listeners)}
-      onClick={onClick}
+      onClick={() => {
+        if (onCardSelect) {
+          onCardSelect(card);
+        } else if (onClick) {
+          onClick();
+        }
+      }}
       className={`shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-[border-color,box-shadow,opacity] group relative overflow-hidden ${card.color ? 'pl-4 pr-3 py-3' : 'p-3'} ${
         isOverlay
           ? 'cursor-grabbing shadow-2xl ring-2 ring-[#ff2301] rotate-1 opacity-95 w-72'
@@ -159,9 +167,9 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard, isOve
               <span>{card.attachments.length}</span>
             </div>
           )}
-          {hasChecklist && (
+          {hasChecklist && card.checklist && (
             <div className={`flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-md ${checklistProgress === 1 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-              <span>{card.checklist.filter((i:any) => i.completed).length}/{card.checklist.length}</span>
+              <span>{card.checklist.filter((i) => i.completed).length}/{card.checklist.length}</span>
             </div>
           )}
         </div>
@@ -189,12 +197,12 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard, isOve
           </div>
           {card.postingChannels && card.postingChannels.length > 0 && (
             <div className="flex items-center gap-1 text-[10px] text-blue-600">
-              {card.postingChannels.map(c => {
-                if (c === 'Facebook') return <span key={c} className="bg-white rounded px-1 shadow-sm">FB</span>;
-                if (c === 'Instagram') return <span key={c} className="bg-white rounded px-1 shadow-sm">IG</span>;
-                if (c === 'TikTok') return <span key={c} className="bg-white rounded px-1 shadow-sm">TK</span>;
-                if (c === 'YouTube') return <span key={c} className="bg-white rounded px-1 shadow-sm">YT</span>;
-                return <span key={c} className="bg-white rounded px-1 shadow-sm">{c.substring(0, 2).toUpperCase()}</span>;
+              {card.postingChannels.map((c, idx) => {
+                if (c === 'Facebook') return <span key={`${c}-${idx}`} className="bg-white rounded px-1 shadow-sm">FB</span>;
+                if (c === 'Instagram') return <span key={`${c}-${idx}`} className="bg-white rounded px-1 shadow-sm">IG</span>;
+                if (c === 'TikTok') return <span key={`${c}-${idx}`} className="bg-white rounded px-1 shadow-sm">TK</span>;
+                if (c === 'YouTube') return <span key={`${c}-${idx}`} className="bg-white rounded px-1 shadow-sm">YT</span>;
+                return <span key={`${c}-${idx}`} className="bg-white rounded px-1 shadow-sm">{c.substring(0, 2).toUpperCase()}</span>;
               })}
             </div>
           )}
@@ -215,4 +223,6 @@ export default function KanbanCard({ card, users, onClick, onCompleteCard, isOve
       )}
     </div>
   );
-}
+});
+
+export default KanbanCard;

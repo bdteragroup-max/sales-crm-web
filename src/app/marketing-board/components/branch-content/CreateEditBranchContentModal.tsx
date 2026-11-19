@@ -28,6 +28,7 @@ import {
   submitBranchContentForReview,
 } from '@/app/actions/branchContent';
 import { matchBranch } from '@/app/lib/roleHelper';
+import { uploadBranchContentMediaFile } from '@/app/lib/branchContentMediaUpload';
 import type {
   BranchContentItem,
   BranchContentPermissions,
@@ -104,6 +105,7 @@ export default function CreateEditBranchContentModal({
   const [mediaList, setMediaList] = useState<UploadedMediaDraft[]>([]);
   const [removedMediaIds, setRemovedMediaIds] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Searchable Assignee Dropdown state
@@ -257,71 +259,52 @@ export default function CreateEditBranchContentModal({
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length === 0) return;
 
     setIsUploading(true);
-    try {
-      const uploadedItems: UploadedMediaDraft[] = [];
+    setUploadProgress({ current: 0, total: files.length });
 
+    const uploadedItems: UploadedMediaDraft[] = [];
+    const failedErrors: string[] = [];
+
+    try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (file.size > 50 * 1024 * 1024) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'ไฟล์มีขนาดใหญ่เกินกำหนด',
-            text: `ไฟล์ "${file.name}" มีขนาดเกิน 50MB กรุณาบีบอัดหรือแนบลิงก์ในช่อง Reference URL แทน`,
-          });
-          continue;
-        }
+        setUploadProgress({ current: i + 1, total: files.length });
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('bucket', 'uploadsService');
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        const data = await res.json();
-
-        if (data.success && data.url) {
-          const mime = file.type || '';
-          const fileType: 'IMAGE' | 'VIDEO' | 'DOCUMENT' = mime.startsWith('video/')
-            ? 'VIDEO'
-            : mime.startsWith('image/')
-            ? 'IMAGE'
-            : 'DOCUMENT';
-
+        try {
+          const uploaded = await uploadBranchContentMediaFile(file);
           uploadedItems.push({
-            fileType,
-            fileName: file.name,
-            fileUrl: data.url,
-            thumbnailUrl: fileType === 'IMAGE' ? data.url : undefined,
-            fileSize: file.size,
-            mimeType: mime,
+            ...uploaded,
             isExisting: false,
           });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'อัปโหลดไฟล์ไม่สำเร็จ',
-            text: data.error || `ไม่สามารถอัปโหลดไฟล์ ${file.name} ได้`,
-          });
+        } catch (fileErr: unknown) {
+          const message =
+            fileErr instanceof Error && fileErr.message
+              ? fileErr.message
+              : `ไม่สามารถอัปโหลดไฟล์ "${file.name}" ได้`;
+          failedErrors.push(message);
         }
       }
 
       if (uploadedItems.length > 0) {
         setMediaList(prev => [...prev, ...uploadedItems]);
       }
-    } catch (err: any) {
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาดในการอัปโหลด',
-        text: err?.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้',
-      });
+
+      if (failedErrors.length > 0) {
+        Swal.fire({
+          icon: uploadedItems.length > 0 ? 'warning' : 'error',
+          title:
+            uploadedItems.length > 0
+              ? `อัปโหลดสำเร็จ ${uploadedItems.length} ไฟล์ แต่มีบางไฟล์ไม่สำเร็จ`
+              : 'เกิดข้อผิดพลาดในการอัปโหลด',
+          text: failedErrors[0],
+        });
+      }
     } finally {
       setIsUploading(false);
+      setUploadProgress(null);
       e.target.value = '';
     }
   };
@@ -884,7 +867,11 @@ export default function CreateEditBranchContentModal({
               <label className="flex flex-col items-center justify-center w-full p-5 border-2 border-dashed border-slate-300 hover:border-red-500 rounded-2xl bg-white hover:bg-red-50/30 cursor-pointer transition-all">
                 <Upload size={24} className="text-red-500 mb-1.5" />
                 <span className="font-bold text-slate-700 text-xs">
-                  {isUploading ? 'กำลังอัปโหลดไฟล์...' : 'คลิกเพื่อเลือกไฟล์รูปภาพ (JPG, PNG) หรือวิดีโอ (MP4)'}
+                  {isUploading
+                    ? uploadProgress
+                      ? `กำลังอัปโหลดไฟล์ (${uploadProgress.current}/${uploadProgress.total})...`
+                      : 'กำลังอัปโหลดไฟล์...'
+                    : 'คลิกเพื่อเลือกไฟล์รูปภาพ (JPG, PNG, JFIF, WebP) หรือวิดีโอ (MP4)'}
                 </span>
                 <span className="text-[11px] text-slate-400 mt-0.5">
                   สามารถเลือกพร้อมกันหลายไฟล์ได้ (จะถูกผูกกับ Version ปัจจุบันโดยอัตโนมัติ)
@@ -892,7 +879,7 @@ export default function CreateEditBranchContentModal({
                 <input
                   type="file"
                   multiple
-                  accept="image/*,video/*,.pdf"
+                  accept="image/*,.jfif,.png,.jpg,.jpeg,.webp,video/*,.pdf"
                   disabled={isUploading}
                   onChange={handleFileUpload}
                   className="hidden"

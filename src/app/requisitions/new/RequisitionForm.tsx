@@ -19,7 +19,6 @@ import {
   Check,
   Upload,
   FileSignature,
-  UserCheck,
   Package,
   Trash2,
 } from 'lucide-react';
@@ -30,6 +29,13 @@ import RequisitionItemsSection, {
   type EquipmentItem,
   type ClaimItem,
 } from './RequisitionItemsSection';
+import RequisitionCompanySelector from '../components/RequisitionCompanySelector';
+import RequisitionApproverSelector from '../components/RequisitionApproverSelector';
+import {
+  type RequisitionCompanyName,
+  formatRequisitionCompanyValue,
+  canSelfApproveRequisition,
+} from '@/app/lib/requisitionUtils';
 
 interface UserOption {
   id: string;
@@ -211,14 +217,15 @@ export default function RequisitionForm({
 
   // Shared Common Fields
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [company, setCompany] = useState('Group');
+  const [selectedCompanies, setSelectedCompanies] = useState<RequisitionCompanyName[]>(['Group']);
+  const company = formatRequisitionCompanyValue(selectedCompanies);
   const [branch, setBranch] = useState(initialBranch || 'BKK-HQ');
 
   // Approver Selection
   const [approverId, setApproverId] = useState('');
   const [approverSearch, setApproverSearch] = useState('');
   const [isApproverOpen, setIsApproverOpen] = useState(false);
-  const approverRef = useRef<HTMLDivElement>(null);
+  const [selfApproveWithRequesterSignature, setSelfApproveWithRequesterSignature] = useState(true);
 
   // 2. Specific Fields for "PROJECT"
   const [selectedProjectId, setSelectedProjectId] = useState<string>(initialMatchedProject?.id || initialProjectId || '');
@@ -312,9 +319,6 @@ export default function RequisitionForm({
   // Click/touch outside listener for dropdowns
   useEffect(() => {
     function handleClickOutside(event: PointerEvent) {
-      if (approverRef.current && !approverRef.current.contains(event.target as Node)) {
-        setIsApproverOpen(false);
-      }
       if (projectRef.current && !projectRef.current.contains(event.target as Node)) {
         setIsProjectDropdownOpen(false);
       }
@@ -328,10 +332,6 @@ export default function RequisitionForm({
     document.addEventListener('pointerdown', handleClickOutside);
     return () => document.removeEventListener('pointerdown', handleClickOutside);
   }, []);
-
-  const filteredApprovers = users.filter((u) =>
-    u.fullName.toLowerCase().includes(approverSearch.toLowerCase())
-  );
 
   const filterProjectsByQuery = (query: string) => {
     const q = query.toLowerCase();
@@ -498,7 +498,7 @@ export default function RequisitionForm({
           return;
         }
 
-        let foundCompany = 'Group';
+        const excelCompanies: RequisitionCompanyName[] = [];
         let foundDeliveryDateText = '';
         let detectedProjectName = '';
         const parsedItems: ProjectItem[] = [];
@@ -515,9 +515,9 @@ export default function RequisitionForm({
 
         if (data[2]) {
           const r2 = data[2];
-          if (r2[3] === '/' || r2[3] === '✓') foundCompany = 'Group';
-          else if (r2[4] === '/' || r2[4] === '✓') foundCompany = 'Electric';
-          else if (r2[5] === '/' || r2[5] === '✓') foundCompany = 'Power';
+          if (r2[3] === '/' || r2[3] === '✓') excelCompanies.push('Group');
+          if (r2[4] === '/' || r2[4] === '✓') excelCompanies.push('Electric');
+          if (r2[5] === '/' || r2[5] === '✓') excelCompanies.push('Power');
         }
 
         let startRow = 4;
@@ -563,7 +563,7 @@ export default function RequisitionForm({
 
         if (parsedItems.length > 0) {
           setProjectItems(parsedItems);
-          if (foundCompany) setCompany(foundCompany);
+          if (excelCompanies.length > 0) setSelectedCompanies(excelCompanies);
           if (foundDeliveryDateText && !deliveryNote) {
             setDeliveryNote(foundDeliveryDateText);
           }
@@ -672,7 +672,11 @@ export default function RequisitionForm({
         // ignore storage errors
       }
 
-      const payload =
+      const isSelfApproveSubmit =
+        selfApproveWithRequesterSignature &&
+        canSelfApproveRequisition(currentUser?.id, approverId);
+
+      const basePayload =
         requisitionType === 'PROJECT'
           ? {
             date,
@@ -721,7 +725,10 @@ export default function RequisitionForm({
               deliveryNote: borrowPurpose,
             };
 
-      const res = await createMaterialRequisition(payload);
+      const res = await createMaterialRequisition({
+        ...basePayload,
+        ...(isSelfApproveSubmit ? { selfApproveWithRequesterSignature: true } : {}),
+      });
 
       if (res.success) {
         Swal.fire({
@@ -732,7 +739,9 @@ export default function RequisitionForm({
               : requisitionType === 'CLAIM'
                 ? 'สร้างใบเบิกเคลมสินค้าเรียบร้อยแล้ว'
                 : 'สร้างใบเบิกยืมเครื่องมือเรียบร้อยแล้ว',
-          text: 'ระบบได้ส่งการแจ้งเตือนไปยังผู้อนุมัติเรียบร้อยแล้ว',
+          text: res.autoApproved
+            ? 'ลงนามอนุมัติด้วยลายเซ็นผู้ขอเบิกและแจ้งสโตร์เรียบร้อยแล้ว'
+            : 'ระบบได้ส่งการแจ้งเตือนไปยังผู้อนุมัติเรียบร้อยแล้ว',
           timer: 2000,
           showConfirmButton: false,
         });
@@ -1465,34 +1474,10 @@ export default function RequisitionForm({
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">สังกัดบริษัท (Company)</label>
-            <div className="grid grid-cols-3 gap-2">
-              {['Group', 'Electric', 'Power'].map((c) => {
-                const isSelected = company === c;
-                return (
-                  <label
-                    key={c}
-                    className={`min-h-[44px] px-2.5 rounded-xl border-2 flex items-center justify-center gap-1.5 cursor-pointer text-xs sm:text-sm font-bold transition-all active:scale-[0.98] ${isSelected
-                        ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                      }`}
-                  >
-                    <input
-                      type="radio"
-                      name="company"
-                      value={c}
-                      checked={isSelected}
-                      onChange={(e) => setCompany(e.target.value)}
-                      className="sr-only"
-                    />
-                    {isSelected && <Check size={14} strokeWidth={3} />}
-                    <span>{c}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
+          <RequisitionCompanySelector
+            selectedCompanies={selectedCompanies}
+            onChange={setSelectedCompanies}
+          />
         </div>
       </div>
 
@@ -1529,81 +1514,42 @@ export default function RequisitionForm({
                 : 'ผู้อนุมัติโครงการ (Project Approver)'
           }
         />
-        <div className="max-w-md" ref={approverRef}>
-          <label className="block text-xs font-bold text-slate-700 mb-1.5">
-            เลือกหัวหน้า / ผู้มีอำนาจอนุมัติ <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={approverSearch}
-              onChange={(e) => {
-                setApproverSearch(e.target.value);
-                setIsApproverOpen(true);
-                if (approverId) setApproverId('');
-              }}
-              onFocus={() => setIsApproverOpen(true)}
-              placeholder="พิมพ์เพื่อค้นหาผู้อนุมัติ (PM / หัวหน้าช่าง / ผู้จัดการ)..."
-              className={`${fieldBase} pr-10 focus:ring-2 focus:ring-red-500/20 focus:border-red-500`}
-            />
-            {approverSearch && (
-              <button
-                type="button"
-                onClick={() => {
-                  setApproverSearch('');
-                  setApproverId('');
-                }}
-                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-600 rounded-lg"
-                aria-label="ล้างค่าผู้อนุมัติ"
-              >
-                <X size={16} />
-              </button>
-            )}
-            {isApproverOpen && (
-              <div className="absolute z-30 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100">
-                {filteredApprovers.length > 0 ? (
-                  filteredApprovers.map((u) => (
-                    <div
-                      key={u.id}
-                      className={`px-4 py-3 cursor-pointer hover:bg-slate-50 active:bg-slate-100 text-slate-700 text-sm flex items-center justify-between ${approverId === u.id ? 'bg-red-50/70 text-red-900 font-bold' : ''
-                        }`}
-                      onClick={() => {
-                        setApproverId(u.id);
-                        setApproverSearch(u.fullName);
-                        setIsApproverOpen(false);
-                      }}
-                    >
-                      <span className="font-semibold">{u.fullName}</span>
-                      {approverId === u.id && <Check size={15} className="text-red-600 shrink-0" />}
-                    </div>
-                  ))
-                ) : (
-                  <div className="px-4 py-3 text-slate-400 text-xs">ไม่พบรายชื่อผู้อนุมัติ</div>
-                )}
-              </div>
-            )}
-          </div>
-          {approverId ? (
-            <p className="text-xs text-emerald-700 font-semibold mt-1.5 inline-flex items-center gap-1">
-              <UserCheck size={14} /> เลือกผู้อนุมัติแล้ว: {approverSearch}
-            </p>
-          ) : (
-            <p className="text-[11px] text-slate-400 mt-1.5">
-              ระบบจะส่งแจ้งเตือนไปยังผู้อนุมัติโดยอัตโนมัติ
-            </p>
-          )}
-        </div>
+        <RequisitionApproverSelector
+          users={users}
+          currentUserId={currentUser?.id}
+          currentUserName={currentUser?.fullName}
+          approverId={approverId}
+          approverSearch={approverSearch}
+          onApproverChange={(id, fullName) => {
+            setApproverId(id);
+            setApproverSearch(fullName);
+          }}
+          onSearchChange={setApproverSearch}
+          selfApproveChecked={selfApproveWithRequesterSignature}
+          onSelfApproveChange={setSelfApproveWithRequesterSignature}
+          isOpen={isApproverOpen}
+          onOpenChange={setIsApproverOpen}
+          fieldClassName={fieldBase}
+        />
       </div>
 
       {/* ── 6. SIGNATURE SECTION (Calibrated Touch Pad + One-Tap Saved Reuse) ── */}
       <div id="sec-signature" className="pt-4 border-t border-slate-100 scroll-mt-14 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 max-w-[460px] mx-auto">
-          <label className="text-xs sm:text-sm font-bold text-slate-800 inline-flex items-center gap-1.5">
-            <FileSignature size={16} className="text-slate-600" />
-            <span>
-              ลายมือชื่อผู้ขอเบิก (Signature) <span className="text-red-500">*</span>
-            </span>
-          </label>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <label className="text-xs sm:text-sm font-bold text-slate-800 inline-flex items-center gap-1.5">
+              <FileSignature size={16} className="text-slate-600" />
+              <span>
+                ลายมือชื่อผู้ขอเบิก (Signature) <span className="text-red-500">*</span>
+              </span>
+            </label>
+            {canSelfApproveRequisition(currentUser?.id, approverId) &&
+              selfApproveWithRequesterSignature && (
+                <span className="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+                  ใช้เป็นลายเซ็นผู้อนุมัติด้วย
+                </span>
+              )}
+          </div>
 
           <div className="flex items-center gap-2">
             {effectiveSavedSig && (
@@ -1674,7 +1620,13 @@ export default function RequisitionForm({
             <p className="text-slate-900 font-bold text-xs sm:text-sm">
               ({currentUser?.fullName || 'ผู้ขอเบิก'})
             </p>
-            <p className="text-slate-400 text-[11px]">ผู้ขอเบิก</p>
+            <p className="text-slate-400 text-[11px]">
+              ผู้ขอเบิก
+              {canSelfApproveRequisition(currentUser?.id, approverId) &&
+              selfApproveWithRequesterSignature
+                ? ' และผู้อนุมัติ (ใช้ลายเซ็นเดียวกัน)'
+                : ''}
+            </p>
           </div>
         </div>
       </div>

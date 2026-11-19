@@ -13,9 +13,21 @@ import {
 import {
   isNonReturnableRequisitionType,
   getCompletedStatusLabel,
-  getNonReturnableLabel,
-  getNonReturnableBadgeClass,
 } from '@/app/lib/requisitionUtils';
+import {
+  uploadSelectedPhotoFiles,
+  uploadRequisitionPhotoFile,
+  ensureUploadedPhotoList,
+  ensureUploadedMediaUrl,
+  formatServerActionError,
+} from '@/app/lib/requisitionPhotoUpload';
+import RequisitionItemsInteractiveSection, {
+  openPreparingPdfTab,
+  type RequisitionItemsDraftState,
+} from '@/app/requisitions/components/RequisitionItemsInteractiveSection';
+import RequisitionTransportSignModal from '@/app/requisitions/components/RequisitionTransportSignModal';
+import RequisitionAccountingSignModal from '@/app/requisitions/components/RequisitionAccountingSignModal';
+import RequisitionSignaturesGrid from '@/app/requisitions/components/RequisitionSignaturesGrid';
 import {
   CheckCircle,
   Loader2,
@@ -44,9 +56,8 @@ import {
   ShieldCheck,
   ArrowLeft,
   FileSignature,
-  Hash,
-  MessageSquare,
-  ListChecks,
+  Truck,
+  FileCheck2,
 } from 'lucide-react';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
@@ -55,7 +66,16 @@ import SignatureCanvas from 'react-signature-canvas';
 interface StoreFulfillFormProps {
   requisition: any;
   currentUserName?: string;
+  userRole?: string;
   savedStoreSignatureUrl?: string | null;
+  savedAccountingSignatureUrl?: string | null;
+  savedTransportSignatureUrl?: string | null;
+  canManageStore?: boolean;
+  canSignAccounting?: boolean;
+  canSignTransport?: boolean;
+  isAccountingUser?: boolean;
+  isTransportUser?: boolean;
+  canEditUsedItems?: boolean;
 }
 
 function formatDateTH(raw: any): string {
@@ -87,6 +107,14 @@ export default function StoreFulfillForm({
   requisition: initialRequisition,
   currentUserName = 'เจ้าหน้าที่สโตร์',
   savedStoreSignatureUrl = null,
+  savedAccountingSignatureUrl = null,
+  savedTransportSignatureUrl = null,
+  canManageStore = true,
+  canSignAccounting = false,
+  canSignTransport = true,
+  isAccountingUser = false,
+  isTransportUser = false,
+  canEditUsedItems: canEditUsedItemsProp = true,
 }: StoreFulfillFormProps) {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -94,11 +122,15 @@ export default function StoreFulfillForm({
   const [requisition, setRequisition] = useState(initialRequisition);
   const [loading, setLoading] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [usedItemChecks, setUsedItemChecks] = useState<boolean[]>(() =>
-    (Array.isArray(initialRequisition.items) ? initialRequisition.items : []).map(
-      () => true
-    )
-  );
+  const [isTransportModalOpen, setIsTransportModalOpen] = useState(false);
+  const [isAccountingModalOpen, setIsAccountingModalOpen] = useState(false);
+  const [itemsDraftState, setItemsDraftState] = useState<RequisitionItemsDraftState>(() => ({
+    keptItems: Array.isArray(initialRequisition.items) ? initialRequisition.items : [],
+    removedCount: 0,
+    addedCount: 0,
+    hasBlankNewError: false,
+    hasChanges: false,
+  }));
   const [isSavingUsedItems, setIsSavingUsedItems] = useState(false);
   const [pullStoreSignature, setPullStoreSignature] = useState(false);
   const effectiveSavedStoreSig = savedStoreSignatureUrl || localSavedStoreSig || null;
@@ -147,6 +179,7 @@ export default function StoreFulfillForm({
   const [storeStaffSigFile, setStoreStaffSigFile] = useState<string | null>(null);
   const [receiverSigFile, setReceiverSigFile] = useState<string | null>(null);
   const [isSubmittingHandover, setIsSubmittingHandover] = useState(false);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
 
   const storeSigPad = useRef<any>(null);
   const receiverSigPad = useRef<any>(null);
@@ -166,10 +199,6 @@ export default function StoreFulfillForm({
 
   useEffect(() => {
     setRequisition(initialRequisition);
-    const list = Array.isArray(initialRequisition.items)
-      ? initialRequisition.items
-      : [];
-    setUsedItemChecks(list.map(() => true));
   }, [initialRequisition]);
 
   // Lock body scroll when any modal/overlay is open
@@ -290,23 +319,40 @@ export default function StoreFulfillForm({
 
   const itemsList = Array.isArray(requisition.items) ? requisition.items : [];
   const canEditUsedItems =
+    canEditUsedItemsProp &&
     requisition.status !== 'RETURNED' &&
-    requisition.status !== 'REJECTED' &&
-    itemsList.length > 0;
-  const keptItems = itemsList.filter(
-    (_: any, idx: number) => usedItemChecks[idx] !== false
-  );
-  const removedCount = itemsList.length - keptItems.length;
+    requisition.status !== 'REJECTED';
+  const {
+    keptItems,
+    removedCount,
+    addedCount,
+    hasBlankNewError,
+    hasChanges: hasItemDraftChanges,
+  } = itemsDraftState;
 
-  const handleSaveUsedItemsAndOpenPdf = async () => {
-    if (canEditUsedItems && keptItems.length === 0) {
+  const validateItemDraftBeforeSubmit = (): boolean => {
+    if (!canEditUsedItems) return true;
+    if (hasBlankNewError) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณากรอกชื่อสินค้าที่เพิ่มใหม่ให้ครบถ้วน',
+        text: 'กรอกรายละเอียดสินค้าที่เพิ่มใหม่ หรือเอาเครื่องหมายถูก/กดลบแถวที่ว่างออก',
+      });
+      return false;
+    }
+    if (keptItems.length === 0) {
       Swal.fire({
         icon: 'warning',
         title: 'กรุณาติ๊กสิ่งที่ใช้จริงอย่างน้อย 1 รายการ',
         text: 'หากไม่ได้เบิกทุกรายการเลย กรุณาปฏิเสธหรือลบใบเบิกแทน',
       });
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const handleSaveUsedItemsAndOpenPdf = async () => {
+    if (!validateItemDraftBeforeSubmit()) return;
 
     const pdfUrl = `/requisitions/${requisition.id}/pdf`;
     const sigToApply =
@@ -314,42 +360,12 @@ export default function StoreFulfillForm({
         ? effectiveSavedStoreSig
         : undefined;
 
-    if (!canEditUsedItems || (removedCount === 0 && !sigToApply)) {
+    if (!canEditUsedItems || (!hasItemDraftChanges && !sigToApply)) {
       window.open(pdfUrl, '_blank');
       return;
     }
 
-    // Open tab synchronously inside click gesture so mobile/desktop browsers never block it
-    const pdfWin = window.open('', '_blank');
-    if (pdfWin) {
-      try {
-        pdfWin.document.write(`
-          <!DOCTYPE html>
-          <html lang="th">
-            <head>
-              <meta charset="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>กำลังจัดเตรียมเอกสาร PDF...</title>
-              <style>
-                body { margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; text-align: center; padding: 20px; }
-                .spinner { width: 38px; height: 38px; border: 3px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.75s linear infinite; margin-bottom: 14px; }
-                @keyframes spin { to { transform: rotate(360deg); } }
-                .title { font-size: 15px; font-weight: 700; }
-                .sub { font-size: 12px; color: #64748b; margin-top: 6px; }
-              </style>
-            </head>
-            <body>
-              <div class="spinner"></div>
-              <div class="title">กำลังอัปเดตรายการที่ใช้จริงและสร้างหน้า PDF...</div>
-              <div class="sub">กำลังลบรายการที่ไม่ได้ติ๊ก ${removedCount} รายการออกอัตโนมัติ</div>
-            </body>
-          </html>
-        `);
-        pdfWin.document.close();
-      } catch {
-        // ignore write edge cases
-      }
-    }
+    const pdfWin = openPreparingPdfTab(removedCount, addedCount);
 
     setIsSavingUsedItems(true);
     try {
@@ -359,16 +375,16 @@ export default function StoreFulfillForm({
       });
 
       if (res.success) {
+        const savedItems = res.items || keptItems;
         setRequisition((prev: any) => ({
           ...prev,
-          items: keptItems,
+          items: savedItems,
           storeStaffSignatureUrl:
             res.storeStaffSignatureUrl || sigToApply || prev.storeStaffSignatureUrl,
           storeStaffName:
             res.storeStaffName || (sigToApply ? currentUserName : prev.storeStaffName),
           dispensedAt: res.dispensedAt || prev.dispensedAt,
         }));
-        setUsedItemChecks(keptItems.map(() => true));
 
         if (pdfWin && !pdfWin.closed) {
           pdfWin.location.replace(pdfUrl);
@@ -376,12 +392,16 @@ export default function StoreFulfillForm({
           window.location.href = pdfUrl;
         }
 
+        const msgParts: string[] = [];
+        if (addedCount > 0) msgParts.push(`เพิ่ม ${addedCount} รายการ`);
+        if (removedCount > 0) msgParts.push(`ลบที่ไม่ใช้ ${removedCount} รายการ`);
+
         Swal.fire({
           toast: true,
           position: 'top-end',
           icon: 'success',
-          title: `ลบรายการที่ไม่ใช้ ${removedCount} รายการอัตโนมัติแล้ว`,
-          text: `แสดงหน้า PDF เฉพาะ ${keptItems.length} รายการที่ใช้จริง`,
+          title: msgParts.length > 0 ? `บันทึกรายการสำเร็จ (${msgParts.join(', ')})` : 'บันทึกข้อมูล PDF สำเร็จ',
+          text: `แสดงหน้า PDF ทั้งหมด ${savedItems.length} รายการ`,
           showConfirmButton: false,
           timer: 2800,
         });
@@ -400,7 +420,7 @@ export default function StoreFulfillForm({
       Swal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
+        text: formatServerActionError(e, 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'),
       });
     } finally {
       setIsSavingUsedItems(false);
@@ -408,35 +428,31 @@ export default function StoreFulfillForm({
   };
 
   const executeComplete = async () => {
-    if (canEditUsedItems && keptItems.length === 0) {
+    if (!validateItemDraftBeforeSubmit()) {
       setIsConfirmOpen(false);
-      Swal.fire({
-        icon: 'warning',
-        title: 'กรุณาติ๊กสิ่งที่ใช้จริงอย่างน้อย 1 รายการ',
-      });
       return;
     }
 
     setLoading(true);
     setIsConfirmOpen(false);
     try {
-      if (canEditUsedItems && removedCount > 0) {
+      if (canEditUsedItems && hasItemDraftChanges) {
         const res = await confirmUsedRequisitionItems(requisition.id, {
           keptItems,
           markCompleted: true,
         });
         if (res.success) {
+          const savedItems = res.items || keptItems;
           setRequisition((prev: any) => ({
             ...prev,
             status: 'COMPLETED',
-            items: keptItems,
+            items: savedItems,
           }));
-          setUsedItemChecks(keptItems.map(() => true));
           Swal.fire({
             toast: true,
             position: 'top-end',
             icon: 'success',
-            title: `ส่งมอบของที่ใช้จริง ${keptItems.length} รายการ (ลบ ${removedCount} รายการที่ไม่ใช้แล้ว)`,
+            title: `ส่งมอบของที่ใช้จริง ${savedItems.length} รายการ${removedCount > 0 ? ` (ลบ ${removedCount} รายการที่ไม่ใช้แล้ว)` : ''}`,
             showConfirmButton: false,
             timer: 2500,
           });
@@ -474,7 +490,7 @@ export default function StoreFulfillForm({
       Swal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
+        text: formatServerActionError(e, 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'),
       });
     } finally {
       setLoading(false);
@@ -594,7 +610,7 @@ export default function StoreFulfillForm({
       Swal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
+        text: formatServerActionError(e, 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'),
       });
     } finally {
       setIsSubmittingReturn(false);
@@ -618,25 +634,30 @@ export default function StoreFulfillForm({
     setIsHandoverModalOpen(true);
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    Array.from(files).forEach((file) => {
-      if (file.size > 8 * 1024 * 1024) {
-        Swal.fire({ icon: 'warning', title: 'ไฟล์มีขนาดใหญ่เกิน 8MB' });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        if (result) {
-          setHandoverPhotos((prev) => [...prev, result]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
     e.target.value = '';
+    if (files.length === 0) return;
+
+    setIsUploadingPhotos(true);
+    try {
+      const { uploadedUrls, failedMessages } = await uploadSelectedPhotoFiles(
+        files,
+        'req-pod'
+      );
+      if (uploadedUrls.length > 0) {
+        setHandoverPhotos((prev) => [...prev, ...uploadedUrls]);
+      }
+      if (failedMessages.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'อัปโหลดรูปภาพบางส่วนไม่สำเร็จ',
+          text: failedMessages[0],
+        });
+      }
+    } finally {
+      setIsUploadingPhotos(false);
+    }
   };
 
   const handleRemovePhoto = (index: number) => {
@@ -649,17 +670,20 @@ export default function StoreFulfillForm({
       return;
     }
 
-    if (canEditUsedItems && keptItems.length === 0) {
+    if (isUploadingPhotos) {
       Swal.fire({
-        icon: 'warning',
-        title: 'กรุณาติ๊กสิ่งที่ใช้จริงอย่างน้อย 1 รายการ',
+        icon: 'info',
+        title: 'กำลังอัปโหลดรูปภาพ',
+        text: 'กรุณารอให้อัปโหลดรูปภาพเสร็จสิ้นก่อนกดบันทึก',
       });
       return;
     }
 
+    if (!validateItemDraftBeforeSubmit()) return;
+
     setIsSubmittingHandover(true);
     try {
-      if (canEditUsedItems && removedCount > 0) {
+      if (canEditUsedItems && hasItemDraftChanges) {
         const pruneRes = await confirmUsedRequisitionItems(requisition.id, {
           keptItems,
         });
@@ -674,10 +698,30 @@ export default function StoreFulfillForm({
         }
       }
 
-      const storeSigData =
+      const rawStoreSigData =
         storeStaffSigFile || extractSignatureDataUrl(storeSigPad);
-      const receiverSigData =
+      const rawReceiverSigData =
         receiverSigFile || extractSignatureDataUrl(receiverSigPad);
+
+      const storeSigData = rawStoreSigData
+        ? await ensureUploadedMediaUrl(rawStoreSigData, 'req-sig', 200_000, {
+            maxDimension: 1200,
+            quality: 0.85,
+            preserveAlpha: true,
+          })
+        : undefined;
+      const receiverSigData = rawReceiverSigData
+        ? await ensureUploadedMediaUrl(rawReceiverSigData, 'req-sig', 200_000, {
+            maxDimension: 1200,
+            quality: 0.85,
+            preserveAlpha: true,
+          })
+        : undefined;
+      const uploadedPhotos = await ensureUploadedPhotoList(
+        handoverPhotos,
+        'req-pod'
+      );
+      setHandoverPhotos(uploadedPhotos);
 
       if (!requisition.storeStaffSignatureUrl && storeSigData) {
         try {
@@ -686,18 +730,31 @@ export default function StoreFulfillForm({
         } catch {
           // ignore storage quota edge cases
         }
-        await recordStoreFulfill(requisition.id, {
+        const fulfillRes = await recordStoreFulfill(requisition.id, {
           storeStaffName: handoverStoreStaffName,
           storeStaffSignatureUrl: storeSigData,
           deliveryNote: handoverDeliveryNote,
         });
+        if (!fulfillRes.success) {
+          Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: fulfillRes.error || 'ไม่สามารถบันทึกลายเซ็นเจ้าหน้าที่สโตร์ได้',
+          });
+          return;
+        }
+        setRequisition((prev: any) => ({
+          ...prev,
+          storeStaffName: handoverStoreStaffName || prev.storeStaffName,
+          storeStaffSignatureUrl: storeSigData,
+        }));
       }
 
       const res = await recordSiteHandover(requisition.id, {
         receiverName: handoverReceiverName,
         receiverSignatureUrl:
           receiverSigData || requisition.receiverSignatureUrl || undefined,
-        deliveryPhotos: handoverPhotos,
+        deliveryPhotos: uploadedPhotos,
         deliveryNote: handoverDeliveryNote,
       });
 
@@ -705,18 +762,15 @@ export default function StoreFulfillForm({
         setRequisition((prev: any) => ({
           ...prev,
           status: 'COMPLETED',
-          items: canEditUsedItems && removedCount > 0 ? keptItems : prev.items,
+          items: canEditUsedItems && hasItemDraftChanges ? keptItems : prev.items,
           receiverName: handoverReceiverName,
           receiverSignatureUrl: receiverSigData || prev.receiverSignatureUrl,
-          storeStaffName: handoverStoreStaffName || prev.storeStaffName,
+          storeStaffName: storeSigData ? handoverStoreStaffName : prev.storeStaffName,
           storeStaffSignatureUrl: storeSigData || prev.storeStaffSignatureUrl,
-          deliveryPhotos: handoverPhotos,
+          deliveryPhotos: uploadedPhotos,
           deliveryNote: handoverDeliveryNote,
           receivedAt: new Date().toISOString(),
         }));
-        if (canEditUsedItems && removedCount > 0) {
-          setUsedItemChecks(keptItems.map(() => true));
-        }
 
         Swal.fire({
           icon: 'success',
@@ -734,11 +788,11 @@ export default function StoreFulfillForm({
           text: res.error || 'ไม่สามารถบันทึกได้',
         });
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       Swal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: e.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
+        text: formatServerActionError(e, 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'),
       });
     } finally {
       setIsSubmittingHandover(false);
@@ -764,14 +818,58 @@ export default function StoreFulfillForm({
       }
     >
       {/* Primary Mobile-Friendly Handover / POD Button */}
-      <button
-        type="button"
-        onClick={openHandoverModal}
-        className="min-h-[44px] px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white rounded-xl font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-2 shadow-xs transition-all"
-      >
-        <Smartphone size={17} className="shrink-0" />
-        <span>ตรวจรับหน้างาน (เซ็นรับ + รูปถ่าย)</span>
-      </button>
+      {canManageStore && (
+        <button
+          type="button"
+          onClick={openHandoverModal}
+          className="min-h-[44px] px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white rounded-xl font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-2 shadow-xs transition-all"
+        >
+          <Smartphone size={17} className="shrink-0" />
+          <span>ตรวจรับหน้างาน (เซ็นรับ + รูปถ่าย)</span>
+        </button>
+      )}
+
+      {canSignTransport &&
+        requisition.status !== 'PENDING_APPROVAL' &&
+        requisition.status !== 'REJECTED' && (
+          <button
+            type="button"
+            onClick={() => setIsTransportModalOpen(true)}
+            className={`min-h-[44px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-2 shadow-xs transition-all ${
+              requisition.transportSignatureUrl
+                ? 'bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-300'
+                : 'bg-orange-600 hover:bg-orange-700 text-white'
+            }`}
+          >
+            <Truck size={17} className="shrink-0" />
+            <span>
+              {requisition.transportSignatureUrl
+                ? 'ขนส่งเซ็นรับแล้ว (ดู/แก้ไข)'
+                : 'ขนส่ง / ขนส่งนอก เซ็นรับสินค้า'}
+            </span>
+          </button>
+        )}
+
+      {canSignAccounting &&
+        requisition.status !== 'PENDING_APPROVAL' &&
+        requisition.status !== 'REJECTED' && (
+          <button
+            type="button"
+            onClick={() => setIsAccountingModalOpen(true)}
+            className={`min-h-[44px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-2 shadow-xs transition-all ${
+              requisition.accountingSignatureUrl
+                ? 'bg-violet-50 hover:bg-violet-100 text-violet-800 border border-violet-300'
+                : 'bg-violet-600 hover:bg-violet-700 text-white'
+            }`}
+          >
+            <FileCheck2 size={17} className="shrink-0" />
+            <span>
+              {requisition.accountingSignatureUrl
+                ? 'บัญชีรับทราบแล้ว (ดู/แก้ไข)'
+                : 'บัญชีเซ็นรับทราบปล่อยของ'}
+            </span>
+          </button>
+        )}
 
       {requisition.status === 'PENDING_APPROVAL' && (
         <Link
@@ -783,7 +881,7 @@ export default function StoreFulfillForm({
         </Link>
       )}
 
-      {requisition.status === 'APPROVED' && (
+      {canManageStore && requisition.status === 'APPROVED' && (
         <button
           type="button"
           disabled={loading}
@@ -799,7 +897,8 @@ export default function StoreFulfillForm({
         </button>
       )}
 
-      {!isNonReturnableRequisitionType(requisition.requisitionType) &&
+      {canManageStore &&
+        !isNonReturnableRequisitionType(requisition.requisitionType) &&
         (requisition.status === 'COMPLETED' ||
           requisition.status === 'PARTIALLY_RETURNED' ||
           requisition.status === 'RETURN_PENDING') && (
@@ -823,7 +922,7 @@ export default function StoreFulfillForm({
           </button>
         )}
 
-      {requisition.status === 'RETURNED' && (
+      {canManageStore && requisition.status === 'RETURNED' && (
         <button
           type="button"
           onClick={openReturnModal}
@@ -840,7 +939,7 @@ export default function StoreFulfillForm({
           disabled={isSavingUsedItems || (canEditUsedItems && keptItems.length === 0)}
           onClick={handleSaveUsedItemsAndOpenPdf}
           className={`min-h-[44px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-50 ${
-            canEditUsedItems && removedCount > 0
+            canEditUsedItems && hasItemDraftChanges
               ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs'
               : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
           }`}
@@ -851,14 +950,14 @@ export default function StoreFulfillForm({
             <Printer
               size={16}
               className={`shrink-0 ${
-                canEditUsedItems && removedCount > 0 ? 'text-white' : 'text-slate-500'
+                canEditUsedItems && hasItemDraftChanges ? 'text-white' : 'text-slate-500'
               }`}
             />
           )}
           <span>
-            {canEditUsedItems && removedCount > 0
-              ? `ยืนยันสิ่งที่ใช้ (${keptItems.length}) & แสดง PDF (ลบ ${removedCount} รายการ)`
-              : 'พิมพ์ PDF 4 ลายเซ็น'}
+            {canEditUsedItems && hasItemDraftChanges
+              ? `บันทึก (${keptItems.length}) & แสดง PDF`
+              : 'พิมพ์ PDF 6 ลายเซ็น'}
           </span>
         </button>
       )}
@@ -1493,16 +1592,32 @@ export default function StoreFulfillForm({
                             <input
                               type="file"
                               accept="image/*"
+                              disabled={isUploadingPhotos}
                               className="hidden"
-                              onChange={(e) => {
+                              onChange={async (e) => {
                                 const f = e.target.files?.[0];
-                                if (f) {
-                                  const r = new FileReader();
-                                  r.onload = (ev) =>
-                                    setReceiverSigFile(
-                                      ev.target?.result as string
-                                    );
-                                  r.readAsDataURL(f);
+                                e.target.value = '';
+                                if (!f) return;
+                                setIsUploadingPhotos(true);
+                                try {
+                                  const uploadedUrl =
+                                    await uploadRequisitionPhotoFile(f, 'req-sig', {
+                                      maxDimension: 1200,
+                                      quality: 0.85,
+                                      preserveAlpha: true,
+                                    });
+                                  setReceiverSigFile(uploadedUrl);
+                                } catch (err) {
+                                  Swal.fire({
+                                    icon: 'error',
+                                    title: 'อัปโหลดรูปลายเซ็นไม่สำเร็จ',
+                                    text: formatServerActionError(
+                                      err,
+                                      'กรุณาลองใหม่อีกครั้ง'
+                                    ),
+                                  });
+                                } finally {
+                                  setIsUploadingPhotos(false);
                                 }
                               }}
                             />
@@ -1640,13 +1755,26 @@ export default function StoreFulfillForm({
                         <span>3. รูปถ่ายหลักฐานส่งมอบ ({handoverPhotos.length})</span>
                       </label>
 
-                      <label className="h-9 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors shrink-0">
-                        <Plus size={14} />
-                        <span>ถ่ายรูป / เพิ่มรูป</span>
+                      <label
+                        className={`h-9 px-3 bg-emerald-600 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs transition-colors shrink-0 ${
+                          isUploadingPhotos
+                            ? 'opacity-60 cursor-wait'
+                            : 'hover:bg-emerald-700 cursor-pointer'
+                        }`}
+                      >
+                        {isUploadingPhotos ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <Plus size={14} />
+                        )}
+                        <span>
+                          {isUploadingPhotos ? 'กำลังอัปโหลด...' : 'ถ่ายรูป / เพิ่มรูป'}
+                        </span>
                         <input
                           type="file"
                           accept="image/*"
                           multiple
+                          disabled={isUploadingPhotos}
                           className="hidden"
                           onChange={handlePhotoUpload}
                         />
@@ -1678,18 +1806,34 @@ export default function StoreFulfillForm({
                         ))}
                       </div>
                     ) : (
-                      <label className="border-2 border-dashed border-slate-300 rounded-2xl p-5 flex flex-col items-center justify-center text-center text-slate-500 hover:text-emerald-600 hover:border-emerald-300 bg-white cursor-pointer transition-colors">
-                        <Camera size={26} className="mb-1.5 text-slate-400" />
+                      <label
+                        className={`border-2 border-dashed border-slate-300 rounded-2xl p-5 flex flex-col items-center justify-center text-center text-slate-500 bg-white transition-colors ${
+                          isUploadingPhotos
+                            ? 'opacity-70 cursor-wait'
+                            : 'hover:text-emerald-600 hover:border-emerald-300 cursor-pointer'
+                        }`}
+                      >
+                        {isUploadingPhotos ? (
+                          <Loader2
+                            size={26}
+                            className="mb-1.5 text-emerald-600 animate-spin"
+                          />
+                        ) : (
+                          <Camera size={26} className="mb-1.5 text-slate-400" />
+                        )}
                         <span className="text-xs font-bold">
-                          แตะเพื่อถ่ายรูปด้วยกล้องมือถือ หรือเลือกรูปจากอัลบั้ม
+                          {isUploadingPhotos
+                            ? 'กำลังย่อขนาดและอัปโหลดรูปภาพ...'
+                            : 'แตะเพื่อถ่ายรูปด้วยกล้องมือถือ หรือเลือกรูปจากอัลบั้ม'}
                         </span>
                         <span className="text-[11px] text-slate-400 mt-0.5">
-                          รองรับ JPG, PNG ขนาดไม่เกิน 8MB
+                          รองรับ JPG, PNG, HEIC ย่อขนาดอัตโนมัติ (ไม่เกิน 25MB/รูป)
                         </span>
                         <input
                           type="file"
                           accept="image/*"
                           multiple
+                          disabled={isUploadingPhotos}
                           className="hidden"
                           onChange={handlePhotoUpload}
                         />
@@ -1716,7 +1860,7 @@ export default function StoreFulfillForm({
                 <div className="p-4 sm:px-6 border-t border-slate-100 bg-slate-50 grid grid-cols-3 sm:flex sm:items-center sm:justify-end gap-2.5 shrink-0">
                   <button
                     type="button"
-                    disabled={isSubmittingHandover}
+                    disabled={isSubmittingHandover || isUploadingPhotos}
                     onClick={() => setIsHandoverModalOpen(false)}
                     className="col-span-1 h-11 sm:px-5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
                   >
@@ -1725,7 +1869,7 @@ export default function StoreFulfillForm({
 
                   <button
                     type="button"
-                    disabled={isSubmittingHandover}
+                    disabled={isSubmittingHandover || isUploadingPhotos}
                     onClick={handleSubmitHandover}
                     className="col-span-2 h-11 sm:px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black inline-flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50"
                   >
@@ -1733,6 +1877,11 @@ export default function StoreFulfillForm({
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span>กำลังบันทึก...</span>
+                      </>
+                    ) : isUploadingPhotos ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>กำลังอัปโหลดรูป...</span>
                       </>
                     ) : (
                       <>
@@ -1794,7 +1943,7 @@ export default function StoreFulfillForm({
             disabled={isSavingUsedItems || (canEditUsedItems && keptItems.length === 0)}
             onClick={handleSaveUsedItemsAndOpenPdf}
             className={`h-8 px-3 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs transition-colors disabled:opacity-50 ${
-              canEditUsedItems && removedCount > 0
+              canEditUsedItems && hasItemDraftChanges
                 ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
                 : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
             }`}
@@ -1805,15 +1954,15 @@ export default function StoreFulfillForm({
               <Printer
                 size={14}
                 className={
-                  canEditUsedItems && removedCount > 0
+                  canEditUsedItems && hasItemDraftChanges
                     ? 'text-white'
                     : 'text-slate-500'
                 }
               />
             )}
             <span>
-              {canEditUsedItems && removedCount > 0
-                ? `ยืนยัน (${keptItems.length}) & PDF`
+              {canEditUsedItems && hasItemDraftChanges
+                ? `บันทึก (${keptItems.length}) & PDF`
                 : 'พิมพ์ PDF'}
             </span>
           </button>
@@ -2069,554 +2218,70 @@ export default function StoreFulfillForm({
         </section>
       )}
 
-      {/* ─── LAYER 3: ITEMS LIST CARD (MOBILE CARDS + DESKTOP TABLE) ─── */}
-      <section className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#ff2301] shrink-0" />
-              <span>รายการวัสดุ / อุปกรณ์</span>
-            </h3>
-            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
-              {itemsList.length} รายการ
-            </span>
-            {canEditUsedItems && (
-              <>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold">
-                  ใช้จริง {keptItems.length}/{itemsList.length}
-                </span>
-                {removedCount > 0 && (
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold">
-                    ลบอัตโนมัติ {removedCount}
-                  </span>
-                )}
-              </>
-            )}
-          </div>
+      {/* ─── LAYER 3: ITEMS LIST CARD (CHECK USED ITEMS & ADD PRODUCTS) ─── */}
+      <RequisitionItemsInteractiveSection
+        key={`${requisition.id}:${JSON.stringify(requisition.items || [])}`}
+        requisition={requisition}
+        canEditItems={canEditUsedItems}
+        effectiveSavedStoreSig={effectiveSavedStoreSig}
+        pullStoreSignature={pullStoreSignature}
+        onTogglePullStoreSignature={setPullStoreSignature}
+        onSelectionStateChange={setItemsDraftState}
+        onCommitted={(res) => {
+          setRequisition((prev: any) => ({
+            ...prev,
+            items: res.items,
+            status: res.status || prev.status,
+            storeStaffSignatureUrl: res.storeStaffSignatureUrl || prev.storeStaffSignatureUrl,
+            storeStaffName: res.storeStaffName || prev.storeStaffName,
+            dispensedAt: res.dispensedAt || prev.dispensedAt,
+          }));
+        }}
+      />
 
-          {canEditUsedItems && (
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setUsedItemChecks(itemsList.map(() => true))}
-                className="h-7 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition-colors"
-              >
-                เลือกทั้งหมด
-              </button>
-              <button
-                type="button"
-                onClick={() => setUsedItemChecks(itemsList.map(() => false))}
-                className="h-7 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-bold transition-colors"
-              >
-                ล้างที่เลือก
-              </button>
-            </div>
-          )}
-        </div>
+      {/* ─── LAYER 4: 6-PARTY SIGNATURES CARD ─── */}
+      <RequisitionSignaturesGrid
+        requisition={requisition}
+        requesterDisplay={requesterDisplay}
+        pulledStoreSigUrl={pullStoreSignature ? effectiveSavedStoreSig : null}
+        pulledStoreName={pullStoreSignature ? currentUserName : null}
+        canSignAccounting={canSignAccounting}
+        canSignTransport={canSignTransport}
+        canSignReceiver={canManageStore}
+        onClickAccountingSign={() => setIsAccountingModalOpen(true)}
+        onClickTransportSign={() => setIsTransportModalOpen(true)}
+        onClickReceiverSign={openHandoverModal}
+      />
 
-        {canEditUsedItems && (
-          <div className="px-4 sm:px-6 py-2.5 bg-indigo-50/70 border-b border-indigo-100/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <p className="text-[11px] sm:text-xs font-semibold text-indigo-950 flex items-center gap-1.5">
-              <ListChecks size={15} className="text-indigo-600 shrink-0" />
-              <span>
-                ติ๊กเครื่องหมายถูกเฉพาะรายการที่ใช้จริง แล้วกดแสดงหน้า PDF ส่วนรายการที่ไม่ติ๊กจะถูกลบออกอัตโนมัติ
-              </span>
-            </p>
-          </div>
-        )}
+      <RequisitionTransportSignModal
+        requisition={requisition}
+        isOpen={isTransportModalOpen}
+        onClose={() => setIsTransportModalOpen(false)}
+        currentUserName={currentUserName}
+        isTransportUser={isTransportUser}
+        savedTransportSignatureUrl={savedTransportSignatureUrl || savedStoreSignatureUrl}
+        onSuccess={(payload) => {
+          setRequisition((prev: any) => ({
+            ...prev,
+            ...payload,
+          }));
+        }}
+      />
 
-        {/* Mobile Cards View (Zero Horizontal Scroll!) */}
-        <div className="md:hidden divide-y divide-slate-100">
-          {itemsList.map((item: any, index: number) => {
-            const origQty = Number(item.quantity) || 1;
-            const hasRet = item.returnedQuantity !== undefined;
-            const retQty = Number(item.returnedQuantity) || 0;
-            const isChecked = usedItemChecks[index] !== false;
-
-            return (
-              <div
-                key={index}
-                onClick={() => {
-                  if (!canEditUsedItems) return;
-                  setUsedItemChecks((prev) => {
-                    const copy = itemsList.map((_: any, i: number) => prev[i] !== false);
-                    copy[index] = !isChecked;
-                    return copy;
-                  });
-                }}
-                className={`p-4 space-y-2.5 transition-colors ${
-                  canEditUsedItems ? 'cursor-pointer active:bg-slate-50 ' : ''
-                }${
-                  !canEditUsedItems || isChecked
-                    ? 'bg-white'
-                    : 'bg-rose-50/40 opacity-80'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-2.5 min-w-0">
-                    {canEditUsedItems && (
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => {
-                          const next = e.target.checked;
-                          setUsedItemChecks((prev) => {
-                            const copy = itemsList.map(
-                              (_: any, i: number) => prev[i] !== false
-                            );
-                            copy[index] = next;
-                            return copy;
-                          });
-                        }}
-                        className="mt-1 w-4.5 h-4.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 shrink-0"
-                      />
-                    )}
-                    <span className="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
-                      {index + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <p
-                        className={`text-sm font-bold leading-snug break-words ${
-                          !canEditUsedItems || isChecked
-                            ? 'text-slate-900'
-                            : 'text-slate-400 line-through'
-                        }`}
-                      >
-                        {item.detail || '-'}
-                      </p>
-                      {(requisition.requisitionType === 'BORROW_EQUIPMENT' ||
-                        requisition.requisitionType === 'CLAIM') &&
-                        item.assetCode && (
-                          <p className="text-[11px] font-mono text-slate-500 mt-0.5 flex items-center gap-1">
-                            <Hash size={11} />
-                            <span>SN/รหัส: {item.assetCode}</span>
-                          </p>
-                        )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span
-                      className={`px-2.5 py-1 rounded-xl border text-xs font-black whitespace-nowrap ${
-                        !canEditUsedItems || isChecked
-                          ? 'bg-red-50 text-[#ff2301] border-red-100'
-                          : 'bg-white text-slate-400 border-slate-200 line-through'
-                      }`}
-                    >
-                      {item.quantity} {item.unit || 'ชิ้น'}
-                    </span>
-                    {canEditUsedItems && !isChecked && (
-                      <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">
-                        ไม่ใช้ • ลบอัตโนมัติ
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2 pl-8 text-xs">
-                  {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
-                    <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold">
-                      สภาพก่อนยืม: {item.condition || 'ปกติ'}
-                    </span>
-                  ) : item.job ? (
-                    <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold">
-                      งาน: {item.job}
-                    </span>
-                  ) : null}
-
-                  {isNonReturnableRequisitionType(requisition.requisitionType) ? (
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border ${getNonReturnableBadgeClass(requisition.requisitionType)}`}>
-                      {getNonReturnableLabel(requisition.requisitionType, true)}
-                    </span>
-                  ) : hasRet ? (
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border ${
-                        retQty >= origQty
-                          ? 'bg-teal-50 text-teal-800 border-teal-200'
-                          : retQty > 0
-                          ? 'bg-amber-50 text-amber-800 border-amber-200'
-                          : 'bg-slate-100 text-slate-600 border-slate-200'
-                      }`}
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      {retQty >= origQty
-                        ? `คืนครบ (${retQty}/${origQty})`
-                        : retQty > 0
-                        ? `คืนแล้ว ${retQty}/${origQty}`
-                        : 'ยังไม่คืน'}
-                    </span>
-                  ) : requisition.status === 'COMPLETED' ? (
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      ยังไม่บันทึกคืน
-                    </span>
-                  ) : null}
-                </div>
-
-                {(item.returnRemark || item.remark) && (
-                  <div className="ml-8 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-600 flex items-start gap-1.5">
-                    <MessageSquare size={12} className="text-slate-400 shrink-0 mt-0.5" />
-                    <span>
-                      {item.returnRemark
-                        ? `หมายเหตุคืน: ${item.returnRemark}`
-                        : item.remark}
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Desktop Table View */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-xs font-bold text-slate-600">
-                {canEditUsedItems && (
-                  <th className="px-4 py-3 w-16 text-center">ใช้จริง</th>
-                )}
-                <th className="px-4 py-3 w-14 text-center">ลำดับ</th>
-                <th className="px-4 py-3">
-                  {requisition.requisitionType === 'CLAIM'
-                    ? 'รายการสินค้า / อะไหล่เคลม'
-                    : requisition.requisitionType === 'BORROW_EQUIPMENT'
-                    ? 'ชื่อเครื่องมือ / อุปกรณ์'
-                    : 'รายการวัสดุ / อุปกรณ์'}
-                </th>
-                {(requisition.requisitionType === 'BORROW_EQUIPMENT' ||
-                  requisition.requisitionType === 'CLAIM') && (
-                  <th className="px-4 py-3 w-32">รหัส / Serial No.</th>
-                )}
-                <th className="px-4 py-3 text-right w-24">จำนวน</th>
-                <th className="px-4 py-3 w-24">หน่วย</th>
-                {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
-                  <th className="px-4 py-3 w-36">สภาพก่อนยืม</th>
-                ) : requisition.requisitionType === 'CLAIM' ? (
-                  <th className="px-4 py-3">งานเคลม / ลูกค้า</th>
-                ) : (
-                  <th className="px-4 py-3">งานที่ใช้ / Sub-Job</th>
-                )}
-                <th className="px-4 py-3">สถานะการคืน</th>
-                <th className="px-4 py-3">หมายเหตุ</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
-              {itemsList.map((item: any, index: number) => {
-                const origQty = Number(item.quantity) || 1;
-                const hasRet = item.returnedQuantity !== undefined;
-                const retQty = Number(item.returnedQuantity) || 0;
-                const isChecked = usedItemChecks[index] !== false;
-
-                return (
-                  <tr
-                    key={index}
-                    onClick={() => {
-                      if (!canEditUsedItems) return;
-                      setUsedItemChecks((prev) => {
-                        const copy = itemsList.map(
-                          (_: any, i: number) => prev[i] !== false
-                        );
-                        copy[index] = !isChecked;
-                        return copy;
-                      });
-                    }}
-                    className={`transition-colors ${
-                      canEditUsedItems ? 'cursor-pointer ' : ''
-                    }${
-                      !canEditUsedItems || isChecked
-                        ? 'hover:bg-slate-50/60'
-                        : 'bg-rose-50/40 opacity-75'
-                    }`}
-                  >
-                    {canEditUsedItems && (
-                      <td
-                        className="px-4 py-3 text-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(e) => {
-                            const next = e.target.checked;
-                            setUsedItemChecks((prev) => {
-                              const copy = itemsList.map(
-                                (_: any, i: number) => prev[i] !== false
-                              );
-                              copy[index] = next;
-                              return copy;
-                            });
-                          }}
-                          className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                        />
-                      </td>
-                    )}
-                    <td className="px-4 py-3 text-center text-slate-400 font-bold text-xs">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-slate-900">
-                      <span
-                        className={
-                          !canEditUsedItems || isChecked
-                            ? ''
-                            : 'line-through text-slate-400'
-                        }
-                      >
-                        {item.detail}
-                      </span>
-                      {canEditUsedItems && !isChecked && (
-                        <span className="ml-2 inline-flex px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">
-                          ไม่ใช้ • ลบอัตโนมัติ
-                        </span>
-                      )}
-                    </td>
-                    {(requisition.requisitionType === 'BORROW_EQUIPMENT' ||
-                      requisition.requisitionType === 'CLAIM') && (
-                      <td className="px-4 py-3 font-mono text-xs text-slate-600">
-                        {item.assetCode || '-'}
-                      </td>
-                    )}
-                    <td
-                      className={`px-4 py-3 font-black text-right tabular-nums ${
-                        !canEditUsedItems || isChecked
-                          ? 'text-slate-900'
-                          : 'text-slate-400 line-through'
-                      }`}
-                    >
-                      {item.quantity}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600 text-xs font-semibold">
-                      {item.unit}
-                    </td>
-                    {requisition.requisitionType === 'BORROW_EQUIPMENT' ? (
-                      <td className="px-4 py-3 text-xs text-slate-700">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 font-semibold">
-                          {item.condition || 'ปกติ'}
-                        </span>
-                      </td>
-                    ) : (
-                      <td className="px-4 py-3 text-slate-700 text-xs">
-                        {item.job || '-'}
-                      </td>
-                    )}
-                    <td className="px-4 py-3">
-                      {isNonReturnableRequisitionType(requisition.requisitionType) ? (
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${getNonReturnableBadgeClass(requisition.requisitionType)}`}>
-                          {getNonReturnableLabel(requisition.requisitionType)}
-                        </span>
-                      ) : hasRet ? (
-                        <div className="space-y-1">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                              retQty >= origQty
-                                ? 'bg-teal-50 text-teal-800 border-teal-200'
-                                : retQty > 0
-                                ? 'bg-amber-50 text-amber-800 border-amber-200'
-                                : 'bg-slate-100 text-slate-600 border-slate-200'
-                            }`}
-                          >
-                            <RotateCcw className="w-3 h-3" />
-                            {retQty >= origQty
-                              ? `คืนครบ (${retQty}/${origQty})`
-                              : retQty > 0
-                              ? `คืนแล้ว ${retQty}/${origQty}`
-                              : 'ยังไม่คืน'}
-                          </span>
-                          {item.returnCondition && (
-                            <div className="text-[11px] text-slate-500">
-                              สภาพ:{' '}
-                              {item.returnCondition === 'NORMAL'
-                                ? 'ปกติ'
-                                : item.returnCondition === 'DAMAGED'
-                                ? 'ชำรุด'
-                                : item.returnCondition === 'LOST'
-                                ? 'สูญหาย'
-                                : item.returnCondition}
-                            </div>
-                          )}
-                        </div>
-                      ) : requisition.status === 'COMPLETED' ? (
-                        <span className="text-xs text-slate-400">
-                          ยังไม่บันทึกคืน
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">
-                      {item.returnRemark ? (
-                        <span className="text-teal-700 font-semibold">
-                          คืน: {item.returnRemark}
-                        </span>
-                      ) : (
-                        item.remark || '-'
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Layer 3 Action Bar: Confirm Used Items -> Auto-Delete Unused -> Open PDF */}
-        {canEditUsedItems && (
-          <div
-            className={`px-4 sm:px-6 py-3.5 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-              removedCount > 0
-                ? 'bg-indigo-50/70 border-indigo-200/80'
-                : 'bg-slate-50/60 border-slate-100'
-            }`}
-          >
-            <div className="text-xs text-slate-700">
-              {removedCount > 0 ? (
-                <span>
-                  เลือกสิ่งที่ใช้จริง{' '}
-                  <strong className="text-emerald-700">
-                    {keptItems.length} รายการ
-                  </strong>{' '}
-                  • ระบบจะลบ{' '}
-                  <strong className="text-rose-600">
-                    {removedCount} รายการที่ไม่ได้ติ๊ก
-                  </strong>{' '}
-                  ออกให้อัตโนมัติเมื่อกดแสดง PDF
-                </span>
-              ) : (
-                <span className="text-slate-500">
-                  ขณะนี้ติ๊กเลือกครบทั้ง {itemsList.length} รายการ (เอาเครื่องหมายถูกออกในรายการที่ไม่ใช้เพื่อลบอัตโนมัติ)
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-              {!requisition.storeStaffSignatureUrl && effectiveSavedStoreSig && (
-                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white hover:bg-indigo-50/70 border border-indigo-200 text-indigo-800 text-xs font-bold cursor-pointer select-none transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={pullStoreSignature}
-                    onChange={(e) => setPullStoreSignature(e.target.checked)}
-                    className="w-4 h-4 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span>ดึงลายเซ็นผู้จ่ายคลังเดิมมาใส่ใน PDF</span>
-                </label>
-              )}
-
-              <button
-                type="button"
-                disabled={isSavingUsedItems || keptItems.length === 0}
-                onClick={handleSaveUsedItemsAndOpenPdf}
-                className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-black inline-flex items-center justify-center gap-2 transition-all shrink-0 disabled:opacity-50 ${
-                  removedCount > 0 || pullStoreSignature
-                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
-                    : 'bg-white hover:bg-slate-100 text-slate-800 border border-slate-200'
-                }`}
-              >
-                {isSavingUsedItems ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" />
-                    <span>กำลังอัปเดต &amp; สร้าง PDF...</span>
-                  </>
-                ) : (
-                  <>
-                    <Printer size={15} />
-                    <span>
-                      {removedCount > 0
-                        ? `ยืนยันสิ่งที่ใช้ (${keptItems.length}) & แสดงหน้า PDF`
-                        : `แสดงหน้า PDF (${keptItems.length} รายการ)`}
-                    </span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* ─── LAYER 4: 4-PARTY SIGNATURES CARD ─── */}
-      <section className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-          <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
-            <FileSignature className="w-4 h-4 text-blue-600 shrink-0" />
-            <span>สถานะการลงนาม 4 ฝ่าย</span>
-          </h3>
-          <span className="text-[11px] text-slate-400 font-medium">
-            ผู้ขอเบิก • ผู้อนุมัติ • ผู้จ่ายคลัง • ผู้รับหน้างาน
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            {
-              step: '1. ผู้ขอเบิก',
-              sigUrl: requisition.requesterSignatureUrl,
-              name: requesterDisplay,
-              emptyText: 'ไม่มีลายเซ็น',
-              emptyClass: 'text-slate-400',
-            },
-            {
-              step: '2. ผู้อนุมัติ',
-              sigUrl: requisition.approverSignatureUrl,
-              name:
-                requisition.approver?.fullName || requisition.approverName || '-',
-              emptyText: 'รออนุมัติ',
-              emptyClass: 'text-slate-400',
-            },
-            {
-              step: '3. ผู้จ่ายของ (คลัง)',
-              sigUrl:
-                requisition.storeStaffSignatureUrl ||
-                (pullStoreSignature ? effectiveSavedStoreSig : null),
-              name:
-                requisition.storeStaffName ||
-                (pullStoreSignature ? currentUserName : 'เจ้าหน้าที่สโตร์'),
-              emptyText: 'ยังไม่ลงนามจ่าย',
-              emptyClass: 'text-amber-600',
-            },
-            {
-              step: '4. ผู้รับหน้างาน',
-              sigUrl: requisition.receiverSignatureUrl,
-              name: requisition.receiverName || 'ผู้รับของหน้างาน',
-              emptyText: 'ยังไม่เซ็นรับ',
-              emptyClass: 'text-rose-600',
-            },
-          ].map((box) => (
-            <div
-              key={box.step}
-              className="flex flex-col p-3 rounded-2xl border border-slate-200/80 bg-slate-50/60"
-            >
-              <div className="flex items-center justify-between gap-1 mb-2">
-                <span className="text-[11px] font-bold text-slate-700 truncate">
-                  {box.step}
-                </span>
-                <span
-                  className={`w-2 h-2 rounded-full shrink-0 ${
-                    box.sigUrl ? 'bg-emerald-500' : 'bg-slate-300'
-                  }`}
-                />
-              </div>
-
-              <div className="w-full h-[76px] flex items-center justify-center bg-white rounded-xl border border-slate-200/90 p-1.5">
-                {box.sigUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={box.sigUrl}
-                    alt={box.step}
-                    className="max-h-full max-w-full object-contain"
-                  />
-                ) : (
-                  <span className={`text-[11px] font-semibold ${box.emptyClass}`}>
-                    {box.emptyText}
-                  </span>
-                )}
-              </div>
-
-              <p className="text-[11px] font-bold text-slate-800 mt-2 text-center truncate w-full">
-                ({box.name})
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <RequisitionAccountingSignModal
+        requisition={requisition}
+        isOpen={isAccountingModalOpen}
+        onClose={() => setIsAccountingModalOpen(false)}
+        currentUserName={currentUserName}
+        isAccountingUser={isAccountingUser}
+        savedAccountingSignatureUrl={savedAccountingSignatureUrl || savedStoreSignatureUrl}
+        onSuccess={(payload) => {
+          setRequisition((prev: any) => ({
+            ...prev,
+            ...payload,
+          }));
+        }}
+      />
 
       {/* ─── LAYER 5: PROOF OF DELIVERY PHOTOS + BOTTOM ACTIONS ─── */}
       {Array.isArray(requisition.deliveryPhotos) &&

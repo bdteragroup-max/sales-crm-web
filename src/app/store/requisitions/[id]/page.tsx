@@ -3,6 +3,14 @@ import StoreFulfillForm from './StoreFulfillForm';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
 import { getRequisitionById } from '@/app/actions/requisitions';
+import { getUserLatestRequisitionSignatures } from '@/app/lib/requisitionSignaturesDb';
+import { isSuperUser, canViewAll } from '@/app/lib/roleHelper';
+import {
+  isStoreOrPurchasingRole,
+  isTransportRole,
+  isAccountingRequisitionRole,
+  canViewAllRequisitionsRole,
+} from '@/app/lib/requisitionUtils';
 import Link from 'next/link';
 import { ArrowLeft, PackageX } from 'lucide-react';
 
@@ -51,38 +59,58 @@ export default async function StoreRequisitionDetailPage({
     );
   }
 
-  const latestSigRecord = await prisma.materialRequisition.findFirst({
-    where: {
-      OR: [
-        { storeStaffId: session.id, storeStaffSignatureUrl: { not: null } },
-        { approverId: session.id, approverSignatureUrl: { not: null } },
-        { requesterId: session.id, requesterSignatureUrl: { not: null } },
-      ],
-    },
-    orderBy: { updatedAt: 'desc' },
-    select: {
-      storeStaffId: true,
-      storeStaffSignatureUrl: true,
-      approverId: true,
-      approverSignatureUrl: true,
-      requesterId: true,
-      requesterSignatureUrl: true,
-    },
-  });
+  const isSuper = isSuperUser(session.role) || canViewAll(session.role);
+  const isStoreOrPurchasing = isStoreOrPurchasingRole(session.role);
+  const isTransport = isTransportRole(session.role);
+  const isAccounting = isAccountingRequisitionRole(session.role);
+  const hasPageAccess =
+    isSuper ||
+    canViewAllRequisitionsRole(session.role) ||
+    requisition.requesterId === session.id ||
+    requisition.approverId === session.id;
 
-  const savedStoreSignatureUrl = latestSigRecord
-    ? (latestSigRecord.storeStaffId === session.id && latestSigRecord.storeStaffSignatureUrl) ||
-      (latestSigRecord.approverId === session.id && latestSigRecord.approverSignatureUrl) ||
-      (latestSigRecord.requesterId === session.id && latestSigRecord.requesterSignatureUrl) ||
-      null
-    : null;
+  if (!hasPageAccess) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-16 text-center text-sm font-bold text-rose-600">
+        คุณไม่มีสิทธิ์เข้าถึงใบเบิก/ยืมวัสดุรายการนี้
+      </div>
+    );
+  }
+
+  const {
+    savedStoreSignatureUrl,
+    savedAccountingSignatureUrl,
+    savedTransportSignatureUrl,
+  } = await getUserLatestRequisitionSignatures(prisma, session.id);
+
+  const canManageStore = isSuper || isStoreOrPurchasing;
+  const canSignAccounting = isAccounting;
+  const canSignTransport =
+    !isAccounting && (isSuper || isStoreOrPurchasing || isTransport);
+
+  const canEditUsedItems =
+    (isSuper ||
+      isStoreOrPurchasing ||
+      requisition.requesterId === session.id ||
+      requisition.approverId === session.id) &&
+    requisition.status !== 'RETURNED' &&
+    requisition.status !== 'REJECTED';
 
   return (
     <div className="w-full max-w-5xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 pb-28 md:pb-10">
       <StoreFulfillForm
         requisition={JSON.parse(JSON.stringify(requisition))}
-        currentUserName={session.fullName || 'เจ้าหน้าที่สโตร์'}
+        currentUserName={session.fullName || 'เจ้าหน้าที่'}
+        userRole={session.role}
         savedStoreSignatureUrl={savedStoreSignatureUrl}
+        savedAccountingSignatureUrl={savedAccountingSignatureUrl}
+        savedTransportSignatureUrl={savedTransportSignatureUrl}
+        canManageStore={canManageStore}
+        canSignAccounting={canSignAccounting}
+        canSignTransport={canSignTransport}
+        isAccountingUser={isAccounting}
+        isTransportUser={isTransport}
+        canEditUsedItems={canEditUsedItems}
       />
     </div>
   );

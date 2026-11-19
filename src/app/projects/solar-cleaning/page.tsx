@@ -65,6 +65,7 @@ export default async function SolarCleaningListPage() {
           <SolarCleaningListClient
             records={records}
             canCreate={canEditSolarCleaningRole(user.role)}
+            currentUserId={user.id}
             userRole={user.role}
           />
         </div>

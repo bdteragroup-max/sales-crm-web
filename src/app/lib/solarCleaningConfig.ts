@@ -786,8 +786,11 @@ export function canSignSolarCleaningAsProjectMgr(role?: string | null): boolean 
     r === 'engineering mgr.' ||
     r === 'ผู้จัดการโปรเจค' ||
     r === 'ผู้จัดการโครงการ' ||
-    (r.includes('project') && (r.includes('manager') || r.includes('mgr'))) ||
-    (r.includes('engineering') && (r.includes('manager') || r.includes('mgr')))
+    r === 'หัวหน้าโปรเจค' ||
+    r === 'หัวหน้าโปรเจกต์' ||
+    r === 'หัวหน้าโครงการ' ||
+    (r.includes('project') && (r.includes('manager') || r.includes('mgr') || r.includes('หัวหน้า'))) ||
+    (r.includes('engineering') && (r.includes('manager') || r.includes('mgr') || r.includes('หัวหน้า')))
   );
 }
 
@@ -799,11 +802,20 @@ export function canSignSolarCleaningAsServiceMgr(role?: string | null): boolean 
     r === 'service engineer mgr.' ||
     r === 'manager technician' ||
     r === 'ผู้จัดการเซอร์วิส' ||
-    (r.includes('service') && (r.includes('manager') || r.includes('mgr')))
+    r === 'หัวหน้าเซอร์วิส' ||
+    r === 'หัวหน้าเซอร์วิช' ||
+    (r.includes('service') && (r.includes('manager') || r.includes('mgr') || r.includes('หัวหน้า'))) ||
+    ((r.includes('เซอร์วิส') || r.includes('เซอร์วิช')) &&
+      (r.includes('manager') || r.includes('mgr') || r.includes('ผู้จัดการ') || r.includes('หัวหน้า')))
   );
 }
 
-export function canEditSolarCleaningRole(role?: string | null): boolean {
+/**
+ * Full-visibility roles that can view, edit, and delete all solar-cleaning
+ * records: Super Admin, Admin Project, Project, Project Manager, Service,
+ * Service Manager, and Accounting.
+ */
+export function canViewAllSolarCleaningRole(role?: string | null): boolean {
   if (!role) return false;
   if (
     isSuperAdminRole(role) ||
@@ -820,16 +832,56 @@ export function canEditSolarCleaningRole(role?: string | null): boolean {
     r.includes('project') ||
     r.includes('โปรเจค') ||
     r.includes('โปรเจกต์') ||
+    r.includes('แอดมินโครงการ') ||
     r === 'service' ||
-    r === 'service engineer'
+    r === 'service engineer' ||
+    r.includes('service') ||
+    r.includes('เซอร์วิส') ||
+    r.includes('เซอร์วิช') ||
+    r === 'บริการ' ||
+    r.includes('ฝ่ายบริการ') ||
+    r === 'บัญชี' ||
+    r === 'ผู้จัดการฝ่ายบัญชี' ||
+    r === 'ap' ||
+    r.includes('บัญชี') ||
+    r.includes('accounting') ||
+    r.includes('accountant') ||
+    r.includes('finance') ||
+    r.includes('การเงิน') ||
+    r.includes('เจ้าหนี้')
   );
 }
 
+/**
+ * Module entry access is open to all authenticated departments/roles.
+ */
 export function canAccessSolarCleaningRole(role?: string | null): boolean {
-  if (!role) return false;
-  if (canEditSolarCleaningRole(role)) return true;
-  const r = normRole(role);
-  return r === 'executive' || r === 'ผู้บริหาร';
+  return Boolean(normRole(role));
+}
+
+/**
+ * Create, edit, and delete capabilities are open to all authenticated roles
+ * (scoped to own records unless `canViewAllSolarCleaningRole(role)` is true).
+ */
+export function canEditSolarCleaningRole(role?: string | null): boolean {
+  return canAccessSolarCleaningRole(role);
+}
+
+/**
+ * Record-level permission check for reading detail, editing, deleting, and PDF export.
+ */
+export function canManageSolarCleaningRecord(params: {
+  userId?: string | null;
+  userRole?: string | null;
+  createdById?: string | null;
+}): boolean {
+  if (!params.userId || !canAccessSolarCleaningRole(params.userRole)) {
+    return false;
+  }
+  if (canViewAllSolarCleaningRole(params.userRole)) {
+    return true;
+  }
+  return Boolean(params.createdById && params.createdById === params.userId);
 }
 
 export function deriveSolarCleaningStatus(params: {

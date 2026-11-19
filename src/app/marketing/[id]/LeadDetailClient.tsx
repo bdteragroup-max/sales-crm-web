@@ -31,7 +31,8 @@ import {
   TrendingUp,
   UserCheck,
   XCircle,
-  Briefcase
+  Briefcase,
+  MapPin
 } from 'lucide-react'
 import { parseLeadAttribution, getChannelBadgeStyle } from '../components/LeadSourceBadge'
 
@@ -234,6 +235,21 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any; sales
                     </div>
                   ) : (
                     <span className="text-xs text-gray-400 italic">ไม่มีข้อมูลเบอร์โทรศัพท์</span>
+                  )}
+
+                  {lead.province ? (
+                    <span className="inline-flex items-center gap-1.5 bg-sky-50 text-sky-800 border border-sky-200 px-3 py-1 rounded-xl text-xs font-bold">
+                      <MapPin size={13} className="text-sky-600 shrink-0" />
+                      <span>
+                        จ.{lead.province}
+                        {lead.district ? ` (${lead.district})` : ''}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 bg-gray-50 text-gray-400 border border-gray-200 px-2.5 py-1 rounded-xl text-xs font-medium">
+                      <MapPin size={12} className="shrink-0" />
+                      <span>ไม่ระบุจังหวัด</span>
+                    </span>
                   )}
 
                   <span className="text-xs text-gray-400 font-medium">•</span>

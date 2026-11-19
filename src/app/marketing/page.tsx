@@ -3,6 +3,7 @@ import { decrypt } from '@/app/lib/session'
 import prisma from '@/app/lib/db'
 import { redirect } from 'next/navigation'
 import { getMarketingLeads } from '@/app/actions/marketing'
+import { getBkkTodayString } from '@/app/marketing/constants/leadStatusAnalytics'
 import MarketingLeadsClient from './components/MarketingLeadsClient'
 
 export const metadata = {
@@ -39,6 +40,7 @@ export default async function MarketingDashboard({
 
   const result = await getMarketingLeads()
   const leads = result.data || []
+  const todayBkk = getBkkTodayString()
 
   return (
     <main className="min-h-screen bg-[#F9FAFB]">
@@ -47,6 +49,7 @@ export default async function MarketingDashboard({
         initialSearch={searchQuery}
         initialChannel={selectedChannel}
         initialStage={selectedStage}
+        initialTodayBkk={todayBkk}
       />
     </main>
   )

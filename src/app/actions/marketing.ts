@@ -3,12 +3,13 @@
 import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
 import { notifyUser } from '@/app/lib/pushNotification'
-import { isSalesOrMarketingManager } from '@/app/lib/roleHelper'
+import { canViewAllMarketingLeads } from '@/app/lib/roleHelper'
 import ExcelJS from 'exceljs'
 
 export async function createMarketingLead(data: {
   customerName: string
   phoneNumber?: string
+  province?: string | null
   productOfInterest?: string
   productType?: string
   occupation?: string | null
@@ -23,6 +24,7 @@ export async function createMarketingLead(data: {
       data: {
         customerName: data.customerName,
         phoneNumber: data.phoneNumber,
+        province: data.province?.trim() || null,
         productOfInterest: data.productOfInterest,
         productType: data.productType,
         occupation: data.occupation || null,
@@ -35,11 +37,108 @@ export async function createMarketingLead(data: {
       }
     })
     revalidatePath('/marketing')
+    revalidatePath('/sales/leads')
     return { success: true, data: lead }
   } catch (error: any) {
     console.error("Error creating marketing lead:", error)
     return { success: false, error: error.message || 'Failed to create lead' }
   }
+}
+
+async function attachMatchedCompanyContextToLeads(
+  leads: any[],
+  options: { includeTelesale?: boolean; includeCustomerStatus?: boolean } = {}
+) {
+  if (!Array.isArray(leads) || leads.length === 0) return;
+
+  const companyNames = leads.map((l: any) => l.customerName).filter(Boolean);
+  const matchedCompanyIds = leads.map((l: any) => l.matchedCompanyId).filter(Boolean);
+  const companyNamedLeads = leads.map((l: any) => l.companyName).filter(Boolean);
+  const allCompanyNames = Array.from(new Set([...companyNames, ...companyNamedLeads]));
+
+  if (matchedCompanyIds.length === 0 && allCompanyNames.length === 0) {
+    if (options.includeTelesale) {
+      leads.forEach((lead: any) => {
+        lead.latestTelesale = null;
+      });
+    }
+    return;
+  }
+
+  const companies = await prisma.company.findMany({
+    where: {
+      OR: [
+        { id: { in: matchedCompanyIds } },
+        { companyName: { in: allCompanyNames } }
+      ]
+    },
+    select: {
+      id: true,
+      companyName: true,
+      province: true,
+      district: true,
+      ...(options.includeCustomerStatus ? { customerStatus: true } : {}),
+      ...(options.includeTelesale
+        ? {
+            telesales: {
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+              select: {
+                id: true,
+                callOutcome: true,
+                result: true,
+                conversationSummary: true,
+                callDate: true,
+                createdAt: true,
+                user: { select: { fullName: true } }
+              }
+            }
+          }
+        : {}),
+    }
+  });
+
+  const companyById = new Map<string, any>();
+  const companyByName = new Map<string, any>();
+  for (const c of companies) {
+    if (c.id) companyById.set(c.id, c);
+    if (c.companyName) companyByName.set(c.companyName.toLowerCase().trim(), c);
+  }
+
+  leads.forEach((lead: any) => {
+    let comp = lead.matchedCompanyId ? companyById.get(lead.matchedCompanyId) : null;
+    if (!comp && lead.customerName) {
+      comp = companyByName.get(lead.customerName.toLowerCase().trim());
+    }
+    if (!comp && lead.companyName) {
+      comp = companyByName.get(lead.companyName.toLowerCase().trim());
+    }
+
+    if (!lead.province && comp?.province) {
+      lead.province = comp.province;
+    }
+    if (!lead.district && comp?.district) {
+      lead.district = comp.district;
+    }
+    if (!lead.companyName && comp?.companyName) {
+      lead.companyName = comp.companyName;
+    }
+
+    if (options.includeTelesale) {
+      const latestT = comp?.telesales?.[0] || null;
+      lead.latestTelesale = latestT
+        ? {
+            id: latestT.id,
+            callOutcome: latestT.callOutcome || latestT.result || null,
+            result: latestT.result || null,
+            conversationSummary: latestT.conversationSummary || null,
+            callDate: latestT.callDate || null,
+            createdAt: latestT.createdAt,
+            salesPerson: latestT.user?.fullName || null
+          }
+        : null;
+    }
+  });
 }
 
 export async function getMarketingLeads() {
@@ -94,71 +193,7 @@ export async function getMarketingLeads() {
       const statusMap = new Map(rawStatuses.map(r => [r.id, r.isContacted]));
       leads.forEach((l: any) => l.isContacted = statusMap.get(l.id) || false);
 
-      // Batch fetch latest Telesale log (call outcome, result, sales reason) for each lead
-      const companyNames = leads.map((l: any) => l.customerName).filter(Boolean);
-      const matchedCompanyIds = leads.map((l: any) => l.matchedCompanyId).filter(Boolean);
-      const companyNamedLeads = leads.map((l: any) => l.companyName).filter(Boolean);
-      const allCompanyNames = Array.from(new Set([...companyNames, ...companyNamedLeads]));
-
-      const companies = await prisma.company.findMany({
-        where: {
-          OR: [
-            { id: { in: matchedCompanyIds } },
-            { companyName: { in: allCompanyNames } }
-          ]
-        },
-        select: {
-          id: true,
-          companyName: true,
-          telesales: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-            select: {
-              id: true,
-              callOutcome: true,
-              result: true,
-              conversationSummary: true,
-              callDate: true,
-              createdAt: true,
-              user: {
-                select: {
-                  fullName: true
-                }
-              }
-            }
-          }
-        }
-      });
-
-      const companyById = new Map<string, any>();
-      const companyByName = new Map<string, any>();
-      for (const c of companies) {
-        if (c.id) companyById.set(c.id, c);
-        if (c.companyName) companyByName.set(c.companyName.toLowerCase().trim(), c);
-      }
-
-      leads.forEach((lead: any) => {
-        let comp = lead.matchedCompanyId ? companyById.get(lead.matchedCompanyId) : null;
-        if (!comp && lead.customerName) {
-          comp = companyByName.get(lead.customerName.toLowerCase().trim());
-        }
-        if (!comp && lead.companyName) {
-          comp = companyByName.get(lead.companyName.toLowerCase().trim());
-        }
-
-        const latestT = comp?.telesales?.[0] || null;
-        lead.latestTelesale = latestT
-          ? {
-              id: latestT.id,
-              callOutcome: latestT.callOutcome || latestT.result || null,
-              result: latestT.result || null,
-              conversationSummary: latestT.conversationSummary || null,
-              callDate: latestT.callDate || null,
-              createdAt: latestT.createdAt,
-              salesPerson: latestT.user?.fullName || null
-            }
-          : null;
-      });
+      await attachMatchedCompanyContextToLeads(leads, { includeTelesale: true });
     }
 
     return { success: true, data: leads }
@@ -171,25 +206,16 @@ export async function getMarketingLeads() {
 export async function getAssignedLeads(userId: string) {
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const isManager =
-      isSalesOrMarketingManager(user?.role) ||
-      user?.role?.includes('ผู้จัดการ') ||
-      user?.role?.toLowerCase().includes('manager');
-    
-    let whereClause: any = { 
-      OR: [
-        { assignedToId: userId },
-        { assignedToId: null }
-      ]
-    };
-    if (isManager) {
-      whereClause = {
-        OR: [
-          { isForwarded: true },
-          { assignedToId: null }
-        ]
-      };
-    }
+    const canViewAllLeads = canViewAllMarketingLeads(user?.role);
+
+    const whereClause: any = canViewAllLeads
+      ? {}
+      : {
+          OR: [
+            { assignedToId: userId },
+            { assignedToId: null }
+          ]
+        };
 
     const leads = await (prisma as any).marketingLead.findMany({
       where: whereClause,
@@ -198,6 +224,22 @@ export async function getAssignedLeads(userId: string) {
         createdBy: {
           select: {
             fullName: true,
+          }
+        },
+        assignedTo: {
+          select: {
+            id: true,
+            fullName: true,
+          }
+        },
+        quotation: {
+          select: {
+            status: true,
+            salesperson: {
+              select: {
+                fullName: true,
+              }
+            }
           }
         },
         adCampaign: {
@@ -226,77 +268,13 @@ export async function getAssignedLeads(userId: string) {
       const statusMap = new Map(rawStatuses.map(r => [r.id, r.isContacted]));
       leads.forEach((l: any) => l.isContacted = statusMap.get(l.id) || false);
 
-      // Batch fetch latest Telesale log
-      const companyNames = leads.map((l: any) => l.customerName).filter(Boolean);
-      const matchedCompanyIds = leads.map((l: any) => l.matchedCompanyId).filter(Boolean);
-      const companyNamedLeads = leads.map((l: any) => l.companyName).filter(Boolean);
-      const allCompanyNames = Array.from(new Set([...companyNames, ...companyNamedLeads]));
-
-      const companies = await prisma.company.findMany({
-        where: {
-          OR: [
-            { id: { in: matchedCompanyIds } },
-            { companyName: { in: allCompanyNames } }
-          ]
-        },
-        select: {
-          id: true,
-          companyName: true,
-          telesales: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-            select: {
-              id: true,
-              callOutcome: true,
-              result: true,
-              conversationSummary: true,
-              callDate: true,
-              createdAt: true,
-              user: {
-                select: {
-                  fullName: true
-                }
-              }
-            }
-          }
-        }
-      });
-
-      const companyById = new Map<string, any>();
-      const companyByName = new Map<string, any>();
-      for (const c of companies) {
-        if (c.id) companyById.set(c.id, c);
-        if (c.companyName) companyByName.set(c.companyName.toLowerCase().trim(), c);
-      }
-
-      leads.forEach((lead: any) => {
-        let comp = lead.matchedCompanyId ? companyById.get(lead.matchedCompanyId) : null;
-        if (!comp && lead.customerName) {
-          comp = companyByName.get(lead.customerName.toLowerCase().trim());
-        }
-        if (!comp && lead.companyName) {
-          comp = companyByName.get(lead.companyName.toLowerCase().trim());
-        }
-
-        const latestT = comp?.telesales?.[0] || null;
-        lead.latestTelesale = latestT
-          ? {
-              id: latestT.id,
-              callOutcome: latestT.callOutcome || latestT.result || null,
-              result: latestT.result || null,
-              conversationSummary: latestT.conversationSummary || null,
-              callDate: latestT.callDate || null,
-              createdAt: latestT.createdAt,
-              salesPerson: latestT.user?.fullName || null
-            }
-          : null;
-      });
+      await attachMatchedCompanyContextToLeads(leads, { includeTelesale: true });
     }
 
-    return { success: true, data: leads }
+    return { success: true, data: leads, canViewAllLeads }
   } catch (error: any) {
     console.error("Error fetching assigned leads:", error)
-    return { success: false, error: error.message || 'Failed to fetch assigned leads' }
+    return { success: false, data: [], canViewAllLeads: false, error: error.message || 'Failed to fetch assigned leads' }
   }
 }
 
@@ -367,6 +345,9 @@ export async function getMarketingLeadById(id: string) {
         });
       }
       if (company) {
+        if (!lead.province && company.province) lead.province = company.province;
+        if (!lead.district && company.district) lead.district = company.district;
+        if (!lead.companyName && company.companyName) lead.companyName = company.companyName;
         const telesales = await prisma.telesale.findMany({
           where: { companyId: company.id },
           orderBy: { createdAt: 'desc' },
@@ -388,6 +369,7 @@ export async function getMarketingLeadById(id: string) {
 export async function updateMarketingLead(id: string, data: {
   customerName?: string
   phoneNumber?: string
+  province?: string | null
   productOfInterest?: string
   productType?: string
   occupation?: string | null
@@ -398,17 +380,61 @@ export async function updateMarketingLead(id: string, data: {
   adCampaignId?: string | null
 }) {
   try {
+    const existing = await (prisma as any).marketingLead.findUnique({
+      where: { id },
+      select: {
+        assignedToId: true,
+        isForwarded: true,
+        forwardedAt: true,
+        customerName: true,
+        province: true,
+        productType: true,
+        productOfInterest: true,
+      },
+    })
+
     const updatePayload: any = { ...data }
+    if (data.province !== undefined) {
+      updatePayload.province = data.province?.trim() || null
+    }
     if (data.occupation !== undefined) {
       updatePayload.occupation = data.occupation
       updatePayload.businessType = data.occupation
     }
+
+    let reassignedToUserId: string | null = null
+    if (data.assignedToId !== undefined) {
+      const normalizedAssignedId = data.assignedToId?.trim() || null
+      updatePayload.assignedToId = normalizedAssignedId
+      if (normalizedAssignedId) {
+        updatePayload.isForwarded = true
+        updatePayload.forwardedAt = existing?.forwardedAt || new Date()
+        if (normalizedAssignedId !== existing?.assignedToId) {
+          reassignedToUserId = normalizedAssignedId
+        }
+      } else {
+        updatePayload.isForwarded = false
+        updatePayload.forwardedAt = null
+      }
+    }
+
     const lead = await (prisma as any).marketingLead.update({
       where: { id },
       data: updatePayload
     })
+
+    if (reassignedToUserId) {
+      await notifyUser(reassignedToUserId, {
+        title: "มี Lead ใหม่จาก Marketing",
+        body: `ลูกค้า ${lead.customerName}${lead.province ? ` (จ.${lead.province})` : ''} สนใจ ${lead.productType || lead.productOfInterest || 'สินค้า'}`,
+        category: "MARKETING_LEAD",
+        url: "/sales/leads"
+      });
+    }
+
     revalidatePath('/marketing')
     revalidatePath(`/marketing/${id}`)
+    revalidatePath('/sales/leads')
     return { success: true, data: lead }
   } catch (error: any) {
     console.error("Error updating marketing lead:", error)
@@ -422,6 +448,7 @@ export async function deleteMarketingLead(id: string) {
       where: { id }
     })
     revalidatePath('/marketing')
+    revalidatePath('/sales/leads')
     return { success: true }
   } catch (error: any) {
     console.error("Error deleting marketing lead:", error)
@@ -475,7 +502,7 @@ export async function forwardLeadToSales(leadId: string, salesRepId: string) {
       // 2. Create an In-App Notification & Push Notification
       await notifyUser(salesRepId, {
         title: "มี Lead ใหม่จาก Marketing",
-        body: `ลูกค้า ${lead.customerName} สนใจ ${lead.productType || lead.productOfInterest || 'สินค้า'}`,
+        body: `ลูกค้า ${lead.customerName}${lead.province ? ` (จ.${lead.province})` : ''} สนใจ ${lead.productType || lead.productOfInterest || 'สินค้า'}`,
         category: "MARKETING_LEAD",
         url: "/sales/leads"
       });
@@ -520,6 +547,7 @@ export async function searchCompaniesForLead(query: string) {
       take: 5,
       select: {
         companyName: true,
+        province: true,
         contacts: {
           take: 1,
           select: { mobilePhone: true }
@@ -535,17 +563,18 @@ export async function searchCompaniesForLead(query: string) {
       select: {
         contactName: true,
         mobilePhone: true,
-        company: { select: { companyName: true } }
+        company: { select: { companyName: true, province: true } }
       }
     });
 
-    const results: Array<{ name: string, phone: string, type: string }> = []
+    const results: Array<{ name: string, phone: string, type: string, province?: string | null }> = []
     
     companies.forEach(c => {
       results.push({
         name: c.companyName,
         phone: c.contacts[0]?.mobilePhone || '',
-        type: 'บริษัท'
+        type: 'บริษัท',
+        province: c.province || null,
       })
     })
 
@@ -553,7 +582,8 @@ export async function searchCompaniesForLead(query: string) {
       results.push({
         name: c.company ? `${c.company.companyName} (${c.contactName})` : c.contactName,
         phone: c.mobilePhone || '',
-        type: 'ผู้ติดต่อ'
+        type: 'ผู้ติดต่อ',
+        province: c.company?.province || null,
       })
     })
 
@@ -633,44 +663,11 @@ export async function exportMarketingLeadsToExcel(leadIds?: string[]): Promise<{
       }
     })
 
-    // Also fetch telesale info for matched companies
-    const companyNames = leads.map((l: any) => l.customerName).filter(Boolean);
-    const matchedCompanyIds = leads.map((l: any) => l.matchedCompanyId).filter(Boolean);
-    const companyNamedLeads = leads.map((l: any) => l.companyName).filter(Boolean);
-    const allCompanyNames = Array.from(new Set([...companyNames, ...companyNamedLeads]));
-
-    let companyById = new Map<string, any>();
-    let companyByName = new Map<string, any>();
-    if (matchedCompanyIds.length > 0 || allCompanyNames.length > 0) {
-      const companies = await prisma.company.findMany({
-        where: {
-          OR: [
-            { id: { in: matchedCompanyIds } },
-            { companyName: { in: allCompanyNames } }
-          ]
-        },
-        select: {
-          id: true,
-          companyName: true,
-          customerStatus: true,
-          telesales: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-            select: {
-              callOutcome: true,
-              result: true,
-              conversationSummary: true,
-              createdAt: true,
-              user: { select: { fullName: true } }
-            }
-          }
-        }
-      });
-      for (const c of companies) {
-        if (c.id) companyById.set(c.id, c);
-        if (c.companyName) companyByName.set(c.companyName.toLowerCase().trim(), c);
-      }
-    }
+    // Reuse shared helper for company province/district/telesales enrichment
+    await attachMatchedCompanyContextToLeads(leads, {
+      includeTelesale: true,
+      includeCustomerStatus: true,
+    });
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Tera CRM';
@@ -714,10 +711,7 @@ export async function exportMarketingLeadsToExcel(leadIds?: string[]): Promise<{
     headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
     leads.forEach((l: any, idx: number) => {
-      let comp = l.matchedCompanyId ? companyById.get(l.matchedCompanyId) : null;
-      if (!comp && l.customerName) comp = companyByName.get(l.customerName.toLowerCase().trim());
-      if (!comp && l.companyName) comp = companyByName.get(l.companyName.toLowerCase().trim());
-      const latestT = comp?.telesales?.[0] || null;
+      const latestT = l.latestTelesale || null;
 
       const dateStr = l.createdAt ? new Date(l.createdAt).toLocaleDateString('th-TH', {
         year: 'numeric',
@@ -741,7 +735,7 @@ export async function exportMarketingLeadsToExcel(leadIds?: string[]): Promise<{
         createdAt: dateStr,
         customerName: l.customerName || '-',
         phone: l.phoneNumber || '-',
-        companyName: l.companyName || comp?.companyName || '-',
+        companyName: l.companyName || '-',
         province: l.province || '-',
         district: l.district || '-',
         leadSource: l.leadSource || '-',

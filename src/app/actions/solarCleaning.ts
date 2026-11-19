@@ -9,8 +9,10 @@ import {
   areManagerSignaturesComplete,
   canAccessSolarCleaningRole,
   canEditSolarCleaningRole,
+  canManageSolarCleaningRecord,
   canSignSolarCleaningAsProjectMgr,
   canSignSolarCleaningAsServiceMgr,
+  canViewAllSolarCleaningRole,
   deriveSolarCleaningStatus,
   findMissingReportPhotoNotes,
   getNeededManagerSigners,
@@ -162,7 +164,10 @@ export async function listSolarCleaningInspections(): Promise<{
       return { success: false, error: 'คุณไม่มีสิทธิ์เข้าถึงโมดูลนี้' };
     }
 
-    const rows = await dbListSolarCleaningInspections();
+    const canViewAll = canViewAllSolarCleaningRole(user.role);
+    const rows = await dbListSolarCleaningInspections(
+      canViewAll ? undefined : { createdById: user.id }
+    );
     return { success: true, data: rows };
   } catch (err: unknown) {
     console.error('listSolarCleaningInspections error:', err);
@@ -184,6 +189,15 @@ export async function getSolarCleaningById(id: string): Promise<{
 
     const row = await dbGetSolarCleaningById(id);
     if (!row) return { success: false, error: 'ไม่พบเอกสารที่ต้องการ' };
+    if (
+      !canManageSolarCleaningRecord({
+        userId: user.id,
+        userRole: user.role,
+        createdById: row.createdById,
+      })
+    ) {
+      return { success: false, error: 'คุณสามารถดูได้เฉพาะเอกสารที่สร้างเองเท่านั้น' };
+    }
     return { success: true, data: row };
   } catch (err: unknown) {
     console.error('getSolarCleaningById error:', err);
@@ -666,6 +680,15 @@ export async function updateSolarCleaningInspection(
 
     const existing = await dbGetSolarCleaningById(id);
     if (!existing) return { success: false, error: 'ไม่พบเอกสารในระบบ' };
+    if (
+      !canManageSolarCleaningRecord({
+        userId: user.id,
+        userRole: user.role,
+        createdById: existing.createdById,
+      })
+    ) {
+      return { success: false, error: 'คุณสามารถแก้ไขได้เฉพาะเอกสารที่สร้างเองเท่านั้น' };
+    }
 
     const projectName = (input.projectName || '').trim();
     const customerName = (input.customerName || '').trim();
@@ -934,11 +957,13 @@ export async function deleteSolarCleaningInspection(
     const existing = await dbGetSolarCleaningById(id);
     if (!existing) return { success: false, error: 'ไม่พบเอกสาร' };
 
-    const isMgrOrAdmin =
-      isSuperAdminRole(user.role) ||
-      canSignSolarCleaningAsProjectMgr(user.role) ||
-      user.role.toLowerCase().includes('admin project');
-    if (!isMgrOrAdmin && existing.createdById !== user.id) {
+    if (
+      !canManageSolarCleaningRecord({
+        userId: user.id,
+        userRole: user.role,
+        createdById: existing.createdById,
+      })
+    ) {
       return { success: false, error: 'คุณสามารถลบได้เฉพาะเอกสารที่สร้างเองเท่านั้น' };
     }
 

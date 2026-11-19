@@ -4,8 +4,9 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import SignatureCanvas from 'react-signature-canvas';
 import { approveMaterialRequisition, updateRequisitionStatus } from '@/app/actions/requisitions';
-import { Save, Loader2, Eraser, XCircle, Upload, ShieldCheck, Wrench, Building2 } from 'lucide-react';
+import { Save, Loader2, Eraser, XCircle, Upload, ShieldCheck, Wrench, Building2, FileSignature } from 'lucide-react';
 import ConfirmModal from '@/app/components/ConfirmModal';
+import { canSelfApproveRequisition } from '@/app/lib/requisitionUtils';
 
 export default function ApproveForm({ requisition, currentUser }: { requisition: any, currentUser: any }) {
   const router = useRouter();
@@ -192,7 +193,22 @@ export default function ApproveForm({ requisition, currentUser }: { requisition:
         </div>
 
         <div className="flex flex-col items-center">
-          <label className="block text-sm font-semibold text-gray-700 mb-4 text-center">ลายมือชื่อผู้อนุมัติ</label>
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
+            <label className="block text-sm font-semibold text-gray-700 text-center">
+              ลายมือชื่อผู้อนุมัติ
+            </label>
+            {canSelfApproveRequisition(requisition.requesterId, currentUser?.id) &&
+              requisition.requesterSignatureUrl && (
+                <button
+                  type="button"
+                  onClick={() => setUploadedSignature(requisition.requesterSignatureUrl)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors"
+                >
+                  <FileSignature size={13} />
+                  <span>ใช้ลายเซ็นเดียวกับผู้ขอเบิก</span>
+                </button>
+              )}
+          </div>
           <div className="border-2 border-dashed border-gray-300 rounded-2xl overflow-hidden bg-gray-50 relative group flex items-center justify-center min-h-[120px] w-[300px]">
             {uploadedSignature ? (
               <img src={uploadedSignature} alt="Uploaded Signature" className="max-h-[100px] object-contain" />

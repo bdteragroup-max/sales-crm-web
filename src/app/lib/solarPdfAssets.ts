@@ -289,6 +289,8 @@ export async function renderHtmlToA4PdfBuffer(
   options?: {
     margin?: { top: string; bottom: string; left: string; right: string };
     displayHeaderFooter?: boolean;
+    headerTemplate?: string;
+    footerTemplate?: string;
   }
 ): Promise<Uint8Array> {
   const isLocal = process.env.NODE_ENV === 'development';
@@ -337,9 +339,10 @@ export async function renderHtmlToA4PdfBuffer(
       printBackground: true,
       preferCSSPageSize: true,
       displayHeaderFooter: options?.displayHeaderFooter ?? true,
-      headerTemplate: '<span></span>',
+      headerTemplate: options?.headerTemplate || '<span></span>',
       footerTemplate:
-        '<div style="width:100%;font-size:9px;color:#6b7280;text-align:right;padding:0 12mm 3mm 12mm;font-family:Sarabun,sans-serif;">หน้า <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+        options?.footerTemplate ||
+        '<div style="width:100%;font-size:9px;color:#64748b;text-align:right;padding:0 12mm 3mm 12mm;font-family:Sarabun,Tahoma,sans-serif;">หน้า <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
       margin,
     });
 

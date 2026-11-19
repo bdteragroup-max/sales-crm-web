@@ -29,17 +29,43 @@ import {
   XCircle,
   MessageSquare,
   Download,
-  Loader2
+  Loader2,
+  MapPin,
+  BarChart3,
+  Package,
 } from 'lucide-react'
 import DeleteLeadButton from './DeleteLeadButton'
 import LeadSourceBadge, { parseLeadAttribution } from './LeadSourceBadge'
+import ProvinceCombobox from './ProvinceCombobox'
+import LeadStatusDashboardPanel from './LeadStatusDashboardPanel'
 import { exportMarketingLeadsToExcel } from '@/app/actions/marketing'
+import {
+  matchesProvinceFilter,
+  toProvinceFilterOptions
+} from '@/app/marketing/constants/thaiProvinces'
+import { PRODUCT_GROUPS } from '@/app/marketing/constants/productOccupations'
+import {
+  buildLeadStatusAnalytics,
+  createDefaultLeadDateFilter,
+  evaluateMarketingLeadStatus,
+  formatLeadDateFilterSummary,
+  getAvailableLeadYears,
+  matchesLeadDateFilter,
+  matchesLeadProductGroupFilter,
+  shiftIsoDate,
+  THAI_MONTH_OPTIONS,
+  toThaiBuddhistYear,
+  type LeadDateFilterMode,
+  type LeadDateFilterState,
+} from '@/app/marketing/constants/leadStatusAnalytics'
 import Swal from 'sweetalert2'
 
 export interface MarketingLeadItem {
   id: string
   customerName: string
   phoneNumber?: string | null
+  province?: string | null
+  district?: string | null
   productOfInterest?: string | null
   productType?: string | null
   occupation?: string | null
@@ -77,21 +103,129 @@ interface MarketingLeadsClientProps {
   initialSearch?: string
   initialChannel?: string
   initialStage?: string
+  initialTodayBkk?: string
 }
 
 export default function MarketingLeadsClient({
   initialLeads,
   initialSearch = '',
   initialChannel = '',
-  initialStage = 'all'
+  initialStage = 'all',
+  initialTodayBkk
 }: MarketingLeadsClientProps) {
   const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [selectedChannel, setSelectedChannel] = useState(initialChannel)
   const [selectedStage, setSelectedStage] = useState(initialStage)
   const [selectedProductGroup, setSelectedProductGroup] = useState('')
+  const [selectedProvince, setSelectedProvince] = useState('')
+  const [dateFilter, setDateFilter] = useState<LeadDateFilterState>(() =>
+    createDefaultLeadDateFilter(initialTodayBkk)
+  )
+  const [isDashboardOpen, setIsDashboardOpen] = useState(true)
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
   const [copiedPhoneId, setCopiedPhoneId] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
+
+  const defaultTodayStr = useMemo(
+    () => createDefaultLeadDateFilter(initialTodayBkk).date,
+    [initialTodayBkk]
+  )
+  const availableYears = useMemo(() => {
+    const fallbackYear = Number(defaultTodayStr.slice(0, 4)) || new Date().getFullYear()
+    return getAvailableLeadYears(initialLeads, fallbackYear)
+  }, [initialLeads, defaultTodayStr])
+
+  const dateAndProductLeads = useMemo(
+    () =>
+      initialLeads.filter(
+        (l) =>
+          matchesLeadDateFilter(l.createdAt, dateFilter) &&
+          matchesLeadProductGroupFilter(l, selectedProductGroup)
+      ),
+    [initialLeads, dateFilter, selectedProductGroup]
+  )
+
+  const analytics = useMemo(
+    () => buildLeadStatusAnalytics(dateAndProductLeads, dateFilter.mode),
+    [dateAndProductLeads, dateFilter.mode]
+  )
+  const metrics = analytics.summary
+  const dateSummaryLabel = useMemo(
+    () => formatLeadDateFilterSummary(dateFilter),
+    [dateFilter]
+  )
+  const hasAnyActiveFilter = Boolean(
+    searchQuery ||
+      selectedChannel ||
+      selectedProductGroup ||
+      selectedProvince ||
+      selectedStage !== 'all' ||
+      dateFilter.mode !== 'all'
+  )
+
+  const resetAllFilters = () => {
+    setSearchQuery('')
+    setSelectedChannel('')
+    setSelectedProductGroup('')
+    setSelectedProvince('')
+    setSelectedStage('all')
+    setDateFilter(createDefaultLeadDateFilter(initialTodayBkk))
+  }
+
+  const provinceOptions = useMemo(
+    () => toProvinceFilterOptions(dateAndProductLeads),
+    [dateAndProductLeads]
+  )
+
+  // Filtered Leads
+  const filteredLeads = useMemo(() => {
+    return dateAndProductLeads.filter((l) => {
+      const { isWon, isLost, isForwarded, isContacted, telesaleSummary, telesaleOutcome } = evaluateMarketingLeadStatus(l)
+      const { channel, adSetName, adSetCode, campaignName, campaignCode } = parseLeadAttribution(l)
+
+      if (selectedChannel) {
+        const c = selectedChannel.toLowerCase()
+        if (!channel || !channel.toLowerCase().includes(c)) {
+          return false
+        }
+      }
+
+      if (!matchesProvinceFilter(l.province, selectedProvince)) {
+        return false
+      }
+
+      if (selectedStage !== 'all') {
+        if (selectedStage === 'new' && isForwarded) return false
+        if (selectedStage === 'forwarded' && (!isForwarded || isWon || isLost)) return false
+        if (selectedStage === 'contacted' && (!isContacted || isLost)) return false
+        if (selectedStage === 'won' && !isWon) return false
+        if (selectedStage === 'lost' && !isLost) return false
+      }
+
+      if (searchQuery.trim()) {
+        const s = searchQuery.toLowerCase().trim()
+        const matchName = l.customerName.toLowerCase().includes(s)
+        const matchPhone = l.phoneNumber && l.phoneNumber.includes(s)
+        const matchProvince =
+          (l.province && l.province.toLowerCase().includes(s)) ||
+          (l.district && l.district.toLowerCase().includes(s))
+        const matchProduct = l.productOfInterest && l.productOfInterest.toLowerCase().includes(s)
+        const matchType = l.productType && l.productType.toLowerCase().includes(s)
+        const matchOccupation = l.occupation && l.occupation.toLowerCase().includes(s)
+        const matchChannel = channel && channel.toLowerCase().includes(s)
+        const matchAdSet = (adSetName && adSetName.toLowerCase().includes(s)) || (adSetCode && adSetCode.toLowerCase().includes(s))
+        const matchCampaign = (campaignName && campaignName.toLowerCase().includes(s)) || (campaignCode && campaignCode.toLowerCase().includes(s))
+        const matchSales = l.assignedTo?.fullName?.toLowerCase().includes(s) || l.quotation?.salesperson?.fullName?.toLowerCase().includes(s)
+        const matchTelesale = (telesaleSummary && telesaleSummary.toLowerCase().includes(s)) || (telesaleOutcome && telesaleOutcome.toLowerCase().includes(s))
+
+        if (!matchName && !matchPhone && !matchProvince && !matchProduct && !matchType && !matchOccupation && !matchChannel && !matchAdSet && !matchCampaign && !matchSales && !matchTelesale) {
+          return false
+        }
+      }
+
+      return true
+    })
+  }, [dateAndProductLeads, searchQuery, selectedChannel, selectedProvince, selectedStage])
 
   // Export leads to Excel
   const handleExportToExcel = async () => {
@@ -132,7 +266,7 @@ export default function MarketingLeadsClient({
       } else {
         Swal.fire('เกิดข้อผิดพลาด', res.error || 'ไม่สามารถส่งออกข้อมูลได้', 'error')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
       Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถดาวน์โหลดไฟล์ Excel ได้', 'error')
     } finally {
@@ -169,128 +303,6 @@ export default function MarketingLeadsClient({
     return trimmed.slice(0, 1).toUpperCase()
   }
 
-  // Lead status evaluation helper
-  const evaluateLeadStatus = (lead: MarketingLeadItem) => {
-    const status = lead.quotation?.status || ''
-    const telesaleOutcome = lead.latestTelesale?.callOutcome || lead.latestTelesale?.result || ''
-    const telesaleSummary = lead.latestTelesale?.conversationSummary || ''
-    const isTelesaleNotInterested =
-      telesaleOutcome === 'ไม่สนใจ' ||
-      (lead.latestTelesale?.result === 'ไม่สนใจ') ||
-      telesaleSummary.includes('ไม่สนใจ') ||
-      telesaleSummary.includes('ไม่สะดวกคุย ไม่สนใจ')
-
-    const isQuotationLost = status.includes('ไม่สำเร็จ') || status.includes('ปฏิเสธ')
-    const isLost = isQuotationLost || isTelesaleNotInterested
-    const isWon = ['รอติดตั้ง', 'ปิดการขาย', 'รอส่งมอบ', 'เปิดบิลแล้ว'].includes(status)
-    const isForwarded = Boolean(lead.isForwarded)
-    const isContacted = Boolean(lead.isContacted) || Boolean(lead.latestTelesale)
-
-    let currentStage = 0 // 0: New Lead
-    if (isForwarded) currentStage = 1 // 1: Forwarded
-    if (status || isContacted) currentStage = 2 // 2: In progress / Quotation
-    if (isWon || isLost) currentStage = 3 // 3: Finished (Won / Lost)
-
-    return {
-      isLost,
-      isWon,
-      isForwarded,
-      isContacted,
-      currentStage,
-      status,
-      telesaleOutcome,
-      isTelesaleNotInterested,
-      telesaleSummary,
-      telesaleSalesPerson: lead.latestTelesale?.salesPerson || null,
-      telesaleDate: lead.latestTelesale?.createdAt || null
-    }
-  }
-
-  // Summary Metrics calculations
-  const metrics = useMemo(() => {
-    const total = initialLeads.length
-    let newLeads = 0
-    let forwardedLeads = 0
-    let wonLeads = 0
-    let contactedLeads = 0
-    let notInterestedLeads = 0
-
-    for (const l of initialLeads) {
-      const { isWon, isLost, isForwarded, isContacted, isTelesaleNotInterested } = evaluateLeadStatus(l)
-      if (isLost || isTelesaleNotInterested) {
-        notInterestedLeads++
-      }
-      if (!isForwarded) {
-        newLeads++
-      } else if (isWon) {
-        wonLeads++
-        forwardedLeads++
-      } else {
-        forwardedLeads++
-        if (isContacted) contactedLeads++
-      }
-    }
-
-    const conversionRate = total > 0 ? ((wonLeads / total) * 100).toFixed(1) : '0.0'
-
-    return { total, newLeads, forwardedLeads, wonLeads, contactedLeads, notInterestedLeads, conversionRate }
-  }, [initialLeads])
-
-  // Filtered Leads
-  const filteredLeads = useMemo(() => {
-    return initialLeads.filter((l) => {
-      const { isWon, isLost, isForwarded, isContacted, telesaleSummary, telesaleOutcome } = evaluateLeadStatus(l)
-      const { channel, adSetName, adSetCode, campaignName, campaignCode } = parseLeadAttribution(l)
-
-      // 1. Channel Filter
-      if (selectedChannel) {
-        const c = selectedChannel.toLowerCase()
-        if (!channel || !channel.toLowerCase().includes(c)) {
-          return false
-        }
-      }
-
-      // 2. Product Group Filter
-      if (selectedProductGroup) {
-        const pg = selectedProductGroup.toLowerCase()
-        const pt = (l.productType || '').toLowerCase()
-        if (!pt.includes(pg)) {
-          return false
-        }
-      }
-
-      // 3. Stage Filter
-      if (selectedStage !== 'all') {
-        if (selectedStage === 'new' && isForwarded) return false
-        if (selectedStage === 'forwarded' && (!isForwarded || isWon || isLost)) return false
-        if (selectedStage === 'contacted' && (!isContacted || isLost)) return false
-        if (selectedStage === 'won' && !isWon) return false
-        if (selectedStage === 'lost' && !isLost) return false
-      }
-
-      // 4. Search Query Filter
-      if (searchQuery.trim()) {
-        const s = searchQuery.toLowerCase().trim()
-        const matchName = l.customerName.toLowerCase().includes(s)
-        const matchPhone = l.phoneNumber && l.phoneNumber.includes(s)
-        const matchProduct = l.productOfInterest && l.productOfInterest.toLowerCase().includes(s)
-        const matchType = l.productType && l.productType.toLowerCase().includes(s)
-        const matchOccupation = l.occupation && l.occupation.toLowerCase().includes(s)
-        const matchChannel = channel && channel.toLowerCase().includes(s)
-        const matchAdSet = (adSetName && adSetName.toLowerCase().includes(s)) || (adSetCode && adSetCode.toLowerCase().includes(s))
-        const matchCampaign = (campaignName && campaignName.toLowerCase().includes(s)) || (campaignCode && campaignCode.toLowerCase().includes(s))
-        const matchSales = l.assignedTo?.fullName?.toLowerCase().includes(s) || l.quotation?.salesperson?.fullName?.toLowerCase().includes(s)
-        const matchTelesale = (telesaleSummary && telesaleSummary.toLowerCase().includes(s)) || (telesaleOutcome && telesaleOutcome.toLowerCase().includes(s))
-
-        if (!matchName && !matchPhone && !matchProduct && !matchType && !matchOccupation && !matchChannel && !matchAdSet && !matchCampaign && !matchSales && !matchTelesale) {
-          return false
-        }
-      }
-
-      return true
-    })
-  }, [initialLeads, searchQuery, selectedChannel, selectedProductGroup, selectedStage])
-
   // Symmetrical Workflow Stepper
   const renderWorkflowStepper = (lead: MarketingLeadItem) => {
     const {
@@ -304,7 +316,7 @@ export default function MarketingLeadsClient({
       telesaleOutcome,
       telesaleSummary,
       telesaleSalesPerson
-    } = evaluateLeadStatus(lead)
+    } = evaluateMarketingLeadStatus(lead)
 
     return (
       <div className="flex flex-col gap-2 w-full">
@@ -313,7 +325,7 @@ export default function MarketingLeadsClient({
           {/* Step 1: New Lead */}
           <div
             className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-              isLost ? 'bg-slate-300' : 'bg-brand-red shadow-xs'
+              isLost ? 'bg-gray-300' : 'bg-brand-red shadow-xs'
             }`}
             title="1. รับ Lead เข้าระบบแล้ว"
           />
@@ -322,7 +334,7 @@ export default function MarketingLeadsClient({
           <div
             className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
               isLost
-                ? 'bg-slate-300'
+                ? 'bg-gray-300'
                 : currentStage >= 1
                 ? 'bg-brand-red shadow-xs'
                 : 'bg-gray-200'
@@ -334,11 +346,11 @@ export default function MarketingLeadsClient({
           <div
             className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
               isLost
-                ? 'bg-rose-500 shadow-sm ring-2 ring-rose-400/30'
+                ? 'bg-gray-400'
                 : isWon
-                ? 'bg-emerald-500 shadow-xs'
+                ? 'bg-gray-800 shadow-xs'
                 : currentStage >= 2
-                ? 'bg-amber-400 shadow-xs'
+                ? 'bg-red-400 shadow-xs'
                 : 'bg-gray-200'
             }`}
             title={isLost ? '3. ยุติการติดตาม / ไม่สนใจ' : isWon ? '3. ปิดการขายสำเร็จ' : '3. เสนอราคา'}
@@ -350,8 +362,8 @@ export default function MarketingLeadsClient({
           <div className="space-y-1.5 w-full">
             {/* Primary Status Badge Row */}
             <div className="flex items-center justify-between gap-1.5">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 shadow-xs shrink-0 tracking-tight">
-                <XCircle size={13} className="text-rose-600 shrink-0" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-black bg-red-50 text-brand-red border border-red-200 shadow-xs shrink-0 tracking-tight">
+                <XCircle size={13} className="text-brand-red shrink-0" />
                 <span>ไม่สนใจ (Lost)</span>
               </span>
               <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200 shrink-0 whitespace-nowrap">
@@ -362,16 +374,16 @@ export default function MarketingLeadsClient({
             {/* Prominent Sales Feedback Card */}
             {telesaleSummary && (
               <div
-                className="p-2 rounded-xl bg-gradient-to-br from-rose-50 via-rose-50/70 to-white border border-rose-200 shadow-xs transition-all hover:border-rose-300"
+                className="p-2 rounded-xl bg-gray-50 border border-gray-200 shadow-xs transition-all hover:border-red-200"
                 title={`อัปเดตจากฝ่ายขาย (${telesaleSalesPerson || 'เซลส์'}): ${telesaleSummary}`}
               >
                 <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 flex items-center gap-1">
-                    <MessageSquare size={10} className="text-rose-500 shrink-0" />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-red flex items-center gap-1">
+                    <MessageSquare size={10} className="text-brand-red shrink-0" />
                     <span>เหตุผลฝ่ายขาย</span>
                   </span>
                   {telesaleSalesPerson && (
-                    <span className="text-[9px] text-gray-500 font-bold truncate max-w-[85px] bg-white/90 px-1.5 py-0.2 rounded border border-gray-200">
+                    <span className="text-[9px] text-gray-500 font-bold truncate max-w-[85px] bg-white px-1.5 py-0.2 rounded border border-gray-200">
                       {telesaleSalesPerson}
                     </span>
                   )}
@@ -391,12 +403,12 @@ export default function MarketingLeadsClient({
             <span
               className={`truncate px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors ${
                 !isForwarded
-                  ? 'text-gray-400 border-gray-200 bg-gray-50'
+                  ? 'text-gray-500 border-gray-200 bg-gray-50'
                   : isWon
-                  ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
+                  ? 'text-white border-gray-800 bg-gray-800'
                   : isLost
                   ? 'text-gray-600 border-gray-200 bg-gray-100'
-                  : 'text-amber-700 border-amber-200 bg-amber-50'
+                  : 'text-brand-red border-red-200 bg-red-50'
               }`}
             >
               {isWon || isLost
@@ -417,13 +429,13 @@ export default function MarketingLeadsClient({
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6 pb-24">
-      {/* ── 1. Top Header Bar ── */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-2 border-b border-gray-200/80">
-        <div className="flex items-center gap-3.5">
+      {/* ── 1. Symmetrical Top Header Bar (Red / White / Gray) ── */}
+      <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 pb-3 border-b border-gray-200/80">
+        <div className="flex items-center gap-3.5 min-w-0">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500 via-brand-red to-red-700 text-white flex items-center justify-center shadow-lg shadow-red-500/20 ring-4 ring-red-500/10 shrink-0">
             <LayoutDashboard size={24} className="text-white" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-brand-red bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">
                 Marketing Operations
@@ -439,37 +451,269 @@ export default function MarketingLeadsClient({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+        {/* Action Buttons (Symmetrical single row on desktop, 2x2 on tablet/mobile) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 xl:flex xl:flex-nowrap items-center gap-2 w-full xl:w-auto shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsDashboardOpen((prev) => !prev)}
+            className={`h-10 inline-flex items-center justify-center gap-1.5 px-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs active:scale-95 border cursor-pointer whitespace-nowrap ${
+              isDashboardOpen
+                ? 'bg-red-50 text-brand-red border-red-200 hover:bg-red-100'
+                : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            }`}
+            id="toggle-lead-dashboard-btn"
+          >
+            <BarChart3 size={15} className="shrink-0" />
+            <span>{isDashboardOpen ? 'ซ่อน Dashboard' : 'ดู Dashboard'}</span>
+          </button>
+
           <button
             onClick={handleExportToExcel}
             disabled={isExporting}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-emerald-700 border border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50/70 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs active:scale-95 disabled:opacity-50"
+            className="h-10 inline-flex items-center justify-center gap-1.5 px-3.5 bg-white text-gray-700 border border-gray-200 hover:border-red-200 hover:text-brand-red hover:bg-red-50/40 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs active:scale-95 disabled:opacity-50 whitespace-nowrap cursor-pointer"
             id="export-excel-btn"
             title="ส่งออกข้อมูล Lead เป็นไฟล์ Excel ตามเงื่อนไขตัวกรองปัจจุบัน"
           >
-            {isExporting ? <Loader2 size={16} className="animate-spin text-emerald-600" /> : <Download size={16} className="text-emerald-600" />}
+            {isExporting ? <Loader2 size={15} className="animate-spin text-brand-red shrink-0" /> : <Download size={15} className="text-gray-500 shrink-0" />}
             <span>ส่งออก Excel ({filteredLeads.length})</span>
           </button>
 
           <Link
             href="/marketing/import"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs active:scale-95"
+            className="h-10 inline-flex items-center justify-center gap-1.5 px-3.5 bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs active:scale-95 whitespace-nowrap"
             id="import-excel-btn"
           >
-            <UploadCloud size={16} className="text-gray-500" />
-            <span>นำเข้าไฟล์ Excel</span>
+            <UploadCloud size={15} className="text-gray-500 shrink-0" />
+            <span>นำเข้า Excel</span>
           </Link>
 
           <Link
             href="/marketing/new"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 via-brand-red to-red-600 hover:from-red-700 hover:to-red-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-red-500/25 ring-1 ring-red-500/30 active:scale-95"
+            className="h-10 inline-flex items-center justify-center gap-1.5 px-4 bg-gradient-to-r from-red-600 via-brand-red to-red-600 hover:from-red-700 hover:to-red-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-red-500/20 ring-1 ring-red-500/30 active:scale-95 whitespace-nowrap"
             id="create-lead-btn"
           >
-            <PlusCircle size={16} className="text-white" />
+            <PlusCircle size={15} className="text-white shrink-0" />
             <span>เพิ่ม Lead ใหม่</span>
           </Link>
         </div>
+      </div>
+
+      {/* ── 2. Date (วัน / เดือน / ปี) & Product Group Analytics Filter Bar ── */}
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-xs space-y-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          {/* Mode Switcher */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-extrabold text-gray-600 inline-flex items-center gap-1.5 mr-1">
+              <Calendar size={14} className="text-brand-red" />
+              <span>ช่วงเวลา:</span>
+            </span>
+            {(
+              [
+                { mode: 'all', label: 'ทั้งหมด' },
+                { mode: 'day', label: 'รายวัน' },
+                { mode: 'month', label: 'รายเดือน' },
+                { mode: 'year', label: 'รายปี' },
+                { mode: 'range', label: 'กำหนดช่วงวัน' },
+              ] as { mode: LeadDateFilterMode; label: string }[]
+            ).map((opt) => (
+              <button
+                key={opt.mode}
+                type="button"
+                onClick={() => setDateFilter((prev) => ({ ...prev, mode: opt.mode }))}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                  dateFilter.mode === opt.mode
+                    ? 'bg-brand-red text-white border-brand-red shadow-xs'
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Product Group Selector + Quick Reset */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1.5">
+              <Package size={14} className="text-gray-500 shrink-0" />
+              <select
+                value={selectedProductGroup}
+                onChange={(e) => setSelectedProductGroup(e.target.value)}
+                className="px-3 py-1.5 bg-gray-50 hover:bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all cursor-pointer"
+                aria-label="เลือกกลุ่มสินค้า"
+              >
+                <option value="">ทุกกลุ่มสินค้า (All Products)</option>
+                {PRODUCT_GROUPS.map((pg) => (
+                  <option key={pg} value={pg}>
+                    {pg}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {hasAnyActiveFilter && (
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors inline-flex items-center gap-1 cursor-pointer"
+              >
+                <RotateCcw size={12} />
+                <span>ล้างตัวกรอง</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Contextual Date Inputs (Day / Month / Year / Range) */}
+        {dateFilter.mode !== 'all' && (
+          <div className="pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {dateFilter.mode === 'day' && (
+                <>
+                  <input
+                    type="date"
+                    value={dateFilter.date}
+                    onChange={(e) =>
+                      setDateFilter((prev) => ({ ...prev, date: e.target.value }))
+                    }
+                    className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-brand-red"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDateFilter((prev) => ({ ...prev, date: defaultTodayStr }))
+                    }
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border cursor-pointer transition-colors ${
+                      dateFilter.date === defaultTodayStr
+                        ? 'bg-red-50 text-brand-red border-red-200'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    วันนี้
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDateFilter((prev) => ({
+                        ...prev,
+                        date: shiftIsoDate(defaultTodayStr, -1),
+                      }))
+                    }
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border cursor-pointer transition-colors ${
+                      dateFilter.date === shiftIsoDate(defaultTodayStr, -1)
+                        ? 'bg-red-50 text-brand-red border-red-200'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    เมื่อวาน
+                  </button>
+                </>
+              )}
+
+              {dateFilter.mode === 'month' && (
+                <>
+                  <select
+                    value={dateFilter.month}
+                    onChange={(e) =>
+                      setDateFilter((prev) => ({
+                        ...prev,
+                        month: Number(e.target.value),
+                      }))
+                    }
+                    className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-brand-red cursor-pointer"
+                    aria-label="เลือกเดือน"
+                  >
+                    {THAI_MONTH_OPTIONS.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={dateFilter.year}
+                    onChange={(e) =>
+                      setDateFilter((prev) => ({
+                        ...prev,
+                        year: Number(e.target.value),
+                      }))
+                    }
+                    className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-brand-red cursor-pointer"
+                    aria-label="เลือกปี"
+                  >
+                    {availableYears.map((y) => (
+                      <option key={y} value={y}>
+                        ปี พ.ศ. {toThaiBuddhistYear(y)}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const def = createDefaultLeadDateFilter(initialTodayBkk)
+                      setDateFilter((prev) => ({
+                        ...prev,
+                        mode: 'month',
+                        month: def.month,
+                        year: def.year,
+                      }))
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 cursor-pointer"
+                  >
+                    เดือนนี้
+                  </button>
+                </>
+              )}
+
+              {dateFilter.mode === 'year' && (
+                <>
+                  <select
+                    value={dateFilter.year}
+                    onChange={(e) =>
+                      setDateFilter((prev) => ({
+                        ...prev,
+                        year: Number(e.target.value),
+                      }))
+                    }
+                    className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-brand-red cursor-pointer"
+                    aria-label="เลือกปี พ.ศ."
+                  >
+                    {availableYears.map((y) => (
+                      <option key={y} value={y}>
+                        ปี พ.ศ. {toThaiBuddhistYear(y)} ({y})
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+
+              {dateFilter.mode === 'range' && (
+                <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-gray-600">
+                  <span>ตั้งแต่:</span>
+                  <input
+                    type="date"
+                    value={dateFilter.startDate}
+                    onChange={(e) =>
+                      setDateFilter((prev) => ({ ...prev, startDate: e.target.value }))
+                    }
+                    className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-brand-red"
+                  />
+                  <span>ถึง:</span>
+                  <input
+                    type="date"
+                    value={dateFilter.endDate}
+                    onChange={(e) =>
+                      setDateFilter((prev) => ({ ...prev, endDate: e.target.value }))
+                    }
+                    className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-brand-red"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="text-xs font-bold text-gray-500">
+              แสดงสรุปผล <span className="text-gray-900">{metrics.total}</span> รายชื่อ (จากทั้งหมด {initialLeads.length} รายชื่อในระบบ)
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── 3. Red, White, Gray KPI Cards Ribbon (Symmetrical 4-column Grid) ── */}
@@ -511,23 +755,23 @@ export default function MarketingLeadsClient({
               : 'border-gray-200 hover:border-gray-300'
           }`}
         >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-red-500" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-red-400" />
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">รอพิจารณาส่งต่อ</span>
-              <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <div className="w-9 h-9 rounded-xl bg-red-50 text-brand-red border border-red-100 flex items-center justify-center group-hover:scale-105 transition-transform">
                 <Clock size={18} />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-black text-gray-900 tracking-tight">{metrics.newLeads}</span>
-              <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              <span className="text-xs font-bold text-brand-red bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
                 ต้องดำเนินการ
               </span>
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-100 flex items-center gap-1 font-medium">
-            <Sparkles size={13} className="text-amber-500" />
+            <Sparkles size={13} className="text-brand-red" />
             <span>Lead ใหม่ที่ยังไม่ได้รับมอบหมายเซลส์</span>
           </p>
         </div>
@@ -541,7 +785,7 @@ export default function MarketingLeadsClient({
               : 'border-gray-200 hover:border-gray-300'
           }`}
         >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 to-gray-600" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gray-400" />
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">ส่งต่อฝ่ายขายแล้ว</span>
@@ -569,27 +813,39 @@ export default function MarketingLeadsClient({
               : 'border-gray-200 hover:border-gray-300'
           }`}
         >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gray-700" />
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">ปิดการขายสำเร็จ (Won)</span>
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <div className="w-9 h-9 rounded-xl bg-gray-100 text-gray-800 border border-gray-200 flex items-center justify-center group-hover:scale-105 transition-transform">
                 <Trophy size={18} />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-black text-gray-900 tracking-tight">{metrics.wonLeads}</span>
-              <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              <span className="text-xs font-black text-gray-800 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-300">
                 Win Rate {metrics.conversionRate}%
               </span>
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-100 flex items-center gap-1 font-medium">
-            <CheckCircle2 size={13} className="text-emerald-500" />
+            <CheckCircle2 size={13} className="text-gray-700" />
             <span>ออกบิล/รอส่งมอบ/ปิดการขายแล้ว</span>
           </p>
         </div>
       </div>
+
+      {/* ── Customer Status Analytics Dashboard ── */}
+      <LeadStatusDashboardPanel
+        analytics={analytics}
+        dateSummaryLabel={dateSummaryLabel}
+        selectedProductGroup={selectedProductGroup}
+        selectedStage={selectedStage}
+        isOpen={isDashboardOpen}
+        onToggleOpen={() => setIsDashboardOpen((prev) => !prev)}
+        onSelectStage={setSelectedStage}
+        onSelectProductGroup={setSelectedProductGroup}
+      />
 
       {/* ── 4. Symmetrical Search & Filter Console ── */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-xs space-y-4">
@@ -602,7 +858,7 @@ export default function MarketingLeadsClient({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาชื่อลูกค้า, เบอร์โทร, แคมเปญ, Ad Set, สินค้าที่สนใจ, เซลส์ผู้ดูแล..."
+              placeholder="ค้นหาชื่อลูกค้า, เบอร์โทร, จังหวัด, แคมเปญ, สินค้าที่สนใจ, เซลส์ผู้ดูแล..."
               className="w-full pl-10 pr-9 py-2.5 bg-gray-50/70 hover:bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
               id="marketing-search-input"
             />
@@ -619,6 +875,16 @@ export default function MarketingLeadsClient({
 
           {/* Symmetrical Control Controls on Right */}
           <div className="flex flex-wrap items-center gap-2">
+            <ProvinceCombobox
+              id="marketing-province-select"
+              value={selectedProvince}
+              onChange={setSelectedProvince}
+              options={provinceOptions}
+              emptyLabel="ทุกจังหวัด (All Provinces)"
+              totalCount={dateAndProductLeads.length}
+              variant="filter"
+            />
+
             <select
               value={selectedProductGroup}
               onChange={(e) => setSelectedProductGroup(e.target.value)}
@@ -692,7 +958,7 @@ export default function MarketingLeadsClient({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              ทั้งหมด ({initialLeads.length})
+              ทั้งหมด ({metrics.total})
             </button>
 
             <button
@@ -731,10 +997,10 @@ export default function MarketingLeadsClient({
 
             <button
               onClick={() => setSelectedStage('won')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 selectedStage === 'won'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                  ? 'bg-gray-800 text-white shadow-xs'
+                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300'
               }`}
             >
               ปิดการขายสำเร็จ ({metrics.wonLeads})
@@ -742,24 +1008,19 @@ export default function MarketingLeadsClient({
 
             <button
               onClick={() => setSelectedStage('lost')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 selectedStage === 'lost'
-                  ? 'bg-rose-600 text-white shadow-xs shadow-rose-500/20'
-                  : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
+                  ? 'bg-brand-red text-white shadow-xs shadow-red-500/20'
+                  : 'bg-red-50 text-brand-red hover:bg-red-100 border border-red-200'
               }`}
             >
-              <XCircle size={12} className={selectedStage === 'lost' ? 'text-white' : 'text-rose-500'} />
+              <XCircle size={12} className={selectedStage === 'lost' ? 'text-white' : 'text-brand-red'} />
               <span>ไม่สนใจ ({metrics.notInterestedLeads})</span>
             </button>
 
-            {(searchQuery || selectedChannel || selectedProductGroup || selectedStage !== 'all') && (
+            {hasAnyActiveFilter && (
               <button
-                onClick={() => {
-                  setSearchQuery('')
-                  setSelectedChannel('')
-                  setSelectedProductGroup('')
-                  setSelectedStage('all')
-                }}
+                onClick={resetAllFilters}
                 className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all flex items-center gap-1"
                 title="ล้างตัวกรองทั้งหมด"
               >
@@ -775,24 +1036,25 @@ export default function MarketingLeadsClient({
             <span className="px-2 py-0.5 bg-gray-100 text-gray-900 rounded-md font-black border border-gray-200">
               {filteredLeads.length}
             </span>
-            <span>จากทั้งหมด {initialLeads.length} รายการ</span>
+            <span>จาก {metrics.total} รายการที่ตรงช่วงเวลา/สินค้า</span>
           </div>
         </div>
       </div>
 
-      {/* ── 5. Main Content: Symmetrical 7-Column Table or Cards View ── */}
+      {/* ── 5. Main Content: Symmetrical 8-Column Table or Cards View ── */}
       {viewMode === 'table' ? (
         <div className="bg-white rounded-2xl shadow-xs border border-gray-200/90 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm table-fixed min-w-[1050px]">
+            <table className="w-full text-left text-sm table-fixed min-w-[1120px]">
               <thead className="bg-gray-50/90 text-[11px] uppercase font-bold text-gray-500 tracking-wider border-b border-gray-200">
                 <tr>
-                  <th className="w-[20%] px-4 py-3.5">ลูกค้า / เบอร์ติดต่อ</th>
-                  <th className="w-[17%] px-4 py-3.5">ที่มา & ชุดโฆษณา (Attribution)</th>
-                  <th className="w-[13%] px-4 py-3.5">ความสนใจ / สินค้า</th>
-                  <th className="w-[19%] px-4 py-3.5">สถานะดำเนินงาน (Stage)</th>
-                  <th className="w-[12%] px-4 py-3.5">ฝ่ายขายผู้ดูแล</th>
-                  <th className="w-[11%] px-3 py-3.5">วันที่รับเรื่อง</th>
+                  <th className="w-[17%] px-4 py-3.5">ลูกค้า / เบอร์ติดต่อ</th>
+                  <th className="w-[11%] px-3 py-3.5">จังหวัด</th>
+                  <th className="w-[15%] px-4 py-3.5">ที่มา &amp; ชุดโฆษณา (Attribution)</th>
+                  <th className="w-[12%] px-4 py-3.5">ความสนใจ / สินค้า</th>
+                  <th className="w-[16%] px-4 py-3.5">สถานะดำเนินงาน (Stage)</th>
+                  <th className="w-[11%] px-4 py-3.5">ฝ่ายขายผู้ดูแล</th>
+                  <th className="w-[10%] px-3 py-3.5">วันที่รับเรื่อง</th>
                   <th className="w-[8%] px-4 py-3.5 text-right">จัดการ</th>
                 </tr>
               </thead>
@@ -800,14 +1062,14 @@ export default function MarketingLeadsClient({
                 {filteredLeads.map((lead) => {
                   const initial = getCustomerInitial(lead.customerName)
                   const isCopied = copiedPhoneId === lead.id
-                  const { isTelesaleNotInterested } = evaluateLeadStatus(lead)
+                  const { isTelesaleNotInterested } = evaluateMarketingLeadStatus(lead)
 
                   return (
                     <tr
                       key={lead.id}
                       className={`transition-colors group cursor-default ${
                         isTelesaleNotInterested
-                          ? 'bg-rose-50/20 hover:bg-rose-50/40 border-l-4 border-l-rose-400'
+                          ? 'bg-red-50/25 hover:bg-red-50/40 border-l-4 border-l-brand-red'
                           : 'hover:bg-red-50/20'
                       }`}
                     >
@@ -841,13 +1103,13 @@ export default function MarketingLeadsClient({
                                   title="คัดลอกเบอร์โทรศัพท์"
                                 >
                                   {isCopied ? (
-                                    <Check size={11} className="text-emerald-600" />
+                                    <Check size={11} className="text-brand-red" />
                                   ) : (
                                     <Copy size={11} />
                                   )}
                                 </button>
                                 {isCopied && (
-                                  <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200 shrink-0">
+                                  <span className="text-[10px] text-brand-red font-bold bg-red-50 px-1 py-0.2 rounded border border-red-200 shrink-0">
                                     คัดลอกแล้ว
                                   </span>
                                 )}
@@ -859,7 +1121,29 @@ export default function MarketingLeadsClient({
                         </div>
                       </td>
 
-                      {/* 2. Attribution & Campaign (18%) */}
+                      {/* 2. Province Column (11%) */}
+                      <td className="px-3 py-4 align-middle">
+                        {lead.province ? (
+                          <div className="space-y-0.5">
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-gray-800 border border-gray-200 text-xs font-bold max-w-full"
+                              title={lead.district ? `${lead.province} (${lead.district})` : lead.province}
+                            >
+                              <MapPin size={11} className="text-brand-red shrink-0" />
+                              <span className="truncate">{lead.province}</span>
+                            </span>
+                            {lead.district && (
+                              <span className="block text-[10px] text-gray-400 truncate pl-1">
+                                {lead.district}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">-</span>
+                        )}
+                      </td>
+
+                      {/* 3. Attribution & Campaign (15%) */}
                       <td className="px-4 py-4 align-middle">
                         <LeadSourceBadge lead={lead} />
                       </td>
@@ -900,7 +1184,7 @@ export default function MarketingLeadsClient({
                             </span>
                           </div>
                         ) : (
-                          <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/80 font-bold inline-flex items-center gap-1">
+                          <span className="text-[11px] text-brand-red bg-red-50 px-2 py-0.5 rounded-lg border border-red-200 font-bold inline-flex items-center gap-1">
                             <Clock size={11} />
                             รอจัดสรรเซลส์
                           </span>
@@ -948,28 +1232,24 @@ export default function MarketingLeadsClient({
 
                 {filteredLeads.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-6 py-16 text-center">
+                    <td colSpan={8} className="px-6 py-16 text-center">
                       <div className="max-w-sm mx-auto flex flex-col items-center">
                         <div className="w-14 h-14 rounded-2xl bg-red-50 text-brand-red border border-red-100 flex items-center justify-center mb-3">
                           <AlertCircle size={26} />
                         </div>
                         <h3 className="text-base font-black text-gray-900">
-                          {searchQuery || selectedChannel || selectedStage !== 'all'
+                          {hasAnyActiveFilter
                             ? 'ไม่พบข้อมูลที่ตรงกับเงื่อนไข'
                             : 'ยังไม่มีข้อมูล Marketing Lead'}
                         </h3>
                         <p className="text-xs text-gray-500 mt-1 mb-4 font-medium">
-                          {searchQuery || selectedChannel || selectedStage !== 'all'
-                            ? 'ลองเปลี่ยนคำค้นหา หรือรีเซ็ตตัวกรองเพื่อดูข้อมูลทั้งหมด'
+                          {hasAnyActiveFilter
+                            ? 'ลองเปลี่ยนคำค้นหา ช่วงเวลา กลุ่มสินค้า หรือรีเซ็ตตัวกรองเพื่อดูข้อมูลทั้งหมด'
                             : 'เริ่มต้นสร้าง Lead ใหม่ หรือนำเข้าไฟล์ Excel เพื่อจัดการข้อมูล'}
                         </p>
-                        {(searchQuery || selectedChannel || selectedStage !== 'all') ? (
+                        {hasAnyActiveFilter ? (
                           <button
-                            onClick={() => {
-                              setSearchQuery('')
-                              setSelectedChannel('')
-                              setSelectedStage('all')
-                            }}
+                            onClick={resetAllFilters}
                             className="px-4 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-black transition-all shadow-xs"
                           >
                             ล้างตัวกรองทั้งหมด
@@ -996,7 +1276,7 @@ export default function MarketingLeadsClient({
           {filteredLeads.map((lead) => {
             const initial = getCustomerInitial(lead.customerName)
             const isCopied = copiedPhoneId === lead.id
-            const { isForwarded } = evaluateLeadStatus(lead)
+            const { isForwarded } = evaluateMarketingLeadStatus(lead)
 
             return (
               <div
@@ -1050,11 +1330,26 @@ export default function MarketingLeadsClient({
                             className="p-1 text-gray-400 hover:text-gray-700 rounded"
                             title="คัดลอกเบอร์"
                           >
-                            {isCopied ? <Check size={12} className="text-emerald-600" /> : <Copy size={12} />}
+                            {isCopied ? <Check size={12} className="text-brand-red" /> : <Copy size={12} />}
                           </button>
                         </div>
                       </div>
                     ) : null}
+
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-400 font-medium">จังหวัด:</span>
+                      {lead.province ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-gray-800 border border-gray-200 font-bold">
+                          <MapPin size={11} className="text-brand-red shrink-0" />
+                          <span>
+                            จ.{lead.province}
+                            {lead.district ? ` (${lead.district})` : ''}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">-</span>
+                      )}
+                    </div>
 
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-gray-400 font-medium">สินค้าที่สนใจ:</span>
@@ -1128,11 +1423,7 @@ export default function MarketingLeadsClient({
                 </div>
                 <h3 className="text-base font-black text-gray-900">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</h3>
                 <button
-                  onClick={() => {
-                    setSearchQuery('')
-                    setSelectedChannel('')
-                    setSelectedStage('all')
-                  }}
+                  onClick={resetAllFilters}
                   className="mt-4 px-4 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-black transition-all"
                 >
                   ล้างตัวกรองทั้งหมด

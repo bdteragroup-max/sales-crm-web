@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import type { Prisma } from '@/generated/client';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
 import { sendPushToUser } from '@/app/lib/pushNotification';
@@ -63,9 +64,10 @@ export async function POST(request: NextRequest) {
 
     revalidatePath('/marketing/kanban');
     return NextResponse.json(card);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/marketing/kanban/cards:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to create card';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -117,7 +119,7 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    const updateData: any = {};
+    const updateData: Prisma.KanbanCardUncheckedUpdateInput = {};
     let isMove = false;
 
     if (listId !== undefined) {
@@ -228,22 +230,23 @@ export async function PUT(request: NextRequest) {
           }
 
           rebalancedMap = {};
-          const updates: Promise<unknown>[] = [];
+          const rebalanceChanges: Array<{ id: string; pos: number }> = [];
           for (let i = 0; i < orderedCardsForRebalance.length; i++) {
             const c = orderedCardsForRebalance[i];
             const nextPos = (i + 1) * 1000;
             rebalancedMap[c.id] = nextPos;
             if (c.position !== nextPos) {
-              updates.push(
-                tx.kanbanCard.update({
-                  where: { id: c.id },
-                  data: { position: nextPos }
-                })
-              );
+              rebalanceChanges.push({ id: c.id, pos: nextPos });
             }
           }
-          if (updates.length > 0) {
-            await Promise.all(updates);
+          if (rebalanceChanges.length > 0) {
+            const rebalancePayloadJson = JSON.stringify(rebalanceChanges);
+            await tx.$executeRaw`
+              UPDATE "KanbanCard" AS c
+              SET "position" = v.pos
+              FROM jsonb_to_recordset(${rebalancePayloadJson}::jsonb) AS v(id text, pos double precision)
+              WHERE c.id = v.id AND c."listId" = ${updated.listId}
+            `;
           }
           if (rebalancedMap[updated.id] !== undefined) {
             updated.position = rebalancedMap[updated.id];
@@ -252,51 +255,78 @@ export async function PUT(request: NextRequest) {
       }
 
       return { card: updated, listPositions: rebalancedMap };
+    }, {
+      maxWait: 10000,
+      timeout: 20000,
     });
 
-    if (isMove && oldCard && oldCard.listId !== listId) {
-      await prisma.kanbanActivityLog.create({
-        data: {
-          cardId: card.id,
-          userId: user.id,
-          actionType: 'MOVED',
-          details: `Moved to another list`
-        }
-      });
+    const newActivityLogs: Awaited<ReturnType<typeof prisma.kanbanActivityLog.create>>[] = [];
 
-      const newList = await prisma.kanbanList.findUnique({ where: { id: listId } });
-      if (newList && newList.name === 'Product & Service Review' && card.engineeringReviewers?.length > 0) {
-        await Promise.allSettled(
-          card.engineeringReviewers.map((reviewerId) =>
-            sendPushToUser(reviewerId, {
-              title: 'Product & Service Review Required',
-              body: `A Kanban card "${card.title}" has been moved to the Product & Service Review list.`,
-              url: '/marketing/kanban',
-              category: 'kanban_review'
-            })
-          )
-        );
+    if (isMove && oldCard && oldCard.listId !== listId) {
+      try {
+        const moveLog = await prisma.kanbanActivityLog.create({
+          data: {
+            cardId: card.id,
+            userId: user.id,
+            actionType: 'MOVED',
+            details: `Moved to another list`
+          }
+        });
+        newActivityLogs.push(moveLog);
+
+        const newList = await prisma.kanbanList.findUnique({ where: { id: listId } });
+        if (newList && newList.name === 'Product & Service Review' && card.engineeringReviewers?.length > 0) {
+          await Promise.allSettled(
+            card.engineeringReviewers.map((reviewerId) =>
+              sendPushToUser(reviewerId, {
+                title: 'Product & Service Review Required',
+                body: `A Kanban card "${card.title}" has been moved to the Product & Service Review list.`,
+                url: '/marketing/kanban',
+                category: 'kanban_review'
+              })
+            )
+          );
+        }
+      } catch (notifyErr) {
+        console.warn('Non-fatal error logging move / sending notification:', notifyErr);
       }
     }
 
     if (revisionStatus !== undefined && oldCard && oldCard.revisionStatus !== revisionStatus) {
-      await prisma.kanbanActivityLog.create({
-        data: {
-          cardId: card.id,
-          userId: user.id,
-          actionType: 'STATUS_CHANGE',
-          details: `Status changed to ${revisionStatus}`
-        }
-      });
+      try {
+        const statusLog = await prisma.kanbanActivityLog.create({
+          data: {
+            cardId: card.id,
+            userId: user.id,
+            actionType: 'STATUS_CHANGE',
+            details: `Status changed to ${revisionStatus}`
+          }
+        });
+        newActivityLogs.push(statusLog);
+      } catch (logErr) {
+        console.warn('Non-fatal error logging revisionStatus change:', logErr);
+      }
     }
 
-    revalidatePath('/marketing/kanban');
+    try {
+      revalidatePath('/marketing/kanban');
+    } catch (revalErr) {
+      console.warn('Non-fatal revalidatePath error:', revalErr);
+    }
+
+    const mergedActivityLogs =
+      newActivityLogs.length > 0
+        ? [...newActivityLogs, ...(card.activityLogs || [])].slice(0, 5)
+        : card.activityLogs;
+
     return NextResponse.json({
       ...card,
+      activityLogs: mergedActivityLogs,
       ...(listPositions ? { listPositions } : {})
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in PUT /api/marketing/kanban/cards:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to update card';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

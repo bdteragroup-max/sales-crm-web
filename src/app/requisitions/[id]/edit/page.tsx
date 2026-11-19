@@ -40,9 +40,23 @@ export default async function EditRequisitionPage({ params }: { params: Promise<
 
   if (requisition.status !== 'PENDING_APPROVAL') {
     return (
-      <div className="p-8 text-center">
-        <p className="text-red-500 mb-4">ไม่สามารถแก้ไขคำขอที่ได้รับการอนุมัติหรือรับของแล้วได้</p>
-        <Link href="/requisitions" className="text-blue-600 hover:underline">กลับไปหน้ารายการ</Link>
+      <div className="p-8 text-center space-y-4">
+        <p className="text-red-500 font-semibold">
+          คำขอนี้ได้รับการอนุมัติหรือดำเนินการแล้ว (หากต้องการติ๊กเช็คของที่ใช้จริงหรือเพิ่มสินค้า สามารถทำได้ในหน้ารายละเอียดใบเบิก)
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          {requisition.status !== 'RETURNED' && requisition.status !== 'REJECTED' && (
+            <Link
+              href={`/requisitions/${id}#items-editor`}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-colors"
+            >
+              ไปหน้าติ๊กเช็คของ / เพิ่มสินค้า
+            </Link>
+          )}
+          <Link href="/requisitions" className="text-blue-600 hover:underline text-sm font-semibold">
+            กลับไปหน้ารายการ
+          </Link>
+        </div>
       </div>
     );
   }

@@ -2,18 +2,40 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Printer, RotateCcw, Clock, Smartphone, CheckCircle2 } from 'lucide-react';
+import { Printer, RotateCcw, Clock, Smartphone, CheckCircle2, Truck, FileCheck2 } from 'lucide-react';
 import ReturnRequestModal from '../components/ReturnRequestModal';
 import SiteHandoverModal from '../components/SiteHandoverModal';
+import RequisitionTransportSignModal from '../components/RequisitionTransportSignModal';
+import RequisitionAccountingSignModal from '../components/RequisitionAccountingSignModal';
+import type { RequisitionSignatureRecord } from '../components/signaturePadHelper';
 
 interface Props {
-  requisition: any;
+  requisition: RequisitionSignatureRecord & Record<string, unknown>;
   currentUserId: string;
+  currentUserName?: string;
+  canSignAccounting?: boolean;
+  canSignTransport?: boolean;
+  isAccountingUser?: boolean;
+  isTransportUser?: boolean;
+  savedAccountingSignatureUrl?: string | null;
+  savedTransportSignatureUrl?: string | null;
 }
 
-export default function RequisitionDetailActions({ requisition, currentUserId }: Props) {
+export default function RequisitionDetailActions({
+  requisition,
+  currentUserId,
+  currentUserName = '',
+  canSignAccounting = false,
+  canSignTransport = true,
+  isAccountingUser = false,
+  isTransportUser = false,
+  savedAccountingSignatureUrl = null,
+  savedTransportSignatureUrl = null,
+}: Props) {
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
+  const [isTransportModalOpen, setIsTransportModalOpen] = useState(false);
+  const [isAccountingModalOpen, setIsAccountingModalOpen] = useState(false);
 
   const isRequester = requisition.requesterId === currentUserId;
   const isBorrowType = requisition.requisitionType === 'BORROW_EQUIPMENT';
@@ -37,10 +59,55 @@ export default function RequisitionDetailActions({ requisition, currentUserId }:
     requisition.status === 'DISPENSED' ||
     requisition.status === 'COMPLETED';
 
+  const canSignReleaseOrTransport =
+    requisition.status !== 'PENDING_APPROVAL' && requisition.status !== 'REJECTED';
+
   const hasSignedReceiver = Boolean(requisition.receiverSignatureUrl);
+  const hasSignedTransport = Boolean(requisition.transportSignatureUrl);
+  const hasSignedAccounting = Boolean(requisition.accountingSignatureUrl);
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
+      {canSignTransport && canSignReleaseOrTransport && (
+        <button
+          type="button"
+          onClick={() => setIsTransportModalOpen(true)}
+          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer ${
+            hasSignedTransport
+              ? 'bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-300'
+              : 'bg-orange-600 hover:bg-orange-700 text-white shadow-orange-600/20'
+          }`}
+          title="ลงนามขนส่ง / ขนส่งนอกเข้ารับสินค้า"
+        >
+          <Truck size={16} />
+          <span>
+            {hasSignedTransport
+              ? 'ขนส่งเซ็นรับแล้ว (ดู/แก้ไข)'
+              : 'ขนส่ง / ขนส่งนอกเซ็นรับสินค้า'}
+          </span>
+        </button>
+      )}
+
+      {canSignAccounting && canSignReleaseOrTransport && (
+        <button
+          type="button"
+          onClick={() => setIsAccountingModalOpen(true)}
+          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer ${
+            hasSignedAccounting
+              ? 'bg-violet-50 hover:bg-violet-100 text-violet-800 border border-violet-300'
+              : 'bg-violet-600 hover:bg-violet-700 text-white shadow-violet-600/20'
+          }`}
+          title="แผนกบัญชีเซ็นรับทราบในการปล่อยของออก"
+        >
+          <FileCheck2 size={16} />
+          <span>
+            {hasSignedAccounting
+              ? 'บัญชีรับทราบแล้ว (ดู/แก้ไข)'
+              : 'บัญชีเซ็นรับทราบปล่อยของ'}
+          </span>
+        </button>
+      )}
+
       {/* Handover & Receive on site button */}
       {canSignHandover && (
         <button
@@ -111,6 +178,24 @@ export default function RequisitionDetailActions({ requisition, currentUserId }:
         requisition={requisition}
         isOpen={isHandoverModalOpen}
         onClose={() => setIsHandoverModalOpen(false)}
+      />
+
+      <RequisitionTransportSignModal
+        requisition={requisition}
+        isOpen={isTransportModalOpen}
+        onClose={() => setIsTransportModalOpen(false)}
+        currentUserName={currentUserName}
+        isTransportUser={isTransportUser}
+        savedTransportSignatureUrl={savedTransportSignatureUrl}
+      />
+
+      <RequisitionAccountingSignModal
+        requisition={requisition}
+        isOpen={isAccountingModalOpen}
+        onClose={() => setIsAccountingModalOpen(false)}
+        currentUserName={currentUserName}
+        isAccountingUser={isAccountingUser}
+        savedAccountingSignatureUrl={savedAccountingSignatureUrl}
       />
     </div>
   );

@@ -33,13 +33,16 @@ import {
   HelpCircle,
   Zap,
   ArrowRight,
-  Briefcase
+  Briefcase,
+  MapPin
 } from 'lucide-react'
 import { getChannelBadgeStyle } from '../components/LeadSourceBadge'
+import ProvinceCombobox from '../components/ProvinceCombobox'
 import {
   PRODUCT_GROUPS,
   getOccupationsForProductGroup
 } from '../constants/productOccupations'
+import { toProvinceFormOptions } from '../constants/thaiProvinces'
 
 export default function NewLeadClient({
   userId,
@@ -76,13 +79,14 @@ export default function NewLeadClient({
   // Customer & Product State
   const [customerName, setCustomerName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [province, setProvince] = useState('')
   const [productOfInterest, setProductOfInterest] = useState('')
   const [productType, setProductType] = useState('')
   const [occupation, setOccupation] = useState('')
   const [conversationContent, setConversationContent] = useState('')
 
   // Autocomplete State for Customer Search
-  const [searchResults, setSearchResults] = useState<Array<{ name: string; phone: string; type: string }>>([])
+  const [searchResults, setSearchResults] = useState<Array<{ name: string; phone: string; type: string; province?: string | null }>>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -210,10 +214,13 @@ export default function NewLeadClient({
     return () => clearTimeout(timer)
   }, [phoneNumber])
 
-  const handleSelectCompany = (comp: { name: string; phone: string }) => {
+  const handleSelectCompany = (comp: { name: string; phone: string; province?: string | null }) => {
     setCustomerName(comp.name)
     if (comp.phone && !phoneNumber) {
       setPhoneNumber(comp.phone)
+    }
+    if (comp.province && !province) {
+      setProvince(comp.province)
     }
     setShowDropdown(false)
   }
@@ -222,6 +229,7 @@ export default function NewLeadClient({
   const handleResetForm = () => {
     setCustomerName('')
     setPhoneNumber('')
+    setProvince('')
     setProductOfInterest('')
     setProductType('')
     setOccupation('')
@@ -257,6 +265,7 @@ export default function NewLeadClient({
     const result = await createMarketingLead({
       customerName: customerName.trim(),
       phoneNumber: phoneNumber.trim() || undefined,
+      province: province || null,
       productOfInterest: productOfInterest.trim() || undefined,
       productType: productType || undefined,
       occupation: occupation || undefined,
@@ -434,10 +443,20 @@ export default function NewLeadClient({
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold text-gray-900 truncate">{item.name}</p>
-                        {item.phone && (
-                          <p className="text-xs text-gray-500 font-semibold flex items-center gap-1 mt-0.5">
-                            <Phone size={11} className="text-gray-400" />
-                            <span>{item.phone}</span>
+                        {(item.phone || item.province) && (
+                          <p className="text-xs text-gray-500 font-semibold flex items-center gap-2 mt-0.5 flex-wrap">
+                            {item.phone && (
+                              <span className="inline-flex items-center gap-1">
+                                <Phone size={11} className="text-gray-400" />
+                                <span>{item.phone}</span>
+                              </span>
+                            )}
+                            {item.province && (
+                              <span className="inline-flex items-center gap-0.5 text-sky-700 font-bold">
+                                <MapPin size={11} className="text-sky-600" />
+                                <span>จ.{item.province}</span>
+                              </span>
+                            )}
                           </p>
                         )}
                       </div>
@@ -450,30 +469,49 @@ export default function NewLeadClient({
               )}
             </div>
 
-            {/* Phone Number Input with Duplicate Checking */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Phone size={13} className="text-gray-400" />
-                  <span>เบอร์โทรศัพท์ติดต่อ</span>
-                </span>
-                <span className="text-[10px] text-gray-400 font-semibold">มีระบบตรวจจับเบอร์ซ้ำ</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="08X-XXX-XXXX"
-                  className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-semibold transition-all shadow-xs ${
-                    duplicateWarning
-                      ? 'border-amber-300 focus:ring-amber-400/20 focus:border-amber-500 bg-amber-50/40 text-gray-900'
-                      : 'border-gray-200 bg-gray-50/60 hover:bg-gray-50 focus:bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red'
-                  }`}
-                  id="lead-phone-input"
-                />
-                <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              {/* Phone & Province Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Phone size={13} className="text-gray-400" />
+                      <span>เบอร์โทรศัพท์ติดต่อ</span>
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-semibold">ตรวจจับเบอร์ซ้ำ</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="08X-XXX-XXXX"
+                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-semibold transition-all shadow-xs ${
+                        duplicateWarning
+                          ? 'border-amber-300 focus:ring-amber-400/20 focus:border-amber-500 bg-amber-50/40 text-gray-900'
+                          : 'border-gray-200 bg-gray-50/60 hover:bg-gray-50 focus:bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red'
+                      }`}
+                      id="lead-phone-input"
+                    />
+                    <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <MapPin size={13} className="text-sky-600" />
+                    <span>จังหวัด (สำหรับสาขาติดต่อกลับ)</span>
+                  </label>
+                  <ProvinceCombobox
+                    id="lead-province-select"
+                    name="province"
+                    value={province}
+                    onChange={setProvince}
+                    options={toProvinceFormOptions(province)}
+                    emptyLabel="-- เลือกจังหวัด --"
+                    variant="form"
+                  />
+                </div>
               </div>
 
               {/* Duplicate Warning Pill */}
@@ -485,7 +523,6 @@ export default function NewLeadClient({
                   </span>
                 </div>
               )}
-            </div>
 
             {/* Product Interest, Product Group & Occupation */}
             <div className="space-y-4 pt-1">

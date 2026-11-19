@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation';
 import { RotateCcw, X, Upload, CheckCircle2, AlertTriangle, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { submitReturnRequest } from '@/app/actions/requisitions';
+import {
+  uploadSelectedPhotoFiles,
+  ensureUploadedPhotoList,
+  formatServerActionError,
+} from '@/app/lib/requisitionPhotoUpload';
 
 interface ReturnItemState {
   index: number;
@@ -28,6 +33,7 @@ interface Props {
 export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuccess }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
   const [returnNote, setReturnNote] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
 
@@ -78,9 +84,10 @@ export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuc
     );
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (files.length === 0) return;
 
     if (photos.length + files.length > 4) {
       Swal.fire({
@@ -91,15 +98,25 @@ export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuc
       return;
     }
 
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        if (ev.target?.result) {
-          setPhotos(prev => [...prev, ev.target!.result as string]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    setIsUploadingPhotos(true);
+    try {
+      const { uploadedUrls, failedMessages } = await uploadSelectedPhotoFiles(
+        files,
+        'req-return'
+      );
+      if (uploadedUrls.length > 0) {
+        setPhotos((prev) => [...prev, ...uploadedUrls]);
+      }
+      if (failedMessages.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'อัปโหลดรูปภาพบางส่วนไม่สำเร็จ',
+          text: failedMessages[0],
+        });
+      }
+    } finally {
+      setIsUploadingPhotos(false);
+    }
   };
 
   const removePhoto = (photoIdx: number) => {
@@ -108,6 +125,15 @@ export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuc
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isUploadingPhotos) {
+      Swal.fire({
+        icon: 'info',
+        title: 'กำลังอัปโหลดรูปภาพ',
+        text: 'กรุณารอให้อัปโหลดรูปภาพเสร็จสิ้นก่อนส่งข้อมูล',
+      });
+      return;
+    }
 
     const selectedList = returnItems.filter(it => it.isSelected);
     if (selectedList.length === 0) {
@@ -121,6 +147,9 @@ export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuc
 
     setIsSubmitting(true);
     try {
+      const uploadedPhotos = await ensureUploadedPhotoList(photos, 'req-return');
+      setPhotos(uploadedPhotos);
+
       const res = await submitReturnRequest(requisition.id, {
         returnedItems: selectedList.map(it => ({
           index: it.index,
@@ -129,7 +158,7 @@ export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuc
           remark: it.remark,
         })),
         returnNote,
-        photos,
+        photos: uploadedPhotos,
       });
 
       if (res.success) {
@@ -150,11 +179,11 @@ export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuc
           text: res.error || 'ไม่สามารถส่งข้อมูลแจ้งคืนได้',
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       Swal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
+        text: formatServerActionError(err, 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'),
       });
     } finally {
       setIsSubmitting(false);
@@ -351,13 +380,26 @@ export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuc
               ))}
 
               {photos.length < 4 && (
-                <label className="aspect-square rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/20 flex flex-col items-center justify-center text-slate-400 hover:text-emerald-600 cursor-pointer transition-all">
-                  <Upload size={22} className="mb-1" />
-                  <span className="text-xs font-medium">เพิ่มรูปภาพ</span>
+                <label
+                  className={`aspect-square rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 transition-all ${
+                    isUploadingPhotos
+                      ? 'opacity-70 cursor-wait bg-slate-50'
+                      : 'hover:border-emerald-500 hover:bg-emerald-50/20 hover:text-emerald-600 cursor-pointer'
+                  }`}
+                >
+                  {isUploadingPhotos ? (
+                    <Loader2 size={22} className="mb-1 animate-spin text-emerald-600" />
+                  ) : (
+                    <Upload size={22} className="mb-1" />
+                  )}
+                  <span className="text-xs font-medium">
+                    {isUploadingPhotos ? 'กำลังอัปโหลด...' : 'เพิ่มรูปภาพ'}
+                  </span>
                   <input
                     type="file"
                     accept="image/*"
                     multiple
+                    disabled={isUploadingPhotos}
                     className="hidden"
                     onChange={handlePhotoUpload}
                   />
@@ -371,20 +413,25 @@ export default function ReturnRequestModal({ requisition, isOpen, onClose, onSuc
             <button
               type="button"
               onClick={onClose}
-              disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              disabled={isSubmitting || isUploadingPhotos}
+              className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-50"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUploadingPhotos}
               className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-bold text-sm shadow-md hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
                   กำลังส่งข้อมูล...
+                </>
+              ) : isUploadingPhotos ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  กำลังอัปโหลดรูป...
                 </>
               ) : (
                 <>

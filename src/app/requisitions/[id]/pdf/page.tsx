@@ -1,6 +1,7 @@
 import React from "react"
 import { getUser } from "@/app/lib/dal"
 import prisma from "@/app/lib/db"
+import { hydrateRequisitionExtendedSingle } from "@/app/lib/requisitionSignaturesDb"
 import { notFound } from "next/navigation"
 import { Sarabun } from "next/font/google"
 import RequisitionPDFClient from "./RequisitionPDFClient"
@@ -52,13 +53,14 @@ export default async function RequisitionPDF({
 
   const { id } = await params
 
-  const requisition = await prisma.materialRequisition.findUnique({
+  const rawRequisition = await prisma.materialRequisition.findUnique({
     where: { id },
     include: {
       requester: true,
       approver: true,
     },
   })
+  const requisition = await hydrateRequisitionExtendedSingle(prisma, rawRequisition)
 
   if (!requisition) return notFound()
 

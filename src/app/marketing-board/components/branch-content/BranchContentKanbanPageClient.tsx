@@ -98,7 +98,7 @@ function DraggableBranchCard({
     m =>
       m.fileType === 'IMAGE' ||
       m.mimeType?.startsWith('image/') ||
-      /\.(jpe?g|png|gif|webp|svg|bmp)$/i.test(m.fileName || '')
+      /\.(jpe?g|jfif|png|gif|webp|svg|bmp)$/i.test(m.fileName || '')
   );
   const coverVideo = !coverImage
     ? card.media?.find(m => m.fileType === 'VIDEO' || m.mimeType?.startsWith('video/'))

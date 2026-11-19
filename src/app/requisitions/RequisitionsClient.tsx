@@ -22,9 +22,11 @@ import {
   Copy,
   ChevronRight,
   UserCheck,
-  ShieldCheck
+  ShieldCheck,
+  FileCheck2
 } from 'lucide-react';
 import RequisitionListActions from './RequisitionListActions';
+import { parseRequisitionCompanies } from '@/app/lib/requisitionUtils';
 
 export interface Requisition {
   id: string;
@@ -45,8 +47,20 @@ export interface Requisition {
   destinationSite?: string | null;
   deliveryDate?: string | Date | null;
   deliveryNote?: string | null;
+  storeStaffName?: string | null;
+  storeStaffSignatureUrl?: string | null;
   receiverSignatureUrl?: string | null;
   receiverName?: string | null;
+  transportId?: string | null;
+  transportName?: string | null;
+  transportType?: string | null;
+  transportCompany?: string | null;
+  transportSignatureUrl?: string | null;
+  transportSignedAt?: string | Date | null;
+  accountingId?: string | null;
+  accountingName?: string | null;
+  accountingSignatureUrl?: string | null;
+  accountingSignedAt?: string | Date | null;
   deliveryPhotos?: any;
   returnRequestedAt?: string | Date | null;
   returnRequestNote?: string | null;
@@ -59,12 +73,24 @@ interface Props {
   initialRequisitions: Requisition[];
   currentUserId: string;
   currentUserFullName?: string;
+  canSignAccounting?: boolean;
+  canSignTransport?: boolean;
+  isAccountingUser?: boolean;
+  isTransportUser?: boolean;
+  savedAccountingSignatureUrl?: string | null;
+  savedTransportSignatureUrl?: string | null;
 }
 
 export default function RequisitionsClient({
   initialRequisitions,
   currentUserId,
-  currentUserFullName
+  currentUserFullName,
+  canSignAccounting = false,
+  canSignTransport = true,
+  isAccountingUser = false,
+  isTransportUser = false,
+  savedAccountingSignatureUrl = null,
+  savedTransportSignatureUrl = null,
 }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<'ALL' | 'PROJECT' | 'BORROW_EQUIPMENT' | 'CLAIM'>('ALL');
@@ -139,18 +165,22 @@ export default function RequisitionsClient({
     }
   };
 
-  // Company Badge
-  const getCompanyBadge = (comp: string) => {
-    switch (comp?.toUpperCase()) {
-      case 'GROUP':
-        return { label: 'Group', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
-      case 'ELECTRIC':
-        return { label: 'Electric', badge: 'bg-sky-50 text-sky-700 border-sky-200' };
-      case 'POWER':
-        return { label: 'Power', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
-      default:
-        return { label: comp || 'General', badge: 'bg-slate-50 text-slate-700 border-slate-200' };
+  // Company Badges (supports 1..3 affiliated companies)
+  const getCompanyBadges = (comp: string) => {
+    const parsed = parseRequisitionCompanies(comp);
+    if (parsed.length === 0) {
+      return [{ label: comp || 'General', badge: 'bg-slate-50 text-slate-700 border-slate-200' }];
     }
+    return parsed.map((name) => {
+      switch (name) {
+        case 'Group':
+          return { label: 'Group', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+        case 'Electric':
+          return { label: 'Electric', badge: 'bg-sky-50 text-sky-700 border-sky-200' };
+        case 'Power':
+          return { label: 'Power', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+      }
+    });
   };
 
   // Format Thai Date
@@ -572,7 +602,7 @@ export default function RequisitionsClient({
             <tbody className="divide-y divide-slate-100 text-xs">
               {filteredRequisitions.length > 0 ? (
                 filteredRequisitions.map((req) => {
-                  const compBadge = getCompanyBadge(req.company);
+                  const compBadges = getCompanyBadges(req.company);
                   return (
                     <tr
                       key={req.id}
@@ -600,16 +630,42 @@ export default function RequisitionsClient({
                               <span className="text-[10px] text-emerald-600 font-bold">คัดลอกแล้ว</span>
                             )}
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${compBadge.badge}`}>
-                              {compBadge.label}
-                            </span>
+                          <div className="flex items-center gap-1 flex-wrap">
+                            {compBadges.map((cb) => (
+                              <span key={cb.label} className={`px-2 py-0.5 rounded text-[10px] font-bold border ${cb.badge}`}>
+                                {cb.label}
+                              </span>
+                            ))}
                             {req.approver?.fullName && (
                               <span className="text-[11px] text-slate-400 truncate" title={`ผู้อนุมัติ: ${req.approver.fullName}`}>
                                 ผู้อนุมัติ: {req.approver.fullName}
                               </span>
                             )}
+                            {req.requester?.fullName && (
+                              <span className="text-[11px] text-slate-500 truncate" title={`ผู้ขอเบิก: ${req.requester.fullName}`}>
+                                ขอเบิก: {req.requester.fullName}
+                              </span>
+                            )}
                           </div>
+                          {(req.accountingSignatureUrl || req.transportSignatureUrl || req.receiverSignatureUrl) && (
+                            <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                              {req.accountingSignatureUrl && (
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                                  <FileCheck2 size={10} /> บัญชีรับทราบ
+                                </span>
+                              )}
+                              {req.transportSignatureUrl && (
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                                  <Truck size={10} /> ขนส่งรับแล้ว
+                                </span>
+                              )}
+                              {req.receiverSignatureUrl && (
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  <CheckCircle2 size={10} /> หน้างานรับแล้ว
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </td>
 
@@ -669,7 +725,17 @@ export default function RequisitionsClient({
 
                       {/* 6. Actions */}
                       <td className="py-4 px-5 text-right">
-                        <RequisitionListActions req={req} currentUserId={currentUserId} />
+                        <RequisitionListActions
+                          req={req}
+                          currentUserId={currentUserId}
+                          currentUserFullName={currentUserFullName}
+                          canSignAccounting={canSignAccounting}
+                          canSignTransport={canSignTransport}
+                          isAccountingUser={isAccountingUser}
+                          isTransportUser={isTransportUser}
+                          savedAccountingSignatureUrl={savedAccountingSignatureUrl}
+                          savedTransportSignatureUrl={savedTransportSignatureUrl}
+                        />
                       </td>
                     </tr>
                   );
@@ -709,7 +775,7 @@ export default function RequisitionsClient({
         <div className="lg:hidden divide-y divide-slate-100">
           {filteredRequisitions.length > 0 ? (
             filteredRequisitions.map((req) => {
-              const compBadge = getCompanyBadge(req.company);
+              const compBadges = getCompanyBadges(req.company);
               return (
                 <div key={req.id} className="p-4 sm:p-5 space-y-3 hover:bg-slate-50/60 transition-colors">
                   {/* Top Bar: Requisition Number, Company, Type, Status */}
@@ -722,9 +788,11 @@ export default function RequisitionsClient({
                         >
                           {req.requisitionNumber}
                         </Link>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${compBadge.badge}`}>
-                          {compBadge.label}
-                        </span>
+                        {compBadges.map((cb) => (
+                          <span key={cb.label} className={`px-2 py-0.5 rounded text-[10px] font-bold border ${cb.badge}`}>
+                            {cb.label}
+                          </span>
+                        ))}
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
                           req.requisitionType === 'CLAIM'
                             ? 'bg-violet-50 text-violet-800 border-violet-200'
@@ -771,15 +839,44 @@ export default function RequisitionsClient({
                         <Calendar size={11} className="text-slate-400" />
                         <span>{formatThaiDate(req.date || req.createdAt)}</span>
                       </div>
+                      {req.requester?.fullName && (
+                        <div className="text-slate-500">
+                          ผู้ขอเบิก: {req.requester.fullName}
+                        </div>
+                      )}
                       {req.approver?.fullName && (
                         <div className="text-slate-400">
                           ผู้อนุมัติ: {req.approver.fullName}
                         </div>
                       )}
+                      {(req.accountingSignatureUrl || req.transportSignatureUrl || req.receiverSignatureUrl) && (
+                        <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                          {req.accountingSignatureUrl && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                              <FileCheck2 size={10} /> บัญชีรับทราบ
+                            </span>
+                          )}
+                          {req.transportSignatureUrl && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                              <Truck size={10} /> ขนส่งรับแล้ว
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div>
-                      <RequisitionListActions req={req} currentUserId={currentUserId} />
+                      <RequisitionListActions
+                        req={req}
+                        currentUserId={currentUserId}
+                        currentUserFullName={currentUserFullName}
+                        canSignAccounting={canSignAccounting}
+                        canSignTransport={canSignTransport}
+                        isAccountingUser={isAccountingUser}
+                        isTransportUser={isTransportUser}
+                        savedAccountingSignatureUrl={savedAccountingSignatureUrl}
+                        savedTransportSignatureUrl={savedTransportSignatureUrl}
+                      />
                     </div>
                   </div>
                 </div>

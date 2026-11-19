@@ -11,11 +11,15 @@ export default async function SalesLeadsPage() {
     redirect("/login")
   }
 
-  const { success, data: leads } = await getAssignedLeads(user.id)
+  const { success, data: leads, canViewAllLeads } = await getAssignedLeads(user.id)
 
   return (
     <main className="flex-1 overflow-y-auto bg-[#F8F9FA]">
-      <SalesLeadsClient leads={success ? leads : []} currentUserId={user.id} />
+      <SalesLeadsClient
+        leads={success ? leads : []}
+        currentUserId={user.id}
+        canViewAllLeads={Boolean(canViewAllLeads)}
+      />
     </main>
   )
 }

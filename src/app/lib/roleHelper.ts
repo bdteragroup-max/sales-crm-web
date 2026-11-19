@@ -487,5 +487,20 @@ export function canManageStockCategory(
   return canManageMarketingStock(role);
 }
 
+/**
+ * Checks whether a user role oversees all Marketing Leads across sales reps
+ * on `/sales/leads` (matching `/marketing`), rather than only their own + unassigned leads.
+ */
+export function canViewAllMarketingLeads(role: string | null | undefined): boolean {
+  if (!role) return false;
+  return (
+    isSuperUser(role) ||
+    isReadOnlyExecutive(role) ||
+    isMarketingStaff(role) ||
+    isSalesOrMarketingManager(role) ||
+    isSupervisorOrManager(role)
+  );
+}
+
 
 

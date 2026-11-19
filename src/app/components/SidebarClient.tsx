@@ -53,6 +53,7 @@ const executiveNav = [
   { icon: ShieldAlert, label: 'ระบบแจ้งเคลม (Service Claims)', href: '/service/claims' },
   { icon: ShieldAlert, label: 'ติดตามสินค้าชำรุด (Damage Tracking)', href: '/damage-reports/accounting' },
   { icon: FolderOpen, label: 'ภาพรวมโครงการ (Projects Dashboard)', href: '/projects/dashboard' },
+  { icon: ClipboardCheck, label: 'ล้างแผง & ตรวจเช็คระบบ (Inspection)', href: '/projects/solar-cleaning' },
   { icon: Boxes, label: 'ภาพรวมฝ่ายผลิต (Production Dashboard)', href: '/production/dashboard' },
   { icon: Wrench, label: 'ภาพรวมงานบริการ (Service Overview)', href: '/executive/service' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Schedule)', href: '/technician/schedule' },
@@ -248,6 +249,8 @@ const accountingNav = [
   { icon: DollarSign, label: 'ลูกหนี้การค้า (AR Collections)', href: '/accounting' },
   { icon: Package, label: 'เจ้าหนี้การค้า (AP Payables)', href: '/accounting/payables' },
   { icon: FileText, label: 'รายงานใช้น้ำมัน & GPS', href: '/department/fuel-report' },
+  { icon: Package, label: 'ใบเบิก/ปล่อยของ (Store Requisitions)', href: '/store/requisitions' },
+  { icon: ClipboardCheck, label: 'ล้างแผง & ตรวจเช็คระบบ (Inspection)', href: '/projects/solar-cleaning' },
 ];
 
 const bdNav = [
@@ -274,6 +277,7 @@ const commonNav = [
   { icon: Receipt, label: 'ขอเบิกจ่ายเงิน (Payment Request)', href: '/accounting/payment-requests/new' },
   { icon: LifeBuoy, label: 'แจ้งปัญหาระบบ', href: '/support/tickets' },
   { icon: Building2, label: 'แจ้งซ่อมสถานที่ (Report Repair)', href: '/facility-repairs/new' },
+  { icon: ClipboardCheck, label: 'ล้างแผง & ตรวจเช็คระบบ (Inspection)', href: '/projects/solar-cleaning' },
   { icon: Boxes, label: 'สต็อก & เบิกของพรีเมี่ยม', href: '/stock' },
   { icon: Package, label: 'เบิกของโครงการ / เบิกยืมอุปกรณ์', href: '/requisitions' }
 ];
@@ -359,6 +363,11 @@ export default function SidebarClient(props: SidebarProps) {
     // since we allowed admin in page.tsx
     if (roleStr === 'admin') {
       nav = purchasingNav;
+    } else if (['ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
+      nav = [
+        ...backofficeNav,
+        { icon: Package, label: 'ใบเบิก/เซ็นรับขนส่ง (Store)', href: '/store/requisitions' },
+      ];
     } else {
       nav = backofficeNav; // Back-office non-sales see their own department queue
     }

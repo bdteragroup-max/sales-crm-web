@@ -6,6 +6,13 @@ import SignatureCanvas from 'react-signature-canvas';
 import { Check, X, Camera, Upload, Trash2, Eraser, Loader2, UserCheck, ShieldCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { recordSiteHandover } from '@/app/actions/requisitions';
+import {
+  uploadSelectedPhotoFiles,
+  uploadRequisitionPhotoFile,
+  ensureUploadedPhotoList,
+  ensureUploadedMediaUrl,
+  formatServerActionError,
+} from '@/app/lib/requisitionPhotoUpload';
 
 interface Props {
   requisition: any;
@@ -29,28 +36,34 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
   );
   const [deliveryNote, setDeliveryNote] = useState(requisition?.deliveryNote || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
 
   if (!isOpen || !requisition) return null;
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    Array.from(files).forEach((file) => {
-      if (file.size > 8 * 1024 * 1024) {
-        Swal.fire({ icon: 'warning', title: 'ไฟล์มีขนาดใหญ่เกิน 8MB' });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        if (result) {
-          setDeliveryPhotos((prev) => [...prev, result]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
     e.target.value = '';
+    if (files.length === 0) return;
+
+    setIsUploadingPhotos(true);
+    try {
+      const { uploadedUrls, failedMessages } = await uploadSelectedPhotoFiles(
+        files,
+        'req-pod'
+      );
+      if (uploadedUrls.length > 0) {
+        setDeliveryPhotos((prev) => [...prev, ...uploadedUrls]);
+      }
+      if (failedMessages.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'อัปโหลดรูปภาพบางส่วนไม่สำเร็จ',
+          text: failedMessages[0],
+        });
+      }
+    } finally {
+      setIsUploadingPhotos(false);
+    }
   };
 
   const handleRemovePhoto = (index: number) => {
@@ -67,17 +80,39 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
       return;
     }
 
-    let signatureData = receiverSigFile;
-    if (!signatureData && receiverSigPad.current && !receiverSigPad.current.isEmpty()) {
-      signatureData = receiverSigPad.current.getTrimmedCanvas().toDataURL('image/png');
+    if (isUploadingPhotos) {
+      Swal.fire({
+        icon: 'info',
+        title: 'กำลังอัปโหลดรูปภาพ',
+        text: 'กรุณารอให้อัปโหลดรูปภาพเสร็จสิ้นก่อนกดบันทึก',
+      });
+      return;
+    }
+
+    let rawSignatureData = receiverSigFile;
+    if (!rawSignatureData && receiverSigPad.current && !receiverSigPad.current.isEmpty()) {
+      rawSignatureData = receiverSigPad.current.getTrimmedCanvas().toDataURL('image/png');
     }
 
     setIsSubmitting(true);
     try {
+      const normalizedSignatureUrl = rawSignatureData
+        ? await ensureUploadedMediaUrl(rawSignatureData, 'req-sig', 200_000, {
+            maxDimension: 1200,
+            quality: 0.85,
+            preserveAlpha: true,
+          })
+        : undefined;
+      const uploadedPhotos = await ensureUploadedPhotoList(
+        deliveryPhotos,
+        'req-pod'
+      );
+      setDeliveryPhotos(uploadedPhotos);
+
       const res = await recordSiteHandover(requisition.id, {
         receiverName: receiverName.trim(),
-        receiverSignatureUrl: signatureData || undefined,
-        deliveryPhotos,
+        receiverSignatureUrl: normalizedSignatureUrl,
+        deliveryPhotos: uploadedPhotos,
         deliveryNote: deliveryNote.trim(),
       });
 
@@ -99,11 +134,11 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
           text: res.error || 'ไม่สามารถบันทึกตรวจรับได้',
         });
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       Swal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: e.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
+        text: formatServerActionError(e, 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'),
       });
     } finally {
       setIsSubmitting(false);
@@ -185,12 +220,27 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => {
+                    disabled={isUploadingPhotos}
+                    onChange={async (e) => {
                       const f = e.target.files?.[0];
-                      if (f) {
-                        const r = new FileReader();
-                        r.onload = (ev) => setReceiverSigFile(ev.target?.result as string);
-                        r.readAsDataURL(f);
+                      e.target.value = '';
+                      if (!f) return;
+                      setIsUploadingPhotos(true);
+                      try {
+                        const uploadedUrl = await uploadRequisitionPhotoFile(
+                          f,
+                          'req-sig',
+                          { maxDimension: 1200, quality: 0.85, preserveAlpha: true }
+                        );
+                        setReceiverSigFile(uploadedUrl);
+                      } catch (err) {
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'อัปโหลดรูปลายเซ็นไม่สำเร็จ',
+                          text: formatServerActionError(err, 'กรุณาลองใหม่อีกครั้ง'),
+                        });
+                      } finally {
+                        setIsUploadingPhotos(false);
                       }
                     }}
                   />
@@ -233,13 +283,24 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
                 <Camera size={15} className="text-blue-600" />
                 <span>ภาพถ่ายการตรวจรับสินค้า / กองวัสดุหน้างาน (Proof of Delivery)</span>
               </label>
-              <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 cursor-pointer shadow-xs transition-colors">
-                <Camera size={13} />
-                <span>ถ่ายรูป / เพิ่มรูป</span>
+              <label
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-xs transition-colors ${
+                  isUploadingPhotos
+                    ? 'opacity-60 cursor-wait'
+                    : 'hover:bg-blue-700 cursor-pointer'
+                }`}
+              >
+                {isUploadingPhotos ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <Camera size={13} />
+                )}
+                <span>{isUploadingPhotos ? 'กำลังอัปโหลด...' : 'ถ่ายรูป / เพิ่มรูป'}</span>
                 <input
                   type="file"
                   accept="image/*"
                   multiple
+                  disabled={isUploadingPhotos}
                   className="hidden"
                   onChange={handlePhotoUpload}
                 />
@@ -267,14 +328,31 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
                 ))}
               </div>
             ) : (
-              <label className="border-2 border-dashed border-slate-300 rounded-xl p-5 flex flex-col items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-300 bg-white cursor-pointer transition-colors">
-                <Camera size={28} className="mb-1 text-slate-400" />
-                <span className="text-xs font-semibold">แตะเพื่อถ่ายรูปของที่ส่งมอบ หรือเลือกรูปภาพจากเครื่อง</span>
-                <span className="text-[10px] text-slate-400 mt-0.5">รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 8MB</span>
+              <label
+                className={`border-2 border-dashed border-slate-300 rounded-xl p-5 flex flex-col items-center justify-center text-slate-400 bg-white transition-colors ${
+                  isUploadingPhotos
+                    ? 'opacity-70 cursor-wait'
+                    : 'hover:text-blue-600 hover:border-blue-300 cursor-pointer'
+                }`}
+              >
+                {isUploadingPhotos ? (
+                  <Loader2 size={28} className="mb-1 text-blue-600 animate-spin" />
+                ) : (
+                  <Camera size={28} className="mb-1 text-slate-400" />
+                )}
+                <span className="text-xs font-semibold">
+                  {isUploadingPhotos
+                    ? 'กำลังย่อขนาดและอัปโหลดรูปภาพ...'
+                    : 'แตะเพื่อถ่ายรูปของที่ส่งมอบ หรือเลือกรูปภาพจากเครื่อง'}
+                </span>
+                <span className="text-[10px] text-slate-400 mt-0.5">
+                  รองรับไฟล์ JPG, PNG, HEIC ย่อขนาดอัตโนมัติ (ไม่เกิน 25MB/รูป)
+                </span>
                 <input
                   type="file"
                   accept="image/*"
                   multiple
+                  disabled={isUploadingPhotos}
                   className="hidden"
                   onChange={handlePhotoUpload}
                 />
@@ -301,7 +379,7 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
         <div className="p-4 px-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3">
           <button
             type="button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isUploadingPhotos}
             onClick={onClose}
             className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all disabled:opacity-50"
           >
@@ -310,7 +388,7 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
 
           <button
             type="button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isUploadingPhotos}
             onClick={handleSubmit}
             className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20 transition-all hover:scale-[1.02] disabled:opacity-50"
           >
@@ -318,6 +396,11 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>กำลังบันทึกข้อมูล...</span>
+              </>
+            ) : isUploadingPhotos ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>กำลังอัปโหลดรูป...</span>
               </>
             ) : (
               <>

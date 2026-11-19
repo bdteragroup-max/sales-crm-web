@@ -2,7 +2,9 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
+  AlertTriangle,
   Camera,
   CheckCircle2,
   ClipboardCheck,
@@ -10,12 +12,17 @@ import {
   FileSignature,
   FileText,
   FolderKanban,
+  Loader2,
+  Pencil,
   PenTool,
   Plus,
   Search,
   Sparkles,
+  Trash2,
+  X,
 } from 'lucide-react';
 import {
+  canManageSolarCleaningRecord,
   countReportPhotos,
   formatCleaningDateBkk,
   getSolarCleaningStatusMeta,
@@ -23,20 +30,29 @@ import {
   resolveManagerSignConfig,
   type SolarCleaningRecord,
 } from '@/app/lib/solarCleaningConfig';
+import { deleteSolarCleaningInspection } from '@/app/actions/solarCleaning';
 import SolarCleaningPdfModal from './SolarCleaningPdfModal';
 
 interface SolarCleaningListClientProps {
   records: SolarCleaningRecord[];
   canCreate: boolean;
+  currentUserId?: string;
   userRole: string;
 }
 
 export default function SolarCleaningListClient({
   records,
   canCreate,
+  currentUserId,
+  userRole,
 }: SolarCleaningListClientProps) {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<SolarCleaningRecord | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [pdfModal, setPdfModal] = useState<{
     id: string;
     docNumber: string;
@@ -44,19 +60,24 @@ export default function SolarCleaningListClient({
     type: 'system-check' | 'inspection-report';
   } | null>(null);
 
+  const activeRecords = useMemo(
+    () => records.filter((r) => !deletedIds.includes(r.id)),
+    [records, deletedIds]
+  );
+
   const stats = useMemo(() => {
-    const total = records.length;
-    const precheckStage = records.filter(
+    const total = activeRecords.length;
+    const precheckStage = activeRecords.filter(
       (r) => r.status === 'Draft' || r.status === 'Precheck Ready' || r.status === 'Customer Signed'
     ).length;
-    const pendingMgrSign = records.filter((r) => r.status === 'Pending Manager Sign').length;
-    const completed = records.filter((r) => r.status === 'Completed').length;
+    const pendingMgrSign = activeRecords.filter((r) => r.status === 'Pending Manager Sign').length;
+    const completed = activeRecords.filter((r) => r.status === 'Completed').length;
     return { total, precheckStage, pendingMgrSign, completed };
-  }, [records]);
+  }, [activeRecords]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return records.filter((r) => {
+    return activeRecords.filter((r) => {
       if (statusFilter !== 'ALL' && r.status !== statusFilter) return false;
       if (!q) return true;
       return (
@@ -64,10 +85,29 @@ export default function SolarCleaningListClient({
         r.projectName.toLowerCase().includes(q) ||
         r.customerName.toLowerCase().includes(q) ||
         (r.location || '').toLowerCase().includes(q) ||
-        (r.inspectorNames || '').toLowerCase().includes(q)
+        (r.inspectorNames || '').toLowerCase().includes(q) ||
+        (r.createdBy?.fullName || '').toLowerCase().includes(q)
       );
     });
-  }, [records, search, statusFilter]);
+  }, [activeRecords, search, statusFilter]);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await deleteSolarCleaningInspection(deleteTarget.id);
+      if (!res.success) {
+        setDeleteError(res.error || 'ลบเอกสารไม่สำเร็จ');
+        return;
+      }
+      setDeletedIds((prev) => [...prev, deleteTarget.id]);
+      setDeleteTarget(null);
+      router.refresh();
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="p-3 sm:p-5 md:p-8 pb-20 max-w-[1600px] w-full mx-auto space-y-5">
@@ -82,7 +122,7 @@ export default function SolarCleaningListClient({
               ล้างแผง &amp; ตรวจเช็คระบบโซลาร์รูฟ (Inspection Report)
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-              สร้างใบตรวจเช็คระบบให้ลูกค้าเซ็นหน้างาน จัดทำ Report ภาพถ่าย และอนุมัติโดย Project Mgr &amp; Service Mgr
+              สร้างใบตรวจเช็คระบบ แก้ไข และลบรายการ จัดทำ Report ภาพถ่าย พร้อมระบบอนุมัติโดย Project Mgr &amp; Service Mgr
             </p>
           </div>
         </div>
@@ -152,11 +192,10 @@ export default function SolarCleaningListClient({
               key={tab.id}
               type="button"
               onClick={() => setStatusFilter(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border cursor-pointer ${
-                statusFilter === tab.id
-                  ? 'bg-gray-900 text-white border-gray-900'
-                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-              }`}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border cursor-pointer ${statusFilter === tab.id
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                }`}
             >
               {tab.label}
             </button>
@@ -238,23 +277,27 @@ export default function SolarCleaningListClient({
                     <span>
                       <strong>วันที่ตรวจ:</strong> {formatCleaningDateBkk(rec.inspectionDate)}
                     </span>
+                    {rec.createdBy?.fullName && (
+                      <span>
+                        <strong>ผู้สร้าง:</strong> {rec.createdBy.fullName}
+                      </span>
+                    )}
                   </div>
 
                   {/* Mini Progress Badges */}
                   <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border font-bold ${
-                        rec.checkOutCustomerSignUrl || rec.checkInCustomerSignUrl
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-gray-50 text-gray-500 border-gray-200'
-                      }`}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border font-bold ${rec.checkOutCustomerSignUrl || rec.checkInCustomerSignUrl
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-gray-50 text-gray-500 border-gray-200'
+                        }`}
                     >
                       <FileSignature size={12} />
                       {rec.checkOutCustomerSignUrl
                         ? 'ลูกค้าเซ็นรับงานแล้ว'
                         : rec.checkInCustomerSignUrl
-                        ? 'ลูกค้าเซ็นเข้างานแล้ว'
-                        : 'รอลูกค้าเซ็นหน้างาน'}
+                          ? 'ลูกค้าเซ็นเข้างานแล้ว'
+                          : 'รอลูกค้าเซ็นหน้างาน'}
                     </span>
 
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-bold">
@@ -280,11 +323,10 @@ export default function SolarCleaningListClient({
                         <>
                           {showPmBadge && (
                             <span
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border font-bold ${
-                                hasPm
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                  : 'bg-amber-50 text-amber-800 border-amber-200'
-                              }`}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border font-bold ${hasPm
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-amber-50 text-amber-800 border-amber-200'
+                                }`}
                             >
                               <PenTool size={11} />
                               PM: {hasPm ? 'เซ็นแล้ว' : 'รอเซ็น'}
@@ -293,11 +335,10 @@ export default function SolarCleaningListClient({
 
                           {showSmBadge && (
                             <span
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border font-bold ${
-                                hasSm
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                  : 'bg-amber-50 text-amber-800 border-amber-200'
-                              }`}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border font-bold ${hasSm
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-amber-50 text-amber-800 border-amber-200'
+                                }`}
                             >
                               <PenTool size={11} />
                               Service Mgr: {hasSm ? 'เซ็นแล้ว' : 'รอเซ็น'}
@@ -309,49 +350,137 @@ export default function SolarCleaningListClient({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 sm:flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPdfModal({
-                        id: rec.id,
-                        docNumber: rec.docNumber,
-                        customerName: rec.customerName,
-                        type: 'system-check',
-                      })
-                    }
-                    className="h-10 inline-flex items-center justify-center gap-1.5 px-3 rounded-xl bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs font-bold cursor-pointer transition"
-                  >
-                    <FileText size={14} className="text-[#ff2301] shrink-0" />
-                    <span className="truncate">ใบตรวจเช็ค</span>
-                  </button>
+                {(() => {
+                  const canManageThis = currentUserId
+                    ? canManageSolarCleaningRecord({
+                      userId: currentUserId,
+                      userRole,
+                      createdById: rec.createdById,
+                    })
+                    : true;
+                  return (
+                    <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPdfModal({
+                            id: rec.id,
+                            docNumber: rec.docNumber,
+                            customerName: rec.customerName,
+                            type: 'system-check',
+                          })
+                        }
+                        className="h-10 inline-flex items-center justify-center gap-1.5 px-3 rounded-xl bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs font-bold cursor-pointer transition"
+                      >
+                        <FileText size={14} className="text-[#ff2301] shrink-0" />
+                        <span className="truncate">ใบตรวจเช็ค</span>
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPdfModal({
-                        id: rec.id,
-                        docNumber: rec.docNumber,
-                        customerName: rec.customerName,
-                        type: 'inspection-report',
-                      })
-                    }
-                    className="h-10 inline-flex items-center justify-center gap-1.5 px-3 rounded-xl bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs font-bold cursor-pointer transition"
-                  >
-                    <FileText size={14} className="text-blue-600 shrink-0" />
-                    <span className="truncate">Report</span>
-                  </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPdfModal({
+                            id: rec.id,
+                            docNumber: rec.docNumber,
+                            customerName: rec.customerName,
+                            type: 'inspection-report',
+                          })
+                        }
+                        className="h-10 inline-flex items-center justify-center gap-1.5 px-3 rounded-xl bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs font-bold cursor-pointer transition"
+                      >
+                        <FileText size={14} className="text-blue-600 shrink-0" />
+                        <span className="truncate">Report</span>
+                      </button>
 
-                  <Link
-                    href={`/projects/solar-cleaning/${rec.id}`}
-                    className="h-10 inline-flex items-center justify-center gap-1.5 px-4 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold transition"
-                  >
-                    <span>เปิดจัดการ &rarr;</span>
-                  </Link>
-                </div>
+                      {canManageThis && (
+                        <>
+                          <Link
+                            href={`/projects/solar-cleaning/${rec.id}`}
+                            className="h-10 inline-flex items-center justify-center gap-1.5 px-3.5 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold transition"
+                          >
+                            <Pencil size={13} className="shrink-0" />
+                            <span>แก้ไข</span>
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDeleteError(null);
+                              setDeleteTarget(rec);
+                            }}
+                            className="h-10 inline-flex items-center justify-center gap-1.5 px-3 rounded-xl bg-white hover:bg-red-50 border border-red-200 text-red-600 text-xs font-bold cursor-pointer transition"
+                          >
+                            <Trash2 size={14} className="shrink-0" />
+                            <span>ลบ</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-xl w-full max-w-md p-5 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 border border-red-200 flex items-center justify-center shrink-0">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-gray-900">ยืนยันการลบเอกสาร</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    การลบจะไม่สามารถกู้คืนข้อมูลใบตรวจเช็คและ Report ของรายการนี้ได้
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeleteTarget(null)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 space-y-1 text-xs">
+              <div className="font-mono font-bold text-gray-900">{deleteTarget.docNumber}</div>
+              <div className="font-bold text-gray-700">{deleteTarget.projectName}</div>
+              <div className="text-gray-500">ลูกค้า: {deleteTarget.customerName}</div>
+            </div>
+
+            {deleteError && (
+              <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs font-bold text-red-700">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeleteTarget(null)}
+                className="h-10 px-4 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirmDelete}
+                className="h-10 inline-flex items-center gap-1.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                <span>{isDeleting ? 'กำลังลบ...' : 'ยืนยันลบเอกสาร'}</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

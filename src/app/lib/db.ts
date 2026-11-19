@@ -4,6 +4,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import fs from 'fs'
 import path from 'path'
 import { hasSurveyExtendedFieldsInRuntime } from './surveySignaturesDb'
+import { hasRequisitionExtendedFieldsInRuntime } from './requisitionSignaturesDb'
 
 const originalEmitWarning = process.emitWarning;
 process.emitWarning = function(warning: any, ...args: any[]) {
@@ -68,7 +69,8 @@ const hasSolarCleaningModel =
 const isCacheCompatible =
   Boolean(hasStockModels) &&
   Boolean(hasSolarCleaningModel) &&
-  hasSurveyExtendedFieldsInRuntime(cachedPrisma);
+  hasSurveyExtendedFieldsInRuntime(cachedPrisma) &&
+  hasRequisitionExtendedFieldsInRuntime(cachedPrisma);
 
 if (cachedPrisma && !isCacheCompatible) {
   cachedPrisma.$disconnect?.().catch(() => {});

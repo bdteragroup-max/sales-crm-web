@@ -44,8 +44,9 @@ import {
   AlertTriangle,
   Trash2,
   ShieldCheck,
-  ListChecks,
-  Loader2
+  Loader2,
+  Truck,
+  FileCheck2
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
@@ -54,8 +55,17 @@ import {
   isNonReturnableRequisitionType,
   getCompletedStatusLabel,
   getNonReturnableLabel,
-  getNonReturnableBadgeClass,
+  getRequisitionCompanyCodes,
+  getRequisitionCompanyShortLabel,
+  type EditableRequisitionItem,
 } from '@/app/lib/requisitionUtils';
+import RequisitionItemsInteractiveSection, {
+  openPreparingPdfTab,
+  type RequisitionItemsDraftState,
+} from '@/app/requisitions/components/RequisitionItemsInteractiveSection';
+import RequisitionTransportSignModal from '@/app/requisitions/components/RequisitionTransportSignModal';
+import RequisitionAccountingSignModal from '@/app/requisitions/components/RequisitionAccountingSignModal';
+import RequisitionSignaturesGrid from '@/app/requisitions/components/RequisitionSignaturesGrid';
 
 export interface RequisitionItem {
   detail: string;
@@ -100,6 +110,16 @@ export interface Requisition {
   receivedAt?: string | null;
   receiverName?: string | null;
   receiverSignatureUrl?: string | null;
+  transportId?: string | null;
+  transportName?: string | null;
+  transportType?: string | null;
+  transportCompany?: string | null;
+  transportSignatureUrl?: string | null;
+  transportSignedAt?: string | null;
+  accountingId?: string | null;
+  accountingName?: string | null;
+  accountingSignatureUrl?: string | null;
+  accountingSignedAt?: string | null;
   deliveryPhotos?: any;
   deliveryNote?: string | null;
   returnRequestedAt?: string | Date | null;
@@ -111,22 +131,45 @@ interface StoreRequisitionsClientProps {
   initialRequisitions: Requisition[];
   userName: string;
   userRole?: string;
+  currentUserId?: string;
   isSuperAdmin?: boolean;
   canManageStore?: boolean;
+  canSignAccounting?: boolean;
+  canSignTransport?: boolean;
+  isAccountingUser?: boolean;
+  isTransportUser?: boolean;
   savedUserSignatureUrl?: string | null;
+  savedAccountingSignatureUrl?: string | null;
+  savedTransportSignatureUrl?: string | null;
 }
 
 export default function StoreRequisitionsClient({
   initialRequisitions,
   userName,
   userRole,
+  currentUserId,
   isSuperAdmin = false,
   canManageStore = true,
+  canSignAccounting = false,
+  canSignTransport = false,
+  isAccountingUser = false,
+  isTransportUser = false,
   savedUserSignatureUrl = null,
+  savedAccountingSignatureUrl = null,
+  savedTransportSignatureUrl = null,
 }: StoreRequisitionsClientProps) {
   const router = useRouter();
 
   const [requisitions, setRequisitions] = useState<Requisition[]>(initialRequisitions);
+  const [transportModalReq, setTransportModalReq] = useState<Requisition | null>(null);
+  const [accountingModalReq, setAccountingModalReq] = useState<Requisition | null>(null);
+
+  const patchRequisitionInState = (reqId: string, patch: Partial<Requisition>) => {
+    setRequisitions(prev =>
+      prev.map(r => (r.id === reqId ? { ...r, ...patch } : r))
+    );
+    setDetailReq(prev => (prev && prev.id === reqId ? { ...prev, ...patch } : prev));
+  };
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<'ALL' | 'APPROVED' | 'RETURN_PENDING' | 'COMPLETED' | 'RETURNED' | 'PENDING_APPROVAL'>(
     canManageStore ? 'APPROVED' : 'ALL'
@@ -135,12 +178,15 @@ export default function StoreRequisitionsClient({
 
   // Modal State
   const [detailReq, setDetailReq] = useState<Requisition | null>(null);
-  const [detailItemChecks, setDetailItemChecks] = useState<boolean[]>([]);
+  const [detailDraftState, setDetailDraftState] = useState<RequisitionItemsDraftState>({
+    keptItems: [],
+    removedCount: 0,
+    addedCount: 0,
+    hasBlankNewError: false,
+    hasChanges: false,
+  });
 
-  // Select Used Items & Auto-Delete Unused Items -> Open PDF Modal State
-  const [usedItemsModalReq, setUsedItemsModalReq] = useState<Requisition | null>(null);
-  const [usedItemChecks, setUsedItemChecks] = useState<boolean[]>([]);
-  const [markCompletedTogether, setMarkCompletedTogether] = useState<boolean>(false);
+  // Store signature pull + saving state
   const [pullStoreSignature, setPullStoreSignature] = useState<boolean>(false);
   const [localSavedSig, setLocalSavedSig] = useState<string | null>(null);
   const [isSavingUsedItems, setIsSavingUsedItems] = useState<boolean>(false);
@@ -155,15 +201,6 @@ export default function StoreRequisitionsClient({
   }, []);
 
   const effectiveSavedStoreSig = savedUserSignatureUrl || localSavedSig || null;
-
-  useEffect(() => {
-    if (detailReq) {
-      const list = Array.isArray(detailReq.items) ? detailReq.items : [];
-      setDetailItemChecks(list.map(() => true));
-    } else {
-      setDetailItemChecks([]);
-    }
-  }, [detailReq?.id, detailReq?.items?.length]);
 
   // Return Modal State
   const [returnModalReq, setReturnModalReq] = useState<Requisition | null>(null);
@@ -222,18 +259,14 @@ export default function StoreRequisitionsClient({
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 15;
 
-  // Helper: Normalize Company
-  const normalizeCompany = (comp: string = ''): 'TE' | 'TP' | 'TG' | 'OTHER' => {
-    const upper = comp.toUpperCase();
-    if (upper === 'TG' || upper.startsWith('TG ') || upper.startsWith('TG-') || upper.startsWith('TG(') || upper.includes('GROUP') || upper.includes('กรุ้ป') || upper.includes('กรุ๊ป')) return 'TG';
-    if (upper === 'TP' || upper.startsWith('TP ') || upper.startsWith('TP-') || upper.startsWith('TP(') || upper.includes('POWER') || upper.includes('เพาเวอร์') || upper.includes('พาวเวอร์')) return 'TP';
-    if (upper === 'TE' || upper.startsWith('TE ') || upper.startsWith('TE-') || upper.startsWith('TE(') || upper.includes('ELECTRIC') || upper.includes('อิเล็คทริค') || upper.includes('อิเลคทริค')) return 'TE';
-    return 'OTHER';
+  // Helpers: Normalize multi-company strings (1..3 affiliated companies)
+  const getCompanyCodesOrOther = (comp: string = ''): Array<'TE' | 'TP' | 'TG' | 'OTHER'> => {
+    const codes = getRequisitionCompanyCodes(comp);
+    return codes.length > 0 ? codes : ['OTHER'];
   };
 
-  const getCompanyBadge = (comp: string) => {
-    const normalized = normalizeCompany(comp);
-    switch (normalized) {
+  const getCompanyBadgeByCode = (code: 'TE' | 'TP' | 'TG' | 'OTHER', rawComp = '') => {
+    switch (code) {
       case 'TE':
         return { label: 'TE (Tera Electric)', short: 'TE', badge: 'bg-blue-50 text-blue-700 border-blue-200' };
       case 'TP':
@@ -241,9 +274,12 @@ export default function StoreRequisitionsClient({
       case 'TG':
         return { label: 'TG (Tera Group)', short: 'TG', badge: 'bg-purple-50 text-purple-700 border-purple-200' };
       default:
-        return { label: comp || 'ทั่วไป', short: comp || 'OTHER', badge: 'bg-slate-50 text-slate-700 border-slate-200' };
+        return { label: rawComp || 'ทั่วไป', short: rawComp || 'OTHER', badge: 'bg-slate-50 text-slate-700 border-slate-200' };
     }
   };
+
+  const getCompanyBadges = (comp: string = '') =>
+    getCompanyCodesOrOther(comp).map((code) => getCompanyBadgeByCode(code, comp));
 
   // Helper: Status Styling
   const getStatusBadge = (status: string, requisitionType?: string | null) => {
@@ -387,10 +423,10 @@ export default function StoreRequisitionsClient({
   const companyCounts = useMemo(() => {
     const counts = { ALL: requisitions.length, TE: 0, TP: 0, TG: 0 };
     requisitions.forEach(req => {
-      const c = normalizeCompany(req.company);
-      if (c === 'TE') counts.TE++;
-      if (c === 'TP') counts.TP++;
-      if (c === 'TG') counts.TG++;
+      const codes = getCompanyCodesOrOther(req.company);
+      if (codes.includes('TE')) counts.TE++;
+      if (codes.includes('TP')) counts.TP++;
+      if (codes.includes('TG')) counts.TG++;
     });
     return counts;
   }, [requisitions]);
@@ -474,8 +510,8 @@ export default function StoreRequisitionsClient({
 
       // 2. Company Filter
       if (companyFilter !== 'ALL') {
-        const c = normalizeCompany(req.company);
-        if (c !== companyFilter) return false;
+        const codes = getCompanyCodesOrOther(req.company);
+        if (!codes.includes(companyFilter)) return false;
       }
 
       // 2.1 Requisition Type Filter
@@ -644,12 +680,14 @@ export default function StoreRequisitionsClient({
       else if (req.status === 'PENDING_APPROVAL') pendingApproval++;
       else if (req.status === 'REJECTED') rejected++;
 
-      const comp = normalizeCompany(req.company);
-      if (companyBreakdown[comp]) {
-        companyBreakdown[comp].count++;
-      } else {
-        companyBreakdown.OTHER.count++;
-      }
+      const compCodes = getCompanyCodesOrOther(req.company);
+      compCodes.forEach((compCode) => {
+        if (companyBreakdown[compCode]) {
+          companyBreakdown[compCode].count++;
+        } else {
+          companyBreakdown.OTHER.count++;
+        }
+      });
 
       const requester = req.requesterName || 'ไม่ระบุ';
       if (!requesterMap[requester]) {
@@ -666,8 +704,8 @@ export default function StoreRequisitionsClient({
           totalQuantity += qty;
           if (!isNonReturnable) returnableQuantity += qty;
 
-          const retQty = it.returnedQuantity !== undefined 
-            ? Number(it.returnedQuantity) 
+          const retQty = it.returnedQuantity !== undefined
+            ? Number(it.returnedQuantity)
             : (req.status === 'RETURNED' ? qty : 0);
           totalReturnedQuantity += retQty;
 
@@ -680,11 +718,13 @@ export default function StoreRequisitionsClient({
             conditionCounts.NORMAL += qty;
           }
 
-          if (companyBreakdown[comp]) {
-            companyBreakdown[comp].itemsCount++;
-            companyBreakdown[comp].quantity += qty;
-            companyBreakdown[comp].returnedQuantity += retQty;
-          }
+          compCodes.forEach((compCode) => {
+            if (companyBreakdown[compCode]) {
+              companyBreakdown[compCode].itemsCount++;
+              companyBreakdown[compCode].quantity += qty;
+              companyBreakdown[compCode].returnedQuantity += retQty;
+            }
+          });
 
           requesterMap[requester].itemsCount++;
           requesterMap[requester].quantity += qty;
@@ -714,7 +754,7 @@ export default function StoreRequisitionsClient({
             itemAggregateMap[key].reqCount++;
             if (retQty > 0) itemAggregateMap[key].returnCount++;
             if (it.job) itemAggregateMap[key].jobs.add(it.job);
-            if (req.company) itemAggregateMap[key].companies.add(comp);
+            if (req.company) compCodes.forEach((c) => itemAggregateMap[key].companies.add(c));
             if (req.requesterName) itemAggregateMap[key].sampleRequesters.add(req.requesterName);
           }
         });
@@ -859,8 +899,8 @@ export default function StoreRequisitionsClient({
             const qty = Number(item.quantity) || 1;
             totalBorrowQty += qty;
 
-            const retQty = item.returnedQuantity !== undefined 
-              ? Number(item.returnedQuantity) 
+            const retQty = item.returnedQuantity !== undefined
+              ? Number(item.returnedQuantity)
               : (req.status === 'RETURNED' ? qty : 0);
             totalReturnedBorrowQty += retQty;
 
@@ -1136,8 +1176,9 @@ export default function StoreRequisitionsClient({
         else if (r.status === 'PENDING_APPROVAL') pendingCount++;
         else if (r.status === 'REJECTED') rejectedCount++;
 
-        const c = normalizeCompany(r.company);
-        compStats[c] = (compStats[c] || 0) + 1;
+        getCompanyCodesOrOther(r.company).forEach((c) => {
+          compStats[c] = (compStats[c] || 0) + 1;
+        });
         const isNonReturnableReq = isNonReturnableRequisitionType(r.requisitionType);
 
         if (Array.isArray(r.items)) {
@@ -1147,8 +1188,8 @@ export default function StoreRequisitionsClient({
             totalQty += q;
             if (!isNonReturnableReq) returnableQty += q;
 
-            const retQ = it.returnedQuantity !== undefined 
-              ? Number(it.returnedQuantity) 
+            const retQ = it.returnedQuantity !== undefined
+              ? Number(it.returnedQuantity)
               : (r.status === 'RETURNED' ? q : 0);
             totalReturnedQty += retQ;
 
@@ -1262,7 +1303,7 @@ export default function StoreRequisitionsClient({
 
       dataToExport.forEach(req => {
         const reqDate = req.date ? formatThaiDate(req.date) : (req.createdAt ? formatThaiDate(req.createdAt) : '-');
-        const comp = normalizeCompany(req.company);
+        const comp = getRequisitionCompanyShortLabel(req.company);
         const statusLabel = getStatusBadge(req.status, req.requisitionType).label;
         const isNonReturnableReq = isNonReturnableRequisitionType(req.requisitionType);
         const nonReturnLabel = getNonReturnableLabel(req.requisitionType);
@@ -1270,8 +1311,8 @@ export default function StoreRequisitionsClient({
         if (Array.isArray(req.items) && req.items.length > 0) {
           req.items.forEach((item, itemIdx) => {
             const origQty = Number(item.quantity) || 1;
-            const retQty = item.returnedQuantity !== undefined 
-              ? Number(item.returnedQuantity) 
+            const retQty = item.returnedQuantity !== undefined
+              ? Number(item.returnedQuantity)
               : (req.status === 'RETURNED' ? origQty : 0);
             const pendingQty = isNonReturnableReq ? 0 : Math.max(0, origQty - retQty);
 
@@ -1297,8 +1338,8 @@ export default function StoreRequisitionsClient({
               conditionText = 'สภาพปกติ (พร้อมใช้)';
             }
 
-            const retDate = item.returnDate 
-              ? formatThaiDate(item.returnDate) 
+            const retDate = item.returnDate
+              ? formatThaiDate(item.returnDate)
               : (req.status === 'RETURNED' && req.updatedAt ? formatThaiDate(req.updatedAt) : '-');
             const returner = item.returnerName || (retQty > 0 ? (req.requesterName || '-') : '-');
             const receiver = item.returnReceiver || (retQty > 0 ? 'เจ้าหน้าที่สโตร์' : '-');
@@ -1402,7 +1443,7 @@ export default function StoreRequisitionsClient({
 
       const reqsRows = dataToExport.map((req, idx) => {
         const reqDate = req.date ? formatThaiDate(req.date) : (req.createdAt ? formatThaiDate(req.createdAt) : '-');
-        const comp = normalizeCompany(req.company);
+        const comp = getRequisitionCompanyShortLabel(req.company);
         const statusLabel = getStatusBadge(req.status, req.requisitionType).label;
         const isNonReturnableReq = isNonReturnableRequisitionType(req.requisitionType);
         const itemCount = req.items?.length || 0;
@@ -1426,8 +1467,8 @@ export default function StoreRequisitionsClient({
         else if (req.status === 'PENDING_APPROVAL') overallReturnStatus = 'รออนุมัติ';
 
         const latestRetDateItem = req.items?.find(it => it.returnDate);
-        const latestRetDate = latestRetDateItem?.returnDate 
-          ? formatThaiDate(latestRetDateItem.returnDate) 
+        const latestRetDate = latestRetDateItem?.returnDate
+          ? formatThaiDate(latestRetDateItem.returnDate)
           : (req.status === 'RETURNED' && req.updatedAt ? formatThaiDate(req.updatedAt) : '-');
 
         const returner = latestRetDateItem?.returnerName || (req.status === 'RETURNED' ? (req.requesterName || '-') : '-');
@@ -1545,12 +1586,12 @@ export default function StoreRequisitionsClient({
       let globalReturnIndex = 1;
 
       dataToExport.forEach(req => {
-        const comp = normalizeCompany(req.company);
+        const comp = getRequisitionCompanyShortLabel(req.company);
         if (Array.isArray(req.items)) {
           req.items.forEach(item => {
             const origQty = Number(item.quantity) || 1;
-            const retQty = item.returnedQuantity !== undefined 
-              ? Number(item.returnedQuantity) 
+            const retQty = item.returnedQuantity !== undefined
+              ? Number(item.returnedQuantity)
               : (req.status === 'RETURNED' ? origQty : 0);
 
             if (retQty > 0 || req.status === 'RETURNED' || req.status === 'PARTIALLY_RETURNED') {
@@ -1564,8 +1605,8 @@ export default function StoreRequisitionsClient({
                 else conditionText = item.returnCondition;
               }
 
-              const retDate = item.returnDate 
-                ? formatThaiDate(item.returnDate) 
+              const retDate = item.returnDate
+                ? formatThaiDate(item.returnDate)
                 : (req.updatedAt ? formatThaiDate(req.updatedAt) : '-');
 
               returnRows.push([
@@ -1782,31 +1823,21 @@ export default function StoreRequisitionsClient({
   };
 
 
-  // Helper: Whether Store can tick used items & auto-remove unused ones
+  // Helper: Store, Purchasing, Super Admin, or the requester/approver of this requisition can tick used items & add products
   const canEditUsedItems = (req: Requisition) =>
-    canManageStore &&
+    (canManageStore ||
+      (Boolean(currentUserId) &&
+        (req.requesterId === currentUserId || req.approverId === currentUserId))) &&
     req.status !== 'RETURNED' &&
-    req.status !== 'REJECTED' &&
-    Array.isArray(req.items) &&
-    req.items.length > 0;
+    req.status !== 'REJECTED';
 
-  // Action: Open Select Used Items & Print PDF Modal
-  const openUsedItemsModal = (req: Requisition) => {
-    const items = Array.isArray(req.items) ? req.items : [];
-    setUsedItemsModalReq(req);
-    setUsedItemChecks(items.map(() => true));
-    setMarkCompletedTogether(false);
-    setPullStoreSignature(false);
-  };
-
-  // Action: Save checked (used) items, auto-delete unchecked items, and open PDF
+  // Action: Save checked/added items and optionally open PDF or mark completed
   const handleConfirmUsedItems = async (
     targetReq: Requisition,
-    checks: boolean[],
+    draft: RequisitionItemsDraftState,
     options?: {
       openPdf?: boolean;
       markCompleted?: boolean;
-      closeUsedModal?: boolean;
       storeStaffSignatureUrl?: string | null;
     }
   ) => {
@@ -1816,10 +1847,17 @@ export default function StoreRequisitionsClient({
       !targetReq.storeStaffSignatureUrl && options?.storeStaffSignatureUrl
         ? options.storeStaffSignatureUrl
         : undefined;
-    const items = Array.isArray(targetReq.items) ? targetReq.items : [];
-    const keptItems = items.filter((_, idx) => checks[idx] !== false);
-    const removedCount = items.length - keptItems.length;
 
+    if (draft.hasBlankNewError) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณากรอกชื่อสินค้าที่เพิ่มใหม่ให้ครบถ้วน',
+        text: 'กรอกรายละเอียดสินค้าที่เพิ่มใหม่ หรือเอาเครื่องหมายถูก/กดลบแถวที่ว่างออก',
+      });
+      return;
+    }
+
+    const keptItems = draft.keptItems;
     if (keptItems.length === 0) {
       Swal.fire({
         icon: 'warning',
@@ -1831,51 +1869,16 @@ export default function StoreRequisitionsClient({
 
     const pdfUrl = `/requisitions/${targetReq.id}/pdf`;
 
-    // Fast path: Nothing removed, not changing status, and no new signature to pull -> open PDF directly
-    if (removedCount === 0 && !markCompleted && !sigToApply) {
+    // Fast path: Nothing changed, not changing status, and no new signature to pull -> open PDF directly
+    if (!draft.hasChanges && !markCompleted && !sigToApply) {
       if (openPdf) {
         window.open(pdfUrl, '_blank');
-      }
-      if (options?.closeUsedModal) {
-        setUsedItemsModalReq(null);
       }
       return;
     }
 
     // Open new tab synchronously inside user click gesture so mobile/desktop browsers never block it
-    let pdfWin: Window | null = null;
-    if (openPdf) {
-      pdfWin = window.open('', '_blank');
-      if (pdfWin) {
-        try {
-          pdfWin.document.write(`
-            <!DOCTYPE html>
-            <html lang="th">
-              <head>
-                <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>กำลังจัดเตรียมเอกสาร PDF...</title>
-                <style>
-                  body { margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; text-align: center; padding: 20px; }
-                  .spinner { width: 38px; height: 38px; border: 3px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.75s linear infinite; margin-bottom: 14px; }
-                  @keyframes spin { to { transform: rotate(360deg); } }
-                  .title { font-size: 15px; font-weight: 700; }
-                  .sub { font-size: 12px; color: #64748b; margin-top: 6px; }
-                </style>
-              </head>
-              <body>
-                <div class="spinner"></div>
-                <div class="title">กำลังอัปเดตรายการที่ใช้จริงและสร้างหน้า PDF...</div>
-                <div class="sub">${removedCount > 0 ? `กำลังลบรายการที่ไม่ได้ใช้ ${removedCount} รายการออกอัตโนมัติ` : 'กำลังบันทึกสถานะใบเบิก'}</div>
-              </body>
-            </html>
-          `);
-          pdfWin.document.close();
-        } catch {
-          // ignore document write edge cases
-        }
-      }
-    }
+    const pdfWin = openPdf ? openPreparingPdfTab(draft.removedCount, draft.addedCount) : null;
 
     setIsSavingUsedItems(true);
     setLoadingMap(prev => ({ ...prev, [targetReq.id]: true }));
@@ -1887,6 +1890,7 @@ export default function StoreRequisitionsClient({
       });
 
       if (res.success) {
+        const savedItems = (res.items || keptItems) as EditableRequisitionItem[];
         const nextStatus = res.status || (markCompleted && targetReq.status === 'APPROVED' ? 'COMPLETED' : targetReq.status);
         const nextStoreSig = res.storeStaffSignatureUrl || sigToApply || targetReq.storeStaffSignatureUrl;
         const nextStoreName = res.storeStaffName || (sigToApply ? userName : targetReq.storeStaffName);
@@ -1896,13 +1900,13 @@ export default function StoreRequisitionsClient({
           prev.map(r =>
             r.id === targetReq.id
               ? {
-                  ...r,
-                  items: keptItems,
-                  status: nextStatus,
-                  storeStaffSignatureUrl: nextStoreSig,
-                  storeStaffName: nextStoreName,
-                  dispensedAt: nextDispensedAt,
-                }
+                ...r,
+                items: savedItems,
+                status: nextStatus,
+                storeStaffSignatureUrl: nextStoreSig,
+                storeStaffName: nextStoreName,
+                dispensedAt: nextDispensedAt,
+              }
               : r
           )
         );
@@ -1911,20 +1915,15 @@ export default function StoreRequisitionsClient({
           setDetailReq(prev =>
             prev
               ? {
-                  ...prev,
-                  items: keptItems,
-                  status: nextStatus,
-                  storeStaffSignatureUrl: nextStoreSig,
-                  storeStaffName: nextStoreName,
-                  dispensedAt: nextDispensedAt,
-                }
+                ...prev,
+                items: savedItems,
+                status: nextStatus,
+                storeStaffSignatureUrl: nextStoreSig,
+                storeStaffName: nextStoreName,
+                dispensedAt: nextDispensedAt,
+              }
               : null
           );
-          setDetailItemChecks(keptItems.map(() => true));
-        }
-
-        if (options?.closeUsedModal) {
-          setUsedItemsModalReq(null);
         }
 
         if (openPdf) {
@@ -1935,15 +1934,19 @@ export default function StoreRequisitionsClient({
           }
         }
 
+        const msgParts: string[] = [];
+        if (draft.addedCount > 0) msgParts.push(`เพิ่ม ${draft.addedCount} รายการ`);
+        if (draft.removedCount > 0) msgParts.push(`ลบที่ไม่ใช้ ${draft.removedCount} รายการ`);
+
         Swal.fire({
           toast: true,
           position: 'top-end',
           icon: 'success',
           title:
-            removedCount > 0
-              ? `ลบรายการที่ไม่ใช้ ${removedCount} รายการอัตโนมัติแล้ว`
+            msgParts.length > 0
+              ? `อัปเดตรายการสำเร็จ (${msgParts.join(', ')})`
               : 'บันทึกส่งมอบของเรียบร้อยแล้ว',
-          text: openPdf ? `แสดงหน้า PDF เฉพาะ ${keptItems.length} รายการที่ใช้จริง` : undefined,
+          text: openPdf ? `แสดงหน้า PDF ทั้งหมด ${savedItems.length} รายการ` : undefined,
           showConfirmButton: false,
           timer: 2800,
         });
@@ -2295,11 +2298,10 @@ export default function StoreRequisitionsClient({
         {/* Card 1: Approved - Waiting for Dispatch */}
         <div
           onClick={() => handleTabChange('APPROVED')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
-            activeTab === 'APPROVED'
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${activeTab === 'APPROVED'
               ? 'border-amber-400 ring-2 ring-amber-100 shadow-sm'
               : 'border-slate-200/80 hover:border-amber-300'
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-amber-700">รอจัดของ / ส่งมอบ</span>
@@ -2321,11 +2323,10 @@ export default function StoreRequisitionsClient({
         {/* Card 2: Completed / Awaiting Return */}
         <div
           onClick={() => handleTabChange('COMPLETED')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
-            activeTab === 'COMPLETED'
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${activeTab === 'COMPLETED'
               ? 'border-emerald-400 ring-2 ring-emerald-100 shadow-sm'
               : 'border-slate-200/80 hover:border-emerald-300'
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-emerald-700">ส่งมอบแล้ว</span>
@@ -2347,11 +2348,10 @@ export default function StoreRequisitionsClient({
         {/* Card 3: Returned */}
         <div
           onClick={() => handleTabChange('RETURNED')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
-            activeTab === 'RETURNED'
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${activeTab === 'RETURNED'
               ? 'border-teal-400 ring-2 ring-teal-100 shadow-sm'
               : 'border-slate-200/80 hover:border-teal-300'
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-teal-700">รับคืนของแล้ว</span>
@@ -2373,11 +2373,10 @@ export default function StoreRequisitionsClient({
         {/* Card 4: Pending Approval */}
         <div
           onClick={() => handleTabChange('PENDING_APPROVAL')}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
-            activeTab === 'PENDING_APPROVAL'
+          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${activeTab === 'PENDING_APPROVAL'
               ? 'border-purple-400 ring-2 ring-purple-100 shadow-sm'
               : 'border-slate-200/80 hover:border-purple-300'
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-purple-700">รอหัวหน้าอนุมัติ</span>
@@ -2399,11 +2398,10 @@ export default function StoreRequisitionsClient({
         {/* Card 5: Total Items (Spans 2 cols on mobile for balanced layout) */}
         <div
           onClick={() => handleTabChange('ALL')}
-          className={`col-span-2 sm:col-span-1 cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${
-            activeTab === 'ALL'
+          className={`col-span-2 sm:col-span-1 cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md flex flex-col justify-between ${activeTab === 'ALL'
               ? 'border-blue-400 ring-2 ring-blue-100 shadow-sm'
               : 'border-slate-200/80 hover:border-blue-300'
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-blue-700">รายการสิ่งของรวม</span>
@@ -2426,23 +2424,20 @@ export default function StoreRequisitionsClient({
       {/* 3. Filter Toolbar & Classification */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
         {/* Tier A: Workflow Status Tabs (Balanced Equal-Width Grid) */}
-        <div className={`grid gap-2 p-1.5 bg-slate-100/80 rounded-2xl ${
-          tabCounts.RETURN_PENDING > 0 ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'
-        }`}>
+        <div className={`grid gap-2 p-1.5 bg-slate-100/80 rounded-2xl ${tabCounts.RETURN_PENDING > 0 ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'
+          }`}>
           {/* APPROVED */}
           <button
             onClick={() => handleTabChange('APPROVED')}
-            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
-              activeTab === 'APPROVED'
+            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'APPROVED'
                 ? 'bg-white text-amber-700 shadow-sm border border-amber-200/60'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            }`}
+              }`}
           >
             <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
             <span>รอจัดของ</span>
-            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-              activeTab === 'APPROVED' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'
-            }`}>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${activeTab === 'APPROVED' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'
+              }`}>
               {tabCounts.APPROVED}
             </span>
           </button>
@@ -2451,17 +2446,15 @@ export default function StoreRequisitionsClient({
           {tabCounts.RETURN_PENDING > 0 && (
             <button
               onClick={() => handleTabChange('RETURN_PENDING' as any)}
-              className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
-                activeTab === 'RETURN_PENDING'
+              className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'RETURN_PENDING'
                   ? 'bg-amber-500 text-white shadow-sm'
                   : 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 animate-pulse'
-              }`}
+                }`}
             >
               <Bell className="w-3.5 h-3.5 shrink-0" />
               <span>รอตรวจรับคืน</span>
-              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-                activeTab === 'RETURN_PENDING' ? 'bg-white text-amber-900' : 'bg-amber-200 text-amber-900'
-              }`}>
+              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${activeTab === 'RETURN_PENDING' ? 'bg-white text-amber-900' : 'bg-amber-200 text-amber-900'
+                }`}>
                 {tabCounts.RETURN_PENDING}
               </span>
             </button>
@@ -2470,17 +2463,15 @@ export default function StoreRequisitionsClient({
           {/* COMPLETED */}
           <button
             onClick={() => handleTabChange('COMPLETED')}
-            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
-              activeTab === 'COMPLETED'
+            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'COMPLETED'
                 ? 'bg-white text-emerald-700 shadow-sm border border-emerald-200/60'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            }`}
+              }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
             <span>ส่งมอบแล้ว</span>
-            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-              activeTab === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
-            }`}>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${activeTab === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+              }`}>
               {tabCounts.COMPLETED}
             </span>
           </button>
@@ -2488,17 +2479,15 @@ export default function StoreRequisitionsClient({
           {/* RETURNED */}
           <button
             onClick={() => handleTabChange('RETURNED')}
-            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
-              activeTab === 'RETURNED'
+            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'RETURNED'
                 ? 'bg-white text-teal-700 shadow-sm border border-teal-200/60'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            }`}
+              }`}
           >
             <RotateCcw className="w-3.5 h-3.5 text-teal-500 shrink-0" />
             <span>คืนของแล้ว</span>
-            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-              activeTab === 'RETURNED' ? 'bg-teal-100 text-teal-800' : 'bg-slate-200 text-slate-600'
-            }`}>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${activeTab === 'RETURNED' ? 'bg-teal-100 text-teal-800' : 'bg-slate-200 text-slate-600'
+              }`}>
               {tabCounts.RETURNED}
             </span>
           </button>
@@ -2506,17 +2495,15 @@ export default function StoreRequisitionsClient({
           {/* ALL */}
           <button
             onClick={() => handleTabChange('ALL')}
-            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
-              activeTab === 'ALL'
+            className={`h-10 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'ALL'
                 ? 'bg-white text-blue-700 shadow-sm border border-blue-200/60'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            }`}
+              }`}
           >
             <FileText className="w-3.5 h-3.5 text-blue-500 shrink-0" />
             <span>ทั้งหมด</span>
-            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-              activeTab === 'ALL' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-600'
-            }`}>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${activeTab === 'ALL' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-600'
+              }`}>
               {tabCounts.ALL}
             </span>
           </button>
@@ -2537,16 +2524,14 @@ export default function StoreRequisitionsClient({
                   setTypeFilter('ALL');
                   setCurrentPage(1);
                 }}
-                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                  typeFilter === 'ALL'
+                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${typeFilter === 'ALL'
                     ? 'bg-slate-900 text-white shadow-sm font-bold'
                     : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/80 hover:bg-slate-100'
-                }`}
+                  }`}
               >
                 <span>ทุกประเภท</span>
-                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
-                  typeFilter === 'ALL' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
-                }`}>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${typeFilter === 'ALL' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
+                  }`}>
                   {typeCounts.ALL}
                 </span>
               </button>
@@ -2557,17 +2542,15 @@ export default function StoreRequisitionsClient({
                   setTypeFilter('PROJECT');
                   setCurrentPage(1);
                 }}
-                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                  typeFilter === 'PROJECT'
+                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${typeFilter === 'PROJECT'
                     ? 'bg-blue-600 text-white shadow-sm font-bold'
                     : 'bg-white text-blue-700 hover:bg-blue-50 border border-slate-200/80'
-                }`}
+                  }`}
               >
                 <Building2 className="w-3 h-3" />
                 <span>งานโปรเจค</span>
-                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
-                  typeFilter === 'PROJECT' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'
-                }`}>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${typeFilter === 'PROJECT' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'
+                  }`}>
                   {typeCounts.PROJECT}
                 </span>
               </button>
@@ -2578,17 +2561,15 @@ export default function StoreRequisitionsClient({
                   setTypeFilter('BORROW_EQUIPMENT');
                   setCurrentPage(1);
                 }}
-                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                  typeFilter === 'BORROW_EQUIPMENT'
+                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${typeFilter === 'BORROW_EQUIPMENT'
                     ? 'bg-amber-600 text-white shadow-sm font-bold'
                     : 'bg-white text-amber-800 hover:bg-amber-50 border border-slate-200/80'
-                }`}
+                  }`}
               >
                 <Wrench className="w-3 h-3" />
                 <span>เบิกยืมสโตร์</span>
-                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
-                  typeFilter === 'BORROW_EQUIPMENT' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-800'
-                }`}>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${typeFilter === 'BORROW_EQUIPMENT' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-800'
+                  }`}>
                   {typeCounts.BORROW_EQUIPMENT}
                 </span>
               </button>
@@ -2599,17 +2580,15 @@ export default function StoreRequisitionsClient({
                   setTypeFilter('CLAIM');
                   setCurrentPage(1);
                 }}
-                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                  typeFilter === 'CLAIM'
+                className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${typeFilter === 'CLAIM'
                     ? 'bg-violet-600 text-white shadow-sm font-bold'
                     : 'bg-white text-violet-800 hover:bg-violet-50 border border-slate-200/80'
-                }`}
+                  }`}
               >
                 <ShieldCheck className="w-3 h-3" />
                 <span>เบิกเคลม</span>
-                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
-                  typeFilter === 'CLAIM' ? 'bg-violet-700 text-white' : 'bg-violet-50 text-violet-800'
-                }`}>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${typeFilter === 'CLAIM' ? 'bg-violet-700 text-white' : 'bg-violet-50 text-violet-800'
+                  }`}>
                   {typeCounts.CLAIM}
                 </span>
               </button>
@@ -2633,17 +2612,15 @@ export default function StoreRequisitionsClient({
                       setCompanyFilter(comp);
                       setCurrentPage(1);
                     }}
-                    className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                      isSelected
+                    className={`h-8 flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${isSelected
                         ? 'bg-slate-900 text-white shadow-sm font-bold'
                         : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/80 hover:bg-slate-100'
-                    }`}
+                      }`}
                   >
                     <span>{comp === 'ALL' ? 'ทุกบริษัท' : comp}</span>
                     <span
-                      className={`px-1.5 py-0.5 rounded text-[10px] ${
-                        isSelected ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
-                      }`}
+                      className={`px-1.5 py-0.5 rounded text-[10px] ${isSelected ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
+                        }`}
                     >
                       {count}
                     </span>
@@ -2689,11 +2666,10 @@ export default function StoreRequisitionsClient({
                 setProjectFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className={`w-full h-10 pl-9 pr-8 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${
-                projectFilter !== 'ALL'
+              className={`w-full h-10 pl-9 pr-8 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${projectFilter !== 'ALL'
                   ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
                   : 'border-slate-200 text-slate-700 hover:border-slate-300'
-              }`}
+                }`}
               title="กรองตามโครงการ / ชื่องาน"
             >
               <option value="ALL">ทุกโครงการ ({projectOptions.length})</option>
@@ -2727,11 +2703,10 @@ export default function StoreRequisitionsClient({
                 setBranchFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className={`w-full h-10 pl-9 pr-6 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${
-                branchFilter !== 'ALL'
+              className={`w-full h-10 pl-9 pr-6 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${branchFilter !== 'ALL'
                   ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
                   : 'border-slate-200 text-slate-700 hover:border-slate-300'
-              }`}
+                }`}
               title="กรองตามสาขา"
             >
               {BRANCH_OPTIONS.map(b => (
@@ -2750,11 +2725,10 @@ export default function StoreRequisitionsClient({
                 setMonthFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className={`flex-1 min-w-0 h-10 px-2.5 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${
-                monthFilter !== 'ALL'
+              className={`flex-1 min-w-0 h-10 px-2.5 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 truncate transition-all ${monthFilter !== 'ALL'
                   ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
                   : 'border-slate-200 text-slate-700 hover:border-slate-300'
-              }`}
+                }`}
               title="เลือกเดือน"
             >
               <option value="ALL">ทุกเดือน</option>
@@ -2771,11 +2745,10 @@ export default function StoreRequisitionsClient({
                 setYearFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className={`w-20 shrink-0 h-10 px-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-                yearFilter !== 'ALL'
+              className={`w-20 shrink-0 h-10 px-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${yearFilter !== 'ALL'
                   ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
                   : 'border-slate-200 text-slate-700 hover:border-slate-300'
-              }`}
+                }`}
               title="เลือกปี พ.ศ."
             >
               <option value="ALL">ทุกปี</option>
@@ -2796,11 +2769,10 @@ export default function StoreRequisitionsClient({
                 setDateFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className={`w-full h-10 px-3 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-                dateFilter
+              className={`w-full h-10 px-3 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${dateFilter
                   ? 'border-blue-500 text-blue-900 bg-blue-50/50 font-bold'
                   : 'border-slate-200 text-slate-700 hover:border-slate-300'
-              }`}
+                }`}
               title="เลือกวันที่เจาะจง"
             />
             {dateFilter && (
@@ -2970,7 +2942,7 @@ export default function StoreRequisitionsClient({
                 </tr>
               ) : (
                 paginatedList.map(req => {
-                  const compBadge = getCompanyBadge(req.company);
+                  const compBadges = getCompanyBadges(req.company);
                   const statusInfo = getStatusBadge(req.status, req.requisitionType);
                   const StatusIcon = statusInfo.icon;
                   const isLoading = !!loadingMap[req.id];
@@ -2995,13 +2967,12 @@ export default function StoreRequisitionsClient({
                               <Copy className="w-3 h-3" />
                             </button>
                             <span
-                              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                                req.requisitionType === 'CLAIM'
+                              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${req.requisitionType === 'CLAIM'
                                   ? 'bg-violet-50 text-violet-800 border border-violet-200'
                                   : req.requisitionType === 'BORROW_EQUIPMENT'
-                                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                                  : 'bg-blue-50 text-blue-800 border border-blue-200'
-                              }`}
+                                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                    : 'bg-blue-50 text-blue-800 border border-blue-200'
+                                }`}
                             >
                               {req.requisitionType === 'CLAIM' ? (
                                 <>
@@ -3056,15 +3027,37 @@ export default function StoreRequisitionsClient({
                                 <Camera className="w-2.5 h-2.5" /> {req.deliveryPhotos.length} รูป
                               </span>
                             )}
+
+                            {req.accountingSignatureUrl && (
+                              <span
+                                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200"
+                                title={`แผนกบัญชีรับทราบ: ${req.accountingName || '-'}`}
+                              >
+                                <FileCheck2 className="w-2.5 h-2.5" /> บัญชีรับทราบแล้ว
+                              </span>
+                            )}
+
+                            {req.transportSignatureUrl && (
+                              <span
+                                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200"
+                                title={`ขนส่งรับสินค้า: ${req.transportCompany || req.transportName || '-'}`}
+                              >
+                                <Truck className="w-2.5 h-2.5" /> ขนส่งรับแล้ว
+                              </span>
+                            )}
                           </div>
                         </div>
                       </td>
 
                       {/* Company */}
                       <td className="py-3.5 px-4">
-                        <span className={`inline-flex px-2 py-0.5 rounded text-[11px] font-bold border ${compBadge.badge}`}>
-                          {compBadge.short}
-                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {compBadges.map((cb) => (
+                            <span key={cb.short} className={`inline-flex px-2 py-0.5 rounded text-[11px] font-bold border ${cb.badge}`}>
+                              {cb.short}
+                            </span>
+                          ))}
+                        </div>
                       </td>
 
                       {/* Requester & Approver */}
@@ -3147,11 +3140,10 @@ export default function StoreRequisitionsClient({
                                   {!isNonReturnableRequisitionType(req.requisitionType) && (
                                     <button
                                       onClick={() => openReturnModal(req)}
-                                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] ${
-                                        req.status === 'RETURN_PENDING'
+                                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] ${req.status === 'RETURN_PENDING'
                                           ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
                                           : 'bg-blue-600 hover:bg-blue-700 text-white'
-                                      }`}
+                                        }`}
                                       title={req.status === 'RETURN_PENDING' ? 'พนักงานแจ้งขอส่งคืนแล้ว - คลิกเพื่อตรวจรับของ' : 'บันทึกรับคืนวัสดุและอุปกรณ์เข้าสโตร์'}
                                     >
                                       <RotateCcw className="w-3.5 h-3.5" />
@@ -3209,12 +3201,52 @@ export default function StoreRequisitionsClient({
                               )}
                             </>
                           ) : (
+                            <>
+                              {(canSignTransport || canSignAccounting) && (
+                                <Link
+                                  href={`/store/requisitions/${req.id}`}
+                                  className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition-all border border-blue-200"
+                                  title="เปิดหน้าลายเซ็น 6 ฝ่าย"
+                                >
+                                  <Smartphone className="w-3.5 h-3.5" />
+                                  <span>เซ็นลงนาม</span>
+                                </Link>
+                              )}
+                              <button
+                                onClick={() => setDetailReq(req)}
+                                className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>ดูรายละเอียด</span>
+                              </button>
+                            </>
+                          )}
+
+                          {canSignTransport && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
                             <button
-                              onClick={() => setDetailReq(req)}
-                              className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all"
+                              type="button"
+                              onClick={() => setTransportModalReq(req)}
+                              className={`p-1.5 rounded-lg border transition-colors ${req.transportSignatureUrl
+                                  ? 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100'
+                                  : 'bg-white text-orange-600 border-orange-200 hover:bg-orange-50'
+                                }`}
+                              title={req.transportSignatureUrl ? 'ขนส่งเซ็นรับแล้ว (แก้ไข)' : 'ขนส่ง / ขนส่งนอกเซ็นรับสินค้า'}
                             >
-                              <Eye className="w-3.5 h-3.5" />
-                              <span>ดูรายละเอียด</span>
+                              <Truck className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+
+                          {canSignAccounting && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
+                            <button
+                              type="button"
+                              onClick={() => setAccountingModalReq(req)}
+                              className={`p-1.5 rounded-lg border transition-colors ${req.accountingSignatureUrl
+                                  ? 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100'
+                                  : 'bg-white text-violet-600 border-violet-200 hover:bg-violet-50'
+                                }`}
+                              title={req.accountingSignatureUrl ? 'บัญชีรับทราบแล้ว (แก้ไข)' : 'แผนกบัญชีเซ็นรับทราบปล่อยของ'}
+                            >
+                              <FileCheck2 className="w-3.5 h-3.5" />
                             </button>
                           )}
 
@@ -3256,7 +3288,7 @@ export default function StoreRequisitionsClient({
             </div>
           ) : (
             paginatedList.map(req => {
-              const compBadge = getCompanyBadge(req.company);
+              const compBadges = getCompanyBadges(req.company);
               const statusInfo = getStatusBadge(req.status, req.requisitionType);
               const StatusIcon = statusInfo.icon;
               const isLoading = !!loadingMap[req.id];
@@ -3272,17 +3304,18 @@ export default function StoreRequisitionsClient({
                       >
                         {req.requisitionNumber}
                       </span>
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${compBadge.badge}`}>
-                        {compBadge.short}
-                      </span>
+                      {compBadges.map((cb) => (
+                        <span key={cb.short} className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${cb.badge}`}>
+                          {cb.short}
+                        </span>
+                      ))}
                       <span
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                          req.requisitionType === 'CLAIM'
+                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${req.requisitionType === 'CLAIM'
                             ? 'bg-violet-50 text-violet-800 border border-violet-200'
                             : req.requisitionType === 'BORROW_EQUIPMENT'
-                            ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                            : 'bg-blue-50 text-blue-800 border border-blue-200'
-                        }`}
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                              : 'bg-blue-50 text-blue-800 border border-blue-200'
+                          }`}
                       >
                         {req.requisitionType === 'CLAIM' ? (
                           <>
@@ -3369,6 +3402,18 @@ export default function StoreRequisitionsClient({
                           <Camera className="w-2.5 h-2.5" /> {req.deliveryPhotos.length} รูปหลักฐาน
                         </span>
                       )}
+
+                      {req.accountingSignatureUrl && (
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                          <FileCheck2 className="w-2.5 h-2.5" /> บัญชีรับทราบแล้ว
+                        </span>
+                      )}
+
+                      {req.transportSignatureUrl && (
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                          <Truck className="w-2.5 h-2.5" /> ขนส่งรับแล้ว
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -3393,15 +3438,43 @@ export default function StoreRequisitionsClient({
 
                   {/* Mobile Actions */}
                   <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-                    {canManageStore && (
+                    {(canManageStore || canSignTransport || canSignAccounting) && (
                       <Link
                         href={`/store/requisitions/${req.id}`}
                         className="flex-1 min-w-[120px] flex items-center justify-center gap-1 px-3 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors"
-                        title="บันทึกตรวจรับของหน้างาน & เซ็นรับ"
+                        title="เปิดหน้าลายเซ็น 6 ฝ่ายและหลักฐาน"
                       >
                         <Smartphone className="w-3.5 h-3.5" />
-                        <span>ตรวจรับ/เซ็น</span>
+                        <span>{canManageStore ? 'ตรวจรับ/เซ็น' : 'เซ็นลงนาม 6 ฝ่าย'}</span>
                       </Link>
+                    )}
+
+                    {canSignTransport && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
+                      <button
+                        type="button"
+                        onClick={() => setTransportModalReq(req)}
+                        className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${req.transportSignatureUrl
+                            ? 'bg-orange-50 text-orange-700 border-orange-200'
+                            : 'bg-orange-600 text-white border-orange-600'
+                          }`}
+                      >
+                        <Truck className="w-3.5 h-3.5" />
+                        <span>{req.transportSignatureUrl ? 'ขนส่งรับแล้ว' : 'ขนส่งเซ็น'}</span>
+                      </button>
+                    )}
+
+                    {canSignAccounting && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
+                      <button
+                        type="button"
+                        onClick={() => setAccountingModalReq(req)}
+                        className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${req.accountingSignatureUrl
+                            ? 'bg-violet-50 text-violet-700 border-violet-200'
+                            : 'bg-violet-600 text-white border-violet-600'
+                          }`}
+                      >
+                        <FileCheck2 className="w-3.5 h-3.5" />
+                        <span>{req.accountingSignatureUrl ? 'บัญชีทราบแล้ว' : 'บัญชีเซ็น'}</span>
+                      </button>
                     )}
 
                     <Link
@@ -3519,14 +3592,11 @@ export default function StoreRequisitionsClient({
                   <span className="text-xl font-black text-slate-900 tracking-tight">
                     {detailReq.requisitionNumber}
                   </span>
-                  {(() => {
-                    const b = getCompanyBadge(detailReq.company);
-                    return (
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold border ${b.badge}`}>
-                        {b.short}
-                      </span>
-                    );
-                  })()}
+                  {getCompanyBadges(detailReq.company).map((b) => (
+                    <span key={b.short} className={`px-2 py-0.5 rounded text-xs font-bold border ${b.badge}`}>
+                      {b.short}
+                    </span>
+                  ))}
                   <button
                     onClick={() => handleCopy(detailReq.requisitionNumber, 'เลขที่ใบเบิก')}
                     className="p-1 text-slate-400 hover:text-slate-600 rounded transition-colors"
@@ -3560,50 +3630,22 @@ export default function StoreRequisitionsClient({
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-5 text-xs text-slate-700">
-              {/* Requester & Approver Box */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
-                  <span className="text-[11px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1">
-                    <User className="w-3.5 h-3.5 text-slate-500" />
-                    <span>ผู้ขอเบิก (Requester)</span>
-                  </span>
-                  <div className="font-bold text-slate-900 text-sm">{detailReq.requesterName || '-'}</div>
-                  {detailReq.requesterSignatureUrl && (
-                    <div className="mt-2 pt-2 border-t border-slate-200">
-                      <span className="text-[10px] text-slate-400">ลายเซ็นผู้ขอเบิก:</span>
-                      <div className="h-14 flex items-center justify-start mt-1">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={detailReq.requesterSignatureUrl}
-                          alt="Requester Signature"
-                          className="max-h-12 object-contain"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
-                  <span className="text-[11px] text-slate-400 uppercase font-bold tracking-wider flex items-center gap-1">
-                    <FileCheck className="w-3.5 h-3.5 text-slate-500" />
-                    <span>ผู้อนุมัติ (Approver)</span>
-                  </span>
-                  <div className="font-bold text-slate-900 text-sm">{detailReq.approverName || '-'}</div>
-                  {detailReq.approverSignatureUrl && (
-                    <div className="mt-2 pt-2 border-t border-slate-200">
-                      <span className="text-[10px] text-slate-400">ลายเซ็นผู้อนุมัติ:</span>
-                      <div className="h-14 flex items-center justify-start mt-1">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={detailReq.approverSignatureUrl}
-                          alt="Approver Signature"
-                          className="max-h-12 object-contain"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              {/* 6-Party Signatures Overview (Interactive for Accounting & Transport) */}
+              <RequisitionSignaturesGrid
+                compact={true}
+                requisition={detailReq}
+                requesterDisplay={detailReq.requesterName}
+                pulledStoreSigUrl={
+                  canManageStore && pullStoreSignature ? effectiveSavedStoreSig : null
+                }
+                pulledStoreName={
+                  canManageStore && pullStoreSignature ? userName : null
+                }
+                canSignAccounting={canSignAccounting}
+                canSignTransport={canSignTransport}
+                onClickAccountingSign={() => setAccountingModalReq(detailReq)}
+                onClickTransportSign={() => setTransportModalReq(detailReq)}
+              />
 
               {/* Return Overview Card */}
               {(detailReq.status === 'RETURNED' || detailReq.status === 'PARTIALLY_RETURNED' || detailReq.items?.some(it => it.returnedQuantity !== undefined)) && (
@@ -3613,11 +3655,10 @@ export default function StoreRequisitionsClient({
                       <RotateCcw className="w-4 h-4 text-teal-600" />
                       <span>ข้อมูลการรับคืนอุปกรณ์เข้าสโตร์</span>
                     </span>
-                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
-                      detailReq.status === 'RETURNED'
+                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${detailReq.status === 'RETURNED'
                         ? 'bg-teal-100 text-teal-800 border-teal-300'
                         : 'bg-indigo-100 text-indigo-800 border-indigo-200'
-                    }`}>
+                      }`}>
                       {detailReq.status === 'RETURNED' ? 'คืนของครบถ้วนแล้ว' : 'คืนของบางส่วน'}
                     </span>
                   </div>
@@ -3644,201 +3685,54 @@ export default function StoreRequisitionsClient({
                 </div>
               )}
 
-              {/* Items Table */}
-              {(() => {
-                const dItems = Array.isArray(detailReq.items) ? detailReq.items : [];
-                const editable = canEditUsedItems(detailReq);
-                const dKeptCount = dItems.filter((_, i) => detailItemChecks[i] !== false).length;
-                const dRemovedCount = dItems.length - dKeptCount;
-
-                return (
-                  <div className="space-y-2.5">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-[11px] text-slate-500 uppercase font-bold tracking-wider flex items-center gap-1.5">
-                        <Layers className="w-3.5 h-3.5 text-slate-500" />
-                        <span>รายการวัสดุอุปกรณ์ที่ขอเบิก ({dItems.length} รายการ)</span>
-                      </span>
-
-                      {editable && dItems.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            ใช้จริง {dKeptCount}/{dItems.length}
-                          </span>
-                          {dRemovedCount > 0 && (
-                            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                              ลบอัตโนมัติ {dRemovedCount}
-                            </span>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => setDetailItemChecks(dItems.map(() => true))}
-                            className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition-colors"
-                          >
-                            เลือกทั้งหมด
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDetailItemChecks(dItems.map(() => false))}
-                            className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-bold transition-colors"
-                          >
-                            ล้างที่เลือก
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {editable && (
-                      <div className="px-3 py-2 rounded-xl bg-indigo-50/70 border border-indigo-100 text-[11px] text-indigo-900 font-medium">
-                        สามารถติ๊กเฉพาะรายการที่ใช้จริง แล้วกดปุ่มแสดงหน้า PDF ด้านล่างได้เลย รายการที่ไม่ได้ติ๊กจะถูกลบออกอัตโนมัติ
-                      </div>
-                    )}
-
-                    <div className="border border-slate-200 rounded-2xl overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600">
-                            {editable && <th className="py-2.5 px-3 w-12 text-center">ใช้จริง</th>}
-                            <th className="py-2.5 px-3 w-10 text-center">#</th>
-                            <th className="py-2.5 px-3">รายละเอียดสิ่งของ</th>
-                            <th className="py-2.5 px-3 text-right">จำนวนเบิก</th>
-                            <th className="py-2.5 px-3">หน่วย</th>
-                            <th className="py-2.5 px-3">งานที่ใช้ / โครงการ</th>
-                            <th className="py-2.5 px-3">สถานะการคืน</th>
-                            <th className="py-2.5 px-3">หมายเหตุ</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 text-xs">
-                          {dItems.length > 0 ? (
-                            dItems.map((item, idx) => {
-                              const origQty = Number(item.quantity) || 1;
-                              const hasReturnInfo = item.returnedQuantity !== undefined;
-                              const retQty = Number(item.returnedQuantity) || 0;
-                              const isChecked = detailItemChecks[idx] !== false;
-                              return (
-                                <tr
-                                  key={idx}
-                                  onClick={() => {
-                                    if (!editable) return;
-                                    setDetailItemChecks(prev => {
-                                      const copy = dItems.map((_, i) => prev[i] !== false);
-                                      copy[idx] = !isChecked;
-                                      return copy;
-                                    });
-                                  }}
-                                  className={`transition-colors ${
-                                    editable ? 'cursor-pointer ' : ''
-                                  }${
-                                    !editable || isChecked
-                                      ? 'hover:bg-slate-50/60'
-                                      : 'bg-rose-50/50 opacity-75'
-                                  }`}
-                                >
-                                  {editable && (
-                                    <td className="py-2.5 px-3 text-center" onClick={e => e.stopPropagation()}>
-                                      <input
-                                        type="checkbox"
-                                        checked={isChecked}
-                                        onChange={e => {
-                                          const next = e.target.checked;
-                                          setDetailItemChecks(prev => {
-                                            const copy = dItems.map((_, i) => prev[i] !== false);
-                                            copy[idx] = next;
-                                            return copy;
-                                          });
-                                        }}
-                                        className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                                      />
-                                    </td>
-                                  )}
-                                  <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{idx + 1}</td>
-                                  <td className="py-2.5 px-3 font-semibold text-slate-900">
-                                    <span className={!editable || isChecked ? '' : 'line-through text-slate-400'}>
-                                      {item.detail}
-                                    </span>
-                                    {editable && !isChecked && (
-                                      <span className="ml-2 inline-flex px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">
-                                        ไม่ใช้ • ลบอัตโนมัติ
-                                      </span>
-                                    )}
-                                  </td>
-                                  <td className={`py-2.5 px-3 text-right font-bold ${!editable || isChecked ? 'text-slate-900' : 'text-slate-400 line-through'}`}>
-                                    {item.quantity}
-                                  </td>
-                                  <td className="py-2.5 px-3 text-slate-600">{item.unit}</td>
-                                  <td className="py-2.5 px-3 text-slate-700">{item.job || '-'}</td>
-                                  <td className="py-2.5 px-3">
-                                    {isNonReturnableRequisitionType(detailReq.requisitionType) ? (
-                                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${getNonReturnableBadgeClass(detailReq.requisitionType)}`}>
-                                        {getNonReturnableLabel(detailReq.requisitionType)}
-                                      </span>
-                                    ) : hasReturnInfo ? (
-                                      <div className="space-y-1">
-                                        <span
-                                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                            retQty >= origQty
-                                              ? 'bg-teal-50 text-teal-800 border-teal-200'
-                                              : retQty > 0
-                                              ? 'bg-amber-50 text-amber-800 border-amber-200'
-                                              : 'bg-slate-100 text-slate-600 border-slate-200'
-                                          }`}
-                                        >
-                                          <RotateCcw className="w-2.5 h-2.5" />
-                                          {retQty >= origQty
-                                            ? `คืนครบ (${retQty}/${origQty})`
-                                            : retQty > 0
-                                            ? `คืนแล้ว ${retQty}/${origQty}`
-                                            : 'ยังไม่คืน'}
-                                        </span>
-                                        {item.returnCondition && (
-                                          <div className="text-[10px] text-slate-500">
-                                            สภาพ:{' '}
-                                            {item.returnCondition === 'NORMAL'
-                                              ? 'ปกติ'
-                                              : item.returnCondition === 'DAMAGED'
-                                              ? 'ชำรุด'
-                                              : item.returnCondition === 'LOST'
-                                              ? 'สูญหาย'
-                                              : item.returnCondition}
-                                          </div>
-                                        )}
-                                      </div>
-                                    ) : detailReq.status === 'COMPLETED' ? (
-                                      <span className="text-[11px] text-slate-400">ยังไม่บันทึกคืน</span>
-                                    ) : (
-                                      <span className="text-[11px] text-slate-400">-</span>
-                                    )}
-                                  </td>
-                                  <td className="py-2.5 px-3 text-slate-500">
-                                    {item.returnRemark ? (
-                                      <span className="text-teal-700 font-medium">คืน: {item.returnRemark}</span>
-                                    ) : (
-                                      item.remark || '-'
-                                    )}
-                                  </td>
-                                </tr>
-                              );
-                            })
-                          ) : (
-                            <tr>
-                              <td colSpan={editable ? 8 : 7} className="py-6 text-center text-slate-400">
-                                ไม่มีรายการสิ่งของ
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                );
-              })()}
+              {/* Items Section (Check Used Items & Add Products) */}
+              <RequisitionItemsInteractiveSection
+                key={`${detailReq.id}:${JSON.stringify(detailReq.items || [])}`}
+                requisition={detailReq}
+                canEditItems={canEditUsedItems(detailReq)}
+                variant="modal"
+                effectiveSavedStoreSig={canManageStore ? effectiveSavedStoreSig : null}
+                pullStoreSignature={pullStoreSignature}
+                onTogglePullStoreSignature={canManageStore ? setPullStoreSignature : undefined}
+                hidePdfButton={true}
+                onSelectionStateChange={setDetailDraftState}
+                onCommitted={(res) => {
+                  const savedItems = res.items;
+                  setRequisitions(prev =>
+                    prev.map(r =>
+                      r.id === detailReq.id
+                        ? {
+                          ...r,
+                          items: savedItems,
+                          status: res.status || r.status,
+                          storeStaffSignatureUrl: res.storeStaffSignatureUrl || r.storeStaffSignatureUrl,
+                          storeStaffName: res.storeStaffName || r.storeStaffName,
+                          dispensedAt: res.dispensedAt || r.dispensedAt,
+                        }
+                        : r
+                    )
+                  );
+                  setDetailReq(prev =>
+                    prev
+                      ? {
+                        ...prev,
+                        items: savedItems,
+                        status: res.status || prev.status,
+                        storeStaffSignatureUrl: res.storeStaffSignatureUrl || prev.storeStaffSignatureUrl,
+                        storeStaffName: res.storeStaffName || prev.storeStaffName,
+                        dispensedAt: res.dispensedAt || prev.dispensedAt,
+                      }
+                      : null
+                  );
+                }}
+              />
             </div>
 
             {/* Modal Footer */}
             {(() => {
-              const dItems = Array.isArray(detailReq.items) ? detailReq.items : [];
               const editable = canEditUsedItems(detailReq);
-              const dKeptCount = dItems.filter((_, i) => detailItemChecks[i] !== false).length;
-              const dRemovedCount = dItems.length - dKeptCount;
+              const { keptItems: dKeptItems, removedCount: dRemovedCount, addedCount: dAddedCount, hasChanges: dHasChanges } = detailDraftState;
+              const dKeptCount = dKeptItems.length;
 
               return (
                 <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-2">
@@ -3850,13 +3744,43 @@ export default function StoreRequisitionsClient({
                   </button>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {editable && dRemovedCount > 0 ? (
+                    {canSignTransport && detailReq.status !== 'PENDING_APPROVAL' && detailReq.status !== 'REJECTED' && (
+                      <button
+                        type="button"
+                        onClick={() => setTransportModalReq(detailReq)}
+                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${detailReq.transportSignatureUrl
+                            ? 'bg-orange-50 hover:bg-orange-100 text-orange-800 border-orange-300'
+                            : 'bg-orange-600 hover:bg-orange-700 text-white border-orange-600'
+                          }`}
+                      >
+                        <Truck className="w-4 h-4" />
+                        <span>{detailReq.transportSignatureUrl ? 'ขนส่งเซ็นรับแล้ว (แก้ไข)' : 'ขนส่ง / ขนส่งนอกเซ็นรับ'}</span>
+                      </button>
+                    )}
+
+                    {canSignAccounting && detailReq.status !== 'PENDING_APPROVAL' && detailReq.status !== 'REJECTED' && (
+                      <button
+                        type="button"
+                        onClick={() => setAccountingModalReq(detailReq)}
+                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${detailReq.accountingSignatureUrl
+                            ? 'bg-violet-50 hover:bg-violet-100 text-violet-800 border-violet-300'
+                            : 'bg-violet-600 hover:bg-violet-700 text-white border-violet-600'
+                          }`}
+                      >
+                        <FileCheck2 className="w-4 h-4" />
+                        <span>{detailReq.accountingSignatureUrl ? 'บัญชีรับทราบแล้ว (แก้ไข)' : 'บัญชีเซ็นรับทราบ'}</span>
+                      </button>
+                    )}
+
+                    {editable && (dHasChanges || (canManageStore && pullStoreSignature && !detailReq.storeStaffSignatureUrl && effectiveSavedStoreSig)) ? (
                       <button
                         type="button"
                         disabled={isSavingUsedItems || dKeptCount === 0}
                         onClick={() =>
-                          handleConfirmUsedItems(detailReq, detailItemChecks, {
+                          handleConfirmUsedItems(detailReq, detailDraftState, {
                             openPdf: true,
+                            storeStaffSignatureUrl:
+                              canManageStore && pullStoreSignature ? effectiveSavedStoreSig : undefined,
                           })
                         }
                         className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all disabled:opacity-50"
@@ -3867,7 +3791,9 @@ export default function StoreRequisitionsClient({
                           <Printer className="w-4 h-4" />
                         )}
                         <span>
-                          ยืนยันสิ่งที่ใช้ ({dKeptCount}) &amp; แสดง PDF (ลบ {dRemovedCount} รายการ)
+                          บันทึก ({dKeptCount}) &amp; แสดง PDF
+                          {dAddedCount > 0 ? ` (+${dAddedCount})` : ''}
+                          {dRemovedCount > 0 ? ` (-${dRemovedCount})` : ''}
                         </span>
                       </button>
                     ) : (
@@ -3906,8 +3832,8 @@ export default function StoreRequisitionsClient({
                     {canManageStore && detailReq.status === 'APPROVED' && (
                       <button
                         onClick={() => {
-                          if (editable && dRemovedCount > 0) {
-                            handleConfirmUsedItems(detailReq, detailItemChecks, {
+                          if (editable && dHasChanges) {
+                            handleConfirmUsedItems(detailReq, detailDraftState, {
                               openPdf: false,
                               markCompleted: true,
                             });
@@ -3920,8 +3846,8 @@ export default function StoreRequisitionsClient({
                       >
                         <Check className="w-4 h-4" />
                         <span>
-                          {editable && dRemovedCount > 0
-                            ? `ส่งมอบสิ่งที่ใช้ (${dKeptCount} รายการ)`
+                          {editable && dHasChanges
+                            ? `บันทึก (${dKeptCount} รายการ) & ส่งมอบแล้ว`
                             : 'บันทึกส่งมอบเรียบร้อย'}
                         </span>
                       </button>
@@ -4164,9 +4090,8 @@ export default function StoreRequisitionsClient({
                           return (
                             <tr
                               key={item.index}
-                              className={`transition-colors ${
-                                item.isSelected ? 'bg-teal-50/20 hover:bg-teal-50/40' : 'bg-slate-50/40 opacity-60'
-                              }`}
+                              className={`transition-colors ${item.isSelected ? 'bg-teal-50/20 hover:bg-teal-50/40' : 'bg-slate-50/40 opacity-60'
+                                }`}
                             >
                               <td className="py-3 px-3 text-center">
                                 <input
@@ -4374,21 +4299,19 @@ export default function StoreRequisitionsClient({
                 <div className="inline-flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-semibold h-9">
                   <button
                     onClick={() => setReportScope('FILTERED')}
-                    className={`h-7 px-3 rounded-lg transition-all whitespace-nowrap flex items-center ${
-                      reportScope === 'FILTERED'
+                    className={`h-7 px-3 rounded-lg transition-all whitespace-nowrap flex items-center ${reportScope === 'FILTERED'
                         ? 'bg-white text-slate-900 font-bold shadow-2xs'
                         : 'text-slate-600 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     ตามตัวกรอง ({filteredRequisitions.length})
                   </button>
                   <button
                     onClick={() => setReportScope('ALL')}
-                    className={`h-7 px-3 rounded-lg transition-all whitespace-nowrap flex items-center ${
-                      reportScope === 'ALL'
+                    className={`h-7 px-3 rounded-lg transition-all whitespace-nowrap flex items-center ${reportScope === 'ALL'
                         ? 'bg-white text-slate-900 font-bold shadow-2xs'
                         : 'text-slate-600 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     ทั้งหมด ({requisitions.length})
                   </button>
@@ -4771,15 +4694,14 @@ export default function StoreRequisitionsClient({
                             <div className="flex items-center justify-between min-w-0 mb-1">
                               <div className="flex items-center gap-2 min-w-0">
                                 <span
-                                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                                    idx === 0
+                                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${idx === 0
                                       ? 'bg-amber-100 text-amber-800'
                                       : idx === 1
-                                      ? 'bg-slate-200 text-slate-700'
-                                      : idx === 2
-                                      ? 'bg-amber-700/20 text-amber-900'
-                                      : 'bg-slate-100 text-slate-500'
-                                  }`}
+                                        ? 'bg-slate-200 text-slate-700'
+                                        : idx === 2
+                                          ? 'bg-amber-700/20 text-amber-900'
+                                          : 'bg-slate-100 text-slate-500'
+                                    }`}
                                 >
                                   {idx + 1}
                                 </span>
@@ -4838,33 +4760,30 @@ export default function StoreRequisitionsClient({
                   <div className="inline-flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold h-10">
                     <button
                       onClick={() => setReportActiveTab('OVERVIEW')}
-                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                        reportActiveTab === 'OVERVIEW'
+                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${reportActiveTab === 'OVERVIEW'
                           ? 'bg-white text-slate-900 font-bold shadow-2xs'
                           : 'text-slate-600 hover:text-slate-900'
-                      }`}
+                        }`}
                     >
                       <TrendingUp className="w-3.5 h-3.5" />
                       <span>วัสดุยอดนิยม (Top 10)</span>
                     </button>
                     <button
                       onClick={() => setReportActiveTab('ALL_ITEMS')}
-                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                        reportActiveTab === 'ALL_ITEMS'
+                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${reportActiveTab === 'ALL_ITEMS'
                           ? 'bg-white text-slate-900 font-bold shadow-2xs'
                           : 'text-slate-600 hover:text-slate-900'
-                      }`}
+                        }`}
                     >
                       <Package className="w-3.5 h-3.5" />
                       <span>รายการวัสดุทั้งหมด ({reportStats.sortedMaterials.length})</span>
                     </button>
                     <button
                       onClick={() => setReportActiveTab('RETURN_TRACKING')}
-                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                        reportActiveTab === 'RETURN_TRACKING'
+                      className={`h-8 px-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${reportActiveTab === 'RETURN_TRACKING'
                           ? 'bg-white text-teal-800 font-bold shadow-2xs'
                           : 'text-slate-600 hover:text-slate-900'
-                      }`}
+                        }`}
                     >
                       <RotateCcw className="w-3.5 h-3.5 text-teal-600" />
                       <span>ติดตามการคืนอุปกรณ์</span>
@@ -4936,15 +4855,14 @@ export default function StoreRequisitionsClient({
                             <td className="py-2.5 px-3.5 text-center">
                               {reportActiveTab === 'OVERVIEW' ? (
                                 <span
-                                  className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ${
-                                    rank === 1
+                                  className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ${rank === 1
                                       ? 'bg-amber-100 text-amber-800'
                                       : rank === 2
-                                      ? 'bg-slate-200 text-slate-700'
-                                      : rank === 3
-                                      ? 'bg-amber-700/20 text-amber-900'
-                                      : 'text-slate-500 font-medium'
-                                  }`}
+                                        ? 'bg-slate-200 text-slate-700'
+                                        : rank === 3
+                                          ? 'bg-amber-700/20 text-amber-900'
+                                          : 'text-slate-500 font-medium'
+                                    }`}
                                 >
                                   {rank}
                                 </span>
@@ -4991,19 +4909,17 @@ export default function StoreRequisitionsClient({
                               <div className="flex items-center justify-center gap-1.5">
                                 <div className="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                   <div
-                                    className={`h-full rounded-full transition-all ${
-                                      itemReturnRate >= 100
+                                    className={`h-full rounded-full transition-all ${itemReturnRate >= 100
                                         ? 'bg-emerald-500'
                                         : itemReturnRate > 0
-                                        ? 'bg-teal-500'
-                                        : 'bg-slate-200'
-                                    }`}
+                                          ? 'bg-teal-500'
+                                          : 'bg-slate-200'
+                                      }`}
                                     style={{ width: `${Math.min(100, itemReturnRate)}%` }}
                                   />
                                 </div>
-                                <span className={`text-[11px] font-semibold w-8 text-right ${
-                                  itemReturnRate >= 100 ? 'text-emerald-700' : itemReturnRate > 0 ? 'text-teal-700' : 'text-slate-400'
-                                }`}>
+                                <span className={`text-[11px] font-semibold w-8 text-right ${itemReturnRate >= 100 ? 'text-emerald-700' : itemReturnRate > 0 ? 'text-teal-700' : 'text-slate-400'
+                                  }`}>
                                   {itemReturnRate}%
                                 </span>
                               </div>
@@ -5107,6 +5023,33 @@ export default function StoreRequisitionsClient({
           </div>
         </div>
       )}
+      <RequisitionTransportSignModal
+        requisition={transportModalReq}
+        isOpen={Boolean(transportModalReq)}
+        onClose={() => setTransportModalReq(null)}
+        currentUserName={userName}
+        isTransportUser={isTransportUser}
+        savedTransportSignatureUrl={savedTransportSignatureUrl || savedUserSignatureUrl}
+        onSuccess={(payload) => {
+          if (transportModalReq) {
+            patchRequisitionInState(transportModalReq.id, payload);
+          }
+        }}
+      />
+
+      <RequisitionAccountingSignModal
+        requisition={accountingModalReq}
+        isOpen={Boolean(accountingModalReq)}
+        onClose={() => setAccountingModalReq(null)}
+        currentUserName={userName}
+        isAccountingUser={isAccountingUser}
+        savedAccountingSignatureUrl={savedAccountingSignatureUrl || savedUserSignatureUrl}
+        onSuccess={(payload) => {
+          if (accountingModalReq) {
+            patchRequisitionInState(accountingModalReq.id, payload);
+          }
+        }}
+      />
     </div>
   );
 }
