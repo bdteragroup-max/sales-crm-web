@@ -1652,6 +1652,7 @@ export default function NewPaymentRequestClient({
           netAmount: netPayable,
           documentDate,
           branch: finalBranch,
+          purpose: purpose.trim() || undefined,
           attachments,
           fileHashes: attachments.map((a) => a.fileHash).filter(Boolean) as string[],
           items: validItems,
@@ -1677,6 +1678,7 @@ export default function NewPaymentRequestClient({
     documentDate,
     branch,
     customBranch,
+    purpose,
     attachments,
     entryMode,
     requisitionItems,
@@ -1889,6 +1891,8 @@ export default function NewPaymentRequestClient({
               distinctiveTokens,
               currentAmount: netPayable > 0 ? netPayable : (extractedAmount || undefined),
               currentSupplier: (supplierName.trim() || extractedSupplier || undefined),
+              currentPurpose: purpose.trim() || undefined,
+              currentDate: documentDate || undefined,
             },
           ],
           fileHashes: [fileHash],
@@ -2228,6 +2232,8 @@ export default function NewPaymentRequestClient({
               distinctiveTokens,
               currentAmount: Number(targetItem.amount) || (extractedAmount || undefined),
               currentSupplier: (targetItem.supplierName?.trim() || supplierName.trim() || extractedSupplier || undefined),
+              currentPurpose: targetItem.description?.trim() || purpose.trim() || undefined,
+              currentDate: targetItem.billDate || documentDate || undefined,
             },
           ],
           fileHashes: [fileHash],
@@ -2549,8 +2555,8 @@ export default function NewPaymentRequestClient({
       const matchLabel =
         match.matchType === 'ITEM_DUPLICATE'
           ? `รายการที่ ${match.matchedItemIndex || 1} "${match.matchedItemDesc || ''}" ของ ${match.matchedItemSupplier || ''} ยอดเงิน ${Number(match.matchedItemAmount || 0).toLocaleString()} ฿ ตรงกับใบขอจ่าย ${match.pay_number}`
-          : match.matchType === 'ATTACHMENT_HASH'
-          ? 'ไฟล์แนบตรงกับเอกสารเดิมในระบบ'
+          : match.matchType?.startsWith('ATTACHMENT_')
+          ? match.reason || 'เอกสารแนบตรงกับเอกสารเดิมในระบบ'
           : match.matchType === 'PO_PR_NUMBER'
           ? `เลขที่ PO/PR ${match.po_pr_number || ''} เคยถูกบันทึกแล้ว`
           : `เลขที่บิล ${match.invoice_number || invoiceNumber} ของ ${match.supplier_name} เคยถูกบันทึกแล้ว`;
@@ -3161,9 +3167,10 @@ export default function NewPaymentRequestClient({
                     <b className="text-red-900">{dupResult.exactMatches[0]?.matchedItemSupplier}</b> (ยอดเงิน{' '}
                     {Number(dupResult.exactMatches[0]?.matchedItemAmount || 0).toLocaleString()} ฿) เคยถูกบันทึกในระบบแล้ว:
                   </>
-                ) : dupResult.exactMatches[0]?.matchType === 'ATTACHMENT_HASH' ? (
+                ) : dupResult.exactMatches[0]?.matchType?.startsWith('ATTACHMENT_') ? (
                   <>
-                    <b className="text-red-900 font-bold">[ไฟล์แนบซ้ำซ้อน]</b> ตรวจพบไฟล์แนบที่มีเนื้อหาตรงกับเอกสารในระบบกลาง:
+                    <b className="text-red-900 font-bold">[เอกสารแนบซ้ำซ้อน]</b>{' '}
+                    {dupResult.exactMatches[0]?.reason || 'ตรวจพบเอกสารแนบที่มีเนื้อหาหรือข้อมูลตรงกับคำขอเดิมในระบบกลาง'}:
                   </>
                 ) : dupResult.exactMatches[0]?.matchType === 'PO_PR_NUMBER' ? (
                   <>
@@ -3184,6 +3191,14 @@ export default function NewPaymentRequestClient({
                       <span className="px-1.5 py-0.5 rounded text-[9px] bg-red-100 text-red-800 font-semibold font-sans">
                         {m.matchType === 'ITEM_DUPLICATE'
                           ? `รายการที่ ${m.matchedItemIndex || 1} ซ้ำ`
+                          : m.matchType === 'ATTACHMENT_QR'
+                          ? 'QR สลิปตรงกัน'
+                          : m.matchType === 'ATTACHMENT_BARCODE'
+                          ? 'บาร์โค้ดตรงกัน'
+                          : m.matchType === 'ATTACHMENT_OCR' || m.matchType === 'ATTACHMENT_OCR_RECORD'
+                          ? 'เลขที่เอกสาร OCR ตรงกัน'
+                          : m.matchType === 'ATTACHMENT_VISUAL' || m.matchType === 'ATTACHMENT_VISUAL_CONTEXT'
+                          ? 'ภาพเอกสารตรงกัน'
                           : m.matchType === 'ATTACHMENT_HASH'
                           ? 'ไฟล์แนบตรงกัน'
                           : m.matchType === 'PO_PR_NUMBER'
@@ -3225,14 +3240,21 @@ export default function NewPaymentRequestClient({
                 <span>แจ้งเตือน: พบรายการที่อาจซ้ำซ้อน (Possible Duplicate Alert)</span>
               </h3>
               <p className="mt-1 leading-relaxed text-gray-600">
-                ตรวจพบยอดเงิน <b className="text-gray-900 font-mono">{netPayable.toLocaleString()} บาท</b> วันที่{' '}
-                <b className="text-gray-900">{formatDisplayDate(documentDate)}</b> ของ <b className="text-gray-900">{supplierName}</b>{' '}
-                ใกล้เคียงกับคำขอที่มีอยู่แล้ว:
+                {dupResult.possibleMatches[0]?.matchType?.startsWith('ATTACHMENT_') ? (
+                  <span>{dupResult.possibleMatches[0]?.reason || 'ตรวจพบเอกสารแนบที่มีลักษณะใกล้เคียงกับคำขออื่น (หากเป็นคนละรายการ/กิจกรรมสามารถส่งต่อได้)'}</span>
+                ) : (
+                  <>
+                    ตรวจพบยอดเงิน <b className="text-gray-900 font-mono">{netPayable.toLocaleString()} บาท</b> วันที่{' '}
+                    <b className="text-gray-900">{formatDisplayDate(documentDate)}</b> ของ <b className="text-gray-900">{supplierName}</b>{' '}
+                    ใกล้เคียงกับคำขอที่มีอยู่แล้ว:
+                  </>
+                )}
               </p>
               <div className="mt-2 space-y-1 bg-white p-2.5 rounded-xl border border-gray-200">
                 {dupResult.possibleMatches.map((m: any, idx: number) => (
                   <div key={idx} className="flex flex-wrap items-center justify-between font-mono text-[11px] gap-2">
                     <span className="font-bold text-red-600">{m.pay_number}</span>
+                    {m.purpose && <span className="text-gray-600 font-sans truncate max-w-[220px]">{m.purpose}</span>}
                     <span>{m.branch}</span>
                     <span>{Number(m.net_amount).toLocaleString()} ฿</span>
                     <span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-700 font-sans">{m.status}</span>

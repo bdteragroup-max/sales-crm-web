@@ -58,7 +58,13 @@ export default function NewLeadClient({
   const [error, setError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const [selectedRep, setSelectedRep] = useState('')
-  const [duplicateWarning, setDuplicateWarning] = useState<{ name: string; company: string } | null>(null)
+  const [duplicateWarning, setDuplicateWarning] = useState<{
+    name: string
+    company: string
+    sourceType?: 'LEAD' | 'CUSTOMER'
+    salesRepName?: string | null
+  } | null>(null)
+  const submitLockRef = useRef(false)
 
   // Attribution state
   const [selectedChannel, setSelectedChannel] = useState('Facebook')
@@ -198,10 +204,16 @@ export default function NewLeadClient({
   // Check for duplicate phone
   useEffect(() => {
     const checkPhone = async () => {
-      if (phoneNumber.length >= 9) {
+      const digitsOnly = phoneNumber.replace(/\D/g, '')
+      if (digitsOnly.length >= 9) {
         const res = await checkDuplicatePhone(phoneNumber)
         if (res.success && res.isDuplicate && res.contact) {
-          setDuplicateWarning({ name: res.contact.name, company: res.contact.companyName })
+          setDuplicateWarning({
+            name: res.contact.name,
+            company: res.contact.companyName,
+            sourceType: (res as { sourceType?: 'LEAD' | 'CUSTOMER' }).sourceType,
+            salesRepName: (res.contact as { salesRepName?: string | null }).salesRepName,
+          })
         } else {
           setDuplicateWarning(null)
         }
@@ -210,7 +222,7 @@ export default function NewLeadClient({
       }
     }
 
-    const timer = setTimeout(checkPhone, 400)
+    const timer = setTimeout(checkPhone, 300)
     return () => clearTimeout(timer)
   }, [phoneNumber])
 
@@ -250,44 +262,76 @@ export default function NewLeadClient({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (submitLockRef.current || isSubmitting) return
+
     if (!customerName.trim()) {
       setError('กรุณาระบุชื่อลูกค้าหรือชื่อบริษัท')
       return
     }
 
+    if (duplicateWarning) {
+      setError(
+        `ห้ามลงซ้ำ: เบอร์โทรศัพท์นี้มีในระบบแล้ว (${duplicateWarning.name} - ${duplicateWarning.company})`
+      )
+      return
+    }
+
+    submitLockRef.current = true
     setIsSubmitting(true)
     setError('')
     setSuccessMsg('')
 
-    const finalCampaignSource =
-      selectedAdSet === '__CUSTOM__' ? customAdSet.trim() : (selectedAdSet || customAdSet).trim()
-
-    const result = await createMarketingLead({
-      customerName: customerName.trim(),
-      phoneNumber: phoneNumber.trim() || undefined,
-      province: province || null,
-      productOfInterest: productOfInterest.trim() || undefined,
-      productType: productType || undefined,
-      occupation: occupation || undefined,
-      conversationContent: conversationContent.trim() || undefined,
-      createdByUserId: userId,
-      leadSource: selectedChannel || null,
-      campaignSource: finalCampaignSource || null,
-      adCampaignId: selectedCampaignId || null
-    })
-
-    if (result.success && result.data) {
-      if (selectedRep) {
-        await forwardLeadToSales(result.data.id, selectedRep)
+    try {
+      const digitsOnly = phoneNumber.replace(/\D/g, '')
+      if (digitsOnly.length >= 9) {
+        const dupRes = await checkDuplicatePhone(phoneNumber)
+        if (dupRes.success && dupRes.isDuplicate && dupRes.contact) {
+          setDuplicateWarning({
+            name: dupRes.contact.name,
+            company: dupRes.contact.companyName,
+            sourceType: (dupRes as { sourceType?: 'LEAD' | 'CUSTOMER' }).sourceType,
+            salesRepName: (dupRes.contact as { salesRepName?: string | null }).salesRepName,
+          })
+          setError(
+            `ห้ามลงซ้ำ: เบอร์โทรศัพท์นี้มีในระบบแล้ว (${dupRes.contact.name} - ${dupRes.contact.companyName})`
+          )
+          setIsSubmitting(false)
+          return
+        }
       }
-      setSuccessMsg('บันทึกข้อมูลลูกค้าใหม่สำเร็จ! กำลังกลับสู่หน้ารวม Leads...')
-      setTimeout(() => {
-        router.push('/marketing')
-        router.refresh()
-      }, 1200)
-    } else {
-      setIsSubmitting(false)
-      setError(result.error || 'ไม่สามารถสร้างข้อมูลได้ กรุณาลองใหม่อีกครั้ง')
+
+      const finalCampaignSource =
+        selectedAdSet === '__CUSTOM__' ? customAdSet.trim() : (selectedAdSet || customAdSet).trim()
+
+      const result = await createMarketingLead({
+        customerName: customerName.trim(),
+        phoneNumber: phoneNumber.trim() || undefined,
+        province: province || null,
+        productOfInterest: productOfInterest.trim() || undefined,
+        productType: productType || undefined,
+        occupation: occupation || undefined,
+        conversationContent: conversationContent.trim() || undefined,
+        createdByUserId: userId,
+        leadSource: selectedChannel || null,
+        campaignSource: finalCampaignSource || null,
+        adCampaignId: selectedCampaignId || null
+      })
+
+      if (result.success && result.data) {
+        if (selectedRep) {
+          await forwardLeadToSales(result.data.id, selectedRep)
+        }
+        setSuccessMsg('บันทึกข้อมูลลูกค้าใหม่สำเร็จ! กำลังกลับสู่หน้ารวม Leads...')
+        setTimeout(() => {
+          router.push('/marketing')
+          router.refresh()
+        }, 1200)
+      } else {
+        setIsSubmitting(false)
+        setError(result.error || 'ไม่สามารถสร้างข้อมูลได้ กรุณาลองใหม่อีกครั้ง')
+      }
+    } finally {
+      submitLockRef.current = false
     }
   }
 
@@ -488,7 +532,7 @@ export default function NewLeadClient({
                       placeholder="08X-XXX-XXXX"
                       className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-semibold transition-all shadow-xs ${
                         duplicateWarning
-                          ? 'border-amber-300 focus:ring-amber-400/20 focus:border-amber-500 bg-amber-50/40 text-gray-900'
+                          ? 'border-red-300 focus:ring-red-400/20 focus:border-red-500 bg-red-50/40 text-gray-900'
                           : 'border-gray-200 bg-gray-50/60 hover:bg-gray-50 focus:bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red'
                       }`}
                       id="lead-phone-input"
@@ -514,12 +558,17 @@ export default function NewLeadClient({
                 </div>
               </div>
 
-              {/* Duplicate Warning Pill */}
+              {/* Duplicate Block Banner */}
               {duplicateWarning && (
-                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium flex items-center gap-2 animate-in fade-in">
-                  <AlertTriangle size={14} className="shrink-0 text-amber-600" />
+                <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+                  <AlertTriangle size={14} className="shrink-0 text-red-600" />
                   <span>
-                    เบอร์นี้มีในระบบแล้ว: <strong>{duplicateWarning.name}</strong> ({duplicateWarning.company})
+                    ห้ามลงซ้ำ: เบอร์นี้มีในระบบแล้ว ({duplicateWarning.sourceType === 'LEAD' ? 'Lead เดิม' : 'ลูกค้าเดิม'}:{' '}
+                    <strong>{duplicateWarning.name}</strong>
+                    {duplicateWarning.company && duplicateWarning.company !== duplicateWarning.name
+                      ? ` • ${duplicateWarning.company}`
+                      : ''}
+                    {duplicateWarning.salesRepName ? ` • ผู้ดูแล: ${duplicateWarning.salesRepName}` : ''})
                   </span>
                 </div>
               )}
@@ -992,8 +1041,8 @@ export default function NewLeadClient({
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="flex-1 sm:flex-initial px-7 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-red-600 via-brand-red to-red-600 hover:from-red-700 hover:to-red-700 transition-all flex items-center justify-center gap-2 shadow-md shadow-red-500/25 ring-2 ring-red-500/20 active:scale-95 disabled:opacity-50 cursor-pointer uppercase tracking-wider"
+            disabled={isSubmitting || Boolean(duplicateWarning)}
+            className="flex-1 sm:flex-initial px-7 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-red-600 via-brand-red to-red-600 hover:from-red-700 hover:to-red-700 transition-all flex items-center justify-center gap-2 shadow-md shadow-red-500/25 ring-2 ring-red-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer uppercase tracking-wider"
             id="submit-create-lead-btn"
           >
             {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}

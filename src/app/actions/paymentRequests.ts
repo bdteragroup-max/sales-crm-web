@@ -18,16 +18,20 @@ import {
   normalizePersonName,
 } from '@/app/lib/roleHelper';
 import type { AttachmentCheckItem } from '@/lib/attachmentUtils';
+import { normalizeInvoiceNo } from '@/lib/attachmentUtils';
 import {
-  normalizeAttachmentName,
-  isDistinctiveAttachmentName,
-  visualHammingDistance,
-  normalizeInvoiceNo,
-} from '@/lib/attachmentUtils';
+  evaluateAttachmentCandidateMatch,
+  isMeaningfulInvoiceToken,
+  isRecordInvoiceCorroborated,
+  shouldWarnAmountAndDateMatch,
+} from '@/app/lib/paymentRequestDedup';
 
-let poolInstance: Pool | null = null;
+const globalForPaymentPool = globalThis as unknown as {
+  paymentRequestsPool?: Pool;
+};
+
 function getPool(): Pool {
-  if (!poolInstance) {
+  if (!globalForPaymentPool.paymentRequestsPool) {
     let dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) {
       try {
@@ -39,9 +43,26 @@ function getPool(): Pool {
         console.warn('Failed to load DATABASE_URL in paymentRequests actions');
       }
     }
-    poolInstance = new Pool({ connectionString: dbUrl });
+    const pool = new Pool({
+      connectionString: dbUrl,
+      max: 5,
+      idleTimeoutMillis: 20000,
+      connectionTimeoutMillis: 30000,
+      keepAlive: true,
+    });
+    pool.on('error', err => {
+      if (
+        err.message.includes('Connection terminated') ||
+        err.message.includes('timeout') ||
+        err.message.includes('closed')
+      ) {
+        return;
+      }
+      console.warn('Unexpected error on idle client (paymentRequests pool):', err.message);
+    });
+    globalForPaymentPool.paymentRequestsPool = pool;
   }
-  return poolInstance;
+  return globalForPaymentPool.paymentRequestsPool;
 }
 
 export type PaymentRequestRecord = {
@@ -292,14 +313,14 @@ export async function checkAttachmentDuplicates(params: {
   }
 
   if (checkItems.length === 0) {
-    return { isDuplicate: false, matches: [] };
+    return { isDuplicate: false, matches: [], possibleMatches: [] };
   }
 
   try {
     let query = `
       SELECT 
         id, pay_number, company, branch, supplier_name, supplier_tax_id, 
-        invoice_number, net_amount, document_date, status, requester_name, attachments, items, created_at
+        invoice_number, net_amount, document_date, purpose, status, requester_name, attachments, items, created_at
       FROM payment_requests
       WHERE status NOT IN ('CANCELLED', 'REJECTED')
         AND (attachments IS NOT NULL OR items IS NOT NULL OR NULLIF(TRIM(invoice_number), '') IS NOT NULL)
@@ -313,6 +334,7 @@ export async function checkAttachmentDuplicates(params: {
 
     const res = await pool.query(query, values);
     const matches: any[] = [];
+    const possibleMatches: any[] = [];
     const matchedReqIds = new Set<string>();
 
     for (const row of res.rows) {
@@ -339,47 +361,52 @@ export async function checkAttachmentDuplicates(params: {
 
       if (matchedReqIds.has(row.id)) continue;
 
-      const pushMatch = (matchType: string, reason: string, duplicateFileName?: string, matchedFileName?: string) => {
+      const buildMatchRecord = (
+        matchType: string,
+        severity: 'EXACT' | 'POSSIBLE',
+        reason: string,
+        duplicateFileName?: string,
+        matchedFileName?: string
+      ) => ({
+        id: row.id,
+        pay_number: row.pay_number,
+        company: row.company,
+        branch: row.branch,
+        supplier_name: row.supplier_name,
+        supplier_tax_id: row.supplier_tax_id,
+        invoice_number: row.invoice_number,
+        net_amount: Number(row.net_amount || 0),
+        document_date: toDateString(row.document_date) || '',
+        created_at: toTimestampString(row.created_at) || '',
+        purpose: row.purpose || '',
+        status: row.status,
+        requester_name: row.requester_name,
+        matchType,
+        severity,
+        matchedFileName,
+        duplicateFileName,
+        reason,
+      });
+
+      const pushExactMatch = (matchType: string, reason: string, duplicateFileName?: string, matchedFileName?: string) => {
         if (matchedReqIds.has(row.id)) return;
         matchedReqIds.add(row.id);
-        matches.push({
-          id: row.id,
-          pay_number: row.pay_number,
-          company: row.company,
-          branch: row.branch,
-          supplier_name: row.supplier_name,
-          supplier_tax_id: row.supplier_tax_id,
-          invoice_number: row.invoice_number,
-          net_amount: Number(row.net_amount || 0),
-          document_date: toDateString(row.document_date) || '',
-          created_at: toTimestampString(row.created_at) || '',
-          status: row.status,
-          requester_name: row.requester_name,
-          matchType,
-          matchedFileName,
-          duplicateFileName,
-          reason,
-        });
+        matches.push(buildMatchRecord(matchType, 'EXACT', reason, duplicateFileName, matchedFileName));
       };
 
-      const isRecordInvoiceCorroborated = (
-        item: AttachmentCheckItem,
-        recTaxId: string | null | undefined,
-        recAmt: number | undefined,
-        recSupplier: string | null | undefined
-      ) => {
-        const cleanTax = (recTaxId || '').replace(/\D/g, '');
-        const taxMatch = !!(item.extractedTaxId && cleanTax && item.extractedTaxId === cleanTax);
-        const effItemAmt = item.extractedAmount ?? item.currentAmount;
-        const amtMatch = !!(effItemAmt !== undefined && recAmt !== undefined && recAmt > 0 && Math.abs(effItemAmt - recAmt) < 1.0);
-        const effItemSupp = (item.currentSupplier || item.extractedSupplier || '').trim().toLowerCase();
-        const effRecSupp = (recSupplier || '').trim().toLowerCase();
-        const suppMatch = !!(
-          effItemSupp.length >= 3 &&
-          effRecSupp.length >= 3 &&
-          (effItemSupp.includes(effRecSupp) || effRecSupp.includes(effItemSupp))
-        );
-        return taxMatch || amtMatch || suppMatch;
+      const parsedRowItems = Array.isArray(rowItems) ? rowItems : [];
+      const rowContext = {
+        id: row.id,
+        pay_number: row.pay_number,
+        company: row.company,
+        branch: row.branch,
+        supplier_name: row.supplier_name,
+        supplier_tax_id: row.supplier_tax_id,
+        invoice_number: row.invoice_number,
+        net_amount: row.net_amount,
+        document_date: row.document_date,
+        purpose: row.purpose,
+        items: parsedRowItems,
       };
 
       // 0.3 OCR Match against previous payment request record (header OR per-item invoiceNumber even when no photo was attached)
@@ -391,7 +418,7 @@ export async function checkAttachmentDuplicates(params: {
         if (row.invoice_number) {
           const normInvRow = normalizeInvoiceNo(row.invoice_number);
           if (normInvIn === normInvRow && isRecordInvoiceCorroborated(item, row.supplier_tax_id, Number(row.net_amount || 0), row.supplier_name)) {
-            pushMatch(
+            pushExactMatch(
               'ATTACHMENT_OCR_RECORD',
               `ตรวจพบเลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" จากภาพตรงกับคำขอเดิม (${row.pay_number})`,
               item.fileName
@@ -400,249 +427,61 @@ export async function checkAttachmentDuplicates(params: {
           }
         }
 
-        if (Array.isArray(rowItems)) {
-          for (const rowIt of rowItems) {
-            if (!rowIt?.invoiceNumber) continue;
-            const normInvIt = normalizeInvoiceNo(rowIt.invoiceNumber);
-            if (
-              normInvIn === normInvIt &&
-              isRecordInvoiceCorroborated(
-                item,
-                rowIt.supplierTaxId || row.supplier_tax_id,
-                Number(rowIt.amount || row.net_amount || 0),
-                rowIt.supplierName || row.supplier_name
-              )
-            ) {
-              pushMatch(
-                'ATTACHMENT_OCR_RECORD',
-                `ตรวจพบเลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" จากภาพตรงกับรายการบิลในคำขอเดิม (${row.pay_number})`,
-                item.fileName
-              );
-              break;
-            }
+        for (const rowIt of parsedRowItems) {
+          if (!rowIt?.invoiceNumber) continue;
+          const normInvIt = normalizeInvoiceNo(rowIt.invoiceNumber);
+          if (
+            normInvIn === normInvIt &&
+            isRecordInvoiceCorroborated(
+              item,
+              rowIt.supplierTaxId || row.supplier_tax_id,
+              Number(rowIt.amount || row.net_amount || 0),
+              rowIt.supplierName || row.supplier_name
+            )
+          ) {
+            pushExactMatch(
+              'ATTACHMENT_OCR_RECORD',
+              `ตรวจพบเลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" จากภาพตรงกับรายการบิลในคำขอเดิม (${row.pay_number})`,
+              item.fileName
+            );
+            break;
           }
         }
         if (matchedReqIds.has(row.id)) break;
       }
 
       if (matchedReqIds.has(row.id) || allRowAttachments.length === 0) continue;
+
+      let bestRowPossible: ReturnType<typeof buildMatchRecord> | null = null;
       for (const att of allRowAttachments) {
         for (const item of checkItems) {
-          let isMatch = false;
-          let matchType = '';
-          let reason = '';
-
-          // 0. QR Code / PromptPay Transfer Slip Payload Match (100% invariant to camera angle, zoom, phone brand)
-          if (item.qrPayload && att.qrPayload) {
-            const qr1 = item.qrPayload.trim();
-            const qr2 = att.qrPayload.trim();
-            if (qr1 === qr2 || (qr1.length >= 15 && qr2.length >= 15 && (qr1.includes(qr2) || qr2.includes(qr1)))) {
-              isMatch = true;
-              matchType = 'ATTACHMENT_QR';
-              reason = `ตรวจพบรหัส QR Code/สลิปโอนเงินตรงกัน 100% (ตรงกับ "${att.fileName || 'เอกสารเดิม'}" แม้ถ่ายจากคนละกล้อง/ต่างมุม)`;
-            }
-          }
-
-          // 0.1 Barcode Match
-          if (!isMatch && item.barcode && att.barcode && item.barcode.trim() === att.barcode.trim()) {
-            isMatch = true;
-            matchType = 'ATTACHMENT_BARCODE';
-            reason = `ตรวจพบบาร์โค้ดบนเอกสารตรงกัน (${item.barcode})`;
-          }
-
-          // 0.2 OCR Tax ID / Amount / Supplier + Invoice Number Match (Invariant to separate shots/cameras)
-          if (!isMatch && item.extractedInvoiceNo && att.extractedInvoiceNo) {
-            const normInvIn = normalizeInvoiceNo(item.extractedInvoiceNo);
-            const normInvAtt = normalizeInvoiceNo(att.extractedInvoiceNo);
-            if (normInvIn.length >= 4 && normInvIn === normInvAtt) {
-              const effAttAmt = att.extractedAmount ?? (row.net_amount ? Number(row.net_amount) : undefined);
-              if (
-                isRecordInvoiceCorroborated(
-                  item,
-                  att.extractedTaxId || row.supplier_tax_id,
-                  effAttAmt,
-                  att.extractedSupplier || row.supplier_name
-                )
-              ) {
-                isMatch = true;
-                matchType = 'ATTACHMENT_OCR';
-                reason = `ตรวจพบข้อมูล OCR เลขที่ใบกำกับภาษี "${item.extractedInvoiceNo}" ตรงกับเอกสาร "${att.fileName || 'เอกสารเดิม'}" (ถ่ายจากต่างกล้อง)`;
-              }
-            }
-          }
-
-          // 1. Exact SHA-256 binary hash
-          if (!isMatch && item.fileHash && att.fileHash && item.fileHash.toLowerCase() === att.fileHash.toLowerCase()) {
-            isMatch = true;
-            matchType = 'ATTACHMENT_HASH';
-            reason = `ไฟล์ดิจิทัลตรงกัน 100% (SHA-256 ตรงกับ "${att.fileName || 'เอกสารเดิม'}")`;
-          }
-
-          // 2. Conflict Detection (Negative proof: If amounts, QR codes, or transaction numbers clearly differ, they CANNOT be duplicates)
-          if (!isMatch) {
-            const qrConflict = !!(item.qrPayload && att.qrPayload && item.qrPayload.trim() !== att.qrPayload.trim());
-            const normItemInv = normalizeInvoiceNo(item.extractedInvoiceNo);
-            const normAttInv = normalizeInvoiceNo(att.extractedInvoiceNo || row.invoice_number);
-            const invConflict = !!(normItemInv.length >= 4 && normAttInv.length >= 4 && normItemInv !== normAttInv);
-
-            const effectiveItemAmt = item.currentAmount || item.extractedAmount;
-            const effectiveAttAmt = att.extractedAmount || (row.net_amount ? Number(row.net_amount) : undefined);
-            const amtConflict = !!(
-              effectiveItemAmt !== undefined &&
-              effectiveAttAmt !== undefined &&
-              Math.abs(effectiveItemAmt - effectiveAttAmt) >= 1.00
-            );
-
-            const effectiveItemSupp = (item.currentSupplier || item.extractedSupplier || '').trim().toLowerCase();
-            const effectiveAttSupp = (att.extractedSupplier || row.supplier_name || '').trim().toLowerCase();
-            const suppConflict = !!(
-              effectiveItemSupp.length >= 4 &&
-              effectiveAttSupp.length >= 4 &&
-              !effectiveItemSupp.includes(effectiveAttSupp) &&
-              !effectiveAttSupp.includes(effectiveItemSupp)
-            );
-
-            const hasMajorConflict = qrConflict || invConflict || amtConflict;
-
-            // Only proceed with visual similarity check if there is NO definitive conflicting data
-            if (!hasMajorConflict) {
-              let bestDist = 999;
-              let hashType = 'ภาพรวม';
-
-              if (item.visualHash && att.visualHash) {
-                const d = visualHammingDistance(item.visualHash, att.visualHash);
-                if (d < bestDist) {
-                  bestDist = d;
-                  hashType = 'ภาพรวม';
-                }
-              }
-
-              if (item.coreVisualHash && att.coreVisualHash) {
-                const d = visualHammingDistance(item.coreVisualHash, att.coreVisualHash);
-                if (d < bestDist) {
-                  bestDist = d;
-                  hashType = 'แกนกลางเอกสาร';
-                }
-              }
-
-              // Shared OCR Token Overlap Check
-              let sharedTokenCount = 0;
-              if (
-                Array.isArray(item.distinctiveTokens) &&
-                Array.isArray(att.distinctiveTokens) &&
-                item.distinctiveTokens.length > 0 &&
-                att.distinctiveTokens.length > 0
-              ) {
-                const attTokenSet = new Set(att.distinctiveTokens.map((t: string) => t.toLowerCase()));
-                sharedTokenCount = item.distinctiveTokens.filter((t: string) => attTokenSet.has(t.toLowerCase())).length;
-              }
-
-              // Context alignment: Amount, Supplier, Date
-              const amtMatch =
-                effectiveItemAmt !== undefined &&
-                effectiveAttAmt !== undefined &&
-                Math.abs(effectiveItemAmt - effectiveAttAmt) < 0.10;
-              const suppMatch =
-                effectiveItemSupp &&
-                effectiveAttSupp &&
-                (effectiveItemSupp.includes(effectiveAttSupp) || effectiveAttSupp.includes(effectiveItemSupp));
-              const phoneMatch = !!(item.extractedPhone && att.extractedPhone && item.extractedPhone === att.extractedPhone);
-
-              // Tier A: Virtually Identical Image (diff <= 2 bits out of 64, >= 96.8% identical pixels)
-              // Only triggers for the exact same photo (e.g. re-saved / re-compressed JPEG) with no conflict
-              if (bestDist <= 2 && !suppConflict) {
-                isMatch = true;
-                matchType = 'ATTACHMENT_VISUAL';
-                const similarity = (((64 - bestDist) / 64) * 100).toFixed(1);
-                reason = `ตรวจพบรูปภาพเอกสารตรงกัน ${similarity}% (ตรงกับ "${att.fileName || 'เอกสารเดิม'}")`;
-              }
-              // Tier B: Corroborated Visual Match (diff <= 8 bits, >= 87.5% similarity) + Confirmed Evidence (Same Amount or Phone or Store)
-              // Prevents false positives from common slip layouts (KBank, PromptPay, thermal receipts)
-              else if (bestDist <= 8 && (amtMatch || phoneMatch || (suppMatch && sharedTokenCount >= 2))) {
-                isMatch = true;
-                matchType = 'ATTACHMENT_VISUAL_CONTEXT';
-                const similarity = (((64 - bestDist) / 64) * 100).toFixed(1);
-                const extraDetails = [
-                  amtMatch ? `ยอดเงินตรงกัน (${Number(effectiveAttAmt).toLocaleString()} ฿)` : '',
-                  suppMatch ? `ผู้ขายตรงกัน (${row.supplier_name})` : '',
-                  phoneMatch ? `เบอร์โทรตรายางร้านตรงกัน` : '',
-                  sharedTokenCount >= 2 ? `ข้อความบนบิลตรงกัน` : '',
-                ]
-                  .filter(Boolean)
-                  .join(', ');
-                reason = `ตรวจพบลักษณะเอกสารใกล้เคียงกัน ${similarity}% (${extraDetails}) ตรงกับคำขอเดิม (${row.pay_number})`;
-              }
-              // Tier C: Distinctive Phone/Stamp Match + Same Exact Amount
-              else if (phoneMatch && amtMatch) {
-                isMatch = true;
-                matchType = 'ATTACHMENT_OCR';
-                reason = `ตรวจพบเบอร์โทรบนตรายางร้าน (${item.extractedPhone}) และยอดเงิน (${effectiveItemAmt} ฿) ตรงกับคำขอเดิม (${row.pay_number})`;
-              }
-            }
-          }
-
-          // 3. Normalized Distinctive Filename + Similarity
-          if (!isMatch && item.fileName && att.fileName) {
-            const normIn = normalizeAttachmentName(item.fileName);
-            const normAtt = normalizeAttachmentName(att.fileName);
-            if (normIn && normIn === normAtt && isDistinctiveAttachmentName(normIn)) {
-              if (item.visualHash && att.visualHash) {
-                const dist = visualHammingDistance(item.visualHash, att.visualHash);
-                if (dist <= 8) {
-                  isMatch = true;
-                  matchType = 'ATTACHMENT_VISUAL';
-                  reason = `ตรวจพบชื่อเอกสารและลายนิ้วมือภาพตรงกับ "${att.fileName}"`;
-                }
-              } else if (item.fileSize && att.fileSize) {
-                const ratio = item.fileSize / att.fileSize;
-                if (ratio >= 0.4 && ratio <= 2.5) {
-                  isMatch = true;
-                  matchType = 'ATTACHMENT_NAME_SIMILAR';
-                  reason = `ตรวจพบชื่อเอกสารตรงกัน (${att.fileName}) และขนาดไฟล์ใกล้เคียงกัน`;
-                }
-              } else {
-                isMatch = true;
-                matchType = 'ATTACHMENT_NAME_SIMILAR';
-                reason = `ตรวจพบชื่อเอกสารตรงกัน (${att.fileName})`;
-              }
-            }
-          }
-
-          if (isMatch && !matchedReqIds.has(row.id)) {
-            matchedReqIds.add(row.id);
-            matches.push({
-              id: row.id,
-              pay_number: row.pay_number,
-              company: row.company,
-              branch: row.branch,
-              supplier_name: row.supplier_name,
-              supplier_tax_id: row.supplier_tax_id,
-              invoice_number: row.invoice_number,
-              net_amount: Number(row.net_amount || 0),
-              document_date: toDateString(row.document_date) || '',
-              created_at: toTimestampString(row.created_at) || '',
-              status: row.status,
-              requester_name: row.requester_name,
-              matchType,
-              matchedFileName: att.fileName,
-              duplicateFileName: item.fileName,
-              reason,
-            });
+          const evalRes = evaluateAttachmentCandidateMatch(item, att, rowContext);
+          if (!evalRes) continue;
+          if (evalRes.severity === 'EXACT') {
+            pushExactMatch(evalRes.matchType, evalRes.reason, item.fileName, att.fileName);
             break;
+          } else if (!bestRowPossible) {
+            bestRowPossible = buildMatchRecord(evalRes.matchType, 'POSSIBLE', evalRes.reason, item.fileName, att.fileName);
           }
         }
         if (matchedReqIds.has(row.id)) break;
       }
+
+      if (!matchedReqIds.has(row.id) && bestRowPossible && possibleMatches.length < 5) {
+        possibleMatches.push(bestRowPossible);
+      }
+
       if (matches.length >= 5) break;
     }
 
     return {
       isDuplicate: matches.length > 0,
       matches,
+      possibleMatches,
     };
   } catch (err) {
     console.error('Error checking attachment duplicates:', err);
-    return { isDuplicate: false, matches: [] };
+    return { isDuplicate: false, matches: [], possibleMatches: [] };
   }
 }
 
@@ -657,6 +496,7 @@ export async function checkDuplicates(params: {
   netAmount?: number;
   documentDate?: string;
   branch?: string;
+  purpose?: string | null;
   excludeId?: string;
   fileHashes?: string[];
   attachmentItems?: AttachmentCheckItem[];
@@ -674,6 +514,7 @@ export async function checkDuplicates(params: {
     netAmount = 0,
     documentDate,
     branch,
+    purpose,
     excludeId,
     fileHashes,
     attachmentItems,
@@ -689,12 +530,19 @@ export async function checkDuplicates(params: {
   const cleanTaxId = supplierTaxId ? supplierTaxId.replace(/[^0-9]/g, '') : '';
   const cleanSupplier = supplierName ? supplierName.trim() : '';
   const cleanPoPr = poPrNumber ? poPrNumber.trim().toLowerCase() : '';
+  const cleanPurpose = [
+    purpose ? purpose.trim() : '',
+    ...(Array.isArray(items) ? items.map((it) => it.description?.trim() || '').filter(Boolean) : []),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
 
   // 1. Exact Duplicate Rule:
   // Match company + normalized invoice number + (matching Tax ID OR matching Supplier Name)
-  if (!hasNoDocNumber && cleanInv.length >= 3 && (cleanTaxId.length >= 10 || cleanSupplier.length >= 2)) {
+  if (!hasNoDocNumber && isMeaningfulInvoiceToken(cleanInv) && (cleanTaxId.length >= 10 || cleanSupplier.length >= 2)) {
     const query = `
-      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
+      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, purpose, status, created_at
       FROM payment_requests
       WHERE company = $1
         AND status NOT IN ('CANCELLED', 'REJECTED')
@@ -723,7 +571,7 @@ export async function checkDuplicates(params: {
   // 2. Exact Duplicate by PO / PR Number (if PO/PR is filled)
   if (cleanPoPr.length >= 4 && exactMatches.length === 0) {
     const poQuery = `
-      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, po_pr_number, net_amount, document_date, status, created_at
+      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, po_pr_number, net_amount, document_date, purpose, status, created_at
       FROM payment_requests
       WHERE company = $1
         AND status NOT IN ('CANCELLED', 'REJECTED')
@@ -751,11 +599,15 @@ export async function checkDuplicates(params: {
       ...a,
       currentAmount: a.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
       currentSupplier: a.currentSupplier ?? (cleanSupplier || undefined),
+      currentPurpose: a.currentPurpose ?? (cleanPurpose || undefined),
+      currentDate: a.currentDate ?? (documentDate || undefined),
     })),
     ...(Array.isArray(attachments) ? attachments : []).map((a: any) => ({
       ...a,
       currentAmount: a.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
       currentSupplier: a.currentSupplier ?? (cleanSupplier || undefined),
+      currentPurpose: a.currentPurpose ?? (cleanPurpose || undefined),
+      currentDate: a.currentDate ?? (documentDate || undefined),
     })),
   ];
   if (Array.isArray(items)) {
@@ -766,6 +618,8 @@ export async function checkDuplicates(params: {
             ...a,
             currentAmount: Number(it.amount) || (netAmount > 0 ? netAmount : undefined),
             currentSupplier: it.supplierName?.trim() || cleanSupplier || undefined,
+            currentPurpose: it.description?.trim() || cleanPurpose || undefined,
+            currentDate: toDateString(it.billDate || documentDate) || undefined,
           });
         }
       }
@@ -778,6 +632,8 @@ export async function checkDuplicates(params: {
           fileHash: h.trim(),
           currentAmount: netAmount > 0 ? netAmount : undefined,
           currentSupplier: cleanSupplier || undefined,
+          currentPurpose: cleanPurpose || undefined,
+          currentDate: documentDate || undefined,
         });
       }
     }
@@ -786,7 +642,7 @@ export async function checkDuplicates(params: {
   // 4. Possible Duplicate: Company + Supplier (or Tax ID) + Net Amount (+/- 1 Baht) + Document Date
   if ((cleanSupplier.length >= 2 || cleanTaxId.length >= 10) && netAmount > 0 && documentDate) {
     const query = `
-      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
+      SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, purpose, items, status, created_at
       FROM payment_requests
       WHERE company = $1
         AND status NOT IN ('CANCELLED', 'REJECTED')
@@ -805,10 +661,15 @@ export async function checkDuplicates(params: {
       : [company, cleanSupplier, cleanTaxId, netAmount, documentDate];
     const res = await pool.query(query, values);
 
-    // Filter out if already in exact matches
+    // Filter out if already in exact matches or if activity subjects clearly differ (e.g. different employee birthdays on same day)
     const exactIds = new Set(exactMatches.map((m) => m.id));
     possibleMatches = res.rows
-      .filter((r: any) => !exactIds.has(r.id))
+      .filter((r: any) => {
+        if (exactIds.has(r.id)) return false;
+        const rItems = Array.isArray(r.items) ? r.items : [];
+        const rItemDescs = rItems.map((el: any) => el?.description).filter(Boolean);
+        return shouldWarnAmountAndDateMatch(cleanPurpose, r.purpose, rItemDescs);
+      })
       .map((r: any) => ({
         ...r,
         document_date: toDateString(r.document_date) || '',
@@ -829,9 +690,9 @@ export async function checkDuplicates(params: {
       const itDate = (toDateString(it.billDate || documentDate) || '').trim();
 
       // 5.1 Item exact invoice check (top-level header OR same element in items JSONB)
-      if (itInv.length >= 3 && itSupplier.length >= 2) {
+      if (isMeaningfulInvoiceToken(itInv) && itSupplier.length >= 2) {
         const itemInvQuery = `
-          SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, status, created_at
+          SELECT id, pay_number, company, branch, supplier_name, supplier_tax_id, invoice_number, net_amount, document_date, purpose, status, created_at
           FROM payment_requests
           WHERE company = $1
             AND status NOT IN ('CANCELLED', 'REJECTED')
@@ -876,7 +737,7 @@ export async function checkDuplicates(params: {
       // 5.2 Item amount + supplier + date duplicate check
       if (itSupplier.length >= 2 && itAmount > 0 && itDate) {
         const itemAmountQuery = `
-          SELECT id, pay_number, company, branch, supplier_name, invoice_number, net_amount, document_date, status, created_at
+          SELECT id, pay_number, company, branch, supplier_name, invoice_number, net_amount, document_date, purpose, items, status, created_at
           FROM payment_requests
           WHERE company = $1
             AND status NOT IN ('CANCELLED', 'REJECTED')
@@ -903,7 +764,19 @@ export async function checkDuplicates(params: {
           const exactIds = new Set(exactMatches.map((m) => m.id));
           const possibleIds = new Set(possibleMatches.map((m) => m.id));
           itemAmountRes.rows
-            .filter((r: any) => !exactIds.has(r.id) && !possibleIds.has(r.id))
+            .filter((r: any) => {
+              if (exactIds.has(r.id) || possibleIds.has(r.id)) return false;
+              const rItems = Array.isArray(r.items) ? r.items : [];
+              const matchedDescs = rItems
+                .filter((el: any) => {
+                  const elSup = String(el?.supplierName || '').trim().toLowerCase();
+                  const elAmt = Number(el?.amount || 0);
+                  const elDate = toDateString(el?.billDate || r.document_date) || '';
+                  return elSup === itSupplier.toLowerCase() && Math.abs(elAmt - itAmount) < 1.0 && elDate === itDate;
+                })
+                .map((el: any) => el?.description);
+              return shouldWarnAmountAndDateMatch(it.description || cleanPurpose, r.purpose, matchedDescs);
+            })
             .forEach((r: any) => {
               possibleMatches.push({
                 ...r,
@@ -942,8 +815,11 @@ export async function checkDuplicates(params: {
       extractedLineItems: a.extractedLineItems,
       rawTextSnippet: a.rawTextSnippet,
       distinctiveTokens: a.distinctiveTokens,
+      isSubstituteCertificate: a.isSubstituteCertificate,
       currentAmount: a.currentAmount ?? (netAmount > 0 ? netAmount : undefined),
       currentSupplier: a.currentSupplier ?? (cleanSupplier || undefined),
+      currentPurpose: a.currentPurpose ?? (cleanPurpose || undefined),
+      currentDate: a.currentDate ?? (documentDate || undefined),
     }));
 
     const attRes = await checkAttachmentDuplicates({
@@ -952,14 +828,26 @@ export async function checkDuplicates(params: {
       excludeId,
     });
 
-    if (attRes.isDuplicate && attRes.matches.length > 0) {
+    if (attRes.matches && attRes.matches.length > 0) {
       const exactIds = new Set(exactMatches.map((m) => m.id));
       attRes.matches.forEach((m) => {
         if (!exactIds.has(m.id)) {
+          exactIds.add(m.id);
           exactMatches.push({
             ...m,
             matchType: m.matchType || 'ATTACHMENT_VISUAL',
           });
+        }
+      });
+    }
+
+    if (attRes.possibleMatches && attRes.possibleMatches.length > 0) {
+      const exactIds = new Set(exactMatches.map((m) => m.id));
+      const possibleIds = new Set(possibleMatches.map((m) => m.id));
+      attRes.possibleMatches.forEach((m) => {
+        if (!exactIds.has(m.id) && !possibleIds.has(m.id)) {
+          possibleIds.add(m.id);
+          possibleMatches.push(m);
         }
       });
     }
@@ -1582,6 +1470,7 @@ export async function createPaymentRequest(data: {
       netAmount: net,
       documentDate: data.document_date,
       branch: data.branch,
+      purpose: data.purpose,
       attachments: Array.isArray(data.attachments) ? data.attachments : [],
       fileHashes: Array.isArray(data.attachments)
         ? (data.attachments as any[]).map((a: any) => a.fileHash).filter(Boolean)
@@ -1632,6 +1521,12 @@ export async function createPaymentRequest(data: {
       const matchDetail =
         firstMatch.matchType === 'ITEM_DUPLICATE'
           ? `รายการที่ ${firstMatch.matchedItemIndex || 1} "${firstMatch.matchedItemDesc || ''}" ของ ${firstMatch.matchedItemSupplier || ''} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`
+          : firstMatch.matchType === 'ATTACHMENT_QR' ||
+            firstMatch.matchType === 'ATTACHMENT_BARCODE' ||
+            firstMatch.matchType === 'ATTACHMENT_OCR' ||
+            firstMatch.matchType === 'ATTACHMENT_OCR_RECORD' ||
+            firstMatch.matchType === 'ATTACHMENT_VISUAL_CONTEXT'
+          ? firstMatch.reason || `ข้อมูลเอกสารแนบตรงกับใบขอจ่าย ${firstMatch.pay_number}`
           : firstMatch.matchType === 'ATTACHMENT_VISUAL'
           ? `ภาพเอกสารตรงกับ ${firstMatch.matchedFileName || 'เอกสาร'} ในใบขอจ่าย ${firstMatch.pay_number} (ตรวจพบลายนิ้วมือภาพตรงกัน)`
           : firstMatch.matchType === 'ATTACHMENT_NAME_SIMILAR'
@@ -1649,7 +1544,7 @@ export async function createPaymentRequest(data: {
       const matchDetail =
         firstMatch.matchType === 'ITEM_AMOUNT_AND_DATE'
           ? `รายการที่ ${firstMatch.matchedItemIndex || 1} "${firstMatch.matchedItemDesc || ''}" ยอด ${Number(firstMatch.matchedItemAmount || 0).toLocaleString()} ฿ ใกล้เคียงกับคำขอ ${firstMatch.pay_number}`
-          : `ยอดเงิน ${net.toLocaleString()} บาท วันที่ ${data.document_date} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`;
+          : firstMatch.reason || `ยอดเงิน ${net.toLocaleString()} บาท วันที่ ${data.document_date} ตรงกับใบขอจ่าย ${firstMatch.pay_number}`;
       duplicateReason = `[Possible Duplicate] ${matchDetail}`;
       duplicateMatches = dupCheck.possibleMatches;
     }
@@ -2894,6 +2789,7 @@ export async function updateFullPaymentRequest(
     netAmount: net,
     documentDate: data.document_date,
     branch: data.branch,
+    purpose: data.purpose,
     attachments: Array.isArray(data.attachments) ? data.attachments : [],
     fileHashes: Array.isArray(data.attachments)
       ? (data.attachments as any[]).map((a: any) => a.fileHash).filter(Boolean)

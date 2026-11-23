@@ -734,11 +734,13 @@ export default function BranchContentKanbanPageClient({
               <p className="text-[11px] text-gray-500 font-medium leading-tight truncate hidden xl:block">
                 {permissions?.canViewAllBranches
                   ? 'Branch Content Board • ภาพรวม 11 สาขา'
+                  : branches.length > 1
+                  ? `Branch Content Board • ${branches.map(b => `สาขา${b.name}`).join(' & ')}`
                   : `Branch Content Board • สาขา${permissions?.userBranchName || branches[0]?.name || 'ของฉัน'}`}
               </p>
             </div>
 
-            {/* View Switcher Pill: บอร์ด / ปฏิทิน / (สรุป 11 สาขา เฉพาะ HQ Marketing & Admin) */}
+            {/* View Switcher Pill: บอร์ด / ปฏิทิน / Dashboard */}
             <div className="hidden sm:flex h-10 bg-gray-100 p-1 rounded-xl items-center shrink-0">
               <button
                 type="button"
@@ -762,7 +764,7 @@ export default function BranchContentKanbanPageClient({
               >
                 <CalendarIcon size={15} /> ปฏิทิน
               </button>
-              {permissions?.canViewAllBranches && (
+              {(permissions?.canViewAllBranches || permissions?.canViewDashboard) && (
                 <button
                   type="button"
                   onClick={() => setViewType('dashboard')}
@@ -772,22 +774,31 @@ export default function BranchContentKanbanPageClient({
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  <BarChart3 size={15} /> สรุป 11 สาขา
+                  <BarChart3 size={15} />{' '}
+                  {permissions?.canViewAllBranches
+                    ? 'สรุป 11 สาขา'
+                    : branches.length > 1
+                    ? `Dashboard (${branches.length} สาขา)`
+                    : 'Dashboard สาขา'}
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right Controls: Branch Selector (HQ only) or Locked Branch Badge (Branch users) + Create Button + Refresh + Right Sidebar Drawer Toggle */}
+        {/* Right Controls: Branch Selector (HQ & Multi-branch) or Locked Branch Badge (Single-branch users) + Create Button + Refresh + Right Sidebar Drawer Toggle */}
         <div className="flex items-center gap-2.5 shrink-0">
-          {permissions?.canViewAllBranches ? (
+          {(permissions?.canViewAllBranches || branches.length > 1) ? (
             <select
               value={selectedBranch}
               onChange={e => setSelectedBranch(e.target.value)}
               className="hidden md:block h-10 px-3.5 bg-gray-100 hover:bg-gray-200/70 rounded-xl text-xs font-bold text-gray-700 outline-none border border-transparent focus:border-red-300 transition-all shrink-0 cursor-pointer"
             >
-              <option value="ALL">ทุกสาขา (11 สาขา)</option>
+              <option value="ALL">
+                {permissions?.canViewAllBranches
+                  ? 'ทุกสาขา (11 สาขา)'
+                  : `ทุกสาขาที่เข้าถึง (${branches.length} สาขา)`}
+              </option>
               {branches.map(b => (
                 <option key={b.id} value={b.id}>
                   สาขา{b.name}
@@ -858,7 +869,11 @@ export default function BranchContentKanbanPageClient({
           <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
             <BranchContentDashboardView
               contents={filteredContents}
-              branches={branches}
+              branches={
+                selectedBranch === 'ALL'
+                  ? branches
+                  : branches.filter(b => b.id === selectedBranch)
+              }
             />
           </div>
         ) : (
@@ -1022,11 +1037,13 @@ export default function BranchContentKanbanPageClient({
                     </div>
                   </div>
 
-                  {/* 2. สาขา (11 Branches) — เฉพาะ HQ Marketing / Executive / Admin */}
-                  {permissions?.canViewAllBranches && (
+                  {/* 2. สาขาที่เข้าถึงได้ (HQ เห็น 11 สาขา / พนักงานที่มีสิทธิ์หลายสาขาเห็นสาขาที่ได้รับสิทธิ์) */}
+                  {(permissions?.canViewAllBranches || branches.length > 1) && (
                     <div>
                       <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                        กรองตามสาขา (11 Branches)
+                        {permissions?.canViewAllBranches
+                          ? 'กรองตามสาขา (11 Branches)'
+                          : `กรองตามสาขาที่เข้าถึงได้ (${branches.length} สาขา)`}
                       </h3>
                       <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                         <button
@@ -1038,7 +1055,11 @@ export default function BranchContentKanbanPageClient({
                               : 'border-transparent hover:bg-gray-50 text-gray-700'
                           }`}
                         >
-                          <span>ทุกสาขา (All 11 Branches)</span>
+                          <span className="truncate text-left">
+                            {permissions?.canViewAllBranches
+                              ? 'ทุกสาขา (All 11 Branches)'
+                              : `ทุกสาขาที่รับผิดชอบ (${branches.map(b => b.name).join(' • ')})`}
+                          </span>
                           <span className="text-[11px]">{contents.length}</span>
                         </button>
                         {branches.map(b => {
@@ -1216,6 +1237,7 @@ export default function BranchContentKanbanPageClient({
         branches={branches}
         staffOptions={staffOptions}
         permissions={permissions}
+        defaultBranchId={selectedBranch !== 'ALL' ? selectedBranch : undefined}
       />
 
       {/* Detail & Review Modal */}

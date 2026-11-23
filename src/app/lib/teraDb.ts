@@ -29,8 +29,8 @@ const prismaClientSingleton = () => {
 
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 10, // Increased from 3 to 10 to prevent connection timeouts
-    idleTimeoutMillis: 30000,
+    max: 5, // Share Supabase connection_limit=20 cleanly with primary Prisma pool
+    idleTimeoutMillis: 20000,
     connectionTimeoutMillis: 30000,
     keepAlive: true,
     keepAliveInitialDelayMillis: 10000,

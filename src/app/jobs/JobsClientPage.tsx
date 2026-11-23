@@ -45,6 +45,10 @@ import PushNotificationButton from "./PushNotificationButton";
 import JobTimeline from "./JobTimeline";
 import JobsExecutiveCockpit from "./JobsExecutiveCockpit";
 import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
+import {
+  evaluateAccountingAmountReconciliation,
+  parseAccountingTaxDocuments,
+} from "@/app/lib/accounting-reconciliation";
 import { formatDateForInput, formatThaiDate } from "@/utils/thai-date";
 import {
   deduplicatePersonNames,
@@ -90,10 +94,16 @@ type Job = {
   repairOrder?: any;
   project?: any;
   repairDeliveries?: any[];
+  quotationId?: string | null;
+  accountingVerifiedBeforeVat?: number | null;
+  accountingTaxDocuments?: unknown;
+  accountingClosedAt?: Date | string | null;
   quotation?: {
+    id?: string;
     subject: string | null;
     actualClosingAmount: number | null;
     totalAmountBeforeVat: number | null;
+    salesBeforeVat?: number | null;
     invoiceNumber?: string | null;
     company?: {
       businessType: string | null;
@@ -101,6 +111,14 @@ type Job = {
     orders?: any[];
   } | null;
 };
+
+function getJobReconciliation(job: Job) {
+  return evaluateAccountingAmountReconciliation({
+    accountingVerifiedBeforeVat: job.accountingVerifiedBeforeVat,
+    accountingClosedAt: job.accountingClosedAt,
+    quotation: job.quotation,
+  });
+}
 
 const NON_INVOICE_STEP_NOTES = new Set([
   "ปิดงานสมบูรณ์",
@@ -150,6 +168,13 @@ function getJobInvoiceNumber(job: Job): string {
   for (const pt of job.paymentTasks || []) {
     if (pt?.invoiceNumber) {
       addTokens(pt.invoiceNumber, { excludeReceipt: true });
+    }
+  }
+
+  // 2.5 เอกสารใบกำกับภาษีที่ฝ่ายบัญชีระบุแบบไม่จำกัดจำนวน
+  for (const doc of parseAccountingTaxDocuments(job.accountingTaxDocuments)) {
+    if (doc.docType !== "RECEIPT" && doc.docNumber) {
+      addTokens(doc.docNumber, { excludeReceipt: true });
     }
   }
 
@@ -1114,37 +1139,37 @@ function ExpandedRow({
     (hasInstallments ? "แบ่งชำระ" : null);
 
   const content = (
-    <div className="bg-gray-50/50 p-4 md:p-5 w-full shadow-inner">
-      <div className="mb-5 pb-5 border-b border-gray-100">
+    <div className="bg-slate-50/70 px-5 sm:px-6 py-5 w-full">
+      <div className="mb-5 pb-5 border-b border-slate-200/70">
         <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการดำเนินงาน (Timeline)</p>
-        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-          <JobTimeline
-            jobId={job.id}
-            jobType={job.jobType}
-            currentStep={job.currentStep}
-            flowVariant={job.flowVariant}
-            stepLogs={job.stepLogs}
-            userName={userName}
-            userDept={userDept}
-            userRole={userRole}
-            isManager={isManager}
-            jobNumber={job.jobNumber}
-            customerName={job.customerName}
-            sellerName={job.sellerName || undefined}
-            paymentTasks={job.paymentTasks}
-            paymentMethod={derivedPaymentMethod}
-            creditTerms={job.creditTerms}
-            installationOrders={job.installationOrders}
-            repairOrder={job.repairOrder}
-            project={job.project}
-            repairDeliveries={job.repairDeliveries}
-          />
-        </div>
+        <JobTimeline
+          jobId={job.id}
+          jobType={job.jobType}
+          currentStep={job.currentStep}
+          flowVariant={job.flowVariant}
+          stepLogs={job.stepLogs}
+          userName={userName}
+          userDept={userDept}
+          userRole={userRole}
+          isManager={isManager}
+          jobNumber={job.jobNumber}
+          customerName={job.customerName}
+          sellerName={job.sellerName || undefined}
+          paymentTasks={job.paymentTasks}
+          paymentMethod={derivedPaymentMethod}
+          creditTerms={job.creditTerms}
+          installationOrders={job.installationOrders}
+          repairOrder={job.repairOrder}
+          project={job.project}
+          repairDeliveries={job.repairDeliveries}
+          quotationId={job.quotationId || job.quotation?.id || null}
+          accountingMismatchMessage={getJobReconciliation(job).mismatchMessage}
+        />
 
         {job.deliveryMethod && (
-          <div className="mt-5 pt-5 border-t border-gray-100">
+          <div className="mt-5 pt-5 border-t border-slate-200/70">
             <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">ข้อมูลการจัดส่ง</p>
-            <div className="flex flex-wrap gap-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex flex-wrap gap-6 pt-1">
               <div>
                 <p className="text-[10px] text-gray-400 font-medium">รูปแบบ</p>
                 <p className="text-xs font-bold text-gray-700">{job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 'บริษัทขนส่ง (Courier)'}</p>
@@ -1206,7 +1231,7 @@ function ExpandedRow({
         )}
       </div>
 
-      <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm mb-4">
+      <div className="mb-4">
         <p className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest">ข้อมูลงานเบื้องต้น</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
           {/* Row 1 */}
@@ -1363,7 +1388,7 @@ function ExpandedRow({
 
   return (
     <tr className="animate-in slide-in-from-top-1 fade-in duration-200">
-      <td colSpan={14} className="p-0 border-b border-gray-100">
+      <td colSpan={10} className="p-0 border-b border-slate-200">
         {content}
       </td>
     </tr>
@@ -1557,7 +1582,11 @@ export default function JobsClientPage({
 
   const pendingActionCount = useMemo(() => {
     return jobs.filter((j) => {
-      if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
+      if (
+        isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
+          hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
+        })
+      )
         return false;
       const stepDef = getCurrentStepDef(
         j.jobType,
@@ -1571,7 +1600,9 @@ export default function JobsClientPage({
 
   const completedOverallCount = useMemo(() => {
     return jobs.filter((j) =>
-      isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)
+      isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
+        hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
+      })
     ).length;
   }, [jobs]);
 
@@ -1657,7 +1688,10 @@ export default function JobsClientPage({
         j.jobType,
         j.currentStep,
         j.flowVariant,
-        j.stepLogs
+        j.stepLogs,
+        {
+          hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
+        }
       );
 
       return {
@@ -1953,14 +1987,22 @@ export default function JobsClientPage({
         const y = (now.getFullYear() + 543) % 100;
         if (j.month !== m || j.yearBe !== y) return false;
       } else if (statusTab === "in_progress") {
-        if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
+        if (
+          isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
+            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
+          })
+        )
           return false;
       } else if (statusTab === "with_po") {
         if (!j.poNumber) return false;
       } else if (statusTab === "without_po") {
         if (j.poNumber) return false;
       } else if (statusTab === "pending_action") {
-        if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
+        if (
+          isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
+            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
+          })
+        )
           return false;
         const stepDef = getCurrentStepDef(
           j.jobType,
@@ -1973,7 +2015,11 @@ export default function JobsClientPage({
         )
           return false;
       } else if (statusTab === "waiting_other") {
-        if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
+        if (
+          isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
+            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
+          })
+        )
           return false;
         const stepDef = getCurrentStepDef(
           j.jobType,
@@ -1986,7 +2032,11 @@ export default function JobsClientPage({
         )
           return false;
       } else if (statusTab === "completed") {
-        if (!isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
+        if (
+          !isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
+            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
+          })
+        )
           return false;
       }
 
@@ -1996,7 +2046,11 @@ export default function JobsClientPage({
         if (!isSamePersonName(j.sellerName, filterEmployee)) return false;
       }
       if (filterDeptStatus) {
-        if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs))
+        if (
+          isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
+            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
+          })
+        )
           return false;
         const stepDef = getCurrentStepDef(
           j.jobType,
@@ -2196,14 +2250,14 @@ export default function JobsClientPage({
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6 font-ibm-thai">
+    <div className="w-full min-h-full bg-white font-ibm-thai">
       {showQuickRepair && <QuickRepairModal />}
       {showQuickProject && <QuickProjectModal />}
 
-      {/* ── 1. Symmetrical Modern Header Card ── */}
-      <div className="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden font-ibm-thai">
+      {/* ── 1. Full-Screen Edge-to-Edge Header ── */}
+      <div className="bg-white border-b border-slate-200/80">
         {/* Tier 1: Top Control Bar (Breadcrumbs, Role & Symmetrical Mode Switcher) */}
-        <div className="px-5 py-2.5 bg-slate-50/80 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="px-4 sm:px-6 py-2.5 bg-slate-50/80 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
           {/* Breadcrumbs & User Role */}
           <div className="flex items-center gap-2 text-slate-500 min-w-0">
             <div className="flex items-center gap-1.5 font-medium">
@@ -2327,12 +2381,12 @@ export default function JobsClientPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 border-b border-slate-200/80 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 bg-white">
         <div
           onClick={() => setStatusTab("all")}
-          className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "all"
-              ? "border-blue-400 ring-2 ring-blue-100"
-              : "border-slate-200/80 hover:border-blue-300"
+          className={`cursor-pointer px-4 sm:px-6 py-4 transition-colors hover:bg-slate-50/80 ${statusTab === "all"
+              ? "bg-blue-50/40 shadow-[inset_0_-2px_0_0_#2563eb]"
+              : ""
             }`}
         >
           <div className="flex items-center justify-between">
@@ -2343,7 +2397,7 @@ export default function JobsClientPage({
               <ClipboardList size={16} />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
+          <div className="mt-2.5 flex items-baseline gap-2">
             <span className="text-2xl font-black text-slate-900">
               {jobs.length}
             </span>
@@ -2357,9 +2411,9 @@ export default function JobsClientPage({
               onClick={() =>
                 setStatusTab(statusTab === "this_month" ? "all" : "this_month")
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "this_month"
-                  ? "border-sky-400 ring-2 ring-sky-100"
-                  : "border-slate-200/80 hover:border-sky-300"
+              className={`cursor-pointer px-4 sm:px-6 py-4 transition-colors hover:bg-slate-50/80 ${statusTab === "this_month"
+                  ? "bg-sky-50/40 shadow-[inset_0_-2px_0_0_#0284c7]"
+                  : ""
                 }`}
             >
               <div className="flex items-center justify-between">
@@ -2370,7 +2424,7 @@ export default function JobsClientPage({
                   <Calendar size={16} />
                 </div>
               </div>
-              <div className="mt-3 flex items-baseline gap-2">
+              <div className="mt-2.5 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-slate-900">
                   {thisMonthCount}
                 </span>
@@ -2382,9 +2436,9 @@ export default function JobsClientPage({
               onClick={() =>
                 setStatusTab(statusTab === "in_progress" ? "all" : "in_progress")
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "in_progress"
-                  ? "border-amber-400 ring-2 ring-amber-100"
-                  : "border-slate-200/80 hover:border-amber-300"
+              className={`cursor-pointer px-4 sm:px-6 py-4 transition-colors hover:bg-slate-50/80 ${statusTab === "in_progress"
+                  ? "bg-amber-50/40 shadow-[inset_0_-2px_0_0_#d97706]"
+                  : ""
                 }`}
             >
               <div className="flex items-center justify-between">
@@ -2395,7 +2449,7 @@ export default function JobsClientPage({
                   <Clock size={16} />
                 </div>
               </div>
-              <div className="mt-3 flex items-baseline gap-2">
+              <div className="mt-2.5 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-amber-600">
                   {inProgressCount}
                 </span>
@@ -2407,9 +2461,9 @@ export default function JobsClientPage({
               onClick={() =>
                 setStatusTab(statusTab === "completed" ? "all" : "completed")
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "completed"
-                  ? "border-emerald-400 ring-2 ring-emerald-100"
-                  : "border-slate-200/80 hover:border-emerald-300"
+              className={`cursor-pointer px-4 sm:px-6 py-4 transition-colors hover:bg-slate-50/80 ${statusTab === "completed"
+                  ? "bg-emerald-50/40 shadow-[inset_0_-2px_0_0_#059669]"
+                  : ""
                 }`}
             >
               <div className="flex items-center justify-between">
@@ -2420,7 +2474,7 @@ export default function JobsClientPage({
                   <CheckCircle2 size={16} />
                 </div>
               </div>
-              <div className="mt-3 flex items-baseline gap-2">
+              <div className="mt-2.5 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-emerald-600">
                   {completedOverallCount}
                 </span>
@@ -2436,9 +2490,9 @@ export default function JobsClientPage({
                   statusTab === "pending_action" ? "all" : "pending_action"
                 )
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "pending_action"
-                  ? "border-amber-400 ring-2 ring-amber-100"
-                  : "border-slate-200/80 hover:border-amber-300"
+              className={`cursor-pointer px-4 sm:px-6 py-4 transition-colors hover:bg-slate-50/80 ${statusTab === "pending_action"
+                  ? "bg-amber-50/40 shadow-[inset_0_-2px_0_0_#d97706]"
+                  : ""
                 }`}
             >
               <div className="flex items-center justify-between">
@@ -2449,7 +2503,7 @@ export default function JobsClientPage({
                   <Clock size={16} />
                 </div>
               </div>
-              <div className="mt-3 flex items-baseline gap-2">
+              <div className="mt-2.5 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-amber-600">
                   {pendingActionCount}
                 </span>
@@ -2463,9 +2517,9 @@ export default function JobsClientPage({
                   statusTab === "waiting_other" ? "all" : "waiting_other"
                 )
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "waiting_other"
-                  ? "border-sky-400 ring-2 ring-sky-100"
-                  : "border-slate-200/80 hover:border-sky-300"
+              className={`cursor-pointer px-4 sm:px-6 py-4 transition-colors hover:bg-slate-50/80 ${statusTab === "waiting_other"
+                  ? "bg-sky-50/40 shadow-[inset_0_-2px_0_0_#0284c7]"
+                  : ""
                 }`}
             >
               <div className="flex items-center justify-between">
@@ -2476,7 +2530,7 @@ export default function JobsClientPage({
                   <Layers size={16} />
                 </div>
               </div>
-              <div className="mt-3 flex items-baseline gap-2">
+              <div className="mt-2.5 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-slate-900">
                   {waitingOtherCount}
                 </span>
@@ -2488,9 +2542,9 @@ export default function JobsClientPage({
               onClick={() =>
                 setStatusTab(statusTab === "completed" ? "all" : "completed")
               }
-              className={`cursor-pointer bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${statusTab === "completed"
-                  ? "border-emerald-400 ring-2 ring-emerald-100"
-                  : "border-slate-200/80 hover:border-emerald-300"
+              className={`cursor-pointer px-4 sm:px-6 py-4 transition-colors hover:bg-slate-50/80 ${statusTab === "completed"
+                  ? "bg-emerald-50/40 shadow-[inset_0_-2px_0_0_#059669]"
+                  : ""
                 }`}
             >
               <div className="flex items-center justify-between">
@@ -2501,7 +2555,7 @@ export default function JobsClientPage({
                   <CheckCircle2 size={16} />
                 </div>
               </div>
-              <div className="mt-3 flex items-baseline gap-2">
+              <div className="mt-2.5 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-emerald-600">
                   {completedOverallCount}
                 </span>
@@ -2512,9 +2566,9 @@ export default function JobsClientPage({
         )}
       </div>
 
-      <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+      <div className="bg-slate-50/40 px-4 sm:px-6 py-3.5 border-b border-slate-200/80 space-y-3">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/60 w-fit">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-200/60 rounded-xl w-fit">
             <button
               onClick={() => setFilterCo("")}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${filterCo === ""
@@ -2548,7 +2602,7 @@ export default function JobsClientPage({
               placeholder="ค้นหาเลขที่งาน, ชื่อลูกค้า, สินค้า, PO, ผู้ดูแล..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full pl-9 pr-8 py-2 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
             {search && (
               <button
@@ -2561,7 +2615,7 @@ export default function JobsClientPage({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 pt-1 border-t border-slate-100">
+        <div className="flex flex-wrap items-center gap-2.5">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mr-1">
             <SlidersHorizontal size={13} className="text-slate-400" />
             <span>ตัวกรอง:</span>
@@ -2570,7 +2624,7 @@ export default function JobsClientPage({
           <select
             value={filterEmployee}
             onChange={(e) => setFilterEmployee(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="px-3 py-1.5 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="">พนักงานขายทั้งหมด</option>
             {uniqueEmployees.map((emp) => (
@@ -2583,7 +2637,7 @@ export default function JobsClientPage({
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="px-3 py-1.5 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="">ประเภทงานทั้งหมด</option>
             {JOB_TYPES.map((t) => (
@@ -2602,7 +2656,7 @@ export default function JobsClientPage({
                 setFilterEndDate("");
               }
             }}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="px-3 py-1.5 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="">ทุกช่วงเวลา</option>
             <option value="custom">ระบุช่วงวันที่...</option>
@@ -2617,7 +2671,7 @@ export default function JobsClientPage({
           </select>
 
           {filterMonth === "custom" && (
-            <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200">
+            <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-xl border border-slate-200">
               <input
                 type="date"
                 value={filterStartDate}
@@ -2637,7 +2691,7 @@ export default function JobsClientPage({
           <select
             value={filterDeptStatus}
             onChange={(e) => setFilterDeptStatus(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="px-3 py-1.5 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="">ทุกแผนกที่รับผิดชอบ</option>
             <option value="sales">ฝ่ายขาย (Sales)</option>
@@ -2653,7 +2707,7 @@ export default function JobsClientPage({
           <select
             value={filterPo}
             onChange={(e) => setFilterPo(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="px-3 py-1.5 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="">สถานะ PO ทั้งหมด</option>
             <option value="with_po">มีเลข PO แล้ว ({withPO})</option>
@@ -2670,15 +2724,15 @@ export default function JobsClientPage({
             </button>
           )}
 
-          <span className="text-xs font-semibold text-slate-500 ml-auto bg-slate-100 px-2.5 py-1 rounded-lg">
+          <span className="text-xs font-semibold text-slate-600 ml-auto bg-white border border-slate-200/80 px-2.5 py-1 rounded-lg">
             พบ {filtered.length} รายการ
           </span>
         </div>
       </div>
 
-      <div className="block md:hidden space-y-3">
+      <div className="block md:hidden divide-y divide-slate-200 bg-white">
         {paginatedJobs.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-slate-200/80 p-6 text-slate-400 text-sm">
+          <div className="text-center py-12 bg-white p-6 text-slate-400 text-sm">
             ไม่พบงานที่ตรงกับเงื่อนไขการค้นหา
           </div>
         ) : (
@@ -2696,11 +2750,15 @@ export default function JobsClientPage({
               Number(job.quotation?.actualClosingAmount) ||
               Number(job.quotation?.totalAmountBeforeVat) ||
               0;
+            const recon = getJobReconciliation(job);
             const isDone = isCompleted(
               job.jobType,
               job.currentStep,
               job.flowVariant,
-              job.stepLogs
+              job.stepLogs,
+              {
+                hasAccountingAmountMismatch: recon.hasMismatch,
+              }
             );
             const stepDef = getCurrentStepDef(
               job.jobType,
@@ -2712,7 +2770,7 @@ export default function JobsClientPage({
             return (
               <div
                 key={`mob-${job.id}`}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden"
+                className="bg-white overflow-hidden"
               >
                 <div
                   onClick={() => setExpanded(isOpen ? null : job.id)}
@@ -2780,11 +2838,13 @@ export default function JobsClientPage({
                   </div>
 
                   <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-xs text-slate-500">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <JobTypeBadge type={job.jobType} />
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${isDone
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : recon.hasMismatch
+                            ? "bg-rose-50 text-rose-700 border border-rose-200"
                             : "bg-blue-50 text-blue-700 border border-blue-200"
                           }`}
                       >
@@ -2793,6 +2853,8 @@ export default function JobsClientPage({
                             <CheckCircle2 size={10} />
                             <span>เสร็จแล้ว</span>
                           </>
+                        ) : recon.hasMismatch ? (
+                          <span>ยอดไม่ตรงบัญชี</span>
                         ) : (
                           <span>{stepDef?.label || job.currentStep}</span>
                         )}
@@ -2824,7 +2886,7 @@ export default function JobsClientPage({
         )}
       </div>
 
-      <div className="hidden md:block bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div className="hidden md:block w-full bg-white">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
@@ -2914,11 +2976,15 @@ export default function JobsClientPage({
                     Number(job.quotation?.actualClosingAmount) ||
                     Number(job.quotation?.totalAmountBeforeVat) ||
                     0;
+                  const recon = getJobReconciliation(job);
                   const isDone = isCompleted(
                     job.jobType,
                     job.currentStep,
                     job.flowVariant,
-                    job.stepLogs
+                    job.stepLogs,
+                    {
+                      hasAccountingAmountMismatch: recon.hasMismatch,
+                    }
                   );
                   const stepDef = getCurrentStepDef(
                     job.jobType,
@@ -2952,8 +3018,11 @@ export default function JobsClientPage({
 
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           <span
+                            title={recon.mismatchMessage || undefined}
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border shadow-2xs ${isDone
                                 ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                                : recon.hasMismatch
+                                ? "bg-rose-50 border-rose-200 text-rose-700"
                                 : "bg-blue-50 border-blue-200 text-blue-700"
                               }`}
                           >
@@ -2961,6 +3030,11 @@ export default function JobsClientPage({
                               <>
                                 <CheckCircle2 size={12} />
                                 <span>เสร็จสมบูรณ์</span>
+                              </>
+                            ) : recon.hasMismatch ? (
+                              <>
+                                <AlertCircle size={12} />
+                                <span>ปิดไม่ได้ (ยอดไม่ตรงบัญชี)</span>
                               </>
                             ) : (
                               <span>{stepDef?.label || job.currentStep}</span>

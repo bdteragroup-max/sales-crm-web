@@ -105,6 +105,7 @@ export default function BranchContentDetailModal({
 
   const canEditContent =
     permissions?.canViewAllBranches ||
+    permissions?.canBranchApprove ||
     (item.status !== 'PENDING_REVIEW' &&
       item.status !== 'PUBLISHED' &&
       item.status !== 'CANCELLED');
@@ -342,7 +343,9 @@ export default function BranchContentDetailModal({
     item.status === 'BACKLOG' || item.status === 'IN_PROGRESS' || item.status === 'REVISE';
   const showBranchMgrReview = Boolean(
     permissions?.canBranchApprove &&
-      (item.status === 'PENDING_REVIEW' || item.status === 'IN_PROGRESS')
+      (item.status === 'PENDING_REVIEW' ||
+        item.status === 'IN_PROGRESS' ||
+        item.status === 'BACKLOG')
   );
   const showHqReview = Boolean(permissions?.canReview);
   const hasActiveReviewForm = showBranchSubmit || showBranchMgrReview || showHqReview;

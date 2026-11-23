@@ -12,6 +12,7 @@ import {
   handleQuotationExitFromClosedStatus,
 } from "@/app/actions/jobs";
 import { canClaimServiceHandoverForQuotation } from "@/app/lib/serviceHandoverPermissions";
+import { evaluateAccountingAmountReconciliation } from "@/app/lib/accounting-reconciliation";
 
 async function findCompanyByNormalizedName(companyName: string) {
   const normalizedName = companyName.trim();
@@ -962,6 +963,48 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       accountingWarning = syncResult?.accountingWarning;
     }
 
+    // Check linked Jobs for Accounting Pre-VAT Amount Verification reconciliation
+    let reconciledMatchMessage: string | undefined = undefined;
+    const linkedJobsForRecon = await prisma.job.findMany({
+      where: { quotationId: updatedQuotation.id },
+      select: {
+        id: true,
+        jobNumber: true,
+        accountingVerifiedBeforeVat: true,
+        accountingClosedAt: true,
+      },
+    });
+    const mismatchNotes: string[] = [];
+    const matchedJobNumbers: string[] = [];
+    const fmtThb = (n: number) =>
+      n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    for (const linkedJob of linkedJobsForRecon) {
+      const recon = evaluateAccountingAmountReconciliation({
+        accountingVerifiedBeforeVat: linkedJob.accountingVerifiedBeforeVat,
+        accountingClosedAt: linkedJob.accountingClosedAt,
+        quotation: updatedQuotation,
+      });
+      if (recon.hasMismatch) {
+        mismatchNotes.push(
+          `งาน ${linkedJob.jobNumber}: ยอดก่อน VAT ในใบเสนอราคา (${fmtThb(
+            recon.quotationBeforeVat ?? 0
+          )} บาท) ยังไม่ตรงกับยอดที่ฝ่ายบัญชีตรวจสอบ (${fmtThb(
+            recon.accountingBeforeVat ?? 0
+          )} บาท) — สถานะ Job และสิทธิ์ขอค่าคอมมิชชั่นจะยังถูกล็อกจนกว่าจะแก้ไขยอดให้ตรงกัน`
+        );
+      } else if (recon.hasAccountingVerifiedAmount && recon.isMatched) {
+        matchedJobNumbers.push(linkedJob.jobNumber);
+      }
+    }
+    if (mismatchNotes.length > 0) {
+      accountingWarning = [accountingWarning, ...mismatchNotes].filter(Boolean).join(" | ");
+    } else if (matchedJobNumbers.length > 0) {
+      reconciledMatchMessage = `ยอดก่อน VAT ตรงกับข้อมูลฝ่ายบัญชีสำหรับงาน ${matchedJobNumbers.join(
+        ", "
+      )} แล้ว (ปลดล็อกการปิด Job และยื่นขอค่าคอมมิชชั่นเรียบร้อย)`;
+    }
+
     // If this Quotation is linked to a ServiceCallLog, automatically create/update RepairDelivery (ใบส่งมอบงาน) with photos & signatures
     let repairDeliveryId: string | undefined = undefined;
     let deliveryNumber: string | undefined = undefined;
@@ -1018,7 +1061,11 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
 
     revalidatePath("/sales");
     revalidatePath("/dashboard");
-    return { success: true, id: updatedQuotation.id, awardedGold, awardMessage, accountingWarning, repairDeliveryId, deliveryNumber };
+    revalidatePath("/jobs");
+    revalidatePath("/accounting");
+    revalidatePath("/sales/commissions");
+    revalidatePath("/pipeline");
+    return { success: true, id: updatedQuotation.id, awardedGold, awardMessage, accountingWarning, reconciledMatchMessage, repairDeliveryId, deliveryNumber };
 
   } catch (error) {
     console.error("Error updating sales data:", error);

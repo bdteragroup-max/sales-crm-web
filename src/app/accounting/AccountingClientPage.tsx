@@ -53,8 +53,15 @@ import {
   recordPaymentDeposit,
   updatePaymentTaskCreditType,
   savePaymentScheduleItem,
-  deletePaymentScheduleItem
+  deletePaymentScheduleItem,
+  saveAccountingJobVerification
 } from "@/app/actions/accounting";
+import {
+  AccountingDocType,
+  AccountingTaxDocument,
+  evaluateAccountingAmountReconciliation,
+  parseAccountingTaxDocuments,
+} from "@/app/lib/accounting-reconciliation";
 import {
   deduplicatePersonNames,
   getPersonIdentityKey,
@@ -106,6 +113,7 @@ function JobDetailModal({
   onRecordDeposit,
   onUpdateCreditType,
   onTasksUpdated,
+  onAccountingVerified,
   isPending
 }: {
   jobId: string,
@@ -114,6 +122,7 @@ function JobDetailModal({
   onRecordDeposit: (id: string, amount: number, note: string) => void,
   onUpdateCreditType: (id: string, creditType: string) => void,
   onTasksUpdated?: (jobId: string, tasks: any[]) => void,
+  onAccountingVerified?: (jobId: string, updatedJob: any) => void,
   isPending: boolean
 }) {
   const [data, setData] = useState<any>(null);
@@ -123,6 +132,10 @@ function JobDetailModal({
   const [depositNote, setDepositNote] = useState('');
   const [confirmPaymentModal, setConfirmPaymentModal] = useState<{ id: string, status: string } | null>(null);
   const [paymentNote, setPaymentNote] = useState('');
+  const [acctVerifiedAmountInput, setAcctVerifiedAmountInput] = useState<string>('');
+  const [acctDocs, setAcctDocs] = useState<AccountingTaxDocument[]>([]);
+  const [acctVerificationNote, setAcctVerificationNote] = useState<string>('');
+  const [isSavingVerification, setIsSavingVerification] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState('');
 
@@ -281,6 +294,43 @@ function JobDetailModal({
       .then(res => res.json())
       .then(res => {
         setData(res);
+        const fetchedJob = res?.job;
+        if (fetchedJob) {
+          setAcctVerifiedAmountInput(
+            fetchedJob.accountingVerifiedBeforeVat !== null &&
+              fetchedJob.accountingVerifiedBeforeVat !== undefined
+              ? String(fetchedJob.accountingVerifiedBeforeVat)
+              : ''
+          );
+          setAcctVerificationNote(fetchedJob.accountingVerificationNote || '');
+          const savedDocs = parseAccountingTaxDocuments(fetchedJob.accountingTaxDocuments);
+          if (savedDocs.length > 0) {
+            setAcctDocs(savedDocs);
+          } else {
+            const seeded: AccountingTaxDocument[] = [];
+            const seen = new Set<string>();
+            for (const pt of res.paymentTasks || []) {
+              const rawNum = typeof pt.invoiceNumber === 'string' ? pt.invoiceNumber.trim() : '';
+              if (!rawNum || rawNum === '-') continue;
+              const key = rawNum.toUpperCase();
+              if (seen.has(key)) continue;
+              seen.add(key);
+              const isReceipt = /^RE[-/]?\d/i.test(rawNum);
+              seeded.push({
+                id: `seed-${pt.id || seeded.length}`,
+                docType: isReceipt ? 'RECEIPT' : 'TAX_INVOICE',
+                docNumber: rawNum,
+                docDate: pt.invoiceDate ? new Date(pt.invoiceDate).toISOString().slice(0, 10) : '',
+                note: null,
+              });
+            }
+            setAcctDocs(
+              seeded.length > 0
+                ? seeded
+                : [{ id: `doc-${Date.now()}`, docType: 'TAX_INVOICE', docNumber: '', docDate: '', note: null }]
+            );
+          }
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -288,6 +338,90 @@ function JobDetailModal({
         setLoading(false);
       });
   }, [jobId]);
+
+  const handleSaveVerification = async (closeAccountingStep: boolean) => {
+    const numVal = Number(acctVerifiedAmountInput);
+    if (!Number.isFinite(numVal) || numVal <= 0) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'กรุณากรอกยอดก่อน VAT ในใบกำกับภาษี',
+        text: 'ระบุตัวเลขยอดก่อน VAT ที่ถูกต้อง (มากกว่า 0 บาท)',
+        confirmButtonColor: '#059669',
+      });
+      return;
+    }
+
+    const cleanedDocs = acctDocs
+      .filter((d) => d.docNumber && d.docNumber.trim() !== '')
+      .map((d, idx) => ({
+        ...d,
+        id: d.id || `doc-${idx}-${Date.now()}`,
+        docNumber: d.docNumber.trim(),
+        docDate: d.docDate || null,
+      }));
+
+    if (closeAccountingStep && cleanedDocs.length === 0) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'กรุณากรอกเลขที่ใบกำกับภาษี / ใบเสร็จอย่างน้อย 1 รายการ',
+        text: 'สามารถกดปุ่ม "+ เพิ่มเลขที่เอกสาร" เพื่อระบุได้ไม่จำกัด',
+        confirmButtonColor: '#059669',
+      });
+      return;
+    }
+
+    try {
+      setIsSavingVerification(true);
+      const res = await saveAccountingJobVerification({
+        jobId,
+        verifiedBeforeVat: numVal,
+        taxDocuments: cleanedDocs,
+        note: acctVerificationNote,
+        closeAccountingStep,
+      });
+
+      if (res.success && res.job) {
+        setData((prev: any) => ({
+          ...prev,
+          job: {
+            ...prev?.job,
+            ...res.job,
+          },
+          stepLogs: res.stepLogs || prev?.stepLogs,
+        }));
+        if (onAccountingVerified) {
+          onAccountingVerified(jobId, res.job);
+        }
+
+        if (res.reconciliation?.hasMismatch) {
+          await Swal.fire({
+            icon: 'warning',
+            title: closeAccountingStep ? 'บันทึกและจบงานฝั่งบัญชีแล้ว (ยอดไม่ตรงกับเซลล์)' : 'บันทึกยอดตรวจสอบแล้ว (ยอดไม่ตรงกับเซลล์)',
+            text: `ระบบยึดยอดของฝ่ายบัญชี (${numVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท) เป็นหลัก และแจ้งเตือนเซลล์แล้ว โดย Job จะยังไม่สามารถปิดจบหรือขอค่าคอมมิชชั่นได้จนกว่าเซลล์จะแก้ไขยอดใบเสนอราคาให้ตรงกัน`,
+            confirmButtonColor: '#d97706',
+          });
+        } else {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: closeAccountingStep ? 'ยืนยันยอดและจบงานบัญชีเรียบร้อยแล้ว' : 'บันทึกยอดตรวจสอบและเอกสารสำเร็จ',
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        }
+      }
+    } catch (err: any) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'ไม่สามารถบันทึกได้',
+        text: err?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูลฝ่ายบัญชี',
+        confirmButtonColor: '#e11d48',
+      });
+    } finally {
+      setIsSavingVerification(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -722,6 +856,266 @@ function JobDetailModal({
             </div>
           </section>
 
+          {/* Accounting Pre-VAT Amount Verification, Unlimited Tax Invoices/Receipts, and Close Accounting Step */}
+          <section>
+            <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <FileCheck size={14} className="text-indigo-600" />
+                <span>ตรวจสอบยอดก่อน VAT &amp; บันทึกเลขที่ใบกำกับภาษี / ใบเสร็จ (ฝ่ายบัญชี)</span>
+              </h3>
+              {job.accountingClosedAt && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <CheckCircle2 size={12} />
+                  ยืนยันจบงานบัญชีแล้ว {job.accountingClosedBy ? `(${job.accountingClosedBy})` : ''}
+                </span>
+              )}
+            </div>
+
+            {(() => {
+              const parsedDraftAmt = Number(acctVerifiedAmountInput);
+              const draftReconciliation = evaluateAccountingAmountReconciliation({
+                accountingVerifiedBeforeVat:
+                  acctVerifiedAmountInput.trim() !== '' && Number.isFinite(parsedDraftAmt)
+                    ? parsedDraftAmt
+                    : null,
+                accountingClosedAt: job.accountingClosedAt,
+                quotation,
+              });
+
+              return (
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-4 text-xs">
+                  {/* 3-Column Pre-VAT Amount Verification Box */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                      <span className="text-[11px] font-medium text-slate-500">
+                        ยอดก่อน VAT (ใบเสนอราคา / เซลล์)
+                      </span>
+                      <div className="text-sm font-black text-slate-900 mt-1 tabular-nums">
+                        {draftReconciliation.quotationBeforeVat !== null
+                          ? formatCurrency(draftReconciliation.quotationBeforeVat)
+                          : '—'}
+                      </div>
+                      <span className="text-[10px] text-slate-400 mt-0.5">
+                        {quotation?.quotationNumber ? `QT: ${quotation.quotationNumber}` : 'อ้างอิงจากใบเสนอราคา'}
+                      </span>
+                    </div>
+
+                    <div className="bg-white p-3 rounded-xl border border-indigo-200 flex flex-col justify-between">
+                      <label className="text-[11px] font-bold text-indigo-700">
+                        ยอดก่อน VAT ในใบกำกับภาษี (ที่ถูกต้อง) *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={acctVerifiedAmountInput}
+                        onChange={(e) => setAcctVerifiedAmountInput(e.target.value)}
+                        placeholder="กรอกยอดก่อน VAT ตามใบกำกับภาษี..."
+                        className="mt-1.5 w-full h-9 px-2.5 rounded-lg border border-indigo-200 bg-indigo-50/30 text-sm font-black text-slate-900 tabular-nums focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <div
+                      className={`p-3 rounded-xl border flex flex-col justify-between ${
+                        !draftReconciliation.hasAccountingVerifiedAmount
+                          ? 'bg-white border-slate-200 text-slate-600'
+                          : draftReconciliation.hasMismatch
+                          ? 'bg-rose-50 border-rose-200 text-rose-800'
+                          : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                      }`}
+                    >
+                      <span className="text-[11px] font-bold">ผลการเทียบยอดกับเซลล์</span>
+                      <div className="font-black text-sm mt-1 flex items-center gap-1.5">
+                        {!draftReconciliation.hasAccountingVerifiedAmount ? (
+                          <span className="text-slate-400 font-semibold text-xs">
+                            กรอกยอดเพื่อเทียบอัตโนมัติ
+                          </span>
+                        ) : draftReconciliation.hasMismatch ? (
+                          <>
+                            <AlertTriangle size={15} className="text-rose-600 shrink-0" />
+                            <span>ไม่ตรงกับใบเสนอราคา</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                            <span>ยอดตรงกัน (Matched)</span>
+                          </>
+                        )}
+                      </div>
+                      <span className="text-[10px] mt-0.5 tabular-nums font-semibold">
+                        {draftReconciliation.hasMismatch && draftReconciliation.differenceAmount !== null
+                          ? `ส่วนต่าง: ${draftReconciliation.differenceAmount > 0 ? '+' : ''}${draftReconciliation.differenceAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท`
+                          : draftReconciliation.isMatched
+                          ? 'ปิด Job & ขอค่าคอมมิชชั่นได้'
+                          : 'เทียบกับยอดก่อน VAT เซลล์'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {draftReconciliation.hasMismatch && (
+                    <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 flex items-start gap-2.5 text-xs text-rose-800">
+                      <AlertTriangle size={16} className="text-rose-600 shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        <div className="font-bold">
+                          ยอดก่อน VAT ไม่ตรงกับใบเสนอราคา — ระบบจะยึดยอดฝ่ายบัญชีเป็นหลัก
+                        </div>
+                        <div className="text-[11px]">
+                          ทางบัญชีสามารถกดบันทึก/จบงานฝั่งบัญชีได้ทันที แต่ระบบจะล็อกการปิดสถานะ Job และไม่อนุญาตให้เซลล์ยื่นขอค่าคอมมิชชั่นจนกว่าเซลล์จะแก้ไขยอดในใบเสนอราคาให้ตรงกับฝ่ายบัญชี
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dynamic Unlimited Tax Invoices & Receipts List */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                        <FileText size={14} className="text-slate-600" />
+                        <span>เลขที่ใบกำกับภาษี / ใบเสร็จรับเงิน (เพิ่มได้ไม่จำกัด)</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setAcctDocs((prev) => [
+                            ...prev,
+                            {
+                              id: `doc-${Date.now()}-${prev.length}`,
+                              docType: 'TAX_INVOICE',
+                              docNumber: '',
+                              docDate: '',
+                              note: null,
+                            },
+                          ])
+                        }
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-[11px] font-bold shadow-2xs transition-colors"
+                      >
+                        <Plus size={13} /> เพิ่มเลขที่เอกสาร
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {acctDocs.map((doc, index) => (
+                        <div
+                          key={doc.id || index}
+                          className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2.5 rounded-xl border border-slate-200"
+                        >
+                          <div className="sm:col-span-4">
+                            <select
+                              value={doc.docType}
+                              onChange={(e) => {
+                                const val = e.target.value as AccountingDocType;
+                                setAcctDocs((prev) =>
+                                  prev.map((d, i) => (i === index ? { ...d, docType: val } : d))
+                                );
+                              }}
+                              className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            >
+                              <option value="TAX_INVOICE">ใบกำกับภาษี</option>
+                              <option value="RECEIPT">ใบเสร็จรับเงิน</option>
+                              <option value="TAX_INVOICE_RECEIPT">ใบกำกับภาษี/ใบเสร็จ</option>
+                            </select>
+                          </div>
+
+                          <div className="sm:col-span-4">
+                            <input
+                              type="text"
+                              value={doc.docNumber}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setAcctDocs((prev) =>
+                                  prev.map((d, i) => (i === index ? { ...d, docNumber: val } : d))
+                                );
+                              }}
+                              placeholder="เช่น IV6911-001, RE6911-001"
+                              className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-mono font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            />
+                          </div>
+
+                          <div className="sm:col-span-3">
+                            <input
+                              type="date"
+                              value={doc.docDate || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setAcctDocs((prev) =>
+                                  prev.map((d, i) => (i === index ? { ...d, docDate: val } : d))
+                                );
+                              }}
+                              aria-label="วันที่ในเอกสาร"
+                              className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            />
+                          </div>
+
+                          <div className="sm:col-span-1 flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAcctDocs((prev) =>
+                                  prev.length <= 1
+                                    ? [{ id: `doc-${Date.now()}`, docType: 'TAX_INVOICE', docNumber: '', docDate: '', note: null }]
+                                    : prev.filter((_, i) => i !== index)
+                                );
+                              }}
+                              title="ลบรายการเอกสาร"
+                              className="w-full sm:w-9 h-9 rounded-lg border border-rose-200 bg-rose-50/70 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-colors"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Accounting Note + Action Buttons */}
+                  <div className="grid grid-cols-1 gap-3 pt-1">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                        หมายเหตุฝ่ายบัญชี (ถ้ามี)
+                      </label>
+                      <input
+                        type="text"
+                        value={acctVerificationNote}
+                        onChange={(e) => setAcctVerificationNote(e.target.value)}
+                        placeholder="เช่น ปรับลดยอดส่วนลดหน้าใบกำกับภาษี, ออกบิลรวม 2 ใบ..."
+                        className="w-full h-9 px-3 rounded-xl border border-slate-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <button
+                        type="button"
+                        disabled={isSavingVerification}
+                        onClick={() => handleSaveVerification(false)}
+                        className="h-10 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                      >
+                        {isSavingVerification && <Loader2 size={14} className="animate-spin" />}
+                        <span>บันทึกยอด &amp; เอกสารไว้ก่อน</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isSavingVerification}
+                        onClick={() => handleSaveVerification(true)}
+                        className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                      >
+                        {isSavingVerification ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <CheckCircle2 size={14} />
+                        )}
+                        <span>
+                          {job.accountingClosedAt
+                            ? 'อัปเดตยอด & ยืนยันจบงานบัญชี'
+                            : 'ยืนยันยอด & จบงานบัญชี'}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </section>
+
           {/* Job Status Steps */}
           <section>
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">สถานะขั้นตอนงาน (Job Steps)</h3>
@@ -1146,7 +1540,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [invoiceDate, setInvoiceDate] = useState('');
 
   // Primary Status Tab Filter
-  const [activeStatusTab, setActiveStatusTab] = useState<'ALL' | 'PENDING' | 'DEPOSIT' | 'COMPLETED' | 'OVERDUE'>('ALL');
+  const [activeStatusTab, setActiveStatusTab] = useState<'ALL' | 'PENDING' | 'DEPOSIT' | 'COMPLETED' | 'OVERDUE' | 'MISMATCH'>('ALL');
   const [companyFilter, setCompanyFilter] = useState<'ALL' | 'TE' | 'TP' | 'TG'>('ALL');
 
   // Search & Filter Fields
@@ -1257,6 +1651,27 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
     });
   };
 
+  const handleAccountingVerified = (jId: string, updatedJob: any) => {
+    setTasks(prev =>
+      prev.map(t =>
+        t.jobId === jId && t.job
+          ? {
+              ...t,
+              job: {
+                ...t.job,
+                currentStep: updatedJob.currentStep ?? t.job.currentStep,
+                accountingVerifiedBeforeVat: updatedJob.accountingVerifiedBeforeVat,
+                accountingTaxDocuments: updatedJob.accountingTaxDocuments,
+                accountingClosedAt: updatedJob.accountingClosedAt,
+                accountingClosedBy: updatedJob.accountingClosedBy,
+                accountingVerificationNote: updatedJob.accountingVerificationNote,
+              },
+            }
+          : t
+      )
+    );
+  };
+
   // Group Tasks by Job
   const groupedJobs = useMemo(() => {
     const map = new Map<string, any>();
@@ -1285,6 +1700,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
     let completedJobsCount = 0;
     let overdueJobsCount = 0;
     let depositJobsCount = 0;
+    let mismatchJobsCount = 0;
 
     let pendingAmount = 0;
     let completedAmount = 0;
@@ -1297,6 +1713,14 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
       const allSettled = g.tasks.every((t: any) => isScheduleTaskSettled(t));
       const hasDeposit = g.tasks.some((t: any) => t.status === 'ชำระมัดจำแล้ว');
       const isOverdue = !allSettled && g.tasks.some((t: any) => isTaskOverdue(t, now));
+      const recon = evaluateAccountingAmountReconciliation({
+        accountingVerifiedBeforeVat: g.job?.accountingVerifiedBeforeVat,
+        accountingClosedAt: g.job?.accountingClosedAt,
+        quotation: g.job?.quotation,
+      });
+      if (recon.hasMismatch) {
+        mismatchJobsCount++;
+      }
 
       if (allCompleted) {
         completedJobsCount++;
@@ -1334,6 +1758,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
       completedJobsCount,
       overdueJobsCount,
       depositJobsCount,
+      mismatchJobsCount,
       pendingAmount,
       completedAmount,
       overdueAmount
@@ -1362,11 +1787,18 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
       const hasDeposit = g.tasks.some((t: any) => t.status === 'ชำระมัดจำแล้ว');
       const isOverdue = !allSettled && g.tasks.some((t: any) => isTaskOverdue(t, now));
 
+      const recon = evaluateAccountingAmountReconciliation({
+        accountingVerifiedBeforeVat: g.job?.accountingVerifiedBeforeVat,
+        accountingClosedAt: g.job?.accountingClosedAt,
+        quotation: g.job?.quotation,
+      });
+
       // 1. Status Tab Filter
       if (activeStatusTab === 'PENDING' && allCompleted) return false;
       if (activeStatusTab === 'COMPLETED' && !allCompleted) return false;
       if (activeStatusTab === 'DEPOSIT' && !hasDeposit) return false;
       if (activeStatusTab === 'OVERDUE' && !isOverdue) return false;
+      if (activeStatusTab === 'MISMATCH' && !recon.hasMismatch) return false;
 
       // 2. Company Filter
       if (companyFilter !== 'ALL' && g.job?.companyCode !== companyFilter) {
@@ -1530,6 +1962,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           onRecordDeposit={handleRecordDeposit}
           onUpdateCreditType={handleUpdateCreditType}
           onTasksUpdated={handleTasksUpdated}
+          onAccountingVerified={handleAccountingVerified}
           isPending={isPending}
         />
       )}
@@ -1844,6 +2277,15 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
             >
               ตรวจสอบแล้ว ({metrics.completedJobsCount})
             </button>
+            {metrics.mismatchJobsCount > 0 && (
+              <button
+                onClick={() => { setActiveStatusTab('MISMATCH'); setCurrentPage(1); }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${activeStatusTab === 'MISMATCH' ? 'bg-white text-rose-700 shadow-sm' : 'text-rose-600 hover:text-rose-800'
+                  }`}
+              >
+                ยอดไม่ตรงกับเซลล์ ({metrics.mismatchJobsCount})
+              </button>
+            )}
           </div>
         </div>
 
@@ -1990,7 +2432,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
               )}
               {activeStatusTab !== 'ALL' && (
                 <span className="px-2 py-0.5 bg-amber-50 text-amber-800 rounded-md border border-amber-200">
-                  สถานะ: {activeStatusTab === 'PENDING' ? 'รอดำเนินการ' : activeStatusTab === 'OVERDUE' ? 'เลยกำหนด' : activeStatusTab === 'COMPLETED' ? 'ตรวจสอบแล้ว' : 'ชำระมัดจำ'}
+                  สถานะ: {activeStatusTab === 'PENDING' ? 'รอดำเนินการ' : activeStatusTab === 'OVERDUE' ? 'เลยกำหนด' : activeStatusTab === 'COMPLETED' ? 'ตรวจสอบแล้ว' : activeStatusTab === 'MISMATCH' ? 'ยอดไม่ตรงกับเซลล์' : 'ชำระมัดจำ'}
                 </span>
               )}
               {filterSalesperson && (
@@ -2060,6 +2502,12 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
                   const projectVal = group.job?.project?.projectValue ? Number(group.job.project.projectValue) * 100 / 107 : null;
                   const totalJobVal = Number(projectVal || group.job?.quotation?.actualClosingAmount || group.job?.quotation?.totalAmountBeforeVat || group.tasks[0]?.installmentAmount || 0);
+                  const recon = evaluateAccountingAmountReconciliation({
+                    accountingVerifiedBeforeVat: group.job?.accountingVerifiedBeforeVat,
+                    accountingClosedAt: group.job?.accountingClosedAt,
+                    quotation: group.job?.quotation,
+                  });
+                  const acctDocsList = parseAccountingTaxDocuments(group.job?.accountingTaxDocuments);
 
                   return (
                     <tr key={group.id} className="hover:bg-slate-50/80 transition-colors">
@@ -2120,9 +2568,35 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                               {group.job?.paymentMethod || '-'}
                             </span>
                           )}
-                          <span className="font-bold text-slate-900 text-xs">
+                          <span className="font-bold text-slate-900 text-xs tabular-nums">
                             {formatCurrency(totalJobVal)}
                           </span>
+                          {recon.hasAccountingVerifiedAmount && recon.accountingBeforeVat !== null && (
+                            <span
+                              className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded border w-fit mt-0.5 tabular-nums ${
+                                recon.hasMismatch
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              }`}
+                            >
+                              {recon.hasMismatch ? (
+                                <>
+                                  <AlertTriangle className="w-2.5 h-2.5 shrink-0" />
+                                  <span>บัญชี: {formatCurrency(recon.accountingBeforeVat)} (ไม่ตรงเซลล์)</span>
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle2 className="w-2.5 h-2.5 shrink-0" />
+                                  <span>บัญชีตรงเซลล์: {formatCurrency(recon.accountingBeforeVat)}</span>
+                                </>
+                              )}
+                            </span>
+                          )}
+                          {acctDocsList.length > 0 && (
+                            <span className="text-[10px] text-slate-500 font-mono truncate max-w-[180px]" title={acctDocsList.map(d => d.docNumber).join(', ')}>
+                              เอกสาร: {acctDocsList.map(d => d.docNumber).join(', ')}
+                            </span>
+                          )}
                           {isOverdue && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 w-fit mt-0.5">
                               <AlertTriangle className="w-2.5 h-2.5 flex-shrink-0" />
@@ -2148,32 +2622,36 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
                       {/* Status */}
                       <td className="py-3.5 px-4 text-center">
-                        {allCompleted ? (
-                          <div className="inline-flex flex-col items-center">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                              <span>ตรวจสอบแล้ว</span>
-                            </span>
-                            {group.tasks[group.tasks.length - 1]?.paidDate && (
-                              <span className="text-[10px] text-slate-400 mt-0.5">
-                                {formatDate(group.tasks[group.tasks.length - 1].paidDate)}
+                        <div className="inline-flex flex-col items-center gap-1">
+                          {allCompleted ? (
+                            <>
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <span>ตรวจสอบแล้ว</span>
                               </span>
-                            )}
-                          </div>
-                        ) : group.tasks.some((t: any) => t.status === 'ชำระมัดจำแล้ว') ? (
-                          <div className="inline-flex flex-col items-center">
+                              {group.tasks[group.tasks.length - 1]?.paidDate && (
+                                <span className="text-[10px] text-slate-400">
+                                  {formatDate(group.tasks[group.tasks.length - 1].paidDate)}
+                                </span>
+                              )}
+                            </>
+                          ) : group.tasks.some((t: any) => t.status === 'ชำระมัดจำแล้ว') ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
                               <span>ชำระมัดจำแล้ว {hasInstallments ? `(${settledCount}/${group.tasks.length})` : ''}</span>
                             </span>
-                          </div>
-                        ) : (
-                          <div className="inline-flex flex-col items-center">
+                          ) : (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                               <Clock className="w-3 h-3 text-amber-600" />
                               <span>รอดำเนินการ {hasInstallments ? `(${settledCount}/${group.tasks.length})` : ''}</span>
                             </span>
-                          </div>
-                        )}
+                          )}
+                          {group.job?.accountingClosedAt && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                              <FileCheck className="w-2.5 h-2.5" />
+                              <span>จบงานบัญชีแล้ว</span>
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Actions */}

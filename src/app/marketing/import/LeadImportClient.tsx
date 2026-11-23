@@ -539,7 +539,10 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
       if (res.success) {
         await Swal.fire({
           title: 'นำเข้าข้อมูลสำเร็จ!',
-          text: `บันทึกข้อมูลลูกค้าใหม่เข้าสู่ CRM สำเร็จ ${res.importedCount} รายการ`,
+          text:
+            res.blockedDuplicateCount && res.blockedDuplicateCount > 0
+              ? `บันทึก Lead ใหม่สำเร็จ ${res.importedCount} รายการ (ระบบป้องกันและข้ามรายการซ้ำให้อัตโนมัติ ${res.blockedDuplicateCount} รายการ)`
+              : `บันทึกข้อมูลลูกค้าใหม่เข้าสู่ CRM สำเร็จ ${res.importedCount} รายการ`,
           icon: 'success',
           confirmButtonColor: '#E11D48',
         })
@@ -1523,12 +1526,15 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                               <td className="px-4 py-3 text-center">
                                 <select
                                   value={row.action}
-                                  disabled={row.status === 'INVALID'}
+                                  disabled={row.status === 'INVALID' || row.status === 'DUPLICATE'}
                                   onChange={(e) => handleActionChange(row.index, e.target.value as any)}
-                                  className={`text-xs font-bold rounded-xl border px-3 py-2 w-full transition-all cursor-pointer ${row.action === 'CREATE'
-                                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 ring-1 ring-emerald-400/30'
-                                      : 'bg-slate-100 text-slate-500 border-slate-200'
-                                    }`}
+                                  className={`text-xs font-bold rounded-xl border px-3 py-2 w-full transition-all ${
+                                    row.status === 'INVALID' || row.status === 'DUPLICATE'
+                                      ? 'cursor-not-allowed opacity-85 bg-slate-100 text-slate-500 border-slate-200'
+                                      : row.action === 'CREATE'
+                                      ? 'cursor-pointer bg-emerald-50 text-emerald-800 border-emerald-300 ring-1 ring-emerald-400/30'
+                                      : 'cursor-pointer bg-slate-100 text-slate-500 border-slate-200'
+                                  }`}
                                 >
                                   {row.status === 'INVALID' ? (
                                     <option value="SKIP">ข้าม (ข้อมูลไม่ถูกต้อง)</option>
@@ -1538,10 +1544,7 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                                       <option value="SKIP">ข้าม (ไม่นำเข้า)</option>
                                     </>
                                   ) : row.status === 'DUPLICATE' ? (
-                                    <>
-                                      <option value="SKIP">ข้าม (ซ้ำในระบบ - แนะนำ)</option>
-                                      <option value="CREATE">สร้างทับซ้อน (Lead ใหม่)</option>
-                                    </>
+                                    <option value="SKIP">ข้าม (ซ้ำในระบบ - ห้ามลงซ้ำ)</option>
                                   ) : (
                                     <>
                                       <option value="CREATE">ยืนยันเป็น Lead ใหม่</option>
@@ -1804,16 +1807,18 @@ export default function LeadImportClient({ salesReps, initialHistory }: LeadImpo
                 <span>ข้ามรายการนี้ (ไม่นำเข้า)</span>
               </button>
 
-              <button
-                onClick={() => {
-                  handleActionChange(inspectRow.index, 'CREATE')
-                  setInspectRow(null)
-                }}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs active:scale-95 flex items-center gap-1.5"
-              >
-                <Check size={14} />
-                <span>ยืนยันนำเข้าเป็น Lead ใหม่</span>
-              </button>
+              {inspectRow.status !== 'DUPLICATE' && (
+                <button
+                  onClick={() => {
+                    handleActionChange(inspectRow.index, 'CREATE')
+                    setInspectRow(null)
+                  }}
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs active:scale-95 flex items-center gap-1.5"
+                >
+                  <Check size={14} />
+                  <span>ยืนยันนำเข้าเป็น Lead ใหม่</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

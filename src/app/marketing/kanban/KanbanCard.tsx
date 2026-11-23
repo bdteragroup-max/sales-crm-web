@@ -35,9 +35,9 @@ const KanbanCard = React.memo(function KanbanCard({ card, users, onClick, onCard
   const style = isOverlay
     ? undefined
     : {
-        transition,
-        transform: CSS.Transform.toString(transform),
-      };
+      transition,
+      transform: CSS.Transform.toString(transform),
+    };
 
   const hasComments = card.comments && card.comments.length > 0;
   const hasAttachments = card.attachments && card.attachments.length > 0;
@@ -88,13 +88,12 @@ const KanbanCard = React.memo(function KanbanCard({ card, users, onClick, onCard
           onClick();
         }
       }}
-      className={`shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-[border-color,box-shadow,opacity] group relative overflow-hidden ${card.color ? 'pl-4 pr-3 py-3' : 'p-3'} ${
-        isOverlay
+      className={`shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-[border-color,box-shadow,opacity] group relative overflow-hidden ${card.color ? 'pl-4 pr-3 py-3' : 'p-3'} ${isOverlay
           ? 'cursor-grabbing shadow-2xl ring-2 ring-[#ff2301] rotate-1 opacity-95 w-72'
           : isDragging
-          ? 'cursor-grab opacity-25 ring-2 ring-dashed ring-red-400 bg-red-50/40'
-          : 'cursor-grab active:cursor-grabbing'
-      }`}
+            ? 'cursor-grab opacity-25 ring-2 ring-dashed ring-red-400 bg-red-50/40'
+            : 'cursor-grab active:cursor-grabbing'
+        }`}
     >
       {card.color && (
         <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${card.color}`} />
@@ -115,11 +114,10 @@ const KanbanCard = React.memo(function KanbanCard({ card, users, onClick, onCard
             }
           }}
           onPointerDown={(e) => e.stopPropagation()} // Prevent drag start when clicking the checkbox
-          className={`mt-0.5 w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
-            card.isCompleted 
-              ? 'bg-green-500 border-green-500 text-white' 
+          className={`mt-0.5 w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${card.isCompleted
+              ? 'bg-green-500 border-green-500 text-white'
               : 'border-gray-300 text-transparent hover:border-green-500 hover:text-green-500 bg-white'
-          }`}
+            }`}
         >
           <Check size={12} strokeWidth={4} />
         </button>
@@ -175,9 +173,8 @@ const KanbanCard = React.memo(function KanbanCard({ card, users, onClick, onCard
         </div>
 
         {(card.startDate || card.dueDate) && (
-          <div className={`flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-md ${
-            card.dueDate && new Date(card.dueDate) < new Date() ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
-          }`}>
+          <div className={`flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-md ${card.dueDate && new Date(card.dueDate) < new Date() ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+            }`}>
             <Calendar size={12} />
             <span>
               {card.startDate ? new Date(card.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : ''}

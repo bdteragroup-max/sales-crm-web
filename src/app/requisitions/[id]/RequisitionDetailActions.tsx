@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Printer, RotateCcw, Clock, Smartphone, CheckCircle2, Truck, FileCheck2 } from 'lucide-react';
+import { Printer, RotateCcw, Clock, Smartphone, CheckCircle2, Truck, FileCheck2, Warehouse } from 'lucide-react';
 import ReturnRequestModal from '../components/ReturnRequestModal';
 import SiteHandoverModal from '../components/SiteHandoverModal';
+import RequisitionStoreSignModal from '../components/RequisitionStoreSignModal';
 import RequisitionTransportSignModal from '../components/RequisitionTransportSignModal';
 import RequisitionAccountingSignModal from '../components/RequisitionAccountingSignModal';
 import type { RequisitionSignatureRecord } from '../components/signaturePadHelper';
@@ -13,10 +14,12 @@ interface Props {
   requisition: RequisitionSignatureRecord & Record<string, unknown>;
   currentUserId: string;
   currentUserName?: string;
+  canSignStore?: boolean;
   canSignAccounting?: boolean;
   canSignTransport?: boolean;
   isAccountingUser?: boolean;
   isTransportUser?: boolean;
+  savedStoreSignatureUrl?: string | null;
   savedAccountingSignatureUrl?: string | null;
   savedTransportSignatureUrl?: string | null;
 }
@@ -25,15 +28,18 @@ export default function RequisitionDetailActions({
   requisition,
   currentUserId,
   currentUserName = '',
+  canSignStore = false,
   canSignAccounting = false,
   canSignTransport = true,
   isAccountingUser = false,
   isTransportUser = false,
+  savedStoreSignatureUrl = null,
   savedAccountingSignatureUrl = null,
   savedTransportSignatureUrl = null,
 }: Props) {
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
+  const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
   const [isTransportModalOpen, setIsTransportModalOpen] = useState(false);
   const [isAccountingModalOpen, setIsAccountingModalOpen] = useState(false);
 
@@ -62,12 +68,33 @@ export default function RequisitionDetailActions({
   const canSignReleaseOrTransport =
     requisition.status !== 'PENDING_APPROVAL' && requisition.status !== 'REJECTED';
 
+  const hasSignedStore = Boolean(requisition.storeStaffSignatureUrl);
   const hasSignedReceiver = Boolean(requisition.receiverSignatureUrl);
   const hasSignedTransport = Boolean(requisition.transportSignatureUrl);
   const hasSignedAccounting = Boolean(requisition.accountingSignatureUrl);
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
+      {canSignStore && canSignReleaseOrTransport && (
+        <button
+          type="button"
+          onClick={() => setIsStoreModalOpen(true)}
+          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer ${
+            hasSignedStore
+              ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-300'
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20'
+          }`}
+          title="เจ้าหน้าที่สโตร์ลงนามจ่ายของออกจากคลัง"
+        >
+          <Warehouse size={16} />
+          <span>
+            {hasSignedStore
+              ? 'สโตร์เซ็นจ่ายแล้ว (ดู/แก้ไข)'
+              : 'สโตร์เซ็นจ่ายของ'}
+          </span>
+        </button>
+      )}
+
       {canSignTransport && canSignReleaseOrTransport && (
         <button
           type="button"
@@ -178,6 +205,14 @@ export default function RequisitionDetailActions({
         requisition={requisition}
         isOpen={isHandoverModalOpen}
         onClose={() => setIsHandoverModalOpen(false)}
+      />
+
+      <RequisitionStoreSignModal
+        requisition={requisition}
+        isOpen={isStoreModalOpen}
+        onClose={() => setIsStoreModalOpen(false)}
+        currentUserName={currentUserName}
+        savedStoreSignatureUrl={savedStoreSignatureUrl}
       />
 
       <RequisitionTransportSignModal

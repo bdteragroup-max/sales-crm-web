@@ -29,6 +29,7 @@ import {
   isPlaceholderPaymentTask,
   isScheduleTaskSettled,
 } from "@/app/lib/accounting-schedule";
+import { evaluateAccountingAmountReconciliation } from "@/app/lib/accounting-reconciliation";
 
 type DbTransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
@@ -885,8 +886,41 @@ export async function confirmJobStep(payload: {
 }) {
   const { jobId, stepKey, completedBy, department, note, variant, deliveryMethod, deliveryDate, courierCompany, trackingNumber, trackingPhotoUrl } = payload
 
-  const job = await prisma.job.findUnique({ where: { id: jobId } })
+  const job = await prisma.job.findUnique({
+    where: { id: jobId },
+    include: {
+      quotation: {
+        select: {
+          totalAmountBeforeVat: true,
+          actualClosingAmount: true,
+          salesBeforeVat: true,
+          quotationNumber: true,
+        },
+      },
+    },
+  })
   if (!job) throw new Error("Job not found")
+
+  // ตรวจสอบยอดก่อน VAT ว่าตรงกับทางบัญชีหรือยัง ก่อนปิดจบขั้นตอนสุดท้ายของ Job
+  const { getNextStep } = await import("@/app/lib/job-workflow")
+  const resolvedVariant = variant ?? job.flowVariant ?? undefined
+  const nextStep = getNextStep(job.jobType, stepKey, resolvedVariant)
+  const reconciliation = evaluateAccountingAmountReconciliation({
+    accountingVerifiedBeforeVat: job.accountingVerifiedBeforeVat,
+    accountingClosedAt: job.accountingClosedAt,
+    quotation: job.quotation,
+  })
+  if (!nextStep && reconciliation.hasMismatch) {
+    const fmt = (n: number) =>
+      n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    throw new Error(
+      `ไม่สามารถปิดสถานะ Job ${job.jobNumber} ได้เนื่องจากยอดก่อน VAT ไม่ตรงกับฝ่ายบัญชี (บัญชี: ${fmt(
+        reconciliation.accountingBeforeVat ?? 0
+      )} บาท ≠ ใบเสนอราคา: ${fmt(
+        reconciliation.quotationBeforeVat ?? 0
+      )} บาท) — กรุณาให้ฝ่ายขายแก้ไขยอดใบเสนอราคาให้ตรงกับบัญชีจึงจะปิดงานได้`
+    )
+  }
 
   // บันทึก step log
   await prisma.jobStepLog.create({
@@ -894,9 +928,6 @@ export async function confirmJobStep(payload: {
   })
 
   // อัปเดต currentStep → step ถัดไป
-  const { getNextStep } = await import("@/app/lib/job-workflow")
-  const resolvedVariant = variant ?? job.flowVariant ?? undefined
-  const nextStep = getNextStep(job.jobType, stepKey, resolvedVariant)
 
   await prisma.job.update({
     where: { id: jobId },
@@ -1588,6 +1619,9 @@ export async function getJobProcurementDetails(jobId: string): Promise<JobProcur
         select: {
           subject: true,
           quotationNumber: true,
+          totalAmountBeforeVat: true,
+          actualClosingAmount: true,
+          salesBeforeVat: true,
           company: {
             select: { companyName: true },
           },
@@ -1720,11 +1754,18 @@ export async function getJobProcurementDetails(jobId: string): Promise<JobProcur
   const latestJobMs =
     candidateEndDates.length > 0 ? Math.max(...candidateEndDates) : earliestJobMs;
 
+  const reconciliation = evaluateAccountingAmountReconciliation({
+    accountingVerifiedBeforeVat: job.accountingVerifiedBeforeVat,
+    accountingClosedAt: job.accountingClosedAt,
+    quotation: job.quotation,
+  });
+
   const jobDone = isCompleted(
     job.jobType,
     job.currentStep,
     job.flowVariant,
-    job.stepLogs || []
+    job.stepLogs || [],
+    { hasAccountingAmountMismatch: reconciliation.hasMismatch }
   );
 
   const nameWindowStartMs = earliestJobMs - 35 * DAY_MS;

@@ -47,6 +47,7 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
     return <div className="p-8 text-center text-red-500">คุณไม่มีสิทธิ์เข้าถึงหน้านี้</div>;
   }
 
+  const canSignStore = isSuperUser(session.role) || isStoreOrPurchasing;
   const canSignAccounting = isAccountingUser;
   const canSignTransport =
     !isAccountingUser &&
@@ -90,6 +91,9 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
     null
     : null;
 
+  const savedStoreSignatureUrl =
+    (latestSigRecord?.storeStaffId === session.id && latestSigRecord.storeStaffSignatureUrl) ||
+    fallbackUserSig;
   const savedAccountingSignatureUrl =
     (latestSigRecord?.accountingId === session.id && latestSigRecord.accountingSignatureUrl) ||
     fallbackUserSig;
@@ -132,10 +136,12 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
           requisition={serializedRequisition}
           currentUserId={session.id}
           currentUserName={session.fullName || ''}
+          canSignStore={canSignStore}
           canSignAccounting={canSignAccounting}
           canSignTransport={canSignTransport}
           isAccountingUser={isAccountingUser}
           isTransportUser={isTransportUser}
+          savedStoreSignatureUrl={savedStoreSignatureUrl}
           savedAccountingSignatureUrl={savedAccountingSignatureUrl}
           savedTransportSignatureUrl={savedTransportSignatureUrl}
         />
@@ -381,11 +387,13 @@ export default async function RequisitionDetailPage({ params }: { params: Promis
         <RequisitionDetailSignaturesSection
           initialRequisition={serializedRequisition}
           currentUserName={session.fullName || ''}
+          canSignStore={canSignStore}
           canSignAccounting={canSignAccounting}
           canSignTransport={canSignTransport}
           canSignReceiver={true}
           isAccountingUser={isAccountingUser}
           isTransportUser={isTransportUser}
+          savedStoreSignatureUrl={savedStoreSignatureUrl}
           savedAccountingSignatureUrl={savedAccountingSignatureUrl}
           savedTransportSignatureUrl={savedTransportSignatureUrl}
         />

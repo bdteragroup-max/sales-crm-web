@@ -110,12 +110,23 @@ export default function BranchContentBoardTab({
   // Filtered contents
   const filteredContents = useMemo(() => {
     return contents.filter(item => {
-      // 1. Sub-view branch scope: In "My Branch Board", if user has a branch, filter to their branch
-      if (subView === 'my_branch' && permissions?.userBranchId) {
-        const matchesMyBranch =
-          matchBranch(item.branchId, permissions.userBranchId) ||
-          matchBranch(item.branchName, permissions.userBranchName);
-        if (!matchesMyBranch) return false;
+      // 1. Sub-view branch scope: In "My Branch Board", filter to user's allowed branch(es)
+      if (subView === 'my_branch' && !permissions?.canViewAllBranches) {
+        const allowed = permissions?.allowedBranches || [];
+        if (allowed.length > 0) {
+          const matchesAllowed =
+            allowed.some(
+              b => matchBranch(item.branchId, b.id) || matchBranch(item.branchName, b.name)
+            ) ||
+            item.createdById === permissions?.userId ||
+            item.assigneeId === permissions?.userId;
+          if (!matchesAllowed) return false;
+        } else if (permissions?.userBranchId) {
+          const matchesMyBranch =
+            matchBranch(item.branchId, permissions.userBranchId) ||
+            matchBranch(item.branchName, permissions.userBranchName);
+          if (!matchesMyBranch) return false;
+        }
       }
 
       // 2. Explicit Branch Dropdown Filter
@@ -270,10 +281,16 @@ export default function BranchContentBoardTab({
           >
             <Building2 size={15} />
             <span>My Branch Board</span>
-            {permissions?.userBranchName && (
+            {permissions?.allowedBranches && permissions.allowedBranches.length > 0 ? (
               <span className="px-1.5 py-0.5 rounded bg-red-600 text-white text-[10px]">
-                {permissions.userBranchName}
+                {permissions.allowedBranches.map(b => b.name).join(' • ')}
               </span>
+            ) : (
+              permissions?.userBranchName && (
+                <span className="px-1.5 py-0.5 rounded bg-red-600 text-white text-[10px]">
+                  {permissions.userBranchName}
+                </span>
+              )
             )}
           </button>
 
@@ -313,7 +330,7 @@ export default function BranchContentBoardTab({
             <span>Content Calendar</span>
           </button>
 
-          {permissions?.canViewAllBranches && (
+          {(permissions?.canViewAllBranches || permissions?.canViewDashboard) && (
             <button
               type="button"
               onClick={() => {
@@ -327,7 +344,11 @@ export default function BranchContentBoardTab({
               }`}
             >
               <BarChart3 size={15} />
-              <span>Dashboard & รายงาน (11 สาขา)</span>
+              <span>
+                {permissions?.canViewAllBranches
+                  ? 'Dashboard & รายงาน (11 สาขา)'
+                  : `Dashboard (${branches.map(b => b.name).join(' • ')})`}
+              </span>
             </button>
           )}
         </div>
@@ -475,17 +496,21 @@ export default function BranchContentBoardTab({
           />
         </div>
 
-        {/* Branch Filter (11 Master Branches) */}
+        {/* Branch Filter */}
         <div>
           <select
             value={selectedBranch}
             onChange={e => setSelectedBranch(e.target.value)}
-            disabled={
-              !permissions?.canViewAllBranches && !!permissions?.userBranchId
-            }
+            disabled={!permissions?.canViewAllBranches && branches.length <= 1}
             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-60"
           >
-            <option value="ALL">ทุกสาขา (All 11 Branches)</option>
+            <option value="ALL">
+              {permissions?.canViewAllBranches
+                ? 'ทุกสาขา (All 11 Branches)'
+                : branches.length > 1
+                ? `ทุกสาขาที่รับผิดชอบ (${branches.map(b => b.name).join(' • ')})`
+                : `สาขา${branches[0]?.name || permissions?.userBranchName || ''}`}
+            </option>
             {branches.map(b => (
               <option key={b.id} value={b.id}>
                 สาขา{b.name}
@@ -606,7 +631,11 @@ export default function BranchContentBoardTab({
       {subView === 'dashboard' && (
         <BranchContentDashboardView
           contents={filteredContents}
-          branches={branches}
+          branches={
+            selectedBranch === 'ALL'
+              ? branches
+              : branches.filter(b => b.id === selectedBranch)
+          }
         />
       )}
 
@@ -622,6 +651,7 @@ export default function BranchContentBoardTab({
         branches={branches}
         staffOptions={staffOptions}
         permissions={permissions}
+        defaultBranchId={selectedBranch !== 'ALL' ? selectedBranch : undefined}
       />
 
       {/* Detail & Review Modal */}

@@ -16,6 +16,7 @@ export default async function BranchContentBoardDirectPage() {
 
   if (
     !branchContentData?.permissions?.userBranchId &&
+    !(branchContentData?.permissions?.allowedBranchIds?.length) &&
     !branchContentData?.permissions?.canViewAllBranches
   ) {
     redirect('/marketing-board');

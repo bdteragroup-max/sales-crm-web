@@ -45,6 +45,7 @@ import {
   Trash2,
   ShieldCheck,
   Loader2,
+  FileSignature,
   Truck,
   FileCheck2
 } from 'lucide-react';
@@ -63,6 +64,7 @@ import RequisitionItemsInteractiveSection, {
   openPreparingPdfTab,
   type RequisitionItemsDraftState,
 } from '@/app/requisitions/components/RequisitionItemsInteractiveSection';
+import RequisitionStoreSignModal from '@/app/requisitions/components/RequisitionStoreSignModal';
 import RequisitionTransportSignModal from '@/app/requisitions/components/RequisitionTransportSignModal';
 import RequisitionAccountingSignModal from '@/app/requisitions/components/RequisitionAccountingSignModal';
 import RequisitionSignaturesGrid from '@/app/requisitions/components/RequisitionSignaturesGrid';
@@ -161,6 +163,7 @@ export default function StoreRequisitionsClient({
   const router = useRouter();
 
   const [requisitions, setRequisitions] = useState<Requisition[]>(initialRequisitions);
+  const [storeModalReq, setStoreModalReq] = useState<Requisition | null>(null);
   const [transportModalReq, setTransportModalReq] = useState<Requisition | null>(null);
   const [accountingModalReq, setAccountingModalReq] = useState<Requisition | null>(null);
 
@@ -3222,7 +3225,21 @@ export default function StoreRequisitionsClient({
                             </>
                           )}
 
-                          {canSignTransport && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
+                          {canManageStore && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
+                            <button
+                              type="button"
+                              onClick={() => setStoreModalReq(req)}
+                              className={`p-1.5 rounded-lg border transition-colors ${req.storeStaffSignatureUrl
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                  : 'bg-teal-600 text-white border-teal-600 hover:bg-teal-700'
+                                }`}
+                              title={req.storeStaffSignatureUrl ? 'สโตร์เซ็นจ่ายแล้ว (แก้ไข)' : 'สโตร์เซ็นจ่ายของ (คลัง)'}
+                            >
+                              <Warehouse className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+
+                    {canSignTransport && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
                             <button
                               type="button"
                               onClick={() => setTransportModalReq(req)}
@@ -3449,6 +3466,20 @@ export default function StoreRequisitionsClient({
                       </Link>
                     )}
 
+                    {canManageStore && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
+                      <button
+                        type="button"
+                        onClick={() => setStoreModalReq(req)}
+                        className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${req.storeStaffSignatureUrl
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-teal-600 text-white border-teal-600'
+                          }`}
+                      >
+                        <Warehouse className="w-3.5 h-3.5" />
+                        <span>{req.storeStaffSignatureUrl ? 'สโตร์เซ็นแล้ว' : 'สโตร์เซ็น'}</span>
+                      </button>
+                    )}
+
                     {canSignTransport && req.status !== 'PENDING_APPROVAL' && req.status !== 'REJECTED' && (
                       <button
                         type="button"
@@ -3630,7 +3661,7 @@ export default function StoreRequisitionsClient({
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-5 text-xs text-slate-700">
-              {/* 6-Party Signatures Overview (Interactive for Accounting & Transport) */}
+              {/* 6-Party Signatures Overview (Interactive for Store, Accounting & Transport) */}
               <RequisitionSignaturesGrid
                 compact={true}
                 requisition={detailReq}
@@ -3641,8 +3672,14 @@ export default function StoreRequisitionsClient({
                 pulledStoreName={
                   canManageStore && pullStoreSignature ? userName : null
                 }
+                canSignStore={
+                  canManageStore &&
+                  detailReq.status !== 'PENDING_APPROVAL' &&
+                  detailReq.status !== 'REJECTED'
+                }
                 canSignAccounting={canSignAccounting}
                 canSignTransport={canSignTransport}
+                onClickStoreSign={() => setStoreModalReq(detailReq)}
                 onClickAccountingSign={() => setAccountingModalReq(detailReq)}
                 onClickTransportSign={() => setTransportModalReq(detailReq)}
               />
@@ -3744,6 +3781,20 @@ export default function StoreRequisitionsClient({
                   </button>
 
                   <div className="flex flex-wrap items-center gap-2">
+                    {canManageStore && detailReq.status !== 'PENDING_APPROVAL' && detailReq.status !== 'REJECTED' && (
+                      <button
+                        type="button"
+                        onClick={() => setStoreModalReq(detailReq)}
+                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${detailReq.storeStaffSignatureUrl
+                            ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300'
+                            : 'bg-teal-600 hover:bg-teal-700 text-white border-teal-600'
+                          }`}
+                      >
+                        <Warehouse className="w-4 h-4" />
+                        <span>{detailReq.storeStaffSignatureUrl ? 'สโตร์เซ็นจ่ายแล้ว (แก้ไข)' : 'สโตร์เซ็นจ่ายของ'}</span>
+                      </button>
+                    )}
+
                     {canSignTransport && detailReq.status !== 'PENDING_APPROVAL' && detailReq.status !== 'REJECTED' && (
                       <button
                         type="button"
@@ -5023,6 +5074,19 @@ export default function StoreRequisitionsClient({
           </div>
         </div>
       )}
+      <RequisitionStoreSignModal
+        requisition={storeModalReq}
+        isOpen={Boolean(storeModalReq)}
+        onClose={() => setStoreModalReq(null)}
+        currentUserName={userName}
+        savedStoreSignatureUrl={effectiveSavedStoreSig || savedUserSignatureUrl}
+        onSuccess={(payload) => {
+          if (storeModalReq) {
+            patchRequisitionInState(storeModalReq.id, payload);
+          }
+        }}
+      />
+
       <RequisitionTransportSignModal
         requisition={transportModalReq}
         isOpen={Boolean(transportModalReq)}

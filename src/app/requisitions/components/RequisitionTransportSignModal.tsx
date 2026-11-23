@@ -396,6 +396,7 @@ function TransportSignModalInner({
               <div className="relative border-2 border-slate-300 bg-white rounded-xl overflow-hidden">
                 <SignatureCanvas
                   ref={sigPadRef}
+                  clearOnResize={false}
                   penColor="#0f172a"
                   canvasProps={{
                     className: 'w-full h-40 bg-white cursor-crosshair touch-none block',

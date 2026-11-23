@@ -7,6 +7,11 @@ import ExcelJS from 'exceljs'
 import { revalidatePath } from 'next/cache'
 import { notifyUser } from '@/app/lib/pushNotification'
 import {
+  findDuplicateLeadOrContactByPhone,
+  getLeadPhoneSuffix,
+  normalizeLeadPhoneNumber,
+} from '@/app/lib/marketingLeadDedup'
+import {
   PRODUCT_GROUPS,
   PRODUCT_OCCUPATIONS,
   normalizeProductGroup,
@@ -102,31 +107,7 @@ export interface ImportHistoryItem {
 // Phone & Text Normalization Utilities
 // ==========================================
 function normalizePhoneNumber(phone: string | null | undefined): string | null {
-  if (!phone) return null
-  // Strip all non-digit characters
-  let digits = String(phone).replace(/\D/g, '')
-  if (!digits) return null
-
-  // Case 1: Starts with '066' and length >= 12 (e.g. 066863318674 -> 0863318674)
-  if (digits.startsWith('066') && digits.length >= 12) {
-    digits = '0' + digits.substring(3)
-  }
-  // Case 2: Starts with '66' and length === 11 (e.g. 66812345678 -> 0812345678)
-  else if (digits.startsWith('66') && digits.length === 11) {
-    digits = '0' + digits.substring(2)
-  }
-  // Case 3: Accidental double prefix '06' + 9-digit mobile (11 digits starting with 068 or 069, e.g. 06948263919 -> 0948263919)
-  else if (digits.length === 11 && (digits.startsWith('068') || digits.startsWith('069'))) {
-    digits = '0' + digits.substring(2)
-  }
-
-  // Valid Thai phone numbers are 9 digits (landline: 02, 03, etc.) or 10 digits (mobile: 06, 08, 09)
-  if (digits.length >= 9 && digits.length <= 15) {
-    return digits
-  }
-
-  // If outside bounds but has digits, return cleaned
-  return digits.length >= 7 ? digits : null
+  return normalizeLeadPhoneNumber(phone)
 }
 
 function normalizeTextForSearch(text: string | null | undefined): string {
@@ -966,12 +947,12 @@ export async function validateImportLeads(rawRows: any[]): Promise<{
           }
         }
 
-        // Check 5: Intra-file duplicate (Phone or Name repeated within uploaded file)
+        // Check 5: Intra-file duplicate (Phone repeated within uploaded file -> block as DUPLICATE)
         if (seenPhonesInFile.has(phone)) {
           const prevRow = seenPhonesInFile.get(phone)!
-          status = 'REVIEW_REQUIRED'
+          status = 'DUPLICATE'
           matchedType = 'IN_FILE'
-          reason = `เบอร์โทรศัพท์ซ้ำกับแถวที่ ${prevRow} ภายในไฟล์เดียวกัน (${row.phoneNumber})`
+          reason = `เบอร์โทรศัพท์ซ้ำกับแถวที่ ${prevRow} ภายในไฟล์เดียวกัน (${row.phoneNumber}) — ห้ามลงซ้ำ`
           action = 'SKIP'
         } else {
           seenPhonesInFile.set(phone, row.index)
@@ -1163,6 +1144,7 @@ export async function importMarketingLeads(options: {
   success: boolean
   importedCount?: number
   skippedCount?: number
+  blockedDuplicateCount?: number
   importLogId?: string
   error?: string
 }> {
@@ -1179,13 +1161,14 @@ export async function importMarketingLeads(options: {
     }
     importSubmissionSet.add(key)
 
-    // Filter leads to only those selected for creation
-    const rowsToImport = leads.filter(r => r.action === 'CREATE')
-    const skippedCount = leads.length - rowsToImport.length
+    // Filter leads to only those selected for creation and NEVER marked DUPLICATE
+    const rowsToImport = leads.filter(r => r.action === 'CREATE' && r.status !== 'DUPLICATE')
+    let skippedCount = leads.length - rowsToImport.length
+    let blockedDuplicateCount = 0
 
     if (rowsToImport.length === 0) {
       importSubmissionSet.delete(key)
-      return { success: false, error: 'ไม่มีรายการที่เลือกนำเข้า (ทุกรายการถูกข้าม)' }
+      return { success: false, error: 'ไม่มีรายการที่สามารถนำเข้าได้ (รายการถูกข้ามหรือเป็นข้อมูลซ้ำทั้งหมด)' }
     }
 
     let importedCount = 0
@@ -1194,8 +1177,26 @@ export async function importMarketingLeads(options: {
 
     const createdLeadIds: string[] = []
     const notifiedUserIds = new Set<string>()
+    const seenBatchPhones = new Set<string>()
+    const seenBatchSuffixes = new Set<string>()
 
     for (const row of rowsToImport) {
+      const normalizedPhone = normalizeLeadPhoneNumber(row.normalizedPhone || row.phoneNumber)
+      if (normalizedPhone) {
+        const suffix = getLeadPhoneSuffix(normalizedPhone)
+        if (seenBatchPhones.has(normalizedPhone) || seenBatchSuffixes.has(suffix)) {
+          skippedCount++
+          blockedDuplicateCount++
+          continue
+        }
+        const existingDup = await findDuplicateLeadOrContactByPhone(normalizedPhone)
+        if (existingDup) {
+          skippedCount++
+          blockedDuplicateCount++
+          continue
+        }
+      }
+
       let targetUserId: string | null = null
       let isForwarded = false
 
@@ -1211,33 +1212,56 @@ export async function importMarketingLeads(options: {
         isForwarded = false
       }
 
-      const createdLead = await prisma.marketingLead.create({
-        data: {
-          customerName: row.customerName || 'ลูกค้าไม่ระบุชื่อ',
-          phoneNumber: row.phoneNumber || null,
-          companyName: row.companyName || null,
-          province: row.province || null,
-          district: row.district || null,
-          subDistrict: row.subDistrict || null,
-          address: row.address || null,
-          postalCode: row.postalCode || null,
-          customerType: row.customerType || null,
-          occupation: row.occupation || null,
-          businessType: row.occupation || null,
-          taxId: row.taxId || null,
-          email: row.email || null,
-          campaignSource: row.campaignSource || null,
-          leadSource: row.leadSource || null,
-          productOfInterest: row.productOfInterest || null,
-          productType: row.productGroup || row.productType || null,
-          conversationContent: row.note ? `[ข้อมูลนำเข้าจากไฟล์]: ${row.note}` : null,
-          createdByUserId: payload.userId as string,
-          assignedToId: targetUserId,
-          isForwarded: isForwarded,
-          forwardedAt: isForwarded ? new Date() : null,
-          matchedContactId: row.matchedType === 'CUSTOMER' && row.matchedId ? row.matchedId : null,
+      const createdLead = await prisma.$transaction(async (tx) => {
+        if (normalizedPhone) {
+          await tx.$executeRawUnsafe(
+            `SELECT pg_advisory_xact_lock(hashtext($1))`,
+            `marketing_lead_phone:${normalizedPhone}`
+          )
+          const dupInTx = await findDuplicateLeadOrContactByPhone(normalizedPhone, { db: tx })
+          if (dupInTx) {
+            return null
+          }
         }
+        return tx.marketingLead.create({
+          data: {
+            customerName: row.customerName || 'ลูกค้าไม่ระบุชื่อ',
+            phoneNumber: normalizedPhone || row.phoneNumber || null,
+            companyName: row.companyName || null,
+            province: row.province || null,
+            district: row.district || null,
+            subDistrict: row.subDistrict || null,
+            address: row.address || null,
+            postalCode: row.postalCode || null,
+            customerType: row.customerType || null,
+            occupation: row.occupation || null,
+            businessType: row.occupation || null,
+            taxId: row.taxId || null,
+            email: row.email || null,
+            campaignSource: row.campaignSource || null,
+            leadSource: row.leadSource || null,
+            productOfInterest: row.productOfInterest || null,
+            productType: row.productGroup || row.productType || null,
+            conversationContent: row.note ? `[ข้อมูลนำเข้าจากไฟล์]: ${row.note}` : null,
+            createdByUserId: payload.userId as string,
+            assignedToId: targetUserId,
+            isForwarded: isForwarded,
+            forwardedAt: isForwarded ? new Date() : null,
+            matchedContactId: row.matchedType === 'CUSTOMER' && row.matchedId ? row.matchedId : null,
+          }
+        })
       })
+
+      if (!createdLead) {
+        skippedCount++
+        blockedDuplicateCount++
+        continue
+      }
+
+      if (normalizedPhone) {
+        seenBatchPhones.add(normalizedPhone)
+        seenBatchSuffixes.add(getLeadPhoneSuffix(normalizedPhone))
+      }
 
       createdLeadIds.push(createdLead.id)
       importedCount++

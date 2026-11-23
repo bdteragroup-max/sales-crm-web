@@ -1,7 +1,15 @@
 "use server";
+import type { Prisma } from "@/generated/client";
 import prisma from "@/app/lib/db";
+import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 import { getNextPendingScheduleTask } from "@/app/lib/accounting-schedule";
+import {
+  AccountingTaxDocument,
+  evaluateAccountingAmountReconciliation,
+  parseAccountingTaxDocuments,
+} from "@/app/lib/accounting-reconciliation";
+import { getNextStep } from "@/app/lib/job-workflow";
 
 function safeRevalidatePath(path: string) {
   try {
@@ -503,6 +511,162 @@ export async function syncAllAccountingTasks() {
     console.error("syncAllAccountingTasks error:", error);
     return { success: false, error: error.message };
   }
+}
+
+export async function saveAccountingJobVerification(payload: {
+  jobId: string;
+  verifiedBeforeVat: number;
+  taxDocuments: AccountingTaxDocument[];
+  note?: string;
+  closeAccountingStep?: boolean;
+}) {
+  const user = await getUser();
+  if (!user || !user.isActive) {
+    throw new Error("Unauthorized");
+  }
+
+  const roleStr = (user.role || "").toLowerCase();
+  const canEditAccounting = [
+    "accounting",
+    "บัญชี",
+    "finance",
+    "การเงิน",
+    "ผู้จัดการ",
+    "ผู้บริหาร",
+    "executive",
+    "super_admin",
+    "admin",
+  ].some((k) => roleStr.includes(k));
+  if (!canEditAccounting) {
+    throw new Error("คุณไม่มีสิทธิ์บันทึกการตรวจสอบยอดฝ่ายบัญชี");
+  }
+
+  const verifiedNum = Number(payload.verifiedBeforeVat);
+  if (!Number.isFinite(verifiedNum) || verifiedNum <= 0) {
+    throw new Error("กรุณาระบุยอดก่อน VAT ที่ถูกต้องในใบกำกับภาษี (มากกว่า 0 บาท)");
+  }
+  const roundedVerified = Math.round((verifiedNum + Number.EPSILON) * 100) / 100;
+  const normalizedDocs = parseAccountingTaxDocuments(payload.taxDocuments || []);
+  const shouldCloseAccounting = payload.closeAccountingStep !== false;
+
+  const existingJob = await prisma.job.findUnique({
+    where: { id: payload.jobId },
+    include: {
+      quotation: {
+        select: {
+          id: true,
+          quotationNumber: true,
+          totalAmountBeforeVat: true,
+          actualClosingAmount: true,
+          salesBeforeVat: true,
+          salespersonId: true,
+        },
+      },
+      stepLogs: {
+        orderBy: { completedAt: "asc" },
+      },
+    },
+  });
+
+  if (!existingJob) {
+    throw new Error("ไม่พบข้อมูลงานในระบบ");
+  }
+
+  const reconciliation = evaluateAccountingAmountReconciliation({
+    accountingVerifiedBeforeVat: roundedVerified,
+    accountingClosedAt: shouldCloseAccounting ? existingJob.accountingClosedAt ?? new Date() : existingJob.accountingClosedAt,
+    quotation: existingJob.quotation,
+  });
+
+  const now = new Date();
+  const nextNote = payload.note?.trim() || null;
+
+  const { updatedJob, updatedStepLogs } = await prisma.$transaction(async (tx) => {
+    let nextCurrentStep = existingJob.currentStep;
+
+    if (shouldCloseAccounting) {
+      const hasAccountingStepLog = existingJob.stepLogs.some(
+        (l) => l.step === "accounting" && (!l.note || !l.note.startsWith("ตีกลับ"))
+      );
+      if (existingJob.currentStep === "accounting" && !hasAccountingStepLog) {
+        const nextStep = getNextStep(
+          existingJob.jobType,
+          "accounting",
+          existingJob.flowVariant ?? undefined
+        );
+        const docSummary = normalizedDocs.map((d) => d.docNumber).join(", ");
+        const stepNote = [docSummary, nextNote].filter(Boolean).join(" • ") || "ตรวจสอบยอดและปิดงานบัญชี";
+
+        await tx.jobStepLog.create({
+          data: {
+            jobId: existingJob.id,
+            step: "accounting",
+            completedBy: user.fullName,
+            department: "accounting",
+            note: stepNote,
+          },
+        });
+        if (nextStep?.key) {
+          nextCurrentStep = nextStep.key;
+        }
+      }
+    }
+
+    const saved = await tx.job.update({
+      where: { id: existingJob.id },
+      data: {
+        accountingVerifiedBeforeVat: roundedVerified,
+        accountingTaxDocuments: normalizedDocs as unknown as Prisma.InputJsonValue,
+        accountingVerificationNote: nextNote,
+        currentStep: nextCurrentStep,
+        ...(shouldCloseAccounting
+          ? {
+              accountingClosedAt: existingJob.accountingClosedAt ?? now,
+              accountingClosedBy: user.fullName,
+            }
+          : {}),
+      },
+      include: {
+        quotation: true,
+        stepLogs: { orderBy: { completedAt: "asc" } },
+      },
+    });
+
+    return { updatedJob: saved, updatedStepLogs: saved.stepLogs };
+  });
+
+  if (reconciliation.hasMismatch && existingJob.quotation?.salespersonId) {
+    try {
+      const { sendPushToUser } = await import("@/app/lib/pushNotification");
+      const fmt = (n: number) =>
+        n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      await sendPushToUser(existingJob.quotation.salespersonId, {
+        title: "ยอดก่อน VAT ไม่ตรงกับฝ่ายบัญชี (ต้องแก้ไข)",
+        body: `งาน ${existingJob.jobNumber}: ยอดบัญชี ${fmt(roundedVerified)} บาท ≠ ใบเสนอราคา ${fmt(
+          reconciliation.quotationBeforeVat ?? 0
+        )} บาท — กรุณาแก้ไขยอดให้ตรงกันเพื่อปิด Job และขอค่าคอมมิชชั่น`,
+        url: `/sales?editId=${existingJob.quotation.id}`,
+        category: "JOB",
+      });
+    } catch (pushErr) {
+      console.warn("[Accounting] Failed to notify salesperson on amount mismatch:", pushErr);
+    }
+  }
+
+  safeRevalidatePath("/accounting");
+  safeRevalidatePath("/accounting/dashboard");
+  safeRevalidatePath("/jobs");
+  safeRevalidatePath("/sales");
+  safeRevalidatePath("/sales/commissions");
+  safeRevalidatePath("/pipeline");
+
+  return {
+    success: true,
+    job: updatedJob,
+    stepLogs: updatedStepLogs,
+    taxDocuments: normalizedDocs,
+    reconciliation,
+  };
 }
 
 

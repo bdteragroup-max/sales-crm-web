@@ -31,6 +31,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { POTransitionModal, QuotationTransitionModal, AppointmentTransitionModal } from '@/app/pipeline/components/PipelineModals';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
+import { evaluateAccountingAmountReconciliation } from '@/app/lib/accounting-reconciliation';
 
 const ALL_STATUSES = [
   'ความสนใจ',
@@ -822,6 +823,43 @@ export default function SalesClientPage({
                             <span className={`text-xs font-black font-mono ${record.actualClosingAmount ? 'text-emerald-700' : 'text-slate-400'}`}>
                               {record.actualClosingAmount ? `฿${Number(record.actualClosingAmount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
                             </span>
+                            {(() => {
+                              type LinkedJobSummary = {
+                                accountingVerifiedBeforeVat?: number | null;
+                                accountingClosedAt?: Date | string | null;
+                              };
+                              const linkedJobsList = Array.isArray(record.jobs)
+                                ? (record.jobs as LinkedJobSummary[])
+                                : [];
+                              const linkedJob =
+                                linkedJobsList.find((j) => j?.accountingVerifiedBeforeVat != null) ||
+                                linkedJobsList[0] ||
+                                null;
+                              if (!linkedJob) return null;
+                              const recon = evaluateAccountingAmountReconciliation({
+                                accountingVerifiedBeforeVat: linkedJob.accountingVerifiedBeforeVat,
+                                accountingClosedAt: linkedJob.accountingClosedAt,
+                                quotation: record,
+                              });
+                              if (recon.hasMismatch && recon.accountingBeforeVat !== null) {
+                                return (
+                                  <div
+                                    title={recon.mismatchMessage || undefined}
+                                    className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold"
+                                  >
+                                    ไม่ตรงบัญชี ฿{recon.accountingBeforeVat.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </div>
+                                );
+                              }
+                              if (recon.hasAccountingVerifiedAmount && recon.isMatched) {
+                                return (
+                                  <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                                    ตรงบัญชีแล้ว
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
                           </td>
 
                           {/* Status */}

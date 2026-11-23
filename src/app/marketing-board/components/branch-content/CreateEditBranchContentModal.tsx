@@ -47,6 +47,7 @@ interface CreateEditBranchContentModalProps {
   onClose: () => void;
   onSuccess: (item: BranchContentItem) => void;
   editItem?: BranchContentItem | null;
+  defaultBranchId?: string;
   branches: BranchMasterItem[];
   staffOptions: {
     id: string;
@@ -73,12 +74,16 @@ export default function CreateEditBranchContentModal({
   onClose,
   onSuccess,
   editItem,
+  defaultBranchId: defaultBranchIdProp,
   branches,
   staffOptions,
   permissions,
 }: CreateEditBranchContentModalProps) {
   const defaultBranchId =
     editItem?.branchId ||
+    (defaultBranchIdProp && branches.some(b => b.id === defaultBranchIdProp)
+      ? defaultBranchIdProp
+      : '') ||
     permissions?.userBranchId ||
     branches[0]?.id ||
     '';
@@ -143,9 +148,13 @@ export default function CreateEditBranchContentModal({
     // If current logged-in user belongs to this branch and isn't in `list` yet, include them
     const currentUserInStaff = staffOptions.find(s => s.id === permissions?.userId);
     const currentUserBelongsToBranch =
-      !permissions?.canViewAllBranches ||
-      (permissions?.userBranchId && matchBranch(permissions.userBranchId, branchId)) ||
-      (currentUserInStaff?.branch && matchBranch(currentUserInStaff.branch, branchId));
+      Boolean(
+        permissions?.allowedBranchIds?.length &&
+          permissions.allowedBranchIds.some(id => matchBranch(id, branchId))
+      ) ||
+      Boolean(permissions?.userBranchId && matchBranch(permissions.userBranchId, branchId)) ||
+      Boolean(currentUserInStaff?.branch && matchBranch(currentUserInStaff.branch, branchId)) ||
+      Boolean(permissions?.canViewAllBranches);
 
     if (
       permissions?.userId &&
@@ -216,7 +225,13 @@ export default function CreateEditBranchContentModal({
       );
       setRemovedMediaIds([]);
     } else {
-      const initBranchId = permissions?.userBranchId || branches[0]?.id || '';
+      const initBranchId =
+        (defaultBranchId && branches.some(b => b.id === defaultBranchId)
+          ? defaultBranchId
+          : null) ||
+        permissions?.userBranchId ||
+        branches[0]?.id ||
+        '';
       const initBranchObj = branches.find(b => b.id === initBranchId);
       const initBranchStaff = staffOptions.filter(
         s =>
@@ -225,7 +240,14 @@ export default function CreateEditBranchContentModal({
             (initBranchObj && matchBranch(s.branch, initBranchObj.name)))
       );
       const selfInBranch = initBranchStaff.find(s => s.id === permissions?.userId);
-      const defaultPerson = selfInBranch || initBranchStaff[0];
+      const isSelfAllowed = Boolean(
+        permissions?.allowedBranchIds?.some(id => matchBranch(id, initBranchId))
+      );
+      const defaultPerson =
+        selfInBranch ||
+        (isSelfAllowed && permissions?.userId
+          ? { id: permissions.userId, name: permissions.userName }
+          : initBranchStaff[0]);
 
       setTitle('');
       setBranchId(initBranchId);
@@ -522,7 +544,7 @@ export default function CreateEditBranchContentModal({
                 </label>
                 <select
                   value={branchId}
-                  disabled={!permissions?.canViewAllBranches && !!permissions?.userBranchId}
+                  disabled={!permissions?.canViewAllBranches && branches.length <= 1}
                   onChange={e => {
                     const nextBranchId = e.target.value;
                     setBranchId(nextBranchId);
@@ -534,7 +556,15 @@ export default function CreateEditBranchContentModal({
                         (matchBranch(s.branch, nextBranchId) ||
                           (nextBranchObj && matchBranch(s.branch, nextBranchObj.name)))
                     );
-                    const firstPerson = nextStaff[0];
+                    const isSelfAllowed = Boolean(
+                      permissions?.allowedBranchIds?.some(id => matchBranch(id, nextBranchId))
+                    );
+                    const selfPerson =
+                      nextStaff.find(s => s.id === permissions?.userId) ||
+                      (isSelfAllowed && permissions?.userId
+                        ? { id: permissions.userId, name: permissions.userName }
+                        : undefined);
+                    const firstPerson = selfPerson || nextStaff[0];
                     if (firstPerson) {
                       setAssigneeId(firstPerson.id);
                       setAssigneeName(firstPerson.name);
@@ -551,9 +581,11 @@ export default function CreateEditBranchContentModal({
                     </option>
                   ))}
                 </select>
-                {!permissions?.canViewAllBranches && permissions?.userBranchName && (
+                {!permissions?.canViewAllBranches && (branches.length > 1 || permissions?.userBranchName) && (
                   <p className="text-[10px] text-slate-500 mt-1">
-                    * ระบบล็อกสาขาตามสิทธิ์บัญชีของคุณ ({permissions.userBranchName})
+                    {branches.length > 1
+                      ? `* เลือกสร้างได้เฉพาะสาขาที่ได้รับสิทธิ์ (${branches.map(b => b.name).join(' • ')})`
+                      : `* ระบบล็อกสาขาตามสิทธิ์บัญชีของคุณ (${permissions?.userBranchName})`}
                   </p>
                 )}
               </div>
@@ -1005,7 +1037,9 @@ export default function CreateEditBranchContentModal({
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-extrabold inline-flex items-center gap-1.5 shadow-md shadow-red-500/20 transition-all"
             >
               <Send size={14} />
-              ส่งให้ Marketing ตรวจสอบ (Submit for Review)
+              {permissions?.canViewAllBranches
+                ? 'ส่งตรวจ / Submit for Review'
+                : 'ส่งให้ ผจก.สาขาตรวจสอบ (Submit for Review)'}
             </button>
           </div>
         </div>

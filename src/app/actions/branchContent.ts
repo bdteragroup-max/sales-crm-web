@@ -35,14 +35,22 @@ const REQUIRED_11_BRANCHES = [
   { id: 'NRT01', name: 'นครศรีธรรมราช', lat: 8.4304, lon: 99.9631 },
 ];
 
-let schemaInitialized = false;
+const globalForBranchContentSchema = globalThis as unknown as {
+  __branchContentSchemaReady?: boolean;
+  __branchContentSchemaPromise?: Promise<void> | null;
+};
 
 /**
- * Ensures database tables and the 11 required branches in Branch Master Data exist.
+ * Ensures database tables and the 11 required branches in Branch Master Data exist (single-flight across HMR/parallel requests).
  */
 async function ensureBranchContentSchema() {
-  if (schemaInitialized) return;
-  try {
+  if (globalForBranchContentSchema.__branchContentSchemaReady) return;
+  if (globalForBranchContentSchema.__branchContentSchemaPromise) {
+    return globalForBranchContentSchema.__branchContentSchemaPromise;
+  }
+
+  const runInit = async () => {
+    try {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS branch_contents (
         id TEXT PRIMARY KEY,
@@ -152,6 +160,47 @@ async function ensureBranchContentSchema() {
       CREATE INDEX IF NOT EXISTS idx_branch_content_logs_cid ON branch_content_logs(content_id);
     `);
 
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS user_branch_access (
+        id TEXT PRIMARY KEY,
+        emp_id TEXT NOT NULL,
+        branch_id TEXT NOT NULL,
+        scope TEXT NOT NULL DEFAULT 'BRANCH_CONTENT',
+        can_create BOOLEAN NOT NULL DEFAULT TRUE,
+        can_submit BOOLEAN NOT NULL DEFAULT TRUE,
+        can_branch_approve BOOLEAN NOT NULL DEFAULT FALSE,
+        can_view_dashboard BOOLEAN NOT NULL DEFAULT TRUE,
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+        note TEXT,
+        granted_by TEXT,
+        created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS user_branch_access_emp_branch_scope_uq
+        ON user_branch_access (emp_id, branch_id, scope);
+      CREATE INDEX IF NOT EXISTS user_branch_access_emp_id_idx
+        ON user_branch_access (emp_id);
+    `);
+
+    // Ensure TG69029 (primary: ROI01) also has active secondary branch access to SRN01 (สุรินทร์)
+    await prisma.$executeRawUnsafe(`
+      INSERT INTO user_branch_access (
+        id, emp_id, branch_id, scope, can_create, can_submit, can_branch_approve, can_view_dashboard, is_active, note
+      ) VALUES (
+        'uba_tg69029_srn01',
+        'TG69029',
+        'SRN01',
+        'BRANCH_CONTENT',
+        TRUE,
+        TRUE,
+        FALSE,
+        TRUE,
+        TRUE,
+        'อนุญาตให้ TG69029 เข้าดู Dashboard และสร้างงานสาขาสุรินทร์เพิ่มเติม โดยยังคงสังกัดหลักสาขาร้อยเอ็ด (ROI01)'
+      )
+      ON CONFLICT (emp_id, branch_id, scope) DO NOTHING;
+    `);
+
     // Ensure the 11 branches exist in branches Master Data table
     const existingBranches = await prisma.branches.findMany({
       select: { id: true, name: true },
@@ -179,10 +228,16 @@ async function ensureBranchContentSchema() {
       }
     }
 
-    schemaInitialized = true;
-  } catch (err) {
-    console.error('[BranchContent] ensureBranchContentSchema error:', err);
-  }
+      globalForBranchContentSchema.__branchContentSchemaReady = true;
+    } catch (err) {
+      console.error('[BranchContent] ensureBranchContentSchema error:', err);
+    } finally {
+      globalForBranchContentSchema.__branchContentSchemaPromise = null;
+    }
+  };
+
+  globalForBranchContentSchema.__branchContentSchemaPromise = runInit();
+  return globalForBranchContentSchema.__branchContentSchemaPromise;
 }
 
 /**
@@ -235,6 +290,37 @@ export async function getBranchMasterData(): Promise<BranchMasterItem[]> {
   }));
 }
 
+function hasAllowedBranchAccess(
+  permissions: Pick<
+    BranchContentPermissions,
+    'canViewAllBranches' | 'allowedBranchIds' | 'allowedBranches' | 'userBranchId' | 'userBranchName'
+  >,
+  branchId?: string | null,
+  branchName?: string | null
+): boolean {
+  if (permissions.canViewAllBranches) return true;
+  if (permissions.allowedBranchIds?.length > 0) {
+    if (branchId && permissions.allowedBranchIds.some(id => matchBranch(id, branchId))) {
+      return true;
+    }
+    if (
+      permissions.allowedBranches?.some(
+        b =>
+          (branchId && matchBranch(b.id, branchId)) ||
+          (branchName && (matchBranch(b.name, branchName) || matchBranch(b.id, branchName)))
+      )
+    ) {
+      return true;
+    }
+  }
+  return Boolean(
+    (permissions.userBranchId &&
+      ((branchId && matchBranch(branchId, permissions.userBranchId)) ||
+        (branchName && matchBranch(branchName, permissions.userBranchId)))) ||
+      (permissions.userBranchName && branchName && matchBranch(branchName, permissions.userBranchName))
+  );
+}
+
 /**
  * Resolves user role & branch permissions on the backend.
  */
@@ -269,9 +355,10 @@ export async function resolveUserBranchPermissions(): Promise<{
 
   let rawUserBranch: string | null = user.employeeSale?.branch || null;
   let matchedBranch: BranchMasterItem | undefined = findMatchingBranch(rawUserBranch);
+  let effectiveEmpId: string | null = user.employeeId || null;
 
-  // 1. Check HR database (`teraDb.employees` and `prisma.employees`) if not matched yet
-  if (!matchedBranch) {
+  // 1. Check HR database (`teraDb.employees`) if primary branch or employeeId isn't matched yet
+  if (!matchedBranch || !effectiveEmpId) {
     try {
       const cleanFullName = (user.fullName || '')
         .replace(/^(นาย|นางสาว|นาง|คุณ|ดร\.)\s*/g, '')
@@ -294,13 +381,18 @@ export async function resolveUserBranchPermissions(): Promise<{
         .catch(() => null);
 
       if (hrEmp) {
-        const candidate = hrEmp.branch_id || null;
-        const found = findMatchingBranch(candidate);
-        if (found) {
-          matchedBranch = found;
-          rawUserBranch = found.name;
-        } else if (!rawUserBranch && candidate) {
-          rawUserBranch = candidate;
+        if (!effectiveEmpId && hrEmp.emp_id) {
+          effectiveEmpId = hrEmp.emp_id;
+        }
+        if (!matchedBranch) {
+          const candidate = hrEmp.branch_id || null;
+          const found = findMatchingBranch(candidate);
+          if (found) {
+            matchedBranch = found;
+            rawUserBranch = found.name;
+          } else if (!rawUserBranch && candidate) {
+            rawUserBranch = candidate;
+          }
         }
       }
     } catch {
@@ -312,13 +404,13 @@ export async function resolveUserBranchPermissions(): Promise<{
   // check their subordinates in HR (`teraDb.employees`) and CRM (`prisma.user.employeeSale`)
   if (!matchedBranch && branchMgr) {
     try {
-      if (user.employeeId) {
+      if (effectiveEmpId) {
         const subEmps = await teraDb.employees
           .findMany({
             where: {
               OR: [
-                { supervisor_id: user.employeeId },
-                { secondary_supervisor_id: user.employeeId },
+                { supervisor_id: effectiveEmpId },
+                { secondary_supervisor_id: effectiveEmpId },
               ],
               is_active: true,
             },
@@ -366,21 +458,73 @@ export async function resolveUserBranchPermissions(): Promise<{
     }
   }
 
-  // Fallback for branch users whose branch string isn't matched yet
+  // Primary HR branch remains untouched for sales/pipeline/HR continuity
   const userBranchId = matchedBranch?.id || null;
   const userBranchName =
     matchedBranch?.name ||
     (rawUserBranch ? rawUserBranch.replace(/^สาขา\s*/, '').trim() : null);
+
+  // 3. Load explicit cross-branch access grants from `user_branch_access` (without transferring home branch)
+  type UserBranchAccessRow = {
+    branch_id: string;
+    can_create: boolean;
+    can_submit: boolean;
+    can_branch_approve: boolean;
+    can_view_dashboard: boolean;
+  };
+
+  let extraGrants: UserBranchAccessRow[] = [];
+  if (effectiveEmpId && !sysAdmin && !approver && !reviewer) {
+    try {
+      extraGrants = (await prisma.$queryRawUnsafe(
+        `SELECT branch_id, can_create, can_submit, can_branch_approve, can_view_dashboard
+         FROM user_branch_access
+         WHERE UPPER(emp_id) = UPPER($1)
+           AND scope = 'BRANCH_CONTENT'
+           AND is_active = TRUE`,
+        effectiveEmpId
+      )) as UserBranchAccessRow[];
+    } catch {
+      extraGrants = [];
+    }
+  }
+
+  const canViewAllBranches = sysAdmin || approver || reviewer;
+  const allowedBranchMap = new Map<string, BranchMasterItem>();
+
+  if (canViewAllBranches) {
+    for (const b of branches) {
+      allowedBranchMap.set(b.id, b);
+    }
+  } else {
+    const primaryBranch = matchedBranch || (userBranchId ? findMatchingBranch(userBranchId) : undefined);
+    if (primaryBranch) {
+      allowedBranchMap.set(primaryBranch.id, primaryBranch);
+    }
+    for (const grant of extraGrants) {
+      const grantedBranch = findMatchingBranch(grant.branch_id);
+      if (grantedBranch) {
+        allowedBranchMap.set(grantedBranch.id, grantedBranch);
+      }
+    }
+  }
+
+  const allowedBranches = Array.from(allowedBranchMap.values());
+  const allowedBranchIds = allowedBranches.map(b => b.id);
+  const hasExtraBranchApprove = extraGrants.some(g => g.can_branch_approve);
+  const hasExtraDashboard = extraGrants.some(g => g.can_view_dashboard);
 
   let roleLabel = 'Branch Staff (พนักงานสาขา)';
   if (sysAdmin) roleLabel = 'System Admin (ผู้ดูแลระบบ)';
   else if (approver) roleLabel = 'Marketing Approver (ผู้จัดการการตลาด)';
   else if (reviewer) roleLabel = 'Marketing Reviewer (เจ้าหน้าที่การตลาด)';
   else if (branchMgr) roleLabel = 'Branch Manager (ผู้จัดการ/หัวหน้าสาขา)';
+  else if (allowedBranches.length > 1) {
+    roleLabel = `Branch Support (${allowedBranches.map(b => b.name).join(' / ')})`;
+  }
 
-  // Strictly restrict all-branch view to HQ Marketing, Executive, and System Admin only!
-  // Branch Manager (`ผู้จัดการสาขา`) and Branch Staff (`พนักงานสาขา`) MUST only see their own branch.
-  const canViewAllBranches = sysAdmin || approver || reviewer;
+  const canViewDashboard =
+    canViewAllBranches || branchMgr || hasExtraDashboard || allowedBranchIds.length > 1;
 
   return {
     user,
@@ -392,8 +536,11 @@ export async function resolveUserBranchPermissions(): Promise<{
       roleLabel,
       userBranchId,
       userBranchName,
+      allowedBranchIds,
+      allowedBranches,
       canViewAllBranches,
-      canBranchApprove: branchMgr || sysAdmin || approver,
+      canViewDashboard,
+      canBranchApprove: branchMgr || sysAdmin || approver || hasExtraBranchApprove,
       canReview: reviewer,
       canApprove: approver,
       isSystemAdmin: sysAdmin,
@@ -750,7 +897,22 @@ export async function getBranchContentBoardData() {
   }
 
   try {
+    const branchWhereClause =
+      !permissions.canViewAllBranches && permissions.allowedBranchIds.length > 0
+        ? {
+            OR: [
+              { createdById: user.id },
+              { assigneeId: user.id },
+              { branchId: { in: permissions.allowedBranchIds } },
+              ...permissions.allowedBranches.map(b => ({
+                branchName: { contains: b.name },
+              })),
+            ],
+          }
+        : undefined;
+
     const rawContents = await prisma.branchContent.findMany({
+      where: branchWhereClause,
       include: {
         media: { orderBy: { createdAt: 'desc' } },
         comments: { orderBy: { createdAt: 'desc' } },
@@ -760,16 +922,11 @@ export async function getBranchContentBoardData() {
     });
 
     // Strict Backend Access Control:
-    // If user is NOT Marketing/Admin, filter strictly to their assigned branch!
+    // If user is NOT Marketing/Admin, filter strictly to their primary + granted branches!
     const authorizedContents = rawContents.filter(c => {
       if (permissions.canViewAllBranches) return true;
       if (c.createdById === user.id || c.assigneeId === user.id) return true;
-      if (!permissions.userBranchName && !permissions.userBranchId) return false;
-      return (
-        matchBranch(c.branchId, permissions.userBranchId) ||
-        matchBranch(c.branchName, permissions.userBranchName) ||
-        matchBranch(c.branchName, permissions.userBranchId)
-      );
+      return hasAllowedBranchAccess(permissions, c.branchId, c.branchName);
     });
 
     const serialized = authorizedContents.map(serializeContentItem);
@@ -872,14 +1029,12 @@ export async function getBranchContentBoardData() {
     staffOptions.sort((a, b) => a.name.localeCompare(b.name, 'th'));
 
     // Strict Branch Scope for KPI and Branch Master list:
-    // Branch Manager & Branch Staff (`!permissions.canViewAllBranches`) MUST ONLY see their own branch!
+    // Non-HQ users only see their primary + granted branches (`allowedBranches`)
     const visibleBranches = permissions.canViewAllBranches
       ? branches
-      : branches.filter(
-          b =>
-            (permissions.userBranchId && matchBranch(b.id, permissions.userBranchId)) ||
-            (permissions.userBranchName && matchBranch(b.name, permissions.userBranchName))
-        );
+      : permissions.allowedBranches.length > 0
+      ? permissions.allowedBranches
+      : branches.filter(b => hasAllowedBranchAccess(permissions, b.id, b.name));
 
     const kpi = computeBranchContentKPI(serialized, visibleBranches);
 
@@ -951,20 +1106,20 @@ export async function createBranchContent(input: {
   );
 
   if (!permissions.canViewAllBranches) {
-    // Branch Staff / Branch Manager can only create for their own branch
-    if (permissions.userBranchId) {
-      const userBranchObj = branches.find(
+    // Non-HQ users can only create in their primary branch or explicitly granted branches
+    if (input.branchId && targetBranch) {
+      if (!hasAllowedBranchAccess(permissions, targetBranch.id, targetBranch.name)) {
+        const allowedLabel =
+          permissions.allowedBranches.map(b => b.name).join(', ') || permissions.userBranchName || '-';
+        return {
+          success: false,
+          error: `คุณได้รับสิทธิ์เฉพาะสาขา (${allowedLabel}) ไม่สามารถสร้างงานในสาขา${targetBranch.name}ได้`,
+        };
+      }
+    } else if (!input.branchId && permissions.userBranchId) {
+      targetBranch = branches.find(
         b => b.id === permissions.userBranchId || matchBranch(b.name, permissions.userBranchName)
       );
-      if (userBranchObj) {
-        if (targetBranch && targetBranch.id !== userBranchObj.id) {
-          return {
-            success: false,
-            error: `คุณสังกัดสาขา${userBranchObj.name} ไม่สามารถสร้างงานข้ามสาขาได้`,
-          };
-        }
-        targetBranch = userBranchObj;
-      }
     }
   }
 
@@ -1117,8 +1272,7 @@ export async function updateBranchContent(
   // Strict Backend Access Check
   if (!permissions.canViewAllBranches) {
     const isSameBranch =
-      matchBranch(existing.branchId, permissions.userBranchId) ||
-      matchBranch(existing.branchName, permissions.userBranchName) ||
+      hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName) ||
       existing.createdById === user.id ||
       existing.assigneeId === user.id;
 
@@ -1145,9 +1299,12 @@ export async function updateBranchContent(
   try {
     let branchId = existing.branchId;
     let branchName = existing.branchName;
-    if (input.branchId && permissions.canViewAllBranches) {
+    if (input.branchId) {
       const foundB = branches.find(b => b.id === input.branchId || matchBranch(b.name, input.branchId));
-      if (foundB) {
+      if (
+        foundB &&
+        (permissions.canViewAllBranches || hasAllowedBranchAccess(permissions, foundB.id, foundB.name))
+      ) {
         branchId = foundB.id;
         branchName = foundB.name;
       }
@@ -1265,8 +1422,7 @@ export async function submitBranchContentForReview(contentId: string, submission
   // Verify branch access
   if (!permissions.canViewAllBranches) {
     const isSameBranch =
-      matchBranch(existing.branchId, permissions.userBranchId) ||
-      matchBranch(existing.branchName, permissions.userBranchName) ||
+      hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName) ||
       existing.createdById === user.id ||
       existing.assigneeId === user.id;
 
@@ -1380,10 +1536,7 @@ export async function branchReviewContent(
   }
 
   if (!permissions.canViewAllBranches) {
-    const isSameBranch =
-      matchBranch(existing.branchId, permissions.userBranchId) ||
-      matchBranch(existing.branchName, permissions.userBranchName);
-    if (!isSameBranch) {
+    if (!hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName)) {
       return {
         success: false,
         error: '403 Forbidden: คุณสามารถตรวจอนุมัติได้เฉพาะงานในสาขาของตนเองเท่านั้น',
@@ -1668,8 +1821,7 @@ export async function markBranchContentPublished(
 
   if (!permissions.canViewAllBranches) {
     const isSameBranch =
-      matchBranch(existing.branchId, permissions.userBranchId) ||
-      matchBranch(existing.branchName, permissions.userBranchName) ||
+      hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName) ||
       existing.createdById === user.id ||
       existing.assigneeId === user.id;
 
@@ -1749,8 +1901,7 @@ export async function addBranchContentComment(contentId: string, message: string
 
   if (!permissions.canViewAllBranches) {
     const isSameBranch =
-      matchBranch(existing.branchId, permissions.userBranchId) ||
-      matchBranch(existing.branchName, permissions.userBranchName) ||
+      hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName) ||
       existing.createdById === user.id ||
       existing.assigneeId === user.id;
 
@@ -1814,8 +1965,7 @@ export async function cancelBranchContent(contentId: string, reason: string) {
 
   if (!permissions.canViewAllBranches) {
     const isSameBranch =
-      matchBranch(existing.branchId, permissions.userBranchId) ||
-      matchBranch(existing.branchName, permissions.userBranchName) ||
+      hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName) ||
       existing.createdById === user.id;
 
     if (!isSameBranch) {
@@ -1865,6 +2015,54 @@ export async function cancelBranchContent(contentId: string, reason: string) {
  * Only employees belonging to one of the 11 regional branches (or Marketing / Executive / SuperAdmin)
  * should see the Branch Content Board menu in the sidebar.
  */
+async function countPendingBranchContentForUser(
+  userId: string,
+  permissions: BranchContentPermissions
+): Promise<number> {
+  if (permissions.canViewAllBranches) {
+    // Marketing Reviewer / Marketing Approver / System Admin: count items waiting in Approve - 1 or Pending Review
+    return await prisma.branchContent.count({
+      where: {
+        status: { in: ['APPROVE_1', 'PENDING_REVIEW'] },
+      },
+    });
+  }
+
+  const branchScopeOr =
+    permissions.allowedBranchIds?.length > 0
+      ? [
+          { createdById: userId },
+          { assigneeId: userId },
+          { branchId: { in: permissions.allowedBranchIds } },
+          ...permissions.allowedBranches.map(b => ({
+            branchName: { contains: b.name },
+          })),
+        ]
+      : undefined;
+
+  const rawContents = await prisma.branchContent.findMany({
+    where: {
+      status: {
+        in: permissions.isBranchManager ? ['PENDING_REVIEW', 'REVISE'] : ['REVISE'],
+      },
+      ...(branchScopeOr ? { OR: branchScopeOr } : {}),
+    },
+    select: {
+      branchId: true,
+      branchName: true,
+      createdById: true,
+      assigneeId: true,
+    },
+  });
+
+  return rawContents.filter(
+    c =>
+      c.createdById === userId ||
+      c.assigneeId === userId ||
+      hasAllowedBranchAccess(permissions, c.branchId, c.branchName)
+  ).length;
+}
+
 export async function getBranchContentSidebarAccess(): Promise<{
   canAccess: boolean;
   pendingCount: number;
@@ -1876,12 +2074,15 @@ export async function getBranchContentSidebarAccess(): Promise<{
       return { canAccess: false, pendingCount: 0 };
     }
 
-    const canAccess = Boolean(permissions.userBranchId) || Boolean(permissions.canViewAllBranches);
+    const canAccess =
+      Boolean(permissions.userBranchId) ||
+      Boolean(permissions.allowedBranchIds?.length) ||
+      Boolean(permissions.canViewAllBranches);
     if (!canAccess) {
       return { canAccess: false, pendingCount: 0 };
     }
 
-    const pendingCount = await getPendingBranchContentCount();
+    const pendingCount = await countPendingBranchContentForUser(user.id, permissions);
     return { canAccess: true, pendingCount };
   } catch {
     return { canAccess: false, pendingCount: 0 };
@@ -1897,36 +2098,7 @@ export async function getPendingBranchContentCount(): Promise<number> {
     const { user, permissions } = await resolveUserBranchPermissions();
     if (!user || !permissions) return 0;
 
-    if (permissions.canViewAllBranches) {
-      // Marketing Reviewer / Marketing Approver / System Admin: count items waiting in Approve - 1 or Pending Review
-      return await prisma.branchContent.count({
-        where: {
-          status: { in: ['APPROVE_1', 'PENDING_REVIEW'] },
-        },
-      });
-    }
-
-    const rawContents = await prisma.branchContent.findMany({
-      where: {
-        status: {
-          in: permissions.isBranchManager ? ['PENDING_REVIEW', 'REVISE'] : ['REVISE'],
-        },
-      },
-      select: {
-        branchId: true,
-        branchName: true,
-        createdById: true,
-        assigneeId: true,
-      },
-    });
-
-    return rawContents.filter(
-      c =>
-        c.createdById === user.id ||
-        c.assigneeId === user.id ||
-        matchBranch(c.branchId, permissions.userBranchId) ||
-        matchBranch(c.branchName, permissions.userBranchName)
-    ).length;
+    return await countPendingBranchContentForUser(user.id, permissions);
   } catch {
     return 0;
   }
@@ -1974,8 +2146,7 @@ export async function moveBranchContentCardStatus(
   // Branch Access Check
   if (!permissions.canViewAllBranches) {
     const isSameBranch =
-      matchBranch(existing.branchId, permissions.userBranchId) ||
-      matchBranch(existing.branchName, permissions.userBranchName) ||
+      hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName) ||
       existing.createdById === user.id ||
       existing.assigneeId === user.id;
 

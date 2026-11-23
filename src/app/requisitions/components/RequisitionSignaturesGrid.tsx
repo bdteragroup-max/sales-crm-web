@@ -26,9 +26,11 @@ interface RequisitionSignaturesGridProps {
   requesterDisplay?: string;
   pulledStoreSigUrl?: string | null;
   pulledStoreName?: string | null;
+  canSignStore?: boolean;
   canSignAccounting?: boolean;
   canSignTransport?: boolean;
   canSignReceiver?: boolean;
+  onClickStoreSign?: () => void;
   onClickAccountingSign?: () => void;
   onClickTransportSign?: () => void;
   onClickReceiverSign?: () => void;
@@ -40,9 +42,11 @@ export default function RequisitionSignaturesGrid({
   requesterDisplay,
   pulledStoreSigUrl = null,
   pulledStoreName = null,
+  canSignStore = false,
   canSignAccounting = false,
   canSignTransport = false,
   canSignReceiver = false,
+  onClickStoreSign,
   onClickAccountingSign,
   onClickTransportSign,
   onClickReceiverSign,
@@ -85,8 +89,13 @@ export default function RequisitionSignaturesGrid({
         requisition.storeStaffName ||
         pulledStoreName ||
         'เจ้าหน้าที่สโตร์',
+      subLabel: requisition.storeStaffSignatureUrl ? 'สโตร์ลงนามจ่ายแล้ว' : null,
+      subBadgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
       emptyText: 'ยังไม่ลงนามจ่าย',
       emptyClass: 'text-amber-600',
+      canClick: Boolean(isApprovedOrLater && canSignStore && onClickStoreSign),
+      clickLabel: requisition.storeStaffSignatureUrl ? 'แก้ไขลายเซ็น' : 'เซ็นจ่ายของ',
+      onClick: onClickStoreSign,
     },
     {
       step: '4. แผนกบัญชี (รับทราบ)',

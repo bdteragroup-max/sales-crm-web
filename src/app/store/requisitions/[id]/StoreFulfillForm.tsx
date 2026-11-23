@@ -25,6 +25,7 @@ import RequisitionItemsInteractiveSection, {
   openPreparingPdfTab,
   type RequisitionItemsDraftState,
 } from '@/app/requisitions/components/RequisitionItemsInteractiveSection';
+import RequisitionStoreSignModal from '@/app/requisitions/components/RequisitionStoreSignModal';
 import RequisitionTransportSignModal from '@/app/requisitions/components/RequisitionTransportSignModal';
 import RequisitionAccountingSignModal from '@/app/requisitions/components/RequisitionAccountingSignModal';
 import RequisitionSignaturesGrid from '@/app/requisitions/components/RequisitionSignaturesGrid';
@@ -58,6 +59,7 @@ import {
   FileSignature,
   Truck,
   FileCheck2,
+  Warehouse,
 } from 'lucide-react';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
@@ -122,6 +124,7 @@ export default function StoreFulfillForm({
   const [requisition, setRequisition] = useState(initialRequisition);
   const [loading, setLoading] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
   const [isTransportModalOpen, setIsTransportModalOpen] = useState(false);
   const [isAccountingModalOpen, setIsAccountingModalOpen] = useState(false);
   const [itemsDraftState, setItemsDraftState] = useState<RequisitionItemsDraftState>(() => ({
@@ -828,6 +831,28 @@ export default function StoreFulfillForm({
           <span>ตรวจรับหน้างาน (เซ็นรับ + รูปถ่าย)</span>
         </button>
       )}
+
+      {/* Standalone Store Release Signature Button (mobile-friendly, works even after COMPLETED) */}
+      {canManageStore &&
+        requisition.status !== 'PENDING_APPROVAL' &&
+        requisition.status !== 'REJECTED' && (
+          <button
+            type="button"
+            onClick={() => setIsStoreModalOpen(true)}
+            className={`min-h-[44px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.99] ${
+              requisition.storeStaffSignatureUrl
+                ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                : 'bg-teal-600 hover:bg-teal-700 text-white'
+            }`}
+          >
+            <Warehouse size={17} className="shrink-0" />
+            <span>
+              {requisition.storeStaffSignatureUrl
+                ? 'สโตร์เซ็นจ่ายแล้ว (ดู/แก้ไข)'
+                : 'สโตร์เซ็นจ่ายของ'}
+            </span>
+          </button>
+        )}
 
       {canSignTransport &&
         requisition.status !== 'PENDING_APPROVAL' &&
@@ -1645,6 +1670,7 @@ export default function StoreFulfillForm({
                         <div className="relative border-2 border-slate-300 bg-white rounded-xl overflow-hidden">
                           <SignatureCanvas
                             ref={receiverSigPad}
+                            clearOnResize={false}
                             penColor="#0f172a"
                             canvasProps={{
                               className:
@@ -1733,6 +1759,7 @@ export default function StoreFulfillForm({
                           <div className="relative border-2 border-slate-300 bg-white rounded-xl overflow-hidden">
                             <SignatureCanvas
                               ref={storeSigPad}
+                              clearOnResize={false}
                               penColor="#0f172a"
                               canvasProps={{
                                 className:
@@ -2245,12 +2272,32 @@ export default function StoreFulfillForm({
         requesterDisplay={requesterDisplay}
         pulledStoreSigUrl={pullStoreSignature ? effectiveSavedStoreSig : null}
         pulledStoreName={pullStoreSignature ? currentUserName : null}
+        canSignStore={
+          canManageStore &&
+          requisition.status !== 'PENDING_APPROVAL' &&
+          requisition.status !== 'REJECTED'
+        }
         canSignAccounting={canSignAccounting}
         canSignTransport={canSignTransport}
         canSignReceiver={canManageStore}
+        onClickStoreSign={() => setIsStoreModalOpen(true)}
         onClickAccountingSign={() => setIsAccountingModalOpen(true)}
         onClickTransportSign={() => setIsTransportModalOpen(true)}
         onClickReceiverSign={openHandoverModal}
+      />
+
+      <RequisitionStoreSignModal
+        requisition={requisition}
+        isOpen={isStoreModalOpen}
+        onClose={() => setIsStoreModalOpen(false)}
+        currentUserName={currentUserName}
+        savedStoreSignatureUrl={savedStoreSignatureUrl}
+        onSuccess={(payload) => {
+          setRequisition((prev: StoreFulfillFormProps['requisition']) => ({
+            ...prev,
+            ...payload,
+          }));
+        }}
       />
 
       <RequisitionTransportSignModal
@@ -2261,7 +2308,7 @@ export default function StoreFulfillForm({
         isTransportUser={isTransportUser}
         savedTransportSignatureUrl={savedTransportSignatureUrl || savedStoreSignatureUrl}
         onSuccess={(payload) => {
-          setRequisition((prev: any) => ({
+          setRequisition((prev: StoreFulfillFormProps['requisition']) => ({
             ...prev,
             ...payload,
           }));
@@ -2276,7 +2323,7 @@ export default function StoreFulfillForm({
         isAccountingUser={isAccountingUser}
         savedAccountingSignatureUrl={savedAccountingSignatureUrl || savedStoreSignatureUrl}
         onSuccess={(payload) => {
-          setRequisition((prev: any) => ({
+          setRequisition((prev: StoreFulfillFormProps['requisition']) => ({
             ...prev,
             ...payload,
           }));

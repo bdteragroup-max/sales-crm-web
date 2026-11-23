@@ -294,7 +294,9 @@ export default function BranchContentDashboardView({
           </div>
           <div>
             <h3 className="text-base font-extrabold text-slate-900">
-              แดชบอร์ดและรายงานภาพรวมคอนเทนต์ 11 สาขา (Branch Content Analytics)
+              {branches.length >= 11
+                ? 'แดชบอร์ดและรายงานภาพรวมคอนเทนต์ 11 สาขา (Branch Content Analytics)'
+                : `แดชบอร์ดและรายงานภาพรวมคอนเทนต์ (${branches.map(b => `สาขา${b.name}`).join(' • ') || 'สาขา'})`}
             </h3>
             <p className="text-xs text-slate-500">
               คำนวณจากข้อมูลจริงในฐานข้อมูล (Real-time Database Calculation) ตามตัวกรองที่เลือกด้านบน
@@ -387,7 +389,9 @@ export default function BranchContentDashboardView({
           <div className="flex items-center gap-2">
             <Building2 size={18} className="text-red-600" />
             <h4 className="font-extrabold text-slate-900 text-sm">
-              ตารางติดตามสถานะคอนเทนต์แยกตาม 11 สาขา (Branch Matrix)
+              {branches.length >= 11
+                ? 'ตารางติดตามสถานะคอนเทนต์แยกตาม 11 สาขา (Branch Matrix)'
+                : `ตารางติดตามสถานะคอนเทนต์แยกตามสาขา (${branches.map(b => b.name).join(' • ')})`}
             </h4>
           </div>
           <span className="text-xs text-slate-500 font-semibold">

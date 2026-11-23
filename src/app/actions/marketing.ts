@@ -4,6 +4,11 @@ import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
 import { notifyUser } from '@/app/lib/pushNotification'
 import { canViewAllMarketingLeads } from '@/app/lib/roleHelper'
+import {
+  findDuplicateLeadOrContactByPhone,
+  formatDuplicateLeadErrorMessage,
+  normalizeLeadPhoneNumber,
+} from '@/app/lib/marketingLeadDedup'
 import ExcelJS from 'exceljs'
 
 export async function createMarketingLead(data: {
@@ -20,22 +25,63 @@ export async function createMarketingLead(data: {
   adCampaignId?: string | null
 }) {
   try {
-    const lead = await (prisma as any).marketingLead.create({
-      data: {
-        customerName: data.customerName,
-        phoneNumber: data.phoneNumber,
-        province: data.province?.trim() || null,
-        productOfInterest: data.productOfInterest,
-        productType: data.productType,
-        occupation: data.occupation || null,
-        businessType: data.occupation || null,
-        conversationContent: data.conversationContent,
-        createdByUserId: data.createdByUserId,
-        leadSource: data.leadSource || null,
-        campaignSource: data.campaignSource || null,
-        adCampaignId: data.adCampaignId || null,
+    const trimmedName = (data.customerName || '').trim()
+    if (!trimmedName) {
+      return { success: false, error: 'กรุณาระบุชื่อลูกค้าหรือบริษัท' }
+    }
+
+    const rawPhone = data.phoneNumber?.trim() || null
+    const normalizedPhone = normalizeLeadPhoneNumber(rawPhone)
+    const savedPhone = normalizedPhone || rawPhone
+
+    const lead = await prisma.$transaction(async (tx) => {
+      if (normalizedPhone) {
+        // Serialize concurrent submissions for the same phone number at the DB level
+        await tx.$executeRawUnsafe(
+          `SELECT pg_advisory_xact_lock(hashtext($1))`,
+          `marketing_lead_phone:${normalizedPhone}`
+        )
+
+        const dupMatch = await findDuplicateLeadOrContactByPhone(normalizedPhone, { db: tx })
+        if (dupMatch) {
+          throw new Error(formatDuplicateLeadErrorMessage(dupMatch, savedPhone))
+        }
+      } else {
+        await tx.$executeRawUnsafe(
+          `SELECT pg_advisory_xact_lock(hashtext($1))`,
+          `marketing_lead_name:${trimmedName.toLowerCase()}`
+        )
+        const existingSameName = await (tx as any).marketingLead.findFirst({
+          where: {
+            customerName: { equals: trimmedName, mode: 'insensitive' },
+          },
+          select: { id: true, customerName: true },
+        })
+        if (existingSameName) {
+          throw new Error(
+            `ห้ามลงซ้ำ: ชื่อลูกค้า "${existingSameName.customerName}" มีอยู่ในระบบ Marketing Leads แล้ว`
+          )
+        }
       }
+
+      return (tx as any).marketingLead.create({
+        data: {
+          customerName: trimmedName,
+          phoneNumber: savedPhone,
+          province: data.province?.trim() || null,
+          productOfInterest: data.productOfInterest,
+          productType: data.productType,
+          occupation: data.occupation || null,
+          businessType: data.occupation || null,
+          conversationContent: data.conversationContent,
+          createdByUserId: data.createdByUserId,
+          leadSource: data.leadSource || null,
+          campaignSource: data.campaignSource || null,
+          adCampaignId: data.adCampaignId || null,
+        }
+      })
     })
+
     revalidatePath('/marketing')
     revalidatePath('/sales/leads')
     return { success: true, data: lead }
@@ -394,6 +440,24 @@ export async function updateMarketingLead(id: string, data: {
     })
 
     const updatePayload: any = { ...data }
+    if (data.phoneNumber !== undefined) {
+      const trimmedPhone = data.phoneNumber?.trim() || null
+      const normalizedPhone = normalizeLeadPhoneNumber(trimmedPhone)
+      if (normalizedPhone) {
+        const dupMatch = await findDuplicateLeadOrContactByPhone(normalizedPhone, {
+          excludeLeadId: id,
+        })
+        if (dupMatch) {
+          return {
+            success: false,
+            error: formatDuplicateLeadErrorMessage(dupMatch, trimmedPhone),
+          }
+        }
+        updatePayload.phoneNumber = normalizedPhone
+      } else {
+        updatePayload.phoneNumber = trimmedPhone
+      }
+    }
     if (data.province !== undefined) {
       updatePayload.province = data.province?.trim() || null
     }
@@ -456,22 +520,20 @@ export async function deleteMarketingLead(id: string) {
   }
 }
 
-export async function checkDuplicatePhone(phoneNumber: string) {
+export async function checkDuplicatePhone(phoneNumber: string, excludeLeadId?: string) {
   try {
-    const contact = await prisma.contact.findFirst({
-      where: { mobilePhone: phoneNumber }
-    })
-    if (contact) {
-      const company = await prisma.company.findUnique({
-        where: { id: contact.companyId }
-      })
-      return { 
-        success: true, 
-        isDuplicate: true, 
+    const match = await findDuplicateLeadOrContactByPhone(phoneNumber, { excludeLeadId })
+    if (match) {
+      return {
+        success: true,
+        isDuplicate: true,
+        sourceType: match.sourceType,
         contact: {
-          id: contact.id,
-          name: contact.contactName,
-          companyName: company?.companyName || 'Unknown Company'
+          id: match.id,
+          name: match.name,
+          companyName: match.companyName || (match.sourceType === 'LEAD' ? 'Lead ในระบบ Marketing' : 'ลูกค้าเดิมในระบบ'),
+          phoneNumber: match.phoneNumber,
+          salesRepName: match.salesRepName,
         }
       }
     }

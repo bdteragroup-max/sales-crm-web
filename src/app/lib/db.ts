@@ -7,14 +7,14 @@ import { hasSurveyExtendedFieldsInRuntime } from './surveySignaturesDb'
 import { hasRequisitionExtendedFieldsInRuntime } from './requisitionSignaturesDb'
 
 const originalEmitWarning = process.emitWarning;
-process.emitWarning = function(warning: any, ...args: any[]) {
+process.emitWarning = function(warning: string | Error, ...args: unknown[]) {
   if (typeof warning === 'string' && warning.includes('Calling client.query() when the client is already executing a query')) {
     return;
   }
-  if (warning && warning.message && warning.message.includes('Calling client.query() when the client is already executing a query')) {
+  if (typeof warning !== 'string' && warning?.message && warning.message.includes('Calling client.query() when the client is already executing a query')) {
     return;
   }
-  return originalEmitWarning.call(process, warning, ...args);
+  return Reflect.apply(originalEmitWarning as (...a: unknown[]) => void, process, [warning, ...args]);
 };
 
 const prismaClientSingleton = () => {
@@ -25,15 +25,15 @@ const prismaClientSingleton = () => {
       const envFile = fs.readFileSync(envPath, 'utf-8');
       const match = envFile.match(/DATABASE_URL="?([^"\n]+)"?/);
       if (match) dbUrl = match[1];
-    } catch (e) {
+    } catch {
       console.warn("Failed to load DATABASE_URL from .env file");
     }
   }
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 12, // Balanced for Supabase pooler (max 20) to prevent starvation across dev/worker instances
-    idleTimeoutMillis: 5000, // Release idle clients after 5s before Supabase pgBouncer forcibly drops them
-    connectionTimeoutMillis: 15000, // 15s connection timeout
+    max: 10, // Keep combined pool sizes (db + teraDb + paymentRequests) within Supabase connection_limit=20
+    idleTimeoutMillis: 20000, // Keep warm connections briefly to avoid constant TLS re-handshakes
+    connectionTimeoutMillis: 30000, // Allow headroom during cold compile bursts
     keepAlive: true,
     keepAliveInitialDelayMillis: 5000,
   })
@@ -66,9 +66,13 @@ const hasStockModels =
 const hasSolarCleaningModel =
   cachedPrisma &&
   typeof (cachedPrisma as unknown as Record<string, unknown>).solarCleaningInspection !== 'undefined';
+const hasSalesCommissionModel =
+  cachedPrisma &&
+  typeof (cachedPrisma as unknown as Record<string, unknown>).salesCommissionRequest !== 'undefined';
 const isCacheCompatible =
   Boolean(hasStockModels) &&
   Boolean(hasSolarCleaningModel) &&
+  Boolean(hasSalesCommissionModel) &&
   hasSurveyExtendedFieldsInRuntime(cachedPrisma) &&
   hasRequisitionExtendedFieldsInRuntime(cachedPrisma);
 

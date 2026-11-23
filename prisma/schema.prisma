@@ -77,6 +77,11 @@ model User {
   solarCleaningCreated        SolarCleaningInspection[] @relation("SolarCleaningCreator")
   solarCleaningProjectSigned  SolarCleaningInspection[] @relation("SolarCleaningProjectMgr")
   solarCleaningServiceSigned  SolarCleaningInspection[] @relation("SolarCleaningServiceMgr")
+  commissionSalesJobs         SalesCommissionRequest[]  @relation("CommissionSalesperson")
+  commissionRequested         SalesCommissionRequest[]  @relation("CommissionRequester")
+  commissionProfitConfirmed   SalesCommissionRequest[]  @relation("CommissionProfitConfirmer")
+  commissionApproved          SalesCommissionRequest[]  @relation("CommissionApprover")
+  commissionPayoutRecorded    SalesCommissionRequest[]  @relation("CommissionPayoutRecorder")
 }
 
 model MonthlyTarget {
@@ -456,8 +461,13 @@ model Job {
   salesOrderDate        DateTime?           @db.Timestamptz(6)
   paymentDate           DateTime?           @db.Timestamptz(6)
   billingDocsUrl        String?
-  additionalInformation String?
-  requiredDeliveryDate  DateTime?
+  additionalInformation       String?
+  requiredDeliveryDate        DateTime?
+  accountingVerifiedBeforeVat Float?                   @map("accounting_verified_before_vat")
+  accountingTaxDocuments      Json?                    @map("accounting_tax_documents")
+  accountingClosedAt          DateTime?                @map("accounting_closed_at") @db.Timestamptz(6)
+  accountingClosedBy          String?                  @map("accounting_closed_by")
+  accountingVerificationNote  String?                  @map("accounting_verification_note")
   goodsReturns          GoodsReturn[]
   installationOrders    InstallationOrder[]
   documents             JobDocument[]
@@ -467,8 +477,9 @@ model Job {
   repairOrder           RepairOrder?
   technicianTasks       TechnicianTask[]
   stepLogs              JobStepLog[]
-  quotation             Quotation?          @relation(fields: [quotationId], references: [id])
+  quotation             Quotation?               @relation(fields: [quotationId], references: [id])
   paymentTasks          PaymentTask[]
+  commissionRequests    SalesCommissionRequest[]
 
   @@map("jobs")
 }
@@ -4306,4 +4317,112 @@ model SolarCleaningInspection {
   @@index([inspectionDate(sort: Desc)], map: "idx_solar_cleaning_date")
   @@index([createdAt(sort: Desc)], map: "idx_solar_cleaning_created")
   @@map("solar_cleaning_inspections")
+}
+
+model SalesCommissionRequest {
+  id                    String               @id @default(cuid())
+  requestNo             String               @unique @map("request_no") @db.VarChar(40)
+  jobId                 String               @map("job_id")
+  jobNumber             String               @map("job_number") @db.VarChar(60)
+  companyCode           String               @default("TG") @map("company_code") @db.VarChar(20)
+  customerName          String               @map("customer_name")
+  productSold           String?              @map("product_sold") @db.Text
+  jobType               String?              @map("job_type") @db.VarChar(60)
+  salespersonId         String?              @map("salesperson_id")
+  salespersonName       String               @map("salesperson_name") @db.VarChar(200)
+  requestedById         String               @map("requested_by_id")
+  requestedByName       String               @map("requested_by_name") @db.VarChar(200)
+  requestedAt           DateTime             @default(now()) @map("requested_at") @db.Timestamptz(6)
+
+  taxInvoiceNumbers     String?              @map("tax_invoice_numbers") @db.Text
+  taxInvoiceDate        DateTime?            @map("tax_invoice_date") @db.Timestamptz(6)
+  receiptNumbers        String?              @map("receipt_numbers") @db.Text
+  jobClosedStatus       String               @default("ยังไม่ปิด Job") @map("job_closed_status") @db.VarChar(60)
+  isJobClosed           Boolean              @default(false) @map("is_job_closed")
+  salesAmountExVat      Float                @map("sales_amount_ex_vat")
+  paidAmountRecorded    Float                @default(0) @map("paid_amount_recorded")
+  isPayment100Pct       Boolean              @default(false) @map("is_payment_100_pct")
+  isAccountingDone      Boolean              @default(false) @map("is_accounting_done")
+  hasGoodsReturn        Boolean              @default(false) @map("has_goods_return")
+  crmFetchedAt          DateTime             @default(now()) @map("crm_fetched_at") @db.Timestamptz(6)
+  crmSnapshot           Json?                @map("crm_snapshot")
+
+  costAmount            Float?               @map("cost_amount")
+  sourceProfitPct       Float?               @map("source_profit_pct")
+  confirmedProfitPct    Float?               @map("confirmed_profit_pct")
+  profitConfirmedById   String?              @map("profit_confirmed_by_id")
+  profitConfirmedByName String?              @map("profit_confirmed_by_name") @db.VarChar(200)
+  profitConfirmedAt     DateTime?            @map("profit_confirmed_at") @db.Timestamptz(6)
+  profitEditReason      String?              @map("profit_edit_reason") @db.Text
+
+  commissionRatePct     Float?               @map("commission_rate_pct")
+  commissionAmount      Float?               @map("commission_amount")
+
+  status                String               @default("PENDING_PROFIT_REVIEW") @db.VarChar(40)
+  approvedById          String?              @map("approved_by_id")
+  approvedByName        String?              @map("approved_by_name") @db.VarChar(200)
+  approvedAt            DateTime?            @map("approved_at") @db.Timestamptz(6)
+  rejectedReason        String?              @map("rejected_reason") @db.Text
+
+  payoutDate            DateTime?            @map("payout_date") @db.Timestamptz(6)
+  payoutAmount          Float?               @map("payout_amount")
+  payoutRefNo           String?              @map("payout_ref_no") @db.VarChar(120)
+  payoutNote            String?              @map("payout_note") @db.Text
+  payoutRecordedById    String?              @map("payout_recorded_by_id")
+  payoutRecordedByName  String?              @map("payout_recorded_by_name") @db.VarChar(200)
+  payoutRecordedAt      DateTime?            @map("payout_recorded_at") @db.Timestamptz(6)
+
+  remarks               String?              @db.Text
+  createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  job                   Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  salesperson           User?                @relation("CommissionSalesperson", fields: [salespersonId], references: [id], onDelete: SetNull)
+  requestedBy           User                 @relation("CommissionRequester", fields: [requestedById], references: [id])
+  profitConfirmedBy     User?                @relation("CommissionProfitConfirmer", fields: [profitConfirmedById], references: [id], onDelete: SetNull)
+  approvedBy            User?                @relation("CommissionApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  payoutRecordedBy      User?                @relation("CommissionPayoutRecorder", fields: [payoutRecordedById], references: [id], onDelete: SetNull)
+  logs                  SalesCommissionLog[]
+
+  @@index([jobId], map: "idx_sales_comm_job_id")
+  @@index([salespersonId], map: "idx_sales_comm_salesperson_id")
+  @@index([status], map: "idx_sales_comm_status")
+  @@index([requestedAt(sort: Desc)], map: "idx_sales_comm_requested_at")
+  @@map("sales_commission_requests")
+}
+
+model SalesCommissionLog {
+  id                       String                 @id @default(cuid())
+  requestId                String                 @map("request_id")
+  action                   String                 @db.VarChar(50)
+  fromStatus               String?                @map("from_status") @db.VarChar(40)
+  toStatus                 String?                @map("to_status") @db.VarChar(40)
+  actorId                  String                 @map("actor_id")
+  actorName                String                 @map("actor_name") @db.VarChar(200)
+  previousProfitPct        Float?                 @map("previous_profit_pct")
+  newProfitPct             Float?                 @map("new_profit_pct")
+  previousCost             Float?                 @map("previous_cost")
+  newCost                  Float?                 @map("new_cost")
+  previousCommissionRate   Float?                 @map("previous_commission_rate")
+  newCommissionRate        Float?                 @map("new_commission_rate")
+  previousCommissionAmount Float?                 @map("previous_commission_amount")
+  newCommissionAmount      Float?                 @map("new_commission_amount")
+  reason                   String?                @db.Text
+  details                  Json?
+  createdAt                DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  request                  SalesCommissionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId], map: "idx_sales_comm_log_request_id")
+  @@map("sales_commission_logs")
+}
+
+model CommissionRunningNumber {
+  id         String @id @default(cuid())
+  yearBe     Int    @map("year_be")
+  month      Int
+  lastNumber Int    @default(0) @map("last_number")
+
+  @@unique([yearBe, month])
+  @@map("commission_running_numbers")
 }

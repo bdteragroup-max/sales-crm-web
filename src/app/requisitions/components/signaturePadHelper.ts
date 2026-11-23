@@ -15,6 +15,7 @@ export interface RequisitionSignatureRecord {
   approver?: { fullName?: string | null } | null;
   approverName?: string | null;
   approverSignatureUrl?: string | null;
+  storeStaffId?: string | null;
   storeStaffName?: string | null;
   storeStaffSignatureUrl?: string | null;
   dispensedAt?: string | Date | null;
@@ -71,7 +72,7 @@ export function calibrateSignaturePad(
   const targetW = Math.round(rect.width * dpr);
   const targetH = Math.round(rect.height * dpr);
 
-  if (canvas.width !== targetW || canvas.height !== targetH) {
+  if (Math.abs(canvas.width - targetW) > 1 || Math.abs(canvas.height - targetH) > 1) {
     const wasEmpty = pad.isEmpty();
     const data = !wasEmpty ? pad.toData() : null;
     canvas.width = targetW;

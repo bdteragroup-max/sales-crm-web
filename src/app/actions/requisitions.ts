@@ -27,6 +27,7 @@ import {
 function revalidateRequisitionRoutes(id: string) {
   revalidatePath("/requisitions");
   revalidatePath(`/requisitions/${id}`);
+  revalidatePath(`/requisitions/${id}/pdf`);
   revalidatePath("/store/requisitions");
   revalidatePath(`/store/requisitions/${id}`);
   revalidatePath("/store/dashboard");
@@ -848,6 +849,93 @@ export async function recordTransportPickup(
   } catch (error: any) {
     console.error("Error recording transport pickup signature:", error);
     return { success: false, error: error.message || "Failed to record transport signature" };
+  }
+}
+
+export async function recordStoreRelease(
+  id: string,
+  data: {
+    storeStaffName?: string;
+    storeStaffSignatureUrl: string;
+  }
+) {
+  try {
+    const session = await getUser();
+    if (!session) return { success: false, error: "Unauthorized" };
+
+    const canSignStore =
+      isSuperUser(session.role) || isStoreOrPurchasingRole(session.role);
+    if (!canSignStore) {
+      return {
+        success: false,
+        error: "สงวนสิทธิ์การเซ็นจ่ายของเฉพาะเจ้าหน้าที่สโตร์ / คลังสินค้า / จัดซื้อ หรือผู้ดูแลระบบเท่านั้น",
+      };
+    }
+
+    const cleanSig = (data.storeStaffSignatureUrl || '').trim();
+    if (!cleanSig) {
+      return { success: false, error: "กรุณาลงลายเซ็นผู้จ่ายของ (คลังสินค้า)" };
+    }
+    const cleanName =
+      (data.storeStaffName || '').trim() || session.fullName || "เจ้าหน้าที่สโตร์";
+
+    const existing = await prisma.materialRequisition.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        requisitionNumber: true,
+        status: true,
+        requesterId: true,
+        dispensedAt: true,
+      },
+    });
+    if (!existing) {
+      return { success: false, error: "ไม่พบข้อมูลใบเบิก" };
+    }
+
+    if (existing.status === "PENDING_APPROVAL" || existing.status === "REJECTED") {
+      return {
+        success: false,
+        error: "ใบเบิกยังไม่ได้รับการอนุมัติหรือถูกปฏิเสธ ไม่สามารถเซ็นจ่ายของได้",
+      };
+    }
+
+    const now = new Date();
+    const dispensedAt = existing.dispensedAt || now;
+    await prisma.materialRequisition.update({
+      where: { id },
+      data: {
+        storeStaffId: session.id,
+        storeStaffName: cleanName,
+        storeStaffSignatureUrl: cleanSig,
+        dispensedAt,
+      },
+    });
+
+    if (existing.requesterId && existing.requesterId !== session.id) {
+      sendPushToUser(existing.requesterId, {
+        title: 'เจ้าหน้าที่สโตร์เซ็นจ่ายของแล้ว',
+        body: `ใบเบิก ${existing.requisitionNumber} ลงนามจ่ายโดย ${cleanName}`,
+        url: `/requisitions/${id}`,
+        category: 'REQUISITION_UPDATE',
+      }).catch(console.error);
+    }
+
+    revalidateRequisitionRoutes(id);
+    return {
+      success: true,
+      id,
+      data: {
+        storeStaffId: session.id,
+        storeStaffName: cleanName,
+        storeStaffSignatureUrl: cleanSig,
+        dispensedAt: dispensedAt.toISOString(),
+      },
+    };
+  } catch (error: unknown) {
+    console.error("Error recording store release signature:", error);
+    const msg = error instanceof Error ? error.message : "Failed to record store signature";
+    return { success: false, error: msg };
   }
 }
 

@@ -124,7 +124,10 @@ export interface BranchContentPermissions {
   roleLabel: string;
   userBranchId: string | null;
   userBranchName: string | null;
+  allowedBranchIds: string[];
+  allowedBranches: BranchMasterItem[];
   canViewAllBranches: boolean;
+  canViewDashboard: boolean;
   canBranchApprove: boolean;
   canReview: boolean;
   canApprove: boolean;

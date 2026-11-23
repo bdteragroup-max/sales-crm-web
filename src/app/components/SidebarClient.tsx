@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
   LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw, Sparkles, PanelLeftClose, PanelLeftOpen, Search
 } from 'lucide-react';
-import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests, canViewAllServiceCalls, isHeadOfSalesAndMarketing, isSalesOrMarketingManager } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests, canViewAllServiceCalls, isHeadOfSalesAndMarketing, isSalesOrMarketingManager, isSalesRepOrSalesManagerRole } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
@@ -460,6 +460,28 @@ export default function SidebarClient(props: SidebarProps) {
     });
   }
 
+  const commissionNavItems = [
+    { icon: Coins, label: 'ขอค่าคอมมิชชั่น (CRM)', href: '/sales/commissions' },
+    { icon: ClipboardCheck, label: 'ตรวจสอบกำไร & อนุมัติค่าคอมฯ', href: '/sales/commissions/approvals' },
+    { icon: FileText, label: 'ประวัติ & รายงานค่าคอมฯ', href: '/sales/commissions/history' },
+  ];
+
+  if (isSuperAdmin) {
+    for (const cItem of commissionNavItems) {
+      if (!finalNav.some(item => item.href === cItem.href)) {
+        finalNav.push(cItem);
+      }
+    }
+  } else if (isSalesRepOrSalesManagerRole(props.userRole)) {
+    if (!finalNav.some(item => item.href === '/sales/commissions')) {
+      finalNav.push({
+        icon: Coins,
+        label: 'ขอค่าคอมมิชชั่น (CRM)',
+        href: '/sales/commissions',
+      });
+    }
+  }
+
   const appendCommon = (items: NavItem[]) => {
     const merged = Array.from(new Map([...items, ...commonNav].map(item => [item.href, item])).values());
     if (!merged.some(item => item.href === '/service/calls' || item.href === '/service/calls/new')) {
@@ -473,10 +495,10 @@ export default function SidebarClient(props: SidebarProps) {
   };
 
   const superAdminContexts = isSuperAdmin ? {
-    'All (Default)': superAdminNav,
+    'All (Default)': Array.from(new Map([...superAdminNav, ...commissionNavItems].map(item => [item.href, item])).values()),
     'Store & Warehouse': appendCommon(storeNav),
-    'Executive': appendCommon(executiveNav),
-    'Sales & Marketing': appendCommon([...managerNav, ...repNav, ...marketingNav, ...marketingManagerNav]),
+    'Executive': appendCommon([...executiveNav, ...commissionNavItems]),
+    'Sales & Marketing': appendCommon([...managerNav, ...repNav, ...commissionNavItems, ...marketingNav, ...marketingManagerNav]),
     'Service & Technician': appendCommon([...serviceNav, ...serviceMgrNav, ...technicianNav]),
     'Projects & Production': appendCommon([...projectNav, ...productionNav]),
     'Admin & Finance': appendCommon([...purchasingNav, ...storeNav, ...bdNav, ...accountingNav])
@@ -608,13 +630,15 @@ function ResponsiveSidebar({
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Aggressively prefetch all route bundles and server component data on mount
+  // Prefetch route bundles only in production so Next.js dev mode does not compile 20+ routes concurrently
   useEffect(() => {
-    nav.forEach(({ href }) => {
-      router.prefetch(href);
-    });
-    router.prefetch('/settings');
-    router.prefetch('/repair-orders');
+    if (process.env.NODE_ENV === 'production') {
+      nav.forEach(({ href }) => {
+        router.prefetch(href);
+      });
+      router.prefetch('/settings');
+      router.prefetch('/repair-orders');
+    }
 
     const roleStr = (userRole || '').toLowerCase();
     const isAccounting = ['accounting', 'บัญชี', 'finance', 'การเงิน', 'ผู้จัดการ'].some(r => roleStr.includes(r));

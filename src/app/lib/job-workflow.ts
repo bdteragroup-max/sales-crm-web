@@ -355,7 +355,14 @@ export function getNextStep(jobType: string, currentStep: string, variant?: stri
   return steps[idx + 1]
 }
 
-export function isCompleted(jobType: string, currentStep: string, variant: string | null | undefined, stepLogs: any[]): boolean {
+export function isCompleted(
+  jobType: string,
+  currentStep: string,
+  variant: string | null | undefined,
+  stepLogs: any[],
+  opts?: { hasAccountingAmountMismatch?: boolean }
+): boolean {
+  if (opts?.hasAccountingAmountMismatch) return false
   const steps = getSteps(jobType, variant)
   return currentStep === steps[steps.length - 1]?.key && stepLogs.some((l: any) => l.step === currentStep)
 }

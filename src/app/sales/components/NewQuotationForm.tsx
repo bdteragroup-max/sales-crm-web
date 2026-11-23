@@ -30,6 +30,7 @@ import { JOB_TYPES } from '@/constants/job-types';
 import { createClient } from '@/utils/supabase/client';
 import CabinetDocumentSection from './CabinetDocumentSection';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
+import { evaluateAccountingAmountReconciliation } from '@/app/lib/accounting-reconciliation';
 import Swal from 'sweetalert2';
 
 interface NewQuotationFormProps {
@@ -538,6 +539,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
         awardedGold?: number;
         awardMessage?: string;
         accountingWarning?: string;
+        reconciledMatchMessage?: string;
       } = isEditing
         ? (formDataObj.append('id', initialData.id), await updateSalesData(initialData.id, formDataObj))
         : await saveSalesData(formDataObj);
@@ -554,6 +556,8 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           setMessage(
             `${isEditing ? 'แก้ไข' : 'บันทึก'}ใบเสนอราคาเรียบร้อยแล้ว และส่งข้อมูลพร้อมรูปถ่าย/ลายเซ็นไปสร้างใบส่งมอบงาน (${res.deliveryNumber || 'DN'}) อัตโนมัติแล้ว!`
           );
+        } else if (res.reconciledMatchMessage) {
+          setMessage(res.reconciledMatchMessage);
         } else {
           setMessage(isEditing ? 'แก้ไขข้อมูลเรียบร้อยแล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว');
         }
@@ -572,6 +576,14 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
             text: res.accountingWarning,
             confirmButtonColor: '#d97706',
             confirmButtonText: 'รับทราบ',
+          });
+        } else if (res.reconciledMatchMessage) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'ยอดก่อน VAT ตรงกับฝ่ายบัญชีแล้ว',
+            text: res.reconciledMatchMessage,
+            confirmButtonColor: '#059669',
+            confirmButtonText: 'ตกลง',
           });
         }
 
@@ -655,6 +667,61 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
             </a>
           </div>
         )}
+
+        {/* ── Accounting Mismatch Alert Banner ── */}
+        {isEditing && (() => {
+          type LinkedJobAlertItem = {
+            jobNumber?: string | null;
+            accountingVerifiedBeforeVat?: number | null;
+            accountingClosedAt?: Date | string | null;
+          };
+          const linkedJobs: LinkedJobAlertItem[] = Array.isArray(initialData?.jobs)
+            ? (initialData.jobs as LinkedJobAlertItem[])
+            : [];
+          const mismatchJob = linkedJobs.find((j) =>
+            evaluateAccountingAmountReconciliation({
+              accountingVerifiedBeforeVat: j?.accountingVerifiedBeforeVat,
+              accountingClosedAt: j?.accountingClosedAt,
+              quotation: initialData,
+            }).hasMismatch
+          );
+          if (!mismatchJob) return null;
+          const recon = evaluateAccountingAmountReconciliation({
+            accountingVerifiedBeforeVat: mismatchJob.accountingVerifiedBeforeVat,
+            accountingClosedAt: mismatchJob.accountingClosedAt,
+            quotation: initialData,
+          });
+          return (
+            <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                  <AlertTriangle size={20} />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-600 text-white text-xs font-mono font-bold">
+                      {mismatchJob.jobNumber || 'JOB'}
+                    </span>
+                    <span className="text-xs font-black text-rose-900">
+                      แจ้งเตือนจากฝ่ายบัญชี: ยอดก่อน VAT ยังไม่ตรงกัน (ยึดเลขบัญชีเป็นหลัก)
+                    </span>
+                  </div>
+                  <p className="text-xs text-rose-800">
+                    ยอดที่ฝ่ายบัญชีตรวจจากใบกำกับภาษีคือ{' '}
+                    <b className="font-mono text-sm">
+                      ฿{recon.accountingBeforeVat?.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </b>{' '}
+                    (ยอดใบเสนอราคาปัจจุบัน:{' '}
+                    <span className="font-mono">
+                      ฿{(recon.quotationBeforeVat ?? 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    ) — กรุณาแก้ไขยอดปิดงาน / ยอดรวมก่อน VAT ให้ตรงกับฝ่ายบัญชีเพื่อปลดล็อกการปิด Job และยื่นขอค่าคอมมิชชั่น
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── Symmetrical Command Header & Action Bar ── */}
         <div className="bg-white rounded-2xl border border-slate-200/90 p-4 md:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">

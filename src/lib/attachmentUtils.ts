@@ -26,6 +26,121 @@ export interface AttachmentCheckItem {
   distinctiveTokens?: string[];
   currentAmount?: number; // Form's requested net_amount
   currentSupplier?: string; // Form's requested supplier_name
+  currentPurpose?: string; // Form's purpose / item description
+  currentDate?: string; // Form's document_date / billDate (YYYY-MM-DD)
+  isSubstituteCertificate?: boolean; // True when auto-generated บก.111 certificate PDF
+}
+
+/**
+ * Identifies system-generated บก.111 substitute receipt PDFs.
+ * Because filenames truncate at 18 chars and share the same PDF layout,
+ * they must never collide solely on filename or visual template heuristics.
+ */
+export function isSystemSubstituteCertificate(item?: {
+  isSubstituteCertificate?: boolean;
+  fileName?: string | null;
+  extractedDescription?: string | null;
+} | null): boolean {
+  if (!item) return false;
+  if (item.isSubstituteCertificate) return true;
+  const name = (item.fileName || '').trim();
+  if (/^ใบรับรองแทนใบเสร็จ_/i.test(name)) return true;
+  const desc = (item.extractedDescription || '').trim();
+  if (/^ใบรับรองแทนใบเสร็จรับเงิน(?:\s*\(|:)/.test(desc)) return true;
+  return false;
+}
+
+const PERSON_NAME_TRAILING_NOISE = new Set([
+  'อายุงาน', 'วันที่', 'เดือน', 'ปี', 'วัน', 'ค่าอาหาร', 'ค่าสวัสดิการ',
+  'บาท', 'ฝ่าย', 'แผนก', 'ตำแหน่ง', 'โทร', 'เบอร์', 'จำนวน', 'สาขา', 'โครงการ',
+]);
+
+function extractNormalizedPersonNames(text: string): string[][] {
+  const results: string[][] = [];
+  const regex = /(?:^|[\s'"(\[\-,])(?:นางสาว|น\.ส\.|คุณ|นาย|นาง|mr\.?|mrs\.?|ms\.?)\s*([ก-๙a-zA-Z]{2,35}(?:\s+[ก-๙a-zA-Z]{2,35})?)/gi;
+  for (const m of text.matchAll(regex)) {
+    const rawTokens = m[1]
+      .trim()
+      .split(/\s+/)
+      .map((t) => t.replace(/[^ก-๙a-zA-Z]/g, '').toLowerCase())
+      .filter((t) => t.length >= 2 && !PERSON_NAME_TRAILING_NOISE.has(t));
+    if (rawTokens.length > 0) {
+      results.push(rawTokens);
+    }
+  }
+  return results;
+}
+
+function extractCodesFromText(text: string, regex: RegExp): string[] {
+  const out = new Set<string>();
+  for (const m of text.matchAll(regex)) {
+    const val = (m[1] || m[0]).replace(/[\s\-_]/g, '').toLowerCase();
+    if (val.length >= 4) out.add(val);
+  }
+  return Array.from(out);
+}
+
+function setsDisjoint(a: string[], b: string[]): boolean {
+  if (a.length === 0 || b.length === 0) return false;
+  const bSet = new Set(b);
+  return !a.some((v) => bSet.has(v));
+}
+
+/**
+ * Returns true when two activity descriptions follow the same template
+ * (e.g. employee birthday welfare, vehicle toll/fuel, job site expense)
+ * yet clearly designate different people, vehicle plates, jobs, or months.
+ */
+export function hasDistinctActivitySubject(textA?: string | null, textB?: string | null): boolean {
+  const a = (textA || '').trim();
+  const b = (textB || '').trim();
+  if (a.length < 4 || b.length < 4) return false;
+  if (a.toLowerCase() === b.toLowerCase()) return false;
+
+  // 1. Named persons after honorifics (e.g. "คุณศยามล ปานมณี" vs "คุณนินันญา ดัดสกรค์")
+  const personsA = extractNormalizedPersonNames(a);
+  const personsB = extractNormalizedPersonNames(b);
+  if (personsA.length > 0 && personsB.length > 0) {
+    const firstNamesA = personsA.map((p) => p[0]);
+    const firstNamesB = personsB.map((p) => p[0]);
+    const onlyInA = firstNamesA.filter((n) => !firstNamesB.includes(n));
+    const onlyInB = firstNamesB.filter((n) => !firstNamesA.includes(n));
+    if (onlyInA.length > 0 && onlyInB.length > 0) {
+      return true;
+    }
+  }
+
+  // 2. Job / PO / PR / QT reference codes (e.g. JB69-080110 vs JB69-090012)
+  const docCodeRegex = /\b((?:JB|JOB|PO|PR|QT|SO|WO)[0-9]{2,4}[-_]?[0-9]{3,8})\b/gi;
+  const codesA = extractCodesFromText(a, docCodeRegex);
+  const codesB = extractCodesFromText(b, docCodeRegex);
+  if (setsDisjoint(codesA, codesB)) return true;
+
+  // 3. Thai vehicle license plates (consonants-only prefix + 3-4 digits, e.g. 4ฒฎ 9314 vs 4ฒฎ 9315)
+  const plateRegex = /(?:^|[\s/(\-])([0-9]?[ก-ฮ]{2,3}\s*[0-9]{3,4})(?=$|[\s/)+,\-.])/g;
+  const platesA = extractCodesFromText(a, plateRegex);
+  const platesB = extractCodesFromText(b, plateRegex);
+  if (setsDisjoint(platesA, platesB)) return true;
+
+  // 4. Explicit Thai billing month tokens (e.g. ม.ค. vs ก.พ., มกราคม vs กุมภาพันธ์)
+  const monthMap: Record<string, string> = {
+    'ม.ค.': '01', 'มกราคม': '01', 'ก.พ.': '02', 'กุมภาพันธ์': '02',
+    'มี.ค.': '03', 'มีนาคม': '03', 'เม.ย.': '04', 'เมษายน': '04',
+    'พ.ค.': '05', 'พฤษภาคม': '05', 'มิ.ย.': '06', 'มิถุนายน': '06',
+    'ก.ค.': '07', 'กรกฎาคม': '07', 'ส.ค.': '08', 'สิงหาคม': '08',
+    'ก.ย.': '09', 'กันยายน': '09', 'ต.ค.': '10', 'ตุลาคม': '10',
+    'พ.ย.': '11', 'พฤศจิกายน': '11', 'ธ.ค.': '12', 'ธันวาคม': '12',
+  };
+  const extractMonths = (t: string): string[] => {
+    const found = new Set<string>();
+    for (const [k, v] of Object.entries(monthMap)) {
+      if (t.includes(k)) found.add(v);
+    }
+    return Array.from(found);
+  };
+  if (setsDisjoint(extractMonths(a), extractMonths(b))) return true;
+
+  return false;
 }
 
 export function normalizeAttachmentName(name?: string | null): string {
@@ -655,10 +770,27 @@ export function findInFormDuplicateAttachment<T extends AttachmentCheckItem>(
 ): T | undefined {
   const candNormName = normalizeAttachmentName(candidate.fileName);
   const candDistinct = isDistinctiveAttachmentName(candNormName);
+  const candSubCert = isSystemSubstituteCertificate(candidate);
 
   return existingList.find((a) => {
+    const attSubCert = isSystemSubstituteCertificate(a);
+    const isSubCertPair = candSubCert || attSubCert;
+
     if (candidate.fileHash && a.fileHash && candidate.fileHash.toLowerCase() === a.fileHash.toLowerCase()) {
-      return true;
+      const candText = [candidate.extractedDescription, candidate.currentPurpose].filter(Boolean).join(' ');
+      const attText = [a.extractedDescription, a.currentPurpose].filter(Boolean).join(' ');
+      const diffAmt =
+        candidate.currentAmount !== undefined &&
+        a.currentAmount !== undefined &&
+        Math.abs(candidate.currentAmount - a.currentAmount) >= 1.0;
+      const diffDate =
+        candidate.extractedDate &&
+        a.extractedDate &&
+        (formatDateToISO(candidate.extractedDate) || candidate.extractedDate) !==
+          (formatDateToISO(a.extractedDate) || a.extractedDate);
+      if (!(isSubCertPair && (diffAmt || diffDate || hasDistinctActivitySubject(candText, attText)))) {
+        return true;
+      }
     }
     if (candidate.qrPayload && a.qrPayload) {
       const q1 = candidate.qrPayload.trim();
@@ -677,13 +809,25 @@ export function findInFormDuplicateAttachment<T extends AttachmentCheckItem>(
       return true;
     }
 
+    // Never match generated บก.111 certificates by template layout or truncated filename
+    if (isSubCertPair) return false;
+
     // Conflict guard before visual/filename heuristics
     const candAmt = candidate.extractedAmount ?? candidate.currentAmount;
     const attAmt = a.extractedAmount ?? a.currentAmount;
     const diffAmt = !!(candAmt !== undefined && attAmt !== undefined && Math.abs(candAmt - attAmt) >= 1.0);
     const diffQr = !!(candidate.qrPayload && a.qrPayload && candidate.qrPayload.trim() !== a.qrPayload.trim());
     const diffInv = !!(candInv.length >= 4 && attInv.length >= 4 && candInv !== attInv);
-    if (diffAmt || diffQr || diffInv) return false;
+    const candText = [candidate.extractedDescription, candidate.currentPurpose].filter(Boolean).join(' ');
+    const attText = [a.extractedDescription, a.currentPurpose].filter(Boolean).join(' ');
+    const diffSubject = hasDistinctActivitySubject(candText, attText);
+    const diffDate = !!(
+      candidate.extractedDate &&
+      a.extractedDate &&
+      (formatDateToISO(candidate.extractedDate) || candidate.extractedDate) !==
+        (formatDateToISO(a.extractedDate) || a.extractedDate)
+    );
+    if (diffAmt || diffQr || diffInv || diffSubject || diffDate) return false;
 
     let bestDist = 999;
     if (candidate.visualHash && a.visualHash) {
@@ -708,6 +852,9 @@ export function findInFormDuplicateAttachment<T extends AttachmentCheckItem>(
     if (bestDist <= 2) return true;
     if (bestDist <= 8 && (amtMatch || phoneMatch || (suppMatch && sharedTokens >= 2))) return true;
     if (phoneMatch && amtMatch) return true;
+
+    const diffHash = !!(candidate.fileHash && a.fileHash && candidate.fileHash.toLowerCase() !== a.fileHash.toLowerCase());
+    if (diffHash) return false;
 
     if (candDistinct && normalizeAttachmentName(a.fileName) === candNormName) return true;
     if (candNormName && normalizeAttachmentName(a.fileName) === candNormName && candidate.fileSize && a.fileSize === candidate.fileSize) {

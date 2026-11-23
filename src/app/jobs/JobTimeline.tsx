@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
 import { confirmJobStep, rejectJobStep, getPOsByJobName } from "@/app/actions/jobs"
-import { XCircle, Edit2 } from "lucide-react"
+import { XCircle, Edit2, AlertTriangle } from "lucide-react"
 import { Check, CheckCircle2, Loader2, Briefcase, Package, ShoppingCart, Factory, Wrench, FolderOpen, FileText, Truck, ListPlus, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 import { formatThaiDate } from "@/utils/thai-date"
@@ -35,6 +35,8 @@ type Props = {
   repairOrder?: any
   project?: any
   repairDeliveries?: any[]
+  quotationId?: string | null
+  accountingMismatchMessage?: string | null
 }
 
 const getStepIcon = (key: string, isDone: boolean, isActive: boolean, isFuture: boolean) => {
@@ -55,7 +57,8 @@ const getStepIcon = (key: string, isDone: boolean, isActive: boolean, isFuture: 
 
 export default function JobTimeline({
   jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, userRole, isManager,
-  jobNumber, customerName, sellerName, paymentTasks, paymentMethod, creditTerms, installationOrders, repairOrder, project, repairDeliveries
+  jobNumber, customerName, sellerName, paymentTasks, paymentMethod, creditTerms, installationOrders, repairOrder, project, repairDeliveries,
+  quotationId, accountingMismatchMessage
 }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showVariantModal, setShowVariantModal] = useState(false)
@@ -126,23 +129,27 @@ export default function JobTimeline({
       const prItems = prItemsText ? [{ text: prItemsText }] : undefined;
       const numTotalAmount = totalAmount ? parseFloat(totalAmount) : undefined;
 
-      await confirmJobStep({
-        jobId,
-        stepKey:     activeStep.key,
-        completedBy: userName,
-        department:  userDept,
-        note:        noteInput || undefined,
-        variant,
-        prItems,
-        supplierName: supplierName || undefined,
-        supplierPhone: supplierPhone || undefined,
-        totalAmount: numTotalAmount,
-        poNumber: poNumber || undefined,
-        expectedDate: expectedDate || undefined,
-      })
-      setNoteInput("")
-      setPendingConfirm(false)
-      setShowVariantModal(false)
+      try {
+        await confirmJobStep({
+          jobId,
+          stepKey:     activeStep.key,
+          completedBy: userName,
+          department:  userDept,
+          note:        noteInput || undefined,
+          variant,
+          prItems,
+          supplierName: supplierName || undefined,
+          supplierPhone: supplierPhone || undefined,
+          totalAmount: numTotalAmount,
+          poNumber: poNumber || undefined,
+          expectedDate: expectedDate || undefined,
+        })
+        setNoteInput("")
+        setPendingConfirm(false)
+        setShowVariantModal(false)
+      } catch (err: unknown) {
+        alert(err instanceof Error ? err.message : "ไม่สามารถบันทึกขั้นตอนได้")
+      }
     })
   }
 
@@ -200,21 +207,25 @@ export default function JobTimeline({
     }
     
     startTransition(async () => {
-      await confirmJobStep({
-        jobId,
-        stepKey:     activeStep.key,
-        completedBy: userName,
-        department:  userDept,
-        note:        noteInput || undefined,
-        deliveryMethod,
-        deliveryDate: deliveryMethod === "in-house" ? deliveryDate : undefined,
-        courierCompany: deliveryMethod === "courier" ? courierCompany : undefined,
-        trackingNumber: deliveryMethod === "courier" ? trackingNumber : undefined,
-        trackingPhotoUrl: photoUrl || undefined,
-      })
-      setNoteInput("")
-      setPendingConfirm(false)
-      setShowVariantModal(false)
+      try {
+        await confirmJobStep({
+          jobId,
+          stepKey:     activeStep.key,
+          completedBy: userName,
+          department:  userDept,
+          note:        noteInput || undefined,
+          deliveryMethod,
+          deliveryDate: deliveryMethod === "in-house" ? deliveryDate : undefined,
+          courierCompany: deliveryMethod === "courier" ? courierCompany : undefined,
+          trackingNumber: deliveryMethod === "courier" ? trackingNumber : undefined,
+          trackingPhotoUrl: photoUrl || undefined,
+        })
+        setNoteInput("")
+        setPendingConfirm(false)
+        setShowVariantModal(false)
+      } catch (err: unknown) {
+        alert(err instanceof Error ? err.message : "ไม่สามารถบันทึกขั้นตอนจัดส่งได้")
+      }
     })
   }
 
@@ -258,7 +269,11 @@ export default function JobTimeline({
   // Message แจ้งเตือนสาเหตุที่กดไม่ได้
   const blockReasonMessage = (() => {
     if (!activeStep) return null;
-    
+
+    if (accountingMismatchMessage && currentIdx === steps.length - 1) {
+      return accountingMismatchMessage;
+    }
+
     // Check if any payment task is incomplete
     const hasIncompletePayment = paymentTasks && paymentTasks.length > 0 
       ? paymentTasks.some((pt: any) => pt.status !== 'ตรวจสอบและบันทึกแล้ว')
@@ -344,9 +359,27 @@ export default function JobTimeline({
     <div className="py-2">
       {showVariantModal && <VariantModal />}
 
+      {accountingMismatchMessage && (
+        <div className="mb-3 max-w-4xl flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-rose-700">
+          <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+          <span className="font-medium leading-relaxed">
+            {accountingMismatchMessage}
+          </span>
+          {quotationId && (
+            <Link
+              href={`/sales?editId=${quotationId}`}
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 underline underline-offset-2 hover:text-rose-900 whitespace-nowrap"
+            >
+              <Edit2 className="w-3 h-3" />
+              <span>แก้ไขยอดใบเสนอราคา</span>
+            </Link>
+          )}
+        </div>
+      )}
+
       {/* Timeline steps */}
-      <div className="relative w-full overflow-x-auto pb-6 scrollbar-hide">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <div className="relative w-full overflow-x-auto pb-4 scrollbar-hide">
+        <div className="py-2">
           <ol className="flex flex-col md:flex-row md:items-start justify-between md:min-w-[500px] w-full relative pt-2 gap-6 md:gap-0">
             {steps.map((step, idx) => {
               const log      = stepLogs.find((l) => l.step === step.key)
@@ -429,8 +462,7 @@ export default function JobTimeline({
 
       {/* Confirm area */}
       {!isFinished && canConfirm && activeStep && (
-        <div className="mt-2 p-6 bg-white rounded-2xl border border-gray-100 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.05)] relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-red to-orange-400" />
+        <div className="mt-4 pt-5 border-t border-slate-200/80">
           
           <div className="flex items-center gap-2 mb-5">
             <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center">
@@ -713,14 +745,14 @@ export default function JobTimeline({
 
       {/* Service Status Section */}
       {((installationOrders && installationOrders.length > 0) || repairOrder) && (
-        <div className="mt-6 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+        <div className="mt-5 pt-4 border-t border-slate-200/80">
+          <div className="pb-2">
             <h3 className="text-xs font-bold text-gray-700 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
               สถานะงาน Service (อัปเดตล่าสุด)
             </h3>
           </div>
-          <div className="p-4 space-y-3">
+          <div className="pt-1 space-y-3">
             {installationOrders?.map((order) => (
               <div key={order.id} className="flex justify-between items-start bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
                 <div>
@@ -785,11 +817,11 @@ export default function JobTimeline({
         </button>
 
         {showHistory && (
-          <div className="mt-3 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+          <div className="mt-3 pt-3 border-t border-slate-200/80">
+            <div className="pb-2">
               <h3 className="text-xs font-bold text-gray-700">ประวัติการทำงานเรียงตามลำดับ</h3>
             </div>
-            <div className="p-4 space-y-4 max-h-60 overflow-y-auto custom-scrollbar">
+            <div className="pt-2 space-y-4 max-h-60 overflow-y-auto custom-scrollbar">
               {stepLogs.length === 0 ? (
                 <p className="text-xs text-gray-400 text-center py-4">ยังไม่มีประวัติการทำงาน</p>
               ) : (

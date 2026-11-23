@@ -200,6 +200,7 @@ export default function MarketingBoardClient({
             </button>
 
             {(Boolean(initialBranchContentData?.permissions?.userBranchId) ||
+              Boolean(initialBranchContentData?.permissions?.allowedBranchIds?.length) ||
               Boolean(initialBranchContentData?.permissions?.canViewAllBranches)) && (
               <button
                 onClick={() => setActiveTab('branch_content')}
@@ -214,6 +215,8 @@ export default function MarketingBoardClient({
                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-50 text-red-700 border border-red-200 font-extrabold">
                   {initialBranchContentData?.permissions?.canViewAllBranches
                     ? '11 สาขา'
+                    : (initialBranchContentData?.branches?.length || 0) > 1
+                    ? initialBranchContentData.branches.map((b: { name: string }) => b.name).join(' • ')
                     : `สาขา${initialBranchContentData?.permissions?.userBranchName || ''}`}
                 </span>
               </button>

@@ -20,6 +20,8 @@ export default function SearchableSelect({
   disabled = false,
   className = "",
   inputClassName = "",
+  compact = false,
+  emptyText = "ไม่พบรายชื่อที่ค้นหา",
   onCreate,
   isCreating = false,
 }: {
@@ -30,6 +32,8 @@ export default function SearchableSelect({
   disabled?: boolean
   className?: string
   inputClassName?: string
+  compact?: boolean
+  emptyText?: string
   onCreate?: (val: string) => void
   isCreating?: boolean
 }) {
@@ -49,7 +53,8 @@ export default function SearchableSelect({
     const vw = window.innerWidth
     const vh = window.innerHeight
     const edgeGap = 8
-    const safeWidth = Math.max(Math.min(rect.width, vw - edgeGap * 2), 120)
+    const minMenuWidth = compact ? 220 : 120
+    const safeWidth = Math.max(Math.min(Math.max(rect.width, minMenuWidth), vw - edgeGap * 2), 120)
     const clampedLeft = Math.max(edgeGap, Math.min(rect.left, vw - safeWidth - edgeGap))
     const spaceBelow = vh - rect.bottom - edgeGap
     const spaceAbove = rect.top - edgeGap
@@ -63,7 +68,7 @@ export default function SearchableSelect({
       bottom: openUp ? vh - rect.top + 4 : undefined,
       maxHeight,
     })
-  }, [])
+  }, [compact])
 
   useEffect(() => {
     if (!isOpen) return
@@ -96,12 +101,16 @@ export default function SearchableSelect({
 
   const exactMatch = options.some((opt) => opt.label.toLowerCase() === query.toLowerCase())
 
+  const baseInputClass = compact
+    ? "w-full h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff2301]/30 focus:border-[#ff2301] pr-8 text-slate-800 placeholder:text-slate-500 transition-all"
+    : "w-full px-3.5 py-2 text-base sm:text-sm bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] pr-9 transition-all min-h-[42px] sm:min-h-[38px]"
+
   return (
     <div className={`relative w-full ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`} ref={wrapperRef}>
       <div className="relative flex items-center">
         <input
           type="text"
-          className={`w-full px-3.5 py-2 text-base sm:text-sm bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] pr-9 transition-all min-h-[42px] sm:min-h-[38px] ${inputClassName}`}
+          className={`${baseInputClass} ${inputClassName}`}
           placeholder={placeholder}
           value={displayValue}
           onChange={(e) => {
@@ -115,6 +124,12 @@ export default function SearchableSelect({
             updateCoords()
             setIsOpen(true)
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setIsOpen(false)
+              ;(e.currentTarget as HTMLInputElement).blur()
+            }
+          }}
           disabled={disabled}
         />
         <ChevronDown size={15} className="absolute right-3 text-gray-400 pointer-events-none" />
@@ -123,7 +138,9 @@ export default function SearchableSelect({
       {isOpen &&
         !disabled &&
         coords &&
-        (filteredOptions.length > 0 || (Boolean(query.trim()) && !exactMatch && Boolean(onCreate))) &&
+        (filteredOptions.length > 0 ||
+          query.trim() !== "" ||
+          (Boolean(query.trim()) && !exactMatch && Boolean(onCreate))) &&
         typeof document !== "undefined" &&
         createPortal(
           <div
@@ -141,7 +158,7 @@ export default function SearchableSelect({
             {filteredOptions.map((opt, i) => (
               <div
                 key={i}
-                className={`px-3 py-2.5 sm:py-2 text-sm rounded-lg cursor-pointer transition-colors break-words whitespace-normal ${
+                className={`px-3 py-2.5 sm:py-2 ${compact ? "text-xs" : "text-sm"} rounded-lg cursor-pointer transition-colors break-words whitespace-normal ${
                   value === opt.value ? "bg-red-50 text-[#ff2301] font-bold" : "hover:bg-gray-100 text-gray-700"
                 }`}
                 onClick={() => {
@@ -153,6 +170,11 @@ export default function SearchableSelect({
                 {opt.label}
               </div>
             ))}
+            {filteredOptions.length === 0 && !onCreate && (
+              <div className="px-3 py-2.5 text-xs text-slate-400 text-center font-medium">
+                {emptyText}
+              </div>
+            )}
             {query.trim() && !exactMatch && onCreate && (
               <div
                 className={`px-3 py-2.5 sm:py-2 text-sm rounded-lg cursor-pointer font-medium text-[#ff2301] hover:bg-red-50 flex items-center justify-between ${

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import SignatureCanvas from 'react-signature-canvas';
 import { Check, X, Camera, Upload, Trash2, Eraser, Loader2, UserCheck, ShieldCheck } from 'lucide-react';
@@ -13,6 +13,10 @@ import {
   ensureUploadedMediaUrl,
   formatServerActionError,
 } from '@/app/lib/requisitionPhotoUpload';
+import {
+  calibrateSignaturePad,
+  extractSignatureDataUrlFromPad,
+} from './signaturePadHelper';
 
 interface Props {
   requisition: any;
@@ -37,6 +41,22 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
   const [deliveryNote, setDeliveryNote] = useState(requisition?.deliveryNote || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
+
+  const recalibrate = useCallback(() => {
+    calibrateSignaturePad(receiverSigPad);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || !requisition || receiverSigFile) return;
+    const t1 = setTimeout(recalibrate, 60);
+    const t2 = setTimeout(recalibrate, 240);
+    window.addEventListener('resize', recalibrate);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('resize', recalibrate);
+    };
+  }, [isOpen, requisition, receiverSigFile, recalibrate]);
 
   if (!isOpen || !requisition) return null;
 
@@ -89,10 +109,8 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
       return;
     }
 
-    let rawSignatureData = receiverSigFile;
-    if (!rawSignatureData && receiverSigPad.current && !receiverSigPad.current.isEmpty()) {
-      rawSignatureData = receiverSigPad.current.getTrimmedCanvas().toDataURL('image/png');
-    }
+    const rawSignatureData =
+      receiverSigFile || extractSignatureDataUrlFromPad(receiverSigPad);
 
     setIsSubmitting(true);
     try {
@@ -265,8 +283,11 @@ export default function SiteHandoverModal({ requisition, isOpen, onClose, onSucc
               <div className="border border-slate-300 bg-white rounded-2xl overflow-hidden shadow-inner">
                 <SignatureCanvas
                   ref={receiverSigPad}
+                  clearOnResize={false}
+                  penColor="#0f172a"
                   canvasProps={{
-                    className: 'w-full h-36 bg-white cursor-crosshair',
+                    className: 'w-full h-36 bg-white cursor-crosshair touch-none block',
+                    style: { touchAction: 'none' },
                   }}
                 />
               </div>
