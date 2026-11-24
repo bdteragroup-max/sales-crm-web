@@ -308,9 +308,9 @@ export function generateSolarChecklistHTML(project: Partial<SolarProjectRecord> 
       min-width: 0;
     }
     .logo {
-      height: 46px;
+      height: 64px;
       width: auto;
-      max-width: 84px;
+      max-width: 108px;
       object-fit: contain;
       flex-shrink: 0;
     }

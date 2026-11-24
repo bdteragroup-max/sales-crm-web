@@ -65,7 +65,10 @@ import DailyLogTab from "./DailyLogTab";
 import WeeklyReportTab from "./WeeklyReportTab";
 import EquipmentTab from "./EquipmentTab";
 import SolarChecklistTab from "../components/SolarChecklistTab";
-import { calculateProjectProgress } from "@/app/lib/project-utils";
+import {
+  calculateProjectProgress,
+  resolveProjectAmounts,
+} from "@/app/lib/project-utils";
 
 interface ProjectDetailClientProps {
   project: any;
@@ -247,24 +250,11 @@ export default function ProjectDetailClient({
     [pos]
   );
 
-  const rawProjectValue = Number(project.amountIncludingVat || project.projectValue || 0);
+  const resolvedAmounts = resolveProjectAmounts(project);
+  const revenueExVat = resolvedAmounts.beforeVat;
+  const projectRevenue = resolvedAmounts.includingVat;
   const quotationBeforeVat = Number(project.job?.quotation?.actualClosingAmount || project.job?.quotation?.totalAmountBeforeVat || 0);
-
-  // Revenue including VAT (standardized for both projectValue and quotation fallback)
-  const projectRevenue = rawProjectValue > 0
-    ? rawProjectValue
-    : quotationBeforeVat > 0
-      ? quotationBeforeVat * 1.07
-      : 0;
-
-  // Revenue excluding VAT
-  const revenueExVat = rawProjectValue > 0
-    ? (rawProjectValue * 100) / 107
-    : quotationBeforeVat > 0
-      ? quotationBeforeVat
-      : 0;
-
-  const vatAmount = Math.max(0, projectRevenue - revenueExVat);
+  const vatAmount = resolvedAmounts.vatAmount;
   const internalBudget = Number(project.budget || (quotationBeforeVat > 0 ? quotationBeforeVat : 0));
   const profit = projectRevenue - totalExpenditures;
   const profitMargin =
@@ -791,27 +781,27 @@ export default function ProjectDetailClient({
           </div>
         </div>
 
-        {/* Metric 3: Project Value & Revenue */}
+        {/* Metric 3: Project Value & Revenue (Primary Before-VAT) */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-xs flex flex-col justify-between gap-3 h-full">
           <div className="flex items-center justify-between gap-2 min-h-[24px]">
             <span className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-1.5 truncate">
               <Receipt size={13} className="text-red-600 shrink-0" />
-              <span className="truncate">มูลค่าโครงการ (รวม VAT)</span>
+              <span className="truncate">มูลค่าโครงการ (ก่อน VAT)</span>
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono shrink-0">
-              VAT 7%
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-mono shrink-0">
+              Excl. VAT
             </span>
           </div>
           <p className="text-xl font-black text-gray-900 font-mono tabular-nums">
-            {projectRevenue > 0
-              ? `฿${projectRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+            {revenueExVat > 0
+              ? `฿${revenueExVat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
               : "ไม่ระบุ"}
           </p>
           <div className="flex items-center justify-between gap-2 text-[11px] text-gray-500 font-medium pt-2.5 border-t border-gray-100">
             <span className="truncate">
-              ก่อน VAT:{" "}
+              รวม VAT 7%:{" "}
               <strong className="text-gray-900 font-mono">
-                {revenueExVat > 0 ? `฿${revenueExVat.toLocaleString("th-TH", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` : "-"}
+                {projectRevenue > 0 ? `฿${projectRevenue.toLocaleString("th-TH", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` : "-"}
               </strong>
             </span>
             <span className="font-semibold text-emerald-700 font-mono shrink-0">
@@ -1108,17 +1098,17 @@ export default function ProjectDetailClient({
                 <div className="space-y-1 p-3 rounded-xl bg-gray-50/70 border border-gray-100">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
-                      มูลค่าโครงการ (รวม VAT)
+                      มูลค่าโครงการ (ก่อน VAT)
                     </span>
-                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      VAT 7%
+                    <span className="text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
+                      Excl. VAT
                     </span>
                   </div>
                   <p className="font-bold text-gray-900 text-sm font-mono truncate">
-                    {projectRevenue > 0 ? `฿${projectRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "-"}
+                    {revenueExVat > 0 ? `฿${revenueExVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "-"}
                   </p>
                   <p className="text-[10px] text-gray-500 font-mono truncate">
-                    ก่อน VAT: {revenueExVat > 0 ? `฿${revenueExVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "-"}
+                    รวม VAT 7%: {projectRevenue > 0 ? `฿${projectRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "-"}
                   </p>
                 </div>
 
@@ -1188,7 +1178,7 @@ export default function ProjectDetailClient({
                       การแบ่งชำระเงินค่างวดและเงินมัดจำ (Payment Milestones)
                     </h3>
                     <p className="text-[11px] text-gray-400 font-medium">
-                      เงินมัดจำสัญญาและงวดงานตามความก้าวหน้าโครงการ
+                      เงินมัดจำสัญญาและงวดงานตามความก้าวหน้าโครงการ (ยอดก่อน VAT)
                     </p>
                   </div>
                 </div>

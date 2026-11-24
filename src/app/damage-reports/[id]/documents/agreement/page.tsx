@@ -177,7 +177,7 @@ export default async function CompensationAgreementDocPage({
               src={comp.logo}
               alt={comp.enName}
               className="object-contain"
-              style={{ height: "18mm", width: "auto", minWidth: "16mm" }}
+              style={{ height: "21mm", width: "auto", minWidth: "14mm" }}
             />
             <div className="leading-tight">
               <h2 className="text-[15pt] font-bold text-slate-900 tracking-tight">{comp.thName}</h2>

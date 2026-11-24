@@ -95,6 +95,15 @@ function generateGoodsReturnHTML(doc: any, logoBase64: string = '', fontRegularB
         font-size: 40px;
         line-height: 1;
       }
+      img.logo {
+        width: auto;
+        max-width: 96px;
+        height: 92px;
+        background-color: transparent;
+        border-radius: 0;
+        object-fit: contain;
+        display: block;
+      }
       .company-info h1 {
         margin: 0 0 5px 0;
         font-size: 18px;

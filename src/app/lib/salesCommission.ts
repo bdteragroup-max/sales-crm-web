@@ -8,6 +8,7 @@ import {
   evaluatePaymentTasksLinkState,
   parseAccountingTaxDocuments,
 } from '@/app/lib/accounting-reconciliation';
+import { resolveProjectAmounts } from '@/app/lib/project-utils';
 
 export type CommissionStatus =
   | 'NOT_ELIGIBLE'
@@ -509,6 +510,8 @@ export type CrmJobSourceInput = {
     projectNumber: string;
     name: string;
     projectValue: unknown;
+    amountBeforeVat?: unknown;
+    amountIncludingVat?: unknown;
   } | null;
   paymentTasks: Array<{
     id: string;
@@ -806,7 +809,7 @@ export function evaluateJobForCommission(job: CrmJobSourceInput): EvaluatedCrmCo
   // Sales Ex-VAT valuation: Requirement 4 — always use Accounting's verified pre-VAT amount as authoritative when present
   const qTotalBeforeVat = Number(job.quotation?.totalAmountBeforeVat);
   const qSalesBeforeVat = Number(job.quotation?.salesBeforeVat);
-  const projValue = Number(job.project?.projectValue);
+  const projValue = resolveProjectAmounts(job.project ? { ...job.project, job: { quotation: job.quotation } } : null).beforeVat;
   const qActualClosing = Number(job.quotation?.actualClosingAmount);
   const taskInstallmentSum = (job.paymentTasks || []).reduce(
     (sum, t) => sum + (Number(t.installmentAmount) || 0),

@@ -34,7 +34,10 @@ import DashboardCharts from "./DashboardCharts";
 import * as XLSX from "xlsx";
 import { useReactToPrint } from "react-to-print";
 import { formatThaiDate } from "@/utils/thai-date";
-import { calculateProjectProgress } from "@/app/lib/project-utils";
+import {
+  calculateProjectProgress,
+  resolveProjectAmounts,
+} from "@/app/lib/project-utils";
 import ProjectExecutiveCockpit from "./ProjectExecutiveCockpit";
 
 interface ProjectDashboardClientProps {
@@ -188,7 +191,7 @@ export default function ProjectDashboardClient({
   const totalValue = useMemo(
     () =>
       filteredProjects.reduce(
-        (sum, p) => sum + (Number(p.projectValue) || 0),
+        (sum, p) => sum + resolveProjectAmounts(p).beforeVat,
         0
       ),
     [filteredProjects]
@@ -282,7 +285,7 @@ export default function ProjectDashboardClient({
         };
       }
       acc[pmName].projectCount += 1;
-      acc[pmName].totalValue += Number(p.projectValue) || 0;
+      acc[pmName].totalValue += resolveProjectAmounts(p).beforeVat;
       acc[pmName].totalTasks += p.tasks?.length || 0;
       acc[pmName].completedTasks +=
         p.tasks?.filter((t: any) => t.status === "Completed").length || 0;
@@ -328,7 +331,8 @@ export default function ProjectDashboardClient({
       "จังหวัด": p.province || "ไม่ระบุ",
       "วันเริ่มต้น": formatThaiDate(p.startDate),
       "วันสิ้นสุด": formatThaiDate(p.endDate),
-      "มูลค่าโครงการ (บาท)": Number(p.projectValue) || 0,
+      "มูลค่าโครงการ ก่อน VAT (บาท)": resolveProjectAmounts(p).beforeVat,
+      "มูลค่าโครงการ รวม VAT (บาท)": resolveProjectAmounts(p).includingVat,
       "งบประมาณ (บาท)": Number(p.budget) || 0,
       "เงินประกันผลงาน (บาท)": Number(p.securityDeposit) || 0,
       "ค่างวด 1": Number(p.installment1) || 0,
@@ -731,7 +735,7 @@ export default function ProjectDashboardClient({
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-indigo-300 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
-              มูลค่าโครงการรวม
+              มูลค่าโครงการรวม (ก่อน VAT)
             </span>
             <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
               <DollarSign size={16} />

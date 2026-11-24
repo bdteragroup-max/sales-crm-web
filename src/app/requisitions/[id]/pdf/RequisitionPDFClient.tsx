@@ -384,11 +384,11 @@ export default function RequisitionPDFClient({
       }}
     >
       {/* Left: Logo & Formal Company Profile */}
-      <div style={{ flex: 1, display: "flex", gap: "8px", alignItems: "flex-start" }}>
+      <div style={{ flex: 1, display: "flex", gap: "10px", alignItems: "center" }}>
         <div
           style={{
-            height: isPortrait ? "44px" : "48px",
-            minWidth: isPortrait ? "50px" : "56px",
+            height: isPortrait ? "64px" : "68px",
+            minWidth: isPortrait ? "44px" : "48px",
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
@@ -405,11 +405,11 @@ export default function RequisitionPDFClient({
               className="page1-logo-img"
               style={{
                 maxHeight: isMultiCompany
-                  ? (isPortrait ? "30px" : "34px")
-                  : (isPortrait ? "42px" : "46px"),
+                  ? (isPortrait ? "38px" : "42px")
+                  : (isPortrait ? "62px" : "66px"),
                 maxWidth: isMultiCompany
-                  ? (isPortrait ? "48px" : "54px")
-                  : (isPortrait ? "80px" : "90px"),
+                  ? (isPortrait ? "56px" : "62px")
+                  : (isPortrait ? "96px" : "104px"),
                 width: "auto",
                 height: "auto",
                 objectFit: "contain",
@@ -966,11 +966,11 @@ export default function RequisitionPDFClient({
         }}
       >
         {/* Left: Logo & Company Name */}
-        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div
             style={{
-              minWidth: "48px",
-              height: isPortrait ? "30px" : "28px",
+              minWidth: "36px",
+              height: isPortrait ? "38px" : "36px",
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-start",
@@ -986,8 +986,8 @@ export default function RequisitionPDFClient({
                 alt={comp.en}
                 className="continuation-logo-img"
                 style={{
-                  maxHeight: isMultiCompany ? "22px" : (isPortrait ? "30px" : "28px"),
-                  maxWidth: isMultiCompany ? "32px" : "48px",
+                  maxHeight: isMultiCompany ? "28px" : (isPortrait ? "38px" : "36px"),
+                  maxWidth: isMultiCompany ? "40px" : "60px",
                   width: "auto",
                   height: "auto",
                   objectFit: "contain",
@@ -1707,16 +1707,16 @@ export default function RequisitionPDFClient({
             }
 
             .continuation-logo-img {
-              max-width: 48px !important;
-              max-height: 30px !important;
+              max-width: 60px !important;
+              max-height: 38px !important;
               width: auto !important;
               height: auto !important;
               object-fit: contain !important;
             }
 
             .page1-logo-img {
-              max-width: 80px !important;
-              max-height: 44px !important;
+              max-width: 104px !important;
+              max-height: 66px !important;
               width: auto !important;
               height: auto !important;
               object-fit: contain !important;
@@ -1908,7 +1908,7 @@ export default function RequisitionPDFClient({
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div style={{ minWidth: "48px", height: "28px", display: "flex", alignItems: "center", gap: isMultiCompany ? "3px" : "0px", flexShrink: 0 }}>
+                    <div style={{ minWidth: "36px", height: "38px", display: "flex", alignItems: "center", gap: isMultiCompany ? "3px" : "0px", flexShrink: 0 }}>
                       {selectedCompanies.map((comp) => (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -1917,8 +1917,8 @@ export default function RequisitionPDFClient({
                           alt={comp.en}
                           className="continuation-logo-img"
                           style={{
-                            maxHeight: isMultiCompany ? "22px" : "28px",
-                            maxWidth: isMultiCompany ? "32px" : "48px",
+                            maxHeight: isMultiCompany ? "28px" : "38px",
+                            maxWidth: isMultiCompany ? "40px" : "60px",
                             width: "auto",
                             height: "auto",
                             objectFit: "contain",

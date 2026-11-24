@@ -41,6 +41,13 @@ export default async function ProjectDashboardPage() {
           jobNumber: true,
           companyCode: true,
           jobType: true,
+          quotation: {
+            select: {
+              totalAmountBeforeVat: true,
+              actualClosingAmount: true,
+              salesBeforeVat: true,
+            },
+          },
         }
       },
       manager: {

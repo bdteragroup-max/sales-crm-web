@@ -1037,7 +1037,7 @@ export default function PrintablePurchaseRequisitionModal({
                 <img
                   src="/4.png"
                   alt="TERA Logo"
-                  className="h-16 w-auto object-contain"
+                  className="h-20 w-auto object-contain"
                 />
               </div>
               <div className="space-y-0.5 leading-tight">
@@ -1478,7 +1478,7 @@ export default function PrintablePurchaseRequisitionModal({
                         <img
                           src="/4.png"
                           alt="TERA Logo"
-                          className="h-10 w-auto object-contain shrink-0"
+                          className="h-14 w-auto object-contain shrink-0"
                         />
                         <div>
                           <h3 className="text-[17px] font-bold text-black leading-tight">

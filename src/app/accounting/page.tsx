@@ -96,6 +96,8 @@ export default async function AccountingPage() {
               name: true,
               clientName: true,
               projectValue: true,
+              amountBeforeVat: true,
+              amountIncludingVat: true,
               contractSignatory: true,
             },
           },

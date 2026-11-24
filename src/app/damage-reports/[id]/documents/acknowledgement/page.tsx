@@ -203,7 +203,7 @@ export default async function AcknowledgementDocPage({
               src={comp.logo}
               alt={comp.enName}
               className="object-contain"
-              style={{ height: "16mm", width: "auto", minWidth: "15mm" }}
+              style={{ height: "20mm", width: "auto", minWidth: "13mm" }}
             />
             <div className="leading-tight">
               <h2 className="text-[14pt] font-bold text-slate-900 tracking-tight">{comp.thName}</h2>

@@ -389,7 +389,7 @@ export default function GoodsReturnPrintPaper({ data, mode = "half" }: Props) {
         }
         .grp-slip-full .grp-logo-img {
           max-width: 140px;
-          max-height: 65px;
+          max-height: 80px;
         }
         .grp-slip-full .grp-company-col {
           padding: 0 150px;
@@ -452,7 +452,7 @@ export default function GoodsReturnPrintPaper({ data, mode = "half" }: Props) {
         }
         .grp-logo-img {
           max-width: 110px;
-          max-height: 50px;
+          max-height: 64px;
           width: auto;
           height: auto;
           object-fit: contain;

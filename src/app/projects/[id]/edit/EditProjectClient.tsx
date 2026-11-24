@@ -37,6 +37,7 @@ import DynamicInstallmentsBuilder, {
   DepositConfig,
 } from "../../components/DynamicInstallmentsBuilder";
 import SearchableTeamSelect from "../../components/SearchableTeamSelect";
+import { resolveProjectAmounts } from "@/app/lib/project-utils";
 import { formatDateForInput, parseDateInput } from "@/utils/thai-date";
 
 interface EditProjectClientProps {
@@ -57,10 +58,15 @@ export default function EditProjectClient({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const resolvedInitialAmounts = useMemo(
+    () => resolveProjectAmounts(project),
+    [project]
+  );
+
   // Initialize deposit from project.installmentsData?.deposit or project.firstPayment
   const initialDeposit: DepositConfig = useMemo(() => {
     const rawData = project.installmentsData;
-    const pv = Number(project.projectValue) || 0;
+    const pv = resolvedInitialAmounts.beforeVat;
 
     // 1. Structured object format
     if (rawData && typeof rawData === "object" && !Array.isArray(rawData)) {
@@ -122,7 +128,7 @@ export default function EditProjectClient({
   // Initialize progress installments from project.installmentsData or fallback to installment1..12
   const initialInstallments: InstallmentItem[] = useMemo(() => {
     const rawData = project.installmentsData;
-    const pv = Number(project.projectValue) || 0;
+    const pv = resolvedInitialAmounts.beforeVat;
 
     let items: any[] = [];
     if (
@@ -242,23 +248,22 @@ export default function EditProjectClient({
     contractSignatory: project.contractSignatory || "",
     contractSigningDate: formatDateForInput(project.contractSigningDate),
     contractReturnStatus: project.contractReturnStatus || "",
-    amountBeforeVat: (() => {
-      const pv = Number(project.projectValue) || Number(project.amountIncludingVat) || 0;
-      const qt = Number(project.job?.quotation?.actualClosingAmount) || Number(project.job?.quotation?.totalAmountBeforeVat) || 0;
-      if (pv > 0) return ((pv * 100) / 107).toFixed(2);
-      if (qt > 0) return qt.toFixed(2);
-      return "";
-    })(),
-    projectValue: project.projectValue?.toString() || (
-      project.job?.quotation ? (
-        ((Number(project.job.quotation.actualClosingAmount) || Number(project.job.quotation.totalAmountBeforeVat) || 0) * 1.07).toFixed(2)
-      ) : ""
-    ),
+    amountBeforeVat:
+      resolvedInitialAmounts.beforeVat > 0
+        ? resolvedInitialAmounts.beforeVat.toFixed(2)
+        : "",
+    projectValue:
+      resolvedInitialAmounts.includingVat > 0
+        ? resolvedInitialAmounts.includingVat.toFixed(2)
+        : "",
     securityDeposit: project.securityDeposit?.toString() || "",
     depositCollectionSchedule: formatDateForInput(project.depositCollectionSchedule),
     depositRefundRequestNo: project.depositRefundRequestNo || "",
     penaltyPerDay: project.penaltyPerDay?.toString() || "",
-    amountIncludingVat: project.amountIncludingVat?.toString() || project.projectValue?.toString() || "",
+    amountIncludingVat:
+      resolvedInitialAmounts.includingVat > 0
+        ? resolvedInitialAmounts.includingVat.toFixed(2)
+        : "",
     budget: project.budget?.toString() || "",
 
     // Installments & Payments
@@ -433,6 +438,9 @@ export default function EditProjectClient({
         contractReturnStatus: formData.contractReturnStatus || undefined,
 
         // Financials
+        amountBeforeVat: formData.amountBeforeVat
+          ? parseFloat(formData.amountBeforeVat)
+          : undefined,
         projectValue: formData.projectValue
           ? parseFloat(formData.projectValue)
           : undefined,
@@ -1140,11 +1148,11 @@ export default function EditProjectClient({
                 {/* ── Row 1, Col 1: มูลค่าโครงการ ก่อน VAT ── */}
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-1">
-                    <label className="text-[11px] font-bold text-gray-700 truncate">
-                      ก่อน VAT (Excl. VAT)
+                    <label className="text-[11px] font-bold text-gray-900 truncate">
+                      มูลค่าโครงการ ก่อน VAT (Excl. VAT) *
                     </label>
-                    <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">
-                      ฐานภาษี
+                    <span className="text-[9px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">
+                      หลัก / ฐานแบ่งงวด
                     </span>
                   </div>
                   <div className="relative">
@@ -1155,7 +1163,7 @@ export default function EditProjectClient({
                       value={formData.amountBeforeVat}
                       onChange={handleAmountBeforeVatChange}
                       placeholder="0.00"
-                      className="w-full pl-6 pr-2 py-2 text-xs bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none font-mono font-bold text-gray-900"
+                      className="w-full pl-6 pr-2 py-2 text-xs bg-blue-50/20 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none font-mono font-bold text-gray-900"
                     />
                     <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">
                       ฿
@@ -1197,9 +1205,9 @@ export default function EditProjectClient({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-1">
                     <label className="text-[11px] font-bold text-gray-700 truncate">
-                      รวม VAT (Project Value) *
+                      รวม VAT 7% (Incl. VAT)
                     </label>
-                    <span className="text-[9px] font-semibold text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">
+                    <span className="text-[9px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">
                       ยอดตามสัญญา
                     </span>
                   </div>
@@ -1380,14 +1388,14 @@ export default function EditProjectClient({
           <div className="border-t border-gray-200 pt-5">
             <div className="mb-4">
               <h3 className="text-sm font-black text-gray-900">
-                การแบ่งชำระเงินค่างวด (Payment Installments & Milestones)
+                การแบ่งชำระเงินค่างวด — ยอดก่อน VAT (Payment Installments & Milestones Excl. VAT)
               </h3>
               <p className="text-xs text-gray-500">
-                กำหนดเงินมัดจำเมื่อเซ็นสัญญา และแบ่งงวดการส่งมอบงานจริงได้ตามต้องการ
+                กำหนดเงินมัดจำเมื่อเซ็นสัญญา และแบ่งงวดการส่งมอบงานจริงจากยอดก่อน VAT ได้ตามต้องการ
               </p>
             </div>
             <DynamicInstallmentsBuilder
-              projectValue={formData.projectValue}
+              projectValue={formData.amountBeforeVat}
               deposit={deposit}
               onDepositChange={setDeposit}
               installments={installments}

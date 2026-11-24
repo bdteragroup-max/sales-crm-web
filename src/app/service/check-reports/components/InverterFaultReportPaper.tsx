@@ -199,11 +199,11 @@ export default function InverterFaultReportPaper({
           {/* Header Row: Company Title & Document Number */}
           <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-24 flex items-center justify-start shrink-0">
+              <div className="h-14 w-24 flex items-center justify-start shrink-0">
                 <img
                   src={logoSrc}
                   alt={compCode}
-                  className="max-h-10 max-w-full object-contain"
+                  className="max-h-14 max-w-full object-contain"
                 />
               </div>
               <div>

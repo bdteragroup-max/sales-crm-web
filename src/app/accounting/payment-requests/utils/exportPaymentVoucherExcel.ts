@@ -146,7 +146,7 @@ export async function exportPaymentVoucherToExcel(
 
   // Define column dimensions (Columns A to F)
   sheet.columns = [
-    { key: 'A', width: 9 },  // No. / ลำดับ
+    { key: 'A', width: 11 }, // No. / ลำดับ (and company logo A1:A4)
     { key: 'B', width: 16 }, // วันที่บิล / Date
     { key: 'C', width: 24 }, // ผู้จำหน่าย / ร้านค้า / Supplier
     { key: 'D', width: 32 }, // รายการ / วัตถุประสงค์ / Description
@@ -196,6 +196,7 @@ export async function exportPaymentVoucherToExcel(
         TP: '/7.png',
       };
       const logoUrl = companyLogoMap[request.company] || '/4.png';
+      const isTg = (request.company || 'TG') === 'TG';
       const logoRes = await fetch(logoUrl);
       if (logoRes.ok) {
         const blob = await logoRes.blob();
@@ -205,8 +206,8 @@ export async function exportPaymentVoucherToExcel(
           extension: 'png',
         });
         sheet.addImage(logoImgId, {
-          tl: { col: 0.1, row: 0.15 },
-          ext: { width: 62, height: 60 },
+          tl: { col: isTg ? 0.18 : 0.1, row: 0.08 },
+          ext: isTg ? { width: 48, height: 82 } : { width: 68, height: 66 },
           editAs: 'oneCell',
         });
         // Clear placeholder text once logo image is embedded
@@ -268,10 +269,10 @@ export async function exportPaymentVoucherToExcel(
   cellE4.alignment = { horizontal: 'right', vertical: 'middle' };
 
   // Row Heights for Header
-  sheet.getRow(1).height = 22;
-  sheet.getRow(2).height = 18;
-  sheet.getRow(3).height = 20;
-  sheet.getRow(4).height = 18;
+  sheet.getRow(1).height = 24;
+  sheet.getRow(2).height = 20;
+  sheet.getRow(3).height = 22;
+  sheet.getRow(4).height = 20;
   sheet.getRow(5).height = 8; // Spacer
 
   // 2. Subheader Bar (Row 6)

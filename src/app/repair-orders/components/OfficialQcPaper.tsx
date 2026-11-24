@@ -53,9 +53,9 @@ export default function OfficialQcPaper({
       <div className="flex items-center justify-between gap-3 pb-1.5 border-b-2 border-black">
         <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-2 shrink-0">
-            <img src="/4.png" alt="Tera Group" className="h-8 object-contain" />
-            <img src="/6.png" alt="Tera Electric" className="h-8 object-contain" />
-            <img src="/7.png" alt="Tera Power" className="h-8 object-contain" />
+            <img src="/4.png" alt="Tera Group" className="h-12 object-contain" />
+            <img src="/6.png" alt="Tera Electric" className="h-11 object-contain" />
+            <img src="/7.png" alt="Tera Power" className="h-11 object-contain" />
           </div>
           <div className="text-[11px] leading-tight text-gray-800">
             39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250

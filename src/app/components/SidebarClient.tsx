@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw, Sparkles, PanelLeftClose, PanelLeftOpen, Search
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw, Sparkles, PanelLeftClose, PanelLeftOpen, Search, Sun
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests, canViewAllServiceCalls, isHeadOfSalesAndMarketing, isSalesOrMarketingManager, isSalesRepOrSalesManagerRole } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -127,6 +127,7 @@ const serviceNav = [
   { icon: ShieldAlert, label: 'รายการแจ้งเคลม (Claims Intake)', href: '/service/claims' },
   { icon: PhoneCall, label: 'Service Desk', href: '/service/calls' },
   { icon: ClipboardCheck, label: 'ตรวจเช็ค & Fault Report (CR)', href: '/service/check-reports' },
+  { icon: Sun, label: 'รายงาน Sunways (Inverter)', href: '/service/sunways-reports' },
   { icon: Wrench, label: 'ใบรับซ่อม (ซ่อมใน)', href: '/repair-orders' },
   { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
   { icon: FileSignature, label: 'ใบส่งมอบงาน', href: '/repair-deliveries' },
@@ -150,6 +151,7 @@ const technicianNav = [
   { icon: PhoneCall, label: 'Service Desk (แจ้งปัญหาลูกค้า)', href: '/service/calls' },
   { icon: ShieldAlert, label: 'รายการแจ้งเคลม (Claims)', href: '/service/claims' },
   { icon: ClipboardCheck, label: 'ตรวจเช็ค & Fault Report (CR)', href: '/service/check-reports' },
+  { icon: Sun, label: 'รายงาน Sunways (Inverter)', href: '/service/sunways-reports' },
   { icon: FileSignature, label: 'ใบส่งมอบงาน', href: '/repair-deliveries' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: Building2, label: 'งานซ่อมสถานที่ (Facility Repairs)', href: '/technician/facility-repairs' },
@@ -338,7 +340,7 @@ export default function SidebarClient(props: SidebarProps) {
         { icon: ClipboardCheck, label: 'ล้างแผง & ตรวจเช็คระบบ (Inspection)', href: '/projects/solar-cleaning' },
       ]
       : technicianNav;
-  } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม')) {
+  } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('เซอร์วิส')) {
     nav = serviceNav; // Service / non-sales departments see repair orders
     if (roleStr.includes('mgr') || roleStr.includes('manager')) {
       nav = [...nav, ...serviceMgrNav];

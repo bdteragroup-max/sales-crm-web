@@ -222,7 +222,7 @@ export function generateSurveyPdfHtml(survey: any, assets: SurveyPdfAssets = {})
       flex: 1;
     }
     .logo {
-      height: 52px;
+      height: 68px;
       width: auto;
       object-fit: contain;
     }

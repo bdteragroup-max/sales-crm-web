@@ -281,7 +281,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
                 <img
                   src={currentCompany.logo}
                   alt={currentCompany.name}
-                  style={{ height: '14mm', width: 'auto', objectFit: 'contain' }}
+                  style={{ height: '19mm', width: 'auto', objectFit: 'contain' }}
                 />
                 <div>
                   <div style={{ fontSize: '13pt', fontWeight: 'bold', lineHeight: 1.15, color: '#000' }}>

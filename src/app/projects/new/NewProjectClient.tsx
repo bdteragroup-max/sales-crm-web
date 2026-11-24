@@ -187,6 +187,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
         contractReturnStatus: formData.contractReturnStatus || undefined,
 
         // Financials
+        amountBeforeVat: formData.amountBeforeVat ? parseFloat(formData.amountBeforeVat) : undefined,
         projectValue: formData.projectValue ? parseFloat(formData.projectValue) : undefined,
         securityDeposit: formData.securityDeposit ? parseFloat(formData.securityDeposit) : undefined,
         depositCollectionSchedule: parseDateInput(formData.depositCollectionSchedule),
@@ -531,8 +532,8 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-1">
-                  <label className="text-sm font-bold text-gray-700 truncate">มูลค่าโครงการ ก่อน VAT (Excl. VAT)</label>
-                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded whitespace-nowrap shrink-0">ฐานหักภาษี</span>
+                  <label className="text-sm font-bold text-gray-900 truncate">มูลค่าโครงการ ก่อน VAT (Excl. VAT) *</label>
+                  <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded whitespace-nowrap shrink-0">หลัก / ฐานแบ่งงวด</span>
                 </div>
                 <div className="relative">
                   <input 
@@ -542,7 +543,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
                     value={formData.amountBeforeVat} 
                     onChange={handleAmountBeforeVatChange} 
                     placeholder="0.00"
-                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none font-mono font-bold text-gray-900" 
+                    className="w-full px-4 py-2 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none font-mono font-bold text-gray-900 bg-blue-50/20" 
                   />
                 </div>
               </div>
@@ -564,8 +565,8 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-1">
-                  <label className="text-sm font-bold text-gray-700 truncate">มูลค่าโครงการ รวม VAT (Project Value) *</label>
-                  <span className="text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded whitespace-nowrap shrink-0">ยอดตามสัญญา</span>
+                  <label className="text-sm font-bold text-gray-700 truncate">มูลค่าโครงการ รวม VAT 7% (Incl. VAT)</label>
+                  <span className="text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded whitespace-nowrap shrink-0">ยอดตามสัญญา</span>
                 </div>
                 <input 
                   type="number" 
@@ -661,9 +662,9 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
           </div>
 
           <div className="border-t border-gray-100 pt-6">
-            <h3 className="text-sm font-bold text-gray-800 mb-4">การแบ่งชำระเงินค่างวด (Payment Installments)</h3>
+            <h3 className="text-sm font-bold text-gray-800 mb-4">การแบ่งชำระเงินค่างวด — ยอดก่อน VAT (Payment Installments Excl. VAT)</h3>
             <DynamicInstallmentsBuilder
-              projectValue={formData.projectValue}
+              projectValue={formData.amountBeforeVat}
               deposit={deposit}
               onDepositChange={setDeposit}
               installments={installments}

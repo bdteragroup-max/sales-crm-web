@@ -254,7 +254,7 @@ export default async function ServiceCallReportPDF({
               <img
                 src={currentCompany.logo}
                 alt={currentCompany.name}
-                style={{ height: "13.5mm", width: "auto", objectFit: "contain" }}
+                style={{ height: "19mm", width: "auto", objectFit: "contain" }}
               />
               <div>
                 <div

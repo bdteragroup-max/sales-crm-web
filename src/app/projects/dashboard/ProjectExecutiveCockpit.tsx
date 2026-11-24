@@ -39,7 +39,10 @@ import {
   CartesianGrid,
 } from "recharts";
 import ExecutiveLiveSync from "@/app/executive/components/ExecutiveLiveSync";
-import { calculateProjectProgress } from "@/app/lib/project-utils";
+import {
+  calculateProjectProgress,
+  resolveProjectAmounts,
+} from "@/app/lib/project-utils";
 import { formatThaiDate, normalizeDateToCE } from "@/utils/thai-date";
 
 interface ProjectExecutiveCockpitProps {
@@ -220,7 +223,7 @@ export default function ProjectExecutiveCockpit({
         return false;
       }
       if (statusTab === "strategic") {
-        const val = Number(p.projectValue) || 0;
+        const val = resolveProjectAmounts(p).beforeVat;
         if (val < 5_000_000) return false;
       }
       if (statusTab === "completed" && p.status !== "Completed") {
@@ -238,11 +241,16 @@ export default function ProjectExecutiveCockpit({
 
   // ── 3. High-Level Financial & Portfolio Aggregates ──
   const totalPortfolioValue = useMemo(() => {
-    return filteredProjects.reduce((sum, p) => sum + (Number(p.projectValue) || 0), 0);
+    return filteredProjects.reduce(
+      (sum, p) => sum + resolveProjectAmounts(p).beforeVat,
+      0
+    );
   }, [filteredProjects]);
 
   const strategicProjects = useMemo(() => {
-    return filteredProjects.filter((p) => (Number(p.projectValue) || 0) >= 5_000_000);
+    return filteredProjects.filter(
+      (p) => resolveProjectAmounts(p).beforeVat >= 5_000_000
+    );
   }, [filteredProjects]);
 
   // ── 4. Gross Margin & Profitability Analysis ──
@@ -252,7 +260,7 @@ export default function ProjectExecutiveCockpit({
     let trackedCount = 0;
 
     filteredProjects.forEach((p) => {
-      const val = Number(p.projectValue) || 0;
+      const val = resolveProjectAmounts(p).beforeVat;
       const bud = Number(p.budget) || 0;
       if (val > 0 && bud > 0) {
         trackedRevenue += val;
@@ -365,7 +373,7 @@ export default function ProjectExecutiveCockpit({
         const end = new Date(p.endDate);
         const diffDays = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         const penaltyRate = Number(p.penaltyPerDay) || 0;
-        const val = Number(p.projectValue) || 0;
+        const val = resolveProjectAmounts(p).beforeVat;
         const dailyPenaltyTHB = val * (penaltyRate / 100);
         const isOverdue = diffDays < 0;
         const accumulatedPenaltyTHB = isOverdue ? dailyPenaltyTHB * Math.abs(diffDays) : 0;
@@ -400,7 +408,7 @@ export default function ProjectExecutiveCockpit({
     const penaltyProjects = activeProjects
       .filter((p) => Number(p.penaltyPerDay) > 0)
       .map((p) => {
-        const val = Number(p.projectValue) || 0;
+        const val = resolveProjectAmounts(p).beforeVat;
         const rate = Number(p.penaltyPerDay) || 0;
         const daily = val * (rate / 100);
         const end = p.endDate ? new Date(p.endDate) : null;
@@ -439,7 +447,7 @@ export default function ProjectExecutiveCockpit({
         map[pmName] = { name: pmName, count: 0, value: 0 };
       }
       map[pmName].count += 1;
-      map[pmName].value += Number(p.projectValue) || 0;
+      map[pmName].value += resolveProjectAmounts(p).beforeVat;
     });
 
     const list = Object.values(map).sort((a, b) => b.value - a.value);
@@ -470,7 +478,7 @@ export default function ProjectExecutiveCockpit({
         };
       }
       map[cat].count += 1;
-      map[cat].value += Number(p.projectValue) || 0;
+      map[cat].value += resolveProjectAmounts(p).beforeVat;
     });
 
     return Object.values(map).sort((a, b) => (categoryMetric === "value" ? b.value - a.value : b.count - a.count));
@@ -488,7 +496,7 @@ export default function ProjectExecutiveCockpit({
     filteredProjects.forEach((p) => {
       const c = resolveCompanyCode(p);
       map[c].count += 1;
-      map[c].value += Number(p.projectValue) || 0;
+      map[c].value += resolveProjectAmounts(p).beforeVat;
     });
 
     return Object.values(map).sort((a, b) => b.value - a.value);
@@ -501,7 +509,7 @@ export default function ProjectExecutiveCockpit({
       const prov = p.province || "กรุงเทพฯ / ไม่ระบุ";
       if (!map[prov]) map[prov] = { province: prov, count: 0, value: 0 };
       map[prov].count += 1;
-      map[prov].value += Number(p.projectValue) || 0;
+      map[prov].value += resolveProjectAmounts(p).beforeVat;
     });
     return Object.values(map)
       .sort((a, b) => b.value - a.value)
@@ -510,7 +518,9 @@ export default function ProjectExecutiveCockpit({
 
   // ── 12. Strategic Projects List with Search ──
   const filteredStrategicList = useMemo(() => {
-    const list = [...filteredProjects].sort((a, b) => (Number(b.projectValue) || 0) - (Number(a.projectValue) || 0));
+    const list = [...filteredProjects].sort(
+      (a, b) => resolveProjectAmounts(b).beforeVat - resolveProjectAmounts(a).beforeVat
+    );
     if (!strategicSearch) return list;
     const q = strategicSearch.toLowerCase();
     return list.filter(
@@ -1294,7 +1304,7 @@ export default function ProjectExecutiveCockpit({
                           </div>
 
                           <span className="text-[11px] font-black text-red-600 font-mono shrink-0">
-                            {formatCurrency(p.projectValue)}
+                            {formatCurrency(resolveProjectAmounts(p).beforeVat)}
                           </span>
                         </div>
 
@@ -1587,7 +1597,7 @@ export default function ProjectExecutiveCockpit({
                       <span className="font-bold text-slate-900 block truncate">{p.name}</span>
                       <span className="text-[10px] text-slate-500 font-mono">{p.projectNumber}</span>
                     </div>
-                    <span className="font-mono font-bold text-red-600 shrink-0">{formatCurrency(p.projectValue)}</span>
+                    <span className="font-mono font-bold text-red-600 shrink-0">{formatCurrency(resolveProjectAmounts(p).beforeVat)}</span>
                   </div>
                 ))}
               </div>
@@ -1637,9 +1647,9 @@ export default function ProjectExecutiveCockpit({
               {/* Financial Snapshot */}
               <div className="grid grid-cols-3 gap-2">
                 <div className="p-2.5 bg-red-50/50 rounded-xl border border-red-100 text-center">
-                  <span className="text-[9px] text-red-600 block font-semibold">มูลค่าโครงการ</span>
+                  <span className="text-[9px] text-red-600 block font-semibold">มูลค่าโครงการ (ก่อน VAT)</span>
                   <span className="text-sm font-black text-slate-900 font-mono block">
-                    {formatCurrency(detailProject.projectValue)}
+                    {formatCurrency(resolveProjectAmounts(detailProject).beforeVat)}
                   </span>
                 </div>
                 <div className="p-2.5 bg-emerald-50/50 rounded-xl border border-emerald-100 text-center">
@@ -1657,7 +1667,7 @@ export default function ProjectExecutiveCockpit({
                   <span className="text-sm font-black text-slate-900 font-mono block">
                     {detailProject.penaltyPerDay
                       ? `฿${Math.round(
-                          (Number(detailProject.projectValue) || 0) * (Number(detailProject.penaltyPerDay) / 100)
+                          resolveProjectAmounts(detailProject).beforeVat * (Number(detailProject.penaltyPerDay) / 100)
                         ).toLocaleString()}/วัน`
                       : "-"}
                   </span>

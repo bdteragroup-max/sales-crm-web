@@ -11,6 +11,7 @@ import {
   isScheduleTaskSettled,
   isTaskOverdue,
 } from "@/app/lib/accounting-schedule";
+import { resolveProjectAmounts } from "@/app/lib/project-utils";
 import {
   DollarSign,
   Search,
@@ -450,7 +451,8 @@ function JobDetailModal({
   }
 
   const { job, quotation, company, paymentTasks, stepLogs, project } = data;
-  const projectValueExclVat = project?.projectValue ? Number(project.projectValue) * 100 / 107 : undefined;
+  const resolvedProject = resolveProjectAmounts(project ? { ...project, job: { quotation } } : null);
+  const projectValueExclVat = resolvedProject.beforeVat > 0 ? resolvedProject.beforeVat : undefined;
 
   // Format steps timeline
   const renderSteps = () => {
@@ -2005,7 +2007,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
       g.tasks.forEach((t: any) => {
         const isPaid = t.status === 'ตรวจสอบและบันทึกแล้ว';
         const isSettled = isScheduleTaskSettled(t);
-        const projectVal = g.job?.project?.projectValue ? Number(g.job.project.projectValue) * 100 / 107 : null;
+        const resolvedProj = resolveProjectAmounts(g.job?.project ? { ...g.job.project, job: { quotation: g.job?.quotation } } : null);
+        const projectVal = resolvedProj.beforeVat > 0 ? resolvedProj.beforeVat : null;
         const totalVal = Number(projectVal || g.job?.quotation?.actualClosingAmount || g.job?.quotation?.totalAmountBeforeVat || 0);
         const taskAmt = Number(t.installmentAmount) || ((t.installmentNo && g.tasks.length > 1) ? 0 : totalVal);
         const paidAmt = Number(t.paidAmount) || 0;
@@ -2196,7 +2199,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           }
         }
 
-        const projectValueExclVat = g.job?.project?.projectValue ? Number(g.job.project.projectValue) * 100 / 107 : null;
+        const resolvedProj = resolveProjectAmounts(g.job?.project ? { ...g.job.project, job: { quotation: g.job?.quotation } } : null);
+        const projectValueExclVat = resolvedProj.beforeVat > 0 ? resolvedProj.beforeVat : null;
         const totalValue = Number(projectValueExclVat || g.job?.quotation?.actualClosingAmount || g.job?.quotation?.totalAmountBeforeVat || 0);
         const amountDue = Number(t.installmentAmount) || ((t.installmentNo && g.tasks.length > 1) ? 0 : totalValue);
 
@@ -2772,7 +2776,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                   const nextPendingTask = getNextPendingScheduleTask(group.tasks);
                   const singlePendingTask = nextPendingTask;
 
-                  const projectVal = group.job?.project?.projectValue ? Number(group.job.project.projectValue) * 100 / 107 : null;
+                  const resolvedProj = resolveProjectAmounts(group.job?.project ? { ...group.job.project, job: { quotation: group.job?.quotation } } : null);
+                  const projectVal = resolvedProj.beforeVat > 0 ? resolvedProj.beforeVat : null;
                   const totalJobVal = Number(projectVal || group.job?.quotation?.actualClosingAmount || group.job?.quotation?.totalAmountBeforeVat || group.tasks[0]?.installmentAmount || 0);
                   const recon = evaluateAccountingAmountReconciliation({
                     accountingVerifiedBeforeVat: group.job?.accountingVerifiedBeforeVat,

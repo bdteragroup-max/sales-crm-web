@@ -151,7 +151,7 @@ export function generateSystemCheckPdfHtml(
       gap: 14px;
     }
     .logo {
-      height: 58px;
+      height: 74px;
       width: auto;
       max-width: 165px;
       object-fit: contain;

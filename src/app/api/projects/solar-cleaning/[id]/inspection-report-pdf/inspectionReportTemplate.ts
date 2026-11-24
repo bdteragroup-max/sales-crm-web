@@ -320,7 +320,7 @@ export function generateInspectionReportPdfHtml(
       justify-content: center;
     }
     .logo {
-      height: 64px;
+      height: 82px;
       width: auto;
       max-width: 185px;
       object-fit: contain;

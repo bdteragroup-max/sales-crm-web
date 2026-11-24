@@ -22,7 +22,7 @@ export default async function PrintCustomerRequirementPage({ params }: { params:
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="w-48">
-            <img src="/17f3de5f-9a16-4fdd-8682-6157042b8cfd.png" alt="TERA Logo" className="w-full max-h-16 object-contain object-left" />
+            <img src="/logos/tg.png" alt="TERA Logo" className="h-20 w-auto object-contain object-left" />
           </div>
           <div className="flex-1 text-center font-bold text-xl mt-3">
             ใบรับความต้องการลูกค้า

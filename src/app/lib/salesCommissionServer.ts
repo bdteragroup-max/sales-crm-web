@@ -131,6 +131,8 @@ export const CRM_JOB_COMMISSION_SELECT = {
       projectNumber: true,
       name: true,
       projectValue: true,
+      amountBeforeVat: true,
+      amountIncludingVat: true,
     },
   },
   paymentTasks: {

@@ -37,7 +37,10 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { deleteProject, generateJobForProject } from "@/app/actions/projects";
-import { calculateProjectProgress } from "@/app/lib/project-utils";
+import {
+  calculateProjectProgress,
+  resolveProjectAmounts,
+} from "@/app/lib/project-utils";
 import { formatThaiDate, normalizeDateToCE } from "@/utils/thai-date";
 
 interface ProjectsClientPageProps {
@@ -146,19 +149,19 @@ export default function ProjectsClientPage({
     });
 
     const totalValue = projects.reduce(
-      (sum, p) => sum + (Number(p.projectValue) || 0),
+      (sum, p) => sum + resolveProjectAmounts(p).beforeVat,
       0
     );
     const inProgressValue = inProgressProjects.reduce(
-      (sum, p) => sum + (Number(p.projectValue) || 0),
+      (sum, p) => sum + resolveProjectAmounts(p).beforeVat,
       0
     );
     const completedValue = completedProjects.reduce(
-      (sum, p) => sum + (Number(p.projectValue) || 0),
+      (sum, p) => sum + resolveProjectAmounts(p).beforeVat,
       0
     );
     const overdueValue = overdueProjects.reduce(
-      (sum, p) => sum + (Number(p.projectValue) || 0),
+      (sum, p) => sum + resolveProjectAmounts(p).beforeVat,
       0
     );
 
@@ -295,8 +298,8 @@ export default function ProjectsClientPage({
       } else if (sortBy === "name") {
         comparison = (a.name || "").localeCompare(b.name || "", "th");
       } else if (sortBy === "value") {
-        const valA = Number(a.projectValue) || 0;
-        const valB = Number(b.projectValue) || 0;
+        const valA = resolveProjectAmounts(a).beforeVat;
+        const valB = resolveProjectAmounts(b).beforeVat;
         comparison = valB - valA;
       } else if (sortBy === "progress") {
         const progA = calculateProjectProgress(a);
@@ -344,7 +347,8 @@ export default function ProjectsClientPage({
         "จังหวัด": p.province || "ไม่ระบุ",
         "ลูกค้า": p.clientName || "",
         "เลขที่สัญญา": p.contractNumber || "",
-        "มูลค่าโครงการ (บาท)": Number(p.projectValue) || 0,
+        "มูลค่าโครงการ ก่อน VAT (บาท)": resolveProjectAmounts(p).beforeVat,
+        "มูลค่าโครงการ รวม VAT (บาท)": resolveProjectAmounts(p).includingVat,
         "งบประมาณ (บาท)": Number(p.budget) || 0,
         "ผู้จัดการโครงการ": p.manager?.fullName || "ไม่ระบุ",
         "วันเริ่มต้น": formatThaiDate(p.startDate),
@@ -610,7 +614,7 @@ export default function ProjectsClientPage({
                 </span>
               </h3>
               <p className="text-xs text-gray-500 pt-0.5">
-                มูลค่ารวม{" "}
+                มูลค่ารวม (ก่อน VAT){" "}
                 <span className="font-bold text-gray-900">
                   ฿{(stats.totalValue / 1_000_000).toFixed(2)}M
                 </span>
@@ -646,7 +650,7 @@ export default function ProjectsClientPage({
                 </span>
               </h3>
               <p className="text-xs text-gray-500 pt-0.5">
-                มูลค่างาน{" "}
+                มูลค่างาน (ก่อน VAT){" "}
                 <span className="font-bold text-gray-900">
                   ฿{(stats.inProgressValue / 1_000_000).toFixed(2)}M
                 </span>
@@ -682,7 +686,7 @@ export default function ProjectsClientPage({
                 </span>
               </h3>
               <p className="text-xs text-gray-500 pt-0.5">
-                ส่งมอบแล้ว{" "}
+                ส่งมอบแล้ว (ก่อน VAT){" "}
                 <span className="font-bold text-gray-900">
                   ฿{(stats.completedValue / 1_000_000).toFixed(2)}M
                 </span>
@@ -718,7 +722,7 @@ export default function ProjectsClientPage({
                 </span>
               </h3>
               <p className="text-xs text-red-600/80 pt-0.5">
-                มูลค่างานเสี่ยง{" "}
+                มูลค่างานเสี่ยง (ก่อน VAT){" "}
                 <span className="font-bold text-red-700">
                   ฿{(stats.overdueValue / 1_000_000).toFixed(2)}M
                 </span>
@@ -1077,7 +1081,7 @@ export default function ProjectsClientPage({
                       onClick={() => handleHeaderSort("value")}
                     >
                       <div className="flex items-center justify-end gap-1.5">
-                        <span>มูลค่าโครงการ</span>
+                        <span>มูลค่าโครงการ (ก่อน VAT)</span>
                         <ArrowUpDown size={12} />
                       </div>
                     </th>
@@ -1196,14 +1200,15 @@ export default function ProjectsClientPage({
                         {/* Value */}
                         {visibleColumns.value && (
                           <td className="py-3.5 px-4 whitespace-nowrap text-right font-mono font-black text-xs sm:text-sm text-gray-900">
-                            {project.projectValue
-                              ? `฿${Number(
-                                  project.projectValue
-                                ).toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                })}`
-                              : "-"}
+                            {(() => {
+                              const { beforeVat } = resolveProjectAmounts(project);
+                              return beforeVat > 0
+                                ? `฿${beforeVat.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}`
+                                : "-";
+                            })()}
                           </td>
                         )}
 
@@ -1400,15 +1405,18 @@ export default function ProjectsClientPage({
 
                     <div className="space-y-0.5 col-span-2 pt-1 border-t border-gray-200/60 flex items-center justify-between">
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                        มูลค่าโครงการ
+                        มูลค่าโครงการ (ก่อน VAT)
                       </span>
                       <span className="font-black text-gray-900 font-mono text-sm">
-                        {project.projectValue
-                          ? `฿${Number(project.projectValue).toLocaleString(
-                              undefined,
-                              { minimumFractionDigits: 2 }
-                            )}`
-                          : "ไม่ระบุ"}
+                        {(() => {
+                          const { beforeVat } = resolveProjectAmounts(project);
+                          return beforeVat > 0
+                            ? `฿${beforeVat.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}`
+                            : "ไม่ระบุ";
+                        })()}
                       </span>
                     </div>
                   </div>

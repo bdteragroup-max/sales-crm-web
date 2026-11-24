@@ -418,8 +418,8 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         }
 
         .ro-logo-box {
-          height: 48px;
-          min-width: 50px;
+          height: 64px;
+          min-width: 44px;
           display: flex;
           align-items: center;
           justify-content: flex-start;
@@ -427,8 +427,8 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         }
 
         .ro-logo-img {
-          max-height: 46px;
-          max-width: 65px;
+          max-height: 62px;
+          max-width: 90px;
           width: auto;
           height: auto;
           object-fit: contain;

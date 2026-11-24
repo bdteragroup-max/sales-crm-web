@@ -44,7 +44,17 @@ export default async function ProjectsPage() {
         include: { user: true }
       },
       tasks: true,
-      job: true,
+      job: {
+        include: {
+          quotation: {
+            select: {
+              totalAmountBeforeVat: true,
+              actualClosingAmount: true,
+              salesBeforeVat: true,
+            },
+          },
+        },
+      },
       dailyLogs: {
         orderBy: { date: 'desc' },
         take: 5,

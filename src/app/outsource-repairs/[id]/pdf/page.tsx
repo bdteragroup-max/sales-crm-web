@@ -39,7 +39,7 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
       <div className="ro-header">
         <div className="ro-brand-left">
           <div className="ro-brand-logos">
-            <img src="/17f3de5f-9a16-4fdd-8682-6157042b8cfd.png" alt="Logo" className="ro-logo-img" />
+            <img src="/logos/tg.png" alt="Logo" className="ro-logo-img" />
           </div>
           <div className="ro-brand-sub">
             39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250<br/>
@@ -279,7 +279,8 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
         }
 
         .ro-logo-img {
-          height: 28px;
+          height: 60px;
+          width: auto;
           object-fit: contain;
         }
 

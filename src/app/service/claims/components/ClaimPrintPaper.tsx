@@ -69,9 +69,9 @@ export default function ClaimPrintPaper({ claim, className = "" }: ClaimPrintPap
       {/* 1. Header with Company Logos & Address */}
       <div className="flex items-start justify-between border-b-2 border-black pb-3">
         <div className="flex items-center gap-2.5">
-          <img src="/4.png" alt="Tera Group" className="h-10 object-contain" />
-          <img src="/6.png" alt="Tera Electric" className="h-10 object-contain" />
-          <img src="/7.png" alt="Tera Power" className="h-10 object-contain" />
+          <img src="/4.png" alt="Tera Group" className="h-14 object-contain" />
+          <img src="/6.png" alt="Tera Electric" className="h-12 object-contain" />
+          <img src="/7.png" alt="Tera Power" className="h-12 object-contain" />
           <div className="border-l-2 border-slate-300 pl-3 ml-1">
             <div className="text-[13px] font-bold text-black tracking-tight leading-tight">
               บริษัท เทอรา กรุ้ป จำกัด

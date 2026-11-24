@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useId } from 'react';
-import { Plus, Trash2, Calculator, CheckCircle2, AlertTriangle, AlertCircle, Coins, Layers, ArrowRight, Check } from 'lucide-react';
+import { Plus, Trash2, Calculator, CheckCircle2, AlertTriangle, AlertCircle, Coins, Layers, Check } from 'lucide-react';
 
 export interface DepositConfig {
   hasDeposit: boolean;
@@ -56,12 +56,43 @@ export default function DynamicInstallmentsBuilder({
 
   // Grand total allocated
   const grandTotalAllocated = depositAmount + totalInstallmentsAmount;
-  const grandTotalPercent = depositPercent + totalInstallmentsPercent;
   const remainingAmount = numericProjectValue - grandTotalAllocated;
 
   const isBalanced = numericProjectValue > 0 && Math.abs(remainingAmount) < 0.05;
   const isUnder = numericProjectValue > 0 && remainingAmount >= 0.05;
   const isOver = numericProjectValue > 0 && remainingAmount <= -0.05;
+
+  // Detect legacy VAT-inclusive installments (~1.07x pre-VAT base) so users can convert with 1 click
+  const looksLikeVatInclusiveSchedule =
+    numericProjectValue > 0 &&
+    grandTotalAllocated > numericProjectValue &&
+    Math.abs(grandTotalAllocated - numericProjectValue * 1.07) <=
+      Math.max(5, numericProjectValue * 0.005);
+
+  const handleConvertLegacyIncVatToBeforeVat = () => {
+    if (numericProjectValue <= 0) return;
+
+    if (deposit.hasDeposit && Number(deposit.amount) > 0) {
+      const convertedDeposit = ((Number(deposit.amount) * 100) / 107).toFixed(2);
+      onDepositChange({
+        ...deposit,
+        amount: convertedDeposit,
+        percent: ((Number(convertedDeposit) / numericProjectValue) * 100).toFixed(2),
+      });
+    }
+
+    const updatedInstallments = installments.map((inst) => {
+      const amt = Number(inst.amount) || 0;
+      if (amt <= 0) return inst;
+      const converted = ((amt * 100) / 107).toFixed(2);
+      return {
+        ...inst,
+        amount: converted,
+        percent: ((Number(converted) / numericProjectValue) * 100).toFixed(2),
+      };
+    });
+    onInstallmentsChange(updatedInstallments);
+  };
 
   // ── Deposit Handlers ──
   const handleToggleDeposit = (hasDeposit: boolean) => {
@@ -96,9 +127,9 @@ export default function DynamicInstallmentsBuilder({
     });
   };
 
-  const handleDepositFieldChange = (field: keyof DepositConfig, value: any) => {
+  const handleDepositFieldChange = (field: keyof DepositConfig, value: string | boolean) => {
     const updated = { ...deposit, [field]: value };
-    if (field === 'percent') {
+    if (field === 'percent' && typeof value === 'string') {
       const pct = parseFloat(value);
       if (!isNaN(pct) && numericProjectValue > 0) {
         updated.amount = ((numericProjectValue * pct) / 100).toFixed(2);
@@ -106,7 +137,7 @@ export default function DynamicInstallmentsBuilder({
         updated.amount = '';
       }
     }
-    if (field === 'amount') {
+    if (field === 'amount' && typeof value === 'string') {
       const amt = parseFloat(value);
       if (!isNaN(amt) && numericProjectValue > 0) {
         updated.percent = ((amt / numericProjectValue) * 100).toFixed(2);
@@ -322,7 +353,7 @@ export default function DynamicInstallmentsBuilder({
 
               {/* Amount */}
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-gray-700">จำนวนเงินมัดจำ (฿)</label>
+                <label className="text-[11px] font-bold text-gray-700">จำนวนเงินมัดจำ ก่อน VAT (฿)</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -355,7 +386,7 @@ export default function DynamicInstallmentsBuilder({
         ) : (
           <div className="pt-2 text-xs text-gray-500 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-            <span>โครงการนี้ไม่มีการเรียกเก็บเงินมัดจำล่วงหน้า มูลค่าสัญญาเต็ม 100% จะถูกนำไปแบ่งตามงวดส่งมอบงาน</span>
+            <span>โครงการนี้ไม่มีการเรียกเก็บเงินมัดจำล่วงหน้า มูลค่าโครงการก่อน VAT เต็ม 100% จะถูกนำไปแบ่งตามงวดส่งมอบงาน</span>
           </div>
         )}
       </div>
@@ -370,18 +401,18 @@ export default function DynamicInstallmentsBuilder({
             </span>
             <div>
               <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <span>2. การแบ่งชำระตามงวดงานจริง (Progress Milestones)</span>
+                <span>2. การแบ่งชำระตามงวดงานจริง (ยอดก่อน VAT)</span>
                 <span className="text-[11px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full font-mono">
                   {installments.length} งวด
                 </span>
               </h4>
               <div className="text-[11px] text-gray-500 flex items-center gap-1.5 mt-0.5">
-                <span>ยอดเงินสำหรับแบ่งงวดงาน:</span>
+                <span>ยอดเงินสำหรับแบ่งงวดงาน (ก่อน VAT):</span>
                 <span className="font-bold text-blue-800 font-mono">
                   {targetWorkValue.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}
                 </span>
                 {numericProjectValue > 0 && (
-                  <span className="text-gray-400 font-mono">({targetWorkPercent.toFixed(1)}% ของสัญญา)</span>
+                  <span className="text-gray-400 font-mono">({targetWorkPercent.toFixed(1)}% ของยอดก่อน VAT)</span>
                 )}
               </div>
             </div>
@@ -518,16 +549,21 @@ export default function DynamicInstallmentsBuilder({
       {/* ── PART 3: Total Amount & Reconciliation Bar ── */}
       <div className="p-4 rounded-2xl border bg-gradient-to-br from-slate-50 to-gray-50/80 border-slate-200 shadow-2xs space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-          {/* Card 1: Project Value */}
+          {/* Card 1: Project Value (Pre-VAT) */}
           <div className="p-3 bg-white rounded-xl border border-slate-200/80">
             <span className="text-gray-500 block text-[11px] font-semibold mb-0.5">
-              มูลค่าโครงการรวม VAT
+              มูลค่าโครงการ (ก่อน VAT)
             </span>
-            <span className="font-mono font-bold text-gray-900 text-sm">
+            <span className="font-mono font-bold text-gray-900 text-sm block">
               {numericProjectValue > 0
                 ? Number(numericProjectValue).toLocaleString('th-TH', { style: 'currency', currency: 'THB' })
                 : 'ไม่ได้ระบุ'}
             </span>
+            {numericProjectValue > 0 && (
+              <span className="text-[10px] text-gray-400 font-mono block mt-0.5">
+                รวม VAT 7%: {(numericProjectValue * 1.07).toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}
+              </span>
+            )}
           </div>
 
           {/* Card 2: Deposit */}
@@ -582,33 +618,45 @@ export default function DynamicInstallmentsBuilder({
 
         {/* Visual Confirmation Banner */}
         {numericProjectValue > 0 && (
-          <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${isBalanced
+          <div className={`p-2.5 rounded-xl border text-xs flex flex-wrap items-center justify-between gap-2 ${isBalanced
             ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
             : isOver
               ? 'bg-rose-50 text-rose-800 border-rose-200'
               : 'bg-amber-50 text-amber-800 border-amber-200'
             }`}>
-            {isBalanced ? (
-              <>
-                <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                <span className="font-medium">
-                  ยอดจัดสรรครบถ้วน 100%: <b>เงินมัดจำ ({depositAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })})</b> + <b>ค่างวดงาน {installments.length} งวด ({totalInstallmentsAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })})</b> = <b>{numericProjectValue.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}</b>
-                </span>
-              </>
-            ) : isOver ? (
-              <>
-                <AlertCircle size={16} className="text-rose-600 shrink-0" />
-                <span className="font-medium">
-                  ยอดจัดสรรรวม (มัดจำ + ค่างวดงาน) เกินมูลค่าสัญญาอยู่ <b>{Math.abs(remainingAmount).toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}</b> กรุณาปรับลดยอดเงิน
-                </span>
-              </>
-            ) : (
-              <>
-                <AlertTriangle size={16} className="text-amber-600 shrink-0" />
-                <span className="font-medium">
-                  ยังมียอดคงเหลือที่ยังไม่ได้จัดสรรอีก <b>{remainingAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}</b> ({((remainingAmount / numericProjectValue) * 100).toFixed(1)}%)
-                </span>
-              </>
+            <div className="flex items-center gap-2">
+              {isBalanced ? (
+                <>
+                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                  <span className="font-medium">
+                    ยอดจัดสรรครบถ้วน 100% (ก่อน VAT): <b>เงินมัดจำ ({depositAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })})</b> + <b>ค่างวดงาน {installments.length} งวด ({totalInstallmentsAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })})</b> = <b>{numericProjectValue.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}</b>
+                  </span>
+                </>
+              ) : isOver ? (
+                <>
+                  <AlertCircle size={16} className="text-rose-600 shrink-0" />
+                  <span className="font-medium">
+                    ยอดจัดสรรรวม (มัดจำ + ค่างวดงาน) เกินมูลค่าโครงการก่อน VAT อยู่ <b>{Math.abs(remainingAmount).toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}</b> กรุณาปรับลดยอดเงิน
+                  </span>
+                </>
+              ) : (
+                <>
+                  <AlertTriangle size={16} className="text-amber-600 shrink-0" />
+                  <span className="font-medium">
+                    ยังมียอดก่อน VAT คงเหลือที่ยังไม่ได้จัดสรรอีก <b>{remainingAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}</b> ({((remainingAmount / numericProjectValue) * 100).toFixed(1)}%)
+                  </span>
+                </>
+              )}
+            </div>
+            {looksLikeVatInclusiveSchedule && !disabled && (
+              <button
+                type="button"
+                onClick={handleConvertLegacyIncVatToBeforeVat}
+                className="px-3 py-1.5 rounded-lg bg-white hover:bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-bold shadow-2xs shrink-0 cursor-pointer"
+                title="แปลงค่างวดและมัดจำเดิมที่บันทึกแบบรวม VAT ให้เป็นยอดก่อน VAT อัตโนมัติ"
+              >
+                แปลงค่างวดเดิมจากรวม VAT → ก่อน VAT (÷ 1.07)
+              </button>
             )}
           </div>
         )}

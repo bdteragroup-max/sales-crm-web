@@ -1348,7 +1348,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                 <img
                   src={companyInfo.logoUrl || '/4.png'}
                   alt={`${request.company || 'TERA'} Logo`}
-                  className="h-14 sm:h-16 w-auto object-contain"
+                  className="h-[74px] sm:h-[82px] w-auto object-contain"
                 />
               </div>
 
@@ -2233,7 +2233,7 @@ export default function PrintablePaymentVoucher({ request, onClose, onUpdate }: 
                         <img
                           src={companyInfo.logoUrl || '/4.png'}
                           alt={`${request.company || 'TERA'} Logo`}
-                          className="h-10 w-auto object-contain shrink-0"
+                          className="h-14 w-auto object-contain shrink-0"
                         />
                         <div>
                           <h3 className="text-base sm:text-lg font-bold text-black leading-tight">

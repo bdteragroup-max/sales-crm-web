@@ -173,9 +173,9 @@ export default function FaultReportPaper({
         {/* Header with Logos */}
         <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-2">
           <div className="flex items-center gap-2">
-            <img src="/4.png" alt="Tera Group" className="h-8 object-contain" />
-            <img src="/6.png" alt="Tera Electric" className="h-8 object-contain" />
-            <img src="/7.png" alt="Tera Power" className="h-8 object-contain" />
+            <img src="/4.png" alt="Tera Group" className="h-12 object-contain" />
+            <img src="/6.png" alt="Tera Electric" className="h-10 object-contain" />
+            <img src="/7.png" alt="Tera Power" className="h-10 object-contain" />
           </div>
           <div className="text-right">
             <div className="text-[11px] font-bold text-gray-800">

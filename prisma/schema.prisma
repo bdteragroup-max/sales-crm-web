@@ -1765,6 +1765,7 @@ model Project {
   projectValue              Decimal?           @db.Decimal(15, 2)
   securityDeposit           Decimal?           @db.Decimal(15, 2)
   penaltyPerDay             Decimal?           @db.Decimal(15, 2)
+  amountBeforeVat           Decimal?           @map("amount_before_vat") @db.Decimal(15, 2)
   amountIncludingVat        Decimal?           @db.Decimal(15, 2)
   installment1              Decimal?           @db.Decimal(15, 2)
   installment2              Decimal?           @db.Decimal(15, 2)
@@ -4449,4 +4450,49 @@ model CommissionRunningNumber {
 
   @@unique([yearBe, month])
   @@map("commission_running_numbers")
+}
+
+model SunwaysReport {
+  id                        String   @id @default(cuid())
+  reportNumber              String   @unique @map("report_number") @db.VarChar(40)
+  reportDate                DateTime @default(now()) @map("report_date") @db.Timestamptz(6)
+  status                    String   @default("DRAFT") @db.VarChar(30)
+  defaultLang               String   @default("TH") @map("default_lang") @db.VarChar(10)
+
+  companyName               String?  @map("company_name") @db.VarChar(255)
+  communicationPerson       String?  @map("communication_person") @db.VarChar(255)
+  contactDetail             String?  @map("contact_detail") @db.VarChar(255)
+  plantName                 String?  @map("plant_name") @db.VarChar(255)
+  country                   String?  @db.VarChar(120)
+  plantCapacity             String?  @map("plant_capacity") @db.VarChar(120)
+  inverterModel             String?  @map("inverter_model") @db.VarChar(200)
+  serialNumber              String?  @map("serial_number") @db.VarChar(200)
+  firmwareVersion           String?  @map("firmware_version") @db.VarChar(120)
+  countryCode               String?  @map("country_code") @db.VarChar(100)
+  dataloggerSn              String?  @map("datalogger_sn") @db.VarChar(200)
+  externalDataloggerDetails String?  @map("external_datalogger_details") @db.Text
+  faultObserved             String?  @map("fault_observed") @db.Text
+  installationImages        Json?    @map("installation_images")
+
+  dataloggerSoftwareVersion String?  @map("datalogger_software_version") @db.VarChar(150)
+  portalFaultObserved       String?  @map("portal_fault_observed") @db.Text
+
+  inspectionItems           Json?    @map("inspection_items")
+  mpptRows                  Json?    @map("mppt_rows")
+  fanCheck                  Json?    @map("fan_check")
+  backupDataObservation     String?  @map("backup_data_observation") @db.Text
+  otherRemarks              String?  @map("other_remarks") @db.Text
+  bilingualData             Json?    @map("bilingual_data")
+
+  inspectorName             String?  @map("inspector_name") @db.VarChar(200)
+  createdById               String?  @map("created_by_id")
+  createdByName             String?  @map("created_by_name") @db.VarChar(200)
+  updatedByName             String?  @map("updated_by_name") @db.VarChar(200)
+  createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                 DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([reportDate], map: "idx_sunways_report_date")
+  @@index([serialNumber], map: "idx_sunways_serial_number")
+  @@index([status], map: "idx_sunways_status")
+  @@map("sunways_reports")
 }
